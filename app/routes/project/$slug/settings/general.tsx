@@ -18,6 +18,7 @@ import {
 import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
 import { phoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
@@ -293,16 +294,16 @@ function General() {
   const { project, allFormats, areaOptions } = loaderData;
   const { formats, areas, ...rest } = project;
   const actionData = useActionData<typeof action>();
-  const formId = "general-form";
+  const defaultValues = {
+    // TODO: Investigate: Why can i spread here (defaultValue also accepts null values) and not on web-social?
+    ...rest,
+    formats: project.formats.map((relation) => relation.format.id),
+    areas: project.areas.map((relation) => relation.area.id),
+  };
   const [form, fields] = useForm({
-    id: formId,
+    id: "general-form",
     constraint: getFieldsetConstraint(generalSchema),
-    defaultValue: {
-      // TODO: Investigate: Why can i spread here (defaultValue also accepts null values) and not on web-social?
-      ...rest,
-      formats: project.formats.map((relation) => relation.format.id),
-      areas: project.areas.map((relation) => relation.area.id),
-    },
+    defaultValue: defaultValues,
     lastSubmission: actionData?.submission,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",
@@ -310,8 +311,9 @@ function General() {
       return parse(formData, { schema: generalSchema });
     },
   });
+
   const formatList = useFieldList(form.ref, fields.formats);
-  const furtherFormatsList = useFieldList(form.ref, fields.furtherFormats);
+  const furtherFormatList = useFieldList(form.ref, fields.furtherFormats);
   const areaList = useFieldList(form.ref, fields.areas);
 
   const [furtherFormat, setFurtherFormat] = React.useState<string>("");
@@ -334,6 +336,14 @@ function General() {
     }
   };
 
+  const [isDirty, setIsDirty] = React.useState(false);
+  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
+  // see https://remix.run/docs/en/main/hooks/use-blocker
+  usePrompt(
+    "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
+    isDirty
+  );
+
   return (
     <Section>
       <BackButton to={location.pathname}>Eckdaten anlegen</BackButton>
@@ -341,7 +351,16 @@ function General() {
         Teile der Community Grundlegendes über Dein Projekt oder Bildungsangebot
         mit.
       </p>
-      <Form method="post" {...form.props}>
+      <Form
+        method="post"
+        {...form.props}
+        onChange={() => {
+          setIsDirty(true);
+        }}
+        onReset={() => {
+          setIsDirty(false);
+        }}
+      >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <Button type="submit" hidden />
         <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
@@ -466,9 +485,9 @@ function General() {
                 </Input.Controls>
               </Input>
             </div>
-            {furtherFormatsList.length > 0 && (
+            {furtherFormatList.length > 0 && (
               <Chip.Container>
-                {furtherFormatsList.map((listFormat, index) => {
+                {furtherFormatList.map((listFormat, index) => {
                   return (
                     <Chip key={listFormat.key}>
                       <Input type="hidden" {...conform.input(listFormat)} />
@@ -664,7 +683,13 @@ function General() {
                 <Button type="reset" variant="outline" fullSize>
                   Änderungen verwerfen
                 </Button>
-                <Button type="submit" fullSize>
+                <Button
+                  type="submit"
+                  fullSize
+                  onClick={() => {
+                    setIsDirty(false);
+                  }}
+                >
                   Speichern
                 </Button>
               </Controls>

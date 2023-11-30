@@ -41,6 +41,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 
 const detailsSchema = z.object({
   disciplines: z.array(z.string().uuid()),
@@ -600,6 +601,13 @@ function Details() {
       }
     }
   };
+  const [isDirty, setIsDirty] = React.useState(false);
+  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
+  // see https://remix.run/docs/en/main/hooks/use-blocker
+  usePrompt(
+    "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
+    isDirty
+  );
 
   return (
     <Section>
@@ -607,7 +615,28 @@ function Details() {
       <p className="mv-my-6 md:mv-mt-0">
         Teile der Community mehr über Dein Projekt oder Bildungsangebot mit.
       </p>
-      <Form method="post" {...form.props}>
+      <Form
+        method="post"
+        {...form.props}
+        onChange={(event) => {
+          // On RTE the onChange is called during first render
+          // That breaks our logic that the form is dirty when it got changed
+          // Therefore we check textarea elements specifically
+          // TODO: How can we get arround this assertions?
+          const input = event.target as HTMLInputElement;
+          if (
+            input.type === "textarea" &&
+            input.value === project[input.name as keyof typeof project]
+          ) {
+            setIsDirty(false);
+          } else {
+            setIsDirty(true);
+          }
+        }}
+        onReset={() => {
+          setIsDirty(false);
+        }}
+      >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <Button type="submit" hidden />
         <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
@@ -1097,20 +1126,37 @@ function Details() {
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
               <Controls>
-                <Link
+                {/* <Link
                   to="."
                   reloadDocument
                   className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
                 >
                   Änderungen verwerfen
-                </Link>
+                </Link> */}
+                <Button
+                  as="a"
+                  href="./details"
+                  variant="outline"
+                  onClick={() => {
+                    setIsDirty(false);
+                  }}
+                  className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                >
+                  Änderungen verwerfen
+                </Button>
                 {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
                 {/* <Button type="reset" variant="outline" fullSize>
                   Änderungen verwerfen
                 </Button> */}
                 {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
-                <Button type="submit" fullSize>
+                <Button
+                  type="submit"
+                  fullSize
+                  onClick={() => {
+                    setIsDirty(false);
+                  }}
+                >
                   Speichern
                 </Button>
               </Controls>
