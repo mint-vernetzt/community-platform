@@ -52,8 +52,9 @@ import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/organization/settings/general"];
 export const handle = {
-  i18n: ["routes/organization/settings/general"],
+  i18n: i18nNS,
 };
 
 const createOrganizationSchema = (t: TFunction) => {
@@ -340,7 +341,7 @@ function Index() {
   }, [actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
-  const { t } = useTranslation(["routes/organization/settings/general"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

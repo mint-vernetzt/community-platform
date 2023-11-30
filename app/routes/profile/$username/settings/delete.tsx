@@ -23,8 +23,9 @@ import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/profile/settings/delete"];
 export const handle = {
-  i18n: ["routes/profile/settings/delete"],
+  i18n: i18nNS,
 };
 
 const createSchema = (t: TFunction) => {
@@ -175,7 +176,7 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
 };
 
 export default function Index() {
-  const { t } = useTranslation(["routes/profile/settings/delete"]);
+  const { t } = useTranslation(i18nNS);
   const schema = createSchema(t);
 
   return (

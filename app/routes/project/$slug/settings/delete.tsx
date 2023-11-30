@@ -16,8 +16,9 @@ import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/project/settings/delete"];
 export const handle = {
-  i18n: ["routes/project/settings/delete"],
+  i18n: i18nNS,
 };
 
 const schema = z.object({
@@ -108,7 +109,7 @@ export const action = async (args: DataFunctionArgs) => {
 
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(["routes/project/settings/delete"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

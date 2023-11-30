@@ -5,8 +5,9 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/profile/settings"];
 export const handle = {
-  i18n: ["routes/profile/settings"],
+  i18n: i18nNS,
 };
 
 export const loader = async (args: LoaderArgs) => {
@@ -39,7 +40,7 @@ function Index() {
       active ? "text-primary" : "text-neutral-500"
     }  hover:text-primary py-3`;
 
-  const { t } = useTranslation(["routes/profile/settings"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

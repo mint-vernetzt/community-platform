@@ -44,8 +44,9 @@ import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/project/settings/index"];
 export const handle = {
-  i18n: ["routes/project/settings/index"],
+  i18n: i18nNS,
 };
 
 const createSchema = (t: TFunction) => {

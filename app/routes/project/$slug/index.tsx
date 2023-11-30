@@ -32,8 +32,9 @@ import { notFound } from "remix-utils";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/project/index"];
 export const handle = {
-  i18n: ["routes/project/index"],
+  i18n: i18nNS,
 };
 
 export function links() {
@@ -85,7 +86,7 @@ function hasWebsiteOrSocialService(
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, ["routes/project/index"]);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const authClient = createAuthClient(request, response);
 
@@ -198,7 +199,7 @@ export const loader = async (args: LoaderArgs) => {
 
 function Index() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(["routes/project/index"]);
+  const { t } = useTranslation(i18nNS);
 
   const Background = React.useCallback(
     () => (

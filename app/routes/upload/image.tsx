@@ -13,19 +13,20 @@ import {
   updateUserProfileImage,
   upload,
 } from "./uploadHandler.server";
-import { uploadKeys, type Subject } from "./utils.server";
+import { type Subject, uploadKeys } from "./utils.server";
 import { deriveProfileMode } from "../profile/$username/utils.server";
 import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 
+const i18nNS = ["routes/upload/image"];
 export const handle = {
-  i18n: ["routes/upload/image"],
+  i18n: i18nNS,
 };
 
 export const loader = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, ["routes/upload/image"]);
+  const t = await i18next.getFixedT(request, i18nNS);
   createAuthClient(request, response);
 
   if (request.method !== "POST") {
@@ -74,7 +75,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, ["routes/upload/image"]);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const profileId = sessionUser.id;

@@ -45,8 +45,9 @@ import { deriveOrganizationMode } from "./utils.server";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/organization/index"];
 export const handle = {
-  i18n: ["routes/organization/index"],
+  i18n: i18nNS,
 };
 
 export function links() {
@@ -66,7 +67,7 @@ export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, ["routes/organization/index"]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
@@ -338,7 +339,7 @@ export default function Index() {
     ? getInitialsOfName(loaderData.organization.name)
     : "";
   const organizationName = loaderData.organization.name ?? "";
-  const { t } = useTranslation(["routes/organization/index"]);
+  const { t } = useTranslation(i18nNS);
 
   const logo = loaderData.images.logo;
   const Avatar = React.useCallback(

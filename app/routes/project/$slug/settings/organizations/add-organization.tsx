@@ -13,8 +13,9 @@ import { connectOrganizationToProject, getProjectBySlug } from "./utils.server";
 import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 
+const i18nNS = ["routes/project/settings/organizations/add-organization"];
 export const handle = {
-  i18n: ["routes/project/settings/organizations/add-organization"],
+  i18n: i18nNS,
 };
 
 const schema = z.object({

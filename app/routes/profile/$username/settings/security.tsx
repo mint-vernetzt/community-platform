@@ -21,8 +21,9 @@ import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/profile/settings/security"];
 export const handle = {
-  i18n: ["routes/profile/settings/security"],
+  i18n: i18nNS,
 };
 
 const createEmailSchema = (t: TFunction) => {
@@ -174,7 +175,7 @@ export default function Security() {
   const transition = useTransition();
   const loaderData = useLoaderData<typeof loader>();
 
-  const { t } = useTranslation(["routes/profile/settings/security"]);
+  const { t } = useTranslation(i18nNS);
   const actionData = useActionData<typeof action>();
 
   let showPasswordFeedback = false,
@@ -204,7 +205,7 @@ export default function Security() {
           <p className="mb-8">
             <Trans
               i18nKey="section.changePassword1.intro"
-              ns={["routes/profile/settings/security"]}
+              ns={i18nNS}
               components={[
                 <a
                   href="https://mint-id.org"

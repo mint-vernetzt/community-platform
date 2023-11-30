@@ -17,8 +17,9 @@ import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 
+const i18nNS = ["routes/login"];
 export const handle = {
-  i18n: ["routes/login"],
+  i18n: i18nNS,
 };
 
 const createSchema = (t: TFunction) => {
@@ -84,7 +85,7 @@ const createMutation = (t: TFunction) => {
 export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, ["routes/login"]);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const result = await performMutation({
     request,
@@ -120,7 +121,7 @@ export default function Index() {
     }
   };
 
-  const { t, i18n } = useTranslation(["routes/login"]);
+  const { t, i18n } = useTranslation(i18nNS);
   const schema = createSchema(t);
 
   return (

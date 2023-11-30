@@ -21,8 +21,9 @@ import { useTranslation } from "react-i18next";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
+const i18nNS = ["routes/search/profiles"];
 export const handle = {
-  i18n: ["routes/search/profiles"],
+  i18n: i18nNS,
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -159,7 +160,7 @@ export default function Profiles() {
 
   const query = searchParams.get("query") ?? "";
 
-  const { t } = useTranslation(["routes/search/profiles"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <section

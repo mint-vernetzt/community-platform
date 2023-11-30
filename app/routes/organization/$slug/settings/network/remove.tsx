@@ -19,8 +19,9 @@ import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/organization/settings/network/remove"];
 export const handle = {
-  i18n: ["routes/organization/settings/network/remove"],
+  i18n: i18nNS,
 };
 
 const schema = z.object({
@@ -84,7 +85,7 @@ export function NetworkMemberRemoveForm(
   props: NetworkMember & { slug: string }
 ) {
   const fetcher = useFetcher<typeof action>();
-  const { t } = useTranslation(["routes/organization/settings/network/remove"]);
+  const { t } = useTranslation(i18nNS);
   const { networkMember, slug } = props;
 
   return (

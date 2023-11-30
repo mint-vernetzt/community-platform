@@ -18,8 +18,9 @@ import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { Trans, useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/reset/index"];
 export const handle = {
-  i18n: ["routes/reset/index"],
+  i18n: i18nNS,
 };
 
 const createSchema = (t: TFunction) => {
@@ -101,7 +102,7 @@ export const action = async (args: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, ["routes/reset/index"]);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
 
@@ -120,7 +121,7 @@ export default function Index() {
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
 
-  const { t } = useTranslation(["routes/reset/index"]);
+  const { t } = useTranslation(i18nNS);
   const schema = createSchema(t);
 
   return (
@@ -152,7 +153,7 @@ export default function Index() {
               <>
                 <p className="mb-4">
                   <Trans
-                    ns={["routes/reset/index"]}
+                    ns={i18nNS}
                     i18nKey="response.done"
                     values={{ email: actionData.data.email }}
                   ></Trans>

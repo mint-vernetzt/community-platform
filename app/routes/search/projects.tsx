@@ -18,8 +18,9 @@ import {
 } from "./utils.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/search/projects"];
 export const handle = {
-  i18n: ["routes/search/projects"],
+  i18n: i18nNS,
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -166,7 +167,7 @@ export default function SearchView() {
     setItems(loaderData.projects);
   }, [loaderData.projects, loaderData.pagination.itemsPerPage]);
 
-  const { t } = useTranslation(["routes/search/projects"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

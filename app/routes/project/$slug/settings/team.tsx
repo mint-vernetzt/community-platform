@@ -33,14 +33,15 @@ import {
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/project/settings/team"];
 export const handle = {
-  i18n: ["routes/project/settings/team"],
+  i18n: i18nNS,
 };
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, ["routes/project/settings/team"]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -101,7 +102,7 @@ function Team() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/project/settings/team"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

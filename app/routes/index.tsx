@@ -27,8 +27,9 @@ import {
 } from "./utils.server";
 import { Trans, useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/index"];
 export const handle = {
-  i18n: ["routes/index"],
+  i18n: i18nNS,
 };
 
 const schema = z.object({
@@ -158,7 +159,7 @@ export default function Index() {
       submit(event.currentTarget);
     }
   };
-  const { t } = useTranslation(["routes/index"]);
+  const { t } = useTranslation(i18nNS);
 
   ///* Verlauf (weiß) */
   //background: linear-gradient(358.45deg, #FFFFFF 12.78%, rgba(255, 255, 255, 0.4) 74.48%, rgba(255, 255, 255, 0.4) 98.12%);
@@ -354,7 +355,7 @@ export default function Index() {
 
                 <div className="text-center p-4 pb-0 text-primary text-sm">
                   <p>
-                    <Trans i18nKey="opportunities" ns={["routes/index"]} />
+                    <Trans i18nKey="opportunities" ns={i18nNS} />
                   </p>
                 </div>
               </div>
@@ -393,7 +394,7 @@ export default function Index() {
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
                 <Trans
                   i18nKey="content.education.content"
-                  ns={["routes/index"]}
+                  ns={i18nNS}
                   components={[
                     <span className="bg-lilac-200" />,
                     <span className="hyphens-manual" />,
@@ -506,7 +507,7 @@ export default function Index() {
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
                 <Trans
                   i18nKey="content.more.content"
-                  ns={["routes/index"]}
+                  ns={i18nNS}
                   components={[<span className="bg-lilac-200" />]}
                 />
               </p>

@@ -13,8 +13,9 @@ import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/project/create"];
 export const handle = {
-  i18n: ["routes/project/create"],
+  i18n: i18nNS,
 };
 
 const createSchema = (t: TFunction) => {
@@ -46,7 +47,7 @@ const createMutation = (t: TFunction) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, ["routes/project/create"]);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -73,7 +74,7 @@ export const action = async (args: DataFunctionArgs) => {
 
 function Create() {
   const navigate = useNavigate();
-  const { t } = useTranslation(["routes/project/create"]);
+  const { t } = useTranslation(i18nNS);
   const schema = createSchema(t);
 
   return (

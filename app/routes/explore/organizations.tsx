@@ -29,8 +29,9 @@ import { useTranslation } from "react-i18next";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
+const i18nNS = ["routes/explore/organizations"];
 export const handle = {
-  i18n: ["routes/explore/organizations"],
+  i18n: i18nNS,
 };
 
 export const loader = async (args: LoaderArgs) => {
@@ -189,7 +190,7 @@ export default function Index() {
     }
   }, [fetcher.data]);
 
-  const { t } = useTranslation(["routes/explore/organizations"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

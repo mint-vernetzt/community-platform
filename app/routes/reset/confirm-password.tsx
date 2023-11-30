@@ -17,8 +17,9 @@ import { useTranslation } from "react-i18next";
 // 5. Now we have the link structure that we also receive on the server
 // 6. Paste the whole link in the browser and visit it
 
+const i18nNS = ["routes/reset/confirm-password"];
 export const handle = {
-  i18n: ["routes/reset/confirm-password"],
+  i18n: i18nNS,
 };
 
 export const loader = async (args: LoaderArgs) => {
@@ -26,7 +27,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, ["routes/reset/confirm-password"]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
     return redirect("/dashboard", { headers: response.headers });
@@ -130,7 +131,7 @@ export const loader = async (args: LoaderArgs) => {
 
 export default function Confirm() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(["routes/reset/confirm-password"]);
+  const { t } = useTranslation(i18nNS);
   return (
     <>
       <PageBackground imagePath="/images/login_background_image.jpg" />

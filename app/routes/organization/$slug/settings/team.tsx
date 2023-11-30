@@ -29,8 +29,9 @@ import {
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/organization/settings/team"];
 export const handle = {
-  i18n: ["routes/organization/settings/team"],
+  i18n: i18nNS,
 };
 
 export const loader = async (args: LoaderArgs) => {
@@ -92,7 +93,7 @@ function Index() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/organization/settings/team"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

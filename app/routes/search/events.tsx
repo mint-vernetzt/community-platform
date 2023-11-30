@@ -21,8 +21,9 @@ import {
 import { useHydrated } from "remix-utils";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/search/events"];
 export const handle = {
-  i18n: ["routes/search/events"],
+  i18n: i18nNS,
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -167,7 +168,7 @@ export default function SearchView() {
 
   const isHydrated = useHydrated();
 
-  const { t } = useTranslation(["routes/search/events"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

@@ -25,8 +25,9 @@ import { useTranslation } from "react-i18next";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
+const i18nNS = ["routes/search/organizations"];
 export const handle = {
-  i18n: ["routes/search/organizations"],
+  i18n: i18nNS,
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -170,7 +171,7 @@ export default function SearchView() {
 
   const query = searchParams.get("query") ?? "";
 
-  const { t } = useTranslation(["routes/search/organizations"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <section

@@ -43,8 +43,9 @@ import { deriveProfileMode, prepareProfileEvents } from "./utils.server";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/profile/index"];
 export const handle = {
-  i18n: ["routes/profile/index"],
+  i18n: i18nNS,
 };
 
 export function links() {
@@ -81,7 +82,7 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  const t = await i18next.getFixedT(request, ["routes/profile/index"]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound(t("error.profileNotFound"));
@@ -293,7 +294,7 @@ function canViewEvents(events: {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(["routes/profile/index"]);
+  const { t } = useTranslation(i18nNS);
 
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);

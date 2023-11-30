@@ -37,8 +37,9 @@ import {
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/project/settings/organizations"];
 export const handle = {
-  i18n: ["routes/project/settings/organizations"],
+  i18n: i18nNS,
 };
 
 export const loader = async (args: LoaderArgs) => {
@@ -137,7 +138,7 @@ function Organizations() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/project/settings/organizations"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

@@ -30,8 +30,9 @@ import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/event/create"];
 export const handle = {
-  i18n: ["routes/event/create"],
+  i18n: i18nNS,
 };
 
 const createSchema = (t: TFunction) => {
@@ -91,7 +92,7 @@ export const action = async (args: ActionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, ["routes/event/create"]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const schema = createSchema(t);
@@ -142,7 +143,7 @@ export default function Create() {
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
   const { register } = useForm<FormType>();
-  const { t } = useTranslation(["routes/event/create"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

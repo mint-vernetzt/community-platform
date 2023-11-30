@@ -24,8 +24,9 @@ import { useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 
+const i18nNS = ["routes/organization/settings/network/add"];
 export const handle = {
-  i18n: ["routes/organization/settings/network/add"],
+  i18n: i18nNS,
 };
 
 const schema = z.object({
@@ -128,7 +129,7 @@ function Add(props: NetworkMemberProps) {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/organization/settings/network/add"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

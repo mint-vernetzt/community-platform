@@ -28,8 +28,9 @@ import { getRandomSeed } from "./explore/utils.server";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/dashboard"];
 export const handle = {
-  i18n: ["routes/dashboard"],
+  i18n: i18nNS,
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -38,7 +39,7 @@ export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, ["routes/dashboard"]);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const authClient = createAuthClient(request, response);
 
@@ -238,7 +239,7 @@ export const loader = async (args: LoaderArgs) => {
 
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(["routes/dashboard"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

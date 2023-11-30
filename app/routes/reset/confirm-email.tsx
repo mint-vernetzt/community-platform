@@ -16,14 +16,15 @@ import { useTranslation } from "react-i18next";
 // 5. Now we have the link structure that we also receive on the server
 // 6. Paste the whole link in the browser and visit it
 
+const i18nNS = ["routes/reset/confirm-email"];
 export const handle = {
-  i18n: ["routes/reset/confirm-email"],
+  i18n: i18nNS,
 };
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
-  const t = await i18next.getFixedT(request, ["routes/reset/confirm-email"]);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const response = new Response();
 
@@ -111,7 +112,7 @@ export const loader = async (args: LoaderArgs) => {
 
 export default function Confirm() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(["routes/reset/confirm-email"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

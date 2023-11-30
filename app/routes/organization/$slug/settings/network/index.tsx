@@ -16,8 +16,9 @@ import { NetworkMemberRemoveForm } from "./remove";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/organization/settings/network/index"];
 export const handle = {
-  i18n: ["routes/organization/settings/network/index"],
+  i18n: i18nNS,
 };
 
 export type NetworkMember = ArrayElement<
@@ -75,7 +76,7 @@ export const loader = async (args: LoaderArgs) => {
 function Index() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(["routes/organization/settings/network/index"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

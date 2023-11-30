@@ -19,8 +19,9 @@ import { deriveProfileMode } from "../profile/$username/utils.server";
 import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 
+const i18nNS = ["routes/upload/delete"];
 export const handle = {
-  i18n: ["routes/upload/delete"],
+  i18n: i18nNS,
 };
 
 const environment = z.object({
@@ -82,7 +83,7 @@ const createMutation = (t: TFunction) => {
 
 export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
-  const t = await i18next.getFixedT(request, ["routes/upload/delete"]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const authClient = createAuthClient(request, response);
   const formData = await request.clone().formData();
   const redirectUrl = formData.get("redirect")?.toString();

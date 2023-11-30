@@ -18,8 +18,9 @@ import { useTranslation } from "react-i18next";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
+const i18nNS = ["routes/explore/projects"];
 export const handle = {
-  i18n: ["routes/explore/projects"],
+  i18n: i18nNS,
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -157,7 +158,7 @@ function Projects() {
     }
   }, [fetcher.data]);
 
-  const { t } = useTranslation(["routes/explore/projects"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

@@ -17,15 +17,16 @@ import { useTranslation } from "react-i18next";
 // 5. Now we have the link structure that we also receive on the server
 // 6. Paste the whole link in the browser and visit it
 
+const i18nNS = ["routes/register/confirm"];
 export const handle = {
-  i18n: ["routes/register/confirm"],
+  i18n: i18nNS,
 };
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
   const response = new Response();
-  const t = await i18next.getFixedT(request, ["routes/register/confirm"]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
@@ -116,7 +117,7 @@ export const loader = async (args: LoaderArgs) => {
 
 export default function Confirm() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(["routes/register/confirm"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

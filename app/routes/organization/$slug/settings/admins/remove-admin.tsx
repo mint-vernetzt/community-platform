@@ -14,8 +14,9 @@ import {
 import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 
+const i18nNS = ["routes/organization/settings/admin/remove-admin"];
 export const handle = {
-  i18n: ["routes/organization/settings/admin/remove-admin"],
+  i18n: i18nNS,
 };
 
 const schema = z.object({

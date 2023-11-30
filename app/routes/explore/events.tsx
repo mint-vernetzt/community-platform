@@ -12,8 +12,9 @@ import { prismaClient } from "~/prisma.server";
 import { useHydrated } from "remix-utils";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/explore/events"];
 export const handle = {
-  i18n: ["routes/explore/events"],
+  i18n: i18nNS,
 };
 
 export const loader = async (args: LoaderArgs) => {
@@ -103,7 +104,7 @@ function Events() {
 
   const isHydrated = useHydrated();
 
-  const { t } = useTranslation(["routes/explore/events"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

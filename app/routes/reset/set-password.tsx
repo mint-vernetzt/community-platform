@@ -18,8 +18,9 @@ import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/reset/set-password"];
 export const handle = {
-  i18n: ["routes/reset/set-password"],
+  i18n: i18nNS,
 };
 
 const createSchema = (t: TFunction) => {
@@ -46,7 +47,7 @@ export const loader = async (args: DataFunctionArgs) => {
     return redirect("/dashboard", { headers: response.headers });
   }
 
-  const t = await i18next.getFixedT(request, ["routes/reset/set-password"]);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const url = new URL(request.url);
   const accessToken = url.searchParams.get("access_token");
@@ -92,7 +93,7 @@ const createMutation = (t: TFunction) => {
 export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, ["routes/reset/set-password"]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const authClient = createAuthClient(request, response);
   const result = await performMutation({
     request,
@@ -116,7 +117,7 @@ export default function SetPassword() {
   const accessToken = urlSearchParams.get("access_token");
   const refreshToken = urlSearchParams.get("refresh_token");
 
-  const { t } = useTranslation(["routes/reset/set-password"]);
+  const { t } = useTranslation(i18nNS);
   const schema = createSchema(t);
 
   return (

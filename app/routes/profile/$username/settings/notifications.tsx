@@ -18,8 +18,9 @@ import { Button } from "@mint-vernetzt/components";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/profile/settings/notifications"];
 export const handle = {
-  i18n: ["routes/profile/settings/notifications"],
+  i18n: i18nNS,
 };
 
 const schema = z.object({
@@ -129,7 +130,7 @@ function Notifications() {
     lastSubmission: actionData,
   });
 
-  const { t } = useTranslation(["routes/profile/settings/notifications"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

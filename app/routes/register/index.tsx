@@ -22,8 +22,9 @@ import { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
 
+const i18nNS = ["routes/register/index"];
 export const handle = {
-  i18n: ["routes/register/index"],
+  i18n: i18nNS,
 };
 
 const createSchema = (t: TFunction) => {
@@ -107,7 +108,7 @@ export const action = async (args: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, ["routes/register/index"]);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
 
@@ -137,7 +138,7 @@ export default function Register() {
     }
   };
 
-  const { t } = useTranslation(["routes/register/index"]);
+  const { t } = useTranslation(i18nNS);
   const schema = createSchema(t);
 
   return (

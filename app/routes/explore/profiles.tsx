@@ -32,8 +32,9 @@ import {
 import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
+const i18nNS = ["routes/explore/profiles"];
 export const handle = {
-  i18n: ["routes/explore/profiles"],
+  i18n: i18nNS,
 };
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -216,7 +217,7 @@ export default function Index() {
     submit(event.currentTarget);
   }
 
-  const { t } = useTranslation(["routes/explore/profiles"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>

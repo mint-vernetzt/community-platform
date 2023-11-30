@@ -19,8 +19,9 @@ import {
 } from "./search/utils.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/search"];
 export const handle = {
-  i18n: ["routes/search"],
+  i18n: i18nNS,
 };
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -71,7 +72,7 @@ function SearchView() {
       active ? "border-b-primary" : "border-b-transparent"
     } hover:border-b-primary cursor-pointer`;
 
-  const { t } = useTranslation(["routes/search"]);
+  const { t } = useTranslation(i18nNS);
 
   return query !== null && query !== "" ? (
     <>

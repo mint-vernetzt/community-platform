@@ -1,11 +1,12 @@
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/imprint"];
 export const handle = {
-  i18n: ["routes/imprint"],
+  i18n: i18nNS,
 };
 
 export default function Imprint() {
-  const { t } = useTranslation(["routes/imprint"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <section className="container my-8 md:my-10 lg:my-20">
