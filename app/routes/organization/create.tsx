@@ -17,6 +17,10 @@ import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/organization/create"],
+};
+
 const createSchema = (t: TFunction) => {
   return z.object({
     organizationName: z.string().min(1, t("validation.organizationName.min")),

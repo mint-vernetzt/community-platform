@@ -5,6 +5,10 @@ import { prismaClient } from "~/prisma.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/project/settings"],
+};
+
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();

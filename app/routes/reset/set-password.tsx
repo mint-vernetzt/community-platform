@@ -18,6 +18,10 @@ import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/reset/set-password"],
+};
+
 const createSchema = (t: TFunction) => {
   return z.object({
     password: z.string().min(8, t("validation.password.min")),

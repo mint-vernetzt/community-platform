@@ -32,6 +32,10 @@ import {
 import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
+export const handle = {
+  i18n: ["routes/explore/profiles"],
+};
+
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderArgs) => {

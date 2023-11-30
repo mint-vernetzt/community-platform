@@ -18,6 +18,10 @@ import { Button } from "@mint-vernetzt/components";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/profile/settings/notifications"],
+};
+
 const schema = z.object({
   updates: z
     .boolean()

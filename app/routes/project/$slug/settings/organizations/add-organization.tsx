@@ -13,6 +13,10 @@ import { connectOrganizationToProject, getProjectBySlug } from "./utils.server";
 import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 
+export const handle = {
+  i18n: ["routes/project/settings/organizations/add-organization"],
+};
+
 const schema = z.object({
   organizationId: z.string(),
 });

@@ -5,6 +5,10 @@ import { createAuthClient, getSessionUser, setSession } from "~/auth.server";
 import { createProfile } from "./utils.server";
 import i18next from "~/i18next.server";
 
+export const handle = {
+  i18n: ["routes/register/verify"],
+};
+
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 

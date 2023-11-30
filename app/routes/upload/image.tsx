@@ -18,6 +18,10 @@ import { deriveProfileMode } from "../profile/$username/utils.server";
 import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 
+export const handle = {
+  i18n: ["routes/upload/image"],
+};
+
 export const loader = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 

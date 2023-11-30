@@ -16,6 +16,10 @@ import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/project/settings/delete"],
+};
+
 const schema = z.object({
   projectName: z.string().optional(),
 });

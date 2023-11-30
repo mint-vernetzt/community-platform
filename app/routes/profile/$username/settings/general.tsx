@@ -48,32 +48,39 @@ import {
 import { getProfileByUsername } from "./general.server";
 import { Trans, useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
+import { TFunction } from "i18next";
 
-const profileSchema = object({
-  academicTitle: nullOrString(string()),
-  position: nullOrString(string()),
-  firstName: string().required("Bitte gib Deinen Vornamen ein."),
-  lastName: string().required("Bitte gib Deinen Nachnamen ein."),
-  email: string().email().required(),
-  phone: nullOrString(phone()),
-  bio: nullOrString(multiline()),
-  areas: array(string().required()).required(),
-  skills: array(string().required()).required(),
-  offers: array(string().required()).required(),
-  interests: array(string().required()).required(),
-  seekings: array(string().required()).required(),
-  privateFields: array(string().required()).required(),
-  website: nullOrString(website()),
-  facebook: nullOrString(social("facebook")),
-  linkedin: nullOrString(social("linkedin")),
-  twitter: nullOrString(social("twitter")),
-  youtube: nullOrString(social("youtube")),
-  instagram: nullOrString(social("instagram")),
-  xing: nullOrString(social("xing")),
-});
+export const handle = {
+  i18n: ["routes/profile/settings/general"],
+};
 
-type ProfileSchemaType = typeof profileSchema;
-export type ProfileFormType = InferType<typeof profileSchema>;
+const createProfileSchema = (t: TFunction) => {
+  return object({
+    academicTitle: nullOrString(string()),
+    position: nullOrString(string()),
+    firstName: string().required(t("validation.firstName.required")),
+    lastName: string().required(t("validation.lastName.required")),
+    email: string().email().required(),
+    phone: nullOrString(phone()),
+    bio: nullOrString(multiline()),
+    areas: array(string().required()).required(),
+    skills: array(string().required()).required(),
+    offers: array(string().required()).required(),
+    interests: array(string().required()).required(),
+    seekings: array(string().required()).required(),
+    privateFields: array(string().required()).required(),
+    website: nullOrString(website()),
+    facebook: nullOrString(social("facebook")),
+    linkedin: nullOrString(social("linkedin")),
+    twitter: nullOrString(social("twitter")),
+    youtube: nullOrString(social("youtube")),
+    instagram: nullOrString(social("instagram")),
+    xing: nullOrString(social("xing")),
+  });
+};
+
+type ProfileSchemaType = ReturnType<typeof createProfileSchema>;
+export type ProfileFormType = InferType<ProfileSchemaType>;
 
 function makeFormProfileFromDbProfile(
   dbProfile: NonNullable<
@@ -142,17 +149,17 @@ export const action = async ({ request, params }: ActionArgs) => {
     throw notFound({ message: t("error.profileNotFound") });
   }
   const formData = await request.clone().formData();
-  let parsedFormData = await getFormValues<ProfileSchemaType>(
-    request,
-    profileSchema
-  );
+
+  const schema = createProfileSchema(t);
+
+  let parsedFormData = await getFormValues<ProfileSchemaType>(request, schema);
 
   let errors: FormError | null;
   let data: ProfileFormType;
 
   try {
     const result = await validateForm<ProfileSchemaType>(
-      profileSchema,
+      schema,
       parsedFormData
     );
 

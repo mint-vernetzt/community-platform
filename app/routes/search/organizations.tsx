@@ -25,6 +25,10 @@ import { useTranslation } from "react-i18next";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
+export const handle = {
+  i18n: ["routes/search/organizations"],
+};
+
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);

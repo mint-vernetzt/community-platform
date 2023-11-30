@@ -43,6 +43,10 @@ import { deriveProfileMode, prepareProfileEvents } from "./utils.server";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/profile/index"],
+};
+
 export function links() {
   return [
     { rel: "stylesheet", href: rcSliderStyles },

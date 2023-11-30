@@ -17,6 +17,10 @@ import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 
+export const handle = {
+  i18n: ["routes/login"],
+};
+
 const createSchema = (t: TFunction) => {
   return z.object({
     email: z
@@ -152,7 +156,7 @@ export default function Index() {
               </div>
             </div>
             <div className="flex flex-col md:flex-row -mx-4">
-              <div className="basis-full md:basis-6/12"> </div>
+              <div className="basis-full md:basis-6/12"></div>
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">{t("content.headline")}</h1>
 

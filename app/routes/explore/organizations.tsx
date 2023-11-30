@@ -29,6 +29,10 @@ import { useTranslation } from "react-i18next";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
+export const handle = {
+  i18n: ["routes/explore/organizations"],
+};
+
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();

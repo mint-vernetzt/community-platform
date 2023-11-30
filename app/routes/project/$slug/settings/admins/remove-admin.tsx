@@ -15,6 +15,10 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 
+export const handle = {
+  i18n: ["routes/project/settings/admins/remove-admin"],
+};
+
 const schema = z.object({
   profileId: z.string(),
 });

@@ -18,6 +18,10 @@ const schema = z.object({
   profileId: z.string().uuid(),
 });
 
+export const handle = {
+  i18n: ["routes/organization/settings/team/remove-member"],
+};
+
 export const removeMemberSchema = schema;
 
 const environmentSchema = z.object({

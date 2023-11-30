@@ -28,6 +28,10 @@ import { getRandomSeed } from "./explore/utils.server";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/dashboard"],
+};
+
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderArgs) => {

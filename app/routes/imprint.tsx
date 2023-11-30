@@ -1,5 +1,9 @@
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/imprint"],
+};
+
 export default function Imprint() {
   const { t } = useTranslation(["routes/imprint"]);
 

@@ -29,6 +29,10 @@ import {
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/organization/settings/team"],
+};
+
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
@@ -36,6 +40,7 @@ export const loader = async (args: LoaderArgs) => {
   const t = await i18next.getFixedT(request, [
     "routes/organization/settings/team",
   ]);
+
   const authClient = createAuthClient(request, response);
 
   const slug = getParamValueOrThrow(params, "slug");

@@ -17,6 +17,10 @@ import { useTranslation } from "react-i18next";
 // 5. Now we have the link structure that we also receive on the server
 // 6. Paste the whole link in the browser and visit it
 
+export const handle = {
+  i18n: ["routes/reset/confirm-password"],
+};
+
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 

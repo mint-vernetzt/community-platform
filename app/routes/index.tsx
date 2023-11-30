@@ -27,6 +27,10 @@ import {
 } from "./utils.server";
 import { Trans, useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/index"],
+};
+
 const schema = z.object({
   email: z
     .string()

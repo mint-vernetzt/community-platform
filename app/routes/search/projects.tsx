@@ -18,6 +18,10 @@ import {
 } from "./utils.server";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/search/projects"],
+};
+
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);

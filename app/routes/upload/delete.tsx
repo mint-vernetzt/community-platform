@@ -19,6 +19,10 @@ import { deriveProfileMode } from "../profile/$username/utils.server";
 import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 
+export const handle = {
+  i18n: ["routes/upload/delete"],
+};
+
 const environment = z.object({
   authClient: z.unknown(),
   // authClient: z.instanceof(SupabaseClient),

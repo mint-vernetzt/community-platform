@@ -32,6 +32,10 @@ import {
 import { useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
 
+export const handle = {
+  i18n: ["routes/project/settings/admins"],
+};
+
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();

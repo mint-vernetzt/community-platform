@@ -13,6 +13,10 @@ import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/organization/settings/delete"],
+};
+
 const createSchema = (t: TFunction) => {
   return z.object({
     confirmedToken: z

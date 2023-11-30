@@ -18,6 +18,10 @@ import { useTranslation } from "react-i18next";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
+export const handle = {
+  i18n: ["routes/explore/projects"],
+};
+
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
 

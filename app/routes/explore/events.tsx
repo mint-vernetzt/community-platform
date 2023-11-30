@@ -12,6 +12,10 @@ import { prismaClient } from "~/prisma.server";
 import { useHydrated } from "remix-utils";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/explore/events"],
+};
+
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();

@@ -15,6 +15,10 @@ import {
 import { TFunction } from "i18next";
 import i18next from "~/i18next.server";
 
+export const handle = {
+  i18n: ["routes/organization/settings/admin/add-admin"],
+};
+
 const schema = z.object({
   profileId: z.string(),
 });

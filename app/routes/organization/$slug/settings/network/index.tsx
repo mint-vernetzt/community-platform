@@ -16,6 +16,10 @@ import { NetworkMemberRemoveForm } from "./remove";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/organization/settings/network/index"],
+};
+
 export type NetworkMember = ArrayElement<
   Awaited<ReturnType<typeof getNetworkMembersOfOrganization>>
 >;

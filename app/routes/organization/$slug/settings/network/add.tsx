@@ -24,6 +24,10 @@ import { useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 
+export const handle = {
+  i18n: ["routes/organization/settings/network/add"],
+};
+
 const schema = z.object({
   organizationId: z.string(),
 });

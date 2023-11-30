@@ -19,6 +19,10 @@ import {
 } from "./search/utils.server";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/search"],
+};
+
 export const loader = async ({ request }: LoaderArgs) => {
   const response = new Response();
 

@@ -22,6 +22,10 @@ import { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
 
+export const handle = {
+  i18n: ["routes/register/index"],
+};
+
 const createSchema = (t: TFunction) => {
   return z.object({
     // todo: i18n of enums?

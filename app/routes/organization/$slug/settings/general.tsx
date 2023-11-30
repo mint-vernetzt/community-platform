@@ -52,6 +52,10 @@ import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/organization/settings/general"],
+};
+
 const createOrganizationSchema = (t: TFunction) => {
   return object({
     name: string().required(t("validation.name.required")),
@@ -101,6 +105,9 @@ export const loader = async (args: LoaderArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
+  const t = await i18next.getFixedT(request, [
+    "routes/organization/settings/general",
+  ]);
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -110,14 +117,14 @@ export const loader = async (args: LoaderArgs) => {
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
     throw notFound({
-      message: `Organization with slug "${slug}" not found.`,
+      message: t("error.notFound.named", { slug: slug }),
     });
   }
   const organizationVisibilities = await getOrganizationVisibilitiesById(
     dbOrganization.id
   );
   if (organizationVisibilities === null) {
-    throw notFound({ message: "organization visbilities not found." });
+    throw notFound({ message: t("error.notFound.visibilities") });
   }
 
   const organization = makeFormOrganizationFromDbOrganization(dbOrganization);
@@ -159,7 +166,11 @@ export const action = async (args: ActionArgs) => {
     status: 403,
   });
   const organization = await getOrganizationBySlug(slug);
-  invariantResponse(organization, t("error.notFound"), { status: 404 });
+  invariantResponse(
+    organization,
+    t('error.notFound.organization"organization visbilities not found."'),
+    { status: 404 }
+  );
 
   let parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,

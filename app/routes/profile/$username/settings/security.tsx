@@ -21,6 +21,10 @@ import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 
+export const handle = {
+  i18n: ["routes/profile/settings/security"],
+};
+
 const createEmailSchema = (t: TFunction) => {
   return z.object({
     email: z
