@@ -1,0 +1,13 @@
+{
+  "error": {
+    "inputError": {
+      "profile": "Es existiert noch kein Profil unter diesem Namen.",
+      "alreadyMember": "Das Profil unter diesem Namen ist bereits Mitglied Eures Projekts."
+    },
+    "notPrivileged": "Not privileged",
+    "notFound": "Project not found"
+  },
+  "content": {
+    "feedback": "Ein neues Teammitglied mit dem Namen \"{{firstName}} {{lastName}}\" wurde hinzugefügt."
+  }
+}

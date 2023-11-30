@@ -6,6 +6,14 @@
     "notPrivileged": "Not privileged",
     "noVisibilities": "profile visbilities not found."
   },
+  "validation": {
+    "firstName": {
+      "required": "Bitte gib Deinen Vornamen ein."
+    },
+    "lastName": {
+      "required": "Bitte gib Deinen Nachnamen ein."
+    }
+  },
   "headline": "Persönliche Daten",
   "general": {
     "headline": "Allgemein",

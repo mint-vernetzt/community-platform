@@ -1,9 +1,17 @@
 import { useSearchParams, useSubmit } from "@remix-run/react";
 import React from "react";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/verification"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export default function Index() {
   const submit = useSubmit();
   const [urlSearchParams] = useSearchParams();
+
+  const { t } = useTranslation(i18nNS);
 
   // Verification point for confirmation links
   // Must be called on the client because hash parameters can only be accessed from the client
@@ -71,7 +79,11 @@ export default function Index() {
     }
     if (error !== null || errorCode !== null || errorDescription !== null) {
       alert(
-        `Es ist ein Fehler mit dem Bestätigungslink aufgetreten. Das tut uns Leid. Bitte wende dich mit den folgenden Daten an den Support:\n${error}\n${errorDescription}\n${errorCode}`
+        t("error.serverError", {
+          error: error || "-/-",
+          errorCode: errorCode || "-/-",
+          errorDescription: errorDescription || "-/-",
+        })
       );
       return;
     } else {

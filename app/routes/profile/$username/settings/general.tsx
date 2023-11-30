@@ -50,8 +50,9 @@ import { Trans, useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
 import { TFunction } from "i18next";
 
+const i18nNS = ["routes/profile/settings/general"];
 export const handle = {
-  i18n: ["routes/profile/settings/general"],
+  i18n: i18nNS,
 };
 
 const createProfileSchema = (t: TFunction) => {
@@ -212,7 +213,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 export default function Index() {
   const { username } = useParams();
   const transition = useTransition();
-  const { t } = useTranslation(["routes/profile/settings/general"]);
+  const { t } = useTranslation(i18nNS);
   const {
     profile: dbProfile,
     areas,
@@ -566,10 +567,7 @@ export default function Index() {
               </Link>
             </div>
             <p className="mb-8">
-              <Trans
-                i18nKey="network.intro"
-                ns={["routes/profile/settings/general"]}
-              />
+              <Trans i18nKey="network.intro" ns={i18nNS} />
             </p>
 
             <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">

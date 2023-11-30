@@ -3,7 +3,11 @@
     "serverError": "[en] Something went wrong on update.",
     "validation": "[en] Validation failed",
     "notPrivileged": "[en] Not privileged",
-    "notFound": "[en] Organization not found"
+    "notFound": {
+      "organization": "[en] Organization not found",
+      "named": "[en] Organization with slug \"{{slug}}\" not found.",
+      "visibilities": "[en] Organization visibilities not found."
+    }
   },
   "validation": {
     "name": {

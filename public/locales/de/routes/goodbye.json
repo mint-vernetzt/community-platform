@@ -1,3 +1,6 @@
 {
-  "content": "Dein Profil wurde gelöscht."
+  "content": {
+    "headline": "Auf Wiedersehen",
+    "info":  "Dein Profil wurde gelöscht."
+  }
 }

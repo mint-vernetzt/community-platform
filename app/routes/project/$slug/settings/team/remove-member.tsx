@@ -12,6 +12,13 @@ import {
   removeTeamMemberFromProject,
 } from "./remove-member.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import i18next from "~/i18next.server";
+import { TFunction } from "i18next";
+
+const i18nNS = ["routes/project/settings/team/remove-member"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const schema = z.object({
   profileId: z.string(),
@@ -23,16 +30,18 @@ const environmentSchema = z.object({
   memberCount: z.number(),
 });
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  if (environment.memberCount === 1) {
-    throw "Es muss immer ein Teammitglied geben. Bitte füge zuerst jemand anderen als Teammitglied hinzu.";
-  }
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    if (environment.memberCount === 1) {
+      throw t("error.memberCount");
+    }
 
-  return values;
-});
+    return values;
+  });
+};
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
@@ -41,15 +50,18 @@ export const action = async (args: DataFunctionArgs) => {
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  const t = await i18next.getFixedT(request, i18nNS);
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   await checkFeatureAbilitiesOrThrow(authClient, "projects");
   const project = await getProjectBySlug(slug);
-  invariantResponse(project, "Project not found", { status: 404 });
+  invariantResponse(project, t("error.notFound"), { status: 404 });
   console.log(project);
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { memberCount: project._count.teamMembers },
   });
 

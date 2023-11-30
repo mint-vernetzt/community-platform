@@ -1,8 +1,8 @@
 import {
-  json,
-  redirect,
   type ActionArgs,
+  json,
   type LoaderArgs,
+  redirect,
 } from "@remix-run/node";
 import { useSearchParams, useSubmit } from "@remix-run/react";
 import { type SupabaseClient } from "@supabase/supabase-js";
@@ -12,6 +12,14 @@ import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { Trans, useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/accept-terms"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const schema = z.object({
   termsAccepted: z.boolean(),
@@ -40,39 +48,42 @@ export const loader = async (args: LoaderArgs) => {
   return redirect("/", { headers: response.headers });
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  z.object({ authClient: z.unknown() })
-)(async (values, environment) => {
-  const { termsAccepted } = values;
-  const { authClient } = environment;
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    z.object({ authClient: z.unknown() })
+  )(async (values, environment) => {
+    const { termsAccepted } = values;
+    const { authClient } = environment;
 
-  if (!termsAccepted) {
-    throw "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.";
-  }
-  // TODO: can this type assertion be removed and proofen by code?
-  const sessionUser = await getSessionUser(authClient as SupabaseClient);
+    if (!termsAccepted) {
+      throw t("error.notAccepted");
+    }
+    // TODO: can this type assertion be removed and proofen by code?
+    const sessionUser = await getSessionUser(authClient as SupabaseClient);
 
-  if (sessionUser === null) {
-    throw "Nicht autorisiert.";
-  }
-  await prismaClient.profile.update({
-    where: { id: sessionUser.id },
-    data: { termsAccepted, termsAcceptedAt: new Date() },
+    if (sessionUser === null) {
+      throw t("error.unauthorized");
+    }
+    await prismaClient.profile.update({
+      where: { id: sessionUser.id },
+      data: { termsAccepted, termsAcceptedAt: new Date() },
+    });
+
+    return values;
   });
-
-  return values;
-});
+};
 
 export const action = async (args: ActionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { authClient: authClient },
   });
 
@@ -92,18 +103,20 @@ function AcceptTerms() {
   const handleKeyPress = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      // TODO: Type issue
+      // @ts-ignore TODO: Type issue
       if (event.target.getAttribute("name") !== "termsAccepted") {
         submit(event.currentTarget);
       }
     }
   };
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <div className="container relative pt-20 pb-44">
       <div className="flex -mx-4 justify-center">
         <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
-          <h1 className="mb-4">Nutzungsbedingungen akzeptieren</h1>
+          <h1 className="mb-4">{t("content.headline")}</h1>
           <RemixForm
             method="post"
             schema={schema}
@@ -148,32 +161,31 @@ function AcceptTerms() {
                         }}
                       </Field>
                       <span className="label-text">
-                        Ich erkläre mich mit der Geltung der{" "}
-                        <a
-                          href="https://mint-vernetzt.de/terms-of-use-community-platform"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-primary font-bold hover:underline"
-                        >
-                          Nutzungsbedingungen
-                        </a>{" "}
-                        einverstanden. Die{" "}
-                        <a
-                          href="https://mint-vernetzt.de/privacy-policy-community-platform"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-primary font-bold hover:underline"
-                        >
-                          Datenschutzerklärung
-                        </a>{" "}
-                        habe ich zur Kenntnis genommen.
+                        <Trans
+                          i18nKey="content.confirmation"
+                          ns={i18nNS}
+                          components={[
+                            <a
+                              href="https://mint-vernetzt.de/terms-of-use-community-platform"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-primary font-bold hover:underline"
+                            />,
+                            <a
+                              href="https://mint-vernetzt.de/privacy-policy-community-platform"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-primary font-bold hover:underline"
+                            />,
+                          ]}
+                        />
                       </span>
                     </label>
                   </div>
                 </div>
                 <div className="mb-8">
                   <button type="submit" className="btn btn-primary">
-                    Bestätigen
+                    {t("content.submit")}
                   </button>
                 </div>
                 <Errors />
