@@ -144,7 +144,9 @@ const TextAreaWithCounter = React.forwardRef(
           {(maxCharacters !== undefined || helperText !== undefined) && (
             <div className={counterContainerClasses}>
               {helperText !== undefined && (
-                <div className="mv-text-sm mv-text-gray-700">{helperText}</div>
+                <div className="mv-text-sm mv-text-gray-700 mv-pr-8">
+                  {helperText}
+                </div>
               )}
               {maxCharacters !== undefined && (
                 <Counter

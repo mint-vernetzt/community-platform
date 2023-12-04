@@ -205,7 +205,7 @@ function Input(props: InputProps) {
       </div>
       {props.maxLength !== undefined ? (
         <div className={inputCounterContainerClasses}>
-          {helperText}
+          <div className="mv-pr-8">{helperText}</div>
           <InputCounter
             currentCount={characterCount}
             maxCount={props.maxLength}
