@@ -17,7 +17,6 @@ import {
 } from "@remix-run/node";
 import {
   Form,
-  Link,
   useActionData,
   useLoaderData,
   useLocation,
@@ -27,6 +26,7 @@ import quillStyles from "react-quill/dist/quill.snow.css";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   removeHtmlTags,
@@ -41,7 +41,6 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { usePrompt } from "~/lib/hooks/usePrompt";
 
 const detailsSchema = z.object({
   disciplines: z.array(z.string().uuid()),
@@ -1035,6 +1034,7 @@ function Details() {
               {...conform.textarea(fields.idea)}
               id={fields.idea.id || ""}
               label="Idee"
+              helperText="Beschreibe die Idee hinter Deinem Projekt."
               errorMessage={fields.idea.error}
               maxCharacters={2000}
               rte
