@@ -199,9 +199,13 @@ export const youtubeEmbedSchema = z
         url.searchParams.delete("v");
         embedLink = `https://www.youtube.com/embed/${videoCodeParam}${url.search}`;
       }
-      // Share Link: https://www.youtu.be/<videoCode>
-      if (value.includes("youtu.be")) {
-        videoCodeParam = url.pathname;
+      // Share Link: https://www.youtu.be/<videoCode> || https://www.youtube.com/live/<videoCode>
+      if (value.includes("youtu.be") || value.includes("youtube.com/live")) {
+        if (value.includes("youtu.be")) {
+          videoCodeParam = url.pathname;
+        } else {
+          videoCodeParam = url.pathname.split("/live")[1];
+        }
         const timeParam = url.searchParams.get("t");
         if (timeParam !== null) {
           url.searchParams.append("amp;start", timeParam);
