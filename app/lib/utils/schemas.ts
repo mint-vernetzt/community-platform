@@ -170,17 +170,72 @@ export const youtubeSchema = z
 
 export const youtubeEmbedSchema = z
   .string()
-  .regex(
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube(?:-nocookie)?\.com\/(?:embed\/))([a-zA-Z0-9_-]{6,11})/,
-    {
-      message:
-        "Deine Eingabe entspricht nicht dem Format einer Youtube Embed URL (youtube.com/embed/... oder youtube-nocookie.com/embed).",
-    }
-  )
   .optional()
   .transform((value) => {
     if (value === undefined) {
       return null;
     }
-    return addProtocolToUrl(value);
-  });
+    let embedLink = value;
+    // IFrame: <iframe ... src="https://www.youtube.com/embed/<videoCode>?si=k6KomOnFdKtnSGGP" ... </iframe>
+    if (value.startsWith("<iframe")) {
+      embedLink = value.split('src="')[1].split('" ')[0];
+    } else {
+      let url;
+      let videoCodeParam;
+      const enhancedValue = addProtocolToUrl(value);
+      try {
+        url = new URL(enhancedValue);
+      } catch (e: unknown) {
+        console.error(e);
+        if ((e as Error).message !== undefined) {
+          throw new Error((e as Error).message);
+        } else {
+          throw new Error("Unknown error during url parsing.");
+        }
+      }
+      // Watch Link: https://www.youtube.com/watch?v=<videoCode>
+      if (value.includes("youtube.com/watch")) {
+        videoCodeParam = url.searchParams.get("v");
+        url.searchParams.delete("v");
+        embedLink = `https://www.youtube.com/embed/${videoCodeParam}${url.search}`;
+      }
+      // Share Link: https://www.youtu.be/<videoCode> || https://www.youtube.com/live/<videoCode>
+      if (value.includes("youtu.be") || value.includes("youtube.com/live")) {
+        if (value.includes("youtu.be")) {
+          videoCodeParam = url.pathname;
+        } else {
+          videoCodeParam = url.pathname.split("/live")[1];
+        }
+        const timeParam = url.searchParams.get("t");
+        if (timeParam !== null) {
+          url.searchParams.append("amp;start", timeParam);
+          url.searchParams.delete("t");
+        }
+        embedLink = `https://www.youtube.com/embed${videoCodeParam}${url.search}`;
+      }
+      // Embed Link: https://www.youtube.com/embed/<videoCode> || https://www.youtube-nocookie.com/embed/<videoCode>
+      if (
+        value.includes("youtube.com/embed") ||
+        value.includes("youtube-nocookie.com/embed")
+      ) {
+        embedLink = enhancedValue;
+      }
+    }
+    return embedLink;
+  })
+  .pipe(
+    z
+      .string()
+      .regex(
+        // TODO: Question: Should we just allow a videoCode of 6 to 11 digits? Is this to restrictive?
+        // /(?:https?:\/\/)?(?:www\.)?(?:youtube(?:-nocookie)?\.com\/(?:embed\/))([a-zA-Z0-9_-]{6,11})/,
+
+        // This is less restrictive and allows additional search params
+        /(?:https?:\/\/)?(?:www\.)?(?:youtube(?:-nocookie)?\.com\/(?:embed\/)).+/,
+        {
+          message:
+            'Deine Eingabe entspricht nicht dem Format einer Youtube-Watch-URL, einer Youtube-Embed-URL oder eines YouTube-<iframe> (youtube.com/watch?v=, youtube.com/embed/, youtube-nocookie.com/embed/, youtu.be/, <iframe ... src="youtube.com/embed/... ></iframe>).',
+        }
+      )
+      .nullable()
+  );

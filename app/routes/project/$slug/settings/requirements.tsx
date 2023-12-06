@@ -17,7 +17,6 @@ import {
 } from "@remix-run/node";
 import {
   Form,
-  Link,
   useActionData,
   useLoaderData,
   useLocation,
@@ -27,6 +26,7 @@ import quillStyles from "react-quill/dist/quill.snow.css";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   removeHtmlTags,
@@ -34,13 +34,12 @@ import {
   sanitizeUserHtml,
 } from "~/lib/utils/sanitizeUserHtml";
 import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { redirectWithToast } from "~/toast.server";
-import { usePrompt } from "~/lib/hooks/usePrompt";
 
 const requirementsSchema = z.object({
   timeframe: z

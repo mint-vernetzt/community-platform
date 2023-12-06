@@ -17,7 +17,6 @@ import {
 } from "@remix-run/node";
 import {
   Form,
-  Link,
   useActionData,
   useLoaderData,
   useLocation,
@@ -27,6 +26,7 @@ import quillStyles from "react-quill/dist/quill.snow.css";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   removeHtmlTags,
@@ -41,7 +41,6 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { usePrompt } from "~/lib/hooks/usePrompt";
 
 const detailsSchema = z.object({
   disciplines: z.array(z.string().uuid()),
@@ -1103,7 +1102,7 @@ function Details() {
 
             <Input
               {...conform.input(fields.video)}
-              placeholder="youtube.com/<name>"
+              placeholder="youtube.com/watch?v=<videoCode>"
             >
               <Input.Label htmlFor={fields.video.id}>
                 Einbettungslink
@@ -1111,6 +1110,11 @@ function Details() {
               {typeof fields.video.error !== "undefined" && (
                 <Input.Error>{fields.video.error}</Input.Error>
               )}
+              <Input.HelperText>
+                Kopiere die Youtube-URL deines Videos aus der Adresszeile des
+                Browsers, nutze die Teilenfunktion oder den Embed-Link von
+                YouTube.
+              </Input.HelperText>
             </Input>
 
             <Input {...conform.input(fields.videoSubline)}>
