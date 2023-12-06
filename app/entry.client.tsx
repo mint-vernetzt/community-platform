@@ -22,8 +22,9 @@ async function hydrate() {
         requestOptions: requestOptions(),
       },
       detection: {
-        order: ["htmlTag"],
-        caches: [],
+        order: ["localStorage", "htmlTag"],
+        caches: ["localStorage"],
+        excludeCacheFor: ["cimode"],
       },
     });
 
