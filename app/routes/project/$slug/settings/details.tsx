@@ -1034,6 +1034,7 @@ function Details() {
               {...conform.textarea(fields.idea)}
               id={fields.idea.id || ""}
               label="Idee"
+              helperText="Beschreibe die Idee hinter Deinem Projekt."
               errorMessage={fields.idea.error}
               maxCharacters={2000}
               rte
