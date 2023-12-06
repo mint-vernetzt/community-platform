@@ -26,7 +26,7 @@ function addProtocolToUrl(url: string) {
 export const websiteSchema = z
   .string()
   .regex(
-    /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi,
+    /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi,
     {
       message: "Deine Eingabe entspricht nicht dem Format einer Website URL.",
     }
@@ -41,7 +41,7 @@ export const websiteSchema = z
 
 export const facebookSchema = z
   .string()
-  .regex(/(https?:\/\/)?(.*\.)?facebook.com\/.+$|^$/, {
+  .regex(/^(https?:\/\/)?([a-z0-9]+\.)?facebook.com\/.+$|^$/, {
     message:
       "Deine Eingabe entspricht nicht dem Format einer Facebook Seite (facebook.com/...).",
   })
@@ -55,7 +55,7 @@ export const facebookSchema = z
 
 export const linkedinSchema = z
   .string()
-  .regex(/(https?:\/\/)?(.*\.)?linkedin.com\/.+$|^$/, {
+  .regex(/^(https?:\/\/)?([a-z0-9]+\.)?linkedin.com\/.+$|^$/, {
     message:
       "Deine Eingabe entspricht nicht dem Format einer LinkedIn Seite (linkedin.com/...).",
   })
@@ -69,7 +69,7 @@ export const linkedinSchema = z
 
 export const xingSchema = z
   .string()
-  .regex(/(https?:\/\/)?(.*\.)?xing.com\/.+$|^$/, {
+  .regex(/^(https?:\/\/)?([a-z0-9]+\.)?xing.com\/.+$|^$/, {
     message:
       "Deine Eingabe entspricht nicht dem Format einer Xing Seite (xing.com/...).",
   })
@@ -83,7 +83,7 @@ export const xingSchema = z
 
 export const twitterSchema = z
   .string()
-  .regex(/(https?:\/\/)?(.*\.)?twitter.com\/.+$|^$/, {
+  .regex(/^(https?:\/\/)?([a-z0-9]+\.)?twitter.com\/.+$|^$/, {
     message:
       "Deine Eingabe entspricht nicht dem Format einer Twitter Seite (twitter.com/...).",
   })
@@ -98,7 +98,7 @@ export const twitterSchema = z
 export const mastodonSchema = z
   .string()
   .regex(
-    /(https?:\/\/)?(.*\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\/@.+$|^$/,
+    /^(https?:\/\/)?([a-z0-9]+\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\/@.+$|^$/,
     {
       message:
         "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite.",
@@ -114,7 +114,7 @@ export const mastodonSchema = z
 
 export const blueskySchema = z
   .string()
-  .regex(/(https?:\/\/)?(.*\.)?bsky.app\/.+$|^$/, {
+  .regex(/^(https?:\/\/)?([a-z0-9]+\.)?bsky.app\/.+$|^$/, {
     message:
       "Deine Eingabe entspricht nicht dem Format einer Blue Sky Seite (bsky.app/...).",
   })
@@ -128,7 +128,7 @@ export const blueskySchema = z
 
 export const tiktokSchema = z
   .string()
-  .regex(/(https?:\/\/)?(.*\.)?tiktok.com\/@.+$|^$/, {
+  .regex(/^(https?:\/\/)?([a-z0-9]+\.)?tiktok.com\/@.+$|^$/, {
     message:
       "Deine Eingabe entspricht nicht dem Format einer TikTok Seite (tiktok.com/@...).",
   })
@@ -142,7 +142,7 @@ export const tiktokSchema = z
 
 export const instagramSchema = z
   .string()
-  .regex(/(https?:\/\/)?(.*\.)?instagram.com\/.+$|^$/, {
+  .regex(/^(https?:\/\/)?([a-z0-9]+\.)?instagram.com\/.+$|^$/, {
     message:
       "Deine Eingabe entspricht nicht dem Format einer Instagram Seite (instagram.com/...).",
   })
@@ -156,7 +156,7 @@ export const instagramSchema = z
 
 export const youtubeSchema = z
   .string()
-  .regex(/(https?:\/\/)?(.*\.)?youtube.com\/.+$|^$/, {
+  .regex(/^(https?:\/\/)?([a-z0-9]+\.)?youtube.com\/.+$|^$/, {
     message:
       "Deine Eingabe entspricht nicht dem Format einer Youtube Seite (youtube.com/...).",
   })
@@ -227,11 +227,7 @@ export const youtubeEmbedSchema = z
     z
       .string()
       .regex(
-        // TODO: Question: Should we just allow a videoCode of 6 to 11 digits? Is this to restrictive?
-        // /(?:https?:\/\/)?(?:www\.)?(?:youtube(?:-nocookie)?\.com\/(?:embed\/))([a-zA-Z0-9_-]{6,11})/,
-
-        // This is less restrictive and allows additional search params
-        /(?:https?:\/\/)?(?:www\.)?(?:youtube(?:-nocookie)?\.com\/(?:embed\/)).+/,
+        /^(?:https?:\/\/)?(?:[a-z0-9]+\.)?(?:youtube(?:-nocookie)?\.com\/(?:embed\/)).+$/,
         {
           message:
             'Deine Eingabe entspricht nicht dem Format einer Youtube-Watch-URL, einer Youtube-Embed-URL oder eines YouTube-<iframe> (youtube.com/watch?v=, youtube.com/embed/, youtube-nocookie.com/embed/, youtu.be/, <iframe ... src="youtube.com/embed/... ></iframe>).',

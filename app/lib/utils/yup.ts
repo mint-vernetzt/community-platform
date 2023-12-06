@@ -25,38 +25,38 @@ const phoneValidation = {
 
 const websiteValidation = {
   match:
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi,
+    /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi,
   error: "Deine Eingabe entspricht nicht dem Format einer Website URL.",
 };
 
 const socialValidation = {
   facebook: {
-    match: /(https?:\/\/)?(.*\.)?facebook.com\/.+$|^$/,
+    match: /^(https?:\/\/)?([a-z0-9]+\.)?facebook.com\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>).",
   },
   linkedin: {
-    match: /(https?:\/\/)?(.*\.)?linkedin.com\/(in|company)\/.+$|^$/,
+    match: /^(https?:\/\/)?([a-z0-9]+\.)?linkedin.com\/(in|company)\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (linkedin.com/in/<Nutzername> oder linkedin.com/company/<Nutzername>).",
   },
   twitter: {
-    match: /(https?:\/\/)?(.*\.)?twitter.com\/.+$|^$/,
+    match: /^(https?:\/\/)?([a-z0-9]+\.)?twitter.com\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>).",
   },
   youtube: {
-    match: /(https?:\/\/)?(.*\.)?youtube.com\/.+$|^$/,
+    match: /^(https?:\/\/)?([a-z0-9]+\.)?youtube.com\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines Youtube Kanals (youtube.com/<Nutzername>).",
   },
   instagram: {
-    match: /(https?:\/\/)?(.*\.)?instagram.com\/.+$|^$/,
+    match: /^(https?:\/\/)?([a-z0-9]+\.)?instagram.com\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines Instagram Profils (instagram.com/<Nutzername>).",
   },
   xing: {
-    match: /(https?:\/\/)?(.*\.)?xing.com\/(profile|pages)\/.+$|^$/,
+    match: /^(https?:\/\/)?([a-z0-9]+\.)?xing.com\/(profile|pages)\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/profile/<Nutzername> oder xing.com/pages/<Nutzername>).",
   },
