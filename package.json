@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "prepare": "husky install",
-    "build": "npm run build:new-styles && npm run build:styles && cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix build",
+    "build": "npm run update:seed && npm run build:new-styles && npm run build:styles && cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix build",
     "dev": "npm run build:styles:watch | npm run build:new-styles:watch | cross-env NODE_ENV=development node -r dotenv/config node_modules/.bin/remix dev",
     "start": "cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix-serve build",
     "create": "plop",
@@ -29,7 +29,8 @@
     "copy:fonts": "rsync node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-{400,600,700}-normal.woff public/fonts",
     "make": "make",
     "test:func": "node -r dotenv/config node_modules/.bin/cypress run",
-    "test:func:live": "node -r dotenv/config node_modules/.bin/cypress open"
+    "test:func:live": "node -r dotenv/config node_modules/.bin/cypress open",
+    "update:seed": "npx ts-node scripts/update-seed.ts"
   },
   "dependencies": {
     "@conform-to/react": "^0.9.0",
