@@ -291,9 +291,7 @@ describe("/project/$slug/settings/delete", () => {
       const responseBody = await response.json();
 
       expect(responseBody.errors.projectName).toBeDefined();
-      expect(responseBody.errors.projectName[0]).toBe(
-        "Der Name des Projekts ist nicht korrekt"
-      );
+      expect(responseBody.errors.projectName[0]).toBe("error.inputError");
     });
 
     test("delete", async () => {

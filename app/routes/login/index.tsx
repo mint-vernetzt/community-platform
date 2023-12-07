@@ -121,7 +121,7 @@ export default function Index() {
     }
   };
 
-  const { t, i18n } = useTranslation(i18nNS);
+  const { t } = useTranslation(i18nNS);
   const schema = createSchema(t);
 
   return (

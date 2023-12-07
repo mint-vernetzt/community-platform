@@ -31,7 +31,8 @@ const createMutation = (t: TFunction) => {
     environmentSchema
   )(async (values, environment) => {
     if (environment.memberCount === 1) {
-      throw t("error.minimum");
+      const error: string = t("error.minimum");
+      throw error;
     }
     return values;
   });

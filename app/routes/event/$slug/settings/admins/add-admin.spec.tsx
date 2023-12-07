@@ -102,7 +102,7 @@ describe("/event/$slug/settings/admins/add-admin", () => {
     expect(responseBody.errors).toBeDefined();
     expect(responseBody.errors).not.toBeNull();
     expect(responseBody.errors.profileId).toStrictEqual([
-      "Es existiert noch kein Profil unter diesem Namen.",
+      "error.inputError.doesNotExist",
     ]);
   });
 
@@ -140,9 +140,9 @@ describe("/event/$slug/settings/admins/add-admin", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.profileId).toContain(
-      "Das Profil unter diesem Namen ist bereits Administrator:in Eurer Veranstaltung."
-    );
+    expect(responseBody.errors.profileId).toStrictEqual([
+      "error.inputError.alreadyAdmin",
+    ]);
   });
 
   test("event not found", async () => {
@@ -221,8 +221,6 @@ describe("/event/$slug/settings/admins/add-admin", () => {
         profileId: "another-user-id",
       },
     });
-    expect(responseBody.message).toBe(
-      '"another-user-firstname another-user-lastname" wurde als Administrator:in hinzugefügt.'
-    );
+    expect(responseBody.message).toBe("feedback");
   });
 });

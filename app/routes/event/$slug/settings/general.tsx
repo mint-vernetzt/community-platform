@@ -65,7 +65,7 @@ import { useTranslation } from "react-i18next";
 
 const createSchema = (t: TFunction) => {
   return object({
-    name: string().required(t("validation.required")),
+    name: string().required(t("validation.name.required")),
     startDate: string()
       .transform((value) => {
         value = value.trim();
@@ -77,7 +77,7 @@ const createSchema = (t: TFunction) => {
         }
         return undefined;
       })
-      .required(t("startDate.required")),
+      .required(t("validation.startDate.required")),
     startTime: string()
       .transform((value: string) => {
         value = value.trim();
@@ -86,7 +86,7 @@ const createSchema = (t: TFunction) => {
         }
         return undefined;
       })
-      .required(t("startTime.required")),
+      .required(t("validation.startTime.required")),
     endDate: greaterThanDate(
       "endDate",
       "startDate",

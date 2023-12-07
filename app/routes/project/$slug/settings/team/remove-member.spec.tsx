@@ -129,9 +129,7 @@ describe("/project/$slug/settings/team/remove-member", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors._global).toContain(
-      "Es muss immer ein Teammitglied geben. Bitte füge zuerst jemand anderen als Teammitglied hinzu."
-    );
+    expect(responseBody.errors._global).toStrictEqual(["error.memberCount"]);
   });
 
   test("remove project team member (self and others are possible)", async () => {

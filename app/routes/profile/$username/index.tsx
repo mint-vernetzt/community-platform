@@ -59,6 +59,8 @@ export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, i18nNS);
+
   const authClient = createAuthClient(request, response);
 
   const username = getParamValueOrThrow(params, "username");
@@ -78,11 +80,10 @@ export const loader = async (args: LoaderArgs) => {
         });
       }
     } else {
-      throw notFound({ message: "Profile not found" });
+      throw notFound({ message: t("error.profileNotFound") });
     }
   }
 
-  const t = await i18next.getFixedT(request, i18nNS);
   const profile = await getProfileByUsername(username);
   if (profile === null) {
     throw notFound(t("error.profileNotFound"));

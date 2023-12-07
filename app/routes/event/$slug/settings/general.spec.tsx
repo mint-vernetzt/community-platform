@@ -570,23 +570,23 @@ describe("/event/$slug/settings/general", () => {
         const responseBody = await response.json();
         expect(responseBody.errors.name).toBeDefined();
         expect(responseBody.errors.name.message).toBe(
-          "Bitte gib den Namen der Veranstaltung an"
+          "validation.name.required"
         );
         expect(responseBody.errors.startDate).toBeDefined();
         expect(responseBody.errors.startDate.message).toBe(
-          "Bitte gib den Beginn der Veranstaltung an"
+          "validation.startDate.required"
         );
         expect(responseBody.errors.endDate).toBeDefined();
         expect(responseBody.errors.endDate.message).toBe(
-          "Bitte gib das Ende der Veranstaltung an"
+          "validation.endDate.required"
         );
         expect(responseBody.errors.participationUntilDate).toBeDefined();
         expect(responseBody.errors.participationUntilDate.message).toBe(
-          "Bitte gib das Ende für die Registrierung an"
+          "validation.participationUntilDate.required"
         );
         expect(responseBody.errors.participationFromDate).toBeDefined();
         expect(responseBody.errors.participationFromDate.message).toBe(
-          "Bitte gib den Beginn für die Registrierung an"
+          "validation.participationFromDate.required"
         );
         expect(responseBody.errors.submit).toBeDefined();
         // expect(Object.keys(response.errors).length).toBe(3);

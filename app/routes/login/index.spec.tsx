@@ -131,9 +131,7 @@ test("call login action with wrong credentials", async () => {
 
   expect(data).toStrictEqual({
     errors: {
-      _global: [
-        "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.",
-      ],
+      _global: ["error.invalidCredentials"],
       email: [],
       loginRedirect: [],
       password: [],

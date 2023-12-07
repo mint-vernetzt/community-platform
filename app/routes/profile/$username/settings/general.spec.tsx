@@ -182,7 +182,7 @@ describe("loader", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe(`profile not found.`);
+      expect(json.message).toBe("error.profileNotFound");
     }
   });
   test("profile visibilities not found", async () => {
@@ -211,7 +211,7 @@ describe("loader", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe("profile visbilities not found.");
+      expect(json.message).toBe("error.noVisibilities");
     }
   });
   test("admin user full loader call", async () => {
@@ -422,7 +422,7 @@ describe("action", () => {
       expect(response.status).toBe(400);
 
       const json = await response.json();
-      expect(json.message).toBe("Validation failed");
+      expect(json.message).toBe("error.validationFailed");
     }
   });
 
@@ -483,7 +483,7 @@ describe("action", () => {
       const responseBody = await response.json();
       expect(responseBody.errors.firstName).not.toBeUndefined();
       expect(responseBody.errors.firstName.message).toEqual(
-        expect.stringContaining("Bitte gib Deinen Vornamen ein.")
+        "validation.firstName.required"
       );
     });
 

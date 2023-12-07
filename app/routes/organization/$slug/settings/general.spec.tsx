@@ -189,7 +189,7 @@ describe("loader", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe(`Organization with slug "${slug}" not found.`);
+      expect(json.message).toBe("error.notFound.named");
     }
   });
   test("organization visibilities not found", async () => {
@@ -218,7 +218,7 @@ describe("loader", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe("organization visbilities not found.");
+      expect(json.message).toBe("error.notFound.visibilities");
     }
   });
   test("admin user full loader call", async () => {
@@ -449,7 +449,7 @@ describe("action", () => {
       expect(response.status).toBe(400);
 
       const json = await response.json();
-      expect(json.message).toBe("Validation failed");
+      expect(json.message).toBe("error.validation");
     }
   });
 
@@ -514,7 +514,7 @@ describe("action", () => {
       const responseBody = await response.json();
       expect(responseBody.errors.name).not.toBeUndefined();
       expect(responseBody.errors.name.message).toEqual(
-        expect.stringContaining("Bitte gib Euren Namen ein.")
+        expect.stringContaining("validation.name.required")
       );
     });
 
@@ -547,9 +547,7 @@ describe("action", () => {
       const responseBody = await response.json();
       expect(responseBody.errors.email).not.toBeUndefined();
       expect(responseBody.errors.email.message).toEqual(
-        expect.stringContaining(
-          "Deine Eingabe entspricht nicht dem Format einer E-Mail."
-        )
+        expect.stringContaining("validation.email.email")
       );
     });
 

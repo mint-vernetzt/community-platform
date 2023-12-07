@@ -102,7 +102,7 @@ describe("/project/$slug/settings/team/add-member", () => {
     expect(responseBody.errors).toBeDefined();
     expect(responseBody.errors).not.toBeNull();
     expect(responseBody.errors.profileId).toStrictEqual([
-      "Es existiert noch kein Profil unter diesem Namen.",
+      "error.inputError.profile",
     ]);
   });
 
@@ -138,9 +138,9 @@ describe("/project/$slug/settings/team/add-member", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.profileId).toContain(
-      "Das Profil unter diesem Namen ist bereits Mitglied Eures Projekts."
-    );
+    expect(responseBody.errors.profileId).toStrictEqual([
+      "error.inputError.alreadyMember",
+    ]);
   });
 
   test("project not found", async () => {
@@ -217,8 +217,6 @@ describe("/project/$slug/settings/team/add-member", () => {
         profileId: "another-user-id",
       },
     });
-    expect(responseBody.message).toBe(
-      'Ein neues Teammitglied mit dem Namen "another-user-firstname another-user-lastname" wurde hinzugefügt.'
-    );
+    expect(responseBody.message).toBe("content.feedback");
   });
 });
