@@ -8,7 +8,12 @@ import { Form as RemixForm, performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
-import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
+import {
+  createAdminAuthClient,
+  createAuthClient,
+  getSessionUser,
+  signIn,
+} from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -51,7 +56,7 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values, environment) => {
-  const { error } = await signIn(
+  const { data, error } = await signIn(
     // TODO: fix type issue
     environment.authClient,
     values.email,
@@ -67,6 +72,15 @@ const mutation = makeDomainFunction(
     }
   } else {
     profile = await getProfileByEmailCaseInsensitive(values.email);
+    if (data.user !== null) {
+      // changes provider of user to email
+      const adminAuthClient = createAdminAuthClient();
+      await adminAuthClient.auth.admin.updateUserById(data.user.id, {
+        app_metadata: {
+          provider: "email",
+        },
+      });
+    }
   }
 
   return { values: { ...values, username: profile?.username } };

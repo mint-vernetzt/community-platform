@@ -85,7 +85,14 @@ export const loader = async (args: LoaderArgs) => {
           });
         }
       }
-      // Redirect after sign up verification
+      // changes provider of user to keycloak
+      const adminAuthClient = createAdminAuthClient();
+      await adminAuthClient.auth.admin.updateUserById(user.id, {
+        app_metadata: {
+          provider: "keycloak",
+        },
+      });
+      // Redirect after sign up or sign in verification
       const defaultRedirect = firstLogin
         ? `/profile/${profile.username}`
         : "/dashboard";
