@@ -10,6 +10,7 @@ import {
 } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
 import { generateValidSlug } from "~/utils.server";
+import { createProfile } from "../register/utils.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
@@ -58,19 +59,15 @@ export const loader = async (args: LoaderArgs) => {
         const firstName = fullNameParts.slice(0, -1).join(" ");
         // use the last part as last name
         const lastName = fullNameParts[fullNameParts.length - 1];
-        profile = await prismaClient.profile.create({
-          data: {
-            id: user.id,
-            email: user.email,
-            username,
-            firstName,
-            lastName,
-            termsAccepted: false,
-            profileVisibility: {
-              create: {},
-            },
-          },
-        });
+        const profileData = {
+          id: user.id,
+          email: user.email,
+          username,
+          firstName,
+          lastName,
+          termsAccepted: false,
+        };
+        profile = await createProfile(profileData);
       } else {
         // TODO: remove legacy visibility creation in next version (needed during development)
         // check if profile visibility exist
