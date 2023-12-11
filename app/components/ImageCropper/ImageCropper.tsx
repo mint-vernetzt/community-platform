@@ -7,7 +7,11 @@ import { Form } from "remix-forms";
 
 import Slider from "rc-slider";
 import { fileUploadSchema } from "~/lib/utils/schemas";
-import { type Subject, type UploadKey } from "~/routes/upload/utils.server";
+import {
+  uploadKey,
+  type Subject,
+  type UploadKey,
+} from "~/routes/upload/utils.server";
 import { InputFile } from "./InputFile";
 import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
@@ -269,7 +273,11 @@ function ImageCropper(props: ImageCropperProps) {
                   <Field name="uploadKey" />
                   <Field name="redirect" />
                   <button
-                    className="bg-transparent w-8 h-8 p-0 border-transparent absolute top-2 right-2 rounded-full border-2 border-neutral-200"
+                    className={`bg-transparent w-8 h-8 p-0 border-transparent absolute ${
+                      props.uploadKey === "logo" || props.uploadKey === "avatar"
+                        ? "top-1 right-1"
+                        : "-top-3 -right-3"
+                    } rounded-full border-2 border-neutral-200`}
                     type="submit"
                     disabled={isSaving}
                     onClick={(e) => {
