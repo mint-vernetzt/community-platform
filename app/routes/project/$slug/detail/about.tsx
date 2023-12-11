@@ -590,7 +590,7 @@ function About() {
             loaderData.project.xing !== null ||
             loaderData.project.mastodon !== null ||
             loaderData.project.tiktok !== null) && (
-            <div className="mv-flex mv-flex-row mv-no-wrap mv-gap-2">
+            <div className="mv-flex mv-flex-row mv-flex-wrap mv-gap-2">
               {loaderData.project.facebook !== null && (
                 <a
                   href={loaderData.project.facebook}
