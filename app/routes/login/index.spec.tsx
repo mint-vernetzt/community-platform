@@ -1,6 +1,6 @@
 import { redirect } from "@remix-run/node";
 // import { createServerClient } from "@supabase/auth-helpers-remix";
-import { getSessionUser, signIn } from "~/auth.server";
+import { getSessionUser, signIn, createAdminAuthClient } from "~/auth.server";
 import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma.server";
 import { action, loader } from "./index";
@@ -24,6 +24,7 @@ jest.mock("~/auth.server", () => {
   return {
     ...jest.requireActual("~/auth.server"),
     getSessionUser: jest.fn(),
+    createAdminAuthClient: jest.fn(),
     signIn: jest.fn(),
     setSession: jest.fn(),
   };
@@ -71,7 +72,23 @@ test("redirect on existing session", async () => {
 
 test("call login action success with login redirect param", async () => {
   (signIn as jest.Mock).mockImplementationOnce(() => {
-    return { error: null };
+    return {
+      data: {
+        user: {
+          id: "some-user-id",
+        },
+      },
+      error: null,
+    };
+  });
+
+  const updateUserById = jest.fn();
+  (createAdminAuthClient as jest.Mock).mockReturnValueOnce({
+    auth: {
+      admin: {
+        updateUserById,
+      },
+    },
   });
 
   const res = await action({
@@ -85,7 +102,23 @@ test("call login action success with login redirect param", async () => {
 
 test("call login action success with default redirect", async () => {
   (signIn as jest.Mock).mockImplementationOnce(() => {
-    return { error: null };
+    return {
+      data: {
+        user: {
+          id: "some-user-id",
+        },
+      },
+      error: null,
+    };
+  });
+
+  const updateUserById = jest.fn();
+  (createAdminAuthClient as jest.Mock).mockReturnValueOnce({
+    auth: {
+      admin: {
+        updateUserById,
+      },
+    },
   });
 
   (getSessionUser as jest.Mock).mockImplementationOnce(() => {

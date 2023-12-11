@@ -67,6 +67,15 @@ test("user newly registered with keycloak", async () => {
     username: "keycloakuser",
   });
 
+  const updateUserById = jest.fn();
+  (createAdminAuthClient as jest.Mock).mockReturnValueOnce({
+    auth: {
+      admin: {
+        updateUserById,
+      },
+    },
+  });
+
   const response = await loader({ request, context: {} as any, params: {} });
 
   expect(response).toStrictEqual(redirect(`/profile/keycloakuser`));
@@ -107,6 +116,15 @@ test("user signs in with keycloak", async () => {
       profileId: "some-user-id",
     }
   );
+
+  const updateUserById = jest.fn();
+  (createAdminAuthClient as jest.Mock).mockReturnValueOnce({
+    auth: {
+      admin: {
+        updateUserById,
+      },
+    },
+  });
 
   const response = await loader({ request, context: {} as any, params: {} });
 
