@@ -1,4 +1,4 @@
-import { Alert, Footer } from "@mint-vernetzt/components";
+import { Alert, CircleButton, Footer } from "@mint-vernetzt/components";
 import type {
   DataFunctionArgs,
   LinksFunction,
@@ -435,7 +435,14 @@ export default function App() {
   const isIndexRoute = location.pathname === "/";
 
   const matches = useMatches();
-  const isSettings = matches[1].id === "routes/project/$slug/settings";
+  const isProjectSettings = matches[1].id === "routes/project/$slug/settings";
+  const otherSettingsRoutes = [
+    "routes/profile/$username/settings",
+    "routes/organization/$slug/settings",
+    "routes/event/$slug/settings",
+    "routes/project/$slug/settings",
+  ];
+  const isSettings = otherSettingsRoutes.includes(matches[1].id);
 
   const [searchParams] = useSearchParams();
   const modal = searchParams.get("modal");
@@ -472,7 +479,7 @@ export default function App() {
       </head>
 
       <body className={bodyClasses}>
-        <div className="flex flex-col min-h-screen">
+        <div id="top" className="flex flex-col min-h-screen">
           {isNonAppBaseRoute || isIndexRoute ? null : (
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
@@ -481,18 +488,57 @@ export default function App() {
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
           ) : null}
-          <main className="flex-auto relative pb-8">
-            {typeof alert !== "undefined" &&
-            isNonAppBaseRoute === false &&
-            isIndexRoute === false ? (
-              <div className="container">
-                <Alert level={alert.level}>{alert.message}</Alert>
+          <div className="flex flex-nowrap">
+            <main className="flex-auto relative pb-8 w-full">
+              {typeof alert !== "undefined" &&
+              isNonAppBaseRoute === false &&
+              isIndexRoute === false ? (
+                <div className="container">
+                  <Alert level={alert.level}>{alert.message}</Alert>
+                </div>
+              ) : null}
+              <Outlet />
+            </main>
+            {/* Scroll to top button */}
+            {/* Should this be a component? */}
+            {isNonAppBaseRoute === false ? (
+              <div className={`${isSettings ? "hidden md:block " : ""}w-0`}>
+                <div className="w-0 h-16"></div>
+                <div className="w-0 h-screen sticky top-0">
+                  <div className="absolute bottom-4 md:bottom-8 -left-20">
+                    <Link to="#top">
+                      <CircleButton size="large" floating>
+                        <svg
+                          width="30"
+                          height="31"
+                          viewBox="0 0 30 31"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M15 4V29"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                          />
+                          <path
+                            d="M3 13L15 2L27 13"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </CircleButton>
+                    </Link>
+                  </div>
+                </div>
               </div>
             ) : null}
-            <Outlet />
-          </main>
-          <Footer isSettings={isSettings} />
+          </div>
+          <Footer isSettings={isProjectSettings} />
         </div>
+
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
