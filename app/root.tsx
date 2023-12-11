@@ -478,8 +478,8 @@ export default function App() {
         ) : null}
       </head>
 
-      <body id="top" className={bodyClasses}>
-        <div className="flex flex-col min-h-screen">
+      <body className={bodyClasses}>
+        <div id="top" className="flex flex-col min-h-screen">
           {isNonAppBaseRoute || isIndexRoute ? null : (
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
@@ -505,7 +505,7 @@ export default function App() {
               <div className={`${isSettings ? "hidden md:block " : ""}w-0`}>
                 <div className="w-0 h-16"></div>
                 <div className="w-0 h-screen sticky top-0">
-                  <div className="absolute bottom-8 -left-20">
+                  <div className="absolute bottom-4 md:bottom-8 -left-20">
                     <Link to="#top">
                       <CircleButton size="large" floating>
                         <svg
