@@ -250,18 +250,15 @@ function About() {
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
             Weitere Formate
           </h3>
-          <div className="mv-flex mv-flex-wrap mv-gap-2">
-            {loaderData.project.furtherFormats.map((format, index) => {
+          <Chip.Container>
+            {loaderData.project.furtherFormats.map((furtherFormat) => {
               return (
-                <span
-                  key={index}
-                  className="mv-font-normal mv-text-neutral-800"
-                >
-                  {format}
-                </span>
+                <Chip key={furtherFormat} color="primary">
+                  {furtherFormat}
+                </Chip>
               );
             })}
-          </div>
+          </Chip.Container>
         </div>
       )}
       {loaderData.project.disciplines.length > 0 && (
