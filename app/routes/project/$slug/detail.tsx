@@ -360,7 +360,7 @@ function ProjectDetail() {
       )}
       <section
         id="tab-bar-container"
-        className="mv-mx-4 md:mv-mx-auto md:mv-container mv-overflow-hidden"
+        className="mv-mx-4 md:mv-mx-auto md:mv-container mv-overflow-hidden mv-pb-8"
       >
         <div className="md:mv-flex xl:mv-justify-center">
           <div className="mv-flex mv-flex-col mv-gap-8 xl:mv-w-2/3">
