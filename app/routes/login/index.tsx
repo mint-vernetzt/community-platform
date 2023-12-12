@@ -56,7 +56,7 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values, environment) => {
-  const { data, error } = await signIn(
+  const { error } = await signIn(
     // TODO: fix type issue
     environment.authClient,
     values.email,
@@ -72,10 +72,10 @@ const mutation = makeDomainFunction(
     }
   } else {
     profile = await getProfileByEmailCaseInsensitive(values.email);
-    if (data.user !== null) {
+    if (profile !== null) {
       // changes provider of user to email
       const adminAuthClient = createAdminAuthClient();
-      await adminAuthClient.auth.admin.updateUserById(data.user.id, {
+      await adminAuthClient.auth.admin.updateUserById(profile.id, {
         app_metadata: {
           provider: "email",
         },

@@ -73,12 +73,14 @@ test("redirect on existing session", async () => {
 test("call login action success with login redirect param", async () => {
   (signIn as jest.Mock).mockImplementationOnce(() => {
     return {
-      data: {
-        user: {
-          id: "some-user-id",
-        },
-      },
       error: null,
+    };
+  });
+
+  (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+    return {
+      id: "some-user-id",
+      username: "some-username",
     };
   });
 
@@ -103,12 +105,14 @@ test("call login action success with login redirect param", async () => {
 test("call login action success with default redirect", async () => {
   (signIn as jest.Mock).mockImplementationOnce(() => {
     return {
-      data: {
-        user: {
-          id: "some-user-id",
-        },
-      },
       error: null,
+    };
+  });
+
+  (prismaClient.profile.findFirst as jest.Mock).mockImplementationOnce(() => {
+    return {
+      id: "some-user-id",
+      username: "some-username",
     };
   });
 

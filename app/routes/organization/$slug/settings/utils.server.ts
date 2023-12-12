@@ -79,6 +79,7 @@ export async function getProfileByEmailCaseInsensitive(email: string) {
       },
     },
     select: {
+      id: true,
       username: true,
     },
   });

@@ -14,7 +14,12 @@ import type { FormProps } from "remix-forms";
 import { Form, performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
 import { z } from "zod";
-import { createAuthClient, getSessionUser, signIn } from "~/auth.server";
+import {
+  createAdminAuthClient,
+  createAuthClient,
+  getSessionUser,
+  signIn,
+} from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import { H1, H3 } from "~/components/Heading/Heading";
@@ -95,6 +100,17 @@ const mutation = makeDomainFunction(
       throw "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.";
     } else {
       throw error.message;
+    }
+  } else {
+    const profile = await getProfileByEmailCaseInsensitive(values.email);
+    if (profile !== null) {
+      // changes provider of user to email
+      const adminAuthClient = createAdminAuthClient();
+      await adminAuthClient.auth.admin.updateUserById(profile.id, {
+        app_metadata: {
+          provider: "email",
+        },
+      });
     }
   }
 
