@@ -112,6 +112,7 @@ const mutation = makeDomainFunction(
           provider: "email",
         },
       });
+
       // TODO: fix type issue
       // @ts-ignore
       await environment.authClient.auth.refreshSession();
