@@ -13,12 +13,15 @@ import { UNSAFE_NavigationContext as NavigationContext } from "react-router-dom"
  * @param  when
  * @see https://reactrouter.com/api/useBlocker
  */
+// TODO: fix type issue
+// @ts-ignore
 export function useBlocker(blocker, when = true) {
   const { navigator } = useContext(NavigationContext);
 
   useEffect(() => {
     if (!when) return;
     // TODO: fix type issues
+    // @ts-ignore
     const unblock = navigator.block((tx) => {
       const autoUnblockingTx = {
         ...tx,
@@ -43,6 +46,8 @@ export function useBlocker(blocker, when = true) {
  * @param  message
  * @param  when
  */
+// TODO: fix type issue
+// @ts-ignore
 export function usePrompt(message, when = true) {
   const blocker = useCallback(
     // TODO: fix any type

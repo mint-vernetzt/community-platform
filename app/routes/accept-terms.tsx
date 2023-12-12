@@ -93,6 +93,7 @@ function AcceptTerms() {
     if (event.key === "Enter") {
       event.preventDefault();
       // TODO: Type issue
+      // @ts-ignore
       if (event.target.getAttribute("name") !== "termsAccepted") {
         submit(event.currentTarget);
       }

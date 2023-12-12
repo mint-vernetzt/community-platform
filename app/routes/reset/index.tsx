@@ -69,6 +69,7 @@ const mutation = makeDomainFunction(
       if (data.user.app_metadata.provider === "email") {
         const { error } = await sendResetPasswordLink(
           // TODO: fix type issue
+          // @ts-ignore
           environment.authClient,
           values.email,
           emailRedirectTo

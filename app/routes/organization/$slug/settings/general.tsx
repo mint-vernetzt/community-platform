@@ -184,6 +184,7 @@ export const action = async (args: ActionArgs) => {
         await updateOrganizationById(
           organization.id,
           // TODO: fix type issue
+          // @ts-ignore
           organizationData,
           privateFields
         );

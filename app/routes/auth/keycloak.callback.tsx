@@ -89,6 +89,7 @@ export const loader = async (args: LoaderArgs) => {
           provider: "keycloak",
         },
       });
+      await authClient.auth.refreshSession();
       // Redirect after sign up or sign in verification
       const defaultRedirect = firstLogin
         ? `/profile/${profile.username}`
@@ -110,6 +111,7 @@ export const loader = async (args: LoaderArgs) => {
           provider: "keycloak",
         },
       });
+      await authClient.auth.refreshSession();
       return redirectWithAlert(
         loginRedirect || "/dashboard",
         {
