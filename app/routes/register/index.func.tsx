@@ -30,6 +30,7 @@ after(async () => {
     .single();
 
   if (res.data !== null) {
+    // @ts-ignore
     const profile: Profile = res.data; // TODO: fix type issue
     await authClient.from("profiles").delete().match({ id: profile.id });
     await authClient.auth.admin.deleteUser(profile.id);

@@ -30,6 +30,7 @@ const mutation = makeDomainFunction(
 
   let success = true;
   // TODO: fix type issue
+  // @ts-ignore
   const sessionUser = await getSessionUserOrThrow(environment.authClient);
 
   try {

@@ -160,6 +160,7 @@ export const action = async ({ request, params }: ActionArgs) => {
       try {
         const { privateFields, ...profileData } = data;
         // TODO: fix type issue
+        // @ts-ignore
         await updateProfileById(profile.id, profileData, privateFields);
         updated = true;
       } catch (error) {

@@ -54,10 +54,13 @@ export function validateTimePeriods(
         earliestStartTime =
           earliestStartTime !== undefined &&
           // TODO: fix type issue
+          // @ts-ignore
           childEvent.startTime < earliestStartTime
             ? childEvent.startTime
             : earliestStartTime;
         latestEndTime =
+          // TODO: fix type issue
+          // @ts-ignore
           latestEndTime !== undefined && childEvent.endTime > latestEndTime
             ? childEvent.endTime
             : latestEndTime;

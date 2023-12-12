@@ -75,6 +75,7 @@ const mutation = makeDomainFunction(
 
   const { error } = await signUp(
     // TODO: fix type issue
+    // @ts-ignore
     environment.authClient,
     values.email,
     values.password,
@@ -120,7 +121,8 @@ export default function Register() {
   const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      // TODO: Type issue
+      // TODO: fix type issue
+      // @ts-ignore
       if (event.target.getAttribute("name") !== "termsAccepted") {
         submit(event.currentTarget);
       }

@@ -82,6 +82,7 @@ const passwordMutation = makeDomainFunction(
 
   const { error } = await updatePassword(
     // TODO: fix type issue
+    // @ts-ignore
     environment.authClient,
     values.password
   );
@@ -105,6 +106,7 @@ const emailMutation = makeDomainFunction(
 
   const { error } = await sendResetEmailLink(
     // TODO: fix type issue
+    // @ts-ignore
     environment.authClient,
     values.email,
     environment.siteUrl

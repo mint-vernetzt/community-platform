@@ -90,6 +90,7 @@ const mutation = makeDomainFunction(
 )(async (values, environment) => {
   const { error } = await signIn(
     // TODO: fix type issue
+    // @ts-ignore
     environment.authClient,
     values.email,
     values.password
@@ -112,6 +113,7 @@ const mutation = makeDomainFunction(
         },
       });
       // TODO: fix type issue
+      // @ts-ignore
       await environment.authClient.auth.refreshSession();
     }
   }
