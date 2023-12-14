@@ -168,7 +168,7 @@ function Events() {
             <Button
               size="large"
               variant="outline"
-              loading={fetcher.state === "submitting"}
+              loading={fetcher.state === "loading"}
             >
               Weitere laden
             </Button>
