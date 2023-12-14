@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -18,7 +18,7 @@ import {
   getQueryValueAsArrayOfWords,
 } from "./search/utils.server";
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
 
   const searchQuery = getQueryValueAsArrayOfWords(request);

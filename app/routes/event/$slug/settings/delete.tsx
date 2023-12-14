@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
@@ -28,7 +28,7 @@ const environmentSchema = z.object({
   eventName: z.string(),
 });
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -70,7 +70,7 @@ const mutation = makeDomainFunction(
   }
 });
 
-export const action = async (args: ActionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const slug = getParamValueOrThrow(params, "slug");

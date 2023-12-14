@@ -1,8 +1,8 @@
 import {
   json,
   redirect,
-  type ActionArgs,
-  type LoaderArgs,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useSearchParams, useSubmit } from "@remix-run/react";
 import { type SupabaseClient } from "@supabase/supabase-js";
@@ -18,7 +18,7 @@ const schema = z.object({
   redirectTo: z.string().optional(),
 });
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
   const response = new Response();
@@ -64,7 +64,7 @@ const mutation = makeDomainFunction(
   return values;
 });
 
-export const action = async (args: ActionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);

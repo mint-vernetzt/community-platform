@@ -1,4 +1,8 @@
-import type { ActionArgs, LinksFunction, LoaderArgs } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LinksFunction,
+  LoaderFunctionArgs,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -86,7 +90,7 @@ function makeFormProfileFromDbProfile(
   };
 }
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -118,7 +122,7 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: quillStyles },
 ];
 
-export const action = async ({ request, params }: ActionArgs) => {
+export const action = async ({ request, params }: ActionFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);

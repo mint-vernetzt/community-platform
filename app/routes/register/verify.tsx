@@ -1,10 +1,10 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { badRequest } from "remix-utils";
 import { createAuthClient, getSessionUser, setSession } from "~/auth.server";
 import { createProfile } from "./utils.server";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
   const response = new Response();

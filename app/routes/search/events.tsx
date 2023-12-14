@@ -1,5 +1,5 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -20,7 +20,7 @@ import {
 } from "./utils.server";
 import { useHydrated } from "remix-utils";
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);

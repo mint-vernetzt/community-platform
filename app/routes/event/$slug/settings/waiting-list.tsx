@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -40,7 +40,7 @@ import {
   type action as removeFromWaitingListAction,
 } from "./waiting-list/remove-from-waiting-list";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);

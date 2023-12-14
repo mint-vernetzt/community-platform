@@ -1,5 +1,5 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -11,7 +11,7 @@ import { getPaginationValues, prepareEvents } from "./utils.server";
 import { prismaClient } from "~/prisma.server";
 import { useHydrated } from "remix-utils";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 

@@ -1,10 +1,10 @@
 import { NavLink, Outlet } from "@remix-run/react";
-import { redirect, type LoaderArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
   const response = new Response();

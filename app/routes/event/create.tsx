@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -63,7 +63,7 @@ const schema = object({
 type SchemaType = typeof schema;
 type FormType = InferType<typeof schema>;
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -78,7 +78,7 @@ export const loader = async (args: LoaderArgs) => {
   return json({ child, parent }, { headers: response.headers });
 };
 
-export const action = async (args: ActionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);

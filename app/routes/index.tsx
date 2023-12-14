@@ -1,5 +1,5 @@
 import { Button } from "@mint-vernetzt/components";
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Link,
@@ -51,7 +51,7 @@ function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
   return <Form<Schema> {...props} />;
 }
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
   const response = new Response();
@@ -122,7 +122,7 @@ const mutation = makeDomainFunction(
   return { ...values };
 });
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);

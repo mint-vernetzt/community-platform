@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { badRequest, serverError } from "remix-utils";
@@ -15,7 +15,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 // 5. Now we have the link structure that we also receive on the server
 // 6. Paste the whole link in the browser and visit it
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
   const response = new Response();

@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { badRequest } from "remix-utils";
@@ -14,7 +14,7 @@ import PageBackground from "../../components/PageBackground/PageBackground";
 // 5. Now we have the link structure that we also receive on the server
 // 6. Paste the whole link in the browser and visit it
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
   const response = new Response();

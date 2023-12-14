@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -22,7 +22,7 @@ export type NetworkMemberSuggestions =
   | Awaited<ReturnType<typeof getOrganizationSuggestionsForAutocomplete>>
   | undefined;
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 

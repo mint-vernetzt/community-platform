@@ -6,7 +6,7 @@ import {
   ProfileCard,
 } from "@mint-vernetzt/components";
 import type { Organization, Profile } from "@prisma/client";
-import type { LinksFunction, LoaderArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
@@ -28,7 +28,7 @@ import { getRandomSeed } from "./explore/utils.server";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 

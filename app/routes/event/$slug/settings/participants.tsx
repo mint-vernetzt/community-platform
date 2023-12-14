@@ -1,4 +1,4 @@
-import type { DataFunctionArgs, LoaderArgs } from "@remix-run/node";
+import type { DataFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -54,7 +54,7 @@ const environmentSchema = z.object({
   participantsCount: z.number(),
 });
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);

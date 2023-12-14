@@ -1,4 +1,4 @@
-import { redirect, type LoaderArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { useSubmit } from "@remix-run/react";
 import React from "react";
 import { redirectWithAlert } from "~/alert.server";
@@ -12,7 +12,7 @@ import { prismaClient } from "~/prisma.server";
 import { generateValidSlug } from "~/utils.server";
 import { createProfile } from "../register/utils.server";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
