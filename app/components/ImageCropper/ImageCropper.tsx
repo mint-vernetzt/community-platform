@@ -7,11 +7,7 @@ import { Form } from "remix-forms";
 
 import Slider from "rc-slider";
 import { fileUploadSchema } from "~/lib/utils/schemas";
-import {
-  uploadKey,
-  type Subject,
-  type UploadKey,
-} from "~/routes/upload/utils.server";
+import { type Subject, type UploadKey } from "~/routes/upload/utils.server";
 import { InputFile } from "./InputFile";
 import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
