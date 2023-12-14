@@ -8,7 +8,12 @@ import {
   Toast,
 } from "@mint-vernetzt/components";
 import { type Prisma, type Profile } from "@prisma/client";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
 import {
   Form,
   useLoaderData,
@@ -30,7 +35,7 @@ import {
   getSubmissionHash,
 } from "./utils.server";
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -175,7 +180,7 @@ export const loader = async (args: DataFunctionArgs) => {
   );
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   // get action type
   const { request, params } = args;
   const response = new Response();

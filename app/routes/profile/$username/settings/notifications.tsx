@@ -1,6 +1,11 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { json, type DataFunctionArgs } from "@remix-run/node";
+import { Button } from "@mint-vernetzt/components";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  json,
+} from "@remix-run/node";
 import {
   Form,
   useActionData,
@@ -8,13 +13,12 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { notFound } from "remix-utils";
+import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { deriveProfileMode } from "../utils.server";
-import { z } from "zod";
-import { Button } from "@mint-vernetzt/components";
 
 const schema = z.object({
   updates: z
@@ -28,7 +32,7 @@ const schema = z.object({
     }),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
@@ -53,7 +57,7 @@ export const loader = async (args: DataFunctionArgs) => {
   return json({ profile: { ...profile, notificationSettings } });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 

@@ -1,21 +1,21 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { fileUploadSchema } from "~/lib/utils/schemas";
+import { deriveEventMode } from "../event/utils.server";
+import { deriveOrganizationMode } from "../organization/$slug/utils.server";
+import { deriveProfileMode } from "../profile/$username/utils.server";
+import { deriveProjectMode } from "../project/utils.server";
 import {
   removeImageFromEvent,
   removeImageFromOrganization,
   removeImageFromProfile,
   removeImageFromProject,
 } from "./delete.server";
-import { deriveOrganizationMode } from "../organization/$slug/utils.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { deriveEventMode } from "../event/utils.server";
-import { deriveProjectMode } from "../project/utils.server";
-import { deriveProfileMode } from "../profile/$username/utils.server";
 
 const environment = z.object({
   authClient: z.unknown(),
@@ -65,7 +65,7 @@ const mutation = makeDomainFunction(
   return { success };
 });
 
-export const action = async ({ request }: DataFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);

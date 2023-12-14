@@ -1,5 +1,5 @@
 import { Avatar, Chip, List, Video } from "@mint-vernetzt/components";
-import { json, type DataFunctionArgs } from "@remix-run/node";
+import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
@@ -8,6 +8,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import {
+  Avatar as AvatarIcon,
   Envelope,
   Facebook,
   Globe,
@@ -20,10 +21,9 @@ import {
   Twitter,
   Xing,
   YouTube,
-  Avatar as AvatarIcon,
 } from "./__components";
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 

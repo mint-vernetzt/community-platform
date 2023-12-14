@@ -1,4 +1,4 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
@@ -51,7 +51,7 @@ const emailEnvironmentSchema = z.object({
   // authClient: z.instanceof(SupabaseClient),
 });
 
-export const loader = async ({ request, params }: DataFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -118,7 +118,7 @@ const emailMutation = makeDomainFunction(
   return values;
 });
 
-export const action = async ({ request, params }: DataFunctionArgs) => {
+export const action = async ({ request, params }: ActionFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);

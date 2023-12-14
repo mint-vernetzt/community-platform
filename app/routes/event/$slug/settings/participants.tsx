@@ -1,4 +1,4 @@
-import type { DataFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -146,7 +146,7 @@ const mutation = makeDomainFunction(
   return values;
 });
 
-export async function action({ request, params }: DataFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const response = new Response();
   const eventSlug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);

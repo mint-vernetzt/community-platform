@@ -1,4 +1,4 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
@@ -58,7 +58,7 @@ const mutation = makeDomainFunction(
   };
 });
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const slug = getParamValueOrThrow(params, "slug");

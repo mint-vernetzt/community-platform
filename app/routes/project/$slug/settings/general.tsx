@@ -8,7 +8,12 @@ import {
   Section,
   Select,
 } from "@mint-vernetzt/components";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
 import {
   Form,
   useActionData,
@@ -84,7 +89,7 @@ const generalSchema = z.object({
     .transform((value) => (value === undefined || value === "" ? null : value)),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -175,7 +180,7 @@ export const loader = async (args: DataFunctionArgs) => {
   );
 };
 
-export async function action({ request, params }: DataFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);

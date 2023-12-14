@@ -1,15 +1,22 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { Button, Controls, Input, Section } from "@mint-vernetzt/components";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
 import {
   Form,
   useActionData,
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
+import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   facebookSchema,
@@ -29,8 +36,6 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import React from "react";
-import { usePrompt } from "~/lib/hooks/usePrompt";
 
 const webSocialSchema = z.object({
   website: websiteSchema,
@@ -44,7 +49,7 @@ const webSocialSchema = z.object({
   youtube: youtubeSchema,
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -96,7 +101,7 @@ export const loader = async (args: DataFunctionArgs) => {
   );
 };
 
-export async function action({ request, params }: DataFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);

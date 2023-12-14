@@ -1,4 +1,4 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
@@ -20,7 +20,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const slug = getParamValueOrThrow(params, "slug");

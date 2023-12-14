@@ -1,14 +1,14 @@
-import { Link, useLoaderData, useParams } from "@remix-run/react";
-import { type DataFunctionArgs, json } from "@remix-run/node";
+import { Button, Image } from "@mint-vernetzt/components";
+import { type LoaderFunctionArgs, json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
+import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { MaterialList } from "../settings/__components";
-import { Button, Image } from "@mint-vernetzt/components";
 import { getPublicURL } from "~/storage.server";
-import { getImageURL } from "~/images.server";
+import { MaterialList } from "../settings/__components";
 
-export async function loader(args: DataFunctionArgs) {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const response = new Response();
 
@@ -74,7 +74,6 @@ export async function loader(args: DataFunctionArgs) {
 }
 
 function Attachments() {
-  const params = useParams();
   const loaderData = useLoaderData<typeof loader>();
 
   return (

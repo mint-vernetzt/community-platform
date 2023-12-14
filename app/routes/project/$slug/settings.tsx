@@ -7,9 +7,9 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import {
+  type LoaderFunctionArgs,
   json,
   redirect,
-  type DataFunctionArgs,
 } from "@remix-run/server-runtime";
 import classNames from "classnames";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -19,7 +19,7 @@ import { getToast } from "~/toast.server";
 import { combineHeaders } from "~/utils.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 

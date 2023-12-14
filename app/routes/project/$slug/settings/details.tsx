@@ -10,10 +10,11 @@ import {
   Select,
 } from "@mint-vernetzt/components";
 import {
+  type ActionFunctionArgs,
   json,
   redirect,
-  type DataFunctionArgs,
   type LinksFunction,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import {
   Form,
@@ -179,7 +180,7 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: quillStyles },
 ];
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -314,7 +315,7 @@ export const loader = async (args: DataFunctionArgs) => {
   );
 };
 
-export async function action({ request, params }: DataFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);

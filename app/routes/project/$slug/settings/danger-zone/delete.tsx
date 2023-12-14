@@ -1,14 +1,19 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Button, Input } from "@mint-vernetzt/components";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
+import { redirectWithAlert } from "~/alert.server";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
-import { redirectWithAlert } from "~/alert.server";
 
 function createSchema(name: string) {
   return z.object({
@@ -18,7 +23,7 @@ function createSchema(name: string) {
   });
 }
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -59,7 +64,7 @@ export const loader = async (args: DataFunctionArgs) => {
   );
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 

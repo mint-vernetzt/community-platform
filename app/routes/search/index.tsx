@@ -1,4 +1,4 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import {
@@ -11,7 +11,7 @@ import {
 } from "./utils.server";
 
 // handle first tab with search results as default route
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 

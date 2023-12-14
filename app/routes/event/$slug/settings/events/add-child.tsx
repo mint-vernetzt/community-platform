@@ -1,4 +1,4 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
@@ -46,7 +46,7 @@ const mutation = makeDomainFunction(
   return { ...values, childEventName: childEvent.name };
 });
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);

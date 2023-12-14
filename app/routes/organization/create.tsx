@@ -1,4 +1,4 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useNavigate } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
@@ -24,7 +24,7 @@ const environmentSchema = z.object({
   userId: z.string(),
 });
 
-export const loader = async ({ request }: DataFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -50,7 +50,7 @@ const mutation = makeDomainFunction(
   return { ...values, slug };
 });
 
-export const action = async ({ request }: DataFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);

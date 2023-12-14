@@ -1,4 +1,4 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
@@ -30,7 +30,7 @@ const environmentSchema = z.object({
   userId: z.string(),
 });
 
-export const loader = async ({ request, params }: DataFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
@@ -106,7 +106,7 @@ const mutation = makeDomainFunction(
   return values;
 });
 
-export const action = async ({ request, params }: DataFunctionArgs) => {
+export const action = async ({ request, params }: ActionFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);

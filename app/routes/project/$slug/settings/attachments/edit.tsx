@@ -1,12 +1,12 @@
-import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
-} from "../utils.server";
-import { prismaClient } from "~/prisma.server";
+import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
+import { Button, Input } from "@mint-vernetzt/components";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
 import {
   Form,
   Link,
@@ -15,9 +15,14 @@ import {
   useMatches,
   useSearchParams,
 } from "@remix-run/react";
-import { Button, Input } from "@mint-vernetzt/components";
 import { z } from "zod";
-import { conform, useForm } from "@conform-to/react";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { prismaClient } from "~/prisma.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "../utils.server";
 
 const documentSchema = z.object({
   title: z
@@ -60,7 +65,7 @@ const imageSchema = z.object({
     ),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   invariantResponse(params.slug !== undefined, "No valid route", {
     status: 400,
@@ -145,7 +150,7 @@ export const loader = async (args: DataFunctionArgs) => {
   return json(file, { headers: response.headers });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 

@@ -2,13 +2,14 @@ import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Button, Image, Section, Toast } from "@mint-vernetzt/components";
 import {
-  type NodeOnDiskFile,
+  type ActionFunctionArgs,
   json,
   redirect,
   unstable_composeUploadHandlers,
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
-  type DataFunctionArgs,
+  type LoaderFunctionArgs,
+  type NodeOnDiskFile,
 } from "@remix-run/node";
 import {
   Form,
@@ -82,7 +83,7 @@ const actionSchema = z.object({
   filename: z.string(),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -170,7 +171,7 @@ export const loader = async (args: DataFunctionArgs) => {
   return json(project, { headers: response.headers });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 

@@ -1,5 +1,5 @@
 import { type Event } from "@prisma/client";
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import type { DateArray } from "ics";
 import * as ics from "ics";
 import { forbidden } from "remix-utils";
@@ -120,7 +120,7 @@ function createIcsString(
   return result as string | null;
 }
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);

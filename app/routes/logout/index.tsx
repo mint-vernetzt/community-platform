@@ -1,9 +1,9 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { serverError } from "remix-utils";
 import { createAuthClient, signOut } from "~/auth.server";
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
   const response = new Response();
 

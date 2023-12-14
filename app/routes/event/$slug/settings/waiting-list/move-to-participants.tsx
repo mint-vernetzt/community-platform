@@ -1,5 +1,6 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import { utcToZonedTime } from "date-fns-tz";
 import { makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
 import { badRequest, serverError } from "remix-utils";
@@ -19,7 +20,6 @@ import {
   connectParticipantToEvent,
   disconnectFromWaitingListOfEvent,
 } from "./utils.server";
-import { utcToZonedTime } from "date-fns-tz";
 
 const schema = z.object({
   profileId: z.string(),
@@ -31,7 +31,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const slug = getParamValueOrThrow(params, "slug");

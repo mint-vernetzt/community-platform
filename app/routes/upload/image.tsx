@@ -1,10 +1,11 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
 import { badRequest, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { deriveEventMode } from "../event/utils.server";
 import { deriveOrganizationMode } from "../organization/$slug/utils.server";
+import { deriveProfileMode } from "../profile/$username/utils.server";
 import { deriveProjectMode } from "../project/utils.server";
 import {
   updateEventBackgroundImage,
@@ -14,9 +15,8 @@ import {
   upload,
 } from "./uploadHandler.server";
 import { uploadKeys, type Subject } from "./utils.server";
-import { deriveProfileMode } from "../profile/$username/utils.server";
 
-export const loader = ({ request }: DataFunctionArgs) => {
+export const loader = ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
 
   createAuthClient(request, response);
@@ -50,7 +50,7 @@ async function handleAuth(subject: Subject, slug: string, sessionUser: User) {
   }
 }
 
-export const action = async ({ request }: DataFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);

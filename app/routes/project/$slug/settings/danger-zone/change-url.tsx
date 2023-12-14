@@ -1,10 +1,17 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Button, Input } from "@mint-vernetzt/components";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
@@ -12,8 +19,6 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "../utils.server";
-import React from "react";
-import { usePrompt } from "~/lib/hooks/usePrompt";
 
 function createSchema(constraint?: {
   isSlugUnique?: (slug: string) => Promise<boolean>;
@@ -39,7 +44,7 @@ function createSchema(constraint?: {
   });
 }
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -71,7 +76,7 @@ export const loader = async (args: DataFunctionArgs) => {
   );
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 

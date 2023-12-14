@@ -1,6 +1,6 @@
-import { redirect, type DataFunctionArgs } from "@remix-run/node";
+import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const response = new Response();
 
   return redirect("./about", { headers: response.headers });

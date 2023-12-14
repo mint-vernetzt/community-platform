@@ -1,8 +1,8 @@
-import { type DataFunctionArgs, redirect } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { serverError } from "remix-utils";
 import { createAuthClient } from "~/auth.server";
 
-export const loader = async ({ request }: DataFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
   const url = new URL(request.url);
   const loginRedirect = url.searchParams.get("login_redirect");

@@ -8,7 +8,12 @@ import {
   Toast,
 } from "@mint-vernetzt/components";
 import { type Organization, type Prisma } from "@prisma/client";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
 import {
   Form,
   useLoaderData,
@@ -24,14 +29,14 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { getToast, redirectWithToast } from "~/toast.server";
+import { combineHeaders } from "~/utils.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { combineHeaders } from "~/utils.server";
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
@@ -253,7 +258,7 @@ export const loader = async (args: DataFunctionArgs) => {
   );
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   // get action type
   const { request, params } = args;
   const response = new Response();
