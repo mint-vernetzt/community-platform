@@ -100,6 +100,8 @@ describe("/event/$slug/settings/events/remove-child", () => {
       })
     );
     expect(responseBody.success).toBe(true);
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.data.childEventId).toBe("child-event-id");
   });
 });

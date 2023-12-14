@@ -10,7 +10,7 @@ import {
   useActionData,
   useLoaderData,
   useParams,
-  useTransition,
+  useNavigation,
 } from "@remix-run/react";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -198,7 +198,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
 export default function Index() {
   const { username } = useParams();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const {
     profile: dbProfile,
     areas,
@@ -210,7 +210,7 @@ export default function Index() {
   const profile = actionData?.profile ?? dbProfile;
 
   const formRef = React.createRef<HTMLFormElement>();
-  const isSubmitting = transition.state === "submitting";
+  const isSubmitting = navigation.state === "submitting";
   const errors = actionData?.errors;
   const methods = useForm<ProfileFormType>({
     defaultValues: profile,
@@ -294,7 +294,7 @@ export default function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <fieldset disabled={transition.state === "submitting"}>
+          <fieldset disabled={navigation.state === "submitting"}>
             <h1 className="mb-8">Persönliche Daten</h1>
 
             <h4 className="mb-4 font-semibold">Allgemein</h4>

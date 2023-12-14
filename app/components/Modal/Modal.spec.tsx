@@ -6,6 +6,6 @@ import Modal from "./Modal";
 const expect = global.expect;
 
 test("render component", () => {
-  const { baseElement } = render(<Modal />);
+  const { baseElement } = render(<Modal id="some-id" children={undefined} />);
   expect(baseElement).toBeTruthy();
 });

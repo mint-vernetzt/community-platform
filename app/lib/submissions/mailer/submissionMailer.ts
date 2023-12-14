@@ -10,6 +10,8 @@ type MailerOptions = {
 };
 
 function renderTextTemplate<T>(o: T) {
+  // TODO: fix type issue
+  // @ts-ignore
   return Object.entries(o)
     .map(([key, value]) => `${key.toUpperCase()}: ${value}`)
     .join("\n --- \n");

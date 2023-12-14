@@ -11,7 +11,7 @@ import {
   useFetcher,
   useLoaderData,
   useParams,
-  useTransition,
+  useNavigation,
 } from "@remix-run/react";
 import { format } from "date-fns";
 import React from "react";
@@ -284,7 +284,7 @@ function General() {
   const publishFetcher = useFetcher<typeof publishAction>();
   const cancelFetcher = useFetcher<typeof cancelAction>();
 
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
   let event: typeof loaderData["event"];
   if (actionData !== undefined) {
@@ -303,7 +303,7 @@ function General() {
   }
 
   const formRef = React.createRef<HTMLFormElement>();
-  const isSubmitting = transition.state === "submitting";
+  const isSubmitting = navigation.state === "submitting";
 
   const methods = useForm<FormType>();
   const {
@@ -446,7 +446,7 @@ function General() {
 
   const isFormChanged =
     isDirty ||
-    transition.state === "submitting" ||
+    navigation.state === "submitting" ||
     (actionData !== undefined && actionData.updated === false);
 
   return (

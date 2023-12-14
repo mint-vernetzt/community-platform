@@ -10,7 +10,7 @@ import {
   useActionData,
   useLoaderData,
   useParams,
-  useTransition,
+  useNavigation,
 } from "@remix-run/react";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -236,11 +236,11 @@ function Index() {
     focuses,
   } = useLoaderData<typeof loader>();
 
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
 
   const formRef = React.createRef<HTMLFormElement>();
-  const isSubmitting = transition.state === "submitting";
+  const isSubmitting = navigation.state === "submitting";
 
   const organization = actionData?.organization ?? dbOrganization;
 

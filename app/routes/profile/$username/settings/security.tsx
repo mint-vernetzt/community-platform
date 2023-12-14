@@ -1,6 +1,6 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useActionData, useLoaderData, useTransition } from "@remix-run/react";
+import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
 import { forbidden, notFound } from "remix-utils";
@@ -157,7 +157,7 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
 };
 
 export default function Security() {
-  const transition = useTransition();
+  const navigation = useNavigation();
   const loaderData = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
@@ -198,7 +198,7 @@ export default function Security() {
           </p>
         </>
       ) : (
-        <fieldset disabled={transition.state === "submitting"}>
+        <fieldset disabled={navigation.state === "submitting"}>
           <h4 className="mb-4 font-semibold">Passwort ändern</h4>
 
           <p className="mb-8">

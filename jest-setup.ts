@@ -7,6 +7,8 @@ process.env.SUPABASE_URL = "https://supabase.test.io";
 process.env.SUPABASE_ANON_KEY = "random";
 
 //global.setImmediate = jest.useRealTimers;
+// TODO: fix type issues
+// @ts-ignore
 global.setImmediate = (callback) => callback(); // TODO: seems to be unnecessary
 
 jest.mock("~/prisma.server", () => {

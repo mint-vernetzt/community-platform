@@ -93,9 +93,14 @@ describe("/event/$slug/settings/events/add-child", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors._global).toStrictEqual([
       "Die Rahmenveranstaltung konnte nicht gefunden werden.",
     ]);
@@ -126,9 +131,14 @@ describe("/event/$slug/settings/events/add-child", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors._global).toStrictEqual([
       "Die zugehörige Veranstaltung konnte nicht gefunden werden.",
     ]);
@@ -165,9 +175,14 @@ describe("/event/$slug/settings/events/add-child", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors.childEventId).toStrictEqual([
       "Die zugehörige Veranstaltung liegt nicht im Zeitraum deiner Veranstaltung.",
     ]);
@@ -214,6 +229,8 @@ describe("/event/$slug/settings/events/add-child", () => {
         }),
       })
     );
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe(
       'Die Veranstaltung "some-child-name" ist jetzt Eurer Veranstaltung zugehörig.'
     );

@@ -14,7 +14,6 @@ export interface TextAreaWithCounterProps {
   withPublicPrivateToggle?: boolean;
   errorMessage?: string;
   publicPosition?: "top" | "side";
-  onChange?: Function; // <--- ?
   rte?: boolean;
   maxCharacters?: number;
   helperText?: string;

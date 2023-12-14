@@ -50,10 +50,14 @@ export function links() {
   ];
 }
 
-export const meta: MetaFunction = (args) => {
-  return {
-    title: `MINTvernetzt Community Plattform | ${args.data.organization.name}`,
-  };
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    {
+      title: `MINTvernetzt Community Plattform${
+        data !== undefined ? ` | ${data.organization.name}` : ""
+      }`,
+    },
+  ];
 };
 
 export const loader = async (args: LoaderFunctionArgs) => {

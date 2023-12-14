@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import TextArea, { TextAreaProps } from "./TextArea";
+import { type ComponentStory, type ComponentMeta } from "@storybook/react";
+import TextArea, { type TextAreaProps } from "./TextArea";
 
 export default {
   title: "FormElements/TextArea",

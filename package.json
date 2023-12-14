@@ -29,7 +29,8 @@
     "copy:fonts": "rsync node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-{400,600,700}-normal.woff public/fonts",
     "make": "make",
     "test:func": "node -r dotenv/config node_modules/.bin/cypress run",
-    "test:func:live": "node -r dotenv/config node_modules/.bin/cypress open"
+    "test:func:live": "node -r dotenv/config node_modules/.bin/cypress open",
+    "typecheck": "npx tsc && npx tsc -p cypress"
   },
   "dependencies": {
     "@conform-to/react": "^0.9.0",

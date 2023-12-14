@@ -6,6 +6,6 @@ import Input from "./Input";
 const expect = global.expect;
 
 test("render component", () => {
-  const { baseElement } = render(<Input />);
+  const { baseElement } = render(<Input label="some-label" />);
   expect(baseElement).toBeTruthy();
 });

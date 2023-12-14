@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import SelectField, { SelectFieldProps } from "./SelectField";
+import { type ComponentStory, type ComponentMeta } from "@storybook/react";
+import SelectField, { type SelectFieldProps } from "./SelectField";
 
 export default {
   title: "FormElements/SelectField",
@@ -14,7 +14,7 @@ Default.storyName = "default";
 Default.args = {
   label: "Label",
   id: "select",
-  isRequired: false,
+  required: false,
   options: [
     { label: "Option 1", value: "option 1" },
     { label: "Option 2", value: "option 2" },

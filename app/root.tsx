@@ -36,7 +36,7 @@ import { combineHeaders } from "./utils.server";
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
-  return { title: "MINTvernetzt Community Plattform" };
+  return [{ title: "MINTvernetzt Community Plattform" }];
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];

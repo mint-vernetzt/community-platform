@@ -11,7 +11,6 @@ export interface TextAreaProps {
   withPublicPrivateToggle?: boolean;
   errorMessage?: string;
   publicPosition?: "top" | "side";
-  onChange?: Function; // <--- ?
   rte?: boolean;
   quillRef?: React.RefObject<ReactQuill>;
 }

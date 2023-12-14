@@ -267,6 +267,8 @@ describe("/event/$slug/settings/delete", () => {
       const responseBody = await response.json();
 
       expect(responseBody.errors.eventName).toBeDefined();
+      // TODO: fix type issue
+      // @ts-ignore
       expect(responseBody.errors.eventName[0]).toBe(
         "Der Name der Veranstaltung ist nicht korrekt"
       );

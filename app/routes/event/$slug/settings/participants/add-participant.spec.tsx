@@ -110,8 +110,12 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     });
     const responseBody = await response.json();
     expect(responseBody.success).toBe(false);
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors.profileId).toStrictEqual([
       "Es existiert noch kein Profil unter diesem Namen.",
     ]);
@@ -145,6 +149,8 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.errors.profileId).toContain(
       "Das Profil unter diesem Namen nimmt bereits an Eurer Veranstaltung teil."
     );
@@ -214,6 +220,8 @@ describe("/event/$slug/settings/participants/add-participant", () => {
         profileId: "another-user-id",
       },
     });
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe(
       'Das Profil mit dem Namen "some-first-name some-last-name" wurde als Teilnehmer:in hinzugefügt.'
     );
@@ -251,6 +259,8 @@ describe("/event/$slug/settings/participants/add-participant", () => {
         profileId: "some-user-id",
       },
     });
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe(
       'Das Profil mit dem Namen "some-first-name some-last-name" wurde als Teilnehmer:in hinzugefügt.'
     );

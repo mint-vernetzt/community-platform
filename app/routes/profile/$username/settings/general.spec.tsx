@@ -452,7 +452,10 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.firstName).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.firstName.message).toEqual(
         expect.stringContaining("firstName must be a `string` type")
       );
@@ -481,7 +484,10 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.firstName).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.firstName.message).toEqual(
         expect.stringContaining("Bitte gib Deinen Vornamen ein.")
       );
@@ -512,7 +518,10 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.email).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.email.message).toEqual(
         expect.stringContaining("email must be a valid email")
       );
@@ -545,6 +554,8 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issue
+      // @ts-ignore
       expect(responseBody.errors.email).toBeUndefined();
       expect(responseBody.profile.email).toBe(email);
     });

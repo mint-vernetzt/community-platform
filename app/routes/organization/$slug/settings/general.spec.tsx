@@ -481,7 +481,10 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.name).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.name.message).toEqual(
         expect.stringContaining("name must be a `string` type")
       );
@@ -512,7 +515,10 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.name).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.name.message).toEqual(
         expect.stringContaining("Bitte gib Euren Namen ein.")
       );
@@ -545,7 +551,10 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.email).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.email.message).toEqual(
         expect.stringContaining(
           "Deine Eingabe entspricht nicht dem Format einer E-Mail."
@@ -582,6 +591,8 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issue
+      // @ts-ignore
       expect(responseBody.errors.email).toBeUndefined();
       expect(responseBody.organization.email).toBe(email);
     });

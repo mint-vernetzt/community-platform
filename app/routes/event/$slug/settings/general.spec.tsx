@@ -568,26 +568,38 @@ describe("/event/$slug/settings/general", () => {
           params: { slug },
         });
         const responseBody = await response.json();
+        // TODO: fix type issues
+        // @ts-ignore
         expect(responseBody.errors.name).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.name.message).toBe(
           "Bitte gib den Namen der Veranstaltung an"
         );
+        // @ts-ignore
         expect(responseBody.errors.startDate).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.startDate.message).toBe(
           "Bitte gib den Beginn der Veranstaltung an"
         );
+        // @ts-ignore
         expect(responseBody.errors.endDate).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.endDate.message).toBe(
           "Bitte gib das Ende der Veranstaltung an"
         );
+        // @ts-ignore
         expect(responseBody.errors.participationUntilDate).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.participationUntilDate.message).toBe(
           "Bitte gib das Ende für die Registrierung an"
         );
+        // @ts-ignore
         expect(responseBody.errors.participationFromDate).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.participationFromDate.message).toBe(
           "Bitte gib den Beginn für die Registrierung an"
         );
+        // @ts-ignore
         expect(responseBody.errors.submit).toBeDefined();
         // expect(Object.keys(response.errors).length).toBe(3);
       });
@@ -616,15 +628,26 @@ describe("/event/$slug/settings/general", () => {
 
         const responseBody = await response.json();
 
+        // TODO: fix type issues
+        // @ts-ignore
         expect(responseBody.errors.startDate).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.startTime).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.endDate).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.endTime).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.participationUntilDate).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.participationUntilTime).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.participationFromDate).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.participationFromTime).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.submit).toBeDefined();
+        // @ts-ignore
         expect(Object.keys(responseBody.errors).length).toBe(9);
       });
 
@@ -653,9 +676,14 @@ describe("/event/$slug/settings/general", () => {
 
         const responseBody = await response.json();
 
+        // TODO: fix type issues
+        // @ts-ignore
         expect(responseBody.errors.endTime).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.participationUntilTime).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.participationFromDate).toBeDefined();
+        // @ts-ignore
         expect(Object.keys(responseBody.errors).length).toBe(3);
       });
       test("invalid date time fields (not inside parent/child event time span)", async () => {
@@ -700,9 +728,15 @@ describe("/event/$slug/settings/general", () => {
         });
 
         const responseBody = await response.json();
+
+        // TODO: fix type issues
+        // @ts-ignore
         expect(responseBody.errors.endTime).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.participationUntilTime).toBeDefined();
+        // @ts-ignore
         expect(responseBody.errors.participationFromDate).toBeDefined();
+        // @ts-ignore
         expect(Object.keys(responseBody.errors).length).toBe(3);
       });
       test("valid update call of event settings general", async () => {
