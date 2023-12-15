@@ -59,6 +59,7 @@ export const action = async (args: ActionFunctionArgs) => {
         {
           message:
             "No system mail sender address provided. Please add one inside the .env.",
+          success: false,
         },
         { status: 500 }
       );
@@ -72,6 +73,7 @@ export const action = async (args: ActionFunctionArgs) => {
         {
           message:
             "No community base url provided. Please add one inside the .env.",
+          success: false,
         },
         { status: 500 }
       );
@@ -129,8 +131,8 @@ export const action = async (args: ActionFunctionArgs) => {
     } catch (error) {
       // Throw a 500 -> Mailer issue
       console.error(error);
-      return json({ message: "Mailer Issue" }, { status: 500 });
+      return json({ message: "Mailer Issue", success: false }, { status: 500 });
     }
   }
-  return json(result, { headers: response.headers });
+  return json({ success: true }, { headers: response.headers });
 };
