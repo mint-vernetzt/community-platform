@@ -21,7 +21,6 @@ import {
 } from "@remix-run/react";
 import classNames from "classnames";
 import * as React from "react";
-import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
@@ -79,7 +78,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         avatar,
       };
     } else {
-      throw notFound({ message: "profile not found." });
+      throw json({ message: "profile not found." }, { status: 404 });
     }
   }
 

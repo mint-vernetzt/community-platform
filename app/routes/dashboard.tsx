@@ -10,7 +10,6 @@ import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { notFound } from "remix-utils";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
@@ -47,7 +46,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const profile = await getProfileById(sessionUser.id);
   if (profile === null) {
-    throw notFound({ message: "Profile not found" });
+    throw json({ message: "Profile not found" }, { status: 404 });
   }
 
   if (profile.termsAccepted === false) {

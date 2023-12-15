@@ -3,7 +3,6 @@ import { json } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { forbidden, notFound } from "remix-utils";
 import { z } from "zod";
 import {
   createAuthClient,
@@ -58,7 +57,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw notFound({ message: "profile not found." });
+    throw json({ message: "profile not found." }, { status: 404 });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -128,7 +127,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
   if (sessionUser.app_metadata.provider === "keycloak") {
-    throw forbidden({ message: "not allowed." });
+    throw json({ message: "not allowed." }, { status: 403 });
   }
 
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once

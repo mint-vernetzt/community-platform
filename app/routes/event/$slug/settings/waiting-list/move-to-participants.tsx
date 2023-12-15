@@ -3,7 +3,6 @@ import { json } from "@remix-run/node";
 import { utcToZonedTime } from "date-fns-tz";
 import { makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
-import { badRequest, serverError } from "remix-utils";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
@@ -56,20 +55,26 @@ export const action = async (args: ActionFunctionArgs) => {
       console.error(
         "No system mail sender address provided. Please add one inside the .env."
       );
-      throw badRequest({
-        message:
-          "No system mail sender address provided. Please add one inside the .env.",
-      });
+      throw json(
+        {
+          message:
+            "No system mail sender address provided. Please add one inside the .env.",
+        },
+        { status: 500 }
+      );
     }
     const baseUrl = process.env.COMMUNITY_BASE_URL;
     if (baseUrl === undefined) {
       console.error(
         "No community base url provided. Please add one inside the .env."
       );
-      throw badRequest({
-        message:
-          "No community base url provided. Please add one inside the .env.",
-      });
+      throw json(
+        {
+          message:
+            "No community base url provided. Please add one inside the .env.",
+        },
+        { status: 500 }
+      );
     }
     // -> mail of person which was moved to waitinglist
     const recipient = profile.email;
@@ -124,7 +129,7 @@ export const action = async (args: ActionFunctionArgs) => {
     } catch (error) {
       // Throw a 500 -> Mailer issue
       console.error(error);
-      return serverError({ message: "Mailer Issue" });
+      return json({ message: "Mailer Issue" }, { status: 500 });
     }
   }
   return json(result, { headers: response.headers });

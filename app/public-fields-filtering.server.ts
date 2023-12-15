@@ -1,7 +1,7 @@
 import type { Event, Organization, Profile, Project } from "@prisma/client";
-import { notFound } from "remix-utils";
 import type { EntitySubset } from "./lib/utils/types";
 import { prismaClient } from "./prisma.server";
+import { json } from "@remix-run/server-runtime";
 
 type ProfileWithRelations = Profile & {
   areas: any;
@@ -45,7 +45,7 @@ export async function filterProfileByVisibility<
     },
   });
   if (profileVisibility === null) {
-    throw notFound({ message: "Profile visibilities not found." });
+    throw json({ message: "Profile visibilities not found." }, { status: 404 });
   }
 
   for (const key in profile) {
@@ -183,7 +183,10 @@ export async function filterOrganizationByVisibility<
     });
 
   if (organizationVisibility === null) {
-    throw notFound({ message: "Organization visibilities not found." });
+    throw json(
+      { message: "Organization visibilities not found." },
+      { status: 404 }
+    );
   }
   for (const key in organization) {
     if (!organizationVisibility.hasOwnProperty(key)) {
@@ -315,7 +318,7 @@ export async function filterEventByVisibility<
   });
 
   if (eventVisibility === null) {
-    throw notFound({ message: "Event visibilities not found." });
+    throw json({ message: "Event visibilities not found." }, { status: 404 });
   }
 
   for (const key in event) {
@@ -447,7 +450,7 @@ export async function filterProjectByVisibility<
   });
 
   if (projectVisibility === null) {
-    throw notFound({ message: "Project visibilities not found." });
+    throw json({ message: "Project visibilities not found." }, { status: 404 });
   }
   for (const key in project) {
     if (!projectVisibility.hasOwnProperty(key)) {

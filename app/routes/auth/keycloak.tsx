@@ -1,5 +1,4 @@
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { serverError } from "remix-utils";
+import { redirect, type LoaderFunctionArgs, json } from "@remix-run/node";
 import { createAuthClient } from "~/auth.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -20,7 +19,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
   if (error) {
     console.log(error);
-    return serverError({ message: error.message });
+    return json({ message: error.message }, { status: 500 });
   }
 
   return redirect(data.url);

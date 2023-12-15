@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { cors } from "remix-utils";
+import { cors } from "remix-utils/build/server/cors";
 import type { PaktFormData } from "../../lib/submissions/forms/pakt/paktFormData";
 import * as schema from "../../lib/submissions/forms/pakt/validation.schema.json";
 import { processSubmission } from "../../lib/submissions/process/processSubmission";

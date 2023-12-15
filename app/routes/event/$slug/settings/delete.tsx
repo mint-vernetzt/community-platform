@@ -3,7 +3,6 @@ import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { notFound } from "remix-utils";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -93,7 +92,7 @@ export const action = async (args: ActionFunctionArgs) => {
   if (result.success === true) {
     const profile = await getProfileById(sessionUser.id);
     if (profile === null) {
-      throw notFound("Profile not found");
+      throw json("Profile not found", { status: 404 });
     }
     return redirect(`/profile/${profile.username}`);
   }

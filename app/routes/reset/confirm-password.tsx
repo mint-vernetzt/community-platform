@@ -1,7 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { badRequest, serverError } from "remix-utils";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -30,16 +29,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // Get search param confirmation_link from url
   const confirmationLink = url.searchParams.get("confirmation_link");
   if (confirmationLink === null) {
-    throw badRequest("Did not provide a confirmation link search parameter");
+    throw json("Did not provide a confirmation link search parameter", {
+      status: 400,
+    });
   }
 
   // Check if confirmationLink starts with https://${process.env.SUPABASE_URL}/auth/v1/verify
   if (
     !confirmationLink.startsWith(`${process.env.SUPABASE_URL}/auth/v1/verify?`)
   ) {
-    throw badRequest(
-      "The provided comfirmation link has not the right structure"
-    );
+    throw json("The provided comfirmation link has not the right structure", {
+      status: 400,
+    });
   }
 
   // Generate URL object from confirmationLink
@@ -48,17 +49,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // Get search param redirect_to
   let redirectTo = confirmationLinkUrl.searchParams.get("redirect_to");
   if (redirectTo === null) {
-    throw badRequest("Did not provide a redirect_to search parameter");
+    throw json("Did not provide a redirect_to search parameter", {
+      status: 400,
+    });
   }
 
   // Check if COMMUNITY_BASE_URL is present in .env
   if (process.env.COMMUNITY_BASE_URL === undefined) {
-    throw serverError("COMMUNITY_BASE_URL is not defined in .env");
+    throw json("COMMUNITY_BASE_URL is not defined in .env", { status: 500 });
   }
 
   // Check if redirectTo starts with https://${process.env.COMMUNITY_BASE_URL}.
   if (!redirectTo.startsWith(`${process.env.COMMUNITY_BASE_URL}`)) {
-    throw badRequest("The redirect_to url has not the right structure");
+    throw json("The redirect_to url has not the right structure", {
+      status: 400,
+    });
   } else {
     // Check if redirectTo starts with https://${process.env.COMMUNITY_BASE_URL}/verification
     // If thats the case the user initialized the password reset
@@ -79,33 +84,35 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (loginRedirect !== null) {
     const isValidPath = /^([-a-zA-Z0-9@:%._\\+~#?&/=]*)$/g.test(loginRedirect);
     if (!isValidPath) {
-      throw badRequest("The login_redirect path has not the right structure");
+      throw json("The login_redirect path has not the right structure", {
+        status: 400,
+      });
     }
   }
 
   // Get search param token
   const token = confirmationLinkUrl.searchParams.get("token");
   if (token === null) {
-    throw badRequest("Did not provide a token search parameter");
+    throw json("Did not provide a token search parameter", { status: 400 });
   }
 
   // Check if token is a hex value (only on production environment)
   if (process.env.NODE_ENV === "production") {
     const isHex = /^[0-9A-Fa-f]+$/g.test(token);
     if (!isHex) {
-      throw badRequest("The token parameter is not a hex value");
+      throw json("The token parameter is not a hex value", { status: 400 });
     }
   }
 
   // Get search param type
   const type = confirmationLinkUrl.searchParams.get("type");
   if (type === null) {
-    throw badRequest("Did not provide a type search parameter");
+    throw json("Did not provide a type search parameter", { status: 400 });
   }
 
   // Check if type === "recovery"
   if (type !== "recovery") {
-    throw badRequest("The type parameter is not of type recovery");
+    throw json("The type parameter is not of type recovery", { status: 400 });
   }
 
   // Build new URL -> {process.env.SUPABASE_URL}/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification&token=${token}&type=recovery

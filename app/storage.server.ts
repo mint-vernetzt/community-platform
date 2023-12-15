@@ -1,13 +1,13 @@
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import type { Document } from "@prisma/client";
 import {
+  json,
   unstable_composeUploadHandlers,
   unstable_parseMultipartFormData,
 } from "@remix-run/node";
 import type { UploadHandler } from "@remix-run/node";
 import { fromBuffer } from "file-type";
 import JSZip from "jszip";
-import { badRequest, serverError } from "remix-utils";
 import { createHashFromString } from "./utils.server";
 import { escapeFilenameSpecialChars } from "./lib/string/escapeFilenameSpecialChars";
 
@@ -24,7 +24,7 @@ export function generatePathName(
 
 const uploadHandler: UploadHandler = async (part) => {
   // TODO: remove file-type package and use contentType...only if Remix uses file header
-  const { contentType, data, name, filename } = part;
+  const { data, name, filename } = part;
 
   let bytes = [];
   for await (let chunk of data) {
@@ -42,24 +42,33 @@ const uploadHandler: UploadHandler = async (part) => {
   const hash = await createHashFromString(buffer.toString());
   const fileTypeResult = await fromBuffer(buffer);
   if (fileTypeResult === undefined) {
-    throw serverError({
-      message: "Der Dateityp (MIME type) konnte nicht gelesen werden.",
-    });
+    throw json(
+      {
+        message: "Der Dateityp (MIME type) konnte nicht gelesen werden.",
+      },
+      { status: 500 }
+    );
   }
   if (name === "document" && fileTypeResult.mime !== "application/pdf") {
-    throw serverError({
-      message:
-        "Aktuell können ausschließlich Dateien im PDF-Format hochgeladen werden.",
-    });
+    throw json(
+      {
+        message:
+          "Aktuell können ausschließlich Dateien im PDF-Format hochgeladen werden.",
+      },
+      { status: 500 }
+    );
   }
   if (
     imageUploadKeys.includes(name) &&
     !fileTypeResult.mime.includes("image/")
   ) {
-    throw serverError({
-      message:
-        "Die Datei entspricht keinem gängigem Bildformat und konnte somit nicht hochgeladen werden.",
-    });
+    throw json(
+      {
+        message:
+          "Die Datei entspricht keinem gängigem Bildformat und konnte somit nicht hochgeladen werden.",
+      },
+      { status: 500 }
+    );
   }
   const path = generatePathName(fileTypeResult.ext, hash, name);
   const sizeInBytes = buffer.length;
@@ -97,13 +106,16 @@ function validatePersistence(
 ) {
   if (error || data === null) {
     console.log(error);
-    throw serverError({ message: "Hochladen fehlgeschlagen." });
+    throw json({ message: "Hochladen fehlgeschlagen." }, { status: 500 });
   }
 
   if (getPublicURL(authClient, path, bucketName) === null) {
-    throw serverError({
-      message: "Die angefragte URL konnte nicht gefunden werden.",
-    });
+    throw json(
+      {
+        message: "Die angefragte URL konnte nicht gefunden werden.",
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -115,12 +127,18 @@ export const parseMultipart = async (request: Request) => {
     );
     const uploadKey = formData.get("uploadKey");
     if (uploadKey === null) {
-      throw serverError({ message: "Something went wrong on upload." });
+      throw json(
+        { message: "Something went wrong on upload." },
+        { status: 500 }
+      );
     }
     // TODO: can this type assertion be removed and proofen by code?
     const uploadHandlerResponseJSON = formData.get(uploadKey as string);
     if (uploadHandlerResponseJSON === null) {
-      throw serverError({ message: "Something went wrong on upload." });
+      throw json(
+        { message: "Something went wrong on upload." },
+        { status: 500 }
+      );
     }
     let uploadHandlerResponse: {
       buffer: {
@@ -137,11 +155,11 @@ export const parseMultipart = async (request: Request) => {
     // Convert buffer.data (number[]) to Buffer
     const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
     if (buffer.length === 0) {
-      throw serverError({ message: "Cannot upload empty file." });
+      throw json({ message: "Cannot upload empty file." }, { status: 500 });
     }
 
     if (buffer.length > 5_000_000) {
-      throw serverError({ message: "File is too big." });
+      throw json({ message: "File is too big." }, { status: 500 });
     }
 
     return {
@@ -196,9 +214,12 @@ export function getPublicURL(
   } = authClient.storage.from(bucket).getPublicUrl(relativePath);
 
   if (publicUrl === "") {
-    throw serverError({
-      message: "Die öffentliche URL der Datei konnte nicht erzeugt werden.",
-    });
+    throw json(
+      {
+        message: "Die öffentliche URL der Datei konnte nicht erzeugt werden.",
+      },
+      { status: 500 }
+    );
   }
 
   if (
@@ -225,9 +246,12 @@ export async function download(
     .download(relativePath);
 
   if (data === null || error !== null) {
-    throw serverError({
-      message: "Datei konnte nicht heruntergeladen werden.",
-    });
+    throw json(
+      {
+        message: "Datei konnte nicht heruntergeladen werden.",
+      },
+      { status: 500 }
+    );
   }
   return data;
 }
@@ -239,9 +263,13 @@ export async function getDownloadDocumentsResponse(
   zipFilename: string = "Dokumente.zip"
 ) {
   if (documents.length === 0) {
-    throw badRequest({
-      message: "Please pass at least one document inside the documents array.",
-    });
+    throw json(
+      {
+        message:
+          "Please pass at least one document inside the documents array.",
+      },
+      { status: 400 }
+    );
   }
 
   const files = await Promise.all(
@@ -295,8 +323,11 @@ export async function remove(
   const { data, error } = await authClient.storage.from(bucket).remove(paths);
 
   if (data === null || error !== null) {
-    throw serverError({
-      message: "Datei konnte nicht gelöscht werden.",
-    });
+    throw json(
+      {
+        message: "Datei konnte nicht gelöscht werden.",
+      },
+      { status: 500 }
+    );
   }
 }

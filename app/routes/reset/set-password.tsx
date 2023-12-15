@@ -3,7 +3,6 @@ import { json, redirect } from "@remix-run/node";
 import { useSearchParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { badRequest } from "remix-utils";
 import { z } from "zod";
 import {
   createAuthClient,
@@ -56,8 +55,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const refreshToken = url.searchParams.get("refresh_token");
 
   if (accessToken === null || refreshToken === null) {
-    throw badRequest(
-      "Did not provide access or refresh token to reset the password."
+    throw json(
+      "Did not provide access or refresh token to reset the password.",
+      { status: 400 }
     );
   }
 

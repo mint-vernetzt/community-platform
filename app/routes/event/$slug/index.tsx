@@ -7,7 +7,7 @@ import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useNavigate } from "react-router-dom";
-import { forbidden, notFound, useHydrated } from "remix-utils";
+import { useHydrated } from "remix-utils/build/react/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
@@ -88,14 +88,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
         });
       }
     } else {
-      throw notFound({ message: `Profile not found` });
+      throw json({ message: `Profile not found` }, { status: 404 });
     }
   }
 
   const rawEvent = await getEvent(slug);
 
   if (rawEvent === null) {
-    throw notFound({ message: `Event not found` });
+    throw json({ message: `Event not found` }, { status: 404 });
   }
 
   const mode = await deriveEventMode(sessionUser, slug);
@@ -118,7 +118,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   if (mode !== "admin" && !isTeamMember && rawEvent.published === false) {
-    throw forbidden({ message: "Event not published" });
+    throw json({ message: "Event not published" }, { status: 403 });
   }
 
   let speakers: Awaited<

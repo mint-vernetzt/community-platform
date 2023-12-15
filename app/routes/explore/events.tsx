@@ -9,7 +9,7 @@ import { H1 } from "~/components/Heading/Heading";
 import { getPaginationValues, prepareEvents } from "./utils.server";
 
 import { prismaClient } from "~/prisma.server";
-import { useHydrated } from "remix-utils";
+import { useHydrated } from "remix-utils/build/react/use-hydrated";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;

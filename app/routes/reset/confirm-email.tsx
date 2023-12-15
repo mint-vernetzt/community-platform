@@ -1,7 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { badRequest } from "remix-utils";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 
@@ -24,16 +23,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // Get search param confirmation_link from url
   const confirmationLink = url.searchParams.get("confirmation_link");
   if (confirmationLink === null) {
-    throw badRequest("Did not provide a confirmation link search parameter");
+    throw json("Did not provide a confirmation link search parameter", {
+      status: 400,
+    });
   }
 
   // Check if confirmationLink starts with https://${process.env.SUPABASE_URL}/auth/v1/verify
   if (
     !confirmationLink.startsWith(`${process.env.SUPABASE_URL}/auth/v1/verify?`)
   ) {
-    throw badRequest(
-      "The provided comfirmation link has not the right structure"
-    );
+    throw json("The provided comfirmation link has not the right structure", {
+      status: 400,
+    });
   }
 
   // Generate URL object from confirmationLink
@@ -42,14 +43,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // Get search param redirect_to
   const redirectTo = confirmationLinkUrl.searchParams.get("redirect_to");
   if (redirectTo === null) {
-    throw badRequest("Did not provide a redirect_to search parameter");
+    throw json("Did not provide a redirect_to search parameter", {
+      status: 400,
+    });
   }
 
   // Check if redirectTo starts with https://${process.env.COMMUNITY_BASE_URL}/verification
   if (
     !redirectTo.startsWith(`${process.env.COMMUNITY_BASE_URL}/verification`)
   ) {
-    throw badRequest("The redirect_to url has not the right structure");
+    throw json("The redirect_to url has not the right structure", {
+      status: 400,
+    });
   }
 
   const redirectToUrl = new URL(redirectTo);
@@ -59,33 +64,37 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (loginRedirect !== null) {
     const isValidPath = /^([-a-zA-Z0-9@:%._\\+~#?&/=]*)$/g.test(loginRedirect);
     if (!isValidPath) {
-      throw badRequest("The login_redirect path has not the right structure");
+      throw json("The login_redirect path has not the right structure", {
+        status: 400,
+      });
     }
   }
 
   // Get search param token
   const token = confirmationLinkUrl.searchParams.get("token");
   if (token === null) {
-    throw badRequest("Did not provide a token search parameter");
+    throw json("Did not provide a token search parameter", { status: 400 });
   }
 
   // Check if token is a hex value (only on production environment)
   if (process.env.NODE_ENV === "production") {
     const isHex = /^[0-9A-Fa-f]+$/g.test(token);
     if (!isHex) {
-      throw badRequest("The token parameter is not a hex value");
+      throw json("The token parameter is not a hex value", { status: 400 });
     }
   }
 
   // Get search param type
   const type = confirmationLinkUrl.searchParams.get("type");
   if (type === null) {
-    throw badRequest("Did not provide a type search parameter");
+    throw json("Did not provide a type search parameter", { status: 400 });
   }
 
   // Check if type === "email_change"
   if (type !== "email_change") {
-    throw badRequest("The type parameter is not of type email_change");
+    throw json("The type parameter is not of type email_change", {
+      status: 400,
+    });
   }
 
   // Build new URL -> {process.env.SUPABASE_URL}/auth/v1/verify?redirect_to=${process.env.COMMUNITY_BASE_URL}/verification&token=${token}&type=email_change

@@ -1,9 +1,9 @@
 import type { Profile } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { createServerClient } from "@supabase/auth-helpers-remix";
-import { serverError, unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma.server";
 import { createClient } from "@supabase/supabase-js";
+import { json } from "@remix-run/server-runtime";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
 const SESSION_NAME = "sb2";
@@ -35,10 +35,13 @@ export const createAuthClient = (request: Request, response: Response) => {
     );
     return authClient;
   } else {
-    throw serverError({
-      message:
-        "Could not find SUPABASE_URL or SUPABASE_ANON_KEY in the .env file.",
-    });
+    throw json(
+      {
+        message:
+          "Could not find SUPABASE_URL or SUPABASE_ANON_KEY in the .env file.",
+      },
+      { status: 500 }
+    );
   }
 };
 
@@ -59,10 +62,13 @@ export const createAdminAuthClient = () => {
     );
     return adminAuthClient;
   }
-  throw serverError({
-    message:
-      "Could not find SUPABASE_URL or SERVICE_ROLE_KEY in the .env file.",
-  });
+  throw json(
+    {
+      message:
+        "Could not find SUPABASE_URL or SERVICE_ROLE_KEY in the .env file.",
+    },
+    { status: 500 }
+  );
 };
 
 export const signUp = async (
@@ -127,9 +133,12 @@ export const getSession = async (authClient: SupabaseClient) => {
 export const getSessionOrThrow = async (authClient: SupabaseClient) => {
   const session = await getSession(authClient);
   if (session === null) {
-    throw unauthorized({
-      message: "No session found",
-    });
+    throw json(
+      {
+        message: "No session found",
+      },
+      { status: 401 }
+    );
   }
   return session;
 };
@@ -145,9 +154,12 @@ export const getSessionUser = async (authClient: SupabaseClient) => {
 export const getSessionUserOrThrow = async (authClient: SupabaseClient) => {
   const result = await getSessionUser(authClient);
   if (result === null) {
-    throw unauthorized({
-      message: "No session or session user found",
-    });
+    throw json(
+      {
+        message: "No session or session user found",
+      },
+      { status: 401 }
+    );
   }
   return result;
 };

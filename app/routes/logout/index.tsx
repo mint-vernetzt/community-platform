@@ -1,6 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { serverError } from "remix-utils";
+import { json, redirect } from "@remix-run/node";
 import { createAuthClient, signOut } from "~/auth.server";
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -12,7 +11,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { error } = await signOut(authClient);
 
   if (error !== null) {
-    throw serverError({ message: error.message });
+    throw json({ message: error.message }, { status: 500 });
   }
 
   const cookie = response.headers.get("set-cookie");

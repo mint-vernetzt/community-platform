@@ -12,7 +12,6 @@ import {
   useLoaderData,
   useSubmit,
 } from "@remix-run/react";
-import { notFound } from "remix-utils";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -44,7 +43,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
   if (profile === null) {
-    throw notFound("Profile not found");
+    throw json("Profile not found", { status: 404 });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);

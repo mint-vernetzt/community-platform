@@ -8,7 +8,6 @@ import {
 } from "@remix-run/react";
 import { format } from "date-fns-tz";
 import { useForm } from "react-hook-form";
-import { badRequest } from "remix-utils";
 import type { InferType } from "yup";
 import { object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -94,7 +93,7 @@ export const action = async (args: ActionFunctionArgs) => {
     errors = result.errors;
     data = result.data;
   } catch (error) {
-    throw badRequest({ message: "Validation failed" });
+    throw json({ message: "Validation failed" }, { status: 400 });
   }
 
   const eventData = transformFormToEvent(data);

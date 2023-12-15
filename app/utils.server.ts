@@ -1,10 +1,10 @@
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import type { BinaryToTextEncoding } from "crypto";
 import { createHmac, randomBytes } from "crypto";
-import { forbidden, serverError } from "remix-utils";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { getSession } from "./auth.server";
 import { prismaClient } from "./prisma.server";
+import { json } from "@remix-run/server-runtime";
 
 export type Mode = "anon" | "authenticated";
 
@@ -25,9 +25,12 @@ export async function createHashFromString(
     hash.update(string);
     return hash.digest(encoding);
   } else {
-    throw serverError({
-      message: "Could not find HASH_SECRET in the .env file.",
-    });
+    throw json(
+      {
+        message: "Could not find HASH_SECRET in the .env file.",
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -40,17 +43,17 @@ export async function validateCSRFToken(
   authClient: SupabaseClient,
   request: Request
 ) {
-  const formData = await request.clone().formData();
+  // const formData = await request.clone().formData();
   const session = await getSession(authClient);
 
   const message = "Not allowed";
 
   if (session === null) {
     console.error(new Error("Session is null"));
-    throw forbidden({ message });
+    throw json({ message }, { status: 403 });
   }
 
-  const csrf = formData.get("csrf");
+  // const csrf = formData.get("csrf");
 
   // TODO: .has() and .get() does not exist on session since supabase v2
   // Use getSession(), refreshSession() and setSession() instead
@@ -71,7 +74,7 @@ export async function validateCSRFToken(
 }
 
 export async function addCsrfTokenToSession(authClient: SupabaseClient) {
-  const session = await getSession(authClient);
+  // const session = await getSession(authClient);
 
   // TODO: .has() and .get() does not exist on session since supabase v2
   // Use getSession(), refreshSession() and setSession() instead

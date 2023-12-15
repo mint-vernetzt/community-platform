@@ -7,7 +7,7 @@ import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { notFound, useHydrated } from "remix-utils";
+import { useHydrated } from "remix-utils/build/react/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
@@ -83,7 +83,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const organization = await getOrganizationBySlug(slug);
   if (organization === null) {
-    throw notFound({ message: "Not found" });
+    throw json({ message: "Not found" }, { status: 404 });
   }
 
   let enhancedOrganization = {

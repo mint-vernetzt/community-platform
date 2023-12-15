@@ -1,9 +1,8 @@
-import { badRequest } from "remix-utils";
-import type { Asserts, InferType, StringSchema } from "yup";
+import type { Asserts, InferType, StringSchema, TestContext } from "yup";
 import { mixed, number, string, ValidationError } from "yup";
-import type { TestContext } from "yup";
 import type { AnyObject, OptionalObjectSchema } from "yup/lib/object";
 import { format } from "date-fns";
+import { json } from "@remix-run/server-runtime";
 
 type Error = {
   type: string;
@@ -316,7 +315,7 @@ export async function getFormDataValidationResultOrThrow<
     data = result.data;
   } catch (error) {
     console.error(error);
-    throw badRequest({ message: "Validation failed" });
+    throw json({ message: "Validation failed" }, { status: 400 });
   }
   return { errors, data };
 }

@@ -7,7 +7,7 @@ import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { notFound, useHydrated } from "remix-utils";
+import { useHydrated } from "remix-utils/build/react/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
@@ -71,13 +71,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
         });
       }
     } else {
-      throw notFound({ message: "Profile not found" });
+      throw json({ message: "Profile not found" }, { status: 404 });
     }
   }
 
   const profile = await getProfileByUsername(username, mode);
   if (profile === null) {
-    throw notFound({ message: "Profile not found" });
+    throw json({ message: "Profile not found" }, { status: 404 });
   }
 
   const abilities = await getFeatureAbilities(authClient, [

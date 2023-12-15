@@ -1,6 +1,9 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import {
+  json,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
-import { badRequest, serverError } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { deriveEventMode } from "../event/utils.server";
@@ -22,9 +25,12 @@ export const loader = ({ request }: LoaderFunctionArgs) => {
   createAuthClient(request, response);
 
   if (request.method !== "POST") {
-    throw badRequest({
-      message: `I'm a teapot. This endpoint is only for method POST uploads`,
-    });
+    throw json(
+      {
+        message: `I'm a teapot. This endpoint is only for method POST uploads`,
+      },
+      { status: 400 }
+    );
   }
 
   return response;
@@ -71,7 +77,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const uploadHandlerResponseJSON = formData.get(name as string);
 
   if (uploadHandlerResponseJSON === null) {
-    throw serverError({ message: "Something went wrong on upload." });
+    throw json({ message: "Something went wrong on upload." }, { status: 500 });
   }
   const uploadHandlerResponse: {
     buffer: Buffer;

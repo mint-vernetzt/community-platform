@@ -1,6 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { badRequest } from "remix-utils";
 import { createAuthClient, getSessionUser, setSession } from "~/auth.server";
 import { createProfile } from "./utils.server";
 
@@ -43,8 +42,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
           typeof sessionUser.user_metadata.lastName !== "string" ||
           typeof sessionUser.user_metadata.termsAccepted !== "boolean"
         ) {
-          throw badRequest(
-            "Did not provide necessary user meta data to create a corresponding profile after sign up."
+          throw json(
+            "Did not provide necessary user meta data to create a corresponding profile after sign up.",
+            { status: 400 }
           );
         }
         // Profile is now created here and not inside a trigger function
@@ -66,9 +66,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
         alert(
           "Das Profil konnte nicht erstellt werden. Bitte mit Screenshot dieser Nachricht an den Support wenden.\n\nSession konnte nach der Bestätigungsmail nicht gesetzt werden."
         );
-        throw badRequest(
-          "Could not create a session after sign up verification."
-        );
+        throw json("Could not create a session after sign up verification.", {
+          status: 400,
+        });
       }
     }
   }

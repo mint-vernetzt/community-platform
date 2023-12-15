@@ -1,6 +1,6 @@
+import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import type { User } from "@supabase/supabase-js";
-import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import { addUserParticipationStatus } from "~/lib/event/utils";
 import { prismaClient } from "~/prisma.server";
@@ -264,7 +264,10 @@ export async function prepareOrganizationEvents(
   const organization = await getOrganizationWithEvents(slug, inFuture);
 
   if (organization === null) {
-    throw notFound({ message: "Organization with events not found" });
+    throw json(
+      { message: "Organization with events not found" },
+      { status: 404 }
+    );
   }
 
   let enhancedOrganization = {

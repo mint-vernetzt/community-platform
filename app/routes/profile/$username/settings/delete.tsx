@@ -2,7 +2,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
 import { Form as RemixForm, performMutation } from "remix-forms";
-import { notFound, serverError } from "remix-utils";
 import { z } from "zod";
 import {
   createAdminAuthClient,
@@ -37,7 +36,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw notFound({ message: "profile not found." });
+    throw json({ message: "profile not found." }, { status: 404 });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -124,7 +123,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   if (result.success) {
     const { error } = await signOut(authClient);
     if (error !== null) {
-      throw serverError({ message: error.message });
+      throw json({ message: error.message }, { status: 500 });
     }
 
     const cookie = response.headers.get("set-cookie");

@@ -1,8 +1,8 @@
 import type { Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
+import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { GravityType } from "imgproxy/dist/types";
-import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
@@ -107,7 +107,7 @@ export async function getAllProfiles(
         whereClauses.push(areaWhere);
       }
     } else {
-      throw notFound({ message: "Area to filter not found" });
+      throw json({ message: "Area to filter not found" }, { status: 404 });
     }
   }
   if (offerId !== undefined) {

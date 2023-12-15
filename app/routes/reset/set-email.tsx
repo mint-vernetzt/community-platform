@@ -1,6 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { badRequest, serverError } from "remix-utils";
+import { json, redirect } from "@remix-run/node";
 import { createAuthClient, setSession } from "~/auth.server";
 import { updateProfileByUserId } from "./set-email.server";
 
@@ -36,15 +35,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
         headers: response.headers,
       });
     } else {
-      throw serverError({
-        message:
-          "Could not set the session. Either the access and refresh token combination is invalid or an internal server occured.",
-      });
+      throw json(
+        {
+          message:
+            "Could not set the session. Either the access and refresh token combination is invalid or an internal server occured.",
+        },
+        { status: 500 }
+      );
     }
   } else {
-    throw badRequest({
-      message:
-        "Request not from confirmation link or confirmation link expired.",
-    });
+    throw json(
+      {
+        message:
+          "Request not from confirmation link or confirmation link expired.",
+      },
+      { status: 400 }
+    );
   }
 };

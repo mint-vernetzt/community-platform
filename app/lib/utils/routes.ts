@@ -1,5 +1,5 @@
+import { json } from "@remix-run/server-runtime";
 import type { Params } from "react-router";
-import { badRequest } from "remix-utils";
 
 export function getParamValue(params: Params<string>, key: string) {
   const value = params[key];
@@ -9,7 +9,7 @@ export function getParamValue(params: Params<string>, key: string) {
 export function getParamValueOrThrow(params: Params<string>, key: string) {
   const result = getParamValue(params, key);
   if (result === undefined || typeof result !== "string") {
-    throw badRequest({ message: `"${key}" missing` });
+    throw json({ message: `"${key}" missing` }, { status: 400 });
   }
   return result;
 }

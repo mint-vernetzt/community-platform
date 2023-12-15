@@ -15,7 +15,6 @@ import {
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import quillStyles from "react-quill/dist/quill.snow.css";
-import { badRequest, notFound, serverError } from "remix-utils";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -100,11 +99,11 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const dbProfile = await getWholeProfileFromUsername(username);
   if (dbProfile === null) {
-    throw notFound({ message: "profile not found." });
+    throw json({ message: "profile not found." }, { status: 404 });
   }
   const profileVisibilities = await getProfileVisibilitiesById(dbProfile.id);
   if (profileVisibilities === null) {
-    throw notFound({ message: "profile visbilities not found." });
+    throw json({ message: "profile visbilities not found." }, { status: 404 });
   }
 
   const profile = makeFormProfileFromDbProfile(dbProfile);
@@ -132,7 +131,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw notFound({ message: "profile not found." });
+    throw json({ message: "profile not found." }, { status: 404 });
   }
   const formData = await request.clone().formData();
   let parsedFormData = await getFormValues<ProfileSchemaType>(
@@ -153,7 +152,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     data = result.data;
   } catch (error) {
     console.error(error);
-    throw badRequest({ message: "Validation failed" });
+    throw json({ message: "Validation failed" }, { status: 400 });
   }
 
   let updated = false;
@@ -169,7 +168,10 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         updated = true;
       } catch (error) {
         console.error(error);
-        throw serverError({ message: "Something went wrong on update." });
+        throw json(
+          { message: "Something went wrong on update." },
+          { status: 500 }
+        );
       }
     }
   } else {

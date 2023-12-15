@@ -1,8 +1,7 @@
 import { type Event } from "@prisma/client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import type { DateArray } from "ics";
 import * as ics from "ics";
-import { forbidden } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { invariantResponse } from "~/lib/utils/response";
@@ -136,14 +135,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const isParticipant = await getIsParticipant(event.id, sessionUser.id);
 
   if (!(isTeamMember || isSpeaker || isParticipant)) {
-    throw forbidden({
-      message:
-        "Um den Kalender-Eintrag herunterzuladen musst du entweder Teammitglied, Speaker oder Teilnehmer der Veranstaltung sein.",
-    });
+    throw json(
+      {
+        message:
+          "Um den Kalender-Eintrag herunterzuladen musst du entweder Teammitglied, Speaker oder Teilnehmer der Veranstaltung sein.",
+      },
+      { status: 403 }
+    );
   }
 
   if (mode !== "admin" && event.published === false) {
-    throw forbidden({ message: "Event not published" });
+    throw json({ message: "Event not published" }, { status: 403 });
   }
 
   const url = new URL(request.url);

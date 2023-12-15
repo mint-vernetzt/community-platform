@@ -1,5 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { badRequest, notFound } from "remix-utils";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -25,10 +24,13 @@ async function getProfilesBySearchParams(
         return { ...participant.profile, participatedEvents: event.name };
       });
     } else {
-      throw badRequest({
-        message:
-          "search parameter - depth = full || single - must be provided.",
-      });
+      throw json(
+        {
+          message:
+            "search parameter - depth = full || single - must be provided.",
+        },
+        { status: 400 }
+      );
     }
   } else if (type === "waitingList") {
     if (depth === "full") {
@@ -41,20 +43,26 @@ async function getProfilesBySearchParams(
         };
       });
     } else {
-      throw badRequest({
-        message:
-          "search parameter - depth = full || single - must be provided.",
-      });
+      throw json(
+        {
+          message:
+            "search parameter - depth = full || single - must be provided.",
+        },
+        { status: 400 }
+      );
     }
   } else {
-    throw badRequest({
-      message:
-        "search parameter - type = participants || waitingList - must be provided.",
-    });
+    throw json(
+      {
+        message:
+          "search parameter - type = participants || waitingList - must be provided.",
+      },
+      { status: 400 }
+    );
   }
 
   if (profiles === null) {
-    throw notFound({ message: "Participants not found" });
+    throw json({ message: "Participants not found" }, { status: 404 });
   }
 
   return profiles;

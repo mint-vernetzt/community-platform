@@ -14,7 +14,6 @@ import {
 } from "@remix-run/react";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { badRequest, notFound, serverError } from "remix-utils";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -110,15 +109,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
-    throw notFound({
-      message: `Organization with slug "${slug}" not found.`,
-    });
+    throw json(
+      {
+        message: `Organization with slug "${slug}" not found.`,
+      },
+      { status: 404 }
+    );
   }
   const organizationVisibilities = await getOrganizationVisibilitiesById(
     dbOrganization.id
   );
   if (organizationVisibilities === null) {
-    throw notFound({ message: "organization visbilities not found." });
+    throw json(
+      { message: "organization visbilities not found." },
+      { status: 404 }
+    );
   }
 
   const organization = makeFormOrganizationFromDbOrganization(dbOrganization);
@@ -174,7 +179,7 @@ export const action = async (args: ActionFunctionArgs) => {
     data = result.data;
   } catch (error) {
     console.error(error);
-    throw badRequest({ message: "Validation failed" });
+    throw json({ message: "Validation failed" }, { status: 400 });
   }
 
   let updated = false;
@@ -195,7 +200,10 @@ export const action = async (args: ActionFunctionArgs) => {
         updated = true;
       } catch (error) {
         console.error(error);
-        throw serverError({ message: "Something went wrong on update." });
+        throw json(
+          { message: "Something went wrong on update." },
+          { status: 500 }
+        );
       }
     }
   } else {

@@ -1,5 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { forbidden, serverError } from "remix-utils";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -19,7 +18,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const mode = await deriveEventMode(sessionUser, slug);
 
   if (mode !== "admin" && event.published === false) {
-    throw forbidden({ message: "Event not published" });
+    throw json({ message: "Event not published" }, { status: 403 });
   }
   const url = new URL(request.url);
   const documentId = url.searchParams.get("document_id");
@@ -31,9 +30,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   } else {
     const document = await getDocumentById(documentId);
     if (document === null) {
-      throw serverError({
-        message: "Das angeforderte Dokument konnte nicht gefunden werden.",
-      });
+      throw json(
+        {
+          message: "Das angeforderte Dokument konnte nicht gefunden werden.",
+        },
+        { status: 500 }
+      );
     }
     documents = [document];
   }

@@ -1,6 +1,6 @@
 import type { Profile } from "@prisma/client";
+import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
-import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import {
   addUserParticipationStatus,
@@ -107,7 +107,7 @@ export async function updateProfileById(
     },
   });
   if (profileVisibility === null) {
-    throw notFound("Profile visibilities not found");
+    throw json("Profile visibilities not found", { status: 404 });
   }
 
   let visibility: keyof typeof profileVisibility;
@@ -418,7 +418,7 @@ export async function prepareProfileEvents(
 ) {
   const profile = await getProfileWithEventsByMode(username, mode, inFuture);
   if (profile === null) {
-    throw notFound({ message: "Profile with events not found" });
+    throw json({ message: "Profile with events not found" }, { status: 404 });
   }
 
   let enhancedProfile = {
