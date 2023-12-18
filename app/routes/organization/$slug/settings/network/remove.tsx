@@ -2,7 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
@@ -15,6 +15,7 @@ import {
   disconnectOrganizationFromNetwork,
   getOrganizationIdBySlug,
 } from "../utils.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   organizationId: z.string().uuid(),
@@ -74,7 +75,7 @@ export function NetworkMemberRemoveForm(
   const { networkMember, slug } = props;
 
   return (
-    <Form
+    <RemixFormsForm
       method="post"
       key={`${networkMember.slug}`}
       action={`/organization/${slug}/settings/network/remove`}
@@ -132,6 +133,6 @@ export function NetworkMemberRemoveForm(
           </div>
         );
       }}
-    </Form>
+    </RemixFormsForm>
   );
 }

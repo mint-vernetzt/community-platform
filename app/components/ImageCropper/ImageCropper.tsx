@@ -3,7 +3,6 @@ import React, { useRef, useState } from "react";
 
 import type { Crop, PixelCrop } from "react-image-crop";
 import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
-import { Form } from "remix-forms";
 
 import Slider from "rc-slider";
 import { fileUploadSchema } from "~/lib/utils/schemas";
@@ -11,6 +10,7 @@ import { type Subject, type UploadKey } from "~/routes/upload/utils.server";
 import { InputFile } from "./InputFile";
 import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
+import { RemixFormsForm } from "../RemixFormsForm/RemixFormsForm";
 
 export interface ImageCropperProps {
   id: string;
@@ -249,10 +249,9 @@ function ImageCropper(props: ImageCropperProps) {
         <div className="relative max-h-72">
           {!imgSrc && props.children}
           {image && !completedCrop && (
-            <Form
+            <RemixFormsForm
               action={DELETE_URL}
               method="post"
-              reloadDocument
               schema={fileUploadSchema}
               hiddenFields={["subject", "slug", "uploadKey", "redirect"]}
               values={{
@@ -299,7 +298,7 @@ function ImageCropper(props: ImageCropperProps) {
                   </button>
                 </>
               )}
-            </Form>
+            </RemixFormsForm>
           )}
 
           {Boolean(imgSrc) && (

@@ -9,7 +9,7 @@ import {
 import type { KeyboardEvent } from "react";
 import React from "react";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUser, signUp } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -18,6 +18,7 @@ import SelectField from "../../components/FormElements/SelectField/SelectField";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { generateUsername } from "../../utils.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),
@@ -177,7 +178,7 @@ export default function Register() {
                 </p>
               </>
             ) : (
-              <RemixForm
+              <RemixFormsForm
                 method="post"
                 schema={schema}
                 hiddenFields={["loginRedirect"]}
@@ -359,7 +360,7 @@ export default function Register() {
                     <Errors />
                   </>
                 )}
-              </RemixForm>
+              </RemixFormsForm>
             )}
           </div>
         </div>

@@ -3,7 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import { useActionData, useNavigate } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -13,6 +13,7 @@ import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
 import { getOrganizationByName } from "./$slug/settings/utils.server";
 import { createOrganizationOnProfile } from "./create.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   organizationName: z
@@ -136,7 +137,7 @@ export default function Create() {
               Organisation oder Netzwerk hinzufügen
             </h4>
             <div className="pt-10 lg:pt-0">
-              <RemixForm
+              <RemixFormsForm
                 method="post"
                 schema={schema}
                 onTransition={({ reset, formState }) => {
@@ -169,7 +170,7 @@ export default function Create() {
                     <Errors />
                   </>
                 )}
-              </RemixForm>
+              </RemixFormsForm>
               {actionData !== undefined &&
               !actionData.success &&
               actionData.alreadyExistingOrganization !== null ? (

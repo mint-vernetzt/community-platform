@@ -5,13 +5,18 @@ const request = new Request(testURL);
 const response = new Response();
 
 const authClient = createServerClient(
+  // TODO: fix type issues
+  // Globals of cypress and jest are conflicting
+  // @ts-ignore
   Cypress.env("SUPABASE_URL"),
+  // @ts-ignore
   Cypress.env("SERVICE_ROLE_KEY"),
   { request, response }
 );
 
 let uid: string | undefined;
 
+// @ts-ignore
 before(async () => {
   const email = "hello@songsforthe.dev";
   const password = "password";
@@ -50,28 +55,41 @@ before(async () => {
 
 it("login", () => {
   //cy.task("isUserDeleted", { uid }).then((result) => console.log(result));
+  // @ts-ignore
   cy.visit("http://localhost:3000/");
+  // @ts-ignore
   cy.findByLabelText("E-Mail").type("hello@songsforthe.dev");
+  // @ts-ignore
   cy.findByLabelText("Passwort").type("password");
+  // @ts-ignore
   cy.findByText("Login").click();
+  // @ts-ignore
   cy.url().should("eq", "http://localhost:3000/profile/peterhollo");
 
+  // @ts-ignore
   cy.visit("http://localhost:3000/profile/peterhollo/delete");
+  // @ts-ignore
   cy.url().should("eq", "http://localhost:3000/profile/peterhollo/delete");
 
+  // @ts-ignore
   cy.get("#confirmedToken").type("wirklich löschen");
+  // @ts-ignore
   cy.findByText("Profil entgültig löschen").click();
 
+  // @ts-ignore
   cy.url().should(
     "eq",
     "http://localhost:3000/profile/peterhollo/delete/goodbye"
   );
 
+  // @ts-ignore
   cy.findByRole("heading").contains("Good Bye");
 
+  // @ts-ignore
   cy.visit("http://localhost:3000/explore");
 });
 
+// @ts-ignore
 after(async () => {
   if (uid !== undefined) {
     //    await supabase.from("profiles").delete().match({ id: uid });

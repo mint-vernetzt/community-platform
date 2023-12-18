@@ -5,7 +5,7 @@ import {
   unstable_composeUploadHandlers,
   unstable_parseMultipartFormData,
 } from "@remix-run/node";
-import { fromBuffer } from "file-type";
+import { fileTypeFromBuffer } from "file-type";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { createHashFromString, triggerEntityScore } from "~/utils.server";
@@ -35,7 +35,7 @@ const uploadHandler: UploadHandler = async (part) => {
   }
 
   const hash = await createHashFromString(buffer.toString());
-  const fileTypeResult = await fromBuffer(buffer);
+  const fileTypeResult = await fileTypeFromBuffer(buffer);
 
   if (fileTypeResult === undefined) {
     console.log("Der Dateityp (MIME type) konnte nicht gelesen werden.");

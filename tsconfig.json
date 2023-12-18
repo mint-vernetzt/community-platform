@@ -15,7 +15,7 @@
       "@mint-vernetzt/components": ["./common/components/*"]
     },
     "noEmit": true,
-    "types": ["cypress", "@testing-library/cypress", "jest", "node"],
+    "types": ["@testing-library/cypress", "jest", "node"],
     "allowJs": true,
     "forceConsistentCasingInFileNames": true
   },

@@ -10,7 +10,7 @@ type GetImageURLArguments = {
     enlarge?: boolean;
   };
   gravity?: GravityType;
-  dpr?: string | number;
+  dpr?: number;
   blur?: number;
 };
 

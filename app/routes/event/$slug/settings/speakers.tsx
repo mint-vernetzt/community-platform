@@ -9,7 +9,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
@@ -34,6 +33,7 @@ import {
   removeSpeakerSchema,
   type action as removeSpeakerAction,
 } from "./speakers/remove-speaker";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -109,7 +109,7 @@ function Speakers() {
       <p className="mb-8">
         Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
       </p>
-      <Form
+      <RemixFormsForm
         schema={addSpeakerSchema}
         fetcher={addSpeakerFetcher}
         action={`/event/${slug}/settings/speakers/add-speaker`}
@@ -158,7 +158,7 @@ function Speakers() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addSpeakerFetcher.data !== undefined &&
       "message" in addSpeakerFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -200,7 +200,7 @@ function Speakers() {
                 ) : null}
               </div>
 
-              <Form
+              <RemixFormsForm
                 schema={removeSpeakerSchema}
                 fetcher={removeSpeakerFetcher}
                 action={`/event/${slug}/settings/speakers/remove-speaker`}
@@ -233,7 +233,7 @@ function Speakers() {
                     </>
                   );
                 }}
-              </Form>
+              </RemixFormsForm>
             </div>
           );
         })}
@@ -241,7 +241,7 @@ function Speakers() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -261,7 +261,7 @@ function Speakers() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

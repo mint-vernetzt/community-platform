@@ -2,7 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
   createAuthClient,
@@ -16,6 +16,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveProfileMode } from "../utils.server";
 import { getProfileByUsername } from "./security.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const emailSchema = z.object({
   email: z
@@ -206,7 +207,7 @@ export default function Security() {
           </p>
           <input type="hidden" name="action" value="changePassword" />
 
-          <RemixForm method="post" schema={passwordSchema}>
+          <RemixFormsForm method="post" schema={passwordSchema}>
             {({ Field, Button, Errors, register }) => (
               <>
                 <Field name="password" label="Neues Passwort" className="mb-4">
@@ -262,7 +263,7 @@ export default function Security() {
                 <Errors />
               </>
             )}
-          </RemixForm>
+          </RemixFormsForm>
           <hr className="border-neutral-400 my-10 lg:my-16" />
 
           <h4 className="mb-4 font-semibold">E-Mail ändern</h4>
@@ -271,7 +272,7 @@ export default function Security() {
             Hier kannst du Deine E-Mail-Adresse für die Anmeldung auf der
             Community-Plattform ändern.
           </p>
-          <RemixForm method="post" schema={emailSchema}>
+          <RemixFormsForm method="post" schema={emailSchema}>
             {({ Field, Button, Errors, register }) => (
               <>
                 <Field name="email" label="Neue E-Mail" className="mb-4">
@@ -327,7 +328,7 @@ export default function Security() {
                 <Errors />
               </>
             )}
-          </RemixForm>
+          </RemixFormsForm>
         </fieldset>
       )}
     </>

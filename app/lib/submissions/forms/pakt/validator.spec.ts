@@ -1,6 +1,12 @@
 import { type PaktFormData } from "./paktFormData";
 import { validateSubmission } from "../../validator/validateSubmission";
 import * as schema from "./validation.schema.json";
+
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
+
 describe("pakt submission validator", () => {
   let validFormPost = {
     institution: "123", // length 3

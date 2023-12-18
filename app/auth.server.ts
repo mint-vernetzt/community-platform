@@ -26,10 +26,11 @@ export const createAuthClient = (request: Request, response: Response) => {
           // https://web.dev/when-to-use-local-https/
           secure: process.env.NODE_ENV === "production",
           // secrets: [process.env.SESSION_SECRET], -> Does not exist on type CookieOptions
-          sameSite: "lax", // TODO: check this setting
+          sameSite: "lax",
           path: "/",
+          // TODO: fix type issue -> This one is strange. Supabase removed the maxAge from its CookieOptions type
+          // @ts-ignore
           maxAge: 60 * 60 * 24 * 30,
-          // httpOnly: true, // TODO: check this setting -> Does not exist on type CookieOptions
         },
       }
     );

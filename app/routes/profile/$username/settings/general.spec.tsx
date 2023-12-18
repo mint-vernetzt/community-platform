@@ -5,9 +5,10 @@ import { type User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import { updateProfileById } from "../utils.server";
 
-/** @type {jest.Expect} */
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
 // @ts-ignore
-const expect = global.expect;
+const expect = global.expect as jest.Expect;
 
 const username = "sookie";
 

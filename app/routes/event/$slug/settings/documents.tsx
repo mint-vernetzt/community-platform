@@ -2,7 +2,6 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { useState } from "react";
-import { Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
@@ -25,6 +24,7 @@ import {
   type action as uploadDocumentAction,
 } from "./documents/upload-document";
 import { publishSchema, type action as publishAction } from "./events/publish";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -123,7 +123,7 @@ function Documents() {
                       Editieren
                     </label>
                     <Modal id={`modal-edit-document-${item.document.id}`}>
-                      <RemixForm
+                      <RemixFormsForm
                         method="post"
                         fetcher={editDocumentFetcher}
                         action={`/event/${loaderData.event.slug}/settings/documents/edit-document`}
@@ -197,9 +197,9 @@ function Documents() {
                             <Errors />
                           </>
                         )}
-                      </RemixForm>
+                      </RemixFormsForm>
                     </Modal>
-                    <RemixForm
+                    <RemixFormsForm
                       method="post"
                       fetcher={deleteDocumentFetcher}
                       action={`/event/${loaderData.event.slug}/settings/documents/delete-document`}
@@ -221,7 +221,7 @@ function Documents() {
                           <Errors />
                         </>
                       )}
-                    </RemixForm>
+                    </RemixFormsForm>
                   </div>
                 </div>
               );
@@ -237,7 +237,7 @@ function Documents() {
         </div>
       ) : null}
 
-      <RemixForm
+      <RemixFormsForm
         method="post"
         fetcher={uploadDocumentFetcher}
         action={`/event/${loaderData.event.slug}/settings/documents/upload-document`}
@@ -274,11 +274,11 @@ function Documents() {
             <Errors />
           </>
         )}
-      </RemixForm>
+      </RemixFormsForm>
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -300,7 +300,7 @@ function Documents() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

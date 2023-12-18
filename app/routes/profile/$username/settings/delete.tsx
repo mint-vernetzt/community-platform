@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
   createAdminAuthClient,
@@ -18,6 +18,7 @@ import {
   getProfileByUsername,
   getProfileWithAdministrations,
 } from "./delete.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   confirmedToken: z
@@ -149,7 +150,7 @@ export default function Index() {
         erneute Abfrage gelöscht.
       </p>
 
-      <RemixForm method="post" schema={schema}>
+      <RemixFormsForm method="post" schema={schema}>
         {({ Field, Button, Errors, register }) => (
           <>
             <Field name="confirmedToken" className="mb-4">
@@ -174,7 +175,7 @@ export default function Index() {
             <Errors />
           </>
         )}
-      </RemixForm>
+      </RemixFormsForm>
     </>
   );
 }

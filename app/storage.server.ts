@@ -6,7 +6,7 @@ import {
   unstable_parseMultipartFormData,
 } from "@remix-run/node";
 import type { UploadHandler } from "@remix-run/node";
-import { fromBuffer } from "file-type";
+import { fileTypeFromBuffer } from "file-type";
 import JSZip from "jszip";
 import { createHashFromString } from "./utils.server";
 import { escapeFilenameSpecialChars } from "./lib/string/escapeFilenameSpecialChars";
@@ -40,7 +40,7 @@ const uploadHandler: UploadHandler = async (part) => {
   }
 
   const hash = await createHashFromString(buffer.toString());
-  const fileTypeResult = await fromBuffer(buffer);
+  const fileTypeResult = await fileTypeFromBuffer(buffer);
   if (fileTypeResult === undefined) {
     throw json(
       {

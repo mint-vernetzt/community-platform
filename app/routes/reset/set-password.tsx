@@ -2,7 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useSearchParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
   createAuthClient,
@@ -13,6 +13,7 @@ import {
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   password: z
@@ -135,7 +136,7 @@ export default function SetPassword() {
             <div className="ml-auto"></div>
           </div>
         </div>
-        <RemixForm
+        <RemixFormsForm
           method="post"
           schema={schema}
           hiddenFields={["loginRedirect", "accessToken", "refreshToken"]}
@@ -192,7 +193,7 @@ export default function SetPassword() {
               </div>
             </div>
           )}
-        </RemixForm>
+        </RemixFormsForm>
       </div>
     </>
   );

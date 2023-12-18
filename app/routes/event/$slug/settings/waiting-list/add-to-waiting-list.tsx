@@ -2,7 +2,7 @@ import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -11,6 +11,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { getProfileById } from "../utils.server";
 import { connectToWaitingListOfEvent, getEventBySlug } from "./utils.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   profileId: z.string(),
@@ -104,7 +105,7 @@ type AddToWaitingListButtonProps = {
 export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
   const fetcher = useFetcher<typeof action>();
   return (
-    <Form
+    <RemixFormsForm
       action={props.action}
       fetcher={fetcher}
       schema={schema}
@@ -125,6 +126,6 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
           </>
         );
       }}
-    </Form>
+    </RemixFormsForm>
   );
 }

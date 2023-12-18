@@ -9,7 +9,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
@@ -39,6 +38,7 @@ import {
   removeFromWaitingListSchema,
   type action as removeFromWaitingListAction,
 } from "./waiting-list/remove-from-waiting-list";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -138,7 +138,7 @@ function Participants() {
       <p className="mb-8">
         Füge hier der Warteliste ein bereits bestehendes Profil hinzu.
       </p>
-      <Form
+      <RemixFormsForm
         schema={addToWaitingListSchema}
         fetcher={addToWaitingListFetcher}
         action={`/event/${slug}/settings/waiting-list/add-to-waiting-list`}
@@ -188,7 +188,7 @@ function Participants() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addToWaitingListFetcher.data !== undefined &&
       "message" in addToWaitingListFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -265,7 +265,7 @@ function Participants() {
                   ) : null}
                 </div>
                 <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                  <Form
+                  <RemixFormsForm
                     schema={moveToParticipantsSchema}
                     fetcher={moveToParticipantsFetcher}
                     action={`/event/${slug}/settings/waiting-list/move-to-participants`}
@@ -287,8 +287,8 @@ function Participants() {
                         </>
                       );
                     }}
-                  </Form>
-                  <Form
+                  </RemixFormsForm>
+                  <RemixFormsForm
                     schema={removeFromWaitingListSchema}
                     fetcher={removeFromWaitingListFetcher}
                     action={`/event/${slug}/settings/waiting-list/remove-from-waiting-list`}
@@ -323,7 +323,7 @@ function Participants() {
                         </>
                       );
                     }}
-                  </Form>
+                  </RemixFormsForm>
                 </div>
               </div>
             );
@@ -333,7 +333,7 @@ function Participants() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -353,7 +353,7 @@ function Participants() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

@@ -8,9 +8,10 @@ import { useSearchParams, useSubmit } from "@remix-run/react";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import React from "react";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { prismaClient } from "~/prisma.server";
 
 const schema = z.object({
@@ -105,7 +106,7 @@ function AcceptTerms() {
       <div className="flex -mx-4 justify-center">
         <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
           <h1 className="mb-4">Nutzungsbedingungen akzeptieren</h1>
-          <RemixForm
+          <RemixFormsForm
             method="post"
             schema={schema}
             hiddenFields={["redirectTo"]}
@@ -180,7 +181,7 @@ function AcceptTerms() {
                 <Errors />
               </>
             )}
-          </RemixForm>
+          </RemixFormsForm>
         </div>
       </div>
     </div>

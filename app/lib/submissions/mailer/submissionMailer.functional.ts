@@ -1,6 +1,11 @@
 import { submissionMailer } from "./submissionMailer";
 import mailhog from "mailhog";
 
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
+
 describe("mail delivery", () => {
   let mh = mailhog({
     host: "127.0.0.1",

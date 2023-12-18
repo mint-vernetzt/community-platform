@@ -16,7 +16,6 @@ import {
 import { format } from "date-fns";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Form as RemixForm } from "remix-forms";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -63,6 +62,7 @@ import quillStyles from "react-quill/dist/quill.snow.css";
 import { invariantResponse } from "~/lib/utils/response";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug, getEventBySlugForAction } from "./general.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = object({
   name: string().required("Bitte gib den Namen der Veranstaltung an"),
@@ -286,7 +286,7 @@ function General() {
 
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
-  let event: typeof loaderData["event"];
+  let event: (typeof loaderData)["event"];
   if (actionData !== undefined) {
     const { focuses, types, eventTargetGroups, tags, areas, ...rest } =
       originalEvent;
@@ -462,7 +462,7 @@ function General() {
         absagen.
       </p>
       <div className="flex mb-4">
-        <RemixForm
+        <RemixFormsForm
           schema={cancelSchema}
           fetcher={cancelFetcher}
           action={`/event/${slug}/settings/events/cancel`}
@@ -484,7 +484,7 @@ function General() {
               </>
             );
           }}
-        </RemixForm>
+        </RemixFormsForm>
       </div>
       <FormProvider {...methods}>
         <Form
@@ -908,7 +908,7 @@ function General() {
             </button>
           </div>
           <div className="flex flex-row flex-nowrap items-center justify-end mb-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -928,7 +928,7 @@ function General() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

@@ -1,4 +1,4 @@
-import { Button } from "@mint-vernetzt/components";
+import { Button } from "./../../index";
 import React from "react";
 
 export type VideoProps = {

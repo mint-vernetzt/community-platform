@@ -1,12 +1,11 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { useNavigate } from "react-router-dom";
 import { useHydrated } from "remix-utils/build/react/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";

@@ -1,5 +1,4 @@
 import classNames from "classnames";
-import { get } from "cypress/types/lodash";
 import React from "react";
 
 export type TextButtonVariants = "primary" | "neutral";

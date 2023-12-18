@@ -11,7 +11,7 @@ import type { KeyboardEvent } from "react";
 import CountUp from "react-countup";
 import { makeDomainFunction } from "remix-domains";
 import type { FormProps } from "remix-forms";
-import { Form, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
 import { z } from "zod";
 import {
@@ -30,6 +30,7 @@ import {
   getOrganizationCount,
   getProfileCount,
 } from "./utils.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   email: z
@@ -48,7 +49,7 @@ const environmentSchema = z.object({
 });
 
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
-  return <Form<Schema> {...props} />;
+  return <RemixFormsForm<Schema> {...props} />;
 }
 
 export const loader = async (args: LoaderFunctionArgs) => {

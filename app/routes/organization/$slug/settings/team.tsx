@@ -8,7 +8,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { Form } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
@@ -26,6 +25,7 @@ import {
   removeMemberSchema,
   type action as removeMemberAction,
 } from "./team/remove-member";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -96,7 +96,7 @@ function Index() {
       <p className="mb-8">
         Füge hier Eurer Organisation ein bereits bestehendes Profil hinzu.
       </p>
-      <Form
+      <RemixFormsForm
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/organization/${slug}/settings/team/add-member`}
@@ -143,7 +143,7 @@ function Index() {
             </div>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addMemberFetcher.data !== undefined &&
       "message" in addMemberFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -185,7 +185,7 @@ function Index() {
                 ) : null}
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                <Form
+                <RemixFormsForm
                   method="post"
                   action={`/organization/${slug}/settings/team/remove-member`}
                   schema={removeMemberSchema}
@@ -222,7 +222,7 @@ function Index() {
                       </>
                     );
                   }}
-                </Form>
+                </RemixFormsForm>
               </div>
             </div>
           );

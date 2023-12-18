@@ -7,7 +7,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
@@ -20,6 +20,7 @@ import {
   getOrganizationById,
   getOrganizationIdBySlug,
 } from "../utils.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   organizationId: z.string(),
@@ -121,7 +122,7 @@ function Add(props: NetworkMemberProps) {
       <p className="mb-8">
         Füge hier Eurem Netzwerk eine bereits bestehende Organisation hinzu.
       </p>
-      <Form
+      <RemixFormsForm
         schema={schema}
         fetcher={fetcher}
         action={`/organization/${slug}/settings/network/add`}
@@ -168,7 +169,7 @@ function Add(props: NetworkMemberProps) {
             </div>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {fetcher.data !== undefined && "message" in fetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
           {fetcher.data.message}

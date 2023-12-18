@@ -2,9 +2,10 @@ import { render } from "@testing-library/react";
 import InputImage from "./InputImage";
 import React from "react";
 
-/** @type {jest.Expect} */
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
 // @ts-ignore
-const expect = global.expect;
+const expect = global.expect as jest.Expect;
 
 test("render component", () => {
   const ref = React.createRef<HTMLDivElement>();

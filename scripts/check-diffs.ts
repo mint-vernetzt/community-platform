@@ -1,4 +1,4 @@
-import * as inquirer from "inquirer";
+import inquirer from "inquirer";
 import type { SimpleGit } from "simple-git";
 import { simpleGit } from "simple-git";
 import { executeCommand } from "./utils";

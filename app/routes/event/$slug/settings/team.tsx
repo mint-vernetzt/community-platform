@@ -9,7 +9,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
@@ -31,6 +30,7 @@ import {
   removeMemberSchema,
   type action as removeMemberAction,
 } from "./team/remove-member";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -109,7 +109,7 @@ function Team() {
       <p className="mb-8">
         Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
       </p>
-      <Form
+      <RemixFormsForm
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/event/${slug}/settings/team/add-member`}
@@ -158,7 +158,7 @@ function Team() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addMemberFetcher.data !== undefined &&
       "message" in addMemberFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -200,7 +200,7 @@ function Team() {
                 ) : null}
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                <Form
+                <RemixFormsForm
                   schema={removeMemberSchema}
                   fetcher={removeMemberFetcher}
                   action={`/event/${slug}/settings/team/remove-member`}
@@ -237,7 +237,7 @@ function Team() {
                       </>
                     );
                   }}
-                </Form>
+                </RemixFormsForm>
               </div>
             </div>
           );
@@ -246,7 +246,7 @@ function Team() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -266,7 +266,7 @@ function Team() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

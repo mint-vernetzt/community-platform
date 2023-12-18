@@ -1,6 +1,12 @@
 import { type NewsFormData } from "./newsFormData";
 import { validateSubmission } from "../../validator/validateSubmission";
 import * as schema from "./validation.schema.json";
+
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
+
 describe("news submission validator", () => {
   let validFormPost = {
     title: "123", // length 3

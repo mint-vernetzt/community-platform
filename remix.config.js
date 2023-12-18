@@ -3,6 +3,8 @@
  */
 module.exports = {
   ignoredRouteFiles: [".*", "**/*.spec.*", "**/*.func.*"],
+  serverDependenciesToBundle: ["@mint-vernetzt/components"],
+  // serverModuleFormat: 'cjs',
   // appDirectory: "app",
   // assetsBuildDirectory: "public/build",
   // serverBuildPath: "build/index.js",

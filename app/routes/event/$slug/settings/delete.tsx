@@ -2,7 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -17,6 +17,7 @@ import {
 } from "./delete.server";
 import { publishSchema, type action as publishAction } from "./events/publish";
 import { deleteEventBySlug } from "./utils.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   eventName: z.string().optional(),
@@ -139,7 +140,7 @@ function Delete() {
         </>
       ) : null}
 
-      <RemixForm method="post" schema={schema}>
+      <RemixFormsForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
             <Field name="eventName" className="mb-4">
@@ -163,11 +164,11 @@ function Delete() {
             <Errors />
           </>
         )}
-      </RemixForm>
+      </RemixFormsForm>
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -187,7 +188,7 @@ function Delete() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

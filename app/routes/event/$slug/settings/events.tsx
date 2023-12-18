@@ -9,7 +9,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { getImageURL } from "~/images.server";
@@ -40,6 +39,7 @@ import {
   // getOptionsFromEvents,
   getParentEventSuggestions,
 } from "./utils.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -160,7 +160,7 @@ function Events() {
         sein und deine Veranstaltung muss sich innerhalb des Zeitraums der
         Rahmenveranstaltung befinden.
       </p>
-      <Form
+      <RemixFormsForm
         schema={setParentSchema}
         fetcher={setParentFetcher}
         action={`/event/${slug}/settings/events/set-parent`}
@@ -209,7 +209,7 @@ function Events() {
             </div>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {setParentFetcher.data !== undefined &&
       "message" in setParentFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -226,7 +226,7 @@ function Events() {
       </p>
       {loaderData.parentEvent !== null ? (
         <div>
-          <Form
+          <RemixFormsForm
             schema={setParentSchema}
             fetcher={setParentFetcher}
             action={`/event/${slug}/settings/events/set-parent`}
@@ -332,7 +332,7 @@ function Events() {
                 return null;
               }
             }}
-          </Form>
+          </RemixFormsForm>
         </div>
       ) : null}
       <hr className="border-neutral-400 my-4 lg:my-8" />
@@ -349,7 +349,7 @@ function Events() {
         Veranstaltungen sein musst und, dass die zugehörigen Veranstaltungen im
         Zeitraum deiner Veranstaltung stattfinden müssen.
       </p>
-      <Form
+      <RemixFormsForm
         schema={addChildSchema}
         fetcher={addChildFetcher}
         action={`/event/${slug}/settings/events/add-child`}
@@ -399,7 +399,7 @@ function Events() {
             </div>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addChildFetcher.data !== undefined &&
       "message" in addChildFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -430,7 +430,7 @@ function Events() {
                 "Europe/Berlin"
               );
               return (
-                <Form
+                <RemixFormsForm
                   key={`remove-child-${childEvent.id}`}
                   schema={removeChildSchema}
                   fetcher={removeChildFetcher}
@@ -523,7 +523,7 @@ function Events() {
                       </div>
                     );
                   }}
-                </Form>
+                </RemixFormsForm>
               );
             })}
           </ul>
@@ -532,7 +532,7 @@ function Events() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -552,7 +552,7 @@ function Events() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

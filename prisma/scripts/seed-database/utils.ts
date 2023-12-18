@@ -1,10 +1,10 @@
-import { faker } from "@faker-js/faker";
+import { Faker, faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
-import { fromBuffer } from "file-type";
+import { fileTypeFromBuffer } from "file-type";
 import fs from "fs-extra";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import {
   getMultipleRandomUniqueSubsets,
   getRandomUniqueSubset,
@@ -13,12 +13,12 @@ import type { ArrayElement } from "../../../app/lib/utils/types";
 import { prismaClient } from "../../../app/prisma.server";
 import { generatePathName } from "../../../app/storage.server";
 import {
+  createHashFromString,
   generateEventSlug,
   generateOrganizationSlug,
   generateProjectSlug,
   generateUsername as generateUsername_app,
 } from "../../../app/utils.server";
-import { createHashFromString } from "../../../app/utils.server";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -267,7 +267,7 @@ export async function uploadImageBucketData(
         //   );
         //   continue;
         // } else {
-        const fileTypeResult = await fromBuffer(arrayBuffer);
+        const fileTypeResult = await fileTypeFromBuffer(arrayBuffer);
         if (fileTypeResult === undefined) {
           console.error(
             "The MIME-type could not be read. The file was left out."
@@ -324,7 +324,7 @@ export async function uploadImageBucketData(
       const data = await fs.readFile(
         "./public/images/default-event-background.jpg"
       );
-      const fileTypeResult = await fromBuffer(data);
+      const fileTypeResult = await fileTypeFromBuffer(data);
       if (fileTypeResult === undefined) {
         console.error(
           "The MIME-type could not be read. The file was left out."
@@ -429,7 +429,7 @@ export async function uploadDocumentBucketData(
     }
     const pdfBytes = await pdfDoc.save();
 
-    const fileTypeResult = await fromBuffer(pdfBytes);
+    const fileTypeResult = await fileTypeFromBuffer(pdfBytes);
     if (fileTypeResult === undefined) {
       console.error("The MIME-type could not be read. The file was left out.");
       continue;
@@ -7115,7 +7115,15 @@ function generatePhone<
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile, organization, project
   let phone;
-  faker.locale = "de";
+  // With the new faker version locale can only be set via the constructor
+  // faker.locale = "de";
+  const tempGermanFaker = new Faker({
+    locale: {
+      phone_number: {
+        formats: ["####-########", "(###)#######", "####/######", "#########"],
+      },
+    },
+  });
   if (
     entityType === "profile" ||
     entityType === "organization" ||
@@ -7128,10 +7136,11 @@ function generatePhone<
     } else if (entityStructure === "Largest") {
       phone = "0123456/7891011121314151617181920";
     } else {
-      phone = faker.phone.number();
+      phone = tempGermanFaker.phone.number();
     }
   }
-  faker.locale = "en";
+  // See comment above
+  // faker.locale = "en";
   return phone;
 }
 
@@ -7153,7 +7162,7 @@ function generateStreet<
     } else if (entityStructure === "Largest") {
       street = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
     } else {
-      street = faker.address.street();
+      street = faker.location.street();
     }
   }
   return street;
@@ -7173,9 +7182,9 @@ function generateStreetNumber<
     } else if (entityStructure === "Empty Strings") {
       streetNumber = "";
     } else if (entityStructure === "Largest") {
-      streetNumber = faker.datatype.number({ min: 1000, max: 9999 }).toString();
+      streetNumber = faker.number.int({ min: 1000, max: 9999 }).toString();
     } else {
-      streetNumber = faker.datatype.number({ min: 1, max: 999 }).toString();
+      streetNumber = faker.number.int({ min: 1, max: 999 }).toString();
     }
   }
   return streetNumber;
@@ -7199,7 +7208,7 @@ function generateCity<
     } else if (entityStructure === "Largest") {
       city = "The City Of The Greatest And Largest";
     } else {
-      city = faker.address.cityName();
+      city = faker.location.city();
     }
   }
   return city;
@@ -7219,11 +7228,11 @@ function generateZipCode<
     } else if (entityStructure === "Empty Strings") {
       zipCode = "";
     } else if (entityStructure === "Largest") {
-      zipCode = faker.datatype
-        .number({ min: 1000000000, max: 9999999999 })
+      zipCode = faker.number
+        .int({ min: 1000000000, max: 9999999999 })
         .toString();
     } else {
-      zipCode = faker.address.zipCode();
+      zipCode = faker.location.zipCode();
     }
   }
   return zipCode;

@@ -1,5 +1,5 @@
+import { type Params } from "@remix-run/react";
 import { json } from "@remix-run/server-runtime";
-import type { Params } from "react-router";
 
 export function getParamValue(params: Params<string>, key: string) {
   const value = params[key];

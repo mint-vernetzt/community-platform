@@ -2,7 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useActionData, useSearchParams } from "@remix-run/react";
 import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
 import { prismaClient } from "~/prisma.server";
@@ -14,6 +14,7 @@ import {
 } from "../../auth.server";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   email: z
@@ -147,7 +148,7 @@ export default function Index() {
                 </p>
               </>
             ) : (
-              <RemixForm
+              <RemixFormsForm
                 method="post"
                 schema={schema}
                 hiddenFields={["loginRedirect"]}
@@ -189,7 +190,7 @@ export default function Index() {
                     <Errors />
                   </>
                 )}
-              </RemixForm>
+              </RemixFormsForm>
             )}
           </div>
         </div>

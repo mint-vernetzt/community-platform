@@ -4,7 +4,7 @@ import { Link, useSearchParams, useSubmit } from "@remix-run/react";
 import type { KeyboardEvent } from "react";
 import { makeDomainFunction } from "remix-domains";
 import type { FormProps } from "remix-forms";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
@@ -18,6 +18,7 @@ import InputPassword from "../../components/FormElements/InputPassword/InputPass
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { getProfileByEmailCaseInsensitive } from "../organization/$slug/settings/utils.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   email: z
@@ -36,7 +37,7 @@ const environmentSchema = z.object({
 });
 
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
-  return <RemixForm<Schema> {...props} />;
+  return <RemixFormsForm<Schema> {...props} />;
 }
 
 export const loader = async (args: LoaderFunctionArgs) => {

@@ -1,6 +1,12 @@
-import type { Asserts, InferType, StringSchema, TestContext } from "yup";
+import type {
+  Asserts,
+  InferType,
+  StringSchema,
+  TestContext,
+  AnyObject,
+  ObjectSchema,
+} from "yup";
 import { mixed, number, string, ValidationError } from "yup";
-import type { AnyObject, OptionalObjectSchema } from "yup/lib/object";
 import { format } from "date-fns";
 import { json } from "@remix-run/server-runtime";
 
@@ -213,7 +219,7 @@ export function participantLimit() {
         ? schema.test(
             "lessThanParticipantCount",
             "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
-            (participantLimit: string | null | undefined) => {
+            (participantLimit) => {
               if (
                 !(
                   participantLimit === null ||
@@ -238,7 +244,7 @@ export function participantLimit() {
     .nullable();
 }
 
-export async function getFormValues<T extends OptionalObjectSchema<AnyObject>>(
+export async function getFormValues<T extends ObjectSchema<AnyObject>>(
   request: Request,
   schema: T
 ): Promise<InferType<T>> {
@@ -246,6 +252,8 @@ export async function getFormValues<T extends OptionalObjectSchema<AnyObject>>(
   // TODO: Find better solution if this is not the best
   let parsedFormData: AnyObject = {};
   for (const key in schema.fields) {
+    // TODO: fix type issue
+    // @ts-ignore
     if (schema.fields[key].type === "array") {
       // TODO: can this type assertion be removed and proofen by code?
       parsedFormData[key] = formData.getAll(key) as string[];
@@ -257,7 +265,7 @@ export async function getFormValues<T extends OptionalObjectSchema<AnyObject>>(
   return parsedFormData;
 }
 
-export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
+export async function validateForm<T extends ObjectSchema<AnyObject>>(
   schema: T,
   parsedFormData: InferType<T>
 ): Promise<{
@@ -301,7 +309,7 @@ export async function validateForm<T extends OptionalObjectSchema<AnyObject>>(
 }
 
 export async function getFormDataValidationResultOrThrow<
-  T extends OptionalObjectSchema<AnyObject>
+  T extends ObjectSchema<AnyObject>
 >(request: Request, schema: T) {
   let parsedFormData = await getFormValues<T>(request, schema);
 

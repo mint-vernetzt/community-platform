@@ -11,7 +11,7 @@ import {
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
 import { InputError, makeDomainFunction } from "remix-domains";
-import { Form, Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
@@ -41,6 +41,7 @@ import {
   removeParticipantSchema,
   type action as removeParticipantAction,
 } from "./participants/remove-participant";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const participantLimitSchema = z.object({
   participantLimit: z
@@ -200,7 +201,7 @@ function Participants() {
         Teilnehmerzahl erreicht ist kannst du später noch manuell Personen von
         der Warteliste zu den Teilnehmenden verschieben.
       </p>
-      <Form schema={participantLimitSchema}>
+      <RemixFormsForm schema={participantLimitSchema}>
         {({ Field, Errors, Button, register }) => {
           return (
             <>
@@ -234,14 +235,14 @@ function Participants() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
       <p className="mb-8">
         Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als
         Teilnehmende hinzu.
       </p>
       <div className="mb-8">
-        <Form
+        <RemixFormsForm
           schema={addParticipantSchema}
           fetcher={addParticipantFetcher}
           action={`/event/${slug}/settings/participants/add-participant`}
@@ -296,7 +297,7 @@ function Participants() {
               </>
             );
           }}
-        </Form>
+        </RemixFormsForm>
         {addParticipantFetcher.data !== undefined &&
         "message" in addParticipantFetcher.data ? (
           <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -358,7 +359,7 @@ function Participants() {
                   </p>
                 ) : null}
               </div>
-              <Form
+              <RemixFormsForm
                 schema={removeParticipantSchema}
                 fetcher={removeParticipantFetcher}
                 action={`/event/${slug}/settings/participants/remove-participant`}
@@ -391,7 +392,7 @@ function Participants() {
                     </>
                   );
                 }}
-              </Form>
+              </RemixFormsForm>
             </div>
           );
         })}
@@ -399,7 +400,7 @@ function Participants() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -419,7 +420,7 @@ function Participants() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

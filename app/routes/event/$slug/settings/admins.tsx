@@ -9,7 +9,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { GravityType } from "imgproxy/dist/types";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
@@ -31,6 +30,7 @@ import {
   type action as removeAdminAction,
 } from "./admins/remove-admin";
 import { publishSchema, type action as publishAction } from "./events/publish";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -114,7 +114,7 @@ function Admins() {
       <p className="mb-8">
         Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
       </p>
-      <Form
+      <RemixFormsForm
         schema={addAdminSchema}
         fetcher={addAdminFetcher}
         action={`/event/${slug}/settings/admins/add-admin`}
@@ -163,7 +163,7 @@ function Admins() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addAdminFetcher.data !== undefined &&
       "message" in addAdminFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -213,7 +213,7 @@ function Admins() {
                 ) : null}
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                <Form
+                <RemixFormsForm
                   schema={removeAdminSchema}
                   fetcher={removeAdminFetcher}
                   action={`/event/${slug}/settings/admins/remove-admin`}
@@ -250,7 +250,7 @@ function Admins() {
                       </>
                     );
                   }}
-                </Form>
+                </RemixFormsForm>
               </div>
             </div>
           );
@@ -259,7 +259,7 @@ function Admins() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -279,7 +279,7 @@ function Admins() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>
