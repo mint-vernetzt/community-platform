@@ -8,7 +8,7 @@ import {
   Section,
   Select,
 } from "@mint-vernetzt/components";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
 import {
   Form,
   useActionData,
@@ -20,7 +20,7 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
-import { phoneSchema } from "~/lib/utils/schemas";
+import { createPhoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
@@ -29,71 +29,93 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
-const generalSchema = z.object({
-  name: z
-    .string({
-      required_error: "Der Projektname ist eine erforderliche Angabe.",
-    })
-    .max(
-      80,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
-    ),
-  subline: z
-    .string()
-    .max(
-      90,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 90."
-    )
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  formats: z.array(z.string().uuid()),
-  furtherFormats: z.array(z.string()),
-  areas: z.array(z.string().uuid()),
-  email: z
-    .string()
-    .email("Bitte gib eine gültige E-Mail Adresse ein.")
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  phone: phoneSchema
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  contactName: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  street: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  streetNumber: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  streetNumberAddition: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  zipCode: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  city: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-});
+const i18nNS = ["routes/project/settings/general", "utils/schemas"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createGeneralSchema = (t: TFunction) =>
+  z.object({
+    name: z
+      .string({
+        required_error: t("validation.name.required"),
+      })
+      .max(80, t("validation.name.max")),
+    subline: z
+      .string()
+      .max(90, t("validation.subline.max"))
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    formats: z.array(z.string().uuid()),
+    furtherFormats: z.array(z.string()),
+    areas: z.array(z.string().uuid()),
+    email: z
+      .string()
+      .email(t("validation.email.email"))
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    phone: createPhoneSchema(t)
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    contactName: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    street: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    streetNumber: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    streetNumberAddition: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    zipCode: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    city: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+  });
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const authClient = createAuthClient(request, response);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -146,7 +168,7 @@ export const loader = async (args: DataFunctionArgs) => {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, "Project not found", {
+  invariantResponse(project !== null, t("error.projectNotFound"), {
     status: 404,
   });
 
@@ -179,8 +201,10 @@ export async function action({ request, params }: DataFunctionArgs) {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
+  const t = await i18next.getFixedT(request, i18nNS);
+
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
@@ -200,10 +224,12 @@ export async function action({ request, params }: DataFunctionArgs) {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, "Project not found", {
+  invariantResponse(project !== null, t("error.projectNotFound"), {
     status: 404,
   });
+
   // Validation
+  const generalSchema = createGeneralSchema(t);
   const formData = await request.formData();
   const submission = await parse(formData, {
     schema: (intent) =>
@@ -256,8 +282,7 @@ export async function action({ request, params }: DataFunctionArgs) {
           console.warn(e);
           ctx.addIssue({
             code: "custom",
-            message:
-              "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support.",
+            message: t("error.storage"),
           });
           return z.NEVER;
         }
@@ -283,7 +308,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 
   return redirectWithToast(
     request.url,
-    { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
+    { id: "settings-toast", key: hash, message: t("content.feedback") },
     { init: { headers: response.headers }, scrollToToast: true }
   );
 }
@@ -294,6 +319,10 @@ function General() {
   const { project, allFormats, areaOptions } = loaderData;
   const { formats, areas, ...rest } = project;
   const actionData = useActionData<typeof action>();
+
+  const { t } = useTranslation(i18nNS);
+  const generalSchema = createGeneralSchema(t);
+
   const defaultValues = {
     // TODO: Investigate: Why can i spread here (defaultValue also accepts null values) and not on web-social?
     ...rest,
@@ -339,18 +368,12 @@ function General() {
   const [isDirty, setIsDirty] = React.useState(false);
   // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
   // see https://remix.run/docs/en/main/hooks/use-blocker
-  usePrompt(
-    "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
-    isDirty
-  );
+  usePrompt(t("content.prompt"), isDirty);
 
   return (
     <Section>
-      <BackButton to={location.pathname}>Eckdaten anlegen</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">
-        Teile der Community Grundlegendes über Dein Projekt oder Bildungsangebot
-        mit.
-      </p>
+      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
+      <p className="mv-my-6 md:mv-mt-0">{t("content.intro")}</p>
       <Form
         method="post"
         {...form.props}
@@ -366,52 +389,47 @@ function General() {
         <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
           <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-              Projekttitel
+              {t("content.projectTitle.headline")}
             </h2>
             <Input {...conform.input(fields.name)}>
               <Input.Label htmlFor={fields.name.id}>
-                Titel des Projekts oder Bildungsangebotes*
+                {t("content.projectTitle.label")}
               </Input.Label>
               {typeof fields.name.error !== "undefined" && (
                 <Input.Error>{fields.name.error}</Input.Error>
               )}
               <Input.HelperText>
-                Mit max. 55 Zeichen wird Dein Projekt gut dargestellt.
+                {t("content.projectTitle.helper")}
               </Input.HelperText>
             </Input>
           </div>
 
           <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-              Projektuntertitel
+              {t("content.subline.headline")}
             </h2>
             <Input {...conform.input(fields.subline)}>
-              <Input.Label>
-                Subline Deines Projekts oder Bildungsangebotes
-              </Input.Label>
+              <Input.Label>{t("content.subline.label")}</Input.Label>
               {typeof fields.subline.error !== "undefined" && (
                 <Input.Error>{fields.subline.error}</Input.Error>
               )}
-              <Input.HelperText>
-                Mit max. 90 Zeichen wird Dein Projekt in der Übersicht gut
-                dargestellt.
-              </Input.HelperText>
+              <Input.HelperText>{t("content.subline.helper")}</Input.HelperText>
             </Input>
           </div>
 
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Projektformat
+              {t("content.formats.headline")}
             </h2>
             <Select onChange={handleSelectChange}>
               <Select.Label htmlFor={fields.formats.id}>
-                In welchem Format findet das Projekt statt?
+                {t("content.formats.label")}
               </Select.Label>
               <Select.HelperText>
-                Mehrfachnennungen sind möglich.
+                {t("content.formats.helper")}
               </Select.HelperText>
               <option selected hidden>
-                Bitte auswählen
+                {t("content.formats.option")}
               </option>
               {allFormats
                 .filter((format) => {
@@ -449,7 +467,7 @@ function General() {
                       <Input type="hidden" {...conform.input(listFormat)} />
                       {allFormats.find((format) => {
                         return format.id === listFormat.defaultValue;
-                      })?.title || "Not Found"}
+                      })?.title || t("content.notFound")}
                       <Chip.Delete>
                         <button
                           {...list.remove(fields.formats.name, { index })}
@@ -466,10 +484,10 @@ function General() {
                 onChange={handleFurtherFormatInputChange}
               >
                 <Input.Label htmlFor={fields.furtherFormats.id}>
-                  Sonstige Formate
+                  {t("content.furtherFormats.label")}
                 </Input.Label>
                 <Input.HelperText>
-                  Bitte gib kurze Begriffe an.
+                  {t("content.furtherFormats.helper")}
                 </Input.HelperText>
                 <Input.Controls>
                   <Button
@@ -480,7 +498,7 @@ function General() {
                     variant="ghost"
                     disabled={furtherFormat === ""}
                   >
-                    Hinzufügen
+                    {t("content.furtherFormats.add")}
                   </Button>
                 </Input.Controls>
               </Input>
@@ -508,19 +526,17 @@ function General() {
 
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Aktivitätsgebiet
+              {t("content.areas.headline")}
             </h2>
             <Select onChange={handleSelectChange}>
               <Select.Label htmlFor={fields.areas.id}>
-                Wo wird das Projekt / Bildungsangebot durchgeführt?
+                {t("content.areas.label")}
               </Select.Label>
-              <Select.HelperText>
-                Mehrfachnennungen sind möglich.
-              </Select.HelperText>
+              <Select.HelperText>{t("content.areas.helper")}</Select.HelperText>
 
               {/* This is the default option used as placeholder. */}
               <option selected hidden>
-                Bitte auswählen
+                {t("content.areas.option")}
               </option>
               {areaOptions
                 .filter((option) => {
@@ -579,7 +595,7 @@ function General() {
                       <Input type="hidden" {...conform.input(listArea)} />
                       {areaOptions.find((area) => {
                         return area.value === listArea.defaultValue;
-                      })?.label || "Not Found"}
+                      })?.label || t("content.notFound")}
                       <Chip.Delete>
                         <button
                           {...list.remove(fields.areas.name, { index })}
@@ -593,18 +609,20 @@ function General() {
           </div>
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Kontaktdaten
+              {t("content.contact.headline")}
             </h2>
             <Input {...conform.input(fields.email)}>
               <Input.Label htmlFor={fields.email.id}>
-                E-Mail-Adresse
+                {t("content.contact.email.label")}
               </Input.Label>
               {typeof fields.email.error !== "undefined" && (
                 <Input.Error>{fields.email.error}</Input.Error>
               )}
             </Input>
             <Input {...conform.input(fields.phone)}>
-              <Input.Label htmlFor={fields.phone.id}>Telefonnummer</Input.Label>
+              <Input.Label htmlFor={fields.phone.id}>
+                {t("content.contact.phone.label")}
+              </Input.Label>
               {typeof fields.phone.error !== "undefined" && (
                 <Input.Error>{fields.phone.error}</Input.Error>
               )}
@@ -612,10 +630,12 @@ function General() {
           </div>
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Anschrift
+              {t("content.address.headline")}
             </h2>
             <Input {...conform.input(fields.contactName)}>
-              <Input.Label htmlFor={fields.contactName.id}>Name</Input.Label>
+              <Input.Label htmlFor={fields.contactName.id}>
+                {t("content.address.contactName.label")}
+              </Input.Label>
               {typeof fields.contactName.error !== "undefined" && (
                 <Input.Error>{fields.contactName.error}</Input.Error>
               )}
@@ -623,7 +643,9 @@ function General() {
             <div className="lg:mv-flex lg:mv-gap-4">
               <div className="mv-w-full lg:mv-w-1/3">
                 <Input {...conform.input(fields.street)}>
-                  <Input.Label htmlFor={fields.street.id}>Straße</Input.Label>
+                  <Input.Label htmlFor={fields.street.id}>
+                    {t("content.address.street.label")}
+                  </Input.Label>
                   {typeof fields.street.error !== "undefined" && (
                     <Input.Error>{fields.street.error}</Input.Error>
                   )}
@@ -633,7 +655,7 @@ function General() {
                 <div className="mv-flex-1">
                   <Input {...conform.input(fields.streetNumber)}>
                     <Input.Label htmlFor={fields.streetNumber.id}>
-                      Hausnummer
+                      {t("content.address.streetNumber.label")}
                     </Input.Label>
                     {typeof fields.streetNumber.error !== "undefined" && (
                       <Input.Error>{fields.streetNumber.error}</Input.Error>
@@ -643,7 +665,7 @@ function General() {
                 <div className="mv-flex-1">
                   <Input {...conform.input(fields.streetNumberAddition)}>
                     <Input.Label htmlFor={fields.streetNumberAddition.id}>
-                      Zusatz
+                      {t("content.address.streetNumberAddition.label")}
                     </Input.Label>
                     {typeof fields.streetNumberAddition.error !==
                       "undefined" && (
@@ -659,7 +681,9 @@ function General() {
             <div className="lg:mv-flex lg:mv-gap-4">
               <div className="mv-flex-1">
                 <Input {...conform.input(fields.zipCode)}>
-                  <Input.Label htmlFor={fields.zipCode.id}>PLZ</Input.Label>
+                  <Input.Label htmlFor={fields.zipCode.id}>
+                    {t("content.address.zipCode.label")}
+                  </Input.Label>
                   {typeof fields.zipCode.error !== "undefined" && (
                     <Input.Error>{fields.zipCode.error}</Input.Error>
                   )}
@@ -667,7 +691,9 @@ function General() {
               </div>
               <div className="mv-flex-1 mv-mt-4 lg:mv-mt-0">
                 <Input {...conform.input(fields.city)}>
-                  <Input.Label htmlFor={fields.city.id}>Stadt</Input.Label>
+                  <Input.Label htmlFor={fields.city.id}>
+                    {t("content.address.city.label")}
+                  </Input.Label>
                   {typeof fields.city.error !== "undefined" && (
                     <Input.Error>{fields.city.error}</Input.Error>
                   )}
@@ -681,7 +707,7 @@ function General() {
             <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
               <Controls>
                 <Button type="reset" variant="outline" fullSize>
-                  Änderungen verwerfen
+                  {t("content.reset")}
                 </Button>
                 <Button
                   type="submit"
@@ -690,7 +716,7 @@ function General() {
                     setIsDirty(false);
                   }}
                 >
-                  Speichern
+                  {t("content.submit")}
                 </Button>
               </Controls>
             </div>

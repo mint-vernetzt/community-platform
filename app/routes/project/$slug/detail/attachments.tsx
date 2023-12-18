@@ -7,16 +7,28 @@ import { MaterialList } from "../settings/__components";
 import { Button, Image } from "@mint-vernetzt/components";
 import { getPublicURL } from "~/storage.server";
 import { getImageURL } from "~/images.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/project/detail/attachments"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export async function loader(args: DataFunctionArgs) {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const authClient = createAuthClient(request, response);
 
-  invariantResponse(params.slug !== undefined, "No valid route", {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    t("error.invatiant.invalidRoute"),
+    {
+      status: 400,
+    }
+  );
 
   const project = await prismaClient.project.findFirst({
     where: {
@@ -58,7 +70,7 @@ export async function loader(args: DataFunctionArgs) {
     },
   });
 
-  invariantResponse(project !== null, "Not found", {
+  invariantResponse(project !== null, t("error.invariant.notFound"), {
     status: 404,
   });
 
@@ -76,15 +88,16 @@ export async function loader(args: DataFunctionArgs) {
 function Attachments() {
   const params = useParams();
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
       <h1 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-        Material zum Download
+        {t("content.headline")}
       </h1>
       <div className="mv-flex mv-flex-col mv-gap-6">
         <h2 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-          Dokumente
+          {t("content.documents.title")}
         </h2>
         {loaderData.project.documents.length > 0 ? (
           <>
@@ -132,17 +145,17 @@ function Attachments() {
                 variant="outline"
                 fullSize
               >
-                Alle herunterladen
+                {t("content.documents.downloadAll")}
               </Button>
             </div>
           </>
         ) : (
-          <p>Keine Dokumente vorhanden.</p>
+          <p>{t("content.documents.empty")}</p>
         )}
       </div>
       <div className="mv-flex mv-flex-col mv-gap-6">
         <h2 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-          Bilder
+          {t("content.images.title")}
         </h2>
         {loaderData.project.images.length > 0 ? (
           <>
@@ -194,12 +207,12 @@ function Attachments() {
                 variant="outline"
                 fullSize
               >
-                Alle herunterladen
+                {t("content.images.downloadAll")}
               </Button>
             </div>
           </>
         ) : (
-          <p>Keine Dokumente vorhanden.</p>
+          <p>{t("content.images.empty")}</p>
         )}
       </div>
     </>

@@ -149,7 +149,7 @@ function Events() {
     "child_autocomplete_query"
   );
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/event/settings/events"]);
+  const { t, i18n } = useTranslation(["routes/event/settings/events"]);
 
   return (
     <>
@@ -263,7 +263,8 @@ function Events() {
                             : ""}
                           {getDuration(
                             parentEventStartTime,
-                            parentEventEndTime
+                            parentEventEndTime,
+                            i18n.language
                           )}
                           {loaderData.parentEvent._count.childEvents === 0 ? (
                             <>
@@ -449,7 +450,11 @@ function Events() {
                               {childEvent.stage !== null
                                 ? childEvent.stage.title + " | "
                                 : ""}
-                              {getDuration(eventStartTime, eventEndTime)}
+                              {getDuration(
+                                eventStartTime,
+                                eventEndTime,
+                                i18n.language
+                              )}
                               {childEvent._count.childEvents === 0 ? (
                                 <>
                                   {childEvent.participantLimit === null

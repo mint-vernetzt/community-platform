@@ -1,7 +1,0 @@
-{
-  "error": {
-    "notPrivileged": "Not privileged",
-    "notFound": "Project not found",
-    "memberCount": "Es muss immer ein Teammitglied geben. Bitte füge zuerst jemand anderen als Teammitglied hinzu."
-  }
-}

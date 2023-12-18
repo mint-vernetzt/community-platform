@@ -1,21 +1,27 @@
 {
   "error": {
-    "notFound": "[en] Project not found",
-    "notPrivileged": "[en] Not privileged"
+    "invalidRoute": "[en] No valid route",
+    "notFound": "[en] Not found"
   },
   "content": {
-    "headline": "[en] Das Team",
-    "intro1": "[en] Wer ist Teil Eures Projekts? Füge hier weitere Teammitglieder hinzu oder entferne sie.",
-    "intro2": "[en] Team-Mitglieder werden auf der Projekt-Detailseite gezeigt. Sie können Events im Entwurf einsehen, diese aber nicht bearbeiten.",
-    "add": {
-      "headline": "[en] Teammitglied hinzufügen",
-      "intro": "[en] Füge hier Deinem Projekt ein bereits bestehendes Profil hinzu.",
-      "label": "[en] Name oder Email"
-    },
+    "added": "[en] {{firstName}} {{lastName}} hinzugefügt.",
+    "removed": "[en] {{firstName}} {{lastName}} entfernt.",
+    "back": "[en] Team verwalten",
+    "intro": "[en] Wer ist Teil Eures Projekts? Füge hier weitere Teammitglieder hinzu oder entferne sie. Team-Mitglieder werden auf der Projekte-Detailseite gezeigt. Sie können Projekte nicht bearbeiten.",
     "current": {
       "headline": "[en] Aktuelle Teammitglieder",
-      "intro": "[en] Hier siehst du alle Teammitglieder auf einen Blick.",
-      "remove": "[en] entfernen"
+      "intro": "[en] Teammitglieder und Rollen sind hier aufgelistet.",
+      "member": {
+        "admin": "[en] Administrator:in",
+        "team": "[en] Teammitglied"
+      },
+      "remove": "[en] Entfernen"
+    },
+    "add": {
+      "headline": "[en] Teammitglied hinzufügen",
+      "search": "[en] Suche",
+      "requirements": "[en] Mindestens 3 Buchstaben.",
+      "add": "[en] Hinzufügen"
     }
   }
 }

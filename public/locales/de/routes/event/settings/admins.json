@@ -15,8 +15,10 @@
       "intro": "Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu."
     },
     "current": {
-      "headline": "Aktuelle Administrator:innen",
-      "intro": "Hier siehst du alle Administrator:innen der Veranstaltung auf einen Blick."
+      "headline_one": "Aktuelle Administrator:in",
+      "headline_other": "Aktuelle Administrator:innen",
+      "intro_one": "Hier siehst du die Administrator:in der Veranstaltung auf einen Blick.",
+      "intro_other": "Hier siehst du die Administrator:innen der Veranstaltung auf einen Blick."
     }
   },
   "form": {

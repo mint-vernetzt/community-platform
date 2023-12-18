@@ -1,0 +1,21 @@
+{
+  "error": {
+    "invariant": {
+      "invalidRoute": "No valid route",
+      "notFound": "Not found"
+    }
+  },
+  "content": {
+    "headline": "Material zum Download",
+    "documents": {
+      "title": "Dokumente",
+      "downloadAll": "Alle herunterladen",
+      "empty": "Keine Dokumente vorhanden."
+    },
+    "images": {
+      "title": "Bilder",
+      "downloadAll": "Alle herunterladen",
+      "empty": "Keine Dokumente vorhanden."
+    }
+  }
+}

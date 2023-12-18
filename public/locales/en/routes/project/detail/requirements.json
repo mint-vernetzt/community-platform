@@ -1,0 +1,39 @@
+{
+  "error": {
+    "invariant": {
+      "invalidRoute": "[en] No valid route",
+      "notFound": "[en] Not found"
+    }
+  },
+  "content": {
+    "information": "[en] Die Informationen zu finanziellem und personellem Rahmen beziehen sich auf das angegebene Projekt, nicht allgemein auf die Organisation.",
+    "confirmation": "[en] Informationen zu den Rahmenbedingungen wurden noch nicht eingetragen",
+    "timeFrame": {
+      "headline": "[en] Zeitlicher Rahmen",
+      "intro": "[en] Projektstart bzw. Projekt-Zeitraum"
+    },
+    "jobFillings": {
+      "headline": "[en] Personelle Situation",
+      "intro": "[en] Stellen und / oder Stundenkontingent"
+    },
+    "furtherJobFillings": {
+      "headline": "[en] Weitere Infos"
+    },
+    "finance": {
+      "headline": "[en] Finanzieller Rahmen",
+      "yearlyBudget": "[en] Jährliches Budget",
+      "financings": "[en] Art der Finanzierung",
+      "moreInformation": "[en] Weitere Infos"
+    },
+    "technical": {
+      "headline": "[en] Technischer Rahmen",
+      "technicalRequirements": "[en] Software / Hardware / Bausätze / Maschinen",
+      "furtherTechnicalRequirements": "[en] Sonstiges"
+    },
+    "rooms": {
+      "headline": "[en] Räumliche Situation",
+      "roomSituation": "[en] Arbeitsorte",
+      "furtherRoomSituation": "[en] Weitere Informationen"
+    }
+  }
+}

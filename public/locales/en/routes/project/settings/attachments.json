@@ -1,0 +1,53 @@
+{
+  "validation": {
+    "document": {
+      "size": "[en] Die Datei darf nicht größer als 5MB sein.",
+      "type": "[en] Die Datei muss ein PDF oder ein JPEG sein."
+    },
+    "image": {
+      "size": "[en] Die Datei darf nicht größer als 5MB sein.",
+      "type": "[en] Die Datei muss ein PNG oder ein JPEG sein."
+    }
+  },
+  "error": {
+    "invalidRoute": "[en] No valid route",
+    "projectNotFound": "[en] Project not found",
+    "invalidSubmission": "[en] No valid submission",
+    "invalidAction": "[en] No valid action",
+    "onStoring": "[en] Error on storing document"
+  },
+  "content": {
+    "back": "[en] Material verwalten",
+    "description": "[en] Füge Materialien wie Flyer, Bilder, Checklisten zu Deinem Projekt hinzu oder entferne sie.",
+    "document": {
+      "upload": "[en] Dokumente hochladen",
+      "type": "[en] Mögliche Dateiformate: PDF, jpg. Maximal 5MB.",
+      "select": "[en] Datei auswählen",
+      "action": "[en] Datei hochladen",
+      "selection": {
+        "empty": "[en] Du hast keine Datei ausgewählt.",
+        "selected": "[en] {{name}} ausgewählt."
+      },
+      "added": "[en] {{name}} hinzugefügt",
+      "current": "[en] Aktuell hochgeladene Dokumente",
+      "downloadAll": "[en] Alle herunterladen",
+      "empty": "[en] Keine Dokumente vorhanden.",
+      "deleted": "[en] {{name}} gelöscht."
+    },
+    "image": {
+      "upload": "[en] Bildmaterial hochladen",
+      "requirements": "[en] Mögliche Dateiformate: jpg, png. Maximal 5MB.",
+      "select": "[en] Datei auswählen",
+      "action": "[en] Datei hochladen",
+      "selection": {
+        "empty": "[en] Du hast keine Datei ausgewählt.",
+        "selected": "[en] {{name}} ausgewählt."
+      },
+      "added": "[en] {{name}} hinzugefügt",
+      "current": "[en] Aktuell hochgeladenes Bildmaterial",
+      "downloadAll": "[en] Alle herunterladen",
+      "empty": "[en] Keine Bilder vorhanden.",
+      "deleted": "[en] {{name}} gelöscht."
+    }
+  }
+}

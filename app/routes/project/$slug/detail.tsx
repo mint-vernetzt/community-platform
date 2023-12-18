@@ -10,7 +10,7 @@ import {
   TabBar,
   TextButton,
 } from "@mint-vernetzt/components";
-import { json, type DataFunctionArgs } from "@remix-run/node";
+import { type DataFunctionArgs, json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -24,12 +24,16 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
+import i18next from "~/i18next.server";
 import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValue } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveProjectMode } from "../utils.server";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/project/detail"];
 
 export function links() {
   return [
@@ -42,10 +46,12 @@ export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, i18nNS);
+
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
   const slug = getParamValue(params, "slug");
-  invariantResponse(slug !== undefined, 'Route parameter "slug" not found', {
+  invariantResponse(slug !== undefined, t("error.invariant.undefinedSlug"), {
     status: 404,
   });
 
@@ -88,11 +94,13 @@ export const loader = async (args: DataFunctionArgs) => {
       slug,
     },
   });
-  invariantResponse(project !== null, "Project not found", { status: 404 });
+  invariantResponse(project !== null, t("error.invariant.projectNotFound"), {
+    status: 404,
+  });
 
   invariantResponse(
     project.published || mode === "admin",
-    "This project isn't published yet.",
+    t("error.invariant.projectNotPublished"),
     { status: 403 }
   );
 
@@ -143,25 +151,27 @@ export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
+  const t = await i18next.getFixedT(request, i18nNS);
+
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
   const slug = getParamValue(params, "slug");
-  invariantResponse(slug !== undefined, 'Route parameter "slug" not found', {
+  invariantResponse(slug !== undefined, t("error.invariant.undefinedSlug"), {
     status: 404,
   });
   const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Only admins can publish a project", {
+  invariantResponse(mode === "admin", t("error.invariant.adminsOnly"), {
     status: 403,
   });
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT);
-  invariantResponse(action !== null, "Did not provide an conform.INTENT", {
+  invariantResponse(action !== null, t("error.invariant.missingConfirmation"), {
     status: 400,
   });
   invariantResponse(
     typeof action === "string",
-    "The intent value you provided is not a string",
+    t("error.invariant.invalidIntent"),
     {
       status: 400,
     }
@@ -197,6 +207,7 @@ function ProjectDetail() {
   let pathname = "";
 
   const lastMatch = matches[matches.length - 1];
+  const { t } = useTranslation(i18nNS);
 
   if (typeof lastMatch.pathname !== "undefined") {
     pathname = lastMatch.pathname;
@@ -211,7 +222,7 @@ function ProjectDetail() {
               to={`/profile/${loaderData.username}/#projects`}
               prefetch="intent"
             >
-              Meine Projekte
+              {t("content.title")}
             </Link>
           </TextButton>
         </section>
@@ -219,7 +230,7 @@ function ProjectDetail() {
       <section className="md:container">
         <Header>
           {mode === "admin" && project.published === false && (
-            <Status>Entwurf</Status>
+            <Status>{t("content.draft")}</Status>
           )}
           <Image
             src={project.background}
@@ -272,7 +283,7 @@ function ProjectDetail() {
                   >
                     <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                   </svg>
-                  <span className="ml-2">Bild ändern</span>
+                  <span className="ml-2">{t("content.changeImage")}</span>
                 </label>
               </Controls>
             )}
@@ -288,7 +299,7 @@ function ProjectDetail() {
               <Controls>
                 {/* TODO: Use absolute path */}
                 <Button as="a" href="./../settings">
-                  Projekt bearbeiten
+                  {t("content.edit")}
                 </Button>
                 <Button
                   name={conform.INTENT}
@@ -297,7 +308,7 @@ function ProjectDetail() {
                   type="submit"
                   form="publish-form"
                 >
-                  {project.published ? "Verstecken" : "Veröffentlichen"}
+                  {t(`content.publish.${project.published ? "hide" : "show"}`)}
                 </Button>
               </Controls>
             </Header.Footer>
@@ -309,7 +320,7 @@ function ProjectDetail() {
         <>
           <Modal id="modal-background-upload">
             <ImageCropper
-              headline="Hintergrundbild"
+              headline={t("cropper.background.headline")}
               subject="project"
               id="modal-background-upload"
               uploadKey="background"
@@ -335,7 +346,7 @@ function ProjectDetail() {
           </Modal>
           <Modal id="modal-logo-upload">
             <ImageCropper
-              headline="Logo"
+              headline={t("cropper.logo.headline")}
               subject="project"
               id="modal-logo-upload"
               uploadKey="logo"
@@ -367,7 +378,7 @@ function ProjectDetail() {
             <TabBar>
               {/* TODO: When upgraded to remix v2 add a preventScrollReset to the Links below instead of the hash anchor */}
               <TabBar.Item active={pathname.endsWith("/about")}>
-                <Link to="./about#tab-bar-container">Über das Projekt</Link>
+                <Link to="./about#tab-bar-container">{t("content.about")}</Link>
               </TabBar.Item>
               {(project.timeframe !== null ||
                 project.jobFillings !== null ||
@@ -381,13 +392,15 @@ function ProjectDetail() {
                 project.furtherRoomSituation !== null) && (
                 <TabBar.Item active={pathname.endsWith("/requirements")}>
                   <Link to="./requirements#tab-bar-container">
-                    Rahmenbedingungen
+                    {t("content.conditions")}
                   </Link>
                 </TabBar.Item>
               )}
               {(project.documents.length > 0 || project.images.length > 0) && (
                 <TabBar.Item active={pathname.endsWith("/attachments")}>
-                  <Link to="./attachments#tab-bar-container">Material</Link>
+                  <Link to="./attachments#tab-bar-container">
+                    {t("content.material")}
+                  </Link>
                 </TabBar.Item>
               )}
             </TabBar>

@@ -1,0 +1,18 @@
+{
+  "validation": {
+    "name": {
+      "noMatch": "[en] Der eingegebene Projektname stimmt nicht überein."
+    }
+  },
+  "error": {
+    "invalidRoute": "[en] No valid route",
+    "projectNotFound": "[en] Project not found"
+  },
+  "content": {
+    "deleted": "[en] Projekt \"{{name}}\" gelöscht.",
+    "confirmation": "[en] Bitte gib den Namen des Projekts <0>{{name}}</0> ein, um das Löschen zu bestätigen.",
+    "explanation": "[en] Wenn Du danach auf \"Projekt löschen” klickst, wird Euer Projekt ohne erneute Abfrage gelöscht.",
+    "label": "[en] Löschen bestätigen",
+    "action": "[en] Projekt löschen"
+  }
+}

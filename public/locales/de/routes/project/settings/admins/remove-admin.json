@@ -1,8 +1,0 @@
-{
-  "error": {
-    "adminCount": "Es muss immer eine:n Administrator:in geben. Bitte füge zuerst jemand anderen als Administrator:in hinzu.",
-    "notFound": "Project not found",
-    "notPrivileged": "Not privileged"
-  },
-  "feedback": "\"{{firstName}} {{lastName}}\" wurde als Administrator:in hinzugefügt."
-}

@@ -1,21 +1,30 @@
 import { Chip } from "@mint-vernetzt/components";
 import { useLoaderData } from "@remix-run/react";
-import { json, type DataFunctionArgs } from "@remix-run/server-runtime";
+import { type DataFunctionArgs, json } from "@remix-run/server-runtime";
 import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/project/detail/requirements"];
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, i18nNS);
 
   createAuthClient(request, response);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    t("error.invariant.invalidRoute"),
+    {
+      status: 400,
+    }
+  );
 
   const project = await prismaClient.project.findFirst({
     where: {
@@ -43,7 +52,7 @@ export const loader = async (args: DataFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, "Not found", {
+  invariantResponse(project !== null, t("error.invariant.notFound"), {
     status: 404,
   });
 
@@ -53,12 +62,12 @@ export const loader = async (args: DataFunctionArgs) => {
 function Requirements() {
   const loaderData = useLoaderData<typeof loader>();
   const { project } = loaderData;
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
       <p className="mv-font-normal mv-text-neutral-800">
-        Die Informationen zu finanziellem und personellem Rahmen beziehen sich
-        auf das angegebene Projekt, nicht allgemein auf die Organisation.
+        {t("content.information")}
       </p>
 
       {project.timeframe === null &&
@@ -72,16 +81,16 @@ function Requirements() {
         project.roomSituation === null &&
         project.furtherRoomSituation === null && (
           <p className="mv-font-normal mv-text-neutral-800">
-            Informationen zu den Rahmenbedingungen wurden noch nicht eingetragen
+            {t("content.confirmation")}
           </p>
         )}
       {project.timeframe !== null && (
         <>
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            Zeitlicher Rahmen
+            {t("content.timeFrame.headline")}
           </h2>
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Projektstart bzw. Projekt-Zeitraum
+            {t("content.timeFrame.intro")}
           </h3>
           <RichText html={project.timeframe} />
         </>
@@ -90,12 +99,12 @@ function Requirements() {
         project.furtherJobFillings !== null) && (
         <>
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            Personelle Situation
+            {t("content.jobFillings.headline")}
           </h2>
           {project.jobFillings !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Stellen und / oder Stundenkontingent
+                {t("content.jobFillings.intro")}
               </h3>
               <RichText html={project.jobFillings} />
             </>
@@ -103,7 +112,7 @@ function Requirements() {
           {project.furtherJobFillings !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Weitere Infos
+                {t("content.furtherJobFillings.headline")}
               </h3>
               <RichText html={project.furtherJobFillings} />
             </>
@@ -115,12 +124,12 @@ function Requirements() {
         project.furtherFinancings !== null) && (
         <>
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            Finanzieller Rahmen
+            {t("content.finance.headline")}
           </h2>
           {project.yearlyBudget !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Jährliches Budget
+                {t("content.finance.yearlyBudget")}
               </h3>
               <p className="mv-font-normal mv-text-neutral-800">
                 {project.yearlyBudget}
@@ -130,7 +139,7 @@ function Requirements() {
           {project.financings.length > 0 && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Art der Finanzierung
+                {t("content.finance.financings")}
               </h3>
               <Chip.Container>
                 {project.financings.map((relation) => {
@@ -146,7 +155,7 @@ function Requirements() {
           {project.furtherFinancings !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Weitere Infos
+                {t("content.finance.moreInformation")}
               </h3>
               <RichText html={project.furtherFinancings} />
             </>
@@ -157,12 +166,12 @@ function Requirements() {
         project.furtherTechnicalRequirements !== null) && (
         <>
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            Technischer Rahmen
+            {t("content.technical.headline")}
           </h2>
           {project.technicalRequirements !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Software / Hardware / Bausätze / Maschinen
+                {t("content.technical.technicalRequirements")}
               </h3>
               <RichText html={project.technicalRequirements} />
             </>
@@ -170,7 +179,7 @@ function Requirements() {
           {project.furtherTechnicalRequirements !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Sonstiges
+                {t("content.technical.furtherTechnicalRequirements")}
               </h3>
               <RichText html={project.furtherTechnicalRequirements} />
             </>
@@ -181,12 +190,12 @@ function Requirements() {
         project.furtherRoomSituation !== null) && (
         <>
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            Räumliche Situation
+            {t("content.room.headline")}
           </h2>
           {project.roomSituation !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Arbeitsorte
+                {t("content.room.roomSituation")}
               </h3>
               <RichText html={project.roomSituation} />
             </>
@@ -194,7 +203,7 @@ function Requirements() {
           {project.furtherRoomSituation !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Weitere Informationen
+                {t("content.room.furtherRoomSituation")}
               </h3>
               <RichText html={project.furtherRoomSituation} />
             </>

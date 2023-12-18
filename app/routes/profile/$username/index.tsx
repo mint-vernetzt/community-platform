@@ -84,7 +84,6 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  const t = await i18next.getFixedT(request, i18nNS);
   const profile = await getProfileByUsername(username, mode);
   if (profile === null) {
     throw notFound(t("error.profileNotFound"));
@@ -296,7 +295,7 @@ function canViewEvents(events: {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(i18nNS);
+  const { t, i18n } = useTranslation(i18nNS);
 
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
@@ -881,7 +880,11 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {event.participantLimit === null
                                       ? " | Unbegrenzte Plätze"
                                       : ` | ${
@@ -1065,7 +1068,11 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {event.participantLimit === null
                                       ? " | Unbegrenzte Plätze"
                                       : ` | ${
@@ -1228,7 +1235,11 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {event.participantLimit === null
                                       ? " | Unbegrenzte Plätze"
                                       : ` | ${
@@ -1396,7 +1407,11 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                     {event.name}
@@ -1529,7 +1544,11 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                     {event.name}
@@ -1643,7 +1662,11 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                     {event.name}

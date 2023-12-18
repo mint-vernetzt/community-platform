@@ -468,7 +468,7 @@ function Index() {
 
   const Form = getForm(loaderData);
 
-  const duration = getDuration(startTime, endTime);
+  const duration = getDuration(startTime, endTime, i18n.language);
 
   const background = loaderData.event.background;
   const Background = React.useCallback(
@@ -872,7 +872,7 @@ function Index() {
                 {t("content.event.start")}
               </div>
               <div className="pb-3 md:pb-0">
-                {formatDateTime(startTime, i18n.language, t)}
+                XX {formatDateTime(startTime, i18n.language, t)}YY
               </div>
 
               <div className="text-xs leading-6">{t("content.event.end")}</div>
@@ -896,7 +896,7 @@ function Index() {
                     {t("content.event.registrationEnd")}
                   </div>
                   <div className="pb-3 md:pb-0">
-                    {formatDateTime(participationUntil, t, i18n.language)}
+                    {formatDateTime(participationUntil, i18n.language, t)}
                   </div>
                 </>
               ) : null}
@@ -1178,7 +1178,11 @@ function Index() {
                               {event.stage !== null
                                 ? event.stage.title + " | "
                                 : ""}
-                              {getDuration(eventStartTime, eventEndTime)}
+                              {getDuration(
+                                eventStartTime,
+                                eventEndTime,
+                                i18n.language
+                              )}
                               {event.participantLimit === null
                                 ? t("content.event.unlimitedSeats")
                                 : t("content.event.seatsFree", {

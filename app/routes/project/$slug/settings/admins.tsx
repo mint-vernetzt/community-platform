@@ -9,7 +9,7 @@ import {
   Toast,
 } from "@mint-vernetzt/components";
 import { type Prisma, type Profile } from "@prisma/client";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
 import {
   Form,
   useActionData,
@@ -32,21 +32,27 @@ import {
 } from "./utils.server";
 import { combineHeaders } from "~/utils.server";
 import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/project/settings/admins"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
-    "routes/project/settings/admins",
-  ]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const authClient = createAuthClient(request, response);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    t("error.invariant.invalidRoute"),
+    { status: 400 }
+  );
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
@@ -80,7 +86,7 @@ export const loader = async (args: DataFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, "Not found", {
+  invariantResponse(project !== null, t("error.invariant.notFound"), {
     status: 404,
   });
 
@@ -179,14 +185,17 @@ export const action = async (args: DataFunctionArgs) => {
   // get action type
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    t("error.invariant.invalidRoute"),
+    { status: 400 }
+  );
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
@@ -221,9 +230,11 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    invariantResponse(project !== null && profile !== null, "Not found", {
-      status: 404,
-    });
+    invariantResponse(
+      project !== null && profile !== null,
+      t("error.invariant.notFound"),
+      { status: 404 }
+    );
 
     await prismaClient.adminOfProject.upsert({
       where: {
@@ -244,7 +255,10 @@ export const action = async (args: DataFunctionArgs) => {
       {
         id: "add-admin-toast",
         key: hash,
-        message: `${profile.firstName} ${profile.lastName} hinzugefügt.`,
+        message: t("content.profileAdded", {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+        }),
       },
       { init: { headers: response.headers }, scrollToToast: true }
     );
@@ -267,9 +281,11 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    invariantResponse(project !== null && profile !== null, "Not found", {
-      status: 404,
-    });
+    invariantResponse(
+      project !== null && profile !== null,
+      t("error.invariant.notFound"),
+      { status: 404 }
+    );
 
     const adminCount = await prismaClient.adminOfProject.count({
       where: {
@@ -298,7 +314,10 @@ export const action = async (args: DataFunctionArgs) => {
       {
         id: "remove-admin-toast",
         key: hash,
-        message: `${profile.firstName} ${profile.lastName} entfernt.`,
+        message: t("content.profileRemoved", {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+        }),
       },
       { init: { headers: response.headers }, scrollToToast: true }
     );
@@ -316,7 +335,7 @@ function Admins() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/project/settings/admins"]);
+  const { t } = useTranslation(i18nNS);
 
   const [searchForm, searchFields] = useForm({
     defaultValue: {
@@ -327,23 +346,14 @@ function Admins() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>Admin-Rollen verwalten</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">
-        Wer verwaltet dieses Projekt auf der Community Plattform? Füge hier
-        weitere Administrator:innen hinzu oder entferne sie. Administrator:innen
-        können Projekte anlegen, bearbeiten, löschen, sowie Team-Mitglieder
-        hinzufügen. Sie sind nicht auf der Projekt-Detailseite sichtbar.
-        Team-Mitglieder werden auf der Projekt-Detailseite gezeigt. Sie können
-        Projekte nicht bearbeiten.
-      </p>
+      <BackButton to={location.pathname}>{t("content.headline")}</BackButton>
+      <p className="mv-my-6 md:mv-mt-0">{t("content.intro")}</p>
       {typeof actionData !== "undefined" &&
         actionData !== null &&
         actionData.success === false && (
           <Alert level="negative" key={actionData.action}>
-            {actionData.action.startsWith("remove_") &&
-              "Beim Entfernen ist etwas schief gelaufen"}
-            {actionData.action.startsWith("add_") &&
-              "Beim Hinzufügen ist etwas schief gelaufen"}
+            {actionData.action.startsWith("remove_") && t("content.ups.remove")}
+            {actionData.action.startsWith("add_") && t("content.ups.add")}
           </Alert>
         )}
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
@@ -356,9 +366,7 @@ function Admins() {
         )}
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {project.admins.length <= 1
-              ? "Administrator:in"
-              : "Administrator:innen"}
+            {t("content.current.headline", { count: project.admins.length })}
           </h2>
           <Form method="post">
             <List>
@@ -369,7 +377,9 @@ function Admins() {
                     <List.Item.Title>
                       {admins.profile.firstName} {admins.profile.lastName}
                     </List.Item.Title>
-                    <List.Item.Subtitle>Administrator:in</List.Item.Subtitle>
+                    <List.Item.Subtitle>
+                      {t("content.current.title")}
+                    </List.Item.Subtitle>
                     {project.admins.length > 1 && (
                       <List.Item.Controls>
                         <Button
@@ -378,7 +388,7 @@ function Admins() {
                           value={`remove_${admins.profile.username}`}
                           type="submit"
                         >
-                          Entfernen
+                          {t("content.current.remove")}
                         </Button>
                       </List.Item.Controls>
                     )}
@@ -397,7 +407,7 @@ function Admins() {
         )}
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Administrator:in hinzufügen
+            {t("content.add.headline")}
           </h2>
           <Form
             method="get"
@@ -408,9 +418,11 @@ function Admins() {
           >
             <Input {...conform.input(searchFields.deep)} type="hidden" />
             <Input {...conform.input(searchFields.search)} standalone>
-              <Input.Label htmlFor={searchFields.search.id}>Suche</Input.Label>
+              <Input.Label htmlFor={searchFields.search.id}>
+                {t("content.add.search")}
+              </Input.Label>
               <Input.SearchIcon />
-              <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
+              <Input.HelperText>{t("content.add.criteria")}</Input.HelperText>
               {typeof searchFields.search.error !== "undefined" && (
                 <Input.Error>{searchFields.search.error}</Input.Error>
               )}
@@ -432,7 +444,7 @@ function Admins() {
                         value={`add_${profile.username}`}
                         type="submit"
                       >
-                        Hinzufügen
+                        {t("content.add.submit")}
                       </Button>
                     </List.Item.Controls>
                   </List.Item>

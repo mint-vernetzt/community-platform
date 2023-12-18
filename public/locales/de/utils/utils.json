@@ -1,6 +1,0 @@
-{
-  "timeDuration": {
-    "same": "{{time}} Uhr",
-    "different": "{{from}} - {{until}} Uhr"
-  }
-}

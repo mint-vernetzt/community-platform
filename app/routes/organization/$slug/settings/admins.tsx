@@ -40,9 +40,7 @@ export const handle = {
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
-    "routes/organization/settings/admins",
-  ]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const authClient = createAuthClient(request, response);
   const slug = getParamValueOrThrow(params, "slug");
   const organization = await getOrganization(slug);
@@ -167,9 +165,11 @@ function Admins() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
-        {t("content.current.headline")}
+        {t("content.current.headline", { count: loaderData.admins.length })}
       </h4>
-      <p className="mb-8">{t("content.current.intro")} </p>
+      <p className="mb-8">
+        {t("content.current.intro", { count: loaderData.admins.length })}{" "}
+      </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.admins.map((admin) => {
           const initials = getInitials(admin);

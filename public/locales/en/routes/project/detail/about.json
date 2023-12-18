@@ -1,0 +1,28 @@
+{
+  "error": {
+    "invariant": {
+      "invalidRoute": "[en] No valid route",
+      "notFound": "[en] Not found"
+    }
+  },
+  "content": {
+    "formats": "[en] Format",
+    "furtherFormats": "[en] Weitere Formate",
+    "disciplines": "[en] MINT-Disziplin(en)",
+    "furtherDisciplines": "[en] Erläuterungen zu den Disziplinen / Das Angebot beinhaltet folgende Teilgebiete",
+    "projectTargetGroups": "[en] Zielgruppe(n)",
+    "specialTargetGroups": "[en] Spezifische Zielgruppe(n)",
+    "targetGroupAdditions": "[en] Weitere",
+    "participantLimit": "[en] Teilnehmer:innenzahl",
+    "areas": "[en] Aktivitätsgebiet(e)",
+    "furtherDescription": "[en] Projektbeschreibung",
+    "idea": "[en] Idee",
+    "goals": "[en] Ziele",
+    "implementation": "[en] Durchführung",
+    "targeting": "[en] Wie wird die Zielgruppe erreicht?",
+    "hints": "[en] Tipps zum Nachmachen",
+    "furtherDescription2": "[en] Weitere Informationen",
+    "team": "[en] Team",
+    "responsibleOrganizations": "[en] Verantwortliche Organisation(en)"
+  }
+}

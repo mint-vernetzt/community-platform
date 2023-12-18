@@ -1,12 +1,19 @@
 {
+  "links": {
+    "general": "Projekteckdaten",
+    "webSocial": "Website und Soziale Netwerke",
+    "details": "Projektdetails",
+    "requirements": "Rahmenbedingungen",
+    "responsibleOrgs": "Verantwortliche Organisationen",
+    "team": "Team",
+    "admins": "Admin-Rolle verwalten",
+    "attachments": "Material verwalten",
+    "dangerZone": "Kritischer Bereich"
+  },
   "content": {
-    "headline": "Projekt bearbeiten",
-    "navigation": {
-      "general": "Allgemein",
-      "admins": "Administrator:innen",
-      "team": "Team",
-      "organizations": "Verantwortliche Organisationen",
-      "delete": "Projekt löschen"
-    }
+    "toProject": "Zum Projekt",
+    "edit": "Projekt bearbeiten",
+    "share": "Teile Dein Wissen und Deine Erfahrungen. Inspiriere andere Akteur:innen und ermögliche ihnen von Deinem Projekt zu lernen.",
+    "settings": "Projekteinstellungen"
   }
 }

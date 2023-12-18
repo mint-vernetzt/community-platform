@@ -1,84 +1,87 @@
 {
   "validation": {
+    "name": {
+      "required": "[en] Der Projektname ist eine erforderliche Angabe.",
+      "max": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
+    },
+    "subline": {
+      "max": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 90."
+    },
     "email": {
-      "email": "[en] Deine Eingabe entspricht nicht dem Format einer E-Mail."
+      "email": "[en] Bitte gib eine gültige E-Mail Adresse ein."
     }
   },
   "error": {
-    "notOrivileged": "[en] Not privileged",
-    "notFound": "[en] Project not found"
+    "invalidRoute": "[en] No valid route",
+    "projectNotFound": "[en] Project not found",
+    "storage": "[en] Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support."
   },
   "content": {
-    "headline": "[en] Dein Projekt",
-    "general": {
-      "headline": "[en] Allgemein",
-      "intro": "[en] Gib den Namen und die Kontaktdaten für Dein Projekt ein."
+    "notFound": "[en] Not Found",
+    "feedback": "[en] Daten gespeichert!",
+    "prompt": "[en] Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
+    "back": "[en] Eckdaten anlegen",
+    "intro": "[en] Teile der Community Grundlegendes über Dein Projekt oder Bildungsangebot mit.",
+    "projectTitle": {
+      "headline": "[en] Projekttitel",
+      "label": "[en] Titel des Projekts oder Bildungsangebotes*",
+      "helper": "[en] Mit max. 55 Zeichen wird Dein Projekt gut dargestellt."
     },
-    "address": {
-      "headline": "[en] Anschrift"
+    "subline": {
+      "headline": "[en] Projektuntertitel",
+      "label": "[en] Subline Deines Projekts oder Bildungsangebotes",
+      "helper": "[en] Mit max. 90 Zeichen wird Dein Projekt in der Übersicht gut dargestellt."
     },
-    "about": {
-      "headline": "[en] Über das Projekt",
-      "intro": "[en] Teile der Community mehr über Dein Projekt mit."
+    "formats": {
+      "headline": "[en] Projektformat",
+      "label": "[en] In welchem Format findet das Projekt statt?",
+      "helper": "[en] Mehrfachnennungen sind möglich.",
+      "option": "[en] Bitte auswählen"
     },
-    "websiteAndSocial": {
-      "headline": "[en] Website und Soziale Netzwerke",
-      "website": {
-        "headline": "[en] Website",
-        "intro": "[en] Wo kann die Community mehr über Euer Angebot erfahren?"
+    "furtherFormats": {
+      "headline": "[en] Projektuntertitel",
+      "label": "[en] Sonstige Formate",
+      "helper": "[en] Bitte gib kurze Begriffe an.",
+      "add": "[en] Hinzufügen"
+    },
+    "areas": {
+      "headline": "[en] Aktivitätsgebiet",
+      "label": "[en] Wo wird das Projekt / Bildungsangebot durchgeführt?",
+      "helper": "[en] Mehrfachnennungen sind möglich.",
+      "option": "[en] Bitte auswählen"
+    },
+    "contact": {
+      "headline": "[en] Kontaktdaten",
+      "label": "[en] Wo wird das Projekt / Bildungsangebot durchgeführt?",
+      "email": {
+        "label": "[en] E-Mail-Adresse"
       },
-      "social": {
-        "headline": "[en] Soziale Netzwerke",
-        "intro": "[en] In welchen Netzwerken ist Dein Projekt vertreten?"
+      "phone": {
+        "label": "[en] Telefonnummer"
       }
     },
-    "feedback": "[en] Deine Informationen wurden aktualisiert."
-  },
-  "form": {
-    "name": {
-      "label": "[en] Name"
+    "address": {
+      "headline": "[en] Anschrift",
+      "contactName": {
+        "label": "[en] Name"
+      },
+      "street": {
+        "label": "[en] Straße"
+      },
+      "streetNumber": {
+        "label": "[en] Hausnummer"
+      },
+      "streetNumberAddition": {
+        "label": "[en] Zusatz"
+      },
+      "zipCode": {
+        "label": "[en] PLZ"
+      },
+      "city": {
+        "label": "[en] Stadt"
+      }
     },
-    "email": {
-      "label": "[en] E-Mail"
-    },
-    "phone": {
-      "label": "[en] Telefon"
-    },
-    "street": {
-      "label": "[en] Straßenname"
-    },
-    "streetNumber": {
-      "label": "[en] Hausnummer"
-    },
-    "zipCode": {
-      "label": "[en] PLZ"
-    },
-    "city": {
-      "label": "[en] Stadt"
-    },
-    "headline": {
-      "label": "[en] Überschrift"
-    },
-    "excerpt": {
-      "label": "[en] Kurzbeschreibung"
-    },
-    "description": {
-      "label": "[en] Ausführliche Beschreibung"
-    },
-    "targetGroups": {
-      "label": "[en] Zielgruppen",
-      "placeholder": "[en] Füge die Zielgruppen hinzu."
-    },
-    "disciplines": {
-      "label": "[en] Disziplinen",
-      "placeholder": "[en] Füge die Disziplinen hinzu."
-    },
-    "website": {
-      "label": "[en] Website",
-      "placeholder": "[en] domainname.tld"
-    },
-    "submit": {
-      "label": "[en] Speichern"
-    }
+    "reset": "[en] Änderungen verwerfen",
+    "submit": "[en] Speichern"
   }
 }

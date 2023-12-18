@@ -34,11 +34,17 @@ import { type action as publishAction, publishSchema } from "./events/publish";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
+const i18nNS = ["routes/event/admins"];
+export const handle = {
+  i18n: i18nNS,
+};
+
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, ["routes/event/admins"]);
+  const t = await i18next.getFixedT(request, i18nNS);
   const authClient = createAuthClient(request, response);
+
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -98,7 +104,7 @@ function Admins() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/event/settings/admins"]);
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
@@ -165,10 +171,10 @@ function Admins() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
-        {t("content.current.headline")}
+        {t("content.current.headline", { count: loaderData.admins.length })}
       </h4>
       <p className="mb-8">
-        {t("content.current.intro")}
+        {t("content.current.intro", { count: loaderData.admins.length })}
       </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.admins.map((admin) => {

@@ -1,7 +1,7 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Button, Input } from "@mint-vernetzt/components";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -14,19 +14,27 @@ import {
 } from "../utils.server";
 import React from "react";
 import { usePrompt } from "~/lib/hooks/usePrompt";
+import { TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { Trans, useTranslation } from "react-i18next";
 
-function createSchema(constraint?: {
-  isSlugUnique?: (slug: string) => Promise<boolean>;
-}) {
+const i18nNS = ["routes/project/settings/danger-zone/change-url"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+function createSchema(
+  t: TFunction,
+  constraint?: {
+    isSlugUnique?: (slug: string) => Promise<boolean>;
+  }
+) {
   return z.object({
     slug: z
       .string()
-      .min(3, "Es werden mind. 3 Zeichen benötigt.")
-      .max(50, "Es sind max. 50 Zeichen erlaubt.")
-      .regex(
-        /^[-a-z0-9-]+$/i,
-        "Nur Buchstaben, Zahlen und Bindestriche erlaubt."
-      )
+      .min(3, t("validation.slug.min"))
+      .max(50, t("validation.slug.max"))
+      .regex(/^[-a-z0-9-]+$/i, t("validation.slug.regex"))
       .refine(async (slug) => {
         if (
           typeof constraint !== "undefined" &&
@@ -35,20 +43,21 @@ function createSchema(constraint?: {
           return await constraint.isSlugUnique(slug);
         }
         return true;
-      }, "Diese URL ist bereits vergeben."),
+      }, t("validations.slug.unique")),
   });
 }
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
 
   invariantResponse(
     typeof params.slug !== "undefined",
-    'Route parameter "slug" not found',
+    t("error.missingParameterSlug"),
     {
       status: 404,
     }
@@ -74,12 +83,13 @@ export const loader = async (args: DataFunctionArgs) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -96,7 +106,7 @@ export const action = async (args: DataFunctionArgs) => {
 
   const formData = await request.formData();
   const submission = await parse(formData, {
-    schema: createSchema({
+    schema: createSchema(t, {
       isSlugUnique: async (slug) => {
         const project = await prismaClient.project.findFirst({
           where: { slug: slug },
@@ -126,7 +136,7 @@ export const action = async (args: DataFunctionArgs) => {
       {
         id: "settings-toast",
         key: hash,
-        message: "URL wurde geändert.",
+        message: t("content.feedback"),
       },
       { init: { headers: response.headers }, scrollToToast: true }
     );
@@ -139,10 +149,12 @@ function ChangeURL() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
+  const { t } = useTranslation(i18nNS);
+
   const [form, fields] = useForm({
     shouldValidate: "onSubmit",
     onValidate: (values) => {
-      return parse(values.formData, { schema: createSchema() });
+      return parse(values.formData, { schema: createSchema(t) });
     },
     shouldRevalidate: "onSubmit",
     lastSubmission: actionData,
@@ -151,27 +163,22 @@ function ChangeURL() {
   const [isDirty, setIsDirty] = React.useState(false);
   // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
   // see https://remix.run/docs/en/main/hooks/use-blocker
-  usePrompt(
-    "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
-    isDirty
-  );
+  usePrompt(t("content.prompt"), isDirty);
 
   return (
     <>
       <p>
-        Aktuell ist Dein Projekt über folgende URL "
-        <span className="mv-break-all">
-          {loaderData.baseURL}
-          /project/
-          <strong>{loaderData.slug}</strong>
-        </span>
-        " zu erreichen.
+        <Trans
+          i18nKey="content.reach"
+          ns={i18nNS}
+          components={[
+            <span className="mv-break-all">
+              {loaderData.baseURL}/project/<strong>{loaderData.slug}</strong>
+            </span>,
+          ]}
+        />
       </p>
-      <p>
-        Wenn du die URL deines Projekts änderst und den bisherigen Link bereits
-        geteilt hast, wird das Projekt über den alten Link nicht mehr erreichbar
-        sein.
-      </p>
+      <p>{t("content.note")}</p>
       <Form
         method="post"
         {...form.props}
@@ -201,7 +208,7 @@ function ChangeURL() {
                   setIsDirty(false);
                 }}
               >
-                URL ändern
+                {t("content.action")}
               </Button>
             </div>
           </div>

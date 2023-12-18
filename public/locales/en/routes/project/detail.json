@@ -1,0 +1,33 @@
+{
+  "error": {
+    "invariant": {
+      "undefinedSlug": "[en] Route parameter \"slug\" not found",
+      "adminsOnly": "[en] Only admins can publish a project",
+      "missingConfirmation": "[en] Did not provide an conform.INTENT",
+      "invalidIntent": "[en] The intent value you provided is not a string",
+      "projectNotFound": "[en] Project not found",
+      "projectNotPublished": "[en] This project isn't published yet."
+    }
+  },
+  "content": {
+    "title": "[en] Meine Projekte",
+    "draft": "[en] Entwurf",
+    "changeImage": "[en] Bild ändern",
+    "edit": "[en] Projekt bearbeiten",
+    "publish": {
+      "hide": "[en] Verstecken",
+      "show": "[en] Veröffentlichen"
+    },
+    "about": "[en] Über das Projekt",
+    "conditions": "[en] Rahmenbedingungen",
+    "material": "[en] Material"
+  },
+  "cropper": {
+    "background": {
+      "headline": "[en] Hintergrundbild"
+    },
+    "logo": {
+      "headline": "[en] Logo"
+    }
+  }
+}

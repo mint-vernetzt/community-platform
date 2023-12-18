@@ -1,7 +1,7 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { Button, Controls, Input, Section } from "@mint-vernetzt/components";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
 import {
   Form,
   useActionData,
@@ -11,17 +11,6 @@ import {
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
-import {
-  facebookSchema,
-  instagramSchema,
-  linkedinSchema,
-  mastodonSchema,
-  tiktokSchema,
-  twitterSchema,
-  websiteSchema,
-  xingSchema,
-  youtubeSchema,
-} from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
@@ -31,29 +20,50 @@ import {
 } from "./utils.server";
 import React from "react";
 import { usePrompt } from "~/lib/hooks/usePrompt";
+import { TFunction } from "i18next";
+import {
+  createFacebookSchema,
+  createInstagramSchema,
+  createLinkedinSchema,
+  createMastodonSchema,
+  createTiktokSchema,
+  createTwitterSchema,
+  createWebsiteSchema,
+  createXingSchema,
+  createYoutubeSchema,
+} from "~/lib/utils/schemas";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
 
-const webSocialSchema = z.object({
-  website: websiteSchema,
-  facebook: facebookSchema,
-  linkedin: linkedinSchema,
-  xing: xingSchema,
-  twitter: twitterSchema,
-  mastodon: mastodonSchema,
-  tiktok: tiktokSchema,
-  instagram: instagramSchema,
-  youtube: youtubeSchema,
-});
+const createWebSocialSchema = (t: TFunction) =>
+  z.object({
+    website: createWebsiteSchema(t),
+    facebook: createFacebookSchema(t),
+    linkedin: createLinkedinSchema(t),
+    xing: createXingSchema(t),
+    twitter: createTwitterSchema(t),
+    mastodon: createMastodonSchema(t),
+    tiktok: createTiktokSchema(t),
+    instagram: createInstagramSchema(t),
+    youtube: createYoutubeSchema(t),
+  });
+
+const i18nNS = ["routes/project/settings/responsible-orgs", "utils/schemas"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
+  const t = await i18next.getFixedT(request, i18nNS);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -84,7 +94,7 @@ export const loader = async (args: DataFunctionArgs) => {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, "Project not found", {
+  invariantResponse(project !== null, t("error.projectNotFound"), {
     status: 404,
   });
 
@@ -100,8 +110,10 @@ export async function action({ request, params }: DataFunctionArgs) {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
+  const t = await i18next.getFixedT(request, i18nNS);
+
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
@@ -114,6 +126,7 @@ export async function action({ request, params }: DataFunctionArgs) {
     return redirect(redirectPath, { headers: response.headers });
   }
   // Validation
+  const webSocialSchema = createWebSocialSchema(t);
   const formData = await request.formData();
   const submission = await parse(formData, {
     schema: (intent) =>
@@ -137,8 +150,7 @@ export async function action({ request, params }: DataFunctionArgs) {
           console.warn(e);
           ctx.addIssue({
             code: "custom",
-            message:
-              "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support",
+            message: t("error.custom"),
           });
           return z.NEVER;
         }
@@ -164,17 +176,20 @@ export async function action({ request, params }: DataFunctionArgs) {
 
   return redirectWithToast(
     request.url,
-    { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
+    { id: "settings-toast", key: hash, message: t("content.success") },
     { init: { headers: response.headers }, scrollToToast: true }
   );
 }
 
 function WebSocial() {
   const location = useLocation();
+  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
   const { project } = loaderData;
   const actionData = useActionData<typeof action>();
+
   const formId = "web-social-form";
+  const webSocialSchema = createWebSocialSchema(t);
   const [form, fields] = useForm({
     id: formId,
     constraint: getFieldsetConstraint(webSocialSchema),
@@ -199,20 +214,12 @@ function WebSocial() {
   const [isDirty, setIsDirty] = React.useState(false);
   // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
   // see https://remix.run/docs/en/main/hooks/use-blocker
-  usePrompt(
-    "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
-    isDirty
-  );
+  usePrompt(t("content.prompt"), isDirty);
 
   return (
     <Section>
-      <BackButton to={location.pathname}>
-        Website und Soziale Netwerke
-      </BackButton>
-      <p className="mv-my-6 md:mv-mt-0">
-        Wo kann die Community mehr über Dein Projekt oder Bildungsangebot
-        erfahren?
-      </p>
+      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
+      <p className="mv-my-6 md:mv-mt-0">{t("content.intro")}</p>
       <Form
         method="post"
         {...form.props}
@@ -229,13 +236,15 @@ function WebSocial() {
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <Input id="deep" defaultValue="true" type="hidden" />
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Website
+              {t("form.website.headline")}
             </h2>
             <Input
               {...conform.input(fields.website)}
-              placeholder="domainname.tld"
+              placeholder={t("form.website.url.placeholder")}
             >
-              <Input.Label htmlFor={fields.website.id}>URL</Input.Label>
+              <Input.Label htmlFor={fields.website.id}>
+                {t("form.website.url.label")}
+              </Input.Label>
               {typeof fields.website.error !== "undefined" && (
                 <Input.Error>{fields.website.error}</Input.Error>
               )}
@@ -243,76 +252,90 @@ function WebSocial() {
           </div>
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Soziale Netzwerke
+              {t("form.socialNetworks.headline")}
             </h2>
             <Input
               {...conform.input(fields.facebook)}
-              placeholder="facebook.com/<name>"
+              placeholder={t("form.socialNetworks.facebook.placeholder")}
             >
-              <Input.Label htmlFor={fields.facebook.id}>Facebook</Input.Label>
+              <Input.Label htmlFor={fields.facebook.id}>
+                {t("form.socialNetworks.facebook.label")}
+              </Input.Label>
               {typeof fields.facebook.error !== "undefined" && (
                 <Input.Error>{fields.facebook.error}</Input.Error>
               )}
             </Input>
             <Input
               {...conform.input(fields.linkedin)}
-              placeholder="linkedin.com/company/<name>" // TODO: Regex does not fit with this placeholder
+              placeholder={t("form.socialNetworks.linkedin.placeholder")} // TODO: Regex does not fit with this placeholder
             >
-              <Input.Label htmlFor={fields.linkedin.id}>LinkedIn</Input.Label>
+              <Input.Label htmlFor={fields.linkedin.id}>
+                {t("form.socialNetworks.linkedin.label")}
+              </Input.Label>
               {typeof fields.linkedin.error !== "undefined" && (
                 <Input.Error>{fields.linkedin.error}</Input.Error>
               )}
             </Input>
             <Input
               {...conform.input(fields.xing)}
-              placeholder="xing.com/pages/<name>" // TODO: Regex does not fit with this placeholder
+              placeholder={t("form.socialNetworks.xing.placeholder")} // TODO: Regex does not fit with this placeholder
             >
-              <Input.Label htmlFor={fields.xing.id}>Xing</Input.Label>
+              <Input.Label htmlFor={fields.xing.id}>
+                {t("form.socialNetworks.xing.label")}
+              </Input.Label>
               {typeof fields.xing.error !== "undefined" && (
                 <Input.Error>{fields.xing.error}</Input.Error>
               )}
             </Input>
             <Input
               {...conform.input(fields.twitter)}
-              placeholder="twitter.com/<name>"
+              placeholder={t("form.socialNetworks.twitter.placeholder")}
             >
-              <Input.Label htmlFor={fields.twitter.id}>X (Twitter)</Input.Label>
+              <Input.Label htmlFor={fields.twitter.id}>
+                {t("form.socialNetworks.twitter.label")}
+              </Input.Label>
               {typeof fields.twitter.error !== "undefined" && (
                 <Input.Error>{fields.twitter.error}</Input.Error>
               )}
             </Input>
             <Input
               {...conform.input(fields.mastodon)}
-              placeholder="domainname.tld/@<name>" // TODO: Regex does not fit with this placeholder
+              placeholder={t("form.socialNetworks.mastodon.placeholder")} // TODO: Regex does not fit with this placeholder
             >
-              <Input.Label htmlFor={fields.mastodon.id}>Mastodon</Input.Label>
+              <Input.Label htmlFor={fields.mastodon.id}>
+                {t("form.socialNetworks.mastodon.label")}
+              </Input.Label>
               {typeof fields.mastodon.error !== "undefined" && (
                 <Input.Error>{fields.mastodon.error}</Input.Error>
               )}
             </Input>
             <Input
               {...conform.input(fields.tiktok)}
-              placeholder="tiktok.com/@<name>"
+              placeholder={t("form.socialNetworks.tiktok.placeholder")}
             >
-              <Input.Label>tiktok</Input.Label>
+              <Input.Label>{t("form.socialNetworks.tiktok.label")}</Input.Label>
               {typeof fields.tiktok.error !== "undefined" && (
                 <Input.Error>{fields.tiktok.error}</Input.Error>
               )}
             </Input>
             <Input
               {...conform.input(fields.instagram)}
-              placeholder="instagram.com/<name>"
+              placeholder={t("form.socialNetworks.instagram.placeholder")}
             >
-              <Input.Label htmlFor={fields.instagram.id}>Instagram</Input.Label>
+              <Input.Label htmlFor={fields.instagram.id}>
+                {t("form.socialNetworks.instagram.label")}
+              </Input.Label>
               {typeof fields.instagram.error !== "undefined" && (
                 <Input.Error>{fields.instagram.error}</Input.Error>
               )}
             </Input>
             <Input
               {...conform.input(fields.youtube)}
-              placeholder="youtube.com/<name>"
+              placeholder={t("form.socialNetworks.youtube.placeholder")}
             >
-              <Input.Label htmlFor={fields.youtube.id}>YouTube</Input.Label>
+              <Input.Label htmlFor={fields.youtube.id}>
+                {t("form.socialNetworks.youtube.label")}
+              </Input.Label>
               {typeof fields.youtube.error !== "undefined" && (
                 <Input.Error>{fields.youtube.error}</Input.Error>
               )}
@@ -322,7 +345,7 @@ function WebSocial() {
             <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
               <Controls>
                 <Button type="reset" variant="outline" fullSize>
-                  Änderungen verwerfen
+                  {t("form.reset")}
                 </Button>
                 {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
@@ -333,7 +356,7 @@ function WebSocial() {
                     setIsDirty(false);
                   }}
                 >
-                  Speichern
+                  {t("form.submit")}
                 </Button>
               </Controls>
             </div>

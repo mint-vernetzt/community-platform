@@ -14,8 +14,10 @@
       "label": "Name oder Email"
     },
     "current": {
-      "headline": "Aktuelle Administrator:innen",
-      "intro": "Hier siehst du alle Administrator:innen der Organisation auf einen Blick.",
+      "headline_one": "Aktuelle Administrator:in",
+      "headline_other": "Aktuelle Administrator:innen",
+      "intro_one": "Hier siehst du die Administrator:in der Organisation auf einen Blick.",
+      "intro_other": "Hier siehst du die Administrator:innen der Organisation auf einen Blick.",
       "remove": "entfernen"
     }
   }

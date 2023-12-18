@@ -339,7 +339,7 @@ export default function Index() {
     ? getInitialsOfName(loaderData.organization.name)
     : "";
   const organizationName = loaderData.organization.name ?? "";
-  const { t } = useTranslation(i18nNS);
+  const { t, i18n } = useTranslation(i18nNS);
 
   const logo = loaderData.images.logo;
   const Avatar = React.useCallback(
@@ -939,7 +939,11 @@ export default function Index() {
                                     {relation.event.stage !== null
                                       ? relation.event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {relation.event.participantLimit === null
                                       ? t("content.unlimitedPlaces")
                                       : ` | ${
@@ -1103,7 +1107,11 @@ export default function Index() {
                                     {relation.event.stage !== null
                                       ? relation.event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                     {relation.event.name}

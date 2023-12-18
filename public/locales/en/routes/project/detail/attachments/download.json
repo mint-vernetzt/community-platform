@@ -1,0 +1,11 @@
+{
+  "error": {
+    "invariant": {
+      "invalidRoute": "[en] No valid route",
+      "invalidParameters": "[en] Wrong or missing parameters",
+      "projectNotFound": "[en] Project not found",
+      "documentNotFound": "[en] Document not found",
+      "downloadFailed": "[en] Downloading from storage failed"
+    }
+  }
+}

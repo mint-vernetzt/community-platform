@@ -1,7 +1,7 @@
 export default {
   supportedLngs: ["de", "en"],
   fallbackLng: "de",
-  debug: false,
+  debug: true,
   interpolation: {
     escapeValue: false,
   },

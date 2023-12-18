@@ -1,7 +1,6 @@
 import React from "react";
 import { removeHtmlTags } from "../../../../../app/lib/utils/sanitizeUserHtml";
 import Avatar, { AvatarList } from "../../molecules/Avatar";
-import { getDateDuration, getTimeDuration } from "../../utils";
 import {
   Card,
   CardBody,
@@ -13,6 +12,7 @@ import {
   CardStatus,
 } from "./Card";
 import { useTranslation } from "react-i18next";
+import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 
 export type EventCardProps = {
   match?: number;
@@ -100,10 +100,7 @@ function EventCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & EventCardProps
 ) {
   const { event } = props;
-  const { t, i18n } = useTranslation([
-    "organisms/cards/event-card",
-    "utils/utils",
-  ]);
+  const { t, i18n } = useTranslation(["organisms/cards/event-card"]);
 
   const now = new Date();
 
@@ -115,8 +112,7 @@ function EventCard(
   const timeDuration = getTimeDuration(
     event.startTime,
     event.endTime,
-    i18n.language,
-    t
+    i18n.language
   );
   const hasStage = event.stage !== undefined && event.stage !== null;
 
