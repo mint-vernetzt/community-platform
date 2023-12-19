@@ -12,7 +12,7 @@ type GetImageURLArguments = {
     enlarge?: boolean;
   };
   gravity?: GravityType;
-  dpr?: string | number;
+  dpr?: number;
 };
 
 export function getImageURL(url: string, args?: GetImageURLArguments) {
