@@ -97,6 +97,7 @@
     "@mint-vernetzt/components": "workspace:*",
     "@remix-run/dev": "2.4.0",
     "@remix-run/eslint-config": "2.4.0",
+    "@remix-run/v1-route-convention": "^0.1.4",
     "@storybook/addon-actions": "^7.6.5",
     "@storybook/addon-essentials": "^7.6.5",
     "@storybook/addon-interactions": "^7.6.5",
