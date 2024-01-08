@@ -18,7 +18,7 @@ import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
 } from "./utils.server";
-import { useHydrated } from "remix-utils/build/react/use-hydrated";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();

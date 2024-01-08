@@ -7,7 +7,7 @@ import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { useHydrated } from "remix-utils/build/react/use-hydrated";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";

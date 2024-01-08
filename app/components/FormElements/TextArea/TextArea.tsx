@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 import { RTE } from "./RTE.client";
-import { ClientOnly } from "remix-utils/build/react/client-only";
+import { ClientOnly } from "remix-utils/client-only";
 import type ReactQuill from "react-quill";
 
 export interface TextAreaProps {

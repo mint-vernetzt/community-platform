@@ -1,6 +1,6 @@
 import { type Schema } from "jsonschema";
 import { json } from "@remix-run/node";
-import { cors } from "remix-utils/build/server/cors";
+import { cors } from "remix-utils/cors";
 import { formMapper } from "../formMapper/formMapper";
 import { mailerOptions } from "../mailer/mailerOptions";
 import { submissionMailer } from "../mailer/submissionMailer";
