@@ -1,7 +1,6 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Avatar, Button, Input, List } from "@mint-vernetzt/components";
-import { type Organization, type Prisma } from "@prisma/client";
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import {
   Form,
@@ -14,11 +13,13 @@ import { GravityType } from "imgproxy/dist/types";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
-import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { redirectWithToast } from "~/toast.server";
 import { generateOrganizationSlug } from "~/utils.server";
-import { createOrganizationOnProfile } from "./create.server";
+import {
+  countOrganizationsBySearchQuery,
+  createOrganizationOnProfile,
+  searchForOrganizationsByName,
+} from "./create.server";
 
 const schema = z.object({
   organizationName: z
@@ -48,30 +49,7 @@ export async function loader(args: DataFunctionArgs) {
   let searchResult: { name: string; slug: string; logo: string | null }[] = [];
 
   if (query.length > 0 && queryString !== null && queryString.length >= 3) {
-    const whereQueries: {
-      OR: {
-        [K in Organization as string]: {
-          contains: string;
-          mode: Prisma.QueryMode;
-        };
-      }[];
-    }[] = [];
-    for (const word of query) {
-      whereQueries.push({
-        OR: [{ name: { contains: word, mode: "insensitive" } }],
-      });
-    }
-    searchResult = await prismaClient.organization.findMany({
-      where: {
-        AND: whereQueries,
-      },
-      select: {
-        name: true,
-        slug: true,
-        logo: true,
-      },
-      take: 5,
-    });
+    searchResult = await searchForOrganizationsByName(queryString);
     searchResult = searchResult.map((relation) => {
       let logo = relation.logo;
       if (logo !== null) {
@@ -114,23 +92,23 @@ export async function action(args: DataFunctionArgs) {
     if (submission.intent === "submit") {
       const { organizationName } = submission.value;
 
-      if (queryString !== null && queryString === organizationName) {
+      const similarOrganizationsCount = await countOrganizationsBySearchQuery(
+        organizationName
+      );
+
+      if (
+        similarOrganizationsCount === 0 ||
+        (queryString !== null && queryString === organizationName)
+      ) {
         const slug = generateOrganizationSlug(organizationName);
         await createOrganizationOnProfile(
           sessionUser.id,
           submission.value.organizationName,
           slug
         );
-        return redirectWithToast(
-          `/organization/${slug}`,
-          {
-            key: "organization-created",
-            message: `Organisation "${organizationName}" wurde erfolgreich angelegt.`,
-          },
-          {
-            init: { headers: response.headers },
-          }
-        );
+        return redirect(`/organization/${slug}`, {
+          headers: response.headers,
+        });
       } else {
         const redirectURL = new URL(request.url);
         redirectURL.searchParams.set(
