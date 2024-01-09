@@ -1,19 +1,20 @@
-const { createRoutesFromFolders } = require("@remix-run/v1-route-convention");
+import { createRoutesFromFolders } from "@remix-run/v1-route-convention";
 
 /**
  * @type {import('@remix-run/dev').AppConfig}
  */
-module.exports = {
+export default {
   appDirectory: "app",
   assetsBuildDirectory: "public/build",
   /* Any Node.js polyfills to include in the browser build.
   -> see: https://remix.run/docs/en/main/file-conventions/remix-config#browsernodebuiltinspolyfill */
-  // browserNodeBuiltinsPolyfill: {},
+  browserNodeBuiltinsPolyfill: { modules: { crypto: true } },
   cacheDirectory: ".cache",
-  future: {
-    /* any enabled future flags */
-  },
-  ignoredRouteFiles: ["**/.*", "**/*.spec.*", "**/*.func.*"],
+  // future: {
+  //   // makes the warning go away in v1.15
+  //   v2_routeConvention: true,
+  // },
+  ignoredRouteFiles: ["**/*"],
   publicPath: "/build/",
   postcss: true,
   routes(defineRoutes) {
@@ -27,7 +28,7 @@ module.exports = {
   serverBuildPath: "build/index.js",
   /* The order of conditions to use when resolving server dependencies' exports field in package.json. */
   // serverConditions: [],
-  serverDependenciesToBundle: ["all"],
+  // serverDependenciesToBundle: ["all"],
   serverMainFields: ["module", "main"],
   serverMinify: false,
   serverModuleFormat: "esm",

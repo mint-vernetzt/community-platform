@@ -1,9 +1,9 @@
-const daisyui = require("daisyui");
-const tailwindcssOpentype = require("tailwindcss-opentype");
-const defaultTheme = require("tailwindcss/defaultTheme");
-const { colors, fontSizes } = require("./app/styles/theme");
+import daisyui from "daisyui";
+import tailwindcssOpentype from "tailwindcss-opentype";
+import defaultTheme from "tailwindcss/defaultTheme";
+import { colors, fontSizes } from "./app/styles/theme";
 
-module.exports = {
+export default {
   content: ["./app/**/*.tsx"],
   plugins: [daisyui, tailwindcssOpentype],
   daisyui: {
