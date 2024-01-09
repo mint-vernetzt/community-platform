@@ -1,6 +1,6 @@
 import { type Profile, type Organization, type Prisma } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -84,7 +84,7 @@ export async function getOrganizationSuggestionsForAutocomplete(
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
+            gravity: imgproxy.GravityType.center,
           });
         }
       }
@@ -161,7 +161,7 @@ export async function getProfileSuggestionsForAutocomplete(
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
-          gravity: GravityType.center,
+          gravity: imgproxy.GravityType.center,
         });
       }
     }

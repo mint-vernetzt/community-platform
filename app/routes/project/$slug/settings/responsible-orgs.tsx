@@ -22,7 +22,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { type User } from "@supabase/supabase-js";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -120,7 +120,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+            gravity: imgproxy.GravityType.center,
           });
         }
       }
@@ -164,7 +164,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+          gravity: imgproxy.GravityType.center,
         });
       }
     }
@@ -237,7 +237,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+            gravity: imgproxy.GravityType.center,
           });
         }
       }

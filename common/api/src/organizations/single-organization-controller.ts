@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Request as ExpressRequest } from "express";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import {
   Controller,
   Get,
@@ -117,7 +117,7 @@ export class OrganizationController extends Controller {
         if (publicURL !== null) {
           publicLogo = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+            gravity: imgproxy.GravityType.center,
           });
         }
       }

@@ -1,7 +1,7 @@
 import type { Organization } from "@prisma/client";
 import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -388,7 +388,7 @@ export async function getNetworkMembersOfOrganization(
       if (publicURL !== null) {
         const logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
-          gravity: GravityType.center,
+          gravity: imgproxy.GravityType.center,
         });
         return {
           ...item,

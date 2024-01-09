@@ -6,7 +6,7 @@ import {
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
@@ -103,7 +103,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         enhancedOrganization.logo = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: GravityType.center,
+          gravity: imgproxy.GravityType.center,
         });
       }
     }
@@ -116,7 +116,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         enhancedOrganization.background = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: GravityType.center,
+          gravity: imgproxy.GravityType.center,
         });
       }
     }

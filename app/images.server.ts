@@ -1,15 +1,14 @@
-import type { ResizingType } from "imgproxy/dist/types";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import { builder } from "./imgproxy.server";
 
 type GetImageURLArguments = {
   resize?: {
-    type?: ResizingType;
+    type?: imgproxy.ResizingType;
     width?: number;
     height?: number;
     enlarge?: boolean;
   };
-  gravity?: GravityType;
+  gravity?: imgproxy.Gravity;
   dpr?: number;
   blur?: number;
 };
@@ -17,7 +16,7 @@ type GetImageURLArguments = {
 export function getImageURL(url: string, args?: GetImageURLArguments) {
   const {
     resize = {},
-    gravity = GravityType.center,
+    gravity = imgproxy.GravityType.center,
     dpr = 2,
     blur = 0,
   } = args ?? {};

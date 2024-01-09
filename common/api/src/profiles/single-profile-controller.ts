@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Request as ExpressRequest } from "express";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import {
   Controller,
   Get,
@@ -124,7 +124,7 @@ export class ProfileController extends Controller {
         if (publicURL !== null) {
           publicAvatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+            gravity: imgproxy.GravityType.center,
           });
         }
       }

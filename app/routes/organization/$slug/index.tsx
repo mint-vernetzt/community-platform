@@ -3,7 +3,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
@@ -222,7 +222,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+            gravity: imgproxy.GravityType.center,
           });
         }
       }
@@ -238,7 +238,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           projectLogo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
+            gravity: imgproxy.GravityType.center,
           });
         }
       }
@@ -249,7 +249,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           if (publicURL !== null) {
             awardLogo = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
-              gravity: GravityType.center,
+              gravity: imgproxy.GravityType.center,
             });
           }
         }

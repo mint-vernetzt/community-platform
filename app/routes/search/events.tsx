@@ -3,7 +3,7 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
@@ -84,7 +84,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           if (publicURL) {
             logo = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
+              gravity: imgproxy.GravityType.center,
             });
           }
         }

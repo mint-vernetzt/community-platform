@@ -2,7 +2,7 @@ import { type Request } from "express";
 import { prismaClient } from "../prisma";
 import { createClient } from "@supabase/supabase-js";
 import { getImageURL, getPublicURL } from "../images.server";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import { getBaseURL } from "../utils";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { filterProfileByVisibility } from "../public-fields-filtering.server";
@@ -81,7 +81,7 @@ async function getProfiles(request: Request, skip: number, take: number) {
           if (publicURL !== null) {
             publicAvatar = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
+              gravity: imgproxy.GravityType.center,
             });
           }
         }

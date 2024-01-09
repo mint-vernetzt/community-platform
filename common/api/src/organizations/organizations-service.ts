@@ -1,7 +1,7 @@
 import { prismaClient } from "./../prisma";
 import { getImageURL, getPublicURL } from "./../images.server";
 import { createClient } from "@supabase/supabase-js";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import type { Request } from "express";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { getBaseURL } from "../../src/utils";
@@ -75,7 +75,7 @@ async function getOrganizations(request: Request, skip: number, take: number) {
           if (publicURL !== null) {
             publicLogo = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
+              gravity: imgproxy.GravityType.center,
             });
           }
         }

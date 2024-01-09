@@ -9,7 +9,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import { InputError, makeDomainFunction } from "remix-domains";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -74,7 +74,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         participant.avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+          gravity: imgproxy.GravityType.center,
         });
       }
     }
