@@ -1,7 +1,3 @@
 module.exports = {
-  extends: [
-    "@remix-run/eslint-config",
-    "plugin:storybook/recommended",
-    "plugin:cypress/recommended",
-  ],
+  extends: ["@remix-run/eslint-config", "plugin:storybook/recommended"],
 };
