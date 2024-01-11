@@ -8,7 +8,7 @@ import {
 } from "@remix-run/react";
 import type { KeyboardEvent } from "react";
 import React from "react";
-import { makeDomainFunction } from "remix-domains";
+import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUser, signUp } from "~/auth.server";

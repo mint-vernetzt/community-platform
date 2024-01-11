@@ -6,7 +6,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { InputError, makeDomainFunction } from "remix-domains";
+import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";

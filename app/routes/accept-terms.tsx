@@ -7,7 +7,7 @@ import {
 import { useSearchParams, useSubmit } from "@remix-run/react";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import React from "react";
-import { makeDomainFunction } from "remix-domains";
+import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";

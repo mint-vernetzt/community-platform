@@ -77,7 +77,6 @@
     "react-router-dom": "^6.21.0",
     "remix-auth": "^3.6.0",
     "remix-auth-supabase": "^4.0.2",
-    "remix-domains": "^0.2.0",
     "remix-forms": "^2.2.1",
     "remix-utils": "^7.3.0",
     "sanitize-html": "^2.11.0",
