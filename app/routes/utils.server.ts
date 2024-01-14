@@ -17,6 +17,10 @@ export async function getEventCount() {
   return await prismaClient.event.count();
 }
 
+export async function getProjectCount() {
+  return await prismaClient.project.count();
+}
+
 export async function getOrganizationSuggestionsForAutocomplete(
   authClient: SupabaseClient,
   notIncludedSlugs: string[],
