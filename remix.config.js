@@ -28,7 +28,7 @@ export default {
   serverBuildPath: "build/index.js",
   /* The order of conditions to use when resolving server dependencies' exports field in package.json. */
   // serverConditions: [],
-  // serverDependenciesToBundle: ["all"],
+  serverDependenciesToBundle: ["imgproxy"],
   serverMainFields: ["module", "main"],
   serverMinify: false,
   serverModuleFormat: "esm",

@@ -1,4 +1,4 @@
-import Imgproxy from "imgproxy/dist/index.js";
+import Imgproxy from "imgproxy";
 
 declare global {
   var __imgproxy: Imgproxy | undefined;
