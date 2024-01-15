@@ -29,6 +29,7 @@ import {
   getEventCount,
   getOrganizationCount,
   getProfileCount,
+  getProjectCount,
 } from "./utils.server";
 
 const schema = z.object({
@@ -72,12 +73,14 @@ export const loader = async (args: LoaderArgs) => {
   const profileCount = await getProfileCount();
   const organizationCount = await getOrganizationCount();
   const eventCount = await getEventCount();
+  const projectCount = await getProjectCount();
 
   return json(
     {
       profileCount,
       organizationCount,
       eventCount,
+      projectCount,
       abilities,
     },
     { headers: response.headers }
@@ -450,7 +453,7 @@ export default function Index() {
               <H3 className="text-center font-semibold all-small-caps mb-12 text-white tracking-wider">
                 Wie unsere Community wächst
               </H3>
-              <div className="md:grid md:grid-cols-3 md:gap-6 lg:gap-8">
+              <div className="md:grid md:grid-cols-4 md:gap-6 lg:gap-8">
                 <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
                     <CountUp
@@ -486,6 +489,18 @@ export default function Index() {
                     />
                   </p>
                   <p className="font-bold">Veranstaltungen</p>
+                </div>
+                <div className="text-center mb-8">
+                  <p className="text-7xl leading-tight font-bold">
+                    <CountUp
+                      end={loaderData.projectCount}
+                      enableScrollSpy={true}
+                      scrollSpyDelay={100}
+                      scrollSpyOnce={true}
+                      separator="."
+                    />
+                  </p>
+                  <p className="font-bold">Projekte</p>
                 </div>
               </div>
               <p className="text-center font-bold">

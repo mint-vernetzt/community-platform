@@ -14,7 +14,19 @@ export async function getOrganizationCount() {
 }
 
 export async function getEventCount() {
-  return await prismaClient.event.count();
+  return await prismaClient.event.count({
+    where: {
+      published: true,
+    },
+  });
+}
+
+export async function getProjectCount() {
+  return await prismaClient.project.count({
+    where: {
+      published: true,
+    },
+  });
 }
 
 export async function getOrganizationSuggestionsForAutocomplete(
