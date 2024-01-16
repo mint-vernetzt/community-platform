@@ -35,6 +35,7 @@ export {
   Header,
   List,
   Video,
+  Roadmap,
 } from "./src/organisms";
 export {
   EventCard,

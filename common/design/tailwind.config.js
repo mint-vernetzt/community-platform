@@ -78,7 +78,12 @@ module.exports = {
       padding: "1rem",
     },
   },
-  safelist,
+  safelist: [
+    "peer-checked:mv-grid-rows-3",
+    "peer-checked:mv-grid-rows-4",
+    "peer-checked:mv-grid-rows-5",
+    "peer-checked:mv-grid-rows-6",
+  ],
   daisyui: {
     styled: false,
     themes: false,
