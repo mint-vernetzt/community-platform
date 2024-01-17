@@ -12,7 +12,8 @@ Loader:
 Functional tests:
 
 - Render test
-- Link to /register/verify works
+- Confirmation link leads to supabase auth service and then to /verification
+--> It ships all parameters while doing that (login_redirect and type)
 ? - No browser console warnings/errors
 
 */
