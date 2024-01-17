@@ -62,6 +62,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
+  // This automatically logs in the user
+  // Throws error on invalid refreshToken, accessToken combination
+  // This moved to the loader to commit the session before updating the password inside the action (set-cookie header must reach the client)
+  await setSession(authClient, accessToken, refreshToken);
+
   return response;
 };
 
@@ -76,22 +81,13 @@ const mutation = makeDomainFunction(
     ); // -- Field error
   }
 
-  // This automatically logs in the user
-  // Throws error on invalid refreshToken, accessToken combination
-  await setSession(
-    // TODO: fix type issue
-    // @ts-ignore
-    environment.authClient,
-    values.accessToken,
-    values.refreshToken
-  );
-
   const { error } = await updatePassword(
     // TODO: fix type issue
     // @ts-ignore
     environment.authClient,
     values.password
   );
+
   if (error !== null) {
     throw error.message;
   }
@@ -110,7 +106,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (result.success) {
-    return redirect(result.data.loginRedirect || "/explore?reason=5", {
+    return redirect(result.data.loginRedirect || "/dashboard", {
       headers: response.headers,
     });
   }
