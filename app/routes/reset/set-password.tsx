@@ -5,10 +5,10 @@ import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
+  createAdminAuthClient,
   createAuthClient,
   getSessionUser,
   setSession,
-  updatePassword,
 } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
@@ -62,11 +62,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  // This automatically logs in the user
-  // Throws error on invalid refreshToken, accessToken combination
-  // This moved to the loader to commit the session before updating the password inside the action (set-cookie header must reach the client)
-  await setSession(authClient, accessToken, refreshToken);
-
   return response;
 };
 
@@ -81,15 +76,29 @@ const mutation = makeDomainFunction(
     ); // -- Field error
   }
 
-  const { error } = await updatePassword(
+  // This automatically logs in the user
+  // Throws error on invalid refreshToken, accessToken combination
+  const { user } = await setSession(
     // TODO: fix type issue
     // @ts-ignore
     environment.authClient,
-    values.password
+    values.accessToken,
+    values.refreshToken
   );
 
-  if (error !== null) {
-    throw error.message;
+  if (user !== null) {
+    const adminAuthClient = createAdminAuthClient();
+    const { error } = await adminAuthClient.auth.admin.updateUserById(user.id, {
+      password: values.password,
+    });
+    if (error !== null) {
+      throw error.message;
+    }
+    // TODO: fix type issue
+    // @ts-ignore
+    await environment.authClient.auth.refreshSession();
+  } else {
+    throw new Error("The session could not be set or the user was not found");
   }
   return values;
 });
