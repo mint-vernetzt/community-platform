@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Request } from "express";
-import imgproxy from "imgproxy/dist/types.js";
+import { GravityType } from "imgproxy/dist/types.js";
 import { filterProjectByVisibility } from "../public-fields-filtering.server";
 import { getBaseURL } from "../../src/utils";
 import { getImageURL, getPublicURL } from "../images.server";
@@ -85,7 +85,7 @@ async function getProjects(request: Request, skip: number, take: number) {
           if (publicURL !== null) {
             publicLogo = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
-              gravity: imgproxy.GravityType.center,
+              gravity: GravityType.center,
             });
           }
         }
@@ -99,7 +99,7 @@ async function getProjects(request: Request, skip: number, take: number) {
         }
       }
 
-      let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+      const baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
 
       const url =
         baseURL !== undefined

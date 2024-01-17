@@ -17,9 +17,9 @@ if (process.env.MATOMO_API_ENABLED === "1") {
   app.use(
     matomoMiddleware({
       siteId: parseInt(process.env.MATOMO_API_SITE_ID ?? "") || 0,
-      piwikUrl: `${process.env.MATOMO_API_URL ?? ""}piwik.php`,
+      matomoUrl: `${process.env.MATOMO_API_URL ?? ""}piwik.php`,
       baseUrl: process.env.MATOMO_API_BASE_URL ?? "",
-      piwikToken: process.env.MATOMO_API_TOKEN ?? "",
+      matomoToken: process.env.MATOMO_API_TOKEN ?? "",
     })
   );
 }

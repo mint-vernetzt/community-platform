@@ -1,25 +1,21 @@
-import imgproxy from "imgproxy/dist/types.js";
 import { builder } from "./imgproxy";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { json } from "@remix-run/node";
+import { GravityType, type ResizingType } from "imgproxy/dist/types";
 
 type GetImageURLArguments = {
   resize?: {
-    type?: imgproxy.ResizingType;
+    type?: ResizingType;
     width?: number;
     height?: number;
     enlarge?: boolean;
   };
-  gravity?: imgproxy.Gravity;
+  gravity?: GravityType;
   dpr?: number;
 };
 
 export function getImageURL(url: string, args?: GetImageURLArguments) {
-  const {
-    resize = {},
-    gravity = imgproxy.GravityType.center,
-    dpr = 2,
-  } = args ?? {};
+  const { resize = {}, gravity = GravityType.center, dpr = 2 } = args ?? {};
 
   const imageURL = builder
     .resize(resize.type, resize.width, resize.height, resize.enlarge)
