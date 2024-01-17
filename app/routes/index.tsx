@@ -43,11 +43,6 @@ const schema = z.object({
   loginRedirect: z.string().optional(),
 });
 
-const environmentSchema = z.object({
-  authClient: z.unknown(),
-  // authClient: z.instanceof(SupabaseClient),
-});
-
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
   return <RemixFormsForm<Schema> {...props} />;
 }
@@ -83,81 +78,46 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const { error } = await signIn(
-    // TODO: fix type issue
-    // @ts-ignore
-    environment.authClient,
-    values.email,
-    values.password
-  );
-
-  if (error !== null) {
-    if (error.message === "Invalid login credentials") {
-      throw "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.";
-    } else {
-      throw error.message;
-    }
-  } else {
-    const profile = await getProfileByEmailCaseInsensitive(values.email);
-    if (profile !== null) {
-      // changes provider of user to email
-      const adminAuthClient = createAdminAuthClient();
-      await adminAuthClient.auth.admin.updateUserById(profile.id, {
-        app_metadata: {
-          provider: "email",
-        },
-      });
-
-      // TODO: fix type issue
-      // @ts-ignore
-      await environment.authClient.auth.refreshSession();
-    }
-  }
-
+const mutation = makeDomainFunction(schema)(async (values) => {
   return { ...values };
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
-
-  const result = await performMutation({
+  const submission = await performMutation({
     request,
     schema,
     mutation,
-    environment: { authClient: authClient },
   });
 
-  if (result.success) {
-    if (result.data.loginRedirect) {
-      return redirect(result.data.loginRedirect, {
-        headers: response.headers,
-      });
-    } else {
-      // Default redirect after login
-      const profile = await getProfileByEmailCaseInsensitive(result.data.email);
-      if (profile !== null) {
-        const featureAbilities = await getFeatureAbilities(
-          authClient,
-          "dashboard"
-        );
-        let redirectRoute = `/profile/${profile.username}`;
-        if (featureAbilities["dashboard"].hasAccess === true) {
-          redirectRoute = `/dashboard`;
-        }
-        return redirect(redirectRoute, {
-          headers: response.headers,
+  if (submission.success) {
+    const { error, headers } = await signIn(
+      request,
+      submission.data.email,
+      submission.data.password
+    );
+
+    if (error !== null) {
+      if (error.message === "Invalid login credentials") {
+        return json({
+          message:
+            "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.",
         });
       } else {
-        return redirect(`/explore`, { headers: response.headers });
+        throw json({ message: "Server Error" }, { status: 500 });
       }
+    }
+    if (submission.data.loginRedirect) {
+      return redirect(submission.data.loginRedirect, {
+        headers: headers,
+      });
+    } else {
+      return redirect("/dashboard", {
+        headers: headers,
+      });
     }
   }
 
-  return json(result, { headers: response.headers });
+  return json(submission);
 };
 
 export default function Index() {

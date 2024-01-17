@@ -52,7 +52,7 @@ export const createAuthClient = (request: Request) => {
       headers,
     });
 
-    return { authClient, response };
+    return { authClient, response, headers };
   } else {
     throw json(
       {
@@ -112,20 +112,22 @@ export const signUp = async (
 };
 
 export const signIn = async (
-  authClient: SupabaseClient,
+  request: Request,
   email: string,
   password: string
 ) => {
+  const { authClient, headers } = createAuthClient(request);
   const { data, error } = await authClient.auth.signInWithPassword({
     email: email,
     password: password,
   });
-  return { data, error };
+  return { data, error, headers };
 };
 
-export const signOut = async (authClient: SupabaseClient) => {
+export const signOut = async (request: Request) => {
+  const { authClient, headers } = createAuthClient(request);
   const { error } = await authClient.auth.signOut();
-  return { error };
+  return { error, headers };
 };
 
 export const setSession = async (
