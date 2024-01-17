@@ -2,10 +2,9 @@ import { redirect, type LoaderFunctionArgs, json } from "@remix-run/node";
 import { createAuthClient } from "~/auth.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const response = new Response();
   const url = new URL(request.url);
   const loginRedirect = url.searchParams.get("login_redirect");
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const { error, data } = await authClient.auth.signInWithOAuth({
     provider: "keycloak",
     options: {

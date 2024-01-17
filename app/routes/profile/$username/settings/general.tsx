@@ -90,9 +90,7 @@ function makeFormProfileFromDbProfile(
 }
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -122,9 +120,7 @@ export const links: LinksFunction = () => [
 ];
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -134,7 +130,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     throw json({ message: "profile not found." }, { status: 404 });
   }
   const formData = await request.clone().formData();
-  let parsedFormData = await getFormValues<ProfileSchemaType>(
+  const parsedFormData = await getFormValues<ProfileSchemaType>(
     request,
     profileSchema
   );

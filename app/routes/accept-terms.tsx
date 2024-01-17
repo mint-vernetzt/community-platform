@@ -22,8 +22,7 @@ const schema = z.object({
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser !== null) {
@@ -67,8 +66,7 @@ const mutation = makeDomainFunction(
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const result = await performMutation({
     request,

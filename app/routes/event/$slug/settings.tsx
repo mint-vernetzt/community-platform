@@ -7,9 +7,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {

@@ -51,9 +51,7 @@ const webSocialSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -102,8 +100,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, "No valid route", {

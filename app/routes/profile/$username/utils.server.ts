@@ -99,7 +99,7 @@ export async function updateProfileById(
 ) {
   const { email: _email, ...rest } = profileData;
 
-  let profileVisibility = await prismaClient.profileVisibility.findFirst({
+  const profileVisibility = await prismaClient.profileVisibility.findFirst({
     where: {
       profile: {
         id,

@@ -32,8 +32,7 @@ import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const organization = await getOrganization(slug);
   invariantResponse(organization, "Organization not found", { status: 404 });

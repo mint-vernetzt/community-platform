@@ -69,8 +69,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const abilities = await getFeatureAbilities(authClient, "events");
 
   const sessionUser = await getSessionUser(authClient);
@@ -144,7 +143,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   // Filtering by publish status
   const filteredChildEvents = [];
-  for (let childEvent of enhancedEvent.childEvents) {
+  for (const childEvent of enhancedEvent.childEvents) {
     if (childEvent.published) {
       filteredChildEvents.push(childEvent);
     } else {

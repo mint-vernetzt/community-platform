@@ -30,9 +30,7 @@ import {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   let randomSeed = getRandomSeed(request);
 

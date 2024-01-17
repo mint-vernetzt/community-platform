@@ -188,9 +188,7 @@ export const links: LinksFunction = () => [
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -260,8 +258,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, "No valid route", {
@@ -402,7 +399,7 @@ function Requirements() {
   const financingList = useFieldList(form.ref, fields.financings);
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    for (let child of event.currentTarget.children) {
+    for (const child of event.currentTarget.children) {
       const value = child.getAttribute("value");
       if (
         child.localName === "button" &&

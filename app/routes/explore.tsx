@@ -4,9 +4,7 @@ import { createAuthClient } from "~/auth.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
-  createAuthClient(request, response);
+  const { response } = createAuthClient(request);
 
   return response;
 };

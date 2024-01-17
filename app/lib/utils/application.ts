@@ -42,7 +42,7 @@ export async function validateFeatureAccess(
     featureNames = featureNameOrNames;
   }
 
-  let abilities: {
+  const abilities: {
     [key: string]: {
       error?: Error;
       hasAccess: boolean;
@@ -58,9 +58,9 @@ export async function validateFeatureAccess(
     // Example format at this point: "events:1798752d-3901-4247-b375-51285141d158,5a39958c-a1de-4716-8081-ddcdefb6a760;projects:fb30b5e4-9daa-40e2-bd8f-71c6ce827c7a;"
     featureList = featureFlags.split(";").map((featureFlag) => {
       // Example format at this point: ["events:1798752d-3901-4247-b375-51285141d158,5a39958c-a1de-4716-8081-ddcdefb6a760", "projects:fb30b5e4-9daa-40e2-bd8f-71c6ce827c7a"]
-      let splittedFeatureFlag = featureFlag.trim().split(":");
+      const splittedFeatureFlag = featureFlag.trim().split(":");
       // Example format at this point: ["events", "1798752d-3901-4247-b375-51285141d158,5a39958c-a1de-4716-8081-ddcdefb6a760"]
-      let featureListItem = {
+      const featureListItem = {
         name: splittedFeatureFlag[0].trim(),
         idsWithAccess: splittedFeatureFlag[1]
           ? splittedFeatureFlag[1]

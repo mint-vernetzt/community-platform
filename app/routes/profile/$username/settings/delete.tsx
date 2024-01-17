@@ -31,9 +31,7 @@ const environmentSchema = z.object({
 });
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
@@ -54,21 +52,21 @@ const mutation = makeDomainFunction(
   if (profile === null) {
     throw "Das Profil konnte nicht gefunden werden";
   }
-  let lastAdminOrganizations: string[] = [];
+  const lastAdminOrganizations: string[] = [];
   profile.administeredOrganizations.map((relation) => {
     if (relation.organization._count.admins === 1) {
       lastAdminOrganizations.push(relation.organization.name);
     }
     return null;
   });
-  let lastAdminEvents: string[] = [];
+  const lastAdminEvents: string[] = [];
   profile.administeredEvents.map((relation) => {
     if (relation.event._count.admins === 1) {
       lastAdminEvents.push(relation.event.name);
     }
     return null;
   });
-  let lastAdminProjects: string[] = [];
+  const lastAdminProjects: string[] = [];
   profile.administeredProjects.map((relation) => {
     if (relation.project._count.admins === 1) {
       lastAdminProjects.push(relation.project.name);
@@ -107,9 +105,7 @@ const mutation = makeDomainFunction(
 });
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);

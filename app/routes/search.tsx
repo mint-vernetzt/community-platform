@@ -19,14 +19,12 @@ import {
 } from "./search/utils.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const response = new Response();
-
   const searchQuery = getQueryValueAsArrayOfWords(request);
 
-  const authClient = await createAuthClient(request, response);
+  const { authClient, response } = await createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
-  let countData = {
+  const countData = {
     profiles: 0,
     organizations: 0,
     events: 0,

@@ -12,8 +12,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 400,
   });
 
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({

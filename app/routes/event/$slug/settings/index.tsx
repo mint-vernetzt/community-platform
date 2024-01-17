@@ -5,8 +5,7 @@ import { createAuthClient } from "~/auth.server";
 // handle "/general" as default route
 export const loader = async (args: LoaderFunctionArgs) => {
   const { params, request } = args;
-  const response = new Response();
-  createAuthClient(request, response);
+  const { response } = createAuthClient(request);
   return redirect(`/event/${params.slug}/settings/general`, {
     headers: response.headers,
   });

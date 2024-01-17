@@ -17,7 +17,7 @@ export function deriveMode(sessionUser: User | null): Mode {
 
 export async function createHashFromString(
   string: string,
-  hashAlgorithm: string = "md5",
+  hashAlgorithm = "md5",
   encoding: BinaryToTextEncoding = "hex"
 ) {
   if (process.env.HASH_SECRET !== undefined) {
@@ -162,6 +162,7 @@ export async function triggerEntityScore(options: {
   }
   if (entity !== null) {
     const score = getScoreOfEntity(entity);
+    // TODO: fix type issue
     // @ts-ignore
     await prismaClient[options.entity].update({
       where: { id: entity.id },

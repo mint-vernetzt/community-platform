@@ -26,8 +26,8 @@ const uploadHandler: UploadHandler = async (part) => {
   // TODO: remove file-type package and use contentType...only if Remix uses file header
   const { data, name, filename } = part;
 
-  let bytes = [];
-  for await (let chunk of data) {
+  const bytes = [];
+  for await (const chunk of data) {
     bytes.push(...chunk);
   }
 
@@ -140,7 +140,7 @@ export const parseMultipart = async (request: Request) => {
         { status: 500 }
       );
     }
-    let uploadHandlerResponse: {
+    const uploadHandlerResponse: {
       buffer: {
         type: "Buffer";
         data: number[];
@@ -260,7 +260,7 @@ export async function getDownloadDocumentsResponse(
   authClient: SupabaseClient,
   additionalHeaders: Headers,
   documents: Pick<Document, "title" | "filename" | "path">[],
-  zipFilename: string = "Dokumente.zip"
+  zipFilename = "Dokumente.zip"
 ) {
   if (documents.length === 0) {
     throw json(
@@ -275,7 +275,7 @@ export async function getDownloadDocumentsResponse(
   const files = await Promise.all(
     documents.map(async (document) => {
       const blob = await download(authClient, document.path);
-      let file = {
+      const file = {
         name: document.title || document.filename,
         content: await blob.arrayBuffer(),
         type: blob.type,

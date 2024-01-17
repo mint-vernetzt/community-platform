@@ -32,9 +32,9 @@ export async function getAllProfiles(
   const { skip, take, areaId, offerId, seekingId, randomSeed } = options;
 
   let areaToFilter;
-  let whereClauses = [];
+  const whereClauses = [];
   let whereClause = Prisma.empty;
-  let offerJoin = Prisma.sql`
+  const offerJoin = Prisma.sql`
     LEFT JOIN offers_on_profiles
     ON profiles.id = offers_on_profiles."profileId"
     LEFT JOIN offer O

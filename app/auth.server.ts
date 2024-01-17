@@ -1,24 +1,36 @@
 import type { Profile } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { prismaClient } from "./prisma.server";
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient, parse, serialize } from "@supabase/ssr";
 import { json } from "@remix-run/server-runtime";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
 const SESSION_NAME = "sb2";
 
-export const createAuthClient = (request: Request, response: Response) => {
+export const createAuthClient = (request: Request) => {
   if (
     process.env.SUPABASE_URL !== undefined &&
     process.env.SUPABASE_ANON_KEY !== undefined
   ) {
+    const cookies = parse(request.headers.get("Cookie") ?? "");
+    const headers = new Headers();
+
     const authClient = createServerClient(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_ANON_KEY,
       {
-        request,
-        response,
+        cookies: {
+          get(key) {
+            return cookies[key];
+          },
+          set(key, value, options) {
+            headers.append("Set-Cookie", serialize(key, value, options));
+          },
+          remove(key, options) {
+            headers.append("Set-Cookie", serialize(key, "", options));
+          },
+        },
         cookieOptions: {
           name: SESSION_NAME,
           // normally you want this to be `secure: true`
@@ -28,13 +40,19 @@ export const createAuthClient = (request: Request, response: Response) => {
           // secrets: [process.env.SESSION_SECRET], -> Does not exist on type CookieOptions
           sameSite: "lax",
           path: "/",
-          // TODO: fix type issue -> This one is strange. Supabase removed the maxAge from its CookieOptions type
-          // @ts-ignore
           maxAge: 60 * 60 * 24 * 30,
         },
       }
     );
-    return authClient;
+
+    // Normally i would only return the headers and add them to the response on the caller side
+    // To avoid refactoring i return an empty response with only the updated headers,
+    // so the current code base can persist (adding additional headers via response.headers)
+    const response = new Response(null, {
+      headers,
+    });
+
+    return { authClient, response };
   } else {
     throw json(
       {

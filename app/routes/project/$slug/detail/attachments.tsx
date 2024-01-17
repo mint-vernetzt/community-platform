@@ -10,9 +10,7 @@ import { MaterialList } from "../settings/__components";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   invariantResponse(params.slug !== undefined, "No valid route", {
     status: 400,

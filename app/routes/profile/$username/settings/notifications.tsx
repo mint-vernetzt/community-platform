@@ -33,8 +33,7 @@ const schema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const profile = await prismaClient.profile.findFirst({
     where: { username },
@@ -58,9 +57,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const username = getParamValueOrThrow(params, "username");
   const mode = await deriveProfileMode(sessionUser, username);

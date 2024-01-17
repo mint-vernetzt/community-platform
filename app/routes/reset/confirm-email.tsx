@@ -3,6 +3,7 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { createAuthClient } from "~/auth.server";
 
 // How to build the confirmation url to test this functionality on dev?
 
@@ -16,7 +17,7 @@ import PageBackground from "../../components/PageBackground/PageBackground";
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const response = new Response();
+  const { response } = createAuthClient(args.request);
 
   const url = new URL(request.url);
 

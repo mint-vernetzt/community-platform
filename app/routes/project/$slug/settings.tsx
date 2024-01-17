@@ -21,9 +21,7 @@ import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server"
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -107,13 +105,14 @@ function ProjectSettings() {
           <h3 className="mv-mb-0 mv-font-bold">Projekt bearbeiten</h3>
         </div>
       </div>
-      {loaderData.toast !== null && loaderData.toast.id === "settings-toast" && (
-        <div id={loaderData.toast.id} className="md:mv-py-4">
-          <Toast key={loaderData.toast.key} level={loaderData.toast.level}>
-            {loaderData.toast.message}
-          </Toast>
-        </div>
-      )}
+      {loaderData.toast !== null &&
+        loaderData.toast.id === "settings-toast" && (
+          <div id={loaderData.toast.id} className="md:mv-py-4">
+            <Toast key={loaderData.toast.key} level={loaderData.toast.level}>
+              {loaderData.toast.message}
+            </Toast>
+          </div>
+        )}
       <div className="mv-hidden md:mv-block">
         <Section variant="primary" withBorder>
           <Section.Header>{loaderData.project.name}</Section.Header>

@@ -43,9 +43,7 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, [
     "events",

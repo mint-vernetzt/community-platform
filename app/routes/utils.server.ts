@@ -22,7 +22,7 @@ export async function getOrganizationSuggestionsForAutocomplete(
   notIncludedSlugs: string[],
   query: string[]
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of query) {
     const contains: {
       OR: [
@@ -100,7 +100,7 @@ export async function getProfileSuggestionsForAutocomplete(
   notIncludedIds: string[],
   query: string[]
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of query) {
     const contains: {
       OR: {

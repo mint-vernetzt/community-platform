@@ -2,8 +2,8 @@ import type { Schema } from "jsonschema";
 import { Validator } from "jsonschema";
 
 export function validateSubmission<T>(formData: T, schema: Schema) {
-  let validator = new Validator();
-  let result = validator.validate(formData, schema);
+  const validator = new Validator();
+  const result = validator.validate(formData, schema);
 
   return result.errors.map((e) => ({
     field:

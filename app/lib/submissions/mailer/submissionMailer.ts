@@ -24,13 +24,13 @@ export async function submissionMailer<T>(
   subject: string,
   submissionData: T
 ) {
-  let transporter = nodemailer.createTransport(
+  const transporter = nodemailer.createTransport(
     options.auth?.user !== ""
       ? options
       : { host: options.host, port: options.port }
   );
 
-  let text = renderTextTemplate<T>(submissionData);
+  const text = renderTextTemplate<T>(submissionData);
 
   await transporter
     .sendMail({

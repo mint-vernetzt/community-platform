@@ -228,7 +228,7 @@ export async function updateOrganizationById(
   },
   privateFields: string[]
 ) {
-  let organizationVisibility =
+  const organizationVisibility =
     await prismaClient.organizationVisibility.findFirst({
       where: {
         organization: {

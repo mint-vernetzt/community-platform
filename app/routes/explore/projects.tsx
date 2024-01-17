@@ -18,13 +18,11 @@ import { getAllProjects, getPaginationValues } from "./utils.server";
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const response = new Response();
-
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
     itemsPerPage: 8,
   });
 
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const projects = await getAllProjects(skip, take);
 

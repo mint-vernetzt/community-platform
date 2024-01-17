@@ -21,7 +21,7 @@ export async function mailer(
   text: Mail.Options["text"],
   html: Mail.Options["html"]
 ) {
-  let transporter = nodemailer.createTransport(
+  const transporter = nodemailer.createTransport(
     options.auth?.user !== ""
       ? options
       : { host: options.host, port: options.port }

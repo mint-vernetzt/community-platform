@@ -17,10 +17,10 @@ export async function processSubmission<T>(
   recipient: string,
   subject: string
 ) {
-  let formData = await request.formData();
+  const formData = await request.formData();
 
-  let data = formMapper<T>(formData, schema);
-  let errors = validateSubmission<T>(data, schema);
+  const data = formMapper<T>(formData, schema);
+  const errors = validateSubmission<T>(data, schema);
 
   if (errors.length === 0) {
     try {

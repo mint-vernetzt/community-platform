@@ -4,7 +4,6 @@ import { createAuthClient } from "~/auth.server";
 
 // handle "/profiles" as default route
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const response = new Response();
-  createAuthClient(request, response);
+  const { response } = createAuthClient(request);
   return redirect("/explore/profiles", { headers: response.headers });
 };

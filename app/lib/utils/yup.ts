@@ -250,7 +250,7 @@ export async function getFormValues<T extends ObjectSchema<AnyObject>>(
 ): Promise<InferType<T>> {
   const formData = await request.clone().formData();
   // TODO: Find better solution if this is not the best
-  let parsedFormData: AnyObject = {};
+  const parsedFormData: AnyObject = {};
   for (const key in schema.fields) {
     // TODO: fix type issue
     // @ts-ignore
@@ -273,7 +273,7 @@ export async function validateForm<T extends ObjectSchema<AnyObject>>(
   errors: FormError | null;
 }> {
   let data: InferType<T> = parsedFormData;
-  let errors: FormError = {};
+  const errors: FormError = {};
 
   try {
     data = await schema.validate(parsedFormData, {
@@ -311,7 +311,7 @@ export async function validateForm<T extends ObjectSchema<AnyObject>>(
 export async function getFormDataValidationResultOrThrow<
   T extends ObjectSchema<AnyObject>
 >(request: Request, schema: T) {
-  let parsedFormData = await getFormValues<T>(request, schema);
+  const parsedFormData = await getFormValues<T>(request, schema);
 
   let errors: FormError | null;
   let data: Asserts<T>;

@@ -18,8 +18,7 @@ import {
 } from "./utils.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {

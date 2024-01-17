@@ -8,9 +8,7 @@ import { prismaClient } from "~/prisma.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  createAuthClient(request, response);
+  const { response } = createAuthClient(request);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, "No valid route", {

@@ -64,8 +64,7 @@ type FormType = InferType<typeof schema>;
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   await getSessionUserOrThrow(authClient);
 
   const url = new URL(request.url);
@@ -79,17 +78,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
-  let parsedFormData = await getFormValues<SchemaType>(request, schema);
+  const parsedFormData = await getFormValues<SchemaType>(request, schema);
 
   let errors: FormError | null;
   let data;
 
   try {
-    let result = await validateForm<SchemaType>(schema, parsedFormData);
+    const result = await validateForm<SchemaType>(schema, parsedFormData);
     errors = result.errors;
     data = result.data;
   } catch (error) {

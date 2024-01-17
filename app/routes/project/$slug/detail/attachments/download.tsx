@@ -11,8 +11,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 400,
   });
 
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const url = new URL(request.url);
   const type = url.searchParams.get("type") as

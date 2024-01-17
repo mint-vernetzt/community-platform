@@ -21,8 +21,8 @@ const uploadHandler: UploadHandler = async (part) => {
   // TODO: remove file-type package and use contentType...only if Remix uses file header
   const { data, name, filename } = part;
 
-  let bytes = [];
-  for await (let chunk of data) {
+  const bytes = [];
+  for await (const chunk of data) {
     bytes.push(...chunk);
   }
 

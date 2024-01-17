@@ -1,5 +1,5 @@
 import imgproxy from "imgproxy/dist/types.js";
-import { builder } from "./imgproxy.server";
+// import { builder } from "./imgproxy.server";
 
 type GetImageURLArguments = {
   resize?: {
@@ -21,12 +21,13 @@ export function getImageURL(url: string, args?: GetImageURLArguments) {
     blur = 0,
   } = args ?? {};
 
-  const imageURL = builder
-    .resize(resize.type, resize.width, resize.height, resize.enlarge)
-    .gravity(gravity)
-    .dpr(dpr)
-    .blur(blur)
-    .generateUrl(url);
+  // const imageURL = builder
+  //   .resize(resize.type, resize.width, resize.height, resize.enlarge)
+  //   .gravity(gravity)
+  //   .dpr(dpr)
+  //   .blur(blur)
+  //   .generateUrl(url);
 
-  return imageURL;
+  // return imageURL;
+  return "";
 }

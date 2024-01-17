@@ -20,9 +20,7 @@ import {
 import { uploadKeys, type Subject } from "./utils.server";
 
 export const loader = ({ request }: LoaderFunctionArgs) => {
-  const response = new Response();
-
-  createAuthClient(request, response);
+  const { response } = createAuthClient(request);
 
   if (request.method !== "POST") {
     throw json(
@@ -57,9 +55,7 @@ async function handleAuth(subject: Subject, slug: string, sessionUser: User) {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const profileId = sessionUser.id;

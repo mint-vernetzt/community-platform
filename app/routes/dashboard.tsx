@@ -29,9 +29,7 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const featureAbilities = await getFeatureAbilities(authClient, "dashboard");
   if (featureAbilities["dashboard"].hasAccess === false) {
@@ -75,7 +73,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const profiles = rawProfiles.map((profile) => {
     const { avatar, background, memberOf, ...otherFields } = profile;
-    let extensions: {
+    const extensions: {
       memberOf: Pick<Organization, "name" | "slug" | "logo">[];
       areas: string[];
       offers: string[];
@@ -149,7 +147,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const organizations = rawOrganizations.map((organization) => {
     const { logo, background, teamMembers, ...otherFields } = organization;
-    let extensions: {
+    const extensions: {
       teamMembers: Pick<
         Profile,
         "firstName" | "lastName" | "username" | "avatar"

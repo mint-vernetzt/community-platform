@@ -108,7 +108,7 @@ export async function getAllSlugsOfChildEvents(slug: string) {
   const slugs = result.childEvents.map((childEvent) => childEvent.slug);
 
   let childEventChildrenSlugs: string[] = [];
-  for (let slug of slugs) {
+  for (const slug of slugs) {
     const childrenSlugs = await self.getAllSlugsOfChildEvents(slug);
     childEventChildrenSlugs = childEventChildrenSlugs.concat(childrenSlugs);
   }

@@ -44,7 +44,7 @@
     "@remix-run/serve": "2.4.0",
     "@remix-run/server-runtime": "2.4.0",
     "@remix-run/web-fetch": "^4.4.2",
-    "@supabase/auth-helpers-remix": "^0.2.6",
+    "@supabase/ssr": "^0.0.10",
     "@supabase/supabase-js": "^2.39.1",
     "classnames": "^2.3.2",
     "commander": "^11.1.0",

@@ -4,9 +4,7 @@ import { createAuthClient, signOut } from "~/auth.server";
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const { error } = await signOut(authClient);
 

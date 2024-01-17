@@ -98,9 +98,7 @@ function makeFormOrganizationFromDbOrganization(
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -150,9 +148,7 @@ export const links: LinksFunction = () => [
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -162,7 +158,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const organization = await getOrganizationBySlug(slug);
   invariantResponse(organization, "Organization not found", { status: 404 });
 
-  let parsedFormData = await getFormValues<OrganizationSchemaType>(
+  const parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,
     organizationSchema
   );
@@ -171,7 +167,7 @@ export const action = async (args: ActionFunctionArgs) => {
   let data: OrganizationFormType;
 
   try {
-    let result = await validateForm<OrganizationSchemaType>(
+    const result = await validateForm<OrganizationSchemaType>(
       organizationSchema,
       parsedFormData
     );

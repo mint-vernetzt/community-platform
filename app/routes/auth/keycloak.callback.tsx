@@ -1,4 +1,4 @@
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs, json } from "@remix-run/node";
 import { useSubmit } from "@remix-run/react";
 import React from "react";
 import { redirectWithAlert } from "~/alert.server";
@@ -6,7 +6,6 @@ import {
   createAdminAuthClient,
   createAuthClient,
   getSession,
-  setSession,
 } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
 import { generateValidSlug } from "~/utils.server";
@@ -14,8 +13,7 @@ import { createProfile } from "../register/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const url = new URL(request.url);
   const urlSearchParams = new URLSearchParams(url.searchParams);
@@ -29,13 +27,23 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
   }
 
-  // login user using access_token and refresh_token
-  const accessToken = urlSearchParams.get("access_token");
-  const refreshToken = urlSearchParams.get("refresh_token");
+  // login user using code with the PKCE flow
+  // https://supabase.com/docs/guides/auth/server-side/oauth-with-pkce-flow-for-ssr
+  // https://supabase.com/docs/guides/auth/server-side/email-based-auth-with-pkce-flow-for-ssr
+  // https://supabase.com/docs/reference/javascript/auth-exchangecodeforsession
+  const code = urlSearchParams.get("code");
+  console.log(urlSearchParams.get("next"));
+  console.log(code);
   let profile;
   let firstLogin = false;
-  if (accessToken !== null && refreshToken !== null) {
-    const { user } = await setSession(authClient, accessToken, refreshToken);
+  if (code !== null) {
+    const { data, error } = await authClient.auth.exchangeCodeForSession(code);
+
+    if (error !== null) {
+      throw json({ message: "Internal server error" }, { status: 500 });
+    }
+
+    const { user } = data;
 
     if (
       user !== null &&
@@ -123,6 +131,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
         }
       );
     }
+  } else {
+    throw json({ message: "Bad request" }, { status: 400 });
   }
 
   return null;

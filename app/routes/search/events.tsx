@@ -21,8 +21,7 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);

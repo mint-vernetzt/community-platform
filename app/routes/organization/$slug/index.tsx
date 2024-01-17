@@ -62,9 +62,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
@@ -160,7 +158,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   // Get images from image proxy
-  let images: {
+  const images: {
     logo?: string;
     background?: string;
   } = {};

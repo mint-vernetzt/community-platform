@@ -8,7 +8,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import type { KeyboardEvent } from "react";
-import CountUp from "react-countup";
+// import CountUp from "react-countup";
 import { makeDomainFunction } from "domain-functions";
 import type { FormProps } from "remix-forms";
 import { performMutation } from "remix-forms";
@@ -55,9 +55,7 @@ function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -124,9 +122,7 @@ const mutation = makeDomainFunction(
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const result = await performMutation({
     request,
@@ -452,7 +448,7 @@ export default function Index() {
                 Wie unsere Community wächst
               </H3>
               <div className="md:grid md:grid-cols-3 md:gap-6 lg:gap-8">
-                <div className="text-center mb-8">
+                {/* <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
                     <CountUp
                       end={loaderData.profileCount}
@@ -487,7 +483,7 @@ export default function Index() {
                     />
                   </p>
                   <p className="font-bold">Veranstaltungen</p>
-                </div>
+                </div> */}
               </div>
               <p className="text-center font-bold">
                 Werde auch Du Teil unserer ständig wachsenden MINT-Community.

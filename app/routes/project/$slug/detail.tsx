@@ -44,9 +44,7 @@ export function links() {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const slug = getParamValue(params, "slug");
   invariantResponse(slug !== undefined, 'Route parameter "slug" not found', {
@@ -145,9 +143,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const slug = getParamValue(params, "slug");
   invariantResponse(slug !== undefined, 'Route parameter "slug" not found', {

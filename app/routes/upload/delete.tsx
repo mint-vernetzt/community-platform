@@ -66,9 +66,7 @@ const mutation = makeDomainFunction(
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const formData = await request.clone().formData();
   const redirectUrl = formData.get("redirect")?.toString();
 

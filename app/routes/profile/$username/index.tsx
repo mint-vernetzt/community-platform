@@ -50,9 +50,7 @@ export function links() {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   const username = getParamValueOrThrow(params, "username");
 
@@ -139,7 +137,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   // Get images from image proxy
-  let images: {
+  const images: {
     avatar?: string;
     background?: string;
   } = {};

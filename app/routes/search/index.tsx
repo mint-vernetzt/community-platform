@@ -13,12 +13,10 @@ import {
 // handle first tab with search results as default route
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const queryString = getQuerySearchParam(request);
 
-  const authClient = await createAuthClient(request, response);
+  const { authClient, response } = await createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   if (searchQuery !== null) {

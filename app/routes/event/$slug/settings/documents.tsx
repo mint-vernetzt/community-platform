@@ -28,8 +28,7 @@ import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -130,6 +129,7 @@ function Documents() {
                         schema={editDocumentSchema}
                         onSubmit={(event) => {
                           closeModal(item.document.id);
+                          // TODO: fix type issue
                           // @ts-ignore
                           if (event.nativeEvent.submitter.name === "cancel") {
                             event.preventDefault();
