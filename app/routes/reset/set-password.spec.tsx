@@ -6,12 +6,11 @@ Loader:
 - Redirect to dashboard on authenticated
 - Throws correct error message when tokens aren't provided
 --> Should throw an error if type !== "recovery" (TODO: not current behaviour)
-- Throws correct error on setSession failure
-
 
 Action:
 - Returns correct error messages on validation failure
-- Throws correct error on updatePassword failure
+- Throws correct error on setSession failure
+- Throws correct error on update password failure
 - Updates the password on success
 --> Default redirect to dashboard
 --> Redirects to login redirect when login_redirect searchParam is present
