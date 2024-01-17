@@ -21,7 +21,7 @@ import { generateUsername } from "../../utils.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
-  academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),
+  academicTitle: z.string().optional(),
   firstName: z.string().min(1, "Bitte gib Deinen Vornamen ein."),
   lastName: z.string().min(1, "Bitte gib Deinen Nachnamen ein."),
   email: z

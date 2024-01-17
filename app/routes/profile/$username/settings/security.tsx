@@ -27,7 +27,7 @@ const emailSchema = z.object({
     .string()
     .min(1, "Bitte gib eine gültige E-Mail-Adresse ein.")
     .email("Bitte gib eine gültige E-Mail-Adresse ein. "),
-  submittedForm: z.enum(["changeEmail"]),
+  submittedForm: z.string(),
 });
 
 const passwordSchema = z.object({
@@ -37,7 +37,7 @@ const passwordSchema = z.object({
   confirmPassword: z
     .string()
     .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  submittedForm: z.enum(["changePassword"]),
+  submittedForm: z.string(),
 });
 
 const passwordEnvironmentSchema = z.object({
