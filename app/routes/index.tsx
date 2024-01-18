@@ -105,21 +105,6 @@ const mutation = makeDomainFunction(
     } else {
       throw error.message;
     }
-  } else {
-    const profile = await getProfileByEmailCaseInsensitive(values.email);
-    if (profile !== null) {
-      // changes provider of user to email
-      const adminAuthClient = createAdminAuthClient();
-      await adminAuthClient.auth.admin.updateUserById(profile.id, {
-        app_metadata: {
-          provider: "email",
-        },
-      });
-
-      // TODO: fix type issue
-      // @ts-ignore
-      await environment.authClient.auth.refreshSession();
-    }
   }
 
   return { ...values };
