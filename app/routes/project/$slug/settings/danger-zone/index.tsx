@@ -5,7 +5,7 @@ import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -21,7 +21,5 @@ export const loader = async (args: LoaderFunctionArgs) => {
     authClient,
   });
 
-  return redirect(redirectPath ?? "./change-url?deep", {
-    headers: response.headers,
-  });
+  return redirect(redirectPath ?? "./change-url?deep");
 };

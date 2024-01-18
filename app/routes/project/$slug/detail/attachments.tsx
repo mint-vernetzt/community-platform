@@ -10,7 +10,7 @@ import { MaterialList } from "../settings/__components";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   invariantResponse(params.slug !== undefined, "No valid route", {
     status: 400,
@@ -68,7 +68,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return { ...relation, image: { ...relation.image, thumbnail } };
   });
 
-  return json({ project }, { headers: response.headers });
+  return json({ project });
 }
 
 function Attachments() {

@@ -14,23 +14,17 @@ import type { FormProps } from "remix-forms";
 import { performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
 import { z } from "zod";
-import {
-  createAdminAuthClient,
-  createAuthClient,
-  getSessionUser,
-  signIn,
-} from "~/auth.server";
+import { createAuthClient, getSessionUser, signIn } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import { H1, H3 } from "~/components/Heading/Heading";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { getProfileByEmailCaseInsensitive } from "./organization/$slug/settings/utils.server";
 import {
   getEventCount,
   getOrganizationCount,
   getProfileCount,
 } from "./utils.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   email: z
@@ -50,15 +44,13 @@ function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser !== null) {
     // Default redirect on logged in user
-    return redirect("/dashboard", {
-      headers: response.headers,
-    });
+    return redirect("/dashboard");
   }
 
   const abilities = await getFeatureAbilities(authClient, ["keycloak"]);
@@ -67,15 +59,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const organizationCount = await getOrganizationCount();
   const eventCount = await getEventCount();
 
-  return json(
-    {
-      profileCount,
-      organizationCount,
-      eventCount,
-      abilities,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    profileCount,
+    organizationCount,
+    eventCount,
+    abilities,
+  });
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {

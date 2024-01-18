@@ -71,7 +71,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 400,
   });
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
@@ -82,7 +82,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const url = new URL(request.url);
@@ -146,12 +146,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   invariantResponse(file !== null, "File not found", { status: 404 });
 
-  return json(file, { headers: response.headers });
+  return json(file);
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -168,7 +168,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const url = new URL(request.url);
@@ -216,7 +216,6 @@ export const action = async (args: ActionFunctionArgs) => {
     }
   } else {
     return json({ status: "error", submission, hash } as const, {
-      headers: response.headers,
       status: 400,
     });
   }
@@ -224,9 +223,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const redirectUrl = new URL("./", request.url);
   redirectUrl.searchParams.set("deep", "true");
 
-  return redirect(redirectUrl.toString(), {
-    headers: response.headers,
-  });
+  return redirect(redirectUrl.toString());
 };
 
 function Edit() {

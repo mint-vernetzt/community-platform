@@ -57,7 +57,7 @@ const environmentSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -112,19 +112,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "participants"
   );
 
-  return json(
-    {
-      published: event.published,
-      participantLimit: event.participantLimit,
-      participants: enhancedParticipants,
-      participantSuggestions,
-      hasFullDepthParticipants:
-        fullDepthParticipants !== null &&
-        fullDepthParticipants.length > 0 &&
-        event._count.childEvents !== 0,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    participantLimit: event.participantLimit,
+    participants: enhancedParticipants,
+    participantSuggestions,
+    hasFullDepthParticipants:
+      fullDepthParticipants !== null &&
+      fullDepthParticipants.length > 0 &&
+      event._count.childEvents !== 0,
+  });
 };
 
 const mutation = makeDomainFunction(
@@ -148,7 +145,7 @@ const mutation = makeDomainFunction(
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const eventSlug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventWithParticipantCount(eventSlug);
@@ -171,7 +168,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 }
 
 function Participants() {

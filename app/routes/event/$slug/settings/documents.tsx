@@ -28,7 +28,7 @@ import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -40,12 +40,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  return json(
-    {
-      event: event,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    event: event,
+  });
 };
 
 function closeModal(id: string) {

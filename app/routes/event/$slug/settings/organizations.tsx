@@ -38,7 +38,7 @@ import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -103,15 +103,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
       );
   }
 
-  return json(
-    {
-      published: event.published,
-      responsibleOrganizations: enhancedOrganizations,
-      responsibleOrganizationSuggestions,
-      ownOrganizationsSuggestions: enhancedOwnOrganizations,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    responsibleOrganizations: enhancedOrganizations,
+    responsibleOrganizationSuggestions,
+    ownOrganizationsSuggestions: enhancedOwnOrganizations,
+  });
 };
 
 function Organizations() {

@@ -32,7 +32,7 @@ import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const organization = await getOrganization(slug);
   invariantResponse(organization, "Organization not found", { status: 404 });
@@ -70,13 +70,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  return json(
-    {
-      admins: enhancedAdmins,
-      adminSuggestions,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    admins: enhancedAdmins,
+    adminSuggestions,
+  });
 };
 
 function Admins() {

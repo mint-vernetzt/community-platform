@@ -26,10 +26,10 @@ const environmentSchema = z.object({
 });
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   await getSessionUserOrThrow(authClient);
 
-  return json({}, { headers: response.headers });
+  return null;
 };
 
 const mutation = makeDomainFunction(
@@ -50,7 +50,7 @@ const mutation = makeDomainFunction(
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const result = await performMutation({
@@ -63,9 +63,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     ReturnType<typeof getOrganizationByName>
   > = null;
   if (result.success) {
-    return redirect(`/organization/${result.data.slug}`, {
-      headers: response.headers,
-    });
+    return redirect(`/organization/${result.data.slug}`);
   } else {
     if (
       result.errors._global !== undefined &&
@@ -93,10 +91,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
     }
   }
-  return json(
-    { ...result, alreadyExistingOrganization },
-    { headers: response.headers }
-  );
+  return json({ ...result, alreadyExistingOrganization });
 };
 
 export default function Create() {

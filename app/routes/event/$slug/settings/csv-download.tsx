@@ -119,7 +119,7 @@ function createCsvString(
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
@@ -139,7 +139,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return new Response(csv, {
     status: 200,
     headers: {
-      ...response.headers,
       "Content-Type": "text/csv",
       "Content-Disposition": `filename=${filename}`,
     },

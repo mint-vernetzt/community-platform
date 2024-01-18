@@ -22,7 +22,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     itemsPerPage: 8,
   });
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const projects = await getAllProjects(skip, take);
 
@@ -104,16 +104,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     enhancedProjects.push(enhancedProject);
   }
 
-  return json(
-    {
-      projects: enhancedProjects,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
+  return json({
+    projects: enhancedProjects,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+  });
 };
 
 function Projects() {

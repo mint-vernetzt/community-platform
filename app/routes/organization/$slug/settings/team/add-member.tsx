@@ -57,7 +57,7 @@ const mutation = makeDomainFunction(
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
@@ -75,13 +75,10 @@ export const action = async (args: ActionFunctionArgs) => {
     const organization = await getOrganizationBySlug(slug);
     invariantResponse(organization, "Organization not found", { status: 404 });
     await addTeamMemberToOrganization(organization.id, result.data.profileId);
-    return json(
-      {
-        message: `Ein neues Teammitglied mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde hinzugefügt.`,
-      },
-      { headers: response.headers }
-    );
+    return json({
+      message: `Ein neues Teammitglied mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde hinzugefügt.`,
+    });
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };

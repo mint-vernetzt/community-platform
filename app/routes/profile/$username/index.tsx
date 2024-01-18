@@ -50,7 +50,7 @@ export function links() {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const username = getParamValueOrThrow(params, "username");
 
@@ -64,9 +64,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
     if (userProfile !== null) {
       if (userProfile.termsAccepted === false) {
-        return redirect(`/accept-terms?redirect_to=/profile/${username}`, {
-          headers: response.headers,
-        });
+        return redirect(`/accept-terms?redirect_to=/profile/${username}`);
       }
     } else {
       throw json({ message: "Profile not found" }, { status: 404 });
@@ -222,18 +220,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     !inFuture
   );
 
-  return json(
-    {
-      mode,
-      data: enhancedProfile,
-      images,
-      abilities,
-      futureEvents: profileFutureEvents,
-      pastEvents: profilePastEvents,
-      userId: sessionUser?.id,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    mode,
+    data: enhancedProfile,
+    images,
+    abilities,
+    futureEvents: profileFutureEvents,
+    pastEvents: profilePastEvents,
+    userId: sessionUser?.id,
+  });
 };
 
 function hasContactInformations(data: Pick<Profile, "email" | "phone">) {

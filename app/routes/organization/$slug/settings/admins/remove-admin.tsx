@@ -35,7 +35,7 @@ const mutation = makeDomainFunction(
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
@@ -56,5 +56,5 @@ export const action = async (args: ActionFunctionArgs) => {
       return redirect(`/organization/${slug}`);
     }
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };

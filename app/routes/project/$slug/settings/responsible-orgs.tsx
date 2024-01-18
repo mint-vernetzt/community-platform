@@ -9,10 +9,10 @@ import {
 } from "@mint-vernetzt/components";
 import { type Organization, type Prisma } from "@prisma/client";
 import {
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
   json,
   redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import {
   Form,
@@ -29,7 +29,6 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { getToast, redirectWithToast } from "~/toast.server";
-import { combineHeaders } from "~/utils.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
@@ -38,7 +37,7 @@ import {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -55,7 +54,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   // get project
@@ -252,14 +251,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
       searchResult,
       toast,
     },
-    { headers: combineHeaders(response.headers, toastHeaders) }
+    { headers: toastHeaders || undefined }
   );
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   // get action type
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
@@ -275,7 +274,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const formData = await request.formData();
@@ -326,7 +325,7 @@ export const action = async (args: ActionFunctionArgs) => {
         key: hash,
         message: `${organization.name} hinzugefügt.`,
       },
-      { init: { headers: response.headers }, scrollToToast: true }
+      { scrollToToast: true }
     );
   } else if (action.startsWith("remove_")) {
     const slug = action.replace("remove_", "");
@@ -366,14 +365,11 @@ export const action = async (args: ActionFunctionArgs) => {
         key: hash,
         message: `${organization.name} entfernt.`,
       },
-      { init: { headers: response.headers }, scrollToToast: true }
+      { scrollToToast: true }
     );
   }
 
-  return json(
-    { success: false, action, organization: null },
-    { headers: response.headers }
-  );
+  return json({ success: false, action, organization: null });
 };
 
 function ResponsibleOrgs() {

@@ -20,8 +20,6 @@ import {
 import { uploadKeys, type Subject } from "./utils.server";
 
 export const loader = ({ request }: LoaderFunctionArgs) => {
-  const { response } = createAuthClient(request);
-
   if (request.method !== "POST") {
     throw json(
       {
@@ -31,7 +29,7 @@ export const loader = ({ request }: LoaderFunctionArgs) => {
     );
   }
 
-  return response;
+  return null;
 };
 
 async function handleAuth(subject: Subject, slug: string, sessionUser: User) {
@@ -55,7 +53,7 @@ async function handleAuth(subject: Subject, slug: string, sessionUser: User) {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const profileId = sessionUser.id;
@@ -114,5 +112,5 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   }
 
-  return response;
+  return null;
 };

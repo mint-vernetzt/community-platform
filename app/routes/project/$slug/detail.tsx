@@ -44,7 +44,7 @@ export function links() {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const slug = getParamValue(params, "slug");
   invariantResponse(slug !== undefined, 'Route parameter "slug" not found', {
@@ -135,10 +135,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     blurredLogo,
   };
 
-  return json(
-    { username, project: enhancedProject, mode },
-    { headers: response.headers }
-  );
+  return json({ username, project: enhancedProject, mode });
 };
 
 export const action = async (args: ActionFunctionArgs) => {

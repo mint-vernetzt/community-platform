@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
@@ -6,6 +6,7 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -15,7 +16,6 @@ import {
   disconnectOrganizationFromNetwork,
   getOrganizationIdBySlug,
 } from "../utils.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   organizationId: z.string().uuid(),
@@ -41,15 +41,14 @@ const mutation = makeDomainFunction(
   return values;
 });
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { response } = createAuthClient(request);
-  return redirect(".", { headers: response.headers });
+export const loader = async () => {
+  return redirect(".");
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
@@ -61,7 +60,7 @@ export const action = async (args: ActionFunctionArgs) => {
     environment: { slug: slug },
   });
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export function NetworkMemberRemoveForm(

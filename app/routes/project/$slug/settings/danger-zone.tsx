@@ -8,7 +8,7 @@ import { Section, TabBar } from "@mint-vernetzt/components";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -25,7 +25,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   return null;

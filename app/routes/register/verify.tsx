@@ -6,10 +6,10 @@ import { createProfile } from "./utils.server";
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
-    return redirect("/dashboard", { headers: response.headers });
+    return redirect("/dashboard");
   }
 
   const url = new URL(request.url);
@@ -58,9 +58,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         };
         const profile = await createProfile(initialProfile);
         // Default redirect to profile of sessionUser after sign up verification
-        return redirect(loginRedirect || `/profile/${profile.username}`, {
-          headers: response.headers,
-        });
+        return redirect(loginRedirect || `/profile/${profile.username}`);
       } else {
         alert(
           "Das Profil konnte nicht erstellt werden. Bitte mit Screenshot dieser Nachricht an den Support wenden.\n\nSession konnte nach der Bestätigungsmail nicht gesetzt werden."
@@ -72,5 +70,5 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
-  return json(null, { headers: response.headers });
+  return null;
 };

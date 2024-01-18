@@ -35,7 +35,7 @@ import {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -54,10 +54,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         filterValues.areaId ? `&areaId=${filterValues.areaId}` : ""
       }${filterValues.offerId ? `&offerId=${filterValues.offerId}` : ""}${
         filterValues.seekingId ? `&seekingId=${filterValues.seekingId}` : ""
-      }`,
-      {
-        headers: response.headers,
-      }
+      }`
     );
   }
 
@@ -144,16 +141,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return json(
-    {
-      isLoggedIn,
-      profiles: enhancedProfiles,
-      areas,
-      offers,
-      pagination: { page, itemsPerPage },
-    },
-    { headers: response.headers }
-  );
+  return json({
+    isLoggedIn,
+    profiles: enhancedProfiles,
+    areas,
+    offers,
+    pagination: { page, itemsPerPage },
+  });
 };
 
 export default function Index() {

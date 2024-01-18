@@ -28,7 +28,6 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { getToast, redirectWithToast } from "~/toast.server";
-import { combineHeaders } from "~/utils.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
@@ -37,7 +36,7 @@ import {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -54,7 +53,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   // get project team members and admins
@@ -174,14 +173,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   return json(
     { project, searchResult, toast },
-    { headers: combineHeaders(response.headers, toastHeaders) }
+    { headers: toastHeaders || undefined }
   );
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   // get action type
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
@@ -197,7 +196,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const formData = await request.formData();
@@ -247,7 +246,7 @@ export const action = async (args: ActionFunctionArgs) => {
         key: hash,
         message: `${profile.firstName} ${profile.lastName} hinzugefügt.`,
       },
-      { init: { headers: response.headers }, scrollToToast: true }
+      { scrollToToast: true }
     );
   } else if (action.startsWith("remove_")) {
     const username = action.replace("remove_", "");
@@ -288,14 +287,11 @@ export const action = async (args: ActionFunctionArgs) => {
         key: hash,
         message: `${profile.firstName} ${profile.lastName} entfernt.`,
       },
-      { init: { headers: response.headers }, scrollToToast: true }
+      { scrollToToast: true }
     );
   }
 
-  return json(
-    { success: false, action, profile: null },
-    { headers: response.headers }
-  );
+  return json({ success: false, action, profile: null });
 };
 
 function Team() {

@@ -21,7 +21,7 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
@@ -104,17 +104,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const enhancedEventsWithParticipationStatus =
     await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
-  return json(
-    {
-      events: enhancedEventsWithParticipationStatus,
-      userId: sessionUser?.id || undefined,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
+  return json({
+    events: enhancedEventsWithParticipationStatus,
+    userId: sessionUser?.id || undefined,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+  });
 };
 
 export default function SearchView() {

@@ -25,7 +25,7 @@ import {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, "No valid route", {
@@ -191,7 +191,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
-  return json({ project }, { headers: response.headers });
+  return json({ project });
 };
 
 function About() {

@@ -23,7 +23,7 @@ const environmentSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -31,7 +31,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  return response;
+  return null;
 };
 
 const mutation = makeDomainFunction(
@@ -49,7 +49,7 @@ const mutation = makeDomainFunction(
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
@@ -66,12 +66,10 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (result.success) {
-    return redirect(`/profile/${profile.username}`, {
-      headers: response.headers,
-    });
+    return redirect(`/profile/${profile.username}`);
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export default function Delete() {

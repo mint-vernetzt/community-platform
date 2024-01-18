@@ -48,7 +48,7 @@ const mutation = makeDomainFunction(
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
   const mode = await deriveEventMode(sessionUser, slug);
@@ -64,12 +64,9 @@ export const action = async (args: ActionFunctionArgs) => {
 
   if (result.success === true) {
     await addChildEventRelationOrThrow(slug, result.data.childEventId);
-    return json(
-      {
-        message: `Die Veranstaltung "${result.data.childEventName}" ist jetzt Eurer Veranstaltung zugehörig.`,
-      },
-      { headers: response.headers }
-    );
+    return json({
+      message: `Die Veranstaltung "${result.data.childEventName}" ist jetzt Eurer Veranstaltung zugehörig.`,
+    });
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };

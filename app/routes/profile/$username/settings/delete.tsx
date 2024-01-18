@@ -31,7 +31,7 @@ const environmentSchema = z.object({
 });
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
@@ -41,7 +41,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const mode = await deriveProfileMode(sessionUser, username);
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
-  return json({}, { headers: response.headers });
+  return null;
 };
 
 const mutation = makeDomainFunction(
@@ -105,7 +105,7 @@ const mutation = makeDomainFunction(
 });
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -118,19 +118,13 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     environment: { userId: sessionUser.id },
   });
   if (result.success) {
-    const { error } = await signOut(authClient);
+    const { error, headers } = await signOut(request);
     if (error !== null) {
       throw json({ message: error.message }, { status: 500 });
     }
-
-    const cookie = response.headers.get("set-cookie");
-    if (cookie !== null) {
-      response.headers.set("set-cookie", cookie.replace("-code-verifier", ""));
-    }
-
-    return redirect("/goodbye", { headers: response.headers });
+    return redirect("/goodbye", { headers });
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export default function Index() {

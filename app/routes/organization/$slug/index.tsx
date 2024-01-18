@@ -62,7 +62,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
@@ -73,9 +73,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       select: { termsAccepted: true },
     });
     if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(`/accept-terms?redirect_to=/organization/${slug}`, {
-        headers: response.headers,
-      });
+      return redirect(`/accept-terms?redirect_to=/organization/${slug}`);
     }
   }
 
@@ -277,17 +275,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     !inFuture
   );
 
-  return json(
-    {
-      organization: enhancedOrganization,
-      images,
-      futureEvents: organizationFutureEvents,
-      pastEvents: organizationPastEvents,
-      userId: sessionUser?.id,
-      mode,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    organization: enhancedOrganization,
+    images,
+    futureEvents: organizationFutureEvents,
+    pastEvents: organizationPastEvents,
+    userId: sessionUser?.id,
+    mode,
+  });
 };
 
 function hasContactInformations(

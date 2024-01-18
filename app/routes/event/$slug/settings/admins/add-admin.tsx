@@ -53,7 +53,7 @@ const mutation = makeDomainFunction(
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
@@ -72,12 +72,9 @@ export const action = async (args: ActionFunctionArgs) => {
     invariantResponse(event, "Event not found", { status: 404 });
     await addAdminToEvent(event.id, result.data.profileId);
 
-    return json(
-      {
-        message: `"${result.data.firstName} ${result.data.lastName}" wurde als Administrator:in hinzugefügt.`,
-      },
-      { headers: response.headers }
-    );
+    return json({
+      message: `"${result.data.firstName} ${result.data.lastName}" wurde als Administrator:in hinzugefügt.`,
+    });
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };

@@ -32,13 +32,13 @@ function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
-    return redirect("/dashboard", { headers: response.headers });
+    return redirect("/dashboard");
   }
 
-  return response;
+  return null;
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {

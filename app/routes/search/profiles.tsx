@@ -21,7 +21,7 @@ import {
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
@@ -98,17 +98,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     enhancedProfiles.push(enhancedProfile);
   }
 
-  return json(
-    {
-      profiles: enhancedProfiles,
-      isLoggedIn: sessionUser !== null,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
+  return json({
+    profiles: enhancedProfiles,
+    isLoggedIn: sessionUser !== null,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+  });
 };
 
 export default function Profiles() {

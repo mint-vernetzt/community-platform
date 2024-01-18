@@ -1,14 +1,12 @@
 import { Chip } from "@mint-vernetzt/components";
 import { useLoaderData } from "@remix-run/react";
 import { json, type LoaderFunctionArgs } from "@remix-run/server-runtime";
-import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request, params } = args;
-  const { response } = createAuthClient(request);
+  const { params } = args;
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, "No valid route", {
@@ -45,7 +43,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 404,
   });
 
-  return json({ project }, { headers: response.headers });
+  return json({ project });
 };
 
 function Requirements() {

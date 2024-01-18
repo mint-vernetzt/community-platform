@@ -25,7 +25,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const result = await performMutation({ request, schema, mutation });
@@ -40,7 +40,7 @@ export const action = async (args: ActionFunctionArgs) => {
     }
     await disconnectParticipantFromEvent(event.id, result.data.profileId);
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 type RemoveParticipantButtonProps = {

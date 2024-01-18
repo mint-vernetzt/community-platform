@@ -52,7 +52,7 @@ const emailEnvironmentSchema = z.object({
 });
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
@@ -117,7 +117,7 @@ const emailMutation = makeDomainFunction(
 });
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -149,7 +149,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       environment: { authClient: authClient },
     });
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export default function Security() {

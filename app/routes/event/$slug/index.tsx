@@ -69,7 +69,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const abilities = await getFeatureAbilities(authClient, "events");
 
   const sessionUser = await getSessionUser(authClient);
@@ -81,9 +81,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
     if (userProfile !== null) {
       if (userProfile.termsAccepted === false) {
-        return redirect(`/accept-terms?redirect_to=/event/${slug}`, {
-          headers: response.headers,
-        });
+        return redirect(`/accept-terms?redirect_to=/event/${slug}`);
       }
     } else {
       throw json({ message: `Profile not found` }, { status: 404 });
@@ -347,19 +345,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
-  return json(
-    {
-      mode,
-      event: eventWithParticipationStatus,
-      userId: sessionUser?.id || undefined,
-      isParticipant,
-      isOnWaitingList,
-      isSpeaker,
-      isTeamMember,
-      abilities,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    mode,
+    event: eventWithParticipationStatus,
+    userId: sessionUser?.id || undefined,
+    isParticipant,
+    isOnWaitingList,
+    isSpeaker,
+    isTeamMember,
+    abilities,
+  });
 };
 
 function getForm(loaderData: {

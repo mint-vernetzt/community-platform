@@ -17,10 +17,10 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
-    return redirect("/dashboard", { headers: response.headers });
+    return redirect("/dashboard");
   }
 
   const url = new URL(request.url);
@@ -107,12 +107,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
   }&token=${token}&type=signup`;
 
-  return json(
-    {
-      confirmationLink: sanitizedConfirmationLink,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    confirmationLink: sanitizedConfirmationLink,
+  });
 };
 
 export default function Confirm() {

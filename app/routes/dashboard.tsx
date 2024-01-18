@@ -12,7 +12,6 @@ import { useLoaderData } from "@remix-run/react";
 import imgproxy from "imgproxy/dist/types.js";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css";
 import {
@@ -29,12 +28,7 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const { authClient, response } = createAuthClient(request);
-
-  const featureAbilities = await getFeatureAbilities(authClient, "dashboard");
-  if (featureAbilities["dashboard"].hasAccess === false) {
-    return redirect("/");
-  }
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -48,19 +42,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   if (profile.termsAccepted === false) {
-    return redirect("/accept-terms?redirect_to=/dashboard", {
-      headers: response.headers,
-    });
+    return redirect("/accept-terms?redirect_to=/dashboard");
   }
 
   let randomSeed = getRandomSeed(request);
   if (randomSeed === undefined) {
     randomSeed = parseFloat((Math.random() / 4).toFixed(3)); // use top 25% of profiles
     // use enhanced redirect to preserve flash cookies
-    return enhancedRedirect(`/dashboard?randomSeed=${randomSeed}`, {
-      response: { headers: response.headers },
-      request,
-    });
+    return enhancedRedirect(`/dashboard?randomSeed=${randomSeed}`, request);
   }
 
   const numberOfProfiles = 4;
@@ -213,16 +202,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
       background: backgroundImage,
     };
   });
-  return json(
-    {
-      profiles,
-      organizations,
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      username: profile.username,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    profiles,
+    organizations,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    username: profile.username,
+  });
 };
 
 function Dashboard() {

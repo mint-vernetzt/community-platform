@@ -12,7 +12,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 400,
   });
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
@@ -23,7 +23,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const url = new URL(request.url);
@@ -97,7 +97,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       return new Response(buffer, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": relation.document.mimeType,
           "Content-Disposition": `attachment; filename="${relation.document.filename}"`,
         },
@@ -119,7 +118,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       return new Response(content, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": "application/zip",
           "Content-Disposition": `attachment; filename="${filename}"`,
         },
@@ -177,7 +175,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       return new Response(buffer, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": relation.image.mimeType,
           "Content-Disposition": `attachment; filename="${relation.image.filename}"`,
         },
@@ -199,7 +196,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       return new Response(content, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": "application/zip",
           "Content-Disposition": `attachment; filename="${filename}"`,
         },

@@ -5,7 +5,7 @@ import { updateProfileByUserId } from "./set-email.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const url = new URL(request.url);
   const urlSearchParams = new URLSearchParams(url.searchParams);
   const accessToken = urlSearchParams.get("access_token");
@@ -30,9 +30,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         email: sessionUser.email,
       });
       // Default redirect to profile of sessionUser after set email
-      return redirect(`/profile/${profile.username}`, {
-        headers: response.headers,
-      });
+      return redirect(`/profile/${profile.username}`);
     } else {
       throw json(
         {

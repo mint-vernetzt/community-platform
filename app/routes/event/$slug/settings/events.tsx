@@ -43,7 +43,7 @@ import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -106,16 +106,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  return json(
-    {
-      parentEvent: event.parentEvent,
-      parentEventSuggestions,
-      childEvents: enhancedChildEvents,
-      childEventSuggestions,
-      published: event.published,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    parentEvent: event.parentEvent,
+    parentEventSuggestions,
+    childEvents: enhancedChildEvents,
+    childEventSuggestions,
+    published: event.published,
+  });
 };
 
 function Events() {

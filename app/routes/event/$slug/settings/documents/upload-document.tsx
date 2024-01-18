@@ -1,6 +1,5 @@
 import type { Document } from "@prisma/client";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -19,7 +18,7 @@ export const uploadDocumentSchema = schema;
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
@@ -47,5 +46,5 @@ export const action = async (args: ActionFunctionArgs) => {
     throw "Dokument konnte nicht in der Datenbank gespeichert werden.";
   }
 
-  return json({ headers: response.headers });
+  return null;
 };

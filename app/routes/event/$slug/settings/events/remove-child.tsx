@@ -23,7 +23,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
@@ -35,5 +35,5 @@ export const action = async (args: ActionFunctionArgs) => {
     await removeChildEventRelationOrThrow(slug, result.data.childEventId);
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };

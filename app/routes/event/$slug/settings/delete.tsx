@@ -30,7 +30,7 @@ const environmentSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -42,14 +42,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
 
-  return json(
-    {
-      published: event.published,
-      eventName: event.name,
-      childEvents: event.childEvents,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    eventName: event.name,
+    childEvents: event.childEvents,
+  });
 };
 
 const mutation = makeDomainFunction(
@@ -72,7 +69,7 @@ const mutation = makeDomainFunction(
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
@@ -96,7 +93,7 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirect(`/profile/${profile.username}`);
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 function Delete() {

@@ -46,7 +46,7 @@ function createSchema(constraint?: {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   invariantResponse(
@@ -65,18 +65,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
-  return json(
-    { slug: params.slug, baseURL: process.env.COMMUNITY_BASE_URL },
-    { headers: response.headers }
-  );
+  return json({ slug: params.slug, baseURL: process.env.COMMUNITY_BASE_URL });
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
@@ -92,7 +89,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const formData = await request.formData();
@@ -129,11 +126,11 @@ export const action = async (args: ActionFunctionArgs) => {
         key: hash,
         message: "URL wurde geändert.",
       },
-      { init: { headers: response.headers }, scrollToToast: true }
+      { scrollToToast: true }
     );
   }
 
-  return json(submission, { headers: response.headers });
+  return json(submission);
 };
 
 function ChangeURL() {

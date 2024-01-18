@@ -54,7 +54,7 @@ const mutation = makeDomainFunction(
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
@@ -71,12 +71,9 @@ export const action = async (args: ActionFunctionArgs) => {
     const event = await getEventBySlug(slug);
     invariantResponse(event, "Event not found", { status: 404 });
     await addTeamMemberToEvent(event.id, result.data.profileId);
-    return json(
-      {
-        message: `Ein neues Teammitglied mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde hinzugefügt.`,
-      },
-      { headers: response.headers }
-    );
+    return json({
+      message: `Ein neues Teammitglied mit dem Namen "${result.data.firstName} ${result.data.lastName}" wurde hinzugefügt.`,
+    });
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };

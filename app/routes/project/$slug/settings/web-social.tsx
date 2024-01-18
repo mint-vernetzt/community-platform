@@ -51,7 +51,7 @@ const webSocialSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -68,7 +68,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findUnique({
@@ -91,16 +91,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 404,
   });
 
-  return json(
-    { project },
-    {
-      headers: response.headers,
-    }
-  );
+  return json({ project });
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, "No valid route", {
@@ -113,7 +108,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     authClient,
   });
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
   // Validation
   const formData = await request.formData();
@@ -153,21 +148,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const hash = getSubmissionHash(submission);
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission, hash } as const, {
-      headers: response.headers,
-    });
+    return json({ status: "idle", submission, hash } as const);
   }
   if (!submission.value) {
     return json({ status: "error", submission, hash } as const, {
       status: 400,
-      headers: response.headers,
     });
   }
 
   return redirectWithToast(
     request.url,
     { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
-    { init: { headers: response.headers }, scrollToToast: true }
+    { scrollToToast: true }
   );
 }
 

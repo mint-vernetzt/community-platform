@@ -52,7 +52,7 @@ const mutation = makeDomainFunction(
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
@@ -70,12 +70,9 @@ export const action = async (args: ActionFunctionArgs) => {
     invariantResponse(organization, "Organization not found", { status: 404 });
     await addAdminToOrganization(organization.id, result.data.profileId);
 
-    return json(
-      {
-        message: `"${result.data.firstName} ${result.data.lastName}" wurde als Administrator:in hinzugefügt.`,
-      },
-      { headers: response.headers }
-    );
+    return json({
+      message: `"${result.data.firstName} ${result.data.lastName}" wurde als Administrator:in hinzugefügt.`,
+    });
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };

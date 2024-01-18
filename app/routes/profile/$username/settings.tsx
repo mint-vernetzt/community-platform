@@ -1,4 +1,4 @@
-import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { NavLink, Outlet } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -7,7 +7,7 @@ import { prismaClient } from "~/prisma.server";
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const username = getParamValueOrThrow(params, "username");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
@@ -18,12 +18,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     // TODO: Could this be moved to root.tsx?
     if (userProfile !== null && userProfile.termsAccepted === false) {
       return redirect(
-        `/accept-terms?redirect_to=/profile/${username}/settings`,
-        { headers: response.headers }
+        `/accept-terms?redirect_to=/profile/${username}/settings`
       );
     }
   }
-  return json({});
+  return null;
 };
 
 function Index() {

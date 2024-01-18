@@ -18,7 +18,7 @@ import {
 } from "./utils.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
@@ -111,13 +111,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     enhancedProjects.push(enhancedProject);
   }
 
-  return json(
-    {
-      projects: enhancedProjects,
-      pagination: { page, itemsPerPage },
-    },
-    { headers: response.headers }
-  );
+  return json({
+    projects: enhancedProjects,
+    pagination: { page, itemsPerPage },
+  });
 };
 
 export default function SearchView() {

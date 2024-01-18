@@ -43,7 +43,7 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient, headers } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, [
     "events",
@@ -51,18 +51,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "dashboard",
   ]);
 
-  const sessionUser = await getSessionUser(authClient);
+  const user = await getSessionUser(authClient);
 
   let sessionUserInfo;
 
-  if (sessionUser !== null) {
-    const profile = await getProfileByUserId(sessionUser.id);
+  if (user !== null) {
+    // Refresh session to reset the cookie max age
+    await authClient.auth.refreshSession();
+
+    const profile = await getProfileByUserId(user.id);
 
     let avatar: string | undefined;
 
     if (profile) {
       if (profile.avatar) {
         const publicURL = getPublicURL(authClient, profile.avatar);
+        console.log(publicURL);
         if (publicURL) {
           avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
@@ -90,7 +94,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       abilities,
       alert,
     },
-    { headers: combineHeaders(response.headers, alertHeaders) }
+    { headers: combineHeaders(headers, alertHeaders) }
   );
 };
 

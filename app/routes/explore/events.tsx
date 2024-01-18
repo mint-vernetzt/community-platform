@@ -15,7 +15,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -62,17 +62,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
   }
 
-  return json(
-    {
-      events,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
-      userId: sessionUser?.id || undefined,
+  return json({
+    events,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+    userId: sessionUser?.id || undefined,
+  });
 };
 
 function Events() {

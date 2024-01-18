@@ -30,15 +30,13 @@ import {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   let randomSeed = getRandomSeed(request);
 
   if (randomSeed === undefined) {
     randomSeed = parseFloat(Math.random().toFixed(3));
-    return redirect(`/explore/organizations?randomSeed=${randomSeed}`, {
-      headers: response.headers,
-    });
+    return redirect(`/explore/organizations?randomSeed=${randomSeed}`);
   }
 
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
@@ -135,16 +133,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedOrganizations.push(enhancedOrganization);
   }
 
-  return json(
-    {
-      isLoggedIn,
-      organizations: enhancedOrganizations,
-      areas,
-      offers,
-      pagination: { page, itemsPerPage },
-    },
-    { headers: response.headers }
-  );
+  return json({
+    isLoggedIn,
+    organizations: enhancedOrganizations,
+    areas,
+    offers,
+    pagination: { page, itemsPerPage },
+  });
 };
 
 export default function Index() {

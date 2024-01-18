@@ -3,7 +3,6 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { createAuthClient } from "~/auth.server";
 
 // How to build the confirmation url to test this functionality on dev?
 
@@ -16,8 +15,6 @@ import { createAuthClient } from "~/auth.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-
-  const { response } = createAuthClient(args.request);
 
   const url = new URL(request.url);
 
@@ -105,12 +102,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
   }&token=${token}&type=email_change`;
 
-  return json(
-    {
-      confirmationLink: sanitizedConfirmationLink,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    confirmationLink: sanitizedConfirmationLink,
+  });
 };
 
 export default function Confirm() {

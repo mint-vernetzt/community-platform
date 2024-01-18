@@ -7,7 +7,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
@@ -17,8 +17,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
     if (userProfile !== null && userProfile.termsAccepted === false) {
       return redirect(
-        `/accept-terms?redirect_to=/organization/${slug}/settings`,
-        { headers: response.headers }
+        `/accept-terms?redirect_to=/organization/${slug}/settings`
       );
     }
   }

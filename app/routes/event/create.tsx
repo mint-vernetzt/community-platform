@@ -78,7 +78,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const parsedFormData = await getFormValues<SchemaType>(request, schema);
@@ -117,9 +117,9 @@ export const action = async (args: ActionFunctionArgs) => {
       },
       { child: eventData.child, parent: eventData.parent }
     );
-    return redirect(`/event/${slug}`, { headers: response.headers });
+    return redirect(`/event/${slug}`);
   }
-  return json({ data, errors }, { headers: response.headers });
+  return json({ data, errors });
 };
 
 export default function Create() {

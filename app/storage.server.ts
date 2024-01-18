@@ -258,7 +258,6 @@ export async function download(
 
 export async function getDownloadDocumentsResponse(
   authClient: SupabaseClient,
-  additionalHeaders: Headers,
   documents: Pick<Document, "title" | "filename" | "path">[],
   zipFilename = "Dokumente.zip"
 ) {
@@ -308,7 +307,6 @@ export async function getDownloadDocumentsResponse(
   return new Response(file, {
     status: 200,
     headers: {
-      ...additionalHeaders,
       "Content-Type": contentType,
       "Content-Disposition": `attachment; filename=${filename}`,
     },

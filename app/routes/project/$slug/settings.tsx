@@ -7,21 +7,20 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import {
-  type LoaderFunctionArgs,
   json,
   redirect,
+  type LoaderFunctionArgs,
 } from "@remix-run/server-runtime";
 import classNames from "classnames";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getToast } from "~/toast.server";
-import { combineHeaders } from "~/utils.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -38,7 +37,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findFirst({
@@ -59,7 +58,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       toast,
     },
     {
-      headers: combineHeaders(response.headers, toastHeaders),
+      headers: toastHeaders || undefined,
     }
   );
 };

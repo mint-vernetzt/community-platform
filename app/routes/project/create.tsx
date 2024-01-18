@@ -24,7 +24,7 @@ const createSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveMode(sessionUser);
   invariantResponse(
@@ -35,12 +35,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
-  return json({}, { headers: response.headers });
+  return null;
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveMode(sessionUser);
   invariantResponse(
@@ -115,20 +115,15 @@ export const action = async (args: ActionFunctionArgs) => {
   const hash = getSubmissionHash(submission);
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission, hash } as const, {
-      headers: response.headers,
-    });
+    return json({ status: "idle", submission, hash } as const);
   }
   if (!submission.value) {
     return json({ status: "error", submission, hash } as const, {
-      headers: response.headers,
       status: 400,
     });
   }
 
-  return redirect(`/project/${submission.value.slug}/settings`, {
-    headers: response.headers,
-  });
+  return redirect(`/project/${submission.value.slug}/settings`);
 };
 
 function Create() {

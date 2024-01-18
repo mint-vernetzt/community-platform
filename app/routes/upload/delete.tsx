@@ -66,7 +66,7 @@ const mutation = makeDomainFunction(
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const formData = await request.clone().formData();
   const redirectUrl = formData.get("redirect")?.toString();
 
@@ -80,8 +80,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (result.success && redirectUrl !== undefined) {
-    return redirect(redirectUrl, { headers: response.headers });
+    return redirect(redirectUrl);
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };

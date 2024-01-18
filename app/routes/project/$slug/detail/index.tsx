@@ -1,8 +1,5 @@
-import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { createAuthClient } from "~/auth.server";
+import { redirect } from "@remix-run/node";
 
-export const loader = async (args: LoaderFunctionArgs) => {
-  const { response } = createAuthClient(args.request);
-
-  return redirect("./about", { headers: response.headers });
+export const loader = async () => {
+  return redirect("./about");
 };

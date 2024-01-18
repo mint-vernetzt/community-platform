@@ -25,7 +25,7 @@ function createSchema(name: string) {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -42,7 +42,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findFirst({
@@ -54,17 +54,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   invariantResponse(project !== null, "Project not found", { status: 404 });
 
-  return json(
-    {
-      project,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    project,
+  });
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -81,7 +78,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findFirst({
@@ -105,16 +102,12 @@ export const action = async (args: ActionFunctionArgs) => {
         id: project.id,
       },
     });
-    return redirectWithAlert(
-      `/dashboard`,
-      {
-        message: `Projekt "${project.name}" gelöscht.`,
-      },
-      { headers: response.headers }
-    );
+    return redirectWithAlert(`/dashboard`, {
+      message: `Projekt "${project.name}" gelöscht.`,
+    });
   }
 
-  return json(submission, { headers: response.headers });
+  return json(submission);
 };
 
 function Delete() {

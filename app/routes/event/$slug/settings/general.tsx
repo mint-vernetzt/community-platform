@@ -154,7 +154,7 @@ type FormType = InferType<typeof schema>;
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
@@ -176,20 +176,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const transformedEvent = transformEventToForm(event);
 
-  return json(
-    {
-      event: transformedEvent,
-      eventVisibilities,
-      focuses,
-      types,
-      tags,
-      eventTargetGroups,
-      experienceLevels,
-      stages,
-      areas,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    event: transformedEvent,
+    eventVisibilities,
+    focuses,
+    types,
+    tags,
+    eventTargetGroups,
+    experienceLevels,
+    stages,
+    areas,
+  });
 };
 
 export const links: LinksFunction = () => [
@@ -198,7 +195,7 @@ export const links: LinksFunction = () => [
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -253,15 +250,12 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  return json(
-    {
-      data: { ...data, id: event.id },
-      errors,
-      updated,
-      lastSubmit: (formData.get("submit") as string) ?? "",
-    },
-    { headers: response.headers }
-  );
+  return json({
+    data: { ...data, id: event.id },
+    errors,
+    updated,
+    lastSubmit: (formData.get("submit") as string) ?? "",
+  });
 };
 
 function General() {

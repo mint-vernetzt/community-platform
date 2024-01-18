@@ -55,7 +55,7 @@ const mutation = makeDomainFunction(
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const mode = await deriveEventMode(sessionUser, slug);
@@ -74,20 +74,14 @@ export const action = async (args: ActionFunctionArgs) => {
       result.data.parentEventId !== undefined &&
       result.data.parentEventName !== undefined
     ) {
-      return json(
-        {
-          message: `Die Veranstaltung "${result.data.parentEventName}" ist jetzt Rahmenveranstaltung für Eure Veranstaltung.`,
-        },
-        { headers: response.headers }
-      );
+      return json({
+        message: `Die Veranstaltung "${result.data.parentEventName}" ist jetzt Rahmenveranstaltung für Eure Veranstaltung.`,
+      });
     } else {
-      return json(
-        {
-          message: `Die aktuelle Rahmenversanstaltung ist jetzt nicht mehr Rahmenveranstaltung deiner Veranstaltung.`,
-        },
-        { headers: response.headers }
-      );
+      return json({
+        message: `Die aktuelle Rahmenversanstaltung ist jetzt nicht mehr Rahmenveranstaltung deiner Veranstaltung.`,
+      });
     }
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };

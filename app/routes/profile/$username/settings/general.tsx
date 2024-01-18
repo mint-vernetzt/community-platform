@@ -90,7 +90,7 @@ function makeFormProfileFromDbProfile(
 }
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -109,10 +109,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return json(
-    { profile, profileVisibilities, areas, offers },
-    { headers: response.headers }
-  );
+  return json({ profile, profileVisibilities, areas, offers });
 };
 
 export const links: LinksFunction = () => [
@@ -120,7 +117,7 @@ export const links: LinksFunction = () => [
 ];
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -183,15 +180,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       data = objectListOperationResolver<ProfileFormType>(data, name, formData);
     });
   }
-  return json(
-    {
-      profile: data,
-      lastSubmit: (formData.get("submit") as string) ?? "",
-      errors,
-      updated,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    profile: data,
+    lastSubmit: (formData.get("submit") as string) ?? "",
+    errors,
+    updated,
+  });
 };
 
 export default function Index() {

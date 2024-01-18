@@ -44,10 +44,10 @@ const environmentSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
-    return redirect("/dashboard", { headers: response.headers });
+    return redirect("/dashboard");
   }
 
   const url = new URL(request.url);
@@ -61,7 +61,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  return response;
+  return null;
 };
 
 const mutation = makeDomainFunction(
@@ -103,7 +103,7 @@ const mutation = makeDomainFunction(
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const result = await performMutation({
     request,
     schema,
@@ -112,12 +112,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (result.success) {
-    return redirect(result.data.loginRedirect || "/dashboard", {
-      headers: response.headers,
-    });
+    return redirect(result.data.loginRedirect || "/dashboard");
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export default function SetPassword() {

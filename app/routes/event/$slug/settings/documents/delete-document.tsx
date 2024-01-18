@@ -27,7 +27,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -40,5 +40,5 @@ export const action = async (args: ActionFunctionArgs) => {
     mutation,
   });
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };

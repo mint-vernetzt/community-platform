@@ -98,7 +98,7 @@ function makeFormOrganizationFromDbOrganization(
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -130,16 +130,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const focuses = await getFocuses();
   const areas = await getAreas();
 
-  return json(
-    {
-      organization,
-      organizationVisibilities,
-      organizationTypes,
-      areas,
-      focuses,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    organization,
+    organizationVisibilities,
+    organizationTypes,
+    areas,
+    focuses,
+  });
 };
 
 export const links: LinksFunction = () => [
@@ -148,7 +145,7 @@ export const links: LinksFunction = () => [
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -219,15 +216,12 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  return json(
-    {
-      organization: data,
-      lastSubmit: (formData.get("submit") as string) ?? "",
-      updated,
-      errors,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    organization: data,
+    lastSubmit: (formData.get("submit") as string) ?? "",
+    updated,
+    errors,
+  });
 };
 
 function Index() {

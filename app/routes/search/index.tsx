@@ -16,16 +16,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const queryString = getQuerySearchParam(request);
 
-  const { authClient, response } = await createAuthClient(request);
+  const { authClient } = await createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   if (searchQuery !== null) {
     const profilesCount = await countSearchedProfiles(searchQuery, sessionUser);
     // We have profile search results
     if (profilesCount !== 0) {
-      return redirect(`/search/profiles?query=${queryString || ""}`, {
-        headers: response.headers,
-      });
+      return redirect(`/search/profiles?query=${queryString || ""}`);
     }
     // We have organization search results
     const organizationsCount = await countSearchedOrganizations(
@@ -33,31 +31,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
       sessionUser
     );
     if (organizationsCount !== 0) {
-      return redirect(`/search/organizations?query=${queryString || ""}`, {
-        headers: response.headers,
-      });
+      return redirect(`/search/organizations?query=${queryString || ""}`);
     }
     // We have event search results
     const eventsCount = await countSearchedEvents(searchQuery, sessionUser);
     if (eventsCount !== 0) {
-      return redirect(`/search/events?query=${queryString || ""}`, {
-        headers: response.headers,
-      });
+      return redirect(`/search/events?query=${queryString || ""}`);
     }
     // We have project search results
     const projectsCount = await countSearchedProjects(searchQuery, sessionUser);
     if (projectsCount !== 0) {
-      return redirect(`/search/projects?query=${queryString || ""}`, {
-        headers: response.headers,
-      });
+      return redirect(`/search/projects?query=${queryString || ""}`);
     }
     // We have no search results
-    return redirect(`/search/profiles?query=${queryString || ""}`, {
-      headers: response.headers,
-    });
+    return redirect(`/search/profiles?query=${queryString || ""}`);
   } else {
-    return redirect(`/search/profiles?query=${queryString || ""}`, {
-      headers: response.headers,
-    });
+    return redirect(`/search/profiles?query=${queryString || ""}`);
   }
 };

@@ -85,7 +85,7 @@ const actionSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -102,7 +102,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findFirst({
@@ -166,12 +166,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return { ...relation, image: { ...relation.image, thumbnail } };
   });
 
-  return json(project, { headers: response.headers });
+  return json(project);
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -188,7 +188,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const uploadHandler = unstable_composeUploadHandlers(
@@ -229,9 +229,7 @@ export const action = async (args: ActionFunctionArgs) => {
     );
 
     if (intent === "validate/document") {
-      return json({ status: "idle", submission } as const, {
-        headers: response.headers,
-      });
+      return json({ status: "idle", submission } as const);
     }
 
     const filename = submission.value.filename as string;
@@ -256,9 +254,7 @@ export const action = async (args: ActionFunctionArgs) => {
     );
 
     if (intent === "validate/image") {
-      return json({ status: "idle", submission } as const, {
-        headers: response.headers,
-      });
+      return json({ status: "idle", submission } as const);
     }
 
     const filename = submission.value.filename as string;

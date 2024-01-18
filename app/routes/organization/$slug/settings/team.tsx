@@ -29,7 +29,7 @@ import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -59,15 +59,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  return json(
-    {
-      members: enhancedMembers,
-      memberSuggestions,
-      organizationId: organization.id,
-      slug: slug,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    members: enhancedMembers,
+    memberSuggestions,
+    organizationId: organization.id,
+    slug: slug,
+  });
 };
 
 function Index() {

@@ -21,7 +21,7 @@ import {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
 
-  const { authClient, response } = await createAuthClient(request);
+  const { authClient } = await createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const countData = {
@@ -44,15 +44,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     countData.projects = projectsCount;
   }
 
-  return json(
-    {
-      profilesCount: countData.profiles,
-      organizationsCount: countData.organizations,
-      eventsCount: countData.events,
-      projectsCount: countData.projects,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    profilesCount: countData.profiles,
+    organizationsCount: countData.organizations,
+    eventsCount: countData.events,
+    projectsCount: countData.projects,
+  });
 };
 
 function SearchView() {

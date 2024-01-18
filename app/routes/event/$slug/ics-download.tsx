@@ -121,7 +121,7 @@ function createIcsString(
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
@@ -157,7 +157,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return new Response(ics, {
     status: 200,
     headers: {
-      ...response.headers,
       "Content-Type": "text/calendar",
       "Content-Disposition": `filename=${filename}`,
     },

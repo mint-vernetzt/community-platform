@@ -22,7 +22,7 @@ const schema = z.object({
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser !== null) {
@@ -32,12 +32,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
     if (profile !== null) {
       if (profile.termsAccepted === true) {
-        return redirect("/dashboard", { headers: response.headers });
+        return redirect("/dashboard");
       }
-      return json({ profile }, { headers: response.headers });
+      return json({ profile });
     }
   }
-  return redirect("/", { headers: response.headers });
+  return redirect("/");
 };
 
 const mutation = makeDomainFunction(
@@ -66,7 +66,7 @@ const mutation = makeDomainFunction(
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
 
   const result = await performMutation({
     request,
@@ -76,9 +76,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (result.success === true) {
-    return redirect(result.data.redirectTo || "/dashboard", {
-      headers: response.headers,
-    });
+    return redirect(result.data.redirectTo || "/dashboard");
   }
   return result;
 };
