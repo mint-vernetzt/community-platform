@@ -1,0 +1,72 @@
+import { redirect, type LoaderFunctionArgs, json } from "@remix-run/node";
+import { type EmailOtpType } from "@supabase/supabase-js";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { createProfile } from "../register/utils.server";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const requestUrl = new URL(request.url);
+  const token_hash = requestUrl.searchParams.get("token_hash");
+  const type = requestUrl.searchParams.get("type") as EmailOtpType | null;
+  const { authClient, headers } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
+    return redirect("/dashboard");
+  }
+
+  if (token_hash !== null && type !== null) {
+    const { error, data } = await authClient.auth.verifyOtp({
+      type,
+      token_hash,
+    });
+
+    if (error === null && data.user !== null && data.session !== null) {
+      const user = data.user;
+      if (type === "email") {
+        if (
+          user.email === undefined ||
+          user.user_metadata.username === undefined ||
+          user.user_metadata.firstName === undefined ||
+          user.user_metadata.lastName === undefined ||
+          user.user_metadata.academicTitle === undefined ||
+          user.user_metadata.termsAccepted === undefined ||
+          typeof user.user_metadata.username !== "string" ||
+          typeof user.user_metadata.firstName !== "string" ||
+          typeof user.user_metadata.lastName !== "string" ||
+          typeof user.user_metadata.academicTitle !== "string" ||
+          typeof user.user_metadata.termsAccepted !== "boolean"
+        ) {
+          throw json(
+            "Did not provide necessary user meta data to create a corresponding profile after sign up.",
+            { status: 400 }
+          );
+        }
+        // Profile is now created here and not inside a trigger function
+        const initialProfile = {
+          id: user.id,
+          email: user.email,
+          username: user.user_metadata.username,
+          firstName: user.user_metadata.firstName,
+          lastName: user.user_metadata.lastName,
+          academicTitle: user.user_metadata.academicTitle,
+          termsAccepted: user.user_metadata.termsAccepted,
+        };
+        const profile = await createProfile(initialProfile);
+        return redirect(`/profile/${profile.username}`, { headers });
+      } else if (type === "email_change") {
+        // TODO: Do we need to go to set-email? What does set-email do? Can we do it in here?
+        return redirect("reset/set-email", { headers });
+      } else if (type === "recovery") {
+        // Could we reuse the profile/security set password route?
+        return redirect("reset/set-password", { headers });
+      } else {
+        throw json({ message: "Bad request" }, { status: 400 });
+      }
+    } else {
+      throw json(
+        { message: "Server Error during verification" },
+        { status: 500 }
+      );
+    }
+  }
+  throw json({ message: "Bad request" }, { status: 400 });
+}
