@@ -11,8 +11,14 @@
     min-height: 120px;
   }
 
-  input ~ div div:nth-child(-n + 3) {
+  input ~ div div:nth-child(-n + 2) {
     @apply mv-min-h-fit mv-p-6 mv-visible mv-mt-4 xl:mv-mt-6;
+  }
+
+  @media screen(md) {
+    input ~ div div:nth-child(-n + 3) {
+      @apply mv-min-h-fit mv-p-6 mv-visible mv-mt-4 xl:mv-mt-6;
+    }
   }
 
   input:checked ~ div div {
@@ -26,17 +32,21 @@
   label {
     .show-more {
       opacity: 1;
+      z-index: 10;
     }
     .show-less {
       opacity: 0;
+      z-index: -1;
     }
   }
   input:checked ~ div + label {
     .show-more {
       opacity: 0;
+      z-index: -1;
     }
     .show-less {
       opacity: 1;
+      z-index: 10;
     }
   }
 }

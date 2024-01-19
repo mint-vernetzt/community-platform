@@ -4,11 +4,11 @@ import React from "react";
 export type RoadmapColumnProps = {
   title: string;
   id: string;
-  count: string;
   children?: React.ReactNode;
 };
 
 function RoadmapColumn(props: RoadmapColumnProps) {
+  const countRoadmapCards = React.Children.count(props.children);
   return (
     <div>
       <h4 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary mv-font-bold">
@@ -21,21 +21,40 @@ function RoadmapColumn(props: RoadmapColumnProps) {
           className="mv-peer mv-order-2 mv-h-0 mv-w-0 "
         />
         <div
-          className={`mv-bg-blue-50 mv-rounded-2xl mv-grid mv-overflow-hidden mv-transition-all mv-grid-rows-[repeat(3,_1fr)_repeat(3,_0fr)] peer-checked:mv-grid-rows-${props.count} mv-order-1`}
+          className={`mv-bg-blue-50 mv-rounded-2xl mv-grid mv-overflow-hidden mv-transition-all mv-grid-rows-[repeat(2,_1fr)_repeat(${countRoadmapCards},_0fr)] md:mv-grid-rows-[repeat(3,_1fr)_repeat(${countRoadmapCards},_0fr)] peer-checked:mv-grid-rows-${countRoadmapCards} mv-order-1`}
         >
           {props.children}
         </div>
-        <label
-          htmlFor={`collapse-col-${props.id}`}
-          className="mv-order-3 mv-mt-6 mv-relative mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer"
-        >
-          <span className="show-more mv-absolute mv-inset-0 mv-text-center">
-            Mehr anzeigen
-          </span>
-          <span className="show-less mv-absolute mv-inset-0 mv-text-center">
-            Weniger anzeigen
-          </span>
-        </label>
+        {countRoadmapCards > 3 ? (
+          <label
+            htmlFor={`collapse-col-${props.id}`}
+            className="mv-order-3 mv-mt-4 lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer group"
+          >
+            <span className="show-more mv-absolute mv-inset-0 mv-text-center hover:mv-underline mv-decoration-inherit mv-decoration-auto">
+              Mehr anzeigen
+            </span>
+            <span className="show-less mv-absolute mv-inset-0 mv-text-center hover:mv-underline mv-decoration-inherit mv-decoration-auto">
+              Weniger anzeigen
+            </span>
+          </label>
+        ) : countRoadmapCards > 2 ? (
+          <>
+            <label
+              htmlFor={`collapse-col-${props.id}`}
+              className="mv-order-3 mv-mt-4 lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer group md:mv-hidden mv-underline mv-decoration-inherit mv-decoration-auto"
+            >
+              <span className="show-more mv-absolute mv-inset-0 mv-text-center group-hover:mv-underline mv-decoration-inherit mv-decoration-auto">
+                Mehr anzeigen
+              </span>
+              <span className="show-less mv-absolute mv-inset-0 mv-text-center group-hover:mv-underline mv-decoration-inherit mv-decoration-auto">
+                Weniger anzeigen
+              </span>
+            </label>
+            <div className="mv-hidden md:mv-block mv-mt-4 lg:mv-mt-6 mv-h-5 mv-order-3"></div>
+          </>
+        ) : (
+          <div className="mv-hidden md:mv-block mv-mt-4 lg:mv-mt-6 mv-h-5 mv-order-3"></div>
+        )}
       </div>
     </div>
   );
@@ -63,7 +82,7 @@ function Roadmap() {
     >
       <div className="mv-container">
         <div className="mv-grid mv-grid-cols-1 md:mv-grid-cols-2 xl:mv-grid-cols-3 mv-gap-y-8 md:mv-gap-y-12 md:mv-gap-x-4 xl:mv-gap-x-4">
-          <RoadmapColumn title="Ideen" id="1" count="6">
+          <RoadmapColumn title="Ideen" id="1">
             <RoadmapCard
               title="Vernetzungs-Funktion"
               text="Per Vernetzungsfunktion kannst Du Dich mit anderen Akteur:innen oder Organisationen vernetzen und Deine Kontakte in Listen zusammenstellen."
@@ -90,7 +109,7 @@ function Roadmap() {
             />
           </RoadmapColumn>
 
-          <RoadmapColumn title="In der Entwicklung" id="2" count="3">
+          <RoadmapColumn title="In der Entwicklung" id="2">
             <RoadmapCard
               title="Filter-Funktion"
               text="Mit dem Filter kannst Du innerhalb der Übersichtseiten der Profile, Organisa-tionen, Events oder Projekte nach bestimmten Kriterien durchsuchen."
@@ -105,7 +124,7 @@ function Roadmap() {
             />
           </RoadmapColumn>
 
-          <RoadmapColumn title="Bereits umgesetzt" id="3" count="5">
+          <RoadmapColumn title="Bereits umgesetzt" id="3">
             <RoadmapCard
               title="Profil & Organisationsprofil"
               text="Du stellst Dich mithilfe Deines Profils der MINT-Community vor und legst Deine Organisation mit Teammitgliedern an."
