@@ -1,0 +1,13 @@
+<html>
+  <body>
+    <h2>Confirm your signup</h2>
+
+    <p>Follow this link to confirm your user:</p>
+    <p>
+      <a
+        href="{{ .SiteURL }}/auth/verify?token_hash={{ .TokenHash }}&type=signup"
+        >Confirm your email</a
+      >
+    </p>
+  </body>
+</html>

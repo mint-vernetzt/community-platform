@@ -42,6 +42,9 @@ export const createAuthClient = (request: Request) => {
           path: "/",
           maxAge: 60 * 60 * 24 * 30,
         },
+        auth: {
+          flowType: "pkce",
+        },
       }
     );
 
@@ -76,6 +79,7 @@ export const createAdminAuthClient = () => {
         auth: {
           autoRefreshToken: false,
           persistSession: false,
+          flowType: "pkce",
         },
       }
     );
