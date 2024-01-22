@@ -210,10 +210,6 @@ export async function sendResetPasswordLink(
   return { error };
 }
 
-// TODO: Reset password rework see onAuthStateChanged() and resetPasswordForEmail()
-// Maybe use admin function updateUserById() -> https://supabase.com/docs/reference/javascript/auth-admin-updateuserbyid
-// https://supabase.com/docs/reference/javascript/auth-onauthstatechange
-// https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail
 export async function updatePassword(
   authClient: SupabaseClient,
   password: string
