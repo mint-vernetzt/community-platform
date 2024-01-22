@@ -223,7 +223,7 @@ export async function updatePassword(
 export async function sendResetEmailLink(
   authClient: SupabaseClient,
   email: string,
-  redirectToAfterResetEmail: string
+  redirectToAfterResetEmail?: string
 ) {
   const { data, error } = await authClient.auth.updateUser(
     {

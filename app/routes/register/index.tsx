@@ -68,10 +68,9 @@ const mutation = makeDomainFunction(
 
   const username = `${generateUsername(firstName, lastName)}`;
 
-  // Passing through a possible redirect after login (e.g. to an event)
-  const emailRedirectTo = values.loginRedirect
-    ? `${environment.siteUrl}?login_redirect=${values.loginRedirect}`
-    : environment.siteUrl;
+  const loginRedirect = values.loginRedirect
+    ? `${environment.siteUrl}${values.loginRedirect}`
+    : undefined;
 
   const { error } = await signUp(
     // TODO: fix type issue
@@ -86,7 +85,7 @@ const mutation = makeDomainFunction(
       academicTitle: academicTitle || null,
       termsAccepted,
     },
-    emailRedirectTo
+    loginRedirect
   );
   if (error !== null && error.message !== "User already registered") {
     throw error.message;
@@ -99,7 +98,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  const siteUrl = `${process.env.COMMUNITY_BASE_URL}/auth/verify`;
+  const siteUrl = `${process.env.COMMUNITY_BASE_URL}`;
 
   const result = await performMutation({
     request,

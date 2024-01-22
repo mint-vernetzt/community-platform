@@ -47,7 +47,6 @@ const passwordEnvironmentSchema = z.object({
 
 const emailEnvironmentSchema = z.object({
   authClient: z.unknown(),
-  siteUrl: z.string(),
   // authClient: z.instanceof(SupabaseClient),
 });
 
@@ -106,8 +105,7 @@ const emailMutation = makeDomainFunction(
     // TODO: fix type issue
     // @ts-ignore
     environment.authClient,
-    values.email,
-    environment.siteUrl
+    values.email
   );
   if (error !== null) {
     throw error.message;
@@ -134,12 +132,11 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   let result = null;
   if (submittedForm === "changeEmail") {
-    const siteUrl = `${process.env.COMMUNITY_BASE_URL}/auth/verify`;
     result = await performMutation({
       request,
       schema: emailSchema,
       mutation: emailMutation,
-      environment: { authClient: authClient, siteUrl: siteUrl },
+      environment: { authClient: authClient },
     });
   } else {
     result = await performMutation({

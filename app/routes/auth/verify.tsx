@@ -18,40 +18,31 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     if (error === null && data.user !== null && data.session !== null) {
       const user = data.user;
-      const loginRedirect = requestUrl.searchParams.get("login_redirect");
+      let loginRedirect = requestUrl.searchParams.get("login_redirect");
       if (type === "signup") {
-        if (
-          user.email !== undefined &&
-          typeof user.user_metadata.username === "string" &&
-          typeof user.user_metadata.firstName === "string" &&
-          typeof user.user_metadata.lastName === "string" &&
-          (typeof user.user_metadata.academicTitle === "string" ||
-            user.user_metadata.academicTitle === null) &&
-          typeof user.user_metadata.termsAccepted === "boolean"
-        ) {
-          const initialProfile = {
-            id: user.id,
-            email: user.email,
-            username: user.user_metadata.username,
-            firstName: user.user_metadata.firstName,
-            lastName: user.user_metadata.lastName,
-            academicTitle: user.user_metadata.academicTitle,
-            termsAccepted: user.user_metadata.termsAccepted,
-          };
-          const profile = await createProfile(initialProfile);
-          return redirect(loginRedirect || `/profile/${profile.username}`, {
-            headers,
-          });
+        const profile = await createProfile(user);
+        if (profile === null) {
+          throw json(
+            "Did not provide necessary user meta data to create a corresponding profile after sign up.",
+            { status: 400 }
+          );
         }
-        throw json(
-          "Did not provide necessary user meta data to create a corresponding profile after sign up.",
-          { status: 400 }
-        );
+        // Supabase defaults the login redirect to "/" if not specified so this will overwrite this behaviour
+        if (loginRedirect === process.env.COMMUNITY_BASE_URL) {
+          loginRedirect = null;
+        }
+        return redirect(loginRedirect || `/profile/${profile.username}`, {
+          headers,
+        });
       } else if (type === "email_change") {
         if (user.email === undefined) {
           throw json({ message: "Server error" }, { status: 500 });
         }
         const profile = await updateProfileEmailByUserId(user.id, user.email);
+        // Supabase defaults the login redirect to "/" if not specified so this will overwrite this behaviour
+        if (loginRedirect === process.env.COMMUNITY_BASE_URL) {
+          loginRedirect = null;
+        }
         return redirect(loginRedirect || `/profile/${profile.username}`, {
           headers,
         });
@@ -59,7 +50,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
         // TODO:
         // Could we reuse the profile/security set password route?
         // Dont forget to add login redirect
-        return redirect("reset/set-password", { headers });
+        // Supabase defaults the login redirect to "/" if not specified so this will overwrite this behaviour
+        if (loginRedirect === process.env.COMMUNITY_BASE_URL) {
+          loginRedirect = null;
+        }
+        return redirect("TODO", { headers });
       } else {
         throw json({ message: "Bad request" }, { status: 400 });
       }

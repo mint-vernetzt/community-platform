@@ -46,11 +46,6 @@ const mutation = makeDomainFunction(
   schema,
   environmentSchema
 )(async (values, environment) => {
-  // Passing through a possible redirect after login (e.g. to an event)
-  const emailRedirectTo = values.loginRedirect
-    ? `${environment.siteUrl}?login_redirect=${values.loginRedirect}`
-    : environment.siteUrl;
-
   // get profile by email to be able to find user
   const profile = await prismaClient.profile.findFirst({
     where: { email: values.email },
@@ -67,12 +62,15 @@ const mutation = makeDomainFunction(
     } else if (data.user !== null) {
       // if user uses email provider send password reset link
       if (data.user.app_metadata.provider === "email") {
+        const loginRedirect = values.loginRedirect
+          ? `${environment.siteUrl}${values.loginRedirect}`
+          : undefined;
         const { error } = await sendResetPasswordLink(
           // TODO: fix type issue
           // @ts-ignore
           environment.authClient,
           values.email,
-          emailRedirectTo
+          loginRedirect
         );
         if (error !== null && error.message !== "User not found") {
           throw error.message;
@@ -90,7 +88,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  const siteUrl = `${process.env.COMMUNITY_BASE_URL}/auth/verify`;
+  const siteUrl = `${process.env.COMMUNITY_BASE_URL}`;
 
   const result = await performMutation({
     request,
