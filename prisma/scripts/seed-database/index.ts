@@ -147,32 +147,32 @@ async function main(
   // Truncate database tables, create/empty buckets and delete users
   console.log("\n--- Reseting database and buckets ---\n");
   await executeCommand("npx", [
-    "ts-node",
+    "tsx",
     "prisma/scripts/truncate-tables/index.ts",
   ]);
   await executeCommand("npm", ["run", "prisma:migrate"]);
   await executeCommand("npx", [
-    "ts-node",
+    "tsx",
     "prisma/scripts/german-states-and-districts-dataset/load-german-states-and-districts.ts",
   ]);
   await executeCommand("npx", [
-    "ts-node",
+    "tsx",
     "prisma/scripts/import-datasets/index.ts",
   ]);
   await executeCommand("npx", [
-    "ts-node",
+    "tsx",
     "supabase/scripts/create-buckets/index.ts",
   ]);
   await executeCommand("npx", [
-    "ts-node",
+    "tsx",
     "supabase/scripts/empty-buckets/index.ts",
   ]);
   await executeCommand("npx", [
-    "ts-node",
+    "tsx",
     "prisma/scripts/apply-bucket-rls/index.ts",
   ]);
   await executeCommand("npx", [
-    "ts-node",
+    "tsx",
     "supabase/scripts/delete-users/index.ts",
   ]);
 
