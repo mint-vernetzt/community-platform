@@ -8,7 +8,7 @@
     </p>
     <p>
       <a
-        href="{{ .SiteURL }}/auth/verify?token_hash={{ .TokenHash }}&type=email_change"
+        href="{{ .SiteURL }}/auth/verify?token_hash={{ .TokenHash }}&type=email_change&login_redirect={{ .RedirectTo }}"
       >
         Change Email
       </a>

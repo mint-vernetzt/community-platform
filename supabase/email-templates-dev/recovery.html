@@ -5,7 +5,7 @@
     <p>Follow this link to reset the password for your user:</p>
     <p>
       <a
-        href="{{ .SiteURL }}/auth/verify?token_hash={{ .TokenHash }}&type=recovery&next=/path-to-your-update-password-page"
+        href="{{ .SiteURL }}/auth/verify?token_hash={{ .TokenHash }}&type=recovery&login_redirect={{ .RedirectTo }}"
         >Reset Password</a
       >
     </p>
