@@ -478,7 +478,7 @@ export default function App() {
   const { locale } = useLoaderData<typeof loader>();
 
   const { i18n } = useTranslation();
-  useChangeLanguage(locale);
+  // useChangeLanguage(locale);
 
   return (
     <html lang={locale} dir={i18n.dir()} data-theme="light">
