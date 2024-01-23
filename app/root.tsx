@@ -21,6 +21,7 @@ import {
 } from "@remix-run/react";
 import classNames from "classnames";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getAlert } from "./alert.server";
@@ -29,13 +30,10 @@ import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
-import { getProfileByUserId } from "./root.server";
+import { detectLanguage, getProfileByUserId } from "./root.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders } from "./utils.server";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { useChangeLanguage } from "remix-i18next";
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
@@ -47,7 +45,7 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
-  const locale = await i18next.getLocale(request);
+  const locale = detectLanguage(request);
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
