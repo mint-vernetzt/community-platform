@@ -48,7 +48,12 @@ const mutation = makeDomainFunction(
 )(async (values, environment) => {
   // get profile by email to be able to find user
   const profile = await prismaClient.profile.findFirst({
-    where: { email: values.email },
+    where: {
+      email: {
+        contains: values.email,
+        mode: "insensitive",
+      },
+    },
     select: { id: true },
   });
 
@@ -72,6 +77,7 @@ const mutation = makeDomainFunction(
           values.email,
           loginRedirect
         );
+        console.log(error);
         if (error !== null && error.message !== "User not found") {
           throw error.message;
         }
@@ -86,7 +92,7 @@ const mutation = makeDomainFunction(
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const { authClient } = createAuthClient(request);
+  const { authClient, headers } = createAuthClient(request);
 
   const siteUrl = `${process.env.COMMUNITY_BASE_URL}`;
 
@@ -97,7 +103,7 @@ export const action = async (args: ActionFunctionArgs) => {
     environment: { authClient: authClient, siteUrl: siteUrl },
   });
 
-  return json(result);
+  return json(result, { headers });
 };
 
 export default function Index() {

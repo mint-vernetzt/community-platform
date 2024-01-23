@@ -4,16 +4,12 @@ import { useSearchParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
-import {
-  createAdminAuthClient,
-  createAuthClient,
-  getSessionUser,
-  setSession,
-} from "../../auth.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { invariantResponse } from "~/lib/utils/response";
+import { createAuthClient, getSessionUser } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   password: z
@@ -22,45 +18,20 @@ const schema = z.object({
   confirmPassword: z
     .string()
     .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  accessToken: z
-    .string()
-    .min(
-      1,
-      "Bitte nutze den Link aus Deiner E-Mail, um Dein Passwort zu ändern."
-    ),
-  refreshToken: z
-    .string()
-    .min(
-      1,
-      "Bitte nutze den Link aus Deiner E-Mail, um Dein Passwort zu ändern."
-    ),
   loginRedirect: z.string().optional(),
 });
 
 const environmentSchema = z.object({
   authClient: z.unknown(),
   // authClient: z.instanceof(SupabaseClient),
+  userId: z.string(),
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  if (sessionUser !== null) {
-    return redirect("/dashboard");
-  }
-
-  const url = new URL(request.url);
-  const accessToken = url.searchParams.get("access_token");
-  const refreshToken = url.searchParams.get("refresh_token");
-
-  if (accessToken === null || refreshToken === null) {
-    throw json(
-      "Did not provide access or refresh token to reset the password.",
-      { status: 400 }
-    );
-  }
-
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   return null;
 };
 
@@ -75,54 +46,39 @@ const mutation = makeDomainFunction(
     ); // -- Field error
   }
 
-  // This automatically logs in the user
-  // Throws error on invalid refreshToken, accessToken combination
-  const { user } = await setSession(
-    // TODO: fix type issue
-    // @ts-ignore
-    environment.authClient,
-    values.accessToken,
-    values.refreshToken
-  );
-
-  if (user !== null) {
-    const adminAuthClient = createAdminAuthClient();
-    const { error } = await adminAuthClient.auth.admin.updateUserById(user.id, {
-      password: values.password,
-    });
-    if (error !== null) {
-      throw error.message;
-    }
-    // TODO: fix type issue
-    // @ts-ignore
-    await environment.authClient.auth.refreshSession();
-  } else {
-    throw new Error("The session could not be set or the user was not found");
+  // TODO: fix type issue
+  // @ts-ignore
+  const { error } = await environment.authClient.auth.updateUser({
+    password: values.password,
+  });
+  if (error !== null) {
+    throw error.message;
   }
+
   return values;
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { authClient } = createAuthClient(request);
+  const { authClient, headers } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const result = await performMutation({
     request,
     schema,
     mutation,
-    environment: { authClient: authClient },
+    environment: { authClient: authClient, userId: sessionUser.id },
   });
 
   if (result.success) {
     return redirect(result.data.loginRedirect || "/dashboard");
   }
 
-  return json(result);
+  return json(result, { headers });
 };
 
 export default function SetPassword() {
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
-  const accessToken = urlSearchParams.get("access_token");
-  const refreshToken = urlSearchParams.get("refresh_token");
 
   return (
     <>
@@ -139,11 +95,9 @@ export default function SetPassword() {
         <RemixFormsForm
           method="post"
           schema={schema}
-          hiddenFields={["loginRedirect", "accessToken", "refreshToken"]}
+          hiddenFields={["loginRedirect"]}
           values={{
             loginRedirect: loginRedirect,
-            accessToken: accessToken,
-            refreshToken: refreshToken,
           }}
         >
           {({ Field, Button, Errors, register }) => (
@@ -152,8 +106,6 @@ export default function SetPassword() {
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">Neues Passwort vergeben</h1>
                 <Field name="loginRedirect" />
-                <Field name="accessToken" />
-                <Field name="refreshToken" />
                 <div className="mb-4">
                   <Field name="password" label="Neues Passwort">
                     {({ Errors }) => (

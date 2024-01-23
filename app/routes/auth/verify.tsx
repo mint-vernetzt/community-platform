@@ -54,9 +54,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   }
   if (type === "recovery") {
-    // TODO:
-    // Could we reuse the profile/security set password route?
-    // Dont forget to add login redirect
-    return redirect("TODO", { headers });
+    return redirect(
+      `/reset/set-password${
+        loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
+      }`,
+      { headers }
+    );
   }
 }
