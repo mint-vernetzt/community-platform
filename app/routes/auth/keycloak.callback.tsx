@@ -14,7 +14,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const urlSearchParams = new URLSearchParams(url.searchParams);
   const code = urlSearchParams.get("code");
-  const loginRedirect = urlSearchParams.get("login_redirect");
   invariantResponse(code !== null, "Bad Request", { status: 400 });
   const { data, error } = await authClient.auth.exchangeCodeForSession(code);
   const { user } = data;
@@ -29,6 +28,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     select: { id: true, username: true },
   });
   const firstLogin = profile === null;
+  const loginRedirect = urlSearchParams.get("login_redirect");
   if (firstLogin) {
     const profile = await createProfile(user);
     invariantResponse(
