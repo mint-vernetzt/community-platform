@@ -178,7 +178,11 @@ export default function Index() {
                       <Button
                         as="a"
                         size="large"
-                        href="/auth/keycloak"
+                        href={`/auth/keycloak${
+                          loginRedirect
+                            ? `?login_redirect=${loginRedirect}`
+                            : ""
+                        }`}
                         variant="outline"
                         fullSize
                       >

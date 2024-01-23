@@ -29,6 +29,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
   const firstLogin = profile === null;
   const loginRedirect = urlSearchParams.get("login_redirect");
+  console.log("LOGIN REDIRECT IN CALLBACK", loginRedirect);
   if (firstLogin) {
     const profile = await createProfile(user);
     invariantResponse(
@@ -40,7 +41,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       headers,
     });
   }
-  return redirect(loginRedirect || "dashboard", {
+  return redirect(loginRedirect || "/dashboard", {
     headers,
   });
 };
