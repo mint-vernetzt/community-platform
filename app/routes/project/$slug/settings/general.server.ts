@@ -10,6 +10,12 @@ export function createAreaOptions(
 ): Option[] {
   const divider = { label: "----------" };
 
+  const globalEntry = areas.filter((area) => area.type === "global")[0];
+  const globalOption = {
+    label: globalEntry.name,
+    value: globalEntry.id,
+  };
+
   const nationalEntry = areas.filter((area) => area.type === "country")[0];
   const nationalOption = {
     label: nationalEntry.name,
@@ -50,6 +56,8 @@ export function createAreaOptions(
   });
 
   return [
+    globalOption,
+    divider,
     nationalOption,
     divider,
     stateHeader,
