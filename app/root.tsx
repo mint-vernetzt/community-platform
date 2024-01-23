@@ -429,7 +429,7 @@ export default function App() {
     }
   }, [location, matomoSiteId]);
 
-  const nonAppBaseRoutes = ["/login", "/register", "/reset"];
+  const nonAppBaseRoutes = ["/login", "/register", "/reset", "/auth/confirm"];
   const isNonAppBaseRoute = nonAppBaseRoutes.some((baseRoute) =>
     location.pathname.startsWith(baseRoute)
   );

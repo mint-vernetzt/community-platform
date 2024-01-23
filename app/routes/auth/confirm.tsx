@@ -1,19 +1,13 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { type EmailOtpType } from "@supabase/supabase-js";
-import { createAuthClient, getSessionUser } from "~/auth.server";
 import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { invariantResponse } from "~/lib/utils/response";
 import PageBackground from "../../components/PageBackground/PageBackground";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-  if (sessionUser !== null) {
-    return redirect("/dashboard");
-  }
 
   const url = new URL(request.url);
 
@@ -37,18 +31,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const confirmationLinkUrl = new URL(confirmationLink);
   // Get search param token_hash
   const tokenHash = confirmationLinkUrl.searchParams.get("token_hash");
-  invariantResponse(
-    tokenHash !== null && tokenHash.startsWith("pkce_"),
-    "Bad request",
-    { status: 400 }
-  );
-  const hash = tokenHash.substring(5);
-  const isHex = /^[0-9A-Fa-f]+$/g.test(hash);
-  invariantResponse(isHex, "Bad request", { status: 400 });
+  invariantResponse(tokenHash !== null, "Bad request", { status: 400 });
+  const isPKCEToken = /^pkce_[0-9A-Fa-f]+$/g.test(tokenHash);
+  invariantResponse(isPKCEToken, "Bad request", { status: 400 });
   // Get search param type
-  const type = confirmationLinkUrl.searchParams.get(
-    "type"
-  ) as EmailOtpType | null;
+  const type = url.searchParams.get("type") as EmailOtpType | null;
   invariantResponse(type !== null, "Bad request", { status: 400 });
   // Check if type === "signup"
   invariantResponse(
@@ -57,7 +44,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     { status: 400 }
   );
   // Get search param login_redirect
-  const loginRedirect = confirmationLinkUrl.searchParams.get("login_redirect");
+  const loginRedirect = url.searchParams.get("login_redirect");
   invariantResponse(
     loginRedirect !== null &&
       loginRedirect.startsWith(process.env.COMMUNITY_BASE_URL),
@@ -76,7 +63,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 export default function Confirm() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
-  const type = searchParams.get("type");
+  const type = searchParams.get("type") as EmailOtpType | null;
 
   return (
     <>
@@ -93,38 +80,56 @@ export default function Confirm() {
         <div className="flex flex-col md:flex-row -mx-4">
           <div className="basis-full md:basis-6/12 px-4"> </div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
-            <h1 className="mb-4">Registrierungsbestätigung</h1>
-            <>
-              <p className="mb-4">
-                Herzlich willkommen in der MINTcommunity! Bitte bestätige
-                innerhalb von 24 Stunden die E-Mail-Adresse zur Aktivierung
-                Deines Profils auf der MINTvernetzt-Plattform über den folgenden
-                Link:
-              </p>
-              <a href={loaderData.confirmationLink} className="btn btn-primary">
-                Registrierung bestätigen
-              </a>
-            </>
-            <h1 className="mb-4">E-Mail-Adresse ändern</h1>
-            <>
-              <p className="mb-4">
-                Um Deine E-Mail-Adresse auf der MINTvernetzt-Plattform zu
-                ändern, folge bitte diesem Link:
-              </p>
-              <a href={loaderData.confirmationLink} className="btn btn-primary">
-                Neue Mailadresse bestätigen
-              </a>
-            </>
-            <h1 className="mb-4">Passwort zurücksetzen</h1>
-            <>
-              <p className="mb-4">
-                Du hast dein Passwort vergessen? Klicke auf den untenstehenden
-                Link, um dein Passwort zurückzusetzen:
-              </p>
-              <a href={loaderData.confirmationLink} className="btn btn-primary">
-                Passwort zurücksetzen
-              </a>
-            </>
+            {type === "signup" && (
+              <>
+                <h1 className="mb-4">Registrierungsbestätigung</h1>
+
+                <p className="mb-4">
+                  Herzlich willkommen in der MINTcommunity! Bitte bestätige
+                  innerhalb von 24 Stunden die E-Mail-Adresse zur Aktivierung
+                  Deines Profils auf der MINTvernetzt-Plattform über den
+                  folgenden Link:
+                </p>
+                <a
+                  href={loaderData.confirmationLink}
+                  className="btn btn-primary"
+                >
+                  Registrierung bestätigen
+                </a>
+              </>
+            )}
+            {type === "email_change" && (
+              <>
+                <h1 className="mb-4">E-Mail-Adresse ändern</h1>
+
+                <p className="mb-4">
+                  Um Deine E-Mail-Adresse auf der MINTvernetzt-Plattform zu
+                  ändern, folge bitte diesem Link:
+                </p>
+                <a
+                  href={loaderData.confirmationLink}
+                  className="btn btn-primary"
+                >
+                  Neue Mailadresse bestätigen
+                </a>
+              </>
+            )}
+            {type === "recovery" && (
+              <>
+                <h1 className="mb-4">Passwort zurücksetzen</h1>
+
+                <p className="mb-4">
+                  Du hast dein Passwort vergessen? Klicke auf den untenstehenden
+                  Link, um dein Passwort zurückzusetzen:
+                </p>
+                <a
+                  href={loaderData.confirmationLink}
+                  className="btn btn-primary"
+                >
+                  Passwort zurücksetzen
+                </a>
+              </>
+            )}
           </div>
         </div>
       </div>
