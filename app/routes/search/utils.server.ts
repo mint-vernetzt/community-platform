@@ -1484,6 +1484,18 @@ function getProjectWhereQueries(
               };
             }
           | {
+              [K in "areas"]?: {
+                some: {
+                  [K in "area"]?: {
+                    [K in "name"]?: {
+                      contains: string;
+                      mode: Prisma.QueryMode;
+                    };
+                  };
+                };
+              };
+            }
+          | {
               [K in "awards" | "disciplines" | "targetGroups"]?: {
                 some: {
                   [K in "award" | "discipline" | "targetGroup"]?: {
@@ -1778,6 +1790,29 @@ function getProjectWhereQueries(
               ? {
                   projectVisibility: {
                     teamMembers: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              areas: {
+                some: {
+                  area: {
+                    name: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    areas: true,
                   },
                 }
               : {},
