@@ -18,7 +18,7 @@ function RoadmapColumn(props: RoadmapColumnProps) {
         <input
           type="checkbox"
           id={`collapse-col-${props.id}`}
-          className="mv-peer mv-order-2 mv-h-0 mv-w-0 "
+          className="mv-peer mv-order-2 mv-h-0 mv-w-0 mv-opacity-0"
         />
         <div
           className={`mv-bg-blue-50 mv-rounded-2xl mv-grid mv-overflow-hidden mv-transition-all mv-grid-rows-[repeat(2,_1fr)_repeat(${countRoadmapCards},_0fr)] md:mv-grid-rows-[repeat(3,_1fr)_repeat(${countRoadmapCards},_0fr)] peer-checked:mv-grid-rows-${countRoadmapCards} mv-order-1`}
