@@ -1,4 +1,5 @@
-import { Button } from "@mint-vernetzt/components";
+import { Button, Roadmap } from "@mint-vernetzt/components";
+
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -183,8 +184,8 @@ export default function Index() {
 
   return (
     <>
-      <section className="-mt-8 bg-lilac-50">
-        <div className="py-16 lg:py-20 relative overflow-hidden xl:min-h-[calc(100vh-129px)] md:flex md:items-center bg-[linear-gradient(0deg,_rgba(255,255,255,0.5)_0%,_rgba(255,255,255,1)_75%)]">
+      <section className="-mt-8 bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
+        <div className="py-16 lg:py-20 relative overflow-hidden xl:min-h-[calc(100vh-129px)] md:flex md:items-center">
           <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden lg:block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -511,7 +512,9 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-24 relative overflow-hidden lg:min-h-[700px]">
+      <Roadmap />
+
+      <section className="py-16 lg:py-24 relative overflow-hidden lg:min-h-[700px] bg-beige-100 -mb-8">
         <div className="absolute top-0 left-1/2 lg:ml-[calc(992px/12*5)] 2xl:ml-[calc(1488px/12*5)] hidden lg:block">
           <svg xmlns="http://www.w3.org/2000/svg" width="730" height="724">
             <g fill="none" fillRule="evenodd">
