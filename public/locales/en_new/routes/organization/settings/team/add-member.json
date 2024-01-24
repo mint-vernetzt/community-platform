@@ -1,0 +1,11 @@
+{
+  "error": {
+    "notFound": "Organization not found",
+    "notPrivileged": "Not privileged",
+    "inputError": {
+      "doesNotExist": "No profile exists under this name.",
+      "alreadyMember": "The profile under this name is already a member of your organization."
+    }
+  },
+  "feedback": "A new team member named \"{{firstName}} {{lastName}}\" has been added."
+}

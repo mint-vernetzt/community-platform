@@ -1,0 +1,25 @@
+{
+  "error": {
+    "notFound": "Project not found",
+    "notPrivileged": "Not privileged"
+  },
+  "content": {
+    "headline": "Responsible organizations",
+    "intro": "Which organization is responsible for your project? Add or remove organizations here.",
+    "add": {
+      "headline": "Add organization",
+      "intro": "Add an existing organization to your event here.",
+      "label": "Name of the organization"
+    },
+    "own": {
+      "headline": "Add your own organizations",
+      "intro": "Here your own organizations are suggested for you to add as responsible organizations with one click.",
+      "label": "Add"
+    },
+    "current": {
+      "headline": "Current organizations",
+      "intro": "Here you can see all the currently responsible organizations at a glance.",
+      "remove": "Remove"
+    }
+  }
+}

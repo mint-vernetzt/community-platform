@@ -1,0 +1,11 @@
+{
+  "error": {
+    "inputError": {
+      "doesNotExist": "No organization exists with this name.",
+      "alreadyResponsible": "The organization with this name is already responsible for your project."
+    },
+    "notFound": "Project not found",
+    "notPrivileged": "Not privileged"
+  },
+  "feedback": "The organization \"{{name}}\" is now responsible for your project."
+}

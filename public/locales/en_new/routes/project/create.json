@@ -1,0 +1,19 @@
+{
+  "validation": {
+    "projectName": {
+      "min": "Please enter the name of your project."
+    }
+  },
+  "content": {
+    "headline": "Add project",
+    "back": "back"
+  },
+  "form": {
+    "projectName": {
+      "label": "Project name*"
+    },
+    "submit": {
+      "label": "Create"
+    }
+  }
+}

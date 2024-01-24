@@ -1,0 +1,17 @@
+{
+  "error": {
+    "notFound": {
+      "project": "Project not found",
+      "profile": "Profile not found"
+    },
+    "notPrivileged": "Not privileged",
+    "inputError": "The name of the project is not correct",
+    "serverError": "The project could not be deleted."
+  },
+  "content": {
+    "headline": "Delete project",
+    "confirmation": "Please enter the name of the project \"{{name}}\" to confirm deletion. If you then click on \"Delete project\", your project will be deleted without further inquiry.",
+    "label": "Confirm deletion",
+    "delete": "Delete project"
+  }
+}

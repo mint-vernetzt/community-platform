@@ -1,13 +1,13 @@
 {
   "error": {
     "notFound": "Event not found",
-    "notPrivileged": ""
+    "notPrivileged": "Not privileged"
   },
   "content": {
     "headline": "Verknüpfte Veranstaltungen",
     "assign": {
       "headline": "Rahmenveranstaltung zuweisen",
-      "intro": "Welche Veranstaltung ist deiner Veranstaltung übergeordnet? Findet sie  beispielsweise im Rahmen einer Tagung statt? Füge hier deiner Veranstaltung eine Rahmenversanstaltung hinzu oder entferne sie.  Allerdings musst du priviligiertes Teammitglied der Rahmenveranstaltung sein und deine Veranstaltung muss sich innerhalb des Zeitraums der Rahmenveranstaltung befinden.",
+      "intro": "Welche Veranstaltung ist deiner Veranstaltung übergeordnet? Findet sie  beispielsweise im Rahmen einer Tagung statt? Füge hier deiner Veranstaltung eine Rahmenversanstaltung hinzu oder entferne sie.  Allerdings musst du Administrator:in der Rahmenveranstaltung sein und deine Veranstaltung muss sich innerhalb des Zeitraums der Rahmenveranstaltung befinden.",
       "name": "Name der Veranstaltung"
     },
     "parent": {
@@ -22,7 +22,7 @@
     },
     "related": {
       "headline": "Zugehörige Veranstaltungen hinzufügen",
-      "intro": "Welche Veranstaltungen sind deiner Veranstaltung untergeordnet? Ist deine Veranstaltung beispielsweise eine Tagung und hat mehrere Unterveranstaltungen, wie Workshops, Paneldiskussionen oder ähnliches? Dann füge ihr hier andere zugehörige Veranstaltungen hinzu oder entferne sie. Beachte, dass du priviligiertes Teammitglied in den zugehörigen Veranstaltungen sein musst und, dass die zugehörigen Veranstaltungen im Zeitraum deiner Veranstaltung stattfinden müssen.",
+      "intro": "Welche Veranstaltungen sind deiner Veranstaltung untergeordnet? Ist deine Veranstaltung beispielsweise eine Tagung und hat mehrere Unterveranstaltungen, wie Workshops, Paneldiskussionen oder ähnliches? Dann füge ihr hier andere zugehörige Veranstaltungen hinzu oder entferne sie. Beachte, dass du Administrator:in in den zugehörigen Veranstaltungen sein musst und, dass die zugehörigen Veranstaltungen im Zeitraum deiner Veranstaltung stattfinden müssen.",
       "name": "Name der Veranstaltung"
     },
     "current": {

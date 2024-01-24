@@ -210,7 +210,7 @@ export default function SearchView() {
                   );
                 })
               ) : (
-                <p>{t("empty.profiles")}</p>
+                <p>{t("empty.events")}</p>
               )}
             </CardContainer>
           </section>

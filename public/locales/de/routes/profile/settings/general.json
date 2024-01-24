@@ -17,7 +17,7 @@
   "headline": "Persönliche Daten",
   "general": {
     "headline": "Allgemein",
-    "intro": "Welche Informationen möchtest Du über Dich mit der Community teilen? Über das Augen-Symbol kannst Du auswählen, ob die\n              Informationen für alle öffentlich sichtbar sind oder ob Du sie nur mit registrierten Nutzer:innen teilst.",
+    "intro": "Welche Informationen möchtest Du über Dich mit der Community teilen? Über das Augen-Symbol kannst Du auswählen, ob die Informationen für alle öffentlich sichtbar sind oder ob Du sie nur mit registrierten Nutzer:innen teilst.",
     "form": {
       "title": {
         "label": "Titel",
@@ -46,7 +46,7 @@
   },
   "aboutMe": {
     "headline": "Über mich",
-    "intro": "Erzähl der Community etwas über Dich: Wer bist Du und was machst Du konkret im MINT-Bereich? In welchen Regionen Deutschlands bist Du vorrangig aktiv? Welche Kompetenzen bringst Du mit und welche Themen interessieren Dich im MINT-Kontext besonders?",
+    "intro": "Erzähl der Community etwas über Dich: Wer bist Du und was machst Du konkret im MINT-Bereich? In welchen Regionen bist Du vorrangig aktiv? Welche Kompetenzen bringst Du mit und welche Themen interessieren Dich im MINT-Kontext besonders?",
     "form": {
       "description": {
         "label": "Kurzbeschreibung",

@@ -4,9 +4,7 @@
     "notPrivileged": "Not privileged",
     "adminCount": "Es muss immer eine:n Administrator:in geben. Bitte füge zuerst jemand anderen als Administrator:in hinzu.",
     "inputError": {
-      "doesNotExist": "Es existiert noch kein Profil unter diesem Namen.",
-      "alreadyAdmin": "Das Profil unter diesem Namen ist bereits Administrator:in Eurer Organisation."
+      "doesNotExist": "Es existiert noch kein Profil unter diesem Namen."
     }
-  },
-  "feedback": "\"{{firstName} {{lastName}}\" wurde als Administrator:in hinzugefügt."
+  }
 }

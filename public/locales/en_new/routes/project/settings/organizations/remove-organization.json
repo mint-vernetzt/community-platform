@@ -1,0 +1,6 @@
+{
+  "error": {
+    "notFound": "Project not found",
+    "notPrivileged": "Not privileged"
+  }
+}

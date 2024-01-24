@@ -1,0 +1,12 @@
+{
+  "content": {
+    "headline": "Edit project",
+    "navigation": {
+      "general": "General",
+      "admins": "Administrators",
+      "team": "Team",
+      "organizations": "Responsible organizations",
+      "delete": "Delete project"
+    }
+  }
+}

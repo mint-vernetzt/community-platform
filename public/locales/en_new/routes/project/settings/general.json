@@ -1,0 +1,84 @@
+{
+  "validation": {
+    "email": {
+      "email": "Your input does not match the format of an email."
+    }
+  },
+  "error": {
+    "notOrivileged": "Not privileged",
+    "notFound": "Project not found"
+  },
+  "content": {
+    "headline": "Your project",
+    "general": {
+      "headline": "General",
+      "intro": "Enter the name and contact details for your project."
+    },
+    "address": {
+      "headline": "Address"
+    },
+    "about": {
+      "headline": "About the project",
+      "intro": "Share more about your project with the community."
+    },
+    "websiteAndSocial": {
+      "headline": "Website and social networks",
+      "website": {
+        "headline": "Website",
+        "intro": "Where can the community learn more about your offerings?"
+      },
+      "social": {
+        "headline": "Social networks",
+        "intro": "In which networks is your project represented?"
+      }
+    },
+    "feedback": "Your information has been updated."
+  },
+  "form": {
+    "name": {
+      "label": "Name"
+    },
+    "email": {
+      "label": "Email"
+    },
+    "phone": {
+      "label": "Phone"
+    },
+    "street": {
+      "label": "Street name"
+    },
+    "streetNumber": {
+      "label": "House number"
+    },
+    "zipCode": {
+      "label": "ZIP code"
+    },
+    "city": {
+      "label": "City"
+    },
+    "headline": {
+      "label": "Headline"
+    },
+    "excerpt": {
+      "label": "Short description"
+    },
+    "description": {
+      "label": "Detailed description"
+    },
+    "targetGroups": {
+      "label": "Target groups",
+      "placeholder": "Add the target groups."
+    },
+    "disciplines": {
+      "label": "Disciplines",
+      "placeholder": "Add the disciplines."
+    },
+    "website": {
+      "label": "Website",
+      "placeholder": "domainname.tld"
+    },
+    "submit": {
+      "label": "Save"
+    }
+  }
+}
