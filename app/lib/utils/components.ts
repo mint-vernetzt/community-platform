@@ -80,6 +80,12 @@ export function createAreaOptionFromData(
 ): OptionOrGroup[] {
   const divider: OptGroupProps = { label: "----------", options: [] };
 
+  const globalEntry = areas.filter((area) => area.type === "global")[0];
+  const globalOption: OptionsProps = {
+    label: globalEntry.name,
+    value: `${globalEntry.id}`,
+  };
+
   const nationalEntry = areas.filter((area) => area.type === "country")[0];
   const nationalOption: OptionsProps = {
     label: nationalEntry.name,
@@ -108,6 +114,8 @@ export function createAreaOptionFromData(
   }));
 
   return [
+    globalOption,
+    divider,
     nationalOption,
     divider,
     {
