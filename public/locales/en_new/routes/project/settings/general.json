@@ -1,84 +1,87 @@
 {
   "validation": {
+    "name": {
+      "required": "[en] Der Projektname ist eine erforderliche Angabe.",
+      "max": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
+    },
+    "subline": {
+      "max": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 90."
+    },
     "email": {
-      "email": "Your input does not match the format of an email."
+      "email": "[en] Bitte gib eine gültige E-Mail Adresse ein."
     }
   },
   "error": {
-    "notOrivileged": "Not privileged",
-    "notFound": "Project not found"
+    "invalidRoute": "[en] No valid route",
+    "projectNotFound": "[en] Project not found",
+    "storage": "[en] Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support."
   },
   "content": {
-    "headline": "Your project",
-    "general": {
-      "headline": "General",
-      "intro": "Enter the name and contact details for your project."
+    "notFound": "[en] Not Found",
+    "feedback": "[en] Daten gespeichert!",
+    "prompt": "[en] Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
+    "back": "[en] Eckdaten anlegen",
+    "intro": "[en] Teile der Community Grundlegendes über Dein Projekt oder Bildungsangebot mit.",
+    "projectTitle": {
+      "headline": "[en] Projekttitel",
+      "label": "[en] Titel des Projekts oder Bildungsangebotes*",
+      "helper": "[en] Mit max. 55 Zeichen wird Dein Projekt gut dargestellt."
     },
-    "address": {
-      "headline": "Address"
+    "subline": {
+      "headline": "[en] Projektuntertitel",
+      "label": "[en] Subline Deines Projekts oder Bildungsangebotes",
+      "helper": "[en] Mit max. 90 Zeichen wird Dein Projekt in der Übersicht gut dargestellt."
     },
-    "about": {
-      "headline": "About the project",
-      "intro": "Share more about your project with the community."
+    "formats": {
+      "headline": "[en] Projektformat",
+      "label": "[en] In welchem Format findet das Projekt statt?",
+      "helper": "[en] Mehrfachnennungen sind möglich.",
+      "option": "[en] Bitte auswählen"
     },
-    "websiteAndSocial": {
-      "headline": "Website and social networks",
-      "website": {
-        "headline": "Website",
-        "intro": "Where can the community learn more about your offerings?"
+    "furtherFormats": {
+      "headline": "[en] Projektuntertitel",
+      "label": "[en] Sonstige Formate",
+      "helper": "[en] Bitte gib kurze Begriffe an.",
+      "add": "[en] Hinzufügen"
+    },
+    "areas": {
+      "headline": "[en] Aktivitätsgebiet",
+      "label": "[en] Wo wird das Projekt / Bildungsangebot durchgeführt?",
+      "helper": "[en] Mehrfachnennungen sind möglich.",
+      "option": "[en] Bitte auswählen"
+    },
+    "contact": {
+      "headline": "[en] Kontaktdaten",
+      "label": "[en] Wo wird das Projekt / Bildungsangebot durchgeführt?",
+      "email": {
+        "label": "[en] E-Mail-Adresse"
       },
-      "social": {
-        "headline": "Social networks",
-        "intro": "In which networks is your project represented?"
+      "phone": {
+        "label": "[en] Telefonnummer"
       }
     },
-    "feedback": "Your information has been updated."
-  },
-  "form": {
-    "name": {
-      "label": "Name"
+    "address": {
+      "headline": "[en] Anschrift",
+      "contactName": {
+        "label": "[en] Name"
+      },
+      "street": {
+        "label": "[en] Straße"
+      },
+      "streetNumber": {
+        "label": "[en] Hausnummer"
+      },
+      "streetNumberAddition": {
+        "label": "[en] Zusatz"
+      },
+      "zipCode": {
+        "label": "[en] PLZ"
+      },
+      "city": {
+        "label": "[en] Stadt"
+      }
     },
-    "email": {
-      "label": "Email"
-    },
-    "phone": {
-      "label": "Phone"
-    },
-    "street": {
-      "label": "Street name"
-    },
-    "streetNumber": {
-      "label": "House number"
-    },
-    "zipCode": {
-      "label": "ZIP code"
-    },
-    "city": {
-      "label": "City"
-    },
-    "headline": {
-      "label": "Headline"
-    },
-    "excerpt": {
-      "label": "Short description"
-    },
-    "description": {
-      "label": "Detailed description"
-    },
-    "targetGroups": {
-      "label": "Target groups",
-      "placeholder": "Add the target groups."
-    },
-    "disciplines": {
-      "label": "Disciplines",
-      "placeholder": "Add the disciplines."
-    },
-    "website": {
-      "label": "Website",
-      "placeholder": "domainname.tld"
-    },
-    "submit": {
-      "label": "Save"
-    }
+    "reset": "[en] Änderungen verwerfen",
+    "submit": "[en] Speichern"
   }
 }

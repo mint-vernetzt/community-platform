@@ -1,12 +1,19 @@
 {
+  "links": {
+    "general": "[en] Projekteckdaten",
+    "webSocial": "[en] Website und Soziale Netwerke",
+    "details": "[en] Projektdetails",
+    "requirements": "[en] Rahmenbedingungen",
+    "responsibleOrgs": "[en] Verantwortliche Organisationen",
+    "team": "[en] Team",
+    "admins": "[en] Admin-Rolle verwalten",
+    "attachments": "[en] Material verwalten",
+    "dangerZone": "[en] Kritischer Bereich"
+  },
   "content": {
-    "headline": "Edit project",
-    "navigation": {
-      "general": "General",
-      "admins": "Administrators",
-      "team": "Team",
-      "organizations": "Responsible organizations",
-      "delete": "Delete project"
-    }
+    "toProject": "[en] Zum Projekt",
+    "edit": "[en] Projekt bearbeiten",
+    "share": "[en] Teile Dein Wissen und Deine Erfahrungen. Inspiriere andere Akteur:innen und ermögliche ihnen von Deinem Projekt zu lernen.",
+    "settings": "[en] Projekteinstellungen"
   }
 }

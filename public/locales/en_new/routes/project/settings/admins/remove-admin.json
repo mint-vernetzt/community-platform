@@ -1,8 +1,0 @@
-{
-  "error": {
-    "adminCount": "There must always be at least one administrator. Please add someone else as an administrator first.",
-    "notFound": "Project not found",
-    "notPrivileged": "Not privileged"
-  },
-  "feedback": "\"{{firstName}} {{lastName}}\" has been added as an administrator."
-}

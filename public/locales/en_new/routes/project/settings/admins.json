@@ -1,22 +1,30 @@
 {
   "error": {
-    "notFound": "Project not found",
-    "notPrivileged": "Not privileged"
+    "invariant": {
+      "invalidRoute": "No valid route",
+      "notFound": "Not found"
+    }
   },
   "content": {
-    "headline": "The administrators",
-    "intro1": "Who manages the project on the community platform? Add or remove additional administrators here.",
-    "intro2": "administrators can edit, publish, or delete projects. They are not visible on the project's detail page.",
-    "intro3": "Team members are displayed on the project's detail page. They can view events in draft but cannot edit them.",
-    "add": {
-      "headline": "Add an administrator",
-      "intro": "Add an existing profile to your project here.",
-      "label": "Name or email"
+    "profileAdded": "Added {{firstName}} {{lastName}}",
+    "profileRemoved": "Removed {{firstName}} {{lastName}}",
+    "headline": "Administrators",
+    "intro": "Who manages the event on the community platform? Add or remove other administrators here. Administrators can edit, publish, revert to draft, cancel, and delete projects. They are not visible on the project detail page. Team members are shown on the project detail page. They can view projects in draft but cannot edit them.",
+    "ups": {
+      "add": "Something went wrong while adding the administrator",
+      "remove": "Something went wrong while removing the administrator"
     },
     "current": {
-      "headline": "Current administrators",
-      "intro": "Here you can see all the project's administrators at a glance.",
+      "headline_one": "Administrator",
+      "headline_other": "Administrators",
+      "title": "Administrator",
       "remove": "Remove"
+    },
+    "add": {
+      "headline": "Add administrator",
+      "search": "Search",
+      "criteria": "At least 3 characters.",
+      "submit": "Add"
     }
   }
 }

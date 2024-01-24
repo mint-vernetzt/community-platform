@@ -1,0 +1,10 @@
+{
+  "error": {
+    "invalidRoute": "[en] No valid route"
+  },
+  "content": {
+    "back": "[en] Kritischer Bereich",
+    "changeUrl": "[en] URL ändern",
+    "projectDelete": "[en] Projekt löschen"
+  }
+}

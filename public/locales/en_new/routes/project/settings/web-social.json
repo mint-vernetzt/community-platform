@@ -1,0 +1,59 @@
+{
+  "error": {
+    "invalidRoute": "[en] No valid route",
+    "projectNotFound": "[en] Project not found",
+    "custom": "[en] Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support"
+  },
+  "content": {
+    "success": "[en] Daten gespeichert!",
+    "prompt": "[en] Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
+    "back": "[en] Website und Soziale Netzwerke",
+    "intro": "[en] Wo kann die Community mehr über Dein Projekt oder Bildungsangebot erfahren?"
+  },
+  "form": {
+    "reset": "[en] Änderungen verwerfen",
+    "submit": "[en] Speichern",
+    "website": {
+      "headline": "[en] Website",
+      "url": {
+        "label": "[en] URL",
+        "placeholder": "[en] domainname.tld"
+      },
+      "socialNetworks": {
+        "headline": "[en] Soziale Netzwerke",
+        "facebook": {
+          "label": "[en] Facebook",
+          "placeholder": "[en] facebook.com/<name>"
+        },
+        "linkedin": {
+          "label": "[en] LinkedIn",
+          "placeholder": "[en] linkedin.com/company/<name>"
+        },
+        "xing": {
+          "label": "[en] Xing",
+          "placeholder": "[en] xing.com/pages/<name>"
+        },
+        "twitter": {
+          "label": "[en] X (Twitter)",
+          "placeholder": "[en] twitter.com/<name>"
+        },
+        "mastodon": {
+          "label": "[en] Mastodon",
+          "placeholder": "[en] domainname.tld/@<name>"
+        },
+        "tiktok": {
+          "label": "[en] tiktok",
+          "placeholder": "[en] tiktok.com/@<name>"
+        },
+        "instagram": {
+          "label": "[en] Instagramm",
+          "placeholder": "[en] instagram.com/<name>"
+        },
+        "youtube": {
+          "label": "[en] YouTube",
+          "placeholder": "[en] youtube.com/<name>"
+        }
+      }
+    }
+  }
+}
