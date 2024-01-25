@@ -53,8 +53,15 @@ export const getDuration = (start: Date, end: Date, language: string) => {
     : formatDateLong;
   const formatter = new Intl.DateTimeFormat(language, format);
 
-  // @ts-ignore
-  const result = transformParts(formatter.formatRangeToParts(start, end));
+  const formattedString = transformParts(
+    // @ts-ignore
+    formatter.formatRangeToParts(start, end)
+  );
+
+  const result = formattedString
+    // @ts-ignore
+    .replaceAll(" a", " AM")
+    .replaceAll(" p", " PM");
 
   return sameDay && !result.match(/^(.*)(Uhr|PM|AM)$/)
     ? `${result} Uhr`
@@ -179,7 +186,9 @@ export function getTimeDuration(
   const result = formatter
     // @ts-ignore
     .formatRange(startTime, endTime)
-    .replaceAll(" ", "")
-    .replaceAll("–", " - ");
+    .replaceAll(" a", " AM")
+    .replaceAll(" p", " PM")
+    .replaceAll("–", " - ")
+    .replaceAll("  ", " ");
   return result.match(/^(.*)(Uhr|PM|AM)$/) ? result : `${result} Uhr`;
 }

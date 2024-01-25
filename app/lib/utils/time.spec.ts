@@ -126,13 +126,13 @@ describe("time.ts should format date/time strings  correctly", () => {
         new Date("2023-10-10 10:00"),
         new Date("2023-10-10 11:37"),
         "en",
-        "10:00 - 11:37 AM",
+        "10:00 - 11:37 AM",
       ],
       [
         new Date("2023-10-10 10:00"),
         new Date("2023-10-10 12:00"),
         "en",
-        "10:00 AM - 12:00 PM",
+        "10:00 AM - 12:00 PM",
       ],
     ];
 
@@ -206,13 +206,13 @@ describe("time.ts should format date/time strings  correctly", () => {
         new Date("2023-10-10 10:00"),
         new Date("2023-10-10 10:00"),
         "en",
-        "October 10, 2023 | 10:00 AM",
+        "October 10, 2023 | 10:00 AM",
       ],
       [
         new Date("2023-10-10 10:00"),
         new Date("2023-10-10 11:23"),
         "en",
-        "October 10, 2023 | 10:00 – 11:23 AM",
+        "October 10, 2023 | 10:00 – 11:23 AM",
       ],
       [
         new Date("2023-10-09 10:00"),
