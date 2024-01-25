@@ -23,6 +23,7 @@ import {
   createOrganizationOnProfile,
   searchForOrganizationsByName,
 } from "./create.server";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/organization/create"];
 export const handle = {
@@ -95,7 +96,8 @@ export async function action(args: DataFunctionArgs) {
     });
   }
 
-  const t = await i18next.getFixedT(request, ["routes/organization/create"]);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/organization/create"]);
 
   const formData = await request.formData();
   const submission = parse(formData, { schema: createSchema(t) });

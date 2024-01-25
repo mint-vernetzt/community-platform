@@ -8,8 +8,9 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "../../utils.server";
 import { getFullDepthProfiles } from "../utils.server";
 import { getEventBySlug } from "./csv-download.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 async function getProfilesBySearchParams(
   event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>,
@@ -113,7 +114,8 @@ export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/csv-download",
   ]);
   await checkFeatureAbilitiesOrThrow(authClient, "events");

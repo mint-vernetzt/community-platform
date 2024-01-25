@@ -33,10 +33,12 @@ import {
 } from "./team/remove-member";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
-  const t = await i18next.getFixedT(request, ["routes/event/settings/team"]);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/team"]);
   const response = new Response();
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");

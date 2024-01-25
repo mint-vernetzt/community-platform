@@ -42,8 +42,9 @@ import {
   removeParticipantSchema,
 } from "./participants/remove-participant";
 import i18next from "~/i18next.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const createParticipantLimitSchema = (t: TFunction) => {
   return z.object({
@@ -62,7 +63,8 @@ const environmentSchema = z.object({
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/participants",
   ]);
   const authClient = createAuthClient(request, response);
@@ -157,7 +159,8 @@ const createMutation = (t: TFunction) => {
 
 export async function action({ request, params }: DataFunctionArgs) {
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/participants",
   ]);
   const eventSlug = getParamValueOrThrow(params, "slug");

@@ -27,6 +27,7 @@ import {
 import { getRandomSeed } from "./explore/utils.server";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/dashboard"];
 export const handle = {
@@ -39,7 +40,8 @@ export const loader = async (args: LoaderArgs) => {
   const { request } = args;
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const authClient = createAuthClient(request, response);
 

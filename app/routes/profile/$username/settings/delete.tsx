@@ -19,9 +19,10 @@ import {
   getProfileByUsername,
   getProfileWithAdministrations,
 } from "./delete.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/profile/settings/delete"];
 export const handle = {
@@ -45,9 +46,8 @@ const environmentSchema = z.object({
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
-    "routes/profile/settings/delete",
-  ]);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/profile/settings/delete"]);
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
@@ -142,9 +142,8 @@ const createMutation = (t: TFunction) => {
 export const action = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, [
-    "routes/profile/settings/delete",
-  ]);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/profile/settings/delete"]);
   const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);

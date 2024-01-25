@@ -59,9 +59,10 @@ import quillStyles from "react-quill/dist/quill.snow.css";
 import { invariantResponse } from "~/lib/utils/response";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug, getEventBySlugForAction } from "./general.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const createSchema = (t: TFunction) => {
   return object({
@@ -156,7 +157,8 @@ type FormType = InferType<SchemaType>;
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, ["routes/event/settings/general"]);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/general"]);
   const authClient = createAuthClient(request, response);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -205,7 +207,8 @@ export const action = async (args: ActionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, ["routes/event/settings/general"]);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/general"]);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 

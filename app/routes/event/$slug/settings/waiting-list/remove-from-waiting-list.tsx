@@ -15,6 +15,7 @@ import {
 } from "./utils.server";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -29,7 +30,8 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/waiting-list/remove-from-waiting-list",
   ]);
   const slug = getParamValueOrThrow(params, "slug");

@@ -48,7 +48,8 @@ import {
 import { getProfileByUsername } from "./general.server";
 import { Trans, useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/profile/settings/general"];
 export const handle = {
@@ -99,7 +100,8 @@ function makeFormProfileFromDbProfile(
 export const loader = async ({ request, params }: LoaderArgs) => {
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/profile/settings/general",
   ]);
   const authClient = createAuthClient(request, response);
@@ -136,7 +138,8 @@ export const links: LinksFunction = () => [
 export const action = async ({ request, params }: ActionArgs) => {
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/profile/settings/general",
   ]);
 

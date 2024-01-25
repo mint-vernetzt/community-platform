@@ -51,7 +51,8 @@ import {
 } from "./utils.server";
 import i18next from "~/i18next.server";
 import { Trans, useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
+import { detectLanguage } from "~/root.server";
 
 export function links() {
   return [
@@ -72,7 +73,8 @@ export const loader = async (args: LoaderArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const abilities = await getFeatureAbilities(authClient, "events");
-  const t = await i18next.getFixedT(request, ["routes/event/index"]);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/index"]);
 
   const sessionUser = await getSessionUser(authClient);
 

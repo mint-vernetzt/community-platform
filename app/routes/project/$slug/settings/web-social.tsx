@@ -20,7 +20,7 @@ import {
 } from "./utils.server";
 import React from "react";
 import { usePrompt } from "~/lib/hooks/usePrompt";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import {
   createFacebookSchema,
   createInstagramSchema,
@@ -34,6 +34,7 @@ import {
 } from "~/lib/utils/schemas";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({
@@ -58,7 +59,8 @@ export const loader = async (args: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -110,7 +112,8 @@ export async function action({ request, params }: DataFunctionArgs) {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {

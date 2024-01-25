@@ -79,6 +79,11 @@ export default async function handleRequest(
           return resolve(`./public/locales/${lng}/${ns}.json`);
         },
       },
+      detection: {
+        order: ["cookie", "htmlTag"],
+        caches: ["cookie"],
+        excludeCacheFor: ["cimode"],
+      },
     });
 
   return new Promise((resolve, reject) => {

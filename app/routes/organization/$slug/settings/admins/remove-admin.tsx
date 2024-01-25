@@ -11,8 +11,9 @@ import {
   getOrganizationBySlug,
   removeAdminFromOrganization,
 } from "./remove-admin.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/organization/settings/admin/remove-admin"];
 export const handle = {
@@ -45,7 +46,8 @@ const createMutation = (t: TFunction) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/organization/settings/admin/remove-admin",
   ]);
   const authClient = createAuthClient(request, response);

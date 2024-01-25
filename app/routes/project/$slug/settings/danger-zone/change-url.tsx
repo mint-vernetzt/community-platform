@@ -14,9 +14,10 @@ import {
 } from "../utils.server";
 import React from "react";
 import { usePrompt } from "~/lib/hooks/usePrompt";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { Trans, useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/settings/danger-zone/change-url"];
 export const handle = {
@@ -50,7 +51,8 @@ function createSchema(
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
@@ -83,7 +85,8 @@ export const loader = async (args: DataFunctionArgs) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);

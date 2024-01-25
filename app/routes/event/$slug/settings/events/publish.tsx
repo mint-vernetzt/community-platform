@@ -10,6 +10,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { publishEventAndItsChildren } from "./utils.server";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   publish: z.boolean(),
@@ -24,7 +25,8 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/events/publish",
   ]);
   const slug = getParamValueOrThrow(params, "slug");

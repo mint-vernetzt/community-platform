@@ -17,6 +17,7 @@ import PageBackground from "../../components/PageBackground/PageBackground";
 import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { Trans, useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/reset/index"];
 export const handle = {
@@ -101,7 +102,8 @@ export const action = async (args: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
 

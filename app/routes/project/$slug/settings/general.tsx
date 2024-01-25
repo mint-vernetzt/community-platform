@@ -29,9 +29,10 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/settings/general", "utils/schemas"];
 export const handle = {
@@ -108,7 +109,8 @@ const createGeneralSchema = (t: TFunction) =>
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const authClient = createAuthClient(request, response);
 
@@ -201,7 +203,8 @@ export async function action({ request, params }: DataFunctionArgs) {
   const response = new Response();
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {

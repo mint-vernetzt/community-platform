@@ -21,6 +21,7 @@ import {
 } from "./utils.server";
 import { utcToZonedTime } from "date-fns-tz";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -35,7 +36,8 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/waiting-list/move-to-participants",
   ]);
   const slug = getParamValueOrThrow(params, "slug");

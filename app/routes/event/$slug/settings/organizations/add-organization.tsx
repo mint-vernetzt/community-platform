@@ -11,7 +11,8 @@ import { deriveEventMode } from "~/routes/event/utils.server";
 import { getOrganizationById } from "../utils.server";
 import { connectOrganizationToEvent, getEventBySlug } from "./utils.server";
 import i18next from "~/i18next.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
+import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   organizationId: z.string(),
@@ -47,7 +48,8 @@ const createMutation = (t: TFunction) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/organizations/add-organization",
   ]);
   const slug = getParamValueOrThrow(params, "slug");

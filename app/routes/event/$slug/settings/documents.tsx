@@ -27,11 +27,13 @@ import {
 import { type action as publishAction, publishSchema } from "./events/publish";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/documents",
   ]);
   const authClient = createAuthClient(request, response);

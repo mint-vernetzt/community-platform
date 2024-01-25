@@ -19,8 +19,9 @@ import {
 import { type action as publishAction, publishSchema } from "./events/publish";
 import { deleteEventBySlug } from "./utils.server";
 import i18next from "~/i18next.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   eventName: z.string().optional(),
@@ -35,7 +36,8 @@ export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, ["routes/event/settings/delete"]);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -77,7 +79,8 @@ const createMutation = (t: TFunction) => {
 
 export const action = async (args: ActionArgs) => {
   const { request, params } = args;
-  const t = await i18next.getFixedT(request, ["routes/event/settings/delete"]);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
   const response = new Response();
   const slug = getParamValueOrThrow(params, "slug");
   const authClient = createAuthClient(request, response);

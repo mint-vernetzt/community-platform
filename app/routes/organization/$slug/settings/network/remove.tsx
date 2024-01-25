@@ -16,8 +16,9 @@ import {
   getOrganizationIdBySlug,
 } from "../utils.server";
 import i18next from "~/i18next.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/organization/settings/network/remove"];
 export const handle = {
@@ -60,7 +61,8 @@ export const loader = async ({ request }: DataFunctionArgs) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/organization/settings/network/remove",
   ]);
   const slug = getParamValueOrThrow(params, "slug");

@@ -4,11 +4,13 @@ import { badRequest, serverError } from "remix-utils";
 import { createAuthClient, setSession } from "~/auth.server";
 import { updateProfileByUserId } from "./set-email.server";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, ["routes/reset/set-email"]);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/reset/set-email"]);
   const authClient = createAuthClient(request, response);
   const url = new URL(request.url);
   const urlSearchParams = new URLSearchParams(url.searchParams);

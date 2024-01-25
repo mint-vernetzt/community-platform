@@ -9,8 +9,9 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { addChildEventRelationOrThrow, getEventBySlug } from "./utils.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 // TODO: Validate start and end time
 const schema = z.object({
@@ -50,7 +51,8 @@ const createMutation = (t: TFunction) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/events/add-child",
   ]);
   const authClient = createAuthClient(request, response);

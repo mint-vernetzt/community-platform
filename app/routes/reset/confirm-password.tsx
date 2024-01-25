@@ -7,6 +7,7 @@ import PageBackground from "../../components/PageBackground/PageBackground";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 // How to build the confirmation url to test this functionality on dev?
 
@@ -27,7 +28,8 @@ export const loader = async (args: LoaderArgs) => {
 
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
     return redirect("/dashboard", { headers: response.headers });

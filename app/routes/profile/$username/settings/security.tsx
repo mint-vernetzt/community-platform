@@ -18,8 +18,9 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveProfileMode } from "../utils.server";
 import { getProfileByUsername } from "./security.server";
 import i18next from "~/i18next.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/profile/settings/security"];
 export const handle = {
@@ -62,7 +63,8 @@ const emailEnvironmentSchema = z.object({
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/profile/settings/security",
   ]);
   const authClient = createAuthClient(request, response);
@@ -133,7 +135,8 @@ const createEmailMutation = (t: TFunction) => {
 export const action = async ({ request, params }: DataFunctionArgs) => {
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/profile/settings/security",
   ]);
   const authClient = createAuthClient(request, response);

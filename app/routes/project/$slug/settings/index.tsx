@@ -3,6 +3,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/settings/index"];
 export const handle = {
@@ -12,7 +13,8 @@ export const handle = {
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const authClient = createAuthClient(request, response);
 

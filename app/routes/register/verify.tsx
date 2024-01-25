@@ -4,6 +4,7 @@ import { badRequest } from "remix-utils";
 import { createAuthClient, getSessionUser, setSession } from "~/auth.server";
 import { createProfile } from "./utils.server";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/register/verify"];
 export const handle = {
@@ -14,7 +15,8 @@ export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
   const response = new Response();
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {

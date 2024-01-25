@@ -21,6 +21,7 @@ import { generateUsername } from "../../utils.server";
 import { type TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/register/index"];
 export const handle = {
@@ -108,7 +109,8 @@ export const action = async (args: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
 
@@ -301,7 +303,7 @@ export default function Register() {
             </div> */}
 
                     <div className="mb-8">
-                      <div className="form-control checkbox-privacy">
+                      <div className="form-control checkbox-privacy items-start">
                         <label className="label cursor-pointer items-start">
                           <Field name="termsAccepted">
                             {({ Errors }) => {
@@ -342,7 +344,7 @@ export default function Register() {
                               className="text-primary font-bold hover:underline"
                             >
                               {t("form.acknowledgements.termsOfUse")}
-                            </a>{" "}
+                            </a>
                             {t("form.acknowledgements.bridge")}{" "}
                             <a
                               href="https://mint-vernetzt.de/privacy-policy-community-platform"

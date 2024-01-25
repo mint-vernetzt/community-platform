@@ -16,7 +16,8 @@ import {
 import { type Subject, uploadKeys } from "./utils.server";
 import { deriveProfileMode } from "../profile/$username/utils.server";
 import i18next from "~/i18next.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/upload/image"];
 export const handle = {
@@ -26,7 +27,8 @@ export const handle = {
 export const loader = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
   createAuthClient(request, response);
 
   if (request.method !== "POST") {
@@ -75,7 +77,8 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const profileId = sessionUser.id;

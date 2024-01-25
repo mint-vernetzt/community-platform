@@ -17,6 +17,7 @@ import PageBackground from "../../components/PageBackground/PageBackground";
 import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/reset/set-password"];
 export const handle = {
@@ -47,7 +48,8 @@ export const loader = async (args: DataFunctionArgs) => {
     return redirect("/dashboard", { headers: response.headers });
   }
 
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const url = new URL(request.url);
   const accessToken = url.searchParams.get("access_token");
@@ -95,7 +97,8 @@ const createMutation = (t: TFunction) => {
 export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
 
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const authClient = createAuthClient(request, response);
   const result = await performMutation({
     request,

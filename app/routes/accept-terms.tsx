@@ -12,9 +12,10 @@ import { Form as RemixForm, performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { Trans, useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/accept-terms"];
 export const handle = {
@@ -78,7 +79,8 @@ export const action = async (args: ActionArgs) => {
   const { request } = args;
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const result = await performMutation({
     request,

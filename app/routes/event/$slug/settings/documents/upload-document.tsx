@@ -10,6 +10,7 @@ import { deriveEventMode } from "~/routes/event/utils.server";
 import { doPersistUpload, parseMultipart } from "~/storage.server";
 import { createDocumentOnEvent } from "./utils.server";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   uploadKey: z.string(),
@@ -20,7 +21,8 @@ export const uploadDocumentSchema = schema;
 
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/documents/upload-document",
   ]);
   const response = new Response();

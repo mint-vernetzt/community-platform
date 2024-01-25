@@ -21,6 +21,7 @@ import { getProfileByEmailCaseInsensitive } from "../organization/$slug/settings
 import { useTranslation } from "react-i18next";
 import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/login"];
 export const handle = {
@@ -102,7 +103,8 @@ const createMutation = (t: TFunction) => {
 export const action = async ({ request }: DataFunctionArgs) => {
   const response = new Response();
   const authClient = createAuthClient(request, response);
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const result = await performMutation({
     request,
@@ -174,7 +176,7 @@ export default function Index() {
               </div>
             </div>
             <div className="flex flex-col md:flex-row -mx-4">
-              <div className="basis-full md:basis-6/12"></div>
+              <div className="basis-full md:basis-6/12 px-4"> </div>
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">{t("content.headline")}</h1>
 

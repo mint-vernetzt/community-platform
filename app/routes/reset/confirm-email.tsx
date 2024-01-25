@@ -6,6 +6,7 @@ import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 // How to build the confirmation url to test this functionality on dev?
 
@@ -24,7 +25,8 @@ export const handle = {
 export const loader = async (args: LoaderArgs) => {
   const { request } = args;
 
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const response = new Response();
 

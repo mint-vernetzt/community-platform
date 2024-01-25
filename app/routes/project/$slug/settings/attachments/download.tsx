@@ -5,6 +5,7 @@ import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import { prismaClient } from "~/prisma.server";
 import JSZip from "jszip";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/settings/attachments/download"];
 export const handle = {
@@ -13,7 +14,8 @@ export const handle = {
 
 export const loader = async (args: DataFunctionArgs) => {
   const { request, params } = args;
-  const t = await i18next.getFixedT(request, i18nNS);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,

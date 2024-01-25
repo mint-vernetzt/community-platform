@@ -15,6 +15,7 @@ import Add from "./add";
 import { NetworkMemberRemoveForm } from "./remove";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/organization/settings/network/index"];
 export const handle = {
@@ -32,7 +33,8 @@ export type NetworkMemberSuggestions =
 export const loader = async (args: LoaderArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/organization/settings/network/index",
   ]);
 

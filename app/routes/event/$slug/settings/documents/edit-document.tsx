@@ -10,7 +10,8 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { updateDocument } from "./edit-document.server";
 import i18next from "~/i18next.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
+import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   documentId: z.string(),
@@ -48,7 +49,8 @@ const createMutation = (t: TFunction) => {
 export const action = async (args: DataFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const t = await i18next.getFixedT(request, [
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
     "routes/event/settings/documents/edit-document",
   ]);
   const authClient = createAuthClient(request, response);
