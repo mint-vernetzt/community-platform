@@ -19,7 +19,7 @@ import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { getProfileByEmailCaseInsensitive } from "../organization/$slug/settings/utils.server";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 
 const i18nNS = ["routes/login"];
@@ -72,25 +72,28 @@ const createMutation = (t: TFunction) => {
       values.password
     );
 
-  let profile;
-  if (error !== null) {
-    if (error.message === "Invalid login credentials") {
-      throw t("error.invalidCredentials");
+    let profile;
+    if (error !== null) {
+      if (error.message === "Invalid login credentials") {
+        throw t("error.invalidCredentials");
+      } else {
+        throw error.message;
+      }
     } else {
-      throw error.message;
+      profile = await getProfileByEmailCaseInsensitive(values.email);
+      if (profile !== null) {
+        // changes provider of user to email
+        const adminAuthClient = createAdminAuthClient();
+        await adminAuthClient.auth.admin.updateUserById(profile.id, {
+          app_metadata: {
+            provider: "email",
+          },
+        });
+        // TODO: fix type issue
+        // @ts-ignore
+        await environment.authClient.auth.refreshSession();
+      }
     }
-  } else {
-    profile = await getProfileByEmailCaseInsensitive(values.email);
-    if (profile !== null) {
-      // changes provider of user to email
-      const adminAuthClient = createAdminAuthClient();
-      await adminAuthClient.auth.admin.updateUserById(profile.id, {
-        app_metadata: {
-          provider: "email",
-        },
-      });
-    }
-  }
 
     return { values: { ...values, username: profile?.username } };
   });

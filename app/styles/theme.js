@@ -1,5 +1,5 @@
 const colors = {
-  "beige-100": "#f7f3f2",
+  "beige-100": "#FCFAFA",
   "beige-300": "#efe8e6",
   "blue-500": "#154194",
   "blue-400": "#1b54c0",

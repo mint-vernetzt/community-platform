@@ -49,7 +49,7 @@ import quillStyles from "react-quill/dist/quill.snow.css";
 import { invariantResponse } from "~/lib/utils/response";
 import { getOrganizationBySlug } from "./general.server";
 import i18next from "~/i18next.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
 const i18nNS = ["routes/organization/settings/general"];

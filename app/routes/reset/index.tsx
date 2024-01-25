@@ -14,7 +14,7 @@ import {
 } from "../../auth.server";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { Trans, useTranslation } from "react-i18next";
 
@@ -79,7 +79,8 @@ const createMutation = (t: TFunction) => {
         // if user uses email provider send password reset link
         if (data.user.app_metadata.provider === "email") {
           const { error } = await sendResetPasswordLink(
-            // @ts-ignore TODO: fix type issue
+            // TODO: fix type issue
+            // @ts-ignore
             environment.authClient,
             values.email,
             emailRedirectTo
@@ -87,13 +88,11 @@ const createMutation = (t: TFunction) => {
           if (error !== null && error.message !== "User not found") {
             throw error.message;
           }
-        } else {
-          console.log("User uses other provider than email.");
         }
       }
-    }
 
-    return values;
+      return values;
+    }
   });
 };
 
@@ -149,7 +148,9 @@ export default function Index() {
           <div className="basis-full md:basis-6/12"></div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
             <h1 className="mb-8">{t("response.headline")}</h1>
-            {actionData !== undefined && actionData.success ? (
+            {actionData !== undefined &&
+            actionData.success &&
+            actionData.data !== undefined ? (
               <>
                 <p className="mb-4">
                   <Trans

@@ -18,7 +18,7 @@ import SelectField from "../../components/FormElements/SelectField/SelectField";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
 import { generateUsername } from "../../utils.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
 
@@ -70,7 +70,7 @@ const createMutation = (t: TFunction) => {
     const { firstName, lastName, academicTitle, termsAccepted } = values;
 
     if (!termsAccepted) {
-      throw "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.";
+      throw t("validation.termsAccepted");
     }
 
     const username = `${generateUsername(firstName, lastName)}`;

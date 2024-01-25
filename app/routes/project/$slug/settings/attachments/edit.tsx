@@ -247,13 +247,19 @@ function Edit() {
   let defaultValue;
   if (type === "document") {
     defaultValue = {
+      // TODO: fix type issue
+      // @ts-ignore
       title: loaderData.document.title,
+      // @ts-ignore
       description: loaderData.document.description,
     };
   } else {
     defaultValue = {
+      // @ts-ignore
       title: loaderData.image.title,
+      // @ts-ignore
       description: loaderData.image.description,
+      // @ts-ignore
       credits: loaderData.image.credits,
     };
   }
@@ -317,12 +323,16 @@ function Edit() {
               )}
             </Input>
             {type === "image" && (
+              // TODO: fix type issue
+              // @ts-ignore
               <Input {...conform.input(fields.credits)} maxLength={80}>
                 <Input.Label>{t("content.credits.label")}</Input.Label>
                 <Input.HelperText>
                   {t("content.credits.helper")}
                 </Input.HelperText>
+                {/* @ts-ignore */}
                 {typeof fields.credits.error !== "undefined" && (
+                  // @ts-ignore
                   <Input.Error>{fields.credits.error}</Input.Error>
                 )}
               </Input>

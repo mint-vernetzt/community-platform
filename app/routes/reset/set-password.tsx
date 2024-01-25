@@ -14,7 +14,7 @@ import {
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 
@@ -72,14 +72,16 @@ const createMutation = (t: TFunction) => {
     // This automatically logs in the user
     // Throws error on invalid refreshToken, accessToken combination
     await setSession(
-      // @ts-ignore TODO: fix type issue
+      // TODO: fix type issue
+      // @ts-ignore
       environment.authClient,
       values.accessToken,
       values.refreshToken
     );
 
     const { error } = await updatePassword(
-      // @ts-ignore TODO: fix type issue
+      // TODO: fix type issue
+      // @ts-ignore
       environment.authClient,
       values.password
     );

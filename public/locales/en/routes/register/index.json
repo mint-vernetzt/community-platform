@@ -30,6 +30,7 @@
     "submit": "Create profile"
   },
   "validation": {
+    "termsAccepted": "Please accept our terms of use and confirm that you have read the privacy policy.",
     "firstName": {
       "min": "Please enter your first name."
     },

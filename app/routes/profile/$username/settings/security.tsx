@@ -93,7 +93,8 @@ const createPasswordMutation = (t: TFunction) => {
     }
 
     const { error } = await updatePassword(
-      // @ts-ignore TODO: fix type issue
+      // TODO: fix type issue
+      // @ts-ignore
       environment.authClient,
       values.password
     );
@@ -115,7 +116,8 @@ const createEmailMutation = (t: TFunction) => {
     }
 
     const { error } = await sendResetEmailLink(
-      // @ts-ignore TODO: fix type issue
+      // TODO: fix type issue
+      // @ts-ignore
       environment.authClient,
       values.email,
       environment.siteUrl

@@ -1,10 +1,8 @@
 {
-  "error": {
-    "serverError": "This organization already exists. Please contact the person who created this organization here. They can add you as a member. In the future, you will be able to add yourself to organizations."
-  },
   "validation": {
     "organizationName": {
-      "min": "Please enter the name of your organization."
+      "required": "Please enter the name of your organization.",
+      "min": "Please enter the name of your organization. The organization name must be at least 3 characters long."
     }
   },
   "content": {
@@ -17,6 +15,9 @@
     },
     "submit": {
       "label": "Create"
+    },
+    "error": {
+      "sameOrganization": "Organizations with a similar name were found. If you want to create the organization with the name \"{{searchQuery}}\", click on \"Create\" again."
     }
   }
 }

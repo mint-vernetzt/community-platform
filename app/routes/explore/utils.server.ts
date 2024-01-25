@@ -48,6 +48,22 @@ export async function getAllProfiles(
     areaToFilter = await getAreaById(areaId);
     if (areaToFilter !== null) {
       let areaWhere;
+      if (areaToFilter.type === "global") {
+        /* No WHERE statement needed as we want to select all profiles that have at least one area */
+        /* ORDER BY: global -> country -> state -> district */
+        orderByClause = Prisma.sql`
+                        ORDER BY (
+                          CASE 
+                            WHEN 'global' = ANY (array_agg(DISTINCT areas.type)) THEN 1 
+                            WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 2 
+                            WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 3 
+                            WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 4 
+                            ELSE 5 
+                          END
+                        ) ASC,
+                        "score" DESC,
+                        RANDOM()`;
+      }
       if (areaToFilter.type === "country") {
         /* No WHERE statement needed as we want to select all profiles that have at least one area */
         /* ORDER BY: country -> state -> district */

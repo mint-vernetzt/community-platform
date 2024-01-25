@@ -163,8 +163,11 @@ function Attachments() {
               {loaderData.project.images.map((relation) => {
                 return (
                   <MaterialList.Item key={relation.image.id}>
+                    {/* TODO: fix type issue */}
+                    {/* @ts-ignore */}
                     {typeof relation.image.thumbnail !== "undefined" && (
                       <Image
+                        // @ts-ignore
                         src={relation.image.thumbnail}
                         alt={relation.image.description || ""}
                       />

@@ -103,7 +103,8 @@ function AcceptTerms() {
   const handleKeyPress = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      // @ts-ignore TODO: Type issue
+      // TODO: Type issue
+      // @ts-ignore
       if (event.target.getAttribute("name") !== "termsAccepted") {
         submit(event.currentTarget);
       }

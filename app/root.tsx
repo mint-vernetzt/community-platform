@@ -441,6 +441,7 @@ export default function App() {
     sessionUserInfo: currentUserInfo,
     abilities,
     alert,
+    locale,
   } = useLoaderData<typeof loader>();
 
   React.useEffect(() => {
@@ -473,10 +474,57 @@ export default function App() {
     modal !== null && modal !== "false" && "overflow-hidden"
   );
 
-  const { locale } = useLoaderData<typeof loader>();
-
   const { i18n } = useTranslation();
   // useChangeLanguage(locale);
+  const main = (
+    <main className="flex-auto relative pb-8 w-full">
+      {typeof alert !== "undefined" &&
+      isNonAppBaseRoute === false &&
+      isIndexRoute === false ? (
+        <div className="container">
+          <Alert level={alert.level}>{alert.message}</Alert>
+        </div>
+      ) : null}
+      <Outlet />
+    </main>
+  );
+
+  // Scroll to top button
+  // Should this be a component?
+  const scrollButton = (
+    <div className={`${isSettings ? "hidden md:block " : ""}w-0`}>
+      <div className="w-0 h-16"></div>
+      <div className="w-0 h-screen sticky top-0">
+        <div className="absolute bottom-4 md:bottom-8 -left-20">
+          <Link to={`${location.pathname}${location.search}#top`}>
+            <CircleButton size="large" floating>
+              <svg
+                width="30"
+                height="31"
+                viewBox="0 0 30 31"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15 4V29"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M3 13L15 2L27 13"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </CircleButton>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <html lang={locale} dir={i18n.dir()} data-theme="light">
@@ -515,54 +563,14 @@ export default function App() {
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
           ) : null}
-          <div className="flex flex-nowrap">
-            <main className="flex-auto relative pb-8 w-full">
-              {typeof alert !== "undefined" &&
-              isNonAppBaseRoute === false &&
-              isIndexRoute === false ? (
-                <div className="container">
-                  <Alert level={alert.level}>{alert.message}</Alert>
-                </div>
-              ) : null}
-              <Outlet />
-            </main>
-            {/* Scroll to top button */}
-            {/* Should this be a component? */}
-            {isNonAppBaseRoute === false ? (
-              <div className={`${isSettings ? "hidden md:block " : ""}w-0`}>
-                <div className="w-0 h-16"></div>
-                <div className="w-0 h-screen sticky top-0">
-                  <div className="absolute bottom-4 md:bottom-8 -left-20">
-                    <Link to="#top">
-                      <CircleButton size="large" floating>
-                        <svg
-                          width="30"
-                          height="31"
-                          viewBox="0 0 30 31"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M15 4V29"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                          />
-                          <path
-                            d="M3 13L15 2L27 13"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </CircleButton>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-          </div>
+          {isNonAppBaseRoute ? (
+            <>{main}</>
+          ) : (
+            <div className="flex flex-nowrap">
+              {main}
+              {scrollButton}
+            </div>
+          )}
           <Footer isSettings={isProjectSettings} />
         </div>
 

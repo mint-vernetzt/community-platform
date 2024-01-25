@@ -123,6 +123,7 @@ const TextAreaWithCounter = React.forwardRef(
                 <textarea
                   {...rest}
                   id={id}
+                  defaultValue={defaultValue}
                   onChange={handleTextAreaChange}
                   className={`textarea textarea-bordered h-24 w-full ${
                     props.className

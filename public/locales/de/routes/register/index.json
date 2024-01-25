@@ -30,6 +30,7 @@
     "submit": "Profil anlegen"
   },
   "validation": {
+    "termsAccepted": "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.",
     "firstName": {
       "min": "Bitte gib Deinen Vornamen ein."
     },

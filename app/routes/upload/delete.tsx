@@ -37,7 +37,8 @@ const createMutation = (t: TFunction) => {
     const { subject, slug, uploadKey } = values;
 
     let success = true;
-    // @ts-ignore TODO: fix type issue
+    // TODO: fix type issue
+    // @ts-ignore
     const sessionUser = await getSessionUserOrThrow(environment.authClient);
 
     try {
