@@ -1,19 +1,19 @@
 {
   "links": {
-    "general": "[en] Projekteckdaten",
-    "webSocial": "[en] Website und Soziale Netwerke",
-    "details": "[en] Projektdetails",
-    "requirements": "[en] Rahmenbedingungen",
-    "responsibleOrgs": "[en] Verantwortliche Organisationen",
-    "team": "[en] Team",
-    "admins": "[en] Admin-Rolle verwalten",
-    "attachments": "[en] Material verwalten",
-    "dangerZone": "[en] Kritischer Bereich"
+    "general": "Project key data",
+    "webSocial": "Website and social networks",
+    "details": "Project details",
+    "requirements": "Framework conditions",
+    "responsibleOrgs": "Responsible organizations",
+    "team": "Team",
+    "admins": "Administrators",
+    "attachments": "Manage documents",
+    "dangerZone": "Danger zone"
   },
   "content": {
-    "toProject": "[en] Zum Projekt",
-    "edit": "[en] Projekt bearbeiten",
-    "share": "[en] Teile Dein Wissen und Deine Erfahrungen. Inspiriere andere Akteur:innen und ermögliche ihnen von Deinem Projekt zu lernen.",
-    "settings": "[en] Projekteinstellungen"
+    "toProject": "To the project",
+    "edit": "Edit project",
+    "share": "Share your knowledge and experiences. Inspire other actors and enable them to learn from your project.",
+    "settings": "Project settings"
   }
 }

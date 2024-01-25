@@ -67,13 +67,12 @@
       },
       "financings": {
         "label": "Art der Finanzierung",
-        "helper": "Wöhle die Art der Finanzierung aus.",
+        "helper": "Wähle die Art der Finanzierung aus.",
         "option": "Bitte auswählen"
       },
       "furtherFinancings": {
         "label": "Weitere Infos",
-        "helper": "Nutze dieses Feld, wenn du keine passende Finanzierungsart vorgefunden hast.",
-        "option": "Bitte auswählen"
+        "helper": "Nutze dieses Feld, wenn du keine passende Finanzierungsart vorgefunden hast."
       }
     },
     "technicalFrame": {

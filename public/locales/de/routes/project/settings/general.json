@@ -39,20 +39,18 @@
       "option": "Bitte auswählen"
     },
     "furtherFormats": {
-      "headline": "Projektuntertitel",
       "label": "Sonstige Formate",
       "helper": "Bitte gib kurze Begriffe an.",
       "add": "Hinzufügen"
     },
     "areas": {
       "headline": "Aktivitätsgebiet",
-      "label": "Wo wird das Projekt / Bildungsangebot durchgeführt?",
+      "label": "Wo wird das Projekt/Bildungsangebot durchgeführt?",
       "helper": "Mehrfachnennungen sind möglich.",
       "option": "Bitte auswählen"
     },
     "contact": {
       "headline": "Kontaktdaten",
-      "label": "Wo wird das Projekt / Bildungsangebot durchgeführt?",
       "email": {
         "label": "E-Mail-Adresse"
       },

@@ -127,7 +127,7 @@
       "goals": "Ausführliche Beschreibung - Ziele: {{list}}",
       "implementation": "Ausführliche Beschreibung - Durchführung: {{list}}",
       "furtherDescription": "Ausführliche Beschreibung - Sonstiges: {{list}}",
-      "targeting": "Ausführliche Beschreibung - Zielgruppenansprache:{{list}}",
+      "targeting": "Ausführliche Beschreibung - Zielgruppenansprache: {{list}}",
       "hints": "Ausführliche Beschreibung - Tipps: {{list}}"
     }
   }
