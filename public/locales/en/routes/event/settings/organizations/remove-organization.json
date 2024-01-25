@@ -1,6 +1,6 @@
 {
   "error": {
-    "notPrivileged": "[en] Not privileged",
-    "notFound": "[en] Es existiert noch keine Organisation mit diesem Namen."
+    "notPrivileged": "Not privileged",
+    "notFound": "No organization with this name exists yet."
   }
 }

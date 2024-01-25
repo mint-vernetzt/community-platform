@@ -1,12 +1,10 @@
 {
   "error": {
-    "notFound": "[en] Organization not found",
-    "notPrivileged": "[en] Not privileged",
-    "adminCount": "[en] Es muss immer eine:n Administrator:in geben. Bitte füge zuerst jemand anderen als Administrator:in hinzu.",
+    "notFound": "Organization not found",
+    "notPrivileged": "Not privileged",
+    "adminCount": "There must always be at least one administrator. Please add someone else as an administrator first.",
     "inputError": {
-      "doesNotExist": "[en] Es existiert noch kein Profil unter diesem Namen.",
-      "alreadyAdmin": "[en] Das Profil unter diesem Namen ist bereits Administrator:in Eurer Organisation."
+      "doesNotExist": "No profile exists under this name."
     }
-  },
-  "feedback": "[en] \"{{firstName} {{lastName}}\" wurde als Administrator:in hinzugefügt."
+  }
 }

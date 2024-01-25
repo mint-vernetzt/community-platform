@@ -1,32 +1,32 @@
 {
   "validation": {
     "projectName": {
-      "required": "[en] Der Projektname ist eine erforderliche Angabe.",
-      "max": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
+      "required": "The project name is a required information.",
+      "max": "Your entry exceeds the maximum permitted number of characters of 80."
     }
   },
   "error": {
-    "invariantResponse": "[en] You have to be logged in to access this route",
-    "unableToCreate": "[en] Das Projekt konnte nicht angelegt werden. Bitte versuche es erneut oder wende dich an den Support."
+    "invariantResponse": "You have to be logged in to access this route",
+    "unableToCreate": "The project could not be created. Please try again or contact support."
   },
   "content": {
-    "headline": "[en] Projekt anlegen",
-    "intro1": "[en] Lege Dein Gute-Praxis-Projekt/Bildungsangebot an und inspiriere damit andere MINT-Akteur:innen.",
-    "intro2": "[en] Bitte beachte, dass Du hier nicht Deine Zielgruppe ansprichst, sondern Dein Projekt für MINT-Akteur:innen vorstellst. Lies Dir unsere <0>Nutzungsbedingungen</0> sorgfältig durch, da wir uns das Recht vorbehalten, Inhalte zu löschen.",
+    "headline": "Create project",
+    "intro1": "Create your good practice project/educational offering and use it to inspire other STEM actors.",
+    "intro2": "Please note that you are not addressing your target group here, but rather presenting your project for STEM actors. Please read our <0>terms of use</0> carefully as we reserve the right to delete content.",
     "explanation": {
-      "headline": "[en] *Erforderliche Angaben",
-      "intro": "[en] Du erstellst einen Entwurf, der nur Dir angezeigt wird. Über Projekt bearbeiten kannst Du nach der Entwurfserstellung Dein Projekt mit Informationen anreichern und es anschließend veröffentlichen."
+      "headline": "*Required information",
+      "intro": "You create a draft that only you can see. After creating the draft, you can edit your project to enrich it with information and then publish it."
     }
   },
   "form": {
     "projectName": {
-      "label": "[en] Titel des Projekts oder Bildungsangebotes*"
+      "label": "Title of the project or educational offer*"
     },
     "submit": {
-      "label": "[en] Entwurf speichern und bearbeiten"
+      "label": "Save and edit draft"
     },
     "reset": {
-      "label": "[en] Entwurf verwerfen"
+      "label": "Discard draft"
     }
   }
 }

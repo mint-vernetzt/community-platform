@@ -1,20 +1,20 @@
 {
-  "match": "[en] Match",
-  "cancelled": "[en] Wurde abgesagt",
-  "passed": "[en] Vergangen",
-  "draft": "[en] Entwurf",
-  "published": "[en] Veröffentlicht",
+  "match": "Match",
+  "cancelled": "Cancelled",
+  "passed": "Past",
+  "draft": "Draft",
+  "published": "Published",
   "seats": {
-    "unlimited": "[en] Unbegrenzte Plätze",
-    "default": "[en] Plätze frei",
-    "free_one": "[en] Platz frei",
-    "free_other": "[en] Plätze frei"
+    "unlimited": "Unlimited seats",
+    "default": "Seats available",
+    "free_one": "One seat available",
+    "free_other": "Seats available"
   },
   "waitingList": {
-    "default": "[en] Wartelistenplätze",
-    "places_one": "[en] Wartelistenplatz",
-    "places_other": "[en] Wartelistenplätze"
+    "default": "Waiting list seats",
+    "places_one": "One waiting list seat",
+    "places_other": "Waiting list seats"
   },
-  "registered": "[en] Angemeldet",
-  "onWaitingList": "[en] Auf Warteliste"
+  "registered": "Registered",
+  "onWaitingList": "On waiting list"
 }

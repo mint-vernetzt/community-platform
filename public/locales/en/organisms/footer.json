@@ -1,26 +1,26 @@
 {
-  "description": "[en] Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland.",
+  "description": "The networking platform for STEM actors in Germany.",
   "discover": {
-    "title": "[en] Entdecken",
-    "profiles": "[en] Profile",
-    "organizations": "[en] Organisationen",
-    "events": "[en] Veranstaltungen",
-    "projects": "[en] Projekte"
+    "title": "Discover",
+    "profiles": "Profiles",
+    "organizations": "Organizations",
+    "events": "Events",
+    "projects": "Projects"
   },
   "participate": {
-    "title": "[en] Mitwirken",
-    "github": "[en] GitHub Repository"
+    "title": "Participate",
+    "github": "GitHub repository"
   },
   "learnMore": {
-    "title": "[en] Mehr erfahren",
-    "website": "[en] MINTvernetzt-Website"
+    "title": "Learn more",
+    "website": "MINTvernetzt website"
   },
   "meta": {
-    "copyright": "[en] © 2021-2023 matrix gGmbH",
-    "imprint": "[en] Impressum",
-    "privacyPolicy": "[en] Datenschutzerklärung",
-    "termsOfUse": "[en] Nutzungsbedingungen",
-    "contact": "[en] Kontakt",
-    "needHelp": "[en] Benötigst du Hilfe? Melde dich bei"
+    "copyright": "© 2021-2023 matrix gGmbH",
+    "imprint": "Imprint",
+    "privacyPolicy": "Privacy policy",
+    "termsOfUse": "Terms of use",
+    "contact": "Contact",
+    "needHelp": "Need help? Contact us at"
   }
 }

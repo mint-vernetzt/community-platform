@@ -1,36 +1,36 @@
 {
   "error": {
-    "notFound": "[en] Event not found",
-    "notProvileged": "[en] Not privileged"
+    "notFound": "Event not found",
+    "notProvileged": "Not privileged"
   },
   "content": {
-    "headline": "[en] Die Administrator:innen",
+    "headline": "Administrators",
     "intro": {
-      "who": "[en] Wer verwaltet die Veranstaltung auf der Community Plattform? Füge hier weitere Administrator:innen hinzu oder entferne sie.",
-      "what": "[en] Administrator:innen können Events bearbeiten, veröffentlichen, auf Entwurf zurück stellen, absagen und löschen. Sie sind nicht auf der Event-Detailseite sichtbar.",
-      "whom": "[en] Team-Mitglieder werden auf der Event-Detailseite gezeigt. Sie können Events im Entwurf einsehen, diese aber nicht bearbeiten."
+      "who": "Who manages the event on the community platform? Add or remove other administrators here.",
+      "what": "Administrators can edit, publish, revert to draft, cancel, and delete events. They are not visible on the event detail page.",
+      "whom": "Team members are shown on the event detail page. They can view events in draft but cannot edit them."
     },
     "add": {
-      "headline": "[en] Administrator:in hinzufügen",
-      "intro": "[en] Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu."
+      "headline": "Add an administrator",
+      "intro": "Add an already existing profile to your event here."
     },
     "current": {
-      "headline": "[en] Aktuelle Administrator:innen",
-      "intro": "[en] Hier siehst du alle Administrator:innen der Veranstaltung auf einen Blick."
+      "headline": "Current administrators",
+      "intro": "Here you can see all the administrators of the event at a glance."
     }
   },
   "form": {
     "name": {
-      "label": "[en] Name oder Email"
+      "label": "Name or email"
     },
     "remove": {
-      "label": "[en] Entfernen"
+      "label": "Remove"
     },
     "publish": {
-      "label": "[en] Veröffentlichen"
+      "label": "Publish"
     },
     "hide": {
-      "label": "[en] Verstecken"
+      "label": "Hide"
     }
   }
 }

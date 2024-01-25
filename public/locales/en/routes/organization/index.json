@@ -1,40 +1,40 @@
 {
   "error": {
-    "notFound": "[en] Not found"
+    "notFound": "Not found"
   },
   "image": {
     "background": {
-      "alt": "[en] Aktuelles Hintergrundbild",
-      "change": "[en] Bild ändern",
-      "headline": "[en] Hintergrundbild"
+      "alt": "Current background image",
+      "change": "Change image",
+      "headline": "Background image"
     },
     "logo": {
-      "change": "[en] Logo ändern",
-      "headline": "[en] Logo"
+      "change": "Change logo",
+      "headline": "Logo"
     }
   },
-  "since": "[en] Profil besteht seit dem {{timestamp}}",
+  "since": "Profile exists since {{timestamp}}",
   "content": {
-    "contact": "[en] Kontakt",
-    "address": "[en] Anschrift",
-    "edit": "[en] Organisation bearbeiten",
-    "activityAreas": "[en] Aktivitätsgebiete",
-    "focuses": "[en] MINT-Schwerpunkte",
-    "supportedBy": "[en] Unterstützt und gefördert von",
-    "networks": "[en] Teil des Netzwerks",
-    "members": "[en] Mitgliedsorganisationen",
-    "team": "[en] Das Team",
-    "projects": "[en] Projekte",
-    "toProject": "[en] Zum Projekt",
-    "background": "[en] Rahmen des Hintergrundbildes",
-    "unlimitedPlaces": "[en]  | Unbegrenzte Plätze",
-    "waitingList": "[en] auf der Warteliste",
-    "cancelled": "[en] Abgesagt",
-    "registered": "[en] Angemeldet",
-    "awaiting": "[en] Wartend",
-    "more": "[en] Mehr erfahren",
-    "pastEvents": "[en] Vergangene Veranstaltungen",
-    "wasCancelled": "[en] Wurde abgesagt",
-    "participated": "[en] Teilgenommen"
+    "contact": "Contact",
+    "address": "Address",
+    "edit": "Edit organization",
+    "activityAreas": "Areas of activity",
+    "focuses": "STEM focus areas",
+    "supportedBy": "Supported and sponsored by",
+    "networks": "Part of the network",
+    "members": "Member organizations",
+    "team": "Team",
+    "projects": "Projects",
+    "toProject": "To the project",
+    "background": "Background frame",
+    "unlimitedPlaces": " | Unlimited places",
+    "waitingList": "On the waiting list",
+    "cancelled": "Cancelled",
+    "registered": "Registered",
+    "awaiting": "Waiting",
+    "more": "Learn more",
+    "pastEvents": "Past events",
+    "wasCancelled": "Was cancelled",
+    "participated": "Participated"
   }
 }

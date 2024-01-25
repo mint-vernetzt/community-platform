@@ -1,47 +1,47 @@
 {
   "content": {
-    "question": "[en] Bereits Mitglied?",
-    "login": "[en] Anmelden",
-    "create": "[en] Neues Profil anlegen",
-    "success": "[en] Das Profil für <b>{{email}}</b> wurde erstellt. Um die Registrierung abzuschließen, bestätige bitte innerhal von 24 Stunden den Registrierungslink in Deinen E-Mails, den wir Dir über <b>noreply@mint-vernetzt.de</b> zusenden. Bitte sieh auch in Deinem Spam-Ordner nach. Hast Du Dich bereits vorher mit dieser E-Mail-Adresse registriert und Dein Passwort vergessen, dann setze hier Dein Passwort zurück:",
-    "reset": "[en] Passwort zurücksetzen"
+    "question": "Already a member?",
+    "login": "Login",
+    "create": "Create new profile",
+    "success": "The profile for <b>{{email}}</b> has been created. To complete the registration, please confirm the registration link in your emails within 24 hours, which we have sent you from <b>noreply@mint-vernetzt.de</b>. Please also check your spam folder. If you have already registered with this email address before and have forgotten your password, you can reset your password here:",
+    "reset": "Reset password"
   },
   "form": {
-    "intro": "[en] Hier kannst Du Dein persönliches Profil anlegen. Die\n                      Organisationen, Netzwerke oder Unternehmen, in denen Du\n                      tätig bist, können im nächsten Schritt angelegt werden.",
+    "intro": "Here you can create your personal profile. The organizations, networks, or companies in which you are active can be added in the next step.",
     "title": {
-      "label": "[en] Titel",
+      "label": "Title",
       "options": {
-        "dr": "[en] Dr.",
-        "prof": "[en] Prof.",
-        "profdr": "[en] Prof. Dr."
+        "dr": "Dr.",
+        "prof": "Prof.",
+        "profdr": "Prof. Dr."
       }
     },
-    "firstName": "[en] Vorname",
-    "lastName": "[en] Nachname",
-    "email": "[en] E-Mail",
-    "password": "[en] Passwort",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "password": "Password",
     "acknowledgements": {
-      "intro": "[en] Ich erkläre mich mit der Geltung der",
-      "termsOfUse": "[en] Nutzungsbedingungen",
-      "bridge": "[en] einverstanden. Die",
-      "dataProtection": "[en] Datenschutzerklärung",
-      "outro": "[en] habe ich zur Kenntnis genommen."
+      "intro": "I agree to the",
+      "termsOfUse": "terms of use",
+      "bridge": ". The",
+      "dataProtection": "data protection declaration",
+      "outro": "has been acknowledged."
     },
-    "submit": "[en] Profil anlegen"
+    "submit": "Create profile"
   },
   "validation": {
     "firstName": {
-      "min": "[en] Bitte gib Deinen Vornamen ein."
+      "min": "Please enter your first name."
     },
     "lastName": {
-      "min": "[en] Bitte gib Deinen Vornamen ein."
+      "min": "Please enter your last name."
     },
     "email": {
-      "email": "[en] Bitte gib eine gültige E-Mail-Adresse ein.",
-      "min": "[en] Bitte gib eine gültige E-Mail-Adresse ein."
+      "email": "Please enter a valid email address.",
+      "min": "Please enter a valid email address."
     },
     "password": {
-      "min": "[en] Dein Passwort muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist."
+      "min": "Your password must be at least 8 characters long. Use numbers and symbols to make it more secure."
     }
   }
 }

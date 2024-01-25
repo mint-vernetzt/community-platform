@@ -1,62 +1,62 @@
 {
   "validation": {
     "email": {
-      "min": "[en] Bitte gib eine gültige E-Mail-Adresse ein.",
-      "email": "[en] Bitte gib eine gültige E-Mail-Adresse ein."
+      "min": "Please enter a valid email address.",
+      "email": "Please enter a valid email address."
     },
     "confirmEmail": {
-      "min": "[en] Bitte gib eine gültige E-Mail-Adresse ein.",
-      "email": "[en] Bitte gib eine gültige E-Mail-Adresse ein."
+      "min": "Please enter a valid email address.",
+      "email": "Please enter a valid email address."
     },
     "password": {
-      "min": "[en] Dein Passwort muss mindestens 8 Zeichen lang sein."
+      "min": "Your password must be at least 8 characters long."
     },
     "confirmPassword": {
-      "min": "[en] Dein Passwort muss mindestens 8 Zeichen lang sein."
+      "min": "Your password must be at least 8 characters long."
     }
   },
   "error": {
-    "emailsDontMatch": "[en] Deine E-Mails stimmen nicht überein.",
-    "notPrivileged": "[en] Not privileged",
-    "notAllowed": "[en] Not allowed."
+    "emailsDontMatch": "Your emails do not match.",
+    "notPrivileged": "Not privileged",
+    "notAllowed": "Not allowed."
   },
   "content": {
-    "headline": "[en] Login und Sicherheit"
+    "headline": "Login and security"
   },
   "section": {
     "changePassword1": {
-      "headline": "[en] Passwort oder E-Mail-Adresse ändern",
-      "intro": "[en] Du nutzt die MINT-ID und kannst deshalb deine E-Mail-Adresse und dein Passwort nur auf <0>mint-id.org</0> ändern."
+      "headline": "Change password or email address",
+      "intro": "You use the MINT-ID and can therefore only change your email address and password at <0>mint-id.org</0>."
     },
     "changePassword2": {
-      "headline": "[en] Passwort ändern",
-      "feedback": "[en] Dein Passwort wurde geändert.",
-      "intro": "[en] Hier kannst Du Dein Passwort ändern. Es muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist.",
+      "headline": "Change password",
+      "feedback": "Your password has been changed.",
+      "intro": "Here you can change your password. It must be at least 8 characters long. Use numbers and symbols to make it more secure.",
       "form": {
         "password": {
-          "label": "[en] Neues Passwort"
+          "label": "New password"
         },
         "confirmPassword": {
-          "label": "[en] Passwort wiederholen"
+          "label": "Repeat password"
         },
         "submit": {
-          "label": "[en] Passwort ändern"
+          "label": "Change password"
         }
       }
     },
     "changeEmail": {
-      "headline": "[en] E-Mail ändern",
-      "feedback": "[en] Ein Bestätigungslink wurde Dir zugesendet.",
-      "intro": "[en] Hier kannst du Deine E-Mail-Adresse für die Anmeldung auf der Community-Plattform ändern.",
+      "headline": "Change email",
+      "feedback": "A confirmation link has been sent to you.",
+      "intro": "Here you can change your email address for logging in on the community platform.",
       "form": {
         "email": {
-          "label": "[en] Neue E-Mail"
+          "label": "New email"
         },
         "confirmEmail": {
-          "label": "[en] E-Mail wiederholen"
+          "label": "Repeat email"
         },
         "submit": {
-          "label": "[en] E-Mail ändern"
+          "label": "Change email"
         }
       }
     }

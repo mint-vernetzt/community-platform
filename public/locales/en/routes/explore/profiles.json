@@ -1,11 +1,11 @@
 {
-  "headline": "[en] Entdecke die Community",
-  "intro": "[en] Hier findest du die Profile von Akteur:innen der MINT-Community.",
+  "headline": "Discover the community",
+  "intro": "Discover profiles from diverse individuals within the STEM community here.",
   "search": {
-    "activityAreas": "[en] Aktivitätsgebiet",
-    "lookingFor": "[en] Ich suche",
-    "support": "[en] Ich möchte unterstützen mit"
+    "activityAreas": "Field of activity",
+    "lookingFor": "I'm looking for",
+    "support": "I want to support with"
   },
-  "more": "[en] Weitere laden",
-  "empty": "[en] Für Deine Filterkriterien konnten leider keine Profile gefunden werden."
+  "more": "Load more",
+  "empty": "Unfortunately, no profiles could be found for your filter criteria."
 }

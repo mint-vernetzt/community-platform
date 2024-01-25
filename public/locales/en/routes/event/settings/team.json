@@ -1,23 +1,23 @@
 {
   "error": {
-    "notFound": "[en] Event not found",
-    "notPrivileged": "[en] Not privileged"
+    "notFound": "Event not found",
+    "notPrivileged": "Not privileged"
   },
   "content": {
-    "headline": "[en] Das Team",
-    "intro1": "[en] Wer ist Teil Eures Veranstaltungsteams? Füge hier weitere Teammitglieder hinzu oder entferne sie.",
-    "intro2": "[en] Team-Mitglieder werden auf der Event-Detailseite gezeigt. Sie können Events im Entwurf einsehen, diese aber nicht bearbeiten.",
+    "headline": "The team",
+    "intro1": "Who is part of your event team? Add more team members here or remove them.",
+    "intro2": "Team members are displayed on the event detail page. They can view events in draft, but cannot edit them.",
     "add": {
-      "headline": "[en] Teammitglied hinzufügen",
-      "intro": "[en] Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.",
-      "label": "[en] Name oder Email"
+      "headline": "Add team member",
+      "intro": "Add an already existing profile to your event here.",
+      "label": "Name or email"
     },
     "current": {
-      "headline": "[en] Aktuelle Teammitglieder",
-      "intro": "[en] Hier siehst du alle Mitglieder des Veranstaltungsteams auf einen Blick.",
-      "remove": "[en] entfernen"
+      "headline": "Current team members",
+      "intro": "Here you can see all members of the event team at a glance.",
+      "remove": "Remove"
     },
-    "hide": "[en] Verstecken",
-    "publish": "[en] Veröffentlichen"
+    "hide": "Hide",
+    "publish": "Publish"
   }
 }

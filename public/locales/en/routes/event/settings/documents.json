@@ -1,42 +1,42 @@
 {
   "error": {
-    "notPrivileged": "[en] Not privileged",
-    "notFound": "[en] Event not found",
-    "fileTooBig": "[en] Die Datei ist zu groß. Maximal 5MB."
+    "notPrivileged": "Not privileged",
+    "notFound": "Event not found",
+    "fileTooBig": "The file is too large. Maximum size is 5MB."
   },
   "content": {
-    "headline": "[en] Dokumente verwalten",
+    "headline": "Manage documents",
     "current": {
-      "headline": "[en] Aktuelle Dokumente",
-      "download": "[en] Herunterladen",
-      "edit": "[en] Editieren"
+      "headline": "Current documents",
+      "download": "Download",
+      "edit": "Edit"
     },
-    "downloadAll": "[en] Alle Herunterladen"
+    "downloadAll": "Download all"
   },
   "form": {
     "title": {
-      "label": "[en] Titel"
+      "label": "Title"
     },
     "description": {
-      "label": "[en] Titel"
+      "label": "Description"
     },
     "submit": {
-      "label": "[en] Speichern"
+      "label": "Save"
     },
     "cancel": {
-      "label": "[en] Abbrechen"
+      "label": "Cancel"
     },
     "delete": {
-      "label": "[en] Abbrechen"
+      "label": "Delete"
     },
     "upload": {
-      "label": "[en] PDF Dokument hochladen"
+      "label": "Upload PDF document"
     },
     "publish": {
-      "label": "[en] Veröffentlichen"
+      "label": "Publish"
     },
     "hide": {
-      "label": "[en] Verstecken"
+      "label": "Hide"
     }
   }
 }

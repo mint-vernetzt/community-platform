@@ -1,11 +1,11 @@
 {
   "error": {
-    "notPrivileged": "[en] Not privileged",
+    "notPrivileged": "Not privileged",
     "notFound": {
-      "parent": "[en] Die Rahmenveranstaltung konnte nicht gefunden werden.",
-      "related": "[en] Die zugehörige Veranstaltung konnte nicht gefunden werden."
+      "parent": "Your event could not be found.",
+      "related": "The related event could not be found."
     },
-    "inputError": "[en] Die zugehörige Veranstaltung liegt nicht im Zeitraum deiner Veranstaltung."
+    "inputError": "The related event does not fall within the timeframe of your event."
   },
-  "feedback": "[en] Die Veranstaltung \"{{title}}\" ist jetzt Eurer Veranstaltung zugehörig."
+  "feedback": "The event \"{{title}}\" is now associated with your event."
 }

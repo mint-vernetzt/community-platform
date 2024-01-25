@@ -1,6 +1,6 @@
 {
   "error": {
-    "notPrivileged": "[en] Not privileged",
-    "delete": "[en] Dokument konnte nicht aus der Datenbank gelöscht werden."
+    "notPrivileged": "Not privileged",
+    "delete": "Document could not be deleted from the database."
   }
 }

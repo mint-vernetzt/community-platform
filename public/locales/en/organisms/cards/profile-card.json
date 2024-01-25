@@ -1,7 +1,7 @@
 {
-  "nonPublic": "[en] -nicht öffentlich-",
-  "nonStated": "[en] -nicht angegeben-",
-  "match": "[en] Match",
-  "areasOfActivity": "[en] Aktivitätsgebiete",
-  "offer": "[en] Ich biete"
+  "nonPublic": "-not public-",
+  "nonStated": "-not specified-",
+  "match": "Match",
+  "areasOfActivity": "Areas of activity",
+  "offer": "I offer"
 }

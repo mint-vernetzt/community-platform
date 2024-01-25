@@ -1,11 +1,11 @@
 {
   "error": {
-    "notFound": "[en] Organization not found",
-    "notPrivileged": "[en] Not privileged",
+    "notFound": "Organization not found",
+    "notPrivileged": "Not privileged",
     "inputError": {
-      "doesNotExist": "[en] Es existiert noch kein Profil unter diesem Namen.",
-      "alreadyMember": "[en] Das Profil unter diesem Namen ist bereits Mitglied Eurer Organisation."
+      "doesNotExist": "No profile exists under this name.",
+      "alreadyMember": "The profile under this name is already a member of your organization."
     }
   },
-  "feedback": "[en] Ein neues Teammitglied mit dem Namen \"{{firstName}} {{lastName}}\" wurde hinzugefügt."
+  "feedback": "A new team member named \"{{firstName}} {{lastName}}\" has been added."
 }

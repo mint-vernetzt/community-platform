@@ -1,21 +1,21 @@
 {
-  "login": "[en] Anmelden",
+  "login": "Login",
   "validation": {
     "email": {
-      "email": "[en] Bitte gib eine gültige E-Mail-Adresse ein.",
-      "min": "[en] Bitte gib eine gültige E-Mail-Adresse ein."
+      "email": "Please enter a valid email address.",
+      "min": "Please enter a valid email address."
     }
   },
   "response": {
-    "headline": "[en] Passwort zurücksetzen",
-    "done": "[en] Eine E-Mail zum Zurücksetzen des Passworts wurde an <p>{email}</p> geschickt.",
-    "notice": "[en] Solltest Du Dich noch nicht unter dieser E-Mail-Adresse registriert haben, erhältst Du keine E-Mail zum Zurücksetzen des Passworts."
+    "headline": "Reset password",
+    "done": "An email to reset your password has been sent to <p>{email}</p>.",
+    "notice": "If you have not yet registered under this email address, you will not receive an email to reset your password."
   },
   "form": {
-    "intro": "[en] Du hast Dein Passwort vergessen? Dann gib hier Deine E-Mail-Adresse ein, die Du bei der Anmeldung verwendet hast. Wir senden Dir eine Mail, über die Du ein neues Passwort einstellen kannst.",
+    "intro": "Forgot your password? Enter your email address that you used to sign up. We will send you an email through which you can set a new password.",
     "label": {
-      "email": "[en] E-Mail",
-      "submit": "[en] Passwort zurücksetzen"
+      "email": "Email",
+      "submit": "Reset password"
     }
   }
 }

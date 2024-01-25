@@ -1,7 +1,7 @@
 {
   "error": {
-    "notPrivileged": "[en] Not privileged",
-    "notFound": "[en] Eure Organisation konnte nicht gefunden werden."
+    "notPrivileged": "Not privileged",
+    "notFound": "Your organization could not be found."
   },
-  "remove": "[en] entfernen"
+  "remove": "Remove"
 }

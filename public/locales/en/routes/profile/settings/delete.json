@@ -1,35 +1,35 @@
 {
   "error": {
-    "profileNotFound": "[en] Profile not found",
-    "notPrivileged": "[en] Not privileged",
-    "notFound": "[en] Das Profil konnte nicht gefunden werden",
+    "profileNotFound": "Profile not found",
+    "notPrivileged": "Not privileged",
+    "notFound": "The profile could not be found",
     "lastAdmin": {
-      "intro": "[en] Das Profil ist letzter Administrator in ",
-      "organizations": "[en] den Organisationen: {{organizations}}",
-      "events": "[en] den Veranstaltungen: {{events}}",
-      "projects": "[en] den Projekten: {{projects}}",
-      "outro": "[en] weshalb es nicht gelöscht werden kann. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst diese Organisationen, Veranstaltungen oder Projekte."
+      "intro": "This profile is the last administrator in ",
+      "organizations": "the organizations: {{organizations}}",
+      "events": "the events: {{events}}",
+      "projects": "the projects: {{projects}}",
+      "outro": "which is why it cannot be deleted. Please transfer the rights to another person or first delete these organizations, events, or projects."
     },
-    "serverError": "[en] Das Profil konnte nicht gelöscht werden."
+    "serverError": "The profile could not be deleted."
   },
   "validation": {
     "confirmed": {
-      "regex": "[en] wirklich löschen",
-      "message": "[en] Bitte \"wirklich löschen\" eingeben."
+      "regex": "really delete",
+      "message": "Please enter \"really delete\" to confirm."
     }
   },
   "content": {
-    "headline": "[en] Profil löschen",
-    "subline": "[en] Schade, dass Du gehst.",
-    "intro": "[en] Bitte gib \"wirklich löschen\" ein, um das Löschen zu bestätigen. Wenn Du danach auf “Profil endgültig löschen” klickst, wird Dein Profil ohne erneute Abfrage gelöscht."
+    "headline": "Delete profile",
+    "subline": "Sorry to see you go.",
+    "intro": "Please enter \"really delete\" to confirm the deletion. Once you click on “Permanently delete profile,” your profile will be deleted without further inquiry."
   },
   "form": {
     "confirmed": {
-      "label": "[en] Löschung bestätigen",
-      "placeholder": "[en] wirklich löschen"
+      "label": "Confirm deletion",
+      "placeholder": "really delete"
     },
     "submit": {
-      "label": "[en] Profil endgültig löschen"
+      "label": "Permanently delete profile"
     }
   }
 }

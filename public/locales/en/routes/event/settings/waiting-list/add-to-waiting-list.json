@@ -1,13 +1,13 @@
 {
   "error": {
-    "notFound": "[en] Event not found",
-    "notPrivileged": "[en] Not privileged",
+    "notFound": "Event not found",
+    "notPrivileged": "Not privileged",
     "inputError": {
-      "doesNotExist": "[en] Es existiert noch kein Profil unter diesem Namen.",
-      "alreadyOn": "[en] Das Profil unter diesem Namen ist bereits auf der Warteliste Eurer Veranstaltung.",
-      "alreadyParticipant": "[en] Das Profil unter diesem Namen nimmt bereits bei Eurer Veranstaltung teil. Bitte entferne die Person erst von der Teilnehmer:innenliste."
+      "doesNotExist": "There is no profile under this name yet.",
+      "alreadyOn": "The profile under this name is already on the waitlist of your event.",
+      "alreadyParticipant": "The profile under this name is already participating in your event. Please remove the person from the participant list first."
     }
   },
-  "feedback": "[en] Das Profil mit dem Namen \"{{firstName}} {{lastName}}\" wurde zur Warteliste hinzugefügt.",
-  "action": "[en] Warteliste"
+  "feedback": "The profile with the name \"{{firstName}} {{lastName}}\" has been added to the waitlist.",
+  "action": "Waitlist"
 }

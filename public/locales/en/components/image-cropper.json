@@ -1,11 +1,11 @@
 {
   "inputFile": {
-    "select": "[en] Bild auswählen"
+    "select": "Select image"
   },
   "imageCropper": {
-    "error": "[en] Es ist leider ein Fehler aufgetreten.",
-    "confirmation": "[en] Bild wirklich entfernen?",
-    "submit": "[en] Speichern",
-    "reset": "[en] Abbrechen"
+    "error": "An error has occurred.",
+    "confirmation": "Are you sure you want to remove the image?",
+    "submit": "Save",
+    "reset": "Cancel"
   }
 }

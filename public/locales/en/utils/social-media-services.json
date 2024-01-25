@@ -1,32 +1,32 @@
 {
   "facebook": {
-    "label": "[en] facebook",
-    "placeholder": "[en] facebook.com/<Nutzername>",
-    "organizationPlaceholder": "[en] facebook.com/<Organisationsname>"
+    "label": "Facebook",
+    "placeholder": "facebook.com/<Username>",
+    "organizationPlaceholder": "facebook.com/<OrganizationName>"
   },
   "linkedin": {
-    "label": "[en] LinkedIn",
-    "placeholder": "[en] linkedin.com/in/<Nutzername>",
-    "organizationPlaceholder": "[en] linkedin.com/company/<Organisationsname>"
+    "label": "LinkedIn",
+    "placeholder": "linkedin.com/in/<Username>",
+    "organizationPlaceholder": "linkedin.com/company/<OrganizationName>"
   },
   "twitter": {
-    "label": "[en] Twitter",
-    "placeholder": "[en] twitter.com/<Nutzername>",
-    "organizationPlaceholder": "[en] twitter.com/<Organisationsname>"
+    "label": "Twitter",
+    "placeholder": "twitter.com/<Username>",
+    "organizationPlaceholder": "twitter.com/<OrganizationName>"
   },
   "youtube": {
-    "label": "[en] YouTube",
-    "placeholder": "[en] youtube.com/<Nutzername>",
-    "organizationPlaceholder": "[en] youtube.com/<Organisationsname>"
+    "label": "YouTube",
+    "placeholder": "youtube.com/<Username>",
+    "organizationPlaceholder": "youtube.com/<OrganizationName>"
   },
   "instagram": {
-    "label": "[en] Instagram",
-    "placeholder": "[en] instagram.com/<Nutzername>",
-    "organizationPlaceholder": "[en] instagram.com/<Organisationsname>"
+    "label": "Instagram",
+    "placeholder": "instagram.com/<Username>",
+    "organizationPlaceholder": "instagram.com/<OrganizationName>"
   },
   "xing": {
-    "label": "[en] Xing",
-    "placeholder": "[en] xing.com/profile/<Nutzername>",
-    "organizationPlaceholder": "[en] xing.com/pages/<Organisationsname>"
+    "label": "Xing",
+    "placeholder": "xing.com/profile/<Username>",
+    "organizationPlaceholder": "xing.com/pages/<OrganizationName>"
   }
 }

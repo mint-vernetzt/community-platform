@@ -1,37 +1,37 @@
 {
   "error": {
-    "notFound": "[en] Event not found",
-    "notPrivileged": "[en] Not privileged",
-    "inputError": "[en] Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen."
+    "notFound": "Event not found",
+    "notPrivileged": "Not privileged",
+    "inputError": "Attention! There are already more participants than the currently set participation limit. Please first add the corresponding number of participants to the waiting list."
   },
   "validation": {
     "participantLimit": {
-      "type": "[en] Bitte eine Zahl eingeben"
+      "type": "Please enter a number"
     }
   },
   "content": {
-    "headline": "[en] Teilnehmende",
-    "intro": "[en] Wer nimmt an der Veranstaltung teil? Füge hier weitere Teilnehmende hinzu oder entferne sie. Außerdem kannst Du eine Begrenzung der Teilnehmenden festlegen.",
+    "headline": "Participants",
+    "intro": "Who is participating in the event? Add more participants here or remove them. You can also set a limit on the number of participants.",
     "limit": {
-      "headline": "[en] Begrenzung der Teilnehmenden",
-      "intro": "[en] Hier kann die Teilnehmerzahl begrenzt werden. Auch wenn die Teilnehmerzahl erreicht ist kannst du später noch manuell Personen von der Warteliste zu den Teilnehmenden verschieben.",
-      "label": "[en] Begrenzung der Teilnehmenden",
-      "submit": "[en] Speichern",
-      "feedback": "[en] Deine Informationen wurden aktualisiert."
+      "headline": "Limitation of participants",
+      "intro": "Here you can limit the number of participants. Even if the participant number is reached, you can still manually move people from the waiting list to the participants later.",
+      "label": "Limitation of participants",
+      "submit": "Save",
+      "feedback": "Your information has been updated."
     },
     "add": {
-      "headline": "[en] Teilnehmende hinzufügen",
-      "intro": "[en] Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als Teilnehmende hinzu.",
-      "label": "[en] Name oder Email der Teilnehmer:in"
+      "headline": "Add participants",
+      "intro": "Add an already existing profile as a participant to your event here.",
+      "label": "Name or email of the participant"
     },
     "current": {
-      "headline": "[en] Aktuelle Teilnehmende",
-      "intro": "[en] Hier siehst du alle Teilnehmenden auf einen Blick.",
-      "download1": "[en] Teilnehmerliste herunterladen",
-      "download2": "[en] Teilnehmerliste aller Subveranstaltungen herunterladen",
-      "remove": "[en] entfernen"
+      "headline": "Current participants",
+      "intro": "Here you can see all participants at a glance.",
+      "download1": "Download participant list",
+      "download2": "Download participant list of all sub-events",
+      "remove": "Remove"
     },
-    "hide": "[en] Verstecken",
-    "publish": "[en] Veröffentlichen"
+    "hide": "Hide",
+    "publish": "Publish"
   }
 }

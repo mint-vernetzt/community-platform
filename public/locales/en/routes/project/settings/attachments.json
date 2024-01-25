@@ -1,53 +1,53 @@
 {
   "validation": {
     "document": {
-      "size": "[en] Die Datei darf nicht größer als 5MB sein.",
-      "type": "[en] Die Datei muss ein PDF oder ein JPEG sein."
+      "size": "The file exceeds the maximum size of 5MB.",
+      "type": "The file is not of type PDF or JPEG."
     },
     "image": {
-      "size": "[en] Die Datei darf nicht größer als 5MB sein.",
-      "type": "[en] Die Datei muss ein PNG oder ein JPEG sein."
+      "size": "The file exceeds the maximum size of 5MB.",
+      "type": "The file is not of type PDF or JPEG."
     }
   },
   "error": {
-    "invalidRoute": "[en] No valid route",
-    "projectNotFound": "[en] Project not found",
-    "invalidSubmission": "[en] No valid submission",
-    "invalidAction": "[en] No valid action",
-    "onStoring": "[en] Error on storing document"
+    "invalidRoute": "No valid route",
+    "projectNotFound": "Project not found",
+    "invalidSubmission": "No valid submission",
+    "invalidAction": "No valid action",
+    "onStoring": "Error on storing document"
   },
   "content": {
-    "back": "[en] Material verwalten",
-    "description": "[en] Füge Materialien wie Flyer, Bilder, Checklisten zu Deinem Projekt hinzu oder entferne sie.",
+    "back": "Manage documents",
+    "description": "Add or remove materials such as flyers, images or checklists from your project.",
     "document": {
-      "upload": "[en] Dokumente hochladen",
-      "type": "[en] Mögliche Dateiformate: PDF, jpg. Maximal 5MB.",
-      "select": "[en] Datei auswählen",
-      "action": "[en] Datei hochladen",
+      "upload": "Upload document",
+      "type": "File types: PDF, jpg. Max 5MB.",
+      "select": "Choose file",
+      "action": "Upload file",
       "selection": {
-        "empty": "[en] Du hast keine Datei ausgewählt.",
-        "selected": "[en] {{name}} ausgewählt."
+        "empty": "Please choose a file.",
+        "selected": "Selected {{name}}."
       },
-      "added": "[en] {{name}} hinzugefügt",
-      "current": "[en] Aktuell hochgeladene Dokumente",
-      "downloadAll": "[en] Alle herunterladen",
-      "empty": "[en] Keine Dokumente vorhanden.",
-      "deleted": "[en] {{name}} gelöscht."
+      "added": "Added {{name}}",
+      "current": "Currently uploaded documents",
+      "downloadAll": "Download all",
+      "empty": "No documents available.",
+      "deleted": "Deleted {{name}}."
     },
     "image": {
-      "upload": "[en] Bildmaterial hochladen",
-      "requirements": "[en] Mögliche Dateiformate: jpg, png. Maximal 5MB.",
-      "select": "[en] Datei auswählen",
-      "action": "[en] Datei hochladen",
+      "upload": "Upload image",
+      "requirements": "File types: jpg, png. Max 5MB.",
+      "select": "Choose file",
+      "action": "Upload file",
       "selection": {
-        "empty": "[en] Du hast keine Datei ausgewählt.",
-        "selected": "[en] {{name}} ausgewählt."
+        "empty": "Please choose a file.",
+        "selected": "Selected {{name}}."
       },
-      "added": "[en] {{name}} hinzugefügt",
-      "current": "[en] Aktuell hochgeladenes Bildmaterial",
-      "downloadAll": "[en] Alle herunterladen",
-      "empty": "[en] Keine Bilder vorhanden.",
-      "deleted": "[en] {{name}} gelöscht."
+      "added": "Added {{name}}",
+      "current": "Currently uploaded images",
+      "downloadAll": "Download all",
+      "empty": "No images available.",
+      "deleted": "Deleted {{name}}."
     }
   }
 }

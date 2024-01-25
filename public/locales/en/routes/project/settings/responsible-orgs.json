@@ -1,29 +1,29 @@
 {
   "error": {
-    "invalidRoute": "[en] No valid route",
-    "notFound": "[en] Not found"
+    "invalidRoute": "No valid route",
+    "notFound": "Not found"
   },
   "content": {
-    "added": "[en] {{name}} hinzugefügt.",
-    "back": "[en] Verantwortliche Organisationen",
-    "intro": "[en] Welche Organisationen stecken hinter dem Projekt? Verwalte hier die verantwortlichen Organisationen.",
+    "added": "Added {{name}}.",
+    "back": "Responsible organizations",
+    "intro": "Which organizations are behind the project? Manage the responsible organizations here.",
     "current": {
-      "headline": "[en] Aktuell hinzugefügte Organisation(en)",
-      "intro": "[en] Hier siehst Du Organisationen, die aktuelle als verantwortliche Organisation hinterlegt wurden.",
-      "remove": "[en] Entfernen"
+      "headline": "Currently added organization(s)",
+      "intro": "Here you can see organizations that have currently been registered as responsible organizations.",
+      "remove": "Remove"
     },
     "add": {
-      "headline": "[en] Eigene Organisation(en) hinzufügen",
-      "intro": "[en] Hier werden Dir Deine eigenen Organisationen aufgelistet, so dass Du sie mit einen Klick als verantwortliche Organisationen hinzuzufügen kannst.",
-      "add": "[en] Hinzufügen"
+      "headline": "Add your own organization(s).",
+      "intro": "Your own organizations will be listed here so that you can add them as responsible organizations with one click.",
+      "add": "Add"
     },
     "other": {
-      "headline": "[en] Andere Organisation(en) hinzufügen",
+      "headline": "Add other organization(s).",
       "search": {
-        "label": "[en] Suche",
-        "helper": "[en] Mindestens 3 Buchstaben."
+        "label": "Search",
+        "helper": "At least 3 letters."
       },
-      "add": "[en] Hinzufügen"
+      "add": "Add"
     }
   }
 }

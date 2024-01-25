@@ -1,15 +1,15 @@
 {
   "content": {
-    "headline": "[en] Veranstaltung bearbeiten",
-    "general": "[en] Allgemein",
-    "linkedEvents": "[en] Verknüpfte Veranstaltungen",
-    "administrators": "[en] Administrator:innen",
-    "team": "[en] Team",
-    "speakers": "[en] Vortragende",
-    "participants": "[en] Teilnehmende",
-    "waitingList": "[en] Warteliste",
-    "organizations": "[en] Verantwortliche Organisationen",
-    "documents": "[en] Dokumente verwalten",
-    "delete": "[en] Veranstaltung löschen"
+    "headline": "Edit event",
+    "general": "General",
+    "linkedEvents": "Linked events",
+    "administrators": "Administrators",
+    "team": "Team",
+    "speakers": "Speakers",
+    "participants": "Participants",
+    "waitingList": "Waiting list",
+    "organizations": "Responsible organizations",
+    "documents": "Manage documents",
+    "delete": "Delete event"
   }
 }

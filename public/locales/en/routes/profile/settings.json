@@ -1,13 +1,13 @@
 {
   "context": {
-    "headline": "[en] Profil bearbeiten",
-    "general": "[en] Allgemein",
-    "notifications": "[en] Benachrichtigungen",
-    "security": "[en] Login und Sicherheit",
-    "delete": "[en] Profil löschen"
+    "headline": "Edit profile",
+    "general": "General",
+    "notifications": "Notifications",
+    "security": "Login and security",
+    "delete": "Delete profile"
   },
   "state": {
-    "public": "[en] Für alle sichtbar",
-    "registered": "[en] Für unregistrierte Nutzer:innen nicht sichtbar"
+    "public": "Visible to everyone",
+    "registered": "Not visible to unregistered users"
   }
 }

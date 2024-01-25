@@ -1,27 +1,27 @@
 {
   "error": {
-    "notFound": "[en] Event not found",
-    "notPrivileged": "[en] Not privileged"
+    "notFound": "Event not found",
+    "notPrivileged": "Not privileged"
   },
   "content": {
-    "headline": "[en] Verantwortliche Organisationen",
-    "intro": "[en] Welche Organisation ist verantwortlich für Eure Veransatltung? Füge hier weitere Organisationen hinzu oder entferne sie.",
+    "headline": "Responsible organizations",
+    "intro": "Which organization is responsible for your event? Add more organizations here or remove them.",
     "add": {
-      "headline": "[en] Organisation hinzufügen",
-      "intro": "[en] Füge hier Deiner Veranstaltung eine bereits bestehende Organisation hinzu.",
-      "label": "[en] Name der Organisation"
+      "headline": "Add organization",
+      "intro": "Add an already existing organization to your event here.",
+      "label": "Name of the organization"
     },
     "own": {
-      "headline": "[en] Eigene Organisationen hinzufügen",
-      "intro": "[en] Hier werden dir Deine eigenen Organisationen vorgeschlagen um sie auf einen Klick als verantwortliche Organisationen hinzuzufügen.",
-      "label": "[en] Hinzufügen"
+      "headline": "Add own organizations",
+      "intro": "Here your own organizations are suggested for you to add as responsible organizations with one click.",
+      "label": "Add"
     },
     "current": {
-      "headline": "[en] Organisationen",
-      "intro": "[en] Hier siehst du alle für die Veranstaltung verantwortlichen Organisationen auf einen Blick.",
-      "remove": "[en] entfernen"
+      "headline": "Organizations",
+      "intro": "Here you can see all organizations responsible for the event at a glance.",
+      "remove": "Remove"
     },
-    "publish": "[en] Veröffentlichen",
-    "hide": "[en] Verstecken"
+    "publish": "Publish",
+    "hide": "Hide"
   }
 }

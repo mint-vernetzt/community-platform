@@ -1,106 +1,106 @@
 {
   "error": {
-    "serverError": "[en] Something went wrong on update.",
-    "validation": "[en] Validation failed",
-    "notPrivileged": "[en] Not privileged",
+    "serverError": "Something went wrong on update.",
+    "validation": "Validation failed",
+    "notPrivileged": "Not privileged",
     "notFound": {
-      "organization": "[en] Organization not found",
-      "named": "[en] Organization with slug \"{{slug}}\" not found.",
-      "visibilities": "[en] Organization visibilities not found."
+      "organization": "Organization not found",
+      "named": "Organization with slug \"{{slug}}\" not found.",
+      "visibilities": "Organization visibilities not found."
     }
   },
   "validation": {
     "name": {
-      "required": "[en] Bitte gib Euren Namen ein."
+      "required": "Please enter your name."
     },
     "email": {
-      "email": "[en] Deine Eingabe entspricht nicht dem Format einer E-Mail."
+      "email": "Your entry does not match the format of an email."
     }
   },
   "content": {
-    "headline": "[en] Deine Organisation",
+    "headline": "Your organization",
     "general": {
-      "headline": "[en] Allgemein",
-      "intro": "[en] Wie kann die Community Euch erreichen?"
+      "headline": "General",
+      "intro": "How can the community reach you?"
     },
     "address": {
-      "headline": "[en] Anschrift"
+      "headline": "Address"
     },
     "about": {
-      "headline": "[en] Über uns",
-      "intro": "[en] Teile der Community mehr über Deine Organisation mit."
+      "headline": "About us",
+      "intro": "Share more about your organization with the community."
     },
     "websiteAndSocial": {
-      "headline": "[en] Website und Soziale Netzwerke",
+      "headline": "Website and social networks",
       "website": {
-        "headline": "[en] Website",
-        "intro": "[en] Wo kann die Community mehr über Euer Angebot erfahren?"
+        "headline": "Website",
+        "intro": "Where can the community learn more about your offerings?"
       },
       "social": {
-        "headline": "[en] Soziale Netzwerke",
-        "intro": "[en] In welchen Netzwerken ist Deine Organisation vertreten?"
+        "headline": "Social networks",
+        "intro": "In which networks is your organization represented?"
       }
     },
-    "feedback": "[en] Informationen wurden aktualisiert."
+    "feedback": "Information has been updated."
   },
   "form": {
     "name": {
-      "label": "[en] Name"
+      "label": "Name"
     },
     "email": {
-      "label": "[en] E-Mail"
+      "label": "Email"
     },
     "phone": {
-      "label": "[en] Telefon"
+      "label": "Phone"
     },
     "street": {
-      "label": "[en] Straßenname"
+      "label": "Street name"
     },
     "streetNumber": {
-      "label": "[en] Hausnummer"
+      "label": "House number"
     },
     "zipCode": {
-      "label": "[en] PLZ"
+      "label": "ZIP code"
     },
     "city": {
-      "label": "[en] Stadt"
+      "label": "City"
     },
     "bio": {
-      "label": "[en] Kurzbeschreibung"
+      "label": "Short description"
     },
     "organizationForm": {
-      "label": "[en] ",
-      "placeholder": "[en] Füge Eure Organisationsformen hinzu."
+      "label": "Organization form",
+      "placeholder": "Add your organization forms."
     },
     "areas": {
-      "label": "[en] Aktivitätsgebiete",
-      "placeholder": "[en] Füge Eure Aktivitätsgebiete hinzu."
+      "label": "Activity areas",
+      "placeholder": "Add your activity areas."
     },
     "supportedBy": {
-      "label": "[en] Gefördert von"
+      "label": "Sponsored by"
     },
     "focuses": {
-      "label": "[en] MINT-Schwerpunkte",
-      "placeholder": "[en] Füge Eure MINT-Schwerpunkte hinzu."
+      "label": "STEM focus areas",
+      "placeholder": "Add your STEM focus areas."
     },
     "quote": {
-      "label": "[en] Zitat"
+      "label": "Quote"
     },
     "quoteAuthor": {
-      "label": "[en] Von wem stammt das Zitat?"
+      "label": "Who is the quote from?"
     },
     "quoteAuthorInformation": {
-      "label": "[en] Zusatzinformationen des Zitatautors (Position/Beruf)"
+      "label": "Additional information of the quote author (Position/Profession)"
     },
     "website": {
-      "label": "[en] Website",
-      "placeholder": "[en] domainname.tld"
+      "label": "Website",
+      "placeholder": "domainname.tld"
     },
     "reset": {
-      "label": "[en] Änderungen verwerfen"
+      "label": "Discard changes"
     },
     "submit": {
-      "label": "[en] Speichern"
+      "label": "Save"
     }
   }
 }

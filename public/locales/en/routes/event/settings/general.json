@@ -1,152 +1,152 @@
 {
   "validation": {
     "name": {
-      "required": "[en] Bitte gib den Namen der Veranstaltung an"
+      "required": "Please provide the name of the event"
     },
     "startDate": {
-      "required": "[en] Bitte gib den Beginn der Veranstaltung an"
+      "required": "Please specify the start date of the event"
     },
     "startTime": {
-      "required": "[en] Bitte gib den Beginn der Veranstaltung an"
+      "required": "Please specify the start time of the event"
     },
     "endDate": {
-      "required": "[en] Bitte gib das Ende der Veranstaltung an",
-      "greaterThan": "[en] Das Enddatum darf nicht vor dem Startdatum liegen"
+      "required": "Please specify the end date of the event",
+      "greaterThan": "The end date must not be before the start date"
     },
     "endTime": {
-      "required": "[en] Bitte gib das Ende der Veranstaltung an",
-      "greaterThan": "[en] Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
+      "required": "Please specify the end time of the event",
+      "greaterThan": "The event takes place on a single day. The start time must not be after the end time"
     },
     "participationUntilDate": {
-      "required": "[en] Bitte gib das Ende für die Registrierung an",
-      "greaterThan": "[en] Das Registrierungsende darf nicht vor dem Registrierungsstart liegen"
+      "required": "Please specify the end date of the registration period",
+      "greaterThan": "The end date of the registration must not be before the start date of the registration"
     },
     "participationUntilTime": {
-      "required": "[en] Bitte gib das Ende für die Registrierung an",
-      "greaterThan": "[en] Die Registrierungsphase findet an einem Tag statt. Dabei darf der Registrierungsstart nicht nach dem Registrierungsende liegen"
+      "required": "Please specify the end time of the registration period",
+      "greaterThan": "The registration period takes place on a single day. The start time of registration must not be after the end time of registration"
     },
     "participationFromDate": {
-      "required": "[en] Bitte gib den Beginn für die Registrierung an",
-      "greaterThan": "[en] Das Startdatum darf nicht vor dem Registrierungsstart liegen"
+      "required": "Please specify the start date of the registration period",
+      "greaterThan": "The start date must not be after the end date of the registration"
     },
     "participationFromTime": {
-      "required": "[en] Bitte gib den Beginn für die Registrierung an",
-      "greaterThan": "[en] Die Registrierungsphase startet am selben Tag wie die Veranstaltung. Dabei darf der Registrierungsstart nicht nach dem Veranstaltungsstart liegen"
+      "required": "Please specify the start time of the registration period",
+      "greaterThan": "The registration phase starts on the same day as the event. The start time of registration must not be after the start time of the event"
     }
   },
   "error": {
-    "notFound": "[en] Event not found",
-    "notPrivileged": "[en] Not privileged"
+    "notFound": "Event not found",
+    "notPrivileged": "Not privileged"
   },
   "content": {
-    "headline": "[en] Deine Veranstaltung",
+    "headline": "Your event",
     "start": {
-      "headline": "[en] Start und Registrierung",
-      "intro": "[en] Wann startet deine Veranstaltung, wie lange dauert sie und wie viele Personen können teilnehmen? Hier kannst du Einstellungen rund um das Thema Start und Registrierung vornehmen. Außerdem kannst du die Veranstaltung veröffentlichen oder verstecken und gegebenenfalls absagen."
+      "headline": "Start and registration",
+      "intro": "When does your event start, how long does it last, and how many people can participate? Here you can make settings around the start and registration of the event. You can also publish or hide the event and cancel it if necessary."
     },
-    "cancel": "[en] Absagen",
-    "revert": "[en] Absage rückgängig machen",
-    "location": "[en] Veranstaltungsort",
+    "cancel": "Cancel",
+    "revert": "Undo cancellation",
+    "location": "Event location",
     "generic": {
-      "headline": "[en] Allgemein",
-      "intro": "[en] Wie heißt deine Veranstaltung? Was können potentiell Teilnehmende erwarten und wen möchtest du damit abholen? Nehme hier allgemeine Einstellungen vor, wie beispielsweise der Name, die Beschreibung oder Zielgruppen und Inhalte deiner Veranstaltung. Hier kannst du außerdem Schlagworte und die Veranstaltungstypen festlegen."
+      "headline": "General",
+      "intro": "What is the name of your event? What can potential participants expect, and whom do you want to reach? Make general settings here, such as the name, description, or target groups and content of your event. Here you can also set keywords and event types."
     },
-    "feedback": "[en] Informationen wurden aktualisiert."
+    "feedback": "Information has been updated."
   },
   "form": {
     "startDate": {
-      "label": "[en] Startet am"
+      "label": "Starts on"
     },
     "startTime": {
-      "label": "[en] Startet um"
+      "label": "Starts at"
     },
     "endDate": {
-      "label": "[en] Endet am"
+      "label": "Ends on"
     },
     "endTime": {
-      "label": "[en] Endet um"
+      "label": "Ends at"
     },
     "participationFromDate": {
-      "label": "[en] Registrierung startet am"
+      "label": "Registration starts on"
     },
     "participationFromTime": {
-      "label": "[en] Registrierung startet um"
+      "label": "Registration starts at"
     },
     "participationUntilDate": {
-      "label": "[en] Registrierung endet am"
+      "label": "Registration ends on"
     },
     "participationUntilTime": {
-      "label": "[en] Registrierung endet um"
+      "label": "Registration ends at"
     },
     "stage": {
-      "label": "[en] Veranstaltungstyp",
-      "placeholder": "[en] Wähle den Veranstaltungstyp aus."
+      "label": "Event type",
+      "placeholder": "Select the event type."
     },
     "venueName": {
-      "label": "[en] Name des Veranstaltungsorts"
+      "label": "Name of the event location"
     },
     "venueStreet": {
-      "label": "[en] Straßenname"
+      "label": "Street name"
     },
     "venueStreetNumber": {
-      "label": "[en] Hausnummer"
+      "label": "Street number"
     },
     "venueZipCode": {
-      "label": "[en] PLZ"
+      "label": "ZIP code"
     },
     "venueCity": {
-      "label": "[en] Stadt"
+      "label": "City"
     },
     "conferenceLink": {
-      "label": "[en] Konferenzlink"
+      "label": "Conference link"
     },
     "conferenceCode": {
-      "label": "[en] Zugangscode zur Konferenz"
+      "label": "Conference code"
     },
     "name": {
-      "label": "[en] Name"
+      "label": "Name"
     },
     "subline": {
-      "label": "[en] Subline"
+      "label": "Subline"
     },
     "description": {
-      "label": "[en] Beschreibung"
+      "label": "Description"
     },
     "types": {
-      "label": "[en] Veranstaltungstypen",
-      "placeholder": "[en] Füge die veranstaltungstypen hinzu."
+      "label": "Event types",
+      "placeholder": "Add event types."
     },
     "tags": {
-      "label": "[en] Schlagworte",
-      "placeholder": "[en] Füge die Schlagworte hinzu."
+      "label": "Tags",
+      "placeholder": "Select tags."
     },
     "targetGroups": {
-      "label": "[en] Zielgruppen",
-      "placeholder": "[en] Füge die Zielgruppen hinzu."
+      "label": "Target groups",
+      "placeholder": "Add target groups."
     },
     "experienceLevel": {
-      "label": "[en] Erfahrungsstufe",
-      "placeholder": "[en] Wähle die Erfahrungsstufe aus."
+      "label": "Experience level",
+      "placeholder": "Select the experience level."
     },
     "focuses": {
-      "label": "[en] MINT-Schwerpunkte",
-      "placeholder": "[en] Füge die MINT-Schwerpunkte hinzu."
+      "label": "STEM focuses",
+      "placeholder": "Add STEM focuses."
     },
     "areas": {
-      "label": "[en] Aktivitätsgebiete",
-      "placeholder": "[en] Füge die Aktivitätsgebiete hinzu."
+      "label": "Areas of Activity",
+      "placeholder": "Select areas of activity."
     },
     "reset": {
-      "label": "[en] Änderungen verwerfen"
+      "label": "Discard changes"
     },
     "submit": {
-      "label": "[en] Speichern"
+      "label": "Save"
     },
     "publish": {
-      "label": "[en] Veröffentlichen"
+      "label": "Publish"
     },
     "hide": {
-      "label": "[en] Verstecken"
+      "label": "Hide"
     }
   }
 }

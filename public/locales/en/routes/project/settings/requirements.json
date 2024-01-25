@@ -1,98 +1,97 @@
 {
   "validation": {
     "timeframe": {
-      "length": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
+      "length": "Your entry exceeds the maximum permitted number of characters of 200."
     },
     "jobFillings": {
-      "length": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
+      "length": "Your entry exceeds the maximum permitted number of characters of 800."
     },
     "furtherJobFillings": {
-      "length": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
+      "length": "Your entry exceeds the maximum permitted number of characters of 200."
     },
     "yearlyBudget": {
-      "max": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
+      "max": "Your entry exceeds the maximum permitted number of characters of 80."
     },
     "furtherFinancings": {
-      "length": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800."
+      "length": "Your entry exceeds the maximum permitted number of characters of 800."
     },
     "technicalRequirements": {
-      "length": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500."
+      "length": "Your entry exceeds the maximum permitted number of characters of 500."
     },
     "furtherTechnicalRequirements": {
-      "length": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500."
+      "length": "Your entry exceeds the maximum permitted number of characters of 500."
     },
     "roomSituation": {
-      "length": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
+      "length": "Your entry exceeds the maximum permitted number of characters of 200."
     },
     "furtherRoomSituation": {
-      "length": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
+      "length": "Your entry exceeds the maximum permitted number of characters of 200."
     }
   },
   "error": {
-    "invalidRoute": "[en] No valid route",
-    "notLoggedIn": "[en] Not logged in",
-    "projectNotFound": "[en] Project not found",
-    "custom": "[en] Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support."
+    "invalidRoute": "No valid route",
+    "notLoggedIn": "Not logged in",
+    "projectNotFound": "Project not found",
+    "custom": "The data could not be saved. Please try again or contact the support team."
   },
   "content": {
-    "notFound": "[en] Not found",
-    "success": "[en] Daten gespeichert!",
-    "prompt": "[en] Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
-    "back": "[en] Rahmenbedingungen",
-    "intro": "[en] Die genannten Informationen zu Finanziellem und personellem Rahmen beziehen sich auf das angegebene Projekt, nicht allgemein auf die Organisation. Die Infos sollen eine Anregung sein für Interessierte, die das Projekt als Inspiration nehmen wollen."
+    "notFound": "Not found",
+    "success": "Data saved!",
+    "prompt": "You have unsaved changes. These will be lost if you go one step further now.",
+    "back": "Framework conditions",
+    "intro": "The information provided on the financial and personnel framework refers to the specified project, not to the organization in general. The information is intended to be a suggestion for those interested who want to use the project as inspiration."
   },
   "form": {
-    "reset": "[en] Änderungen verwerfen",
-    "submit": "[en] Speichern",
+    "reset": "Discard changes",
+    "submit": "Save",
     "timeframe": {
-      "headline": "[en] Zeitlicher Rahmen",
-      "label": "[en] Projektstart bzw. Projektlaufzeit"
+      "headline": "Timeframe",
+      "label": "Project start and duration"
     },
     "personellSituation": {
-      "headline": "[en] Personelle Situation",
+      "headline": "Personnel situation",
       "jobFillings": {
-        "label": "[en] Stellen und / oder Stundenkontingent",
-        "helper": "[en] Wie viele Menschen sind an der Verwirklichung des Projektes oder Bildungsangebotes beteiligt?"
+        "label": "Positions and/or hourly quota",
+        "helper": "How many people are involved in the realization of the project or educational offer?"
       },
       "furtherJobFillings": {
-        "label": "[en] Weitere Infos",
-        "helper": "[en] Gibt es noch weitere Punkte, die Du anderen Akteur:innen dazu mitteilen möchtest?"
+        "label": "Further information",
+        "helper": "Are there any other points you would like to share with other actors?"
       }
     },
     "budget": {
-      "headline": "[en] Finanzieller Rahmen",
+      "headline": "Financial frame",
       "yearlyBudget": {
-        "label": "[en] Jährliches Budget",
-        "helper": "[en] Nutze dieses Freitextfeld um andere Akteur:innen über Eure finanziellen Ressourcen zu informieren."
+        "label": "Yearly budget",
+        "helper": "Use this free text field to inform other actors about your financial resources."
       },
       "financings": {
-        "label": "[en] Art der Finanzierung",
-        "helper": "[en] Wöhle die Art der Finanzierung aus.",
-        "option": "[en] Bitte auswählen"
+        "label": "Type of financing",
+        "helper": "Select the type of financing.",
+        "option": "Please select"
       },
       "furtherFinancings": {
-        "label": "[en] Weitere Infos",
-        "helper": "[en] Nutze dieses Feld, wenn du keine passende Finanzierungsart vorgefunden hast.",
-        "option": "[en] Bitte auswählen"
+        "label": "Further information",
+        "helper": "Use this field if you have not found a suitable type of financing."
       }
     },
     "technicalFrame": {
-      "headline": "[en] Technischer Rahmen",
+      "headline": "Technical frame",
       "technicalRequirements": {
-        "label": "[en] Welche Software/Hardware/Bausätze oder Maschinen kommen zum Einsatz?"
+        "label": "What software/hardware/kits or machines are used?"
       },
       "furtherTechnicalRequirements": {
-        "label": "[en] Sonstige Erläuterungen"
+        "label": "Other notes"
       }
     },
     "spatialSituation": {
-      "headline": "[en] Räumliche Situation",
+      "headline": "Spatial situation",
       "roomSituation": {
-        "label": "[en] Arbeitsorte",
-        "helper": "[en] Welche räumliche Situation ist nötig?"
+        "label": "Places of work",
+        "helper": "What spatial situation is necessary?"
       },
       "furtherRoomSituation": {
-        "label": "[en] Weitere Informationen"
+        "label": "Further information"
       }
     }
   }

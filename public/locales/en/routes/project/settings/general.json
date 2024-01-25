@@ -1,87 +1,85 @@
 {
   "validation": {
     "name": {
-      "required": "[en] Der Projektname ist eine erforderliche Angabe.",
-      "max": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
+      "required": "The project name is a required information.",
+      "max": "Your entry exceeds the maximum permitted number of characters of 80."
     },
     "subline": {
-      "max": "[en] Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 90."
+      "max": "Your entry exceeds the maximum permitted number of characters of 90."
     },
     "email": {
-      "email": "[en] Bitte gib eine gültige E-Mail Adresse ein."
+      "email": "Please enter a valid e-mail address."
     }
   },
   "error": {
-    "invalidRoute": "[en] No valid route",
-    "projectNotFound": "[en] Project not found",
-    "storage": "[en] Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support."
+    "invalidRoute": "No valid route",
+    "projectNotFound": "Project not found",
+    "storage": "The data could not be saved. Please try again or contact the support team."
   },
   "content": {
-    "notFound": "[en] Not Found",
-    "feedback": "[en] Daten gespeichert!",
-    "prompt": "[en] Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
-    "back": "[en] Eckdaten anlegen",
-    "intro": "[en] Teile der Community Grundlegendes über Dein Projekt oder Bildungsangebot mit.",
+    "notFound": "Not Found",
+    "feedback": "Data saved!",
+    "prompt": "You have unsaved changes. These will be lost if you go one step further now.",
+    "back": "Create key data",
+    "intro": "Share basic information about your project or educational offering with the community.",
     "projectTitle": {
-      "headline": "[en] Projekttitel",
-      "label": "[en] Titel des Projekts oder Bildungsangebotes*",
-      "helper": "[en] Mit max. 55 Zeichen wird Dein Projekt gut dargestellt."
+      "headline": "Project title",
+      "label": "Title of the project or educational offer*",
+      "helper": "Your project will be well presented with a maximum of 55 characters."
     },
     "subline": {
-      "headline": "[en] Projektuntertitel",
-      "label": "[en] Subline Deines Projekts oder Bildungsangebotes",
-      "helper": "[en] Mit max. 90 Zeichen wird Dein Projekt in der Übersicht gut dargestellt."
+      "headline": "Project subline",
+      "label": "Subline of your project or educational offer",
+      "helper": "With a maximum of 90 characters, your project will be well presented in the overview."
     },
     "formats": {
-      "headline": "[en] Projektformat",
-      "label": "[en] In welchem Format findet das Projekt statt?",
-      "helper": "[en] Mehrfachnennungen sind möglich.",
-      "option": "[en] Bitte auswählen"
+      "headline": "Project format",
+      "label": "What format does the project take place in?",
+      "helper": "Multiple entries are possible.",
+      "choose": "Please select"
     },
     "furtherFormats": {
-      "headline": "[en] Projektuntertitel",
-      "label": "[en] Sonstige Formate",
-      "helper": "[en] Bitte gib kurze Begriffe an.",
-      "add": "[en] Hinzufügen"
+      "label": "Further formats",
+      "helper": "Please provide short terms.",
+      "add": "Add"
     },
     "areas": {
-      "headline": "[en] Aktivitätsgebiet",
-      "label": "[en] Wo wird das Projekt / Bildungsangebot durchgeführt?",
-      "helper": "[en] Mehrfachnennungen sind möglich.",
-      "option": "[en] Bitte auswählen"
+      "headline": "Areas of activity",
+      "label": "Where is the project/educational offering carried out?",
+      "helper": "Multiple entries are possible.",
+      "option": "Please select"
     },
     "contact": {
-      "headline": "[en] Kontaktdaten",
-      "label": "[en] Wo wird das Projekt / Bildungsangebot durchgeführt?",
+      "headline": "Contact",
       "email": {
-        "label": "[en] E-Mail-Adresse"
+        "label": "E-mail address"
       },
       "phone": {
-        "label": "[en] Telefonnummer"
+        "label": "Phone"
       }
     },
     "address": {
-      "headline": "[en] Anschrift",
+      "headline": "Address",
       "contactName": {
-        "label": "[en] Name"
+        "label": "Name"
       },
       "street": {
-        "label": "[en] Straße"
+        "label": "Street"
       },
       "streetNumber": {
-        "label": "[en] Hausnummer"
+        "label": "House number"
       },
       "streetNumberAddition": {
-        "label": "[en] Zusatz"
+        "label": "House number addition"
       },
       "zipCode": {
-        "label": "[en] PLZ"
+        "label": "ZIP Code"
       },
       "city": {
-        "label": "[en] Stadt"
+        "label": "City"
       }
     },
-    "reset": "[en] Änderungen verwerfen",
-    "submit": "[en] Speichern"
+    "reset": "Discard changes",
+    "submit": "Save"
   }
 }

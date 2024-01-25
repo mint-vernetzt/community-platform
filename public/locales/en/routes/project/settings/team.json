@@ -1,27 +1,27 @@
 {
   "error": {
-    "invalidRoute": "[en] No valid route",
-    "notFound": "[en] Not found"
+    "invalidRoute": "No valid route",
+    "notFound": "Not found"
   },
   "content": {
-    "added": "[en] {{firstName}} {{lastName}} hinzugefügt.",
-    "removed": "[en] {{firstName}} {{lastName}} entfernt.",
-    "back": "[en] Team verwalten",
-    "intro": "[en] Wer ist Teil Eures Projekts? Füge hier weitere Teammitglieder hinzu oder entferne sie. Team-Mitglieder werden auf der Projekte-Detailseite gezeigt. Sie können Projekte nicht bearbeiten.",
+    "added": "Added {{firstName}} {{lastName}}.",
+    "removed": "Removed {{firstName}} {{lastName}}.",
+    "back": "Manage team",
+    "intro": "Who is part of your project? Add or remove additional team members here. Team members are shown on the projects detail page. They cannot edit projects.",
     "current": {
-      "headline": "[en] Aktuelle Teammitglieder",
-      "intro": "[en] Teammitglieder und Rollen sind hier aufgelistet.",
+      "headline": "Current team members",
+      "intro": "Team members and roles are listed here.",
       "member": {
-        "admin": "[en] Administrator:in",
-        "team": "[en] Teammitglied"
+        "admin": "Administrator",
+        "team": "Team member"
       },
-      "remove": "[en] Entfernen"
+      "remove": "Remove"
     },
     "add": {
-      "headline": "[en] Teammitglied hinzufügen",
-      "search": "[en] Suche",
-      "requirements": "[en] Mindestens 3 Buchstaben.",
-      "add": "[en] Hinzufügen"
+      "headline": "Add team member",
+      "search": "Search",
+      "requirements": "At least 3 letters.",
+      "add": "Add"
     }
   }
 }

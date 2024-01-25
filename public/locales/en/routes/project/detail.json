@@ -1,33 +1,33 @@
 {
   "error": {
     "invariant": {
-      "undefinedSlug": "[en] Route parameter \"slug\" not found",
-      "adminsOnly": "[en] Only admins can publish a project",
-      "missingConfirmation": "[en] Did not provide an conform.INTENT",
-      "invalidIntent": "[en] The intent value you provided is not a string",
-      "projectNotFound": "[en] Project not found",
-      "projectNotPublished": "[en] This project isn't published yet."
+      "undefinedSlug": "Route parameter \"slug\" not found",
+      "adminsOnly": "Only admins can publish a project",
+      "missingConfirmation": "Did not provide an conform.INTENT",
+      "invalidIntent": "The intent value you provided is not a string",
+      "projectNotFound": "Project not found",
+      "projectNotPublished": "This project isn't published yet."
     }
   },
   "content": {
-    "title": "[en] Meine Projekte",
-    "draft": "[en] Entwurf",
-    "changeImage": "[en] Bild ändern",
-    "edit": "[en] Projekt bearbeiten",
+    "title": "My projects",
+    "draft": "Draft",
+    "changeImage": "Change image",
+    "edit": "Edit project",
     "publish": {
-      "hide": "[en] Verstecken",
-      "show": "[en] Veröffentlichen"
+      "hide": "Hide",
+      "show": "Publish"
     },
-    "about": "[en] Über das Projekt",
-    "conditions": "[en] Rahmenbedingungen",
-    "material": "[en] Material"
+    "about": "About the project",
+    "conditions": "Framework conditions",
+    "material": "Documents"
   },
   "cropper": {
     "background": {
-      "headline": "[en] Hintergrundbild"
+      "headline": "Background image"
     },
     "logo": {
-      "headline": "[en] Logo"
+      "headline": "Logo"
     }
   }
 }

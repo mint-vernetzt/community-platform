@@ -1,14 +1,14 @@
 {
   "error": {
-    "notFound": "[en] Organization not found",
-    "notPrivileged": "[en] Not privileged"
+    "notFound": "Organization not found",
+    "notPrivileged": "Not privileged"
   },
   "content": {
-    "headline": "[en] Euer Netzwerk",
-    "intro": "[en] Wer ist Teil Eures Netzwerks? Füge hier weitere Organisationen hinzu oder entferne sie.",
+    "headline": "Your network",
+    "intro": "Who is part of your network? Add or remove other organizations here.",
     "current": {
-      "headline": "[en] Aktuelle Netzwerkmitglieder",
-      "intro": "[en] Hier siehst du alle Organisationen, die Teil eures Netzwerkes sind, auf einen Blick."
+      "headline": "Current network members",
+      "intro": "Here you can see all the organizations that are part of your network at a glance."
     }
   }
 }

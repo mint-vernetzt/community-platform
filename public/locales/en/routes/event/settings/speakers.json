@@ -1,22 +1,22 @@
 {
   "error": {
-    "notFound": "[en] Event not found",
-    "notPrivileged": "[en] Not privileged"
+    "notFound": "Event not found",
+    "notPrivileged": "Not privileged"
   },
   "content": {
-    "headline": "[en] Vortragende",
-    "intro": "[en] Wer ist Speaker:in bei Eurer Veranstaltung? Füge hier weitere Speaker:innen hinzu oder entferne sie.",
+    "headline": "Speakers",
+    "intro": "Who is a speaker at your event? Add more speakers here or remove them.",
     "add": {
-      "headline": "[en] Vortragende hinzufügen",
-      "intro": "[en] Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.",
-      "label": "[en] Name oder Email der Speaker:in"
+      "headline": "Add speakers",
+      "intro": "Add an already existing profile to your event here.",
+      "label": "Name or email of the speaker"
     },
     "current": {
-      "headline": "[en] Aktuelle Speaker:innen",
-      "intro": "[en] Hier siehst du alle Speaker:innen der Veranstaltung auf einen Blick.",
-      "remove": "[en] entfernen"
+      "headline": "Current speakers",
+      "intro": "Here you can see all the speakers of the event at a glance.",
+      "remove": "Remove"
     },
-    "publish": "[en] Veröffentlichen",
-    "hide": "[en] Verstecken"
+    "publish": "Publish",
+    "hide": "Hide"
   }
 }

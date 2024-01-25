@@ -1,48 +1,48 @@
 {
   "validation": {
     "name": {
-      "required": "[en] Bitte einen Veranstaltungsnamen angeben"
+      "required": "Please provide an event name"
     },
     "startDate": {
-      "required": "[en] Bitte gib den Beginn der Veranstaltung an"
+      "required": "Please specify the start date of the event"
     },
     "startTime": {
-      "required": "[en] Bitte eine Startzeit angeben"
+      "required": "Please provide a start time"
     },
     "endDate": {
-      "required": "[en] Bitte gib das Ende der Veranstaltung an",
-      "greaterThan": "[en] Das Enddatum darf nicht vor dem Startdatum liegen"
+      "required": "Please specify the end date of the event",
+      "greaterThan": "The end date must not be before the start date"
     },
     "endTime": {
-      "required": "[en] Bitte gib das Ende der Veranstaltung an",
-      "greaterThan": "[en] Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
+      "required": "Please specify the end time of the event",
+      "greaterThan": "The event takes place on a single day. The start time must not be after the end time"
     }
   },
   "error": {
-    "validationFailed": "[en] Validation failed"
+    "validationFailed": "Validation failed"
   },
   "content": {
-    "back": "[en] Zurück",
-    "headline": "[en] Veranstaltung anlegen"
+    "back": "Back",
+    "headline": "Create event"
   },
   "form": {
     "name": {
-      "label": "[en] Name der Veranstaltung"
+      "label": "Event name"
     },
     "startDate": {
-      "label": "[en] Startdatum"
+      "label": "Start date"
     },
     "startTime": {
-      "label": "[en] Startzeit"
+      "label": "Start time"
     },
     "endDate": {
-      "label": "[en] Enddatum"
+      "label": "End date"
     },
     "endTime": {
-      "label": "[en] Endzeit"
+      "label": "End time"
     },
     "submit": {
-      "label": "[en] Anlegen"
+      "label": "Create"
     }
   }
 }

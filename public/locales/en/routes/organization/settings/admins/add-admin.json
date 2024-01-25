@@ -1,11 +1,11 @@
 {
   "error": {
-    "notFound": "[en] Organization not found",
-    "notPrivileged": "[en] Not privileged",
+    "notFound": "Organization not found",
+    "notPrivileged": "Not privileged",
     "inputError": {
-      "doesNotExist": "[en] Es existiert noch kein Profil unter diesem Namen.",
-      "alreadyAdmin": "[en] Das Profil unter diesem Namen ist bereits Administrator:in Eurer Organisation."
+      "doesNotExist": "No profile exists under this name.",
+      "alreadyAdmin": "The profile under this name is already an administrator of your organization."
     }
   },
-  "feedback": "[en] \"{{firstName} {{lastName}}\" wurde als Administrator:in hinzugefügt."
+  "feedback": "\"{{firstName} {{lastName}}\" has been added as an administrator."
 }

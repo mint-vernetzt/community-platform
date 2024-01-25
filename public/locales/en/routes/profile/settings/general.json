@@ -1,116 +1,116 @@
 {
   "error": {
-    "profileNotFound": "[en] Profile not found.",
-    "validationFailed": "[en] Validation failed",
-    "serverError": "[en] Something went wrong on update.",
-    "notPrivileged": "[en] Not privileged",
-    "noVisibilities": "[en] profile visbilities not found."
+    "profileNotFound": "Profile not found.",
+    "validationFailed": "Validation failed",
+    "serverError": "Something went wrong on update.",
+    "notPrivileged": "Not privileged",
+    "noVisibilities": "Profile visibilities not found."
   },
   "validation": {
     "firstName": {
-      "required": "[en] Bitte gib Deinen Vornamen ein."
+      "required": "Please enter your first name."
     },
     "lastName": {
-      "required": "[en] Bitte gib Deinen Nachnamen ein."
+      "required": "Please enter your last name."
     }
   },
-  "headline": "[en] Persönliche Daten",
+  "headline": "Personal information",
   "general": {
-    "headline": "[en] Allgemein",
-    "intro": "[en] Welche Informationen möchtest Du über Dich mit der Community teilen? Über das Augen-Symbol kannst Du auswählen, ob die\nInformationen für alle öffentlich sichtbar sind oder ob Du sie nur mit registrierten Nutzer:innen teilst.",
+    "headline": "General",
+    "intro": "What information would you like to share about yourself with the community? Use the eye icon to choose whether the information is publicly visible to everyone or only shared with registered users.",
     "form": {
       "title": {
-        "label": "[en] Titel",
+        "label": "Title",
         "options": {
-          "dr": "[en] Dr.",
-          "prof": "[en] Prof.",
-          "profdr": "[en] Prof. Dr."
+          "dr": "Dr.",
+          "prof": "Prof.",
+          "profdr": "Prof. Dr."
         }
       },
       "position": {
-        "label": "[en] Position"
+        "label": "Position"
       },
       "firstName": {
-        "label": "[en] Vorname"
+        "label": "First name"
       },
       "lastName": {
-        "label": "[en] Nachname"
+        "label": "Last name"
       },
       "email": {
-        "label": "[en] E-Mail"
+        "label": "Email"
       },
       "phone": {
-        "label": "[en] Telefon"
+        "label": "Phone"
       }
     }
   },
   "aboutMe": {
-    "headline": "[en] Über mich",
-    "intro": "[en] Erzähl der Community etwas über Dich: Wer bist Du und was machst Du konkret im MINT-Bereich? In welchen Regionen Deutschlands bist Du vorrangig aktiv? Welche Kompetenzen bringst Du mit und welche Themen interessieren Dich im MINT-Kontext besonders?",
+    "headline": "About me",
+    "intro": "Tell the community about yourself: Who are you and what do you specifically do in the STEM field? In which regions are you primarily active? What competencies do you bring and which topics are you particularly interested in within the STEM context?",
     "form": {
       "description": {
-        "label": "[en] Kurzbeschreibung",
-        "placeholder": "[en] Beschreibe Dich und Dein Tätigkeitsfeld näher."
+        "label": "Short description",
+        "placeholder": "Describe yourself and your field of activity in more detail."
       },
       "activityAreas": {
-        "label": "[en] Aktivitätsgebiete",
-        "placeholder": "[en] Füge Regionen hinzu, in denen Du aktiv bist."
+        "label": "Activity areas",
+        "placeholder": "Add regions where you are active."
       },
       "skills": {
-        "label": "[en] Kompetenzen",
-        "placeholder": "[en] Füge Deine Kompetenzen hinzu."
+        "label": "Skills",
+        "placeholder": "Add your skills."
       },
       "interests": {
-        "label": "[en] Interessen",
-        "placeholder": "[en] Füge Deine Interessen hinzu."
+        "label": "Interests",
+        "placeholder": "Add your interests."
       }
     }
   },
   "offer": {
-    "headline": "[en] Ich biete",
-    "intro": "[en] Was bringst Du mit, wovon die Community profitieren kann? Wie kannst Du andere Mitglieder unterstützen?",
+    "headline": "I offer",
+    "intro": "What do you bring that the community can benefit from? How can you support other members?",
     "form": {
       "quote": {
-        "label": "[en] Angebot",
-        "placeholder": "[en] Füge Deine Angebote hinzu."
+        "label": "Offer",
+        "placeholder": "Add your offers."
       }
     }
   },
   "lookingFor": {
-    "headline": "[en] Ich suche",
-    "intro": "[en] Wonach suchst Du? Wie können Dich andere Mitglieder unterstützen?",
+    "headline": "I'm looking for",
+    "intro": "What are you looking for? How can other members support you?",
     "form": {
       "seeking": {
-        "label": "[en] ",
-        "placeholder": "[en] "
+        "label": "Seeking",
+        "placeholder": "Add what you are seeking."
       }
     }
   },
   "websiteSocialMedia": {
-    "headline": "[en] Website und Soziale Netzwerke",
+    "headline": "Website and social networks",
     "website": {
-      "headline": "[en] Website",
-      "intro": "[en] Wo kann die Community mehr über Dich und Dein Angebot erfahren?",
+      "headline": "Website",
+      "intro": "Where can the community learn more about you and your offerings?",
       "form": {
         "website": {
-          "label": "[en] Website",
-          "placeholder": "[en] domainname.tld"
+          "label": "Website",
+          "placeholder": "domainname.tld"
         }
       }
     },
     "socialMedia": {
-      "headline": "[en] Soziale Netzwerke",
-      "intro": "[en] Wo kann die Community in Kontakt mit Dir treten?"
+      "headline": "Social networks",
+      "intro": "Where can the community get in touch with you?"
     }
   },
   "network": {
-    "headline": "[en] Organisation oder Netzwerk hinzufügen",
-    "action": "[en] Organisation anlegen",
-    "intro": "[en] Die Organisation oder das Netzwerk, in dem Du tätig bist, hat noch kein Profil? Füge es direkt hinzu, damit auch andere Mitglieder über darüber erfahren können.<br /><br />Falls die Organisation bereits existiert, melde dich bei der Person, die diese angelegt hat.<br /><br />Zukünfig wirst du dich selbstständig zu Organisationen hinzufügen können."
+    "headline": "Add organization or network",
+    "action": "Create organization",
+    "intro": "The organization or network you are active in does not have a profile yet? Add it directly so that other members can learn about it as well.<br /><br />If the organization already exists, contact the person who created it.<br /><br />In the future, you will be able to add yourself to organizations independently."
   },
   "footer": {
-    "profileUpdated": "[en] Dein Profil wurde aktualisiert.",
-    "ignoreChanges": "[en] Änderungen verwerfen",
-    "save": "[en] Speichern"
+    "profileUpdated": "Your profile has been updated.",
+    "ignoreChanges": "Discard changes",
+    "save": "Save"
   }
 }

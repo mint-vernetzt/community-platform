@@ -1,22 +1,22 @@
 {
   "error": {
-    "serverError": "[en] Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können."
+    "serverError": "This organization already exists. Please contact the person who created this organization here. They can add you as a member. In the future, you will be able to add yourself to organizations."
   },
   "validation": {
     "organizationName": {
-      "min": "[en] Bitte gib den Namen Deiner Organisation ein."
+      "min": "Please enter the name of your organization."
     }
   },
   "content": {
-    "back": "[en] Zurück",
-    "headline": "[en] Organisation oder Netzwerk hinzufügen"
+    "back": "Back",
+    "headline": "Create organization or network"
   },
   "form": {
     "organizationName": {
-      "label": "[en] Name der Organisation*"
+      "label": "Name of the Organization*"
     },
     "submit": {
-      "label": "[en] Anlegen"
+      "label": "Create"
     }
   }
 }

@@ -1,28 +1,28 @@
 {
   "validation": {
     "confirmedToken": {
-      "regex": "[en] /wirklich löschen/",
-      "message": "[en] Bitte \"wirklich löschen\" eingeben."
+      "regex": "/really delete/",
+      "message": "Please enter \"really delete\"."
     }
   },
   "error": {
-    "serverError": "[en] Die Organisation konnte nicht gelöscht werden.",
-    "validation": "[en] Validation failed",
-    "notPrivileged": "[en] Not privileged",
-    "notFound": "[en] Profile not found"
+    "serverError": "The organization could not be deleted.",
+    "validation": "Validation failed",
+    "notPrivileged": "Not privileged",
+    "notFound": "Profile not found"
   },
   "content": {
-    "headline": "[en] Organisation löschen",
-    "intro": "[en] Schade, dass Du Eure Organisation löschen willst.",
-    "confirmation": "[en] Bitte gib \"wirklich löschen\" ein, um das Löschen zu bestätigen. Wenn Du danach auf Organisation endgültig löschen” klickst, wird Eure Organisation ohne erneute Abfrage gelöscht."
+    "headline": "Delete organization",
+    "intro": "It's unfortunate that you want to delete your organization.",
+    "confirmation": "Please enter \"really delete\" to confirm the deletion. If you click on 'Permanently delete organization' afterwards, your organization will be deleted without further inquiry."
   },
   "form": {
     "confirmedToken": {
-      "label": "[en] Löschung bestätigen",
-      "placeholder": "[en] wirklich löschen"
+      "label": "Confirm deletion",
+      "placeholder": "really delete"
     },
     "submit": {
-      "label": "[en] Organisation endgültig löschen"
+      "label": "Permanently delete organization"
     }
   }
 }

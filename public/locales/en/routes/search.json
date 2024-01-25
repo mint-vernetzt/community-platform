@@ -1,11 +1,11 @@
 {
   "title": {
-    "query":  "Deine Suche",
-    "noquery": "[en] Suche"
+    "query": "Your search",
+    "noquery": "Search"
   },
-  "results": "[en] Hier siehst Du die Ergebnisse zu Deiner Suche \"{{query}}\".",
-  "profiles": "[en] Profile",
-  "organizations": "[en] Organisationen",
-  "events": "[en] Veranstaltungen",
-  "projects": "[en] Projekte"
+  "results": "Here you see the results for your search \"{{query}}\".",
+  "profiles": "Profiles",
+  "organizations": "Organizations",
+  "events": "Events",
+  "projects": "Projects"
 }

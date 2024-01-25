@@ -1,22 +1,22 @@
 {
   "email": {
-    "subject": "[en] Deine Teilnahme an der Veranstaltung {{title}}",
+    "subject": "Your participation in the event {{title}}",
     "supportContact": {
-      "firstName": "[en] Kein zuständiges Teammitglied gefunden",
-      "lastName": "[en] Kein zuständiges Teammitglied gefunden",
-      "email": "[en] Kein zuständiges Teammitglied gefunden"
+      "firstName": "No responsible team member found",
+      "lastName": "No responsible team member found",
+      "email": "No responsible team member found"
     }
   },
   "error": {
-    "mailer": "[en] Mailer Issue",
+    "mailer": "Mailer issue",
     "env": {
-      "url": "[en] No community base url provided. Please add one inside the .env.",
-      "sender": "[en] No system mail sender address provided. Please add one inside the .env."
+      "url": "No community base url provided. Please add one inside the .env.",
+      "sender": "No system mail sender address provided. Please add one inside the .env."
     },
     "notFound": {
-      "event": "[en] Event not found",
-      "profile": "[en] Profile not found"
+      "event": "Event not found",
+      "profile": "Profile not found"
     },
-    "notPrivileged": "[en] Not privileged"
+    "notPrivileged": "Not privileged"
   }
 }

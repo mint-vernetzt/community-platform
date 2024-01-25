@@ -1,6 +1,7 @@
 {
   "error": {
-    "notPrivileged": "[en] Not privileged",
-    "server": "[en] Dokument konnte nicht in der Datenbank gespeichert werden."
+    "notPrivileged": "Not privileged",
+    "server": "Document could not be saved in the database."
   }
 }
+

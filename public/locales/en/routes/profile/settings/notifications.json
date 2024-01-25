@@ -1,18 +1,18 @@
 {
   "error": {
-    "profileNotFound": "[en] Profile not found",
-    "notPrivileged": "[en] Not privileged"
+    "profileNotFound": "Profile not found",
+    "notPrivileged": "Not privileged"
   },
   "content": {
-    "headline": "[en] Benachrichtigungen",
-    "empty": "[en] Keine Einstellungen gefunden."
+    "headline": "Notifications",
+    "empty": "No settings found."
   },
   "form": {
     "updates": {
-      "label": "[en] Ich möchte zu Plattform-Updates informiert werden."
+      "label": "I would like to be informed about platform updates."
     },
     "submit": {
-      "label": "[en] Speichern"
+      "label": "Save"
     }
   }
 }

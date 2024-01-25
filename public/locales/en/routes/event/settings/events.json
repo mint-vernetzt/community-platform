@@ -1,50 +1,50 @@
 {
   "error": {
-    "notFound": "[en] Event not found",
-    "notPrivileged": "[en] "
+    "notFound": "Event not found",
+    "notPrivileged": "Not privileged"
   },
   "content": {
-    "headline": "[en] Verknüpfte Veranstaltungen",
+    "headline": "Linked events",
     "assign": {
-      "headline": "[en] Rahmenveranstaltung zuweisen",
-      "intro": "[en] Welche Veranstaltung ist deiner Veranstaltung übergeordnet? Findet sie  beispielsweise im Rahmen einer Tagung statt? Füge hier deiner Veranstaltung eine Rahmenversanstaltung hinzu oder entferne sie.  Allerdings musst du priviligiertes Teammitglied der Rahmenveranstaltung sein und deine Veranstaltung muss sich innerhalb des Zeitraums der Rahmenveranstaltung befinden.",
-      "name": "[en] Name der Veranstaltung"
+      "headline": "Assign a main event",
+      "intro": "Which event is superior to your event? Is it part of a conference, for example? Add or remove a main event to your event here. However, you must be an administrator of the main event and your event must take place within the timeframe of the main event.",
+      "name": "Name of the event"
     },
     "parent": {
-      "headline": "[en] Aktuelle Rahmenveranstaltung",
-      "intro": "[en] Hier siehst du die aktuelle Rahmenveranstaltung deiner Veranstaltung.",
-      "empty": "[en] Aktuell ist deiner Veranstaltung keine Rahmenveranstaltung zugewiesen.",
+      "headline": "Current main event",
+      "intro": "Here you can see the current main event of your event.",
+      "empty": "Currently, no main event is assigned to your event.",
       "seats": {
-        "unlimited": "[en]  | Unbegrenzte Plätze",
-        "exact": "[en]  | {{number}} / {{total}} Plätzen frei",
-        "waiting": "[en]  | {{number}} auf der Wartelist"
+        "unlimited": " | Unlimited seats",
+        "exact": " | {{number}} / {{total}} seats available",
+        "waiting": " | {{number}} on the waiting list"
       }
     },
     "related": {
-      "headline": "[en] Zugehörige Veranstaltungen hinzufügen",
-      "intro": "[en] Welche Veranstaltungen sind deiner Veranstaltung untergeordnet? Ist deine Veranstaltung beispielsweise eine Tagung und hat mehrere Unterveranstaltungen, wie Workshops, Paneldiskussionen oder ähnliches? Dann füge ihr hier andere zugehörige Veranstaltungen hinzu oder entferne sie. Beachte, dass du priviligiertes Teammitglied in den zugehörigen Veranstaltungen sein musst und, dass die zugehörigen Veranstaltungen im Zeitraum deiner Veranstaltung stattfinden müssen.",
-      "name": "[en] Name der Veranstaltung"
+      "headline": "Add related events",
+      "intro": "Which events are subordinate to your event? Is your event, for example, a conference with several sub-events such as workshops, panel discussions, or similar? Then add or remove other related events here. Note that you must be an administrator in the related events and that they must take place within the timeframe of your event.",
+      "name": "Name of the event"
     },
     "current": {
-      "headline": "[en] Aktuelle zugehörige Veranstaltungen",
-      "intro": "[en] Hier siehst du die aktuellen zugehörigen Veranstaltung deiner Veranstaltung.",
-      "empty": "[en] Aktuell besitzt deine Veranstaltung keine zugehörigen Veranstaltungen.",
+      "headline": "Current related events",
+      "intro": "Here you can see the current related events of your event.",
+      "empty": "Currently, your event has no related events.",
       "seats": {
-        "unlimited": "[en]  | Unbegrenzte Plätze",
-        "exact": "[en]  | {{number}} / {{total}} Plätzen frei",
-        "waiting": "[en]  | {{number}} auf der Wartelist"
+        "unlimited": " | Unlimited seats",
+        "exact": " | {{number}} / {{total}} seats available",
+        "waiting": " | {{number}} on the waiting list"
       }
     }
   },
   "form": {
     "remove": {
-      "label": "[en] entfernen"
+      "label": "Remove"
     },
     "publish": {
-      "label": "[en] Veröffentlichen"
+      "label": "Publish"
     },
     "hide": {
-      "label": "[en] Verstecken"
+      "label": "Hide"
     }
   }
 }

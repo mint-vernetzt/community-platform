@@ -1,21 +1,21 @@
 {
   "error": {
     "invariant": {
-      "invalidRoute": "[en] No valid route",
-      "notFound": "[en] Not found"
+      "invalidRoute": "No valid route",
+      "notFound": "Not found"
     }
   },
   "content": {
-    "headline": "[en] Material zum Download",
+    "headline": "Download documents",
     "documents": {
-      "title": "[en] Dokumente",
-      "downloadAll": "[en] Alle herunterladen",
-      "empty": "[en] Keine Dokumente vorhanden."
+      "title": "Documents",
+      "downloadAll": "Download all",
+      "empty": "No documents found."
     },
     "images": {
-      "title": "[en] Bilder",
-      "downloadAll": "[en] Alle herunterladen",
-      "empty": "[en] Keine Dokumente vorhanden."
+      "title": "Images",
+      "downloadAll": "Download all",
+      "empty": "No images found."
     }
   }
 }

@@ -1,11 +1,11 @@
 {
   "error": {
-    "notAccepted": "[en] Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.",
-    "unauthorized": "[en] Nicht autorisiert."
+    "notAccepted": "Please accept our terms of service and confirm that you have read the privacy policy.",
+    "unauthorized": "Unauthorized."
   },
   "content": {
-    "headline": "[en] Nutzungsbedingungen akzeptieren",
-    "confirmation": "[en] Ich erkläre mich mit der Geltung der <0>Nutzungsbedingungen</0> einverstanden. Die <1>Datenschutzerklärung</1> habe ich zur Kenntnis genommen.",
-    "submit": "[en] Bestätigen"
+    "headline": "Accept terms of service",
+    "confirmation": "I agree to the <0>Terms of service</0>. I have taken note of the <1>Privacy policy</1>.",
+    "submit": "Confirm"
   }
 }

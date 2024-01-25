@@ -1,44 +1,44 @@
 {
-  "welcome": "[en] Willkommen in Deiner MINT-Community",
-  "intro": "[en] Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
-  "opportunities": "[en] <strong>Erstelle Profilseiten</strong> für Dich, für Deine <strong>Organisation</strong> und lege <strong>Projekte</strong> oder <strong>Veranstaltungen</strong> an.",
+  "welcome": "Welcome to Your STEM Community",
+  "intro": "Discover other STEM actors, organizations, and STEM events on the MINTvernetzt community platform and get inspired for your work.",
+  "opportunities": "<strong>Create profile pages</strong> for yourself, your <strong>organization</strong>, and create <strong>projects</strong> or <strong>events</strong>.",
   "login": {
-    "intro": "[en] Anmelden mit MINT-ID",
-    "moreInformation": "[en] Mehr Informationen",
-    "or": "[en] oder",
-    "passwordForgotten": "[en] Passwort vergessen?",
-    "noMember": "[en] Noch kein Mitglied?",
-    "registerByEmail": "[en] Registrieren mit E-Mail",
-    "createMintId": "[en] MINT-ID erstellen",
-    "register": "[en] Registrieren"
+    "intro": "Log in with MINT-ID",
+    "moreInformation": "More information",
+    "or": "or",
+    "passwordForgotten": "Forgot password?",
+    "noMember": "Not a member yet?",
+    "registerByEmail": "Register with email",
+    "createMintId": "Create MINT-ID",
+    "register": "Register"
   },
   "form": {
     "label": {
-      "email": "[en] E-Mail",
-      "password": "[en] Passwort",
-      "submit": "[en] Anmelden"
+      "email": "Email",
+      "password": "Password",
+      "submit": "Login"
     }
   },
   "content": {
     "education": {
-      "headline": "[en] Miteinander Bildung gestalten",
-      "content": "[en] Die bundesweite MINT-Community lebt davon, <0>sich auszutauschen, Wissen zu teilen, von- und miteinander zu lernen</0>. Auf der Community-Plattform könnt Ihr Euch <0>untereinander und mit Organisationen vernetzen und Inspiration oder <1>Expert:innen</1></0> zu konkreten Themen in Eurer Umgebung <0>finden</0>.",
-      "action": "[en] Jetzt registrieren"
+      "headline": "Shaping education together",
+      "content": "The nationwide STEM community thrives on <0>exchanging ideas, sharing knowledge, and learning from and with each other</0>. On the community platform, you can <0>network with each other and with organizations, and find inspiration or <1>experts</1></0> on specific topics in your area.",
+      "action": "Register now"
     },
     "growth": {
-      "headline": "[en] Wie unsere Community wächst",
-      "profiles_one": "[en] Profil",
-      "profiles_other": "[en] Profile",
-      "organizations_one": "[en] Organisation",
-      "organizations_other": "[en] Organisationen",
-      "events_one": "[en] Veranstaltung",
-      "events_other": "[en] Veranstaltungen",
-      "join": "[en] Werde auch Du Teil unserer ständig wachsenden MINT-Community."
+      "headline": "How our community grows",
+      "profiles_one": "Profile",
+      "profiles_other": "Profiles",
+      "organizations_one": "Organization",
+      "organizations_other": "Organizations",
+      "events_one": "Event",
+      "events_other": "Events",
+      "join": "Become part of our constantly growing STEM community."
     },
     "more": {
-      "headline": "[en] Mehr erfahren",
-      "content": "[en] Die MINTvernetzt Community-Plattform ist ein Projekt von MINTvernetzt, das 2021 gestartet ist, um die <0>MINT-Community deutschlandweit nachhaltig zu stärken</0>. Erfahre mehr über die Projekte von <0>MINTvernetzt, der Service- und Anlaufstelle für MINT-Akteur:innen</0> auf der MINTvernetzt-Website.",
-      "action": "[en] MINTvernetzt-Website besuchen"
+      "headline": "Learn more",
+      "content": "The MINTvernetzt community platform is a project by MINTvernetzt, started in 2021 to sustainably strengthen the <0>STEM community nationwide</0>. Learn more about the projects of <0>MINTvernetzt, the service and contact point for STEM actors</0> on the MINTvernetzt website.",
+      "action": "Visit the MINTvernetzt website"
     }
   }
 }

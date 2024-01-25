@@ -1,11 +1,11 @@
 {
   "error": {
-    "notFound": "[en] Event not found",
-    "notPrivileged": "[en] Not privileged",
+    "notFound": "Event not found",
+    "notPrivileged": "Not privileged",
     "inputError": {
-      "doesNotExist": "[en] Es existiert noch kein Profil unter diesem Namen.",
-      "alreadyIn": "[en] Das Profil unter diesem Namen ist bereits Speaker Eurer Veranstaltung."
+      "doesNotExist": "There is no profile under this name yet.",
+      "alreadyIn": "The profile under this name is already a speaker at your event."
     }
   },
-  "feedback": "[en] Das Profil mit dem Namen \"{{firstName}} {{lastName}}\" wurde als Speaker:in hinzugefügt."
+  "feedback": "The profile with the name \"{{firstName}} {{lastName}}\" has been added as a speaker."
 }

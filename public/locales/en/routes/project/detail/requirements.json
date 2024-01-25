@@ -1,39 +1,39 @@
 {
   "error": {
     "invariant": {
-      "invalidRoute": "[en] No valid route",
-      "notFound": "[en] Not found"
+      "invalidRoute": "No valid route",
+      "notFound": "Not found"
     }
   },
   "content": {
-    "information": "[en] Die Informationen zu finanziellem und personellem Rahmen beziehen sich auf das angegebene Projekt, nicht allgemein auf die Organisation.",
-    "confirmation": "[en] Informationen zu den Rahmenbedingungen wurden noch nicht eingetragen",
+    "information": "The financial and staffing information relates to the specified project, not to the organization in general.",
+    "confirmation": "Information about the general conditions has not yet been entered",
     "timeFrame": {
-      "headline": "[en] Zeitlicher Rahmen",
-      "intro": "[en] Projektstart bzw. Projekt-Zeitraum"
+      "headline": "Timeframe",
+      "intro": "Project start or project period"
     },
     "jobFillings": {
-      "headline": "[en] Personelle Situation",
-      "intro": "[en] Stellen und / oder Stundenkontingent"
+      "headline": "Personnel situation",
+      "intro": "Positions and/or hourly quota"
     },
     "furtherJobFillings": {
-      "headline": "[en] Weitere Infos"
+      "headline": "Further information"
     },
     "finance": {
-      "headline": "[en] Finanzieller Rahmen",
-      "yearlyBudget": "[en] Jährliches Budget",
-      "financings": "[en] Art der Finanzierung",
-      "moreInformation": "[en] Weitere Infos"
+      "headline": "Financial frame",
+      "yearlyBudget": "Yearly budget",
+      "financings": "Type of financing",
+      "moreInformation": "Further information"
     },
     "technical": {
-      "headline": "[en] Technischer Rahmen",
-      "technicalRequirements": "[en] Software / Hardware / Bausätze / Maschinen",
-      "furtherTechnicalRequirements": "[en] Sonstiges"
+      "headline": "Technical frame",
+      "technicalRequirements": "Software / Hardware / Kits / Machines",
+      "furtherTechnicalRequirements": "Further information"
     },
     "rooms": {
-      "headline": "[en] Räumliche Situation",
-      "roomSituation": "[en] Arbeitsorte",
-      "furtherRoomSituation": "[en] Weitere Informationen"
+      "headline": "Spatial situation",
+      "roomSituation": "Places of work",
+      "furtherRoomSituation": "Further information"
     }
   }
 }
