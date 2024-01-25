@@ -80,6 +80,7 @@
       }
     },
     "reset": "Änderungen verwerfen",
-    "submit": "Speichern"
+    "submit": "Speichern",
+    "hint": "*Erforderliche Angaben"
   }
 }

@@ -705,7 +705,7 @@ function General() {
             </div>
           </div>
 
-          <p className="mv-text-sm mv-mt-4">*Erforderliche Angaben</p>
+          <p className="mv-text-sm mv-mt-4">{t("content.hint")}</p>
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
               <Controls>

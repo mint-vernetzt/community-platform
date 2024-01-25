@@ -80,6 +80,7 @@
       }
     },
     "reset": "Discard changes",
-    "submit": "Save"
+    "submit": "Save",
+    "hint": "*Required information"
   }
 }
