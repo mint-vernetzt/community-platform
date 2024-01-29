@@ -17,7 +17,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // ) {
   //   loginRedirect = `${process.env.COMMUNITY_BASE_URL}${loginRedirect}`;
   // }
-  console.log("LOGIN REDIRECT IN CALLER", loginRedirect);
   const { error, data } = await authClient.auth.signInWithOAuth({
     provider: "keycloak",
     options: {

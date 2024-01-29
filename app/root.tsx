@@ -66,7 +66,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     if (profile) {
       if (profile.avatar) {
         const publicURL = getPublicURL(authClient, profile.avatar);
-        console.log(publicURL);
         if (publicURL) {
           avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },

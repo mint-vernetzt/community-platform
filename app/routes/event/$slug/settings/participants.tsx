@@ -159,7 +159,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     mutation,
     environment: { participantsCount: event._count.participants },
   });
-  console.log(result);
   if (result.success) {
     // All checked, lets update the event
     await updateParticipantLimit(
