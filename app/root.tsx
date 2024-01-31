@@ -103,6 +103,7 @@ export const handle = {
   i18n: [
     "meta",
     "organisms/footer",
+    "organisms/roadmap",
     "utils/social-media-services",
     "components/image-cropper",
     "organisms/cards/event-card",
