@@ -192,12 +192,12 @@ function Requirements() {
         project.furtherRoomSituation !== null) && (
         <>
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {t("content.room.headline")}
+            {t("content.rooms.headline")}
           </h2>
           {project.roomSituation !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.room.roomSituation")}
+                {t("content.rooms.roomSituation")}
               </h3>
               <RichText html={project.roomSituation} />
             </>
@@ -205,7 +205,7 @@ function Requirements() {
           {project.furtherRoomSituation !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.room.furtherRoomSituation")}
+                {t("content.rooms.furtherRoomSituation")}
               </h3>
               <RichText html={project.furtherRoomSituation} />
             </>
