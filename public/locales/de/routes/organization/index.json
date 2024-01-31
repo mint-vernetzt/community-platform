@@ -5,7 +5,7 @@
   "image": {
     "background": {
       "alt": "Aktuelles Hintergrundbild",
-      "change": "Bild ändern",
+      "change": "Hintergrund ändern",
       "headline": "Hintergrundbild"
     },
     "logo": {

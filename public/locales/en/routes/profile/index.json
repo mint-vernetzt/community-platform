@@ -4,7 +4,10 @@
   },
   "profile": {
     "contact": "Contact",
-    "changeImage": "Change image",
+    "changeAvatar": "Change avatar",
+    "changeBackground": "Change background",
+    "changeBackgroundHeadline": "Background image",
+    "changeAvatarHeadline": "Profile image",
     "existsSince": "Profile exists since {{timestamp}}",
     "introduction": "Hi, I'm {{name}}",
     "editProfile": "Edit profile",

@@ -232,7 +232,7 @@ function ImageCropper(props: ImageCropperProps) {
       }
     } catch (exception) {
       console.log({ exception });
-      alert("Es ist leider ein Fehler aufgetreten.");
+      alert(t("imageCropper.error"));
       setIsSaving(false);
     }
   }
