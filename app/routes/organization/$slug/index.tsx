@@ -3,7 +3,6 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import imgproxy from "imgproxy/dist/types.js";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
@@ -17,7 +16,7 @@ import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import ProfileCard from "~/components/ProfileCard/ProfileCard";
 import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
@@ -218,7 +217,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
-            gravity: imgproxy.GravityType.center,
+            gravity: GravityType.center,
           });
         }
       }
@@ -234,7 +233,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           projectLogo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
-            gravity: imgproxy.GravityType.center,
+            gravity: GravityType.center,
           });
         }
       }
@@ -245,7 +244,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           if (publicURL !== null) {
             awardLogo = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
-              gravity: imgproxy.GravityType.center,
+              gravity: GravityType.center,
             });
           }
         }

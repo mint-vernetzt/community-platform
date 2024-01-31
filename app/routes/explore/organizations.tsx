@@ -6,17 +6,16 @@ import {
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import imgproxy from "imgproxy/dist/types.js";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
-import { getAllOffers } from "~/routes/utils.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
+import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -99,7 +98,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         enhancedOrganization.logo = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }
@@ -112,7 +111,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         enhancedOrganization.background = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }

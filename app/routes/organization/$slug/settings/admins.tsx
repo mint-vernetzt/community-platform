@@ -8,11 +8,11 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import imgproxy from "imgproxy/dist/types.js";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -28,7 +28,6 @@ import {
   removeAdminSchema,
   type action as removeAdminAction,
 } from "./admins/remove-admin";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -47,7 +46,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }

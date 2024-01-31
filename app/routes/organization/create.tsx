@@ -1,3 +1,6 @@
+import { conform, useForm } from "@conform-to/react";
+import { parse } from "@conform-to/zod";
+import { Avatar, Button, Input, List } from "@mint-vernetzt/components";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -7,10 +10,9 @@ import {
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
-import imgproxy from "imgproxy/dist/types.js";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
 import {
@@ -18,9 +20,6 @@ import {
   createOrganizationOnProfile,
   searchForOrganizationsByName,
 } from "./create.server";
-import { parse } from "@conform-to/zod";
-import { Avatar, Button, List, Input } from "@mint-vernetzt/components";
-import { conform, useForm } from "@conform-to/react";
 
 const schema = z.object({
   organizationName: z
@@ -55,7 +54,7 @@ export async function loader(args: LoaderFunctionArgs) {
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
-            gravity: imgproxy.GravityType.center,
+            gravity: GravityType.center,
           });
         }
       }

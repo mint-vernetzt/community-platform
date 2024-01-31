@@ -2,11 +2,10 @@ import { Button, CardContainer, ProjectCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import imgproxy from "imgproxy/dist/types.js";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
@@ -76,7 +75,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
-            gravity: imgproxy.GravityType.center,
+            gravity: GravityType.center,
           });
         }
       }
@@ -91,7 +90,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           if (publicURL) {
             logo = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
-              gravity: imgproxy.GravityType.center,
+              gravity: GravityType.center,
             });
           }
         }

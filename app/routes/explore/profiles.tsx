@@ -9,18 +9,17 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import imgproxy from "imgproxy/dist/types.js";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { createAreaOptionFromData } from "~/lib/utils/components";
 import { prismaClient } from "~/prisma.server";
-import { getAllOffers } from "~/routes/utils.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
+import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -109,7 +108,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         enhancedProfile.avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }
@@ -119,7 +118,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         enhancedProfile.background = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }

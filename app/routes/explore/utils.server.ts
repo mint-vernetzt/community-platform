@@ -2,8 +2,7 @@ import type { Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
-import imgproxy from "imgproxy/dist/types.js";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import {
@@ -570,7 +569,7 @@ export async function prepareEvents(
           if (publicURL) {
             logo = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
-              gravity: imgproxy.GravityType.center,
+              gravity: GravityType.center,
             });
           }
         }

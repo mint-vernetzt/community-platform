@@ -1,6 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import imgproxy from "imgproxy/dist/types.js";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -37,7 +36,7 @@ export async function getMembersOfOrganization(
       if (publicURL !== null) {
         const avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
         return {
           ...item,
