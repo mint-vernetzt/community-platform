@@ -8,7 +8,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import type { KeyboardEvent } from "react";
-// import CountUp from "react-countup";
 import { makeDomainFunction } from "domain-functions";
 import type { FormProps } from "remix-forms";
 import { performMutation } from "remix-forms";
@@ -26,6 +25,7 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
+import { CountUp } from "./__components";
 
 const schema = z.object({
   email: z
@@ -403,7 +403,7 @@ export default function Index() {
               <H3 className="text-center font-semibold all-small-caps mb-12 text-white tracking-wider">
                 Wie unsere Community wächst
               </H3>
-              {/* <div className="md:grid md:grid-cols-4 md:gap-6 lg:gap-8">
+              <div className="md:grid md:grid-cols-4 md:gap-6 lg:gap-8">
                 <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
                     <CountUp
@@ -452,7 +452,7 @@ export default function Index() {
                   </p>
                   <p className="font-bold">Projekte</p>
                 </div>
-              </div> */}
+              </div>
               <p className="text-center font-bold">
                 Werde auch Du Teil unserer ständig wachsenden MINT-Community.
               </p>
