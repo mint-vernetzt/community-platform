@@ -27,12 +27,10 @@
     },
     "growth": {
       "headline": "How our community grows",
-      "profiles_one": "Profile",
-      "profiles_other": "Profiles",
-      "organizations_one": "Organization",
-      "organizations_other": "Organizations",
-      "events_one": "Event",
-      "events_other": "Events",
+      "profiles": "Profiles",
+      "organizations": "Organizations",
+      "events": "Events",
+      "projects": "Projects",
       "join": "Become part of our constantly growing STEM community."
     },
     "more": {

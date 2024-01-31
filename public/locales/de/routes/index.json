@@ -27,12 +27,10 @@
     },
     "growth": {
       "headline": "Wie unsere Community wächst",
-      "profiles_one": "Profil",
-      "profiles_other": "Profile",
-      "organizations_one": "Organisation",
-      "organizations_other": "Organisationen",
-      "events_one": "Veranstaltung",
-      "events_other": "Veranstaltungen",
+      "profiles": "Profile",
+      "organizations": "Organisationen",
+      "events": "Veranstaltungen",
+      "projects": "Projekte",
       "join": "Werde auch Du Teil unserer ständig wachsenden MINT-Community."
     },
     "more": {

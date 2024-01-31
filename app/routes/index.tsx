@@ -414,7 +414,7 @@ export default function Index() {
           <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
             <div className="md:col-start-2 md:col-span-10 xl:col-start-3 xl:col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12">
-                Miteinander Bildung gestalten
+                {t("content.education.headline")}
               </H3>
               <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
                 <Trans
@@ -459,11 +459,7 @@ export default function Index() {
                       separator="."
                     />
                   </p>
-                  <p className="font-bold">
-                    {t("content.growth.profiles", {
-                      count: loaderData.profileCount,
-                    })}
-                  </p>
+                  <p className="font-bold">{t("content.growth.profiles")}</p>
                 </div>
                 <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
@@ -476,9 +472,7 @@ export default function Index() {
                     />
                   </p>
                   <p className="font-bold">
-                    {t("content.growth.organizations", {
-                      count: loaderData.organizationCount,
-                    })}
+                    {t("content.growth.organizations")}
                   </p>
                 </div>
                 <div className="text-center mb-8">
@@ -491,11 +485,7 @@ export default function Index() {
                       separator="."
                     />
                   </p>
-                  <p className="font-bold">
-                    {t("content.growth.events", {
-                      count: loaderData.eventCount,
-                    })}
-                  </p>
+                  <p className="font-bold">{t("content.growth.events")}</p>
                 </div>
                 <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
@@ -507,7 +497,7 @@ export default function Index() {
                       separator="."
                     />
                   </p>
-                  <p className="font-bold">Projekte</p>
+                  <p className="font-bold">{t("content.growth.projects")}</p>
                 </div>
               </div>
               <p className="text-center font-bold">
