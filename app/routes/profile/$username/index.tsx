@@ -820,7 +820,7 @@ export default function Index() {
                       id="team-member-future-events"
                       className="mb-4 font-bold"
                     >
-                      {t("section.comingEvents.team")}
+                      {t("section.event.team")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.teamMemberOfEvents.map(
@@ -888,13 +888,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                     {event.participantLimit === null
-                                      ? " | Unbegrenzte Plätze"
+                                      ? ` | ${t(
+                                          "section.event.unlimitedSeats"
+                                        )}`
                                       : ` | ${
                                           event.participantLimit -
                                           event._count.participants
-                                        } / ${
-                                          event.participantLimit
-                                        } Plätzen frei`}
+                                        } / ${event.participantLimit} ${t(
+                                          "section.event.seatsFree"
+                                        )}`}
                                     {event.participantLimit !== null &&
                                     event._count.participants >=
                                       event.participantLimit ? (
@@ -902,8 +904,8 @@ export default function Index() {
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList} auf der
-                                          Warteliste
+                                          {event._count.waitingList}{" "}
+                                          {t("section.event.onWaitingList")}
                                         </span>
                                       </>
                                     ) : (
@@ -941,14 +943,14 @@ export default function Index() {
                               ) : null}
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Abgesagt
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Angemeldet</p>
+                                  <p>{t("section.event.registered")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -964,7 +966,7 @@ export default function Index() {
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>Wartend</p>
+                                  <p>{t("section.event.waiting")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -990,7 +992,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1008,7 +1010,7 @@ export default function Index() {
                       id="future-contributed-events"
                       className="mb-4 font-bold"
                     >
-                      Speaker:in
+                      {t("section.event.speaker")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.contributedEvents.map(
@@ -1076,13 +1078,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                     {event.participantLimit === null
-                                      ? " | Unbegrenzte Plätze"
+                                      ? ` | ${t(
+                                          "section.event.unlimitedSeats"
+                                        )}`
                                       : ` | ${
                                           event.participantLimit -
                                           event._count.participants
-                                        } / ${
-                                          event.participantLimit
-                                        } Plätzen frei`}
+                                        } / ${event.participantLimit} ${t(
+                                          "section.event.seatsFree"
+                                        )}`}
                                     {event.participantLimit !== null &&
                                     event._count.participants >=
                                       event.participantLimit ? (
@@ -1090,8 +1094,8 @@ export default function Index() {
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList} auf der
-                                          Warteliste
+                                          {event._count.waitingList}{" "}
+                                          {t("section.event.onWaitingList")}
                                         </span>
                                       </>
                                     ) : (
@@ -1114,12 +1118,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Abgesagt
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Angemeldet</p>
+                                  <p>{t("section.event.registered")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1133,7 +1137,7 @@ export default function Index() {
                               ) : null}
                               {event.isOnWaitingList && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>Wartend</p>
+                                  <p>{t("section.event.waiting")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1158,7 +1162,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1175,7 +1179,7 @@ export default function Index() {
                       id="future-participated-events"
                       className="mb-4 font-bold"
                     >
-                      Teilnahme
+                      {t("section.event.participation")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.participatedEvents.map(
@@ -1243,13 +1247,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                     {event.participantLimit === null
-                                      ? " | Unbegrenzte Plätze"
+                                      ? ` | ${t(
+                                          "section.event.unlimitedSeats"
+                                        )}`
                                       : ` | ${
                                           event.participantLimit -
                                           event._count.participants
-                                        } / ${
-                                          event.participantLimit
-                                        } Plätzen frei`}
+                                        } / ${event.participantLimit} ${t(
+                                          "section.event.seatsFree"
+                                        )}`}
                                     {event.participantLimit !== null &&
                                     event._count.participants >=
                                       event.participantLimit ? (
@@ -1257,8 +1263,8 @@ export default function Index() {
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList} auf der
-                                          Warteliste
+                                          {event._count.waitingList}{" "}
+                                          {t("section.event.onWaitingList")}
                                         </span>
                                       </>
                                     ) : (
@@ -1281,12 +1287,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Abgesagt
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Angemeldet</p>
+                                  <p>{t("section.event.registered")}</p>
                                 </div>
                               ) : null}
                               {canUserParticipate(event) ? (
@@ -1299,7 +1305,7 @@ export default function Index() {
                               ) : null}
                               {event.isOnWaitingList && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>Wartend</p>
+                                  <p>{t("section.event.waiting")}</p>
                                 </div>
                               ) : null}
                               {canUserBeAddedToWaitingList(event) ? (
@@ -1320,7 +1326,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1347,7 +1353,7 @@ export default function Index() {
                 {loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
                   <>
                     <h6 id="past-team-member-events" className="mb-4 font-bold">
-                      {t("section.pastEvents.team")}
+                      {t("section.event.team")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.teamMemberOfEvents.map(
@@ -1602,7 +1608,7 @@ export default function Index() {
                 {loaderData.pastEvents.participatedEvents.length > 0 ? (
                   <>
                     <h6 id="past-participated-events" className="mb-4font-bold">
-                      Teilnahme
+                      {t("section.event.participation")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.participatedEvents.map(

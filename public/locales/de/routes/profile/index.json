@@ -30,21 +30,26 @@
     },
     "comingEvents": {
       "title": "Bevorstehende Veranstaltungen",
-      "create": "Veranstaltung anlegen",
-      "team": "Team"
+      "create": "Veranstaltung anlegen"
     },
     "pastEvents": {
-      "title": "Bevorstehende Veranstaltungen",
-      "team": "Team"
+      "title": "Vergangene Veranstaltungen"
     },
     "event": {
+      "team": "Team",
+      "speaker": "Speaker:in",
+      "participation": "Teilnahme",
       "published": "Veröffentlicht",
       "draft": "Entwurf",
       "cancelled": "Wurde abgesagt",
+      "registered": "Angemeldet",
+      "waiting": "Wartend",
       "participated": "Teilgenommen",
       "more": "Mehr erfahren",
-      "speaker": "Speaker:in",
-      "wasCancelled": "Wurde abgesagt"
+      "wasCancelled": "Wurde abgesagt",
+      "unlimitedSeats": "Unbegrenzte Plätze",
+      "seatsFree": "Plätzen frei",
+      "onWaitingList": "auf der Warteliste"
     }
   }
 }

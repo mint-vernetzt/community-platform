@@ -30,21 +30,26 @@
     },
     "comingEvents": {
       "title": "Upcoming events",
-      "create": "Create event",
-      "team": "Organization/Team"
+      "create": "Create event"
     },
     "pastEvents": {
-      "title": "Past events",
-      "team": "Organization/Team"
+      "title": "Past events"
     },
     "event": {
+      "team": "Team",
+      "speaker": "Speaker",
+      "participation": "Participation",
       "published": "Published",
       "draft": "Draft",
       "cancelled": "Cancelled",
+      "registered": "Registered",
+      "waiting": "Waiting",
       "participated": "Participated",
       "more": "Learn more",
-      "speaker": "Speaker",
-      "wasCancelled": "Was cancelled"
+      "wasCancelled": "Was cancelled",
+      "unlimitedSeats": "Unlimited seats",
+      "seatsFree": "Seats free",
+      "onWaitingList": "On waiting list"
     }
   }
 }
