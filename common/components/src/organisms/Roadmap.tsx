@@ -89,7 +89,7 @@ function Roadmap() {
             />
             <RoadmapCard
               title="Matching-Funktion"
-              text="Per Vernetzungsfunktion kannst Du Dich mit anderen Akteur:innen oder Organisationen vernetzen und Deine Kontakte in Listen zusammenstellen."
+              text="Über einen Algorithmus werden Dir passende Projekte, Organisationen und Akteur:innen vorgeschlagen."
             />
             <RoadmapCard
               title="Interaktion"
