@@ -874,7 +874,7 @@ function Index() {
                 {t("content.event.start")}
               </div>
               <div className="pb-3 md:pb-0">
-                XX {formatDateTime(startTime, i18n.language, t)}YY
+                {formatDateTime(startTime, i18n.language, t)}
               </div>
 
               <div className="text-xs leading-6">{t("content.event.end")}</div>
