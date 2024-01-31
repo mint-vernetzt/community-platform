@@ -9,9 +9,8 @@ import type { Organization, Profile } from "@prisma/client";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import imgproxy from "imgproxy/dist/types.js";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css";
 import {
@@ -74,7 +73,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         avatarImage = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }
@@ -100,7 +99,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           if (publicURL !== null) {
             logoImage = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
-              gravity: imgproxy.GravityType.center,
+              gravity: GravityType.center,
             });
           }
         }
@@ -152,7 +151,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         logoImage = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }
@@ -175,7 +174,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           if (publicURL !== null) {
             avatar = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
-              gravity: imgproxy.GravityType.center,
+              gravity: GravityType.center,
             });
           }
         }

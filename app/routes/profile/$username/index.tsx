@@ -17,7 +17,7 @@ import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
@@ -163,7 +163,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
           resize: { type: "fit", width: 64, height: 64 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }
@@ -177,7 +177,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           projectLogo = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
-            gravity: imgproxy.GravityType.center,
+            gravity: GravityType.center,
           });
         }
       }
@@ -188,7 +188,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           if (publicURL !== null) {
             awardLogo = getImageURL(publicURL, {
               resize: { type: "fit", width: 64, height: 64 },
-              gravity: imgproxy.GravityType.center,
+              gravity: GravityType.center,
             });
           }
         }

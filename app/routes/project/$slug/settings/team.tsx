@@ -9,10 +9,10 @@ import {
 } from "@mint-vernetzt/components";
 import { type Prisma, type Profile } from "@prisma/client";
 import {
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
   json,
   redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import {
   Form,
@@ -21,9 +21,8 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import imgproxy from "imgproxy/dist/types.js";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -96,7 +95,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }
@@ -161,7 +160,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           avatar = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
-            gravity: imgproxy.GravityType.center,
+            gravity: GravityType.center,
           });
         }
       }

@@ -8,11 +8,11 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import imgproxy from "imgproxy/dist/types.js";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -33,7 +33,6 @@ import {
   removeSpeakerSchema,
   type action as removeSpeakerAction,
 } from "./speakers/remove-speaker";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -53,7 +52,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         speaker.avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }

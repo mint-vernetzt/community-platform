@@ -22,9 +22,8 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { type User } from "@supabase/supabase-js";
-import imgproxy from "imgproxy/dist/types.js";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -117,7 +116,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
-            gravity: imgproxy.GravityType.center,
+            gravity: GravityType.center,
           });
         }
       }
@@ -161,7 +160,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }
@@ -234,7 +233,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
             resize: { type: "fill", width: 64, height: 64 },
-            gravity: imgproxy.GravityType.center,
+            gravity: GravityType.center,
           });
         }
       }

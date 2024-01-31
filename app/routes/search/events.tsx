@@ -6,7 +6,7 @@ import { utcToZonedTime } from "date-fns-tz";
 import imgproxy from "imgproxy/dist/types.js";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
@@ -83,7 +83,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           if (publicURL) {
             logo = getImageURL(publicURL, {
               resize: { type: "fill", width: 64, height: 64 },
-              gravity: imgproxy.GravityType.center,
+              gravity: GravityType.center,
             });
           }
         }

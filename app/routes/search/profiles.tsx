@@ -2,10 +2,9 @@ import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import imgproxy from "imgproxy/dist/types.js";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -69,7 +68,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         enhancedProfile.avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }
@@ -79,7 +78,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         enhancedProfile.background = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: imgproxy.GravityType.center,
+          gravity: GravityType.center,
         });
       }
     }
