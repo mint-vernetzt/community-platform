@@ -874,12 +874,12 @@ export default function Index() {
             loaderData.pastEvents.responsibleForEvents.length > 0 ? (
               <>
                 <h3 id="organized-events" className="mt-14 mb-6 font-bold">
-                  Organisierte Veranstaltungen
+                  {t("content.organizedEvents")}
                 </h3>
                 {loaderData.futureEvents.responsibleForEvents.length > 0 ? (
                   <>
                     <h6 id="organized-future-events" className="mb-4 font-bold">
-                      Anstehende Veranstaltungen
+                      {t("content.futureEvents")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.responsibleForEvents.map(
@@ -947,13 +947,13 @@ export default function Index() {
                                       i18n.language
                                     )}
                                     {relation.event.participantLimit === null
-                                      ? t("content.unlimitedPlaces")
+                                      ? ` | ${t("content.unlimitedSeats")}`
                                       : ` | ${
                                           relation.event.participantLimit -
                                           relation.event._count.participants
                                         } / ${
                                           relation.event.participantLimit
-                                        } Plätzen frei`}
+                                        }  ${t("content.seatsFree")}`}
                                     {relation.event.participantLimit !== null &&
                                     relation.event._count.participants >=
                                       relation.event.participantLimit ? (
