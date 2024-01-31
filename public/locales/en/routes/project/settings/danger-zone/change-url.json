@@ -17,6 +17,7 @@
     }
   },
   "content": {
+    "label": "Project URL",
     "feedback": "URL changed successfully.",
     "prompt": "You have unsaved changes. These will be lost if you go one step further now.",
     "reach": "Your project can currently be accessed via the following URL <0></0>.",

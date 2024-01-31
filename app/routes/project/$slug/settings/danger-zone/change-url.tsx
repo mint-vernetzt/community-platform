@@ -195,7 +195,9 @@ function ChangeURL() {
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <Input id="deep" defaultValue="true" type="hidden" />
           <Input id="slug" defaultValue={loaderData.slug}>
-            <Input.Label htmlFor={fields.slug.id}>Projekt-URL</Input.Label>
+            <Input.Label htmlFor={fields.slug.id}>
+              {t("content.label")}
+            </Input.Label>
             {typeof actionData !== "undefined" &&
               typeof fields.slug.error !== "undefined" && (
                 <Input.Error>{fields.slug.error}</Input.Error>
