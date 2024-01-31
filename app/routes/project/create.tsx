@@ -5,7 +5,11 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { z } from "zod";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { deriveMode, generateProjectSlug } from "~/utils.server";
@@ -25,7 +29,13 @@ const createSchema = z.object({
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
+
+  if (sessionUser === null) {
+    const url = new URL(request.url);
+    return redirect(`/login?login_redirect=${url.pathname}`);
+  }
+
   const mode = await deriveMode(sessionUser);
   invariantResponse(
     mode !== "anon",

@@ -1,5 +1,5 @@
-import { Button } from "@mint-vernetzt/components";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { Button, Roadmap } from "@mint-vernetzt/components";
 import { json, redirect } from "@remix-run/node";
 import {
   Link,
@@ -24,6 +24,7 @@ import {
   getEventCount,
   getOrganizationCount,
   getProfileCount,
+  getProjectCount,
 } from "./utils.server";
 
 const schema = z.object({
@@ -58,11 +59,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const profileCount = await getProfileCount();
   const organizationCount = await getOrganizationCount();
   const eventCount = await getEventCount();
+  const projectCount = await getProjectCount();
 
   return json({
     profileCount,
     organizationCount,
     eventCount,
+    projectCount,
     abilities,
   });
 };
@@ -126,8 +129,8 @@ export default function Index() {
 
   return (
     <>
-      <section className="-mt-8 bg-lilac-50">
-        <div className="py-16 lg:py-20 relative overflow-hidden xl:min-h-[calc(100vh-129px)] md:flex md:items-center bg-[linear-gradient(0deg,_rgba(255,255,255,0.5)_0%,_rgba(255,255,255,1)_75%)]">
+      <section className="-mt-8 bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
+        <div className="py-16 lg:py-20 relative overflow-hidden xl:min-h-[calc(100vh-129px)] md:flex md:items-center">
           <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden lg:block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -400,8 +403,8 @@ export default function Index() {
               <H3 className="text-center font-semibold all-small-caps mb-12 text-white tracking-wider">
                 Wie unsere Community wächst
               </H3>
-              <div className="md:grid md:grid-cols-3 md:gap-6 lg:gap-8">
-                {/* <div className="text-center mb-8">
+              {/* <div className="md:grid md:grid-cols-4 md:gap-6 lg:gap-8">
+                <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
                     <CountUp
                       end={loaderData.profileCount}
@@ -436,8 +439,20 @@ export default function Index() {
                     />
                   </p>
                   <p className="font-bold">Veranstaltungen</p>
-                </div> */}
-              </div>
+                </div>
+                <div className="text-center mb-8">
+                  <p className="text-7xl leading-tight font-bold">
+                    <CountUp
+                      end={loaderData.projectCount}
+                      enableScrollSpy={true}
+                      scrollSpyDelay={100}
+                      scrollSpyOnce={true}
+                      separator="."
+                    />
+                  </p>
+                  <p className="font-bold">Projekte</p>
+                </div>
+              </div> */}
               <p className="text-center font-bold">
                 Werde auch Du Teil unserer ständig wachsenden MINT-Community.
               </p>
@@ -446,7 +461,9 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-24 relative overflow-hidden lg:min-h-[700px]">
+      <Roadmap />
+
+      <section className="py-16 lg:py-24 relative overflow-hidden lg:min-h-[700px] bg-beige-100 -mb-8">
         <div className="absolute top-0 left-1/2 lg:ml-[calc(992px/12*5)] 2xl:ml-[calc(1488px/12*5)] hidden lg:block">
           <svg xmlns="http://www.w3.org/2000/svg" width="730" height="724">
             <g fill="none" fillRule="evenodd">

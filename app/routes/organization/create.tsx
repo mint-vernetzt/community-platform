@@ -1,184 +1,191 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useNavigate } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import imgproxy from "imgproxy/dist/types.js";
-import { makeDomainFunction } from "domain-functions";
-import { performMutation } from "remix-forms";
 import { z } from "zod";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import Input from "~/components/FormElements/Input/Input";
-import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
-import { getOrganizationByName } from "./$slug/settings/utils.server";
-import { createOrganizationOnProfile } from "./create.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import {
+  countOrganizationsBySearchQuery,
+  createOrganizationOnProfile,
+  searchForOrganizationsByName,
+} from "./create.server";
+import { parse } from "@conform-to/zod";
+import { Avatar, Button, List, Input } from "@mint-vernetzt/components";
+import { conform, useForm } from "@conform-to/react";
 
 const schema = z.object({
   organizationName: z
-    .string()
-    .min(1, "Bitte gib den Namen Deiner Organisation ein."),
+    .string({
+      required_error: "Bitte gib den Namen Deiner Organisation ein.",
+    })
+    .min(3, "Der Name der Organisation muss mindestens 3 Zeichen lang sein."),
 });
 
-const environmentSchema = z.object({
-  userId: z.string(),
-});
-
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
+  const { request } = args;
   const { authClient } = createAuthClient(request);
-  await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
 
-  return null;
-};
+  const url = new URL(request.url);
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const slug = generateOrganizationSlug(values.organizationName);
-  try {
-    await createOrganizationOnProfile(
-      environment.userId,
-      values.organizationName,
-      slug
-    );
-  } catch (error) {
-    throw "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können.";
+  if (sessionUser === null) {
+    return redirect(`/login?login_redirect=${url.pathname}`);
   }
-  return { ...values, slug };
-});
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const queryString = url.searchParams.get("search");
+  const query = queryString !== null ? queryString.split(" ") : [];
 
-  const result = await performMutation({
-    request,
-    schema,
-    mutation,
-    environment: { userId: sessionUser.id },
-  });
-  let alreadyExistingOrganization: Awaited<
-    ReturnType<typeof getOrganizationByName>
-  > = null;
-  if (result.success) {
-    return redirect(`/organization/${result.data.slug}`);
-  } else {
-    if (
-      result.errors._global !== undefined &&
-      result.errors._global.includes(
-        "Diese Organisation existiert bereits. Melde dich bei der Person, die diese Organisation hier angelegt hat. Sie kann dich als Mitglied hinzufügen. Zukünftig wirst du dich selbstständig zu Organisationen hinzufügen können."
-      )
-    ) {
-      alreadyExistingOrganization = await getOrganizationByName(
-        result.values.organizationName
-      );
-      if (
-        alreadyExistingOrganization !== null &&
-        alreadyExistingOrganization.logo !== null
-      ) {
-        const publicURL = getPublicURL(
-          authClient,
-          alreadyExistingOrganization.logo
-        );
-        if (publicURL) {
-          alreadyExistingOrganization.logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
+  let searchResult: { name: string; slug: string; logo: string | null }[] = [];
+
+  if (query.length > 0 && queryString !== null && queryString.length >= 3) {
+    searchResult = await searchForOrganizationsByName(queryString);
+    searchResult = searchResult.map((relation) => {
+      let logo = relation.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: { type: "fill", width: 64, height: 64 },
             gravity: imgproxy.GravityType.center,
           });
         }
       }
+      return { ...relation, logo };
+    });
+  }
+
+  return json({ searchResult });
+}
+
+export async function action(args: ActionFunctionArgs) {
+  const { request } = args;
+
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+
+  const url = new URL(request.url);
+
+  const queryString = url.searchParams.get("search");
+
+  if (sessionUser === null) {
+    return redirect(`/login?login_redirect=${url.pathname}`);
+  }
+
+  const formData = await request.formData();
+  const submission = parse(formData, { schema });
+
+  if (typeof submission.value !== "undefined" && submission.value !== null) {
+    if (submission.intent === "submit") {
+      const { organizationName } = submission.value;
+
+      const similarOrganizationsCount = await countOrganizationsBySearchQuery(
+        organizationName
+      );
+
+      if (
+        similarOrganizationsCount === 0 ||
+        (queryString !== null && queryString === organizationName)
+      ) {
+        const slug = generateOrganizationSlug(organizationName);
+        await createOrganizationOnProfile(
+          sessionUser.id,
+          submission.value.organizationName,
+          slug
+        );
+        return redirect(`/organization/${slug}`);
+      } else {
+        const redirectURL = new URL(request.url);
+        redirectURL.searchParams.set(
+          "search",
+          submission.value.organizationName
+        );
+        return redirect(
+          `${redirectURL.pathname}?${redirectURL.searchParams.toString()}`
+        );
+      }
     }
   }
-  return json({ ...result, alreadyExistingOrganization });
-};
 
-export default function Create() {
+  return json(submission);
+}
+
+function Create() {
+  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const navigate = useNavigate();
+
+  const [searchParams] = useSearchParams();
+
+  const searchQuery = searchParams.get("search") || "";
+
+  const [form, fields] = useForm({
+    lastSubmission: actionData,
+    defaultValue: {
+      organizationName: searchQuery,
+    },
+  });
 
   return (
-    <>
-      <section className="container md:mt-2">
-        <div className="font-semi text-neutral-600 flex items-center">
-          {/* TODO: get back route from loader */}
-          <button onClick={() => navigate(-1)} className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              className="h-auto w-6"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-            >
-              <path
-                fillRule="evenodd"
-                d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
-              />
-            </svg>
-            <span className="ml-2">Zurück</span>
-          </button>
-        </div>
-      </section>
-      <div className="container relative pt-20 pb-44">
-        <div className="flex -mx-4 justify-center">
-          <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
-            <h4 className="font-semibold">
-              Organisation oder Netzwerk hinzufügen
-            </h4>
-            <div className="pt-10 lg:pt-0">
-              <RemixFormsForm
-                method="post"
-                schema={schema}
-                onTransition={({ reset, formState }) => {
-                  if (formState.isSubmitSuccessful) {
-                    reset();
-                  }
-                }}
-              >
-                {({ Field, Button, Errors, register }) => (
-                  <>
-                    <Field name="organizationName" className="mb-4">
-                      {({ Errors }) => (
-                        <>
-                          <Input
-                            id="organizationName"
-                            label="Name der Organisation*"
-                            {...register("organizationName")}
-                          />
-                          <Errors />
-                        </>
-                      )}
-                    </Field>
-
-                    <button
-                      type="submit"
-                      className="btn btn-outline-primary ml-auto btn-small mb-8"
-                    >
-                      Anlegen
-                    </button>
-                    <Errors />
-                  </>
-                )}
-              </RemixFormsForm>
-              {actionData !== undefined &&
-              !actionData.success &&
-              actionData.alreadyExistingOrganization !== null ? (
-                <div className="pt-4 -mx-4">
-                  <OrganizationCard
-                    id="already-existing-organization"
-                    link={`/organization/${actionData.alreadyExistingOrganization.slug}`}
-                    name={actionData.alreadyExistingOrganization.name}
-                    types={actionData.alreadyExistingOrganization.types}
-                    image={actionData.alreadyExistingOrganization.logo}
-                  />
-                </div>
-              ) : null}
+    <div className="mv-container mv-relative">
+      <div className="flex -mx-4 justify-center">
+        <div className="lg:flex-1/2 px-4 pt-10 lg:pt-0">
+          <h4 className="font-semibold">
+            Organisation oder Netzwerk hinzufügen
+          </h4>
+          <Form
+            method="post"
+            {...form.props}
+            className="mv-flex mv-flex-col mv-gap-4"
+          >
+            <Input {...conform.input(fields.organizationName)} standalone>
+              <Input.Label htmlFor={fields.organizationName.id}>
+                Name der Organisation*
+              </Input.Label>
+              {typeof fields.organizationName.error !== "undefined" && (
+                <Input.Error>{fields.organizationName.error}</Input.Error>
+              )}
+            </Input>
+            <div className="mv-w-fit-content">
+              <Button type="submit" variant="outline">
+                Hinzufügen
+              </Button>
             </div>
-          </div>
+          </Form>
+          {loaderData.searchResult.length > 0 && (
+            <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-8">
+              <p>
+                Es wurden Organisationen mit ähnlichem Namen gefunden. Falls Du
+                die Organisation mit Namen "{searchQuery}" anlegen willst,
+                klicke erneut auf "Hinzufügen".
+              </p>
+              <List>
+                {loaderData.searchResult.map((organization) => {
+                  return (
+                    <List.Item key={organization.slug} interactive>
+                      <Link to={`/organization/${organization.slug}`}>
+                        <List.Item.Info>
+                          <List.Item.Title>{organization.name}</List.Item.Title>
+                        </List.Item.Info>
+                        <Avatar {...organization} />
+                      </Link>
+                    </List.Item>
+                  );
+                })}
+              </List>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
+
+export default Create;

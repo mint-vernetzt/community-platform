@@ -1065,6 +1065,7 @@ enum DistrictType {
 }
 
 enum AreaType {
+  global
   country
   state
   district

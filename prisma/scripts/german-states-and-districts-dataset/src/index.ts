@@ -226,6 +226,13 @@ export function getAreas(districts, states, countries) {
     stateId: null,
   });
 
+  // @ts-ignore
+  areas.push({
+    name: "International",
+    type: "global",
+    stateId: null,
+  });
+
   return areas;
 }
 
