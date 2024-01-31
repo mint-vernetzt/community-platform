@@ -1,5 +1,6 @@
 import { Button } from "@mint-vernetzt/components";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 export type VideoProps = {
   src: string;
@@ -24,6 +25,8 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
     return React.isValidElement(child) && child.type === VideoSubline;
   });
 
+  const { t } = useTranslation(["organisms/video"]);
+
   return (
     <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
       <div className="mv-w-full mv-aspect-video">
@@ -31,10 +34,10 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
           {!cookiesAccepted ? (
             <>
               <Button variant="outline" onClick={handleClick}>
-                Video von YouTube ansehen
+                {t("cookieAction")}
               </Button>
               <p className="mv-text-white mv-text-sm md:mv-text-base mv-text-center mv-px-4">
-                Wenn Du auf den Button klickst, lässt Du Cookies von YouTube zu.
+                {t("cookieActionDescription")}
               </p>
             </>
           ) : (
