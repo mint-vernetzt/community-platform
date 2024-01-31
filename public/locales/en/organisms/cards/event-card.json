@@ -7,12 +7,12 @@
   "seats": {
     "unlimited": "Unlimited seats",
     "default": "Seats available",
-    "free_one": "One seat available",
+    "free_one": "Seat available",
     "free_other": "Seats available"
   },
   "waitingList": {
     "default": "Waiting list seats",
-    "places_one": "One waiting list seat",
+    "places_one": "Waiting list seat",
     "places_other": "Waiting list seats"
   },
   "registered": "Registered",
