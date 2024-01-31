@@ -178,7 +178,6 @@ export async function action({ request, params }: DataFunctionArgs) {
     mutation: createMutation(t),
     environment: { participantsCount: event._count.participants },
   });
-  console.log(result);
   if (result.success) {
     // All checked, lets update the event
     await updateParticipantLimit(
