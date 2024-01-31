@@ -249,7 +249,7 @@ function NavBar(props: NavBarProps) {
                 </label>
                 <ul
                   tabIndex={0}
-                  className="dropdown-content menu shadow bg-base-100 rounded-box w-72 pb-4"
+                  className="dropdown-content menu shadow bg-base-100 rounded-box w-72 pb-4 z-10"
                 >
                   <li className="relative p-4 pb-2 flex">
                     <a
