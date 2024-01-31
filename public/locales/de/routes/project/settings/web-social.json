@@ -18,41 +18,41 @@
       "url": {
         "label": "URL",
         "placeholder": "domainname.tld"
+      }
+    },
+    "socialNetworks": {
+      "headline": "Soziale Netzwerke",
+      "facebook": {
+        "label": "Facebook",
+        "placeholder": "facebook.com/<name>"
       },
-      "socialNetworks": {
-        "headline": "Soziale Netzwerke",
-        "facebook": {
-          "label": "Facebook",
-          "placeholder": "facebook.com/<name>"
-        },
-        "linkedin": {
-          "label": "LinkedIn",
-          "placeholder": "linkedin.com/company/<name>"
-        },
-        "xing": {
-          "label": "Xing",
-          "placeholder": "xing.com/pages/<name>"
-        },
-        "twitter": {
-          "label": "X (Twitter)",
-          "placeholder": "twitter.com/<name>"
-        },
-        "mastodon": {
-          "label": "Mastodon",
-          "placeholder": "domainname.tld/@<name>"
-        },
-        "tiktok": {
-          "label": "tiktok",
-          "placeholder": "tiktok.com/@<name>"
-        },
-        "instagram": {
-          "label": "Instagramm",
-          "placeholder": "instagram.com/<name>"
-        },
-        "youtube": {
-          "label": "YouTube",
-          "placeholder": "youtube.com/<name>"
-        }
+      "linkedin": {
+        "label": "LinkedIn",
+        "placeholder": "linkedin.com/company/<name>"
+      },
+      "xing": {
+        "label": "Xing",
+        "placeholder": "xing.com/pages/<name>"
+      },
+      "twitter": {
+        "label": "X (Twitter)",
+        "placeholder": "twitter.com/<name>"
+      },
+      "mastodon": {
+        "label": "Mastodon",
+        "placeholder": "domainname.tld/@<name>"
+      },
+      "tiktok": {
+        "label": "tiktok",
+        "placeholder": "tiktok.com/@<name>"
+      },
+      "instagram": {
+        "label": "Instagramm",
+        "placeholder": "instagram.com/<name>"
+      },
+      "youtube": {
+        "label": "YouTube",
+        "placeholder": "youtube.com/<name>"
       }
     }
   }
