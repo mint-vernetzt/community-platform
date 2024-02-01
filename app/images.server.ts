@@ -1,3 +1,4 @@
+import { en } from "@faker-js/faker";
 import crypto from "crypto";
 
 export type ResizeType = "fit" | "fill" | "crop";
@@ -19,14 +20,19 @@ const baseUrl = process.env.IMGPROXY_URL;
 const key = process.env.IMGPROXY_KEY;
 const salt = process.env.IMGPROXY_SALT;
 
-function encode(str: string) {
-  const encodedString = Buffer.from(str)
-    .toString("base64")
+function encodeUrlCharacters(url: string) {
+  const encodedUrl = url
     .replace(/=/g, "")
-    .replace(/\//g, "_")
-    .replace(/\+/g, "-");
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+  return encodedUrl;
+}
 
-  return encodedString;
+function encodeUrl(data: Buffer | string) {
+  if (Buffer.isBuffer(data)) {
+    return encodeUrlCharacters(data.toString("base64"));
+  }
+  return encodeUrlCharacters(Buffer.from(data, "utf-8").toString("base64"));
 }
 
 function serialize(obj: { [key: string]: string }) {
@@ -68,19 +74,9 @@ export function getImageURL(
 
   const imgOptions: { [key: string]: string } = {};
 
-  if (typeof dpr === "number" && dpr > 0) {
-    imgOptions.dpr = dpr.toString();
-  }
-
-  if (typeof blur === "number" && blur > 0) {
-    imgOptions.blur = blur.toString();
-  }
-
-  imgOptions.gravity = gravity;
-
   // create resize part of the url
   if (typeof resize !== "undefined") {
-    imgOptions.resize = [
+    imgOptions.rs = [
       resize.type,
       resize.width,
       resize.height,
@@ -88,16 +84,20 @@ export function getImageURL(
     ].join(":");
   }
 
+  imgOptions.g = gravity;
+  imgOptions.dpr = dpr.toString();
+  imgOptions.bl = blur.toString();
+
   const serializedOptions = serialize(imgOptions); // {key: "value"} --> "/key:value"
-  const uri = encode(url);
+  const uri = `/${serializedOptions}/${encodeUrl(url)}`;
 
   const hmac = crypto.createHmac("sha256", Buffer.from(key, "hex"));
   hmac.update(Buffer.from(salt, "hex"));
   hmac.update(Buffer.from(uri));
 
-  const signature = encode(hmac.digest("hex").slice(0, 32));
+  const signature = encodeUrl(hmac.digest().subarray(0, 32));
 
-  const imgUrl = new URL(`${signature}/${serializedOptions}/${uri}`, baseUrl);
+  const imgUrl = new URL(`${signature}${uri}`, baseUrl);
 
   return imgUrl.toString();
 }
