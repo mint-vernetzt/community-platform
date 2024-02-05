@@ -25,7 +25,7 @@ const createSchema = (t: TFunction) => {
     confirmedToken: z
       .string()
       .regex(
-        new RegExp(t("validation.confirmedToken.regexp")),
+        new RegExp(t("validation.confirmedToken.regex")),
         t("validation.confirmedToken.message")
       ),
   });

@@ -1,7 +1,7 @@
 {
   "validation": {
     "confirmedToken": {
-      "regex": "/really delete/",
+      "regex": "really delete",
       "message": "Please enter \"really delete\"."
     }
   },
