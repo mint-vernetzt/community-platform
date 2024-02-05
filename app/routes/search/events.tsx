@@ -3,8 +3,9 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import imgproxy from "imgproxy/dist/types.js";
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { GravityType, getImageURL } from "~/images.server";
 import {
@@ -18,14 +19,11 @@ import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
 } from "./utils.server";
-import { useHydrated } from "remix-utils";
-import { useTranslation } from "react-i18next";
 
 const i18nNS = ["routes/search/events"];
 export const handle = {
   i18n: i18nNS,
 };
-import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);

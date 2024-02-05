@@ -1,11 +1,14 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { fileUploadSchema } from "~/lib/utils/schemas";
+import { detectLanguage } from "~/root.server";
 import { deriveEventMode } from "../event/utils.server";
 import { deriveOrganizationMode } from "../organization/$slug/utils.server";
 import { deriveProfileMode } from "../profile/$username/utils.server";
@@ -16,14 +19,6 @@ import {
   removeImageFromProfile,
   removeImageFromProject,
 } from "./delete.server";
-import { deriveOrganizationMode } from "../organization/$slug/utils.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { deriveEventMode } from "../event/utils.server";
-import { deriveProjectMode } from "../project/utils.server";
-import { deriveProfileMode } from "../profile/$username/utils.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/upload/delete"];
 export const handle = {
