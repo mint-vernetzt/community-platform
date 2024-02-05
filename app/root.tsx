@@ -21,6 +21,7 @@ import {
 } from "@remix-run/react";
 import classNames from "classnames";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
@@ -28,7 +29,7 @@ import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
-import { getProfileByUserId } from "./root.server";
+import { detectLanguage, getProfileByUserId } from "./root.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders } from "./utils.server";
@@ -42,6 +43,7 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
+  const locale = detectLanguage(request);
 
   const { authClient, headers } = createAuthClient(request);
 
@@ -92,12 +94,27 @@ export const loader = async (args: LoaderFunctionArgs) => {
       sessionUserInfo,
       abilities,
       alert,
+      locale,
     },
     { headers: combineHeaders(headers, alertHeaders) }
   );
 };
 
+export const handle = {
+  i18n: [
+    "meta",
+    "organisms/footer",
+    "organisms/roadmap",
+    "utils/social-media-services",
+    "components/image-cropper",
+    "organisms/cards/event-card",
+    "organisms/cards/profile-card",
+    "organisms/cards/organization-card",
+  ],
+};
+
 function HeaderLogo() {
+  const { t } = useTranslation(["meta"]);
   return (
     <div className="flex flex-row items-center">
       <svg
@@ -109,7 +126,7 @@ function HeaderLogo() {
         role="img"
         className="w-10 h-10 md:w-auto md:h-auto"
       >
-        <title id="mint-title-header">Logo: mint vernetzt</title>
+        <title id="mint-title-header">{t("root.logo")}</title>
         <g fill="none">
           <path
             fill="#154194"
@@ -126,7 +143,7 @@ function HeaderLogo() {
         </g>
       </svg>
       <span className="hidden md:block font-bold text-primary ml-2">
-        Community
+        {t("root.community")}
       </span>
     </div>
   );
@@ -163,6 +180,8 @@ function NavBar(props: NavBarProps) {
 
   const classes = classNames("shadow-md mb-8", isSettings && "hidden md:block");
 
+  const { t } = useTranslation(["meta"]);
+
   return (
     <header id="header" className={classes}>
       <div className="container relative">
@@ -187,7 +206,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/profiles"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Profile
+                  {t("root.profiles")}
                 </Link>
               </li>
               <li className="px-2 md:px-5">
@@ -195,7 +214,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/organizations"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Organisationen
+                  {t("root.organizations")}
                 </Link>
               </li>
               <li className="px-2 md:px-5">
@@ -203,7 +222,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/events"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Veranstaltungen
+                  {t("root.events")}
                 </Link>
               </li>
               <li className="px-2 md:px-5">
@@ -211,13 +230,17 @@ function NavBar(props: NavBarProps) {
                   to="/explore/projects"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Projekte
+                  {t("root.projects")}
                 </Link>
               </li>
             </ul>
             <div className="flex-initial w-full lg:w-auto order-last lg:order-2 py-3 lg:py-0 lg:px-5 ">
               <Form method="get" action="/search">
-                <Search name="query" query={query} />
+                <Search
+                  placeholder={t("root.search.placeholder")}
+                  name="query"
+                  query={query}
+                />
               </Form>
             </div>
           </div>
@@ -272,7 +295,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                      Mein Profil
+                      {t("root.myProfile")}
                     </h5>
                   </li>
                   <li>
@@ -281,7 +304,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Profil anzeigen
+                      {t("root.showProfile")}
                     </Link>
                   </li>
                   <li className="p-4 pb-6">
@@ -289,7 +312,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                      Meine Organisationen
+                      {t("root.myOrganizations")}
                     </h5>
                   </li>
                   <li>
@@ -298,7 +321,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Organisationen anzeigen
+                      {t("root.showOrganizations")}
                     </Link>
                   </li>
                   <li>
@@ -307,7 +330,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Organisation anlegen
+                      {t("root.createOrganization")}
                     </Link>
                   </li>
 
@@ -317,7 +340,7 @@ function NavBar(props: NavBarProps) {
                     </li>
                     <li>
                       <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                        Meine Veranstaltungen
+                        {t("root.myEvents")}
                       </h5>
                     </li>
                     <li>
@@ -326,7 +349,7 @@ function NavBar(props: NavBarProps) {
                         className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                         onClick={closeDropdown}
                       >
-                        Veranstaltungen anzeigen
+                        {t("root.showEvents")}
                       </Link>
                     </li>
                     {props.abilities.events !== undefined &&
@@ -337,7 +360,7 @@ function NavBar(props: NavBarProps) {
                           className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                           onClick={closeDropdown}
                         >
-                          Veranstaltung anlegen
+                          {t("root.createEvent")}
                         </Link>
                       </li>
                     ) : null}
@@ -347,7 +370,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                      Meine Projekte
+                      {t("root.myProjects")}
                     </h5>
                   </li>
                   <li>
@@ -356,7 +379,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Projekte anzeigen
+                      {t("root.showProjects")}
                     </Link>
                   </li>
                   {props.abilities.projects !== undefined &&
@@ -367,7 +390,7 @@ function NavBar(props: NavBarProps) {
                         className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                         onClick={closeDropdown}
                       >
-                        Projekt anlegen
+                        {t("root.createProject")}
                       </Link>
                     </li>
                   ) : null}
@@ -381,7 +404,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300 rounded-none"
                     >
                       <button type="submit" className="w-full text-left">
-                        Logout
+                        {t("root.logout")}
                       </button>
                     </Form>
                   </li>
@@ -394,14 +417,14 @@ function NavBar(props: NavBarProps) {
                 to="/login"
                 className="text-primary font-semibold hover:underline"
               >
-                Anmelden
+                {t("root.login")}
               </Link>{" "}
               /{" "}
               <Link
                 to="/register"
                 className="text-primary font-semibold hover:underline"
               >
-                Registrieren
+                {t("root.register")}
               </Link>
             </div>
           )}
@@ -419,6 +442,7 @@ export default function App() {
     sessionUserInfo: currentUserInfo,
     abilities,
     alert,
+    locale,
   } = useLoaderData<typeof loader>();
 
   React.useEffect(() => {
@@ -451,6 +475,8 @@ export default function App() {
     modal !== null && modal !== "false" && "overflow-hidden"
   );
 
+  const { i18n } = useTranslation();
+  // useChangeLanguage(locale);
   const main = (
     <main className="flex-auto relative pb-8 w-full">
       {typeof alert !== "undefined" &&
@@ -502,7 +528,7 @@ export default function App() {
   );
 
   return (
-    <html lang="de" data-theme="light">
+    <html lang={locale} dir={i18n.dir()} data-theme="light">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />

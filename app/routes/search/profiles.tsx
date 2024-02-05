@@ -15,9 +15,15 @@ import {
   getQueryValueAsArrayOfWords,
   searchProfilesViaLike,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+
+const i18nNS = ["routes/search/profiles"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -149,6 +155,8 @@ export default function Profiles() {
 
   const query = searchParams.get("query") ?? "";
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <section
       id="search-results-profiles"
@@ -177,16 +185,14 @@ export default function Profiles() {
                   variant="outline"
                   loading={fetcher.state === "loading"}
                 >
-                  Weitere laden
+                  {t("more")}
                 </Button>
               </fetcher.Form>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">
-          Für Deine Suche konnten leider keine Profile gefunden werden.
-        </p>
+        <p className="text-center text-primary">{t("empty")}</p>
       )}
     </section>
   );

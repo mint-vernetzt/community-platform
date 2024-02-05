@@ -63,7 +63,7 @@ function ProfilePage(props: ProfilePageProps) {
               <div className="">
                 <p className="text-mb mb-2">
                   <a
-                    href="anna.schroeter@mint-vernetzt.de"
+                    href="mailto:anna.schroeter@mint-vernetzt.de"
                     className="flex items-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
                   >
                     <span className="icon w-6 mr-4">
@@ -82,7 +82,7 @@ function ProfilePage(props: ProfilePageProps) {
                 </p>
                 <p className="text-md text-neutral-600 mb-2">
                   <a
-                    href="492117570762"
+                    href="tel:492117570762"
                     className="flex items-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
                   >
                     <span className="icon w-6 mr-4">

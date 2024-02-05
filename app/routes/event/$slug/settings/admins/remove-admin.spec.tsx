@@ -135,9 +135,7 @@ describe("/event/$slug/settings/admins/remove-admin", () => {
     expect(responseBody.success).toBe(false);
     // TODO: fix type issue
     // @ts-ignore
-    expect(responseBody.errors._global).toContain(
-      "Es muss immer eine:n Administrator:in geben. Bitte füge zuerst jemand anderen als Administrator:in hinzu."
-    );
+    expect(responseBody.errors._global).toStrictEqual(["error.adminCount"]);
   });
 
   test("remove event admin on published event (self)", async () => {

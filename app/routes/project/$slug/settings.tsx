@@ -17,6 +17,13 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getToast } from "~/toast.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
+import { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/project/settings"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -63,24 +70,27 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 };
 
-const navLinks = [
-  { to: "./general", label: "Projekteckdaten" },
-  { to: "./web-social", label: "Website und Soziale Netwerke" },
-  { to: "./details", label: "Projektdetails" },
-  { to: "./requirements", label: "Rahmenbedingungen" },
-  { to: "./responsible-orgs", label: "Verantwortliche Organisationen" },
-  { to: "./team", label: "Team" },
-  { to: "./admins", label: "Admin-Rolle verwalten" },
-  { to: "./attachments", label: "Material verwalten" },
-  { to: "./danger-zone", label: "Kritischer Bereich", variant: "negative" },
+const createNavLinks = (t: TFunction) => [
+  { to: "./general", label: t("links.general") },
+  { to: "./web-social", label: t("links.webSocial") },
+  { to: "./details", label: t("links.details") },
+  { to: "./requirements", label: t("links.requirements") },
+  { to: "./responsible-orgs", label: t("links.responsibleOrgs") },
+  { to: "./team", label: t("links.team") },
+  { to: "./admins", label: t("links.admins") },
+  { to: "./attachments", label: t("links.attachments") },
+  { to: "./danger-zone", label: t("links.dangerZone"), variant: "negative" },
 ];
 
 function ProjectSettings() {
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation(i18nNS);
 
   const deep = searchParams.get("deep");
+
+  const navLinks = createNavLinks(t);
 
   const menuClasses = classNames(
     "mv-w-full md:mv-w-1/3 2xl:mv-w-1/4 mv-max-h-screen md:mv-max-h-fit mv-flex mv-flex-col mv-absolute md:mv-relative mv-top-0 mv-bg-white md:mv-border-l md:mv-border-b md:mv-rounded-bl-xl md:mv-self-start",
@@ -98,10 +108,10 @@ function ProjectSettings() {
         <div className="mv-flex mv-flex-col mv-gap-8 lg:mv-gap-14">
           <TextButton weight="thin" variant="neutral" arrowLeft>
             <Link to={`/project/${loaderData.project.slug}`} prefetch="intent">
-              Zum Projekt
+              {t("content.toProject")}
             </Link>
           </TextButton>
-          <h3 className="mv-mb-0 mv-font-bold">Projekt bearbeiten</h3>
+          <h3 className="mv-mb-0 mv-font-bold">{t("content.edit")}</h3>
         </div>
       </div>
       {loaderData.toast !== null &&
@@ -115,17 +125,14 @@ function ProjectSettings() {
       <div className="mv-hidden md:mv-block">
         <Section variant="primary" withBorder>
           <Section.Header>{loaderData.project.name}</Section.Header>
-          <Section.Body>
-            Teile Dein Wissen und Deine Erfahrungen. Inspiriere andere
-            Akteur:innen und ermögliche ihnen von Deinem Projekt zu lernen.
-          </Section.Body>
+          <Section.Body>{t("content.share")}</Section.Body>
         </Section>
       </div>
       <div className="mv-w-full md:mv-flex md:mv-mb-20 lg:mv-mb-0">
         <div className={menuClasses}>
           <div className="mv-flex mv-gap-2 mv-items-center mv-justify-between md:mv-hidden">
             <span className="mv-p-6">
-              <h1 className="mv-text-2xl mv-m-0">Projekteinstellungen</h1>
+              <h1 className="mv-text-2xl mv-m-0">{t("content.settings")}</h1>
             </span>
             <Link
               to={`/project/${loaderData.project.slug}`}

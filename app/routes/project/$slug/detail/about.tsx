@@ -22,15 +22,31 @@ import {
   Xing,
   YouTube,
 } from "./__components";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
+
+const i18nNS = ["routes/project/detail/about"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const response = new Response();
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   const { authClient } = createAuthClient(request);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    t("error.invariant.invalidRoute"),
+    {
+      status: 400,
+    }
+  );
 
   const project = await prismaClient.project.findFirst({
     where: {
@@ -150,7 +166,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, "Not found", {
+  invariantResponse(project !== null, t("error.invariant.notFound"), {
     status: 404,
   });
 
@@ -196,6 +212,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 function About() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(i18nNS);
 
   // TODO:
 
@@ -230,7 +247,7 @@ function About() {
       {loaderData.project.formats.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Format
+            {t("content.formats")}
           </h3>
           <Chip.Container>
             {loaderData.project.formats.map((relation) => {
@@ -246,7 +263,7 @@ function About() {
       {loaderData.project.furtherFormats.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Weitere Formate
+            {t("content.furtherFormats")}
           </h3>
           <Chip.Container>
             {loaderData.project.furtherFormats.map((furtherFormat) => {
@@ -262,7 +279,7 @@ function About() {
       {loaderData.project.disciplines.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            MINT-Disziplin(en)
+            {t("content.disciplines")}
           </h3>
           <Chip.Container>
             {loaderData.project.disciplines.map((relation) => {
@@ -278,8 +295,7 @@ function About() {
       {loaderData.project.furtherDisciplines.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Erläuterungen zu den Disziplinen / Das Angebot beinhaltet folgende
-            Teilgebiete
+            {t("content.furtherDisciplines")}
           </h3>
           <div className="mv-flex mv-flex-wrap mv-gap-2">
             <ul className="mv-list-disc mv-list-inside mv-font-normal mv-text-neutral-800 mv-px-2">
@@ -293,7 +309,7 @@ function About() {
       {loaderData.project.projectTargetGroups.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Zielgruppe(n)
+            {t("content.projectTargetGroups")}
           </h3>
           <Chip.Container>
             {loaderData.project.projectTargetGroups.map((relation) => {
@@ -309,7 +325,7 @@ function About() {
       {loaderData.project.specialTargetGroups.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Spezifische Zielgruppe(n)
+            {t("content.specialTargetGroups")}
           </h3>
           <Chip.Container>
             {loaderData.project.specialTargetGroups.map((relation) => {
@@ -325,7 +341,7 @@ function About() {
       {loaderData.project.targetGroupAdditions !== null && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Weitere
+            {t("content.targetGroupAdditions")}
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.targetGroupAdditions}
@@ -335,7 +351,7 @@ function About() {
       {loaderData.project.participantLimit !== null && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Teilnehmer:innenzahl
+            {t("content.participantLimit")}
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.participantLimit}
@@ -345,7 +361,7 @@ function About() {
       {loaderData.project.areas.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            Aktivitätsgebiet(e)
+            {t("content.areas")}
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.areas
@@ -362,7 +378,7 @@ function About() {
         loaderData.project.hints !== null) && (
         <>
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            Projektbeschreibung
+            {t("content.furtherDescription")}
           </h2>
           {/* only further description */}
           {loaderData.project.furtherDescription !== null &&
@@ -376,7 +392,7 @@ function About() {
           {loaderData.project.idea !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Idee
+                {t("content.idea")}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -387,7 +403,7 @@ function About() {
           {loaderData.project.goals !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Ziele
+                {t("content.goals")}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -398,7 +414,7 @@ function About() {
           {loaderData.project.implementation !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Durchführung
+                {t("content.implementation")}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -409,7 +425,7 @@ function About() {
           {loaderData.project.targeting !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Wie wird die Zielgruppe erreicht?
+                {t("content.targeting")}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -420,7 +436,7 @@ function About() {
           {loaderData.project.hints !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                Tipps zum Nachmachen
+                {t("content.hints")}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -437,7 +453,7 @@ function About() {
               loaderData.project.hints !== null) && (
               <div className="mv-flex mv-flex-col mv-gap-4">
                 <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                  Weitere Informationen
+                  {t("content.furtherDescription2")}
                 </h3>
                 <RichText
                   additionalClassNames="mv-text-lg"
@@ -457,7 +473,7 @@ function About() {
       {loaderData.project.teamMembers.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-2">
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            Team
+            {t("content.team")}
           </h2>
           <List maxColumns={2}>
             {loaderData.project.teamMembers.map((relation) => {
@@ -488,7 +504,7 @@ function About() {
       {loaderData.project.responsibleOrganizations.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-2">
           <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            Verantwortliche Organisation(en)
+            {t("content.responsibleOrganizations")}
           </h2>
           <List maxColumns={2}>
             {loaderData.project.responsibleOrganizations.map((relation) => {

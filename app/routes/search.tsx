@@ -17,6 +17,12 @@ import {
   countSearchedProjects,
   getQueryValueAsArrayOfWords,
 } from "./search/utils.server";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/search"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
@@ -60,11 +66,14 @@ function SearchView() {
     `block text-lg font-semibold border-b text-primary ${
       active ? "border-b-primary" : "border-b-transparent"
     } hover:border-b-primary cursor-pointer`;
+
+  const { t } = useTranslation(i18nNS);
+
   return query !== null && query !== "" ? (
     <>
       <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Deine Suche</H1>
-        <p>Hier siehst Du die Ergebnisse zu Deiner Suche "{query}".</p>
+        <H1 like="h0">{t("title.query")}</H1>
+        <p>{t("results", { query })}</p>
       </section>
       <section className="container my-8 md:my-10" id="search-results">
         <ul
@@ -76,28 +85,28 @@ function SearchView() {
             className={({ isActive }) => getClassName(isActive)}
             to={`profiles?query=${query}`}
           >
-            Profile (<>{loaderData.profilesCount}</>)
+            {t("profiles")} (<>{loaderData.profilesCount}</>)
           </NavLink>
           <NavLink
             id="organization-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`organizations?query=${query}`}
           >
-            Organisationen (<>{loaderData.organizationsCount}</>)
+            {t("organizations")} (<>{loaderData.organizationsCount}</>)
           </NavLink>
           <NavLink
             id="event-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`events?query=${query}`}
           >
-            Veranstaltungen (<>{loaderData.eventsCount}</>)
+            {t("events")} (<>{loaderData.eventsCount}</>)
           </NavLink>
           <NavLink
             id="project-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`projects?query=${query}`}
           >
-            Projekte (<>{loaderData.projectsCount}</>)
+            {t("projects")} (<>{loaderData.projectsCount}</>)
           </NavLink>
         </ul>
       </section>
@@ -105,7 +114,7 @@ function SearchView() {
     </>
   ) : (
     <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
-      <H1 like="h0">Suche</H1>
+      <H1 like="h0">{t("title.noquery")}</H1>
       <Form
         method="get"
         action="/search/profiles"

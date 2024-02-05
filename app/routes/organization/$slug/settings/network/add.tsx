@@ -21,6 +21,15 @@ import {
   getOrganizationById,
   getOrganizationIdBySlug,
 } from "../utils.server";
+import { useTranslation } from "react-i18next";
+import i18next from "~/i18next.server";
+import { type TFunction } from "i18next";
+import { detectLanguage } from "~/root.server";
+
+const i18nNS = ["routes/organization/settings/network/add"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const schema = z.object({
   organizationId: z.string(),
@@ -30,46 +39,48 @@ const environmentSchema = z.object({
   slug: z.string(),
 });
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const { organizationId } = values;
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    const { organizationId } = values;
 
-  const network = await getOrganizationIdBySlug(environment.slug);
-  if (network === null) {
-    throw "Eure Organisation konnte nicht gefunden werden.";
-  }
+    const network = await getOrganizationIdBySlug(environment.slug);
+    if (network === null) {
+      throw t("error.notFound");
+    }
 
-  const organization = await getOrganizationById(organizationId);
-  if (organization === null) {
-    throw new InputError(
-      "Es existiert noch keine Organisation unter diesem Namen.",
-      "organizationId"
+    const organization = await getOrganizationById(organizationId);
+    if (organization === null) {
+      throw new InputError(
+        t("error.inputError.doesNotExist"),
+        "organizationId"
+      );
+    }
+
+    const alreadyNetworkMember = organization.memberOf.some((entry) => {
+      return entry.network.slug === environment.slug;
+    });
+
+    if (alreadyNetworkMember) {
+      throw new InputError(
+        t("error.inputError.alreadyMember"),
+        "organizationId"
+      );
+    }
+
+    const result = await connectOrganizationToNetwork(
+      organization.id,
+      network.id
     );
-  }
+    if (result === null) {
+      throw t("error.serverError");
+    }
 
-  const alreadyNetworkMember = organization.memberOf.some((entry) => {
-    return entry.network.slug === environment.slug;
+    return { ...values, name: organization.name };
   });
-
-  if (alreadyNetworkMember) {
-    throw new InputError(
-      "Die angegebene Organisation ist bereits Teil Eures Netzwerks.",
-      "organizationId"
-    );
-  }
-
-  const result = await connectOrganizationToNetwork(
-    organization.id,
-    network.id
-  );
-  if (result === null) {
-    throw "Die Organisation konnte leider nicht Eurem Netzwerk hinzugefügt werden.";
-  }
-
-  return { ...values, name: organization.name };
-});
+};
 
 export const loader = async () => {
   return redirect(".");
@@ -77,21 +88,27 @@ export const loader = async () => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/organization/settings/network/add",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { slug: slug },
   });
   if (result.success) {
     return json({
-      message: `Die Organisation "${result.data.name}" ist jetzt Teil Eures Netzwerks.`,
+      message: t("feedback", { title: result.data.name }),
     });
   }
 
@@ -108,13 +125,12 @@ function Add(props: NetworkMemberProps) {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
-      <h4 className="mb-4 font-semibold">Netzwerkmitglied hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Eurem Netzwerk eine bereits bestehende Organisation hinzu.
-      </p>
+      <h4 className="mb-4 font-semibold">{t("content.headline")}</h4>
+      <p className="mb-8">{t("content.intro")}</p>
       <RemixFormsForm
         schema={schema}
         fetcher={fetcher}
@@ -133,7 +149,7 @@ function Add(props: NetworkMemberProps) {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="name" className="label">
-                    Name der Organisation
+                    {t("content.label")}
                   </label>
                 </div>
               </div>

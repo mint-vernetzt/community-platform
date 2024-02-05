@@ -15,8 +15,12 @@ import {
   getEventBySlugForAction,
   getProfileById,
 } from "./delete.server";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { type action as publishAction, publishSchema } from "./events/publish";
 import { deleteEventBySlug } from "./utils.server";
+import i18next from "~/i18next.server";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
@@ -31,6 +35,8 @@ const environmentSchema = z.object({
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -38,9 +44,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.eventNotFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   return json({
     published: event.published,
@@ -49,46 +57,49 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  if (values.eventName !== environment.eventName) {
-    throw new InputError(
-      "Der Name der Veranstaltung ist nicht korrekt",
-      "eventName"
-    );
-  }
-  try {
-    await deleteEventBySlug(environment.eventSlug);
-  } catch (error) {
-    throw "Die Veranstaltung konnte nicht gelöscht werden.";
-  }
-});
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    if (values.eventName !== environment.eventName) {
+      throw new InputError(t("error.input"), "eventName");
+    }
+    try {
+      await deleteEventBySlug(environment.eventSlug);
+    } catch (error) {
+      throw t("error.delete");
+    }
+  });
+};
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const slug = getParamValueOrThrow(params, "slug");
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
   const { authClient } = createAuthClient(request);
+  const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const event = await getEventBySlugForAction(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.eventNotFound"), { status: 404 });
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { eventSlug: slug, eventName: event.name },
   });
 
   if (result.success === true) {
     const profile = await getProfileById(sessionUser.id);
     if (profile === null) {
-      throw json("Profile not found", { status: 404 });
+      throw json(t("error.profileNotFound"), { status: 404 });
     }
     return redirect(`/profile/${profile.username}`);
   }
@@ -100,23 +111,19 @@ function Delete() {
   const loaderData = useLoaderData<typeof loader>();
   const { slug } = useParams();
   const publishFetcher = useFetcher<typeof publishAction>();
+  const { t } = useTranslation(["routes/event/settings/delete"]);
 
   return (
     <>
-      <h1 className="mb-8">Veranstaltung löschen</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
 
       <p className="mb-8">
-        Bitte gib den Namen der Veranstaltung "{loaderData.eventName}" ein, um
-        das Löschen zu bestätigen. Wenn Du danach auf "Veranstaltung löschen”
-        klickst, wird Eure Veranstaltung ohne erneute Abfrage gelöscht.
+        {t("content.intro", { name: loaderData.eventName })}
       </p>
 
       {loaderData.childEvents.length > 0 ? (
         <>
-          <p className="mb-2">
-            Folgende Veranstaltung und zugehörige Veranstaltung werden auch
-            gelöscht:
-          </p>{" "}
+          <p className="mb-2">{t("content.list")}</p>{" "}
           <ul className="mb-8">
             {loaderData.childEvents.map((childEvent) => {
               return (
@@ -143,7 +150,7 @@ function Delete() {
                 <>
                   <Input
                     id="eventName"
-                    label="Löschung bestätigen"
+                    label={t("form.eventName.label")}
                     {...register("eventName")}
                   />
                   <Errors />
@@ -154,7 +161,7 @@ function Delete() {
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small"
             >
-              Veranstaltung löschen
+              {t("form.submit.label")}
             </button>
             <Errors />
           </>
@@ -178,7 +185,9 @@ function Delete() {
                   <>
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                      {loaderData.published
+                        ? t("form.hide.label")
+                        : t("form.publish.label")}
                     </Button>
                   </>
                 );

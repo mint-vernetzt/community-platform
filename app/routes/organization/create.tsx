@@ -10,6 +10,9 @@ import {
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+import i18next from "~/i18next.server";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { GravityType, getImageURL } from "~/images.server";
@@ -20,14 +23,22 @@ import {
   createOrganizationOnProfile,
   searchForOrganizationsByName,
 } from "./create.server";
+import { detectLanguage } from "~/root.server";
 
-const schema = z.object({
-  organizationName: z
-    .string({
-      required_error: "Bitte gib den Namen Deiner Organisation ein.",
-    })
-    .min(3, "Der Name der Organisation muss mindestens 3 Zeichen lang sein."),
-});
+const i18nNS = ["routes/organization/create"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createSchema = (t: TFunction) => {
+  return z.object({
+    organizationName: z
+      .string({
+        required_error: t("validation.organizationName.required"),
+      })
+      .min(3, t("validation.organizationName.min")),
+  });
+};
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -79,8 +90,11 @@ export async function action(args: ActionFunctionArgs) {
     return redirect(`/login?login_redirect=${url.pathname}`);
   }
 
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/organization/create"]);
+
   const formData = await request.formData();
-  const submission = parse(formData, { schema });
+  const submission = parse(formData, { schema: createSchema(t) });
 
   if (typeof submission.value !== "undefined" && submission.value !== null) {
     if (submission.intent === "submit") {
@@ -132,13 +146,13 @@ function Create() {
     },
   });
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <div className="mv-container mv-relative">
       <div className="flex -mx-4 justify-center">
         <div className="lg:flex-1/2 px-4 pt-10 lg:pt-0">
-          <h4 className="font-semibold">
-            Organisation oder Netzwerk hinzufügen
-          </h4>
+          <h4 className="font-semibold">{t("content.headline")}</h4>
           <Form
             method="post"
             {...form.props}
@@ -146,7 +160,7 @@ function Create() {
           >
             <Input {...conform.input(fields.organizationName)} standalone>
               <Input.Label htmlFor={fields.organizationName.id}>
-                Name der Organisation*
+                {t("form.organizationName.label")}
               </Input.Label>
               {typeof fields.organizationName.error !== "undefined" && (
                 <Input.Error>{fields.organizationName.error}</Input.Error>
@@ -154,16 +168,16 @@ function Create() {
             </Input>
             <div className="mv-w-fit-content">
               <Button type="submit" variant="outline">
-                Hinzufügen
+                {t("form.submit.label")}
               </Button>
             </div>
           </Form>
           {loaderData.searchResult.length > 0 && (
             <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-8">
               <p>
-                Es wurden Organisationen mit ähnlichem Namen gefunden. Falls Du
-                die Organisation mit Namen "{searchQuery}" anlegen willst,
-                klicke erneut auf "Hinzufügen".
+                {t("form.error.sameOrganization", {
+                  searchQuery,
+                })}
               </p>
               <List>
                 {loaderData.searchResult.map((organization) => {

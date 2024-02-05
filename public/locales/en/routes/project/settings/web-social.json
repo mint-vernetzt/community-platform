@@ -1,0 +1,59 @@
+{
+  "error": {
+    "invalidRoute": "No valid route",
+    "projectNotFound": "Project not found",
+    "custom": "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support"
+  },
+  "content": {
+    "success": "Data saved!",
+    "prompt": "You have unsaved changes. These will be lost if you go one step further now.",
+    "back": "Website and social networks",
+    "intro": "Where can the community find out more about your project or educational offering?"
+  },
+  "form": {
+    "reset": "Discard changes",
+    "submit": "Save",
+    "website": {
+      "headline": "Website",
+      "url": {
+        "label": "URL",
+        "placeholder": "domainname.tld"
+      }
+    },
+    "socialNetworks": {
+      "headline": "Social networks",
+      "facebook": {
+        "label": "Facebook",
+        "placeholder": "facebook.com/<name>"
+      },
+      "linkedin": {
+        "label": "LinkedIn",
+        "placeholder": "linkedin.com/company/<name>"
+      },
+      "xing": {
+        "label": "Xing",
+        "placeholder": "xing.com/pages/<name>"
+      },
+      "twitter": {
+        "label": "X (Twitter)",
+        "placeholder": "twitter.com/<name>"
+      },
+      "mastodon": {
+        "label": "Mastodon",
+        "placeholder": "domainname.tld/@<name>"
+      },
+      "tiktok": {
+        "label": "tiktok",
+        "placeholder": "tiktok.com/@<name>"
+      },
+      "instagram": {
+        "label": "Instagramm",
+        "placeholder": "instagram.com/<name>"
+      },
+      "youtube": {
+        "label": "YouTube",
+        "placeholder": "youtube.com/<name>"
+      }
+    }
+  }
+}

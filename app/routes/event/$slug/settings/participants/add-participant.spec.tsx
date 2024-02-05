@@ -117,7 +117,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     expect(responseBody.errors).not.toBeNull();
     // @ts-ignore
     expect(responseBody.errors.profileId).toStrictEqual([
-      "Es existiert noch kein Profil unter diesem Namen.",
+      "error.inputError.doesNotExist",
     ]);
   });
 
@@ -152,7 +152,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     // TODO: fix type issue
     // @ts-ignore
     expect(responseBody.errors.profileId).toContain(
-      "Das Profil unter diesem Namen nimmt bereits an Eurer Veranstaltung teil."
+      "error.inputError.alreadyIn"
     );
   });
 
@@ -222,9 +222,7 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     });
     // TODO: fix type issue
     // @ts-ignore
-    expect(responseBody.message).toBe(
-      'Das Profil mit dem Namen "some-first-name some-last-name" wurde als Teilnehmer:in hinzugefügt.'
-    );
+    expect(responseBody.message).toBe("feedback");
   });
 
   test("add yourself as participant (admin and authenticated)", async () => {
@@ -261,8 +259,6 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     });
     // TODO: fix type issue
     // @ts-ignore
-    expect(responseBody.message).toBe(
-      'Das Profil mit dem Namen "some-first-name some-last-name" wurde als Teilnehmer:in hinzugefügt.'
-    );
+    expect(responseBody.message).toBe("feedback");
   });
 });

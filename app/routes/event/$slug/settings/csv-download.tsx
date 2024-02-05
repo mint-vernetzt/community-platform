@@ -7,11 +7,15 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "../../utils.server";
 import { getFullDepthProfiles } from "../utils.server";
 import { getEventBySlug } from "./csv-download.server";
+import { type TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 async function getProfilesBySearchParams(
   event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>,
   depth: string | null,
-  type: string | null
+  type: string | null,
+  t: TFunction
 ) {
   let profiles;
 
@@ -26,8 +30,7 @@ async function getProfilesBySearchParams(
     } else {
       throw json(
         {
-          message:
-            "search parameter - depth = full || single - must be provided.",
+          message: t("error.badRequest.depth"),
         },
         { status: 400 }
       );
@@ -43,26 +46,21 @@ async function getProfilesBySearchParams(
         };
       });
     } else {
-      throw json(
-        {
-          message:
-            "search parameter - depth = full || single - must be provided.",
-        },
-        { status: 400 }
-      );
+      throw json({
+        message: t("error.badRequest.depth", { status: 400 }),
+      });
     }
   } else {
     throw json(
       {
-        message:
-          "search parameter - type = participants || waitingList - must be provided.",
+        message: t("error.badRequest.type"),
       },
       { status: 400 }
     );
   }
 
   if (profiles === null) {
-    throw json({ message: "Participants not found" }, { status: 404 });
+    throw json({ message: t("error.badRequest.notFound") }, { status: 404 });
   }
 
   return profiles;
@@ -120,6 +118,10 @@ function createCsvString(
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/csv-download",
+  ]);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
@@ -127,12 +129,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const url = new URL(request.url);
   const depth = url.searchParams.get("depth");
   const type = url.searchParams.get("type");
-  const profiles = await getProfilesBySearchParams(event, depth, type);
+  const profiles = await getProfilesBySearchParams(event, depth, type, t);
   const originalFilename = getFilenameBySearchParams(event, depth, type);
   const filename = escapeFilenameSpecialChars(originalFilename);
   const csv = createCsvString(profiles);

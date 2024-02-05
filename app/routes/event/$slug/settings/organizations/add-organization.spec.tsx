@@ -109,7 +109,7 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     expect(responseBody.errors).not.toBeNull();
     // @ts-ignore
     expect(responseBody.errors.organizationId).toStrictEqual([
-      "Es existiert noch keine Organisation mit diesem Namen.",
+      "error.notFound",
     ]);
   });
 
@@ -148,9 +148,9 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     // @ts-ignore
     expect(responseBody.success).toBe(false);
     // @ts-ignore
-    expect(responseBody.errors.organizationId).toContain(
-      "Die Organisation mit diesem Namen ist bereits für Eure Veranstaltung verantwortlich."
-    );
+    expect(responseBody.errors.organizationId).toStrictEqual([
+      "error.inputError",
+    ]);
   });
 
   test("event not found", async () => {
@@ -237,8 +237,6 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     });
     // TODO: fix type issue
     // @ts-ignore
-    expect(responseBody.message).toBe(
-      'Die Organisation "some-organization-name" ist jetzt verantwortlich für Eure Veranstaltung.'
-    );
+    expect(responseBody.message).toBe("feedback");
   });
 });

@@ -131,9 +131,7 @@ describe("/event/$slug/settings/team/remove-member", () => {
     expect(responseBody.success).toBe(false);
     // TODO: fix type issue
     // @ts-ignore
-    expect(responseBody.errors._global).toContain(
-      "Es muss immer ein Teammitglied geben. Bitte füge zuerst jemand anderen als Teammitglied hinzu."
-    );
+    expect(responseBody.errors._global).toStrictEqual(["error.minimum"]);
   });
 
   test("remove event team member (self and others are possible)", async () => {

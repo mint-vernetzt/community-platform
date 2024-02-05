@@ -32,15 +32,27 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
+
+const i18nNS = ["routes/project/settings/team"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -83,7 +95,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, "Not found", {
+  invariantResponse(project !== null, t("error.notFound"), {
     status: 404,
   });
 
@@ -179,11 +191,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
 export const action = async (args: ActionFunctionArgs) => {
   // get action type
   const { request, params } = args;
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -220,9 +236,13 @@ export const action = async (args: ActionFunctionArgs) => {
       },
     });
 
-    invariantResponse(project !== null && profile !== null, "Not found", {
-      status: 404,
-    });
+    invariantResponse(
+      project !== null && profile !== null,
+      t("error.notFound"),
+      {
+        status: 404,
+      }
+    );
 
     await prismaClient.teamMemberOfProject.upsert({
       where: {
@@ -243,7 +263,10 @@ export const action = async (args: ActionFunctionArgs) => {
       {
         id: "add-member-toast",
         key: hash,
-        message: `${profile.firstName} ${profile.lastName} hinzugefügt.`,
+        message: t("content.added", {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+        }),
       },
       { scrollToToast: true }
     );
@@ -266,9 +289,13 @@ export const action = async (args: ActionFunctionArgs) => {
       },
     });
 
-    invariantResponse(project !== null && profile !== null, "Not found", {
-      status: 404,
-    });
+    invariantResponse(
+      project !== null && profile !== null,
+      t("error.notFound"),
+      {
+        status: 404,
+      }
+    );
 
     await prismaClient.teamMemberOfProject.delete({
       where: {
@@ -284,7 +311,10 @@ export const action = async (args: ActionFunctionArgs) => {
       {
         id: "remove-member-toast",
         key: hash,
-        message: `${profile.firstName} ${profile.lastName} entfernt.`,
+        message: t("content.removed", {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+        }),
       },
       { scrollToToast: true }
     );
@@ -298,22 +328,18 @@ function Team() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useSubmit();
-
   const [searchForm, fields] = useForm({
     defaultValue: {
       search: searchParams.get("search") || "",
       deep: "true",
     },
   });
+  const { t } = useTranslation(i18nNS);
 
   return (
     <Section>
-      <BackButton to={location.pathname}>Team verwalten</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">
-        Wer ist Teil Eures Projekts? Füge hier weitere Teammitglieder hinzu oder
-        entferne sie. Team-Mitglieder werden auf der Projekte-Detailseite
-        gezeigt. Sie können Projekte nicht bearbeiten.
-      </p>
+      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
+      <p className="mv-my-6 md:mv-mt-0">{t("content.intro")}</p>
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
         {toast !== null && toast.id === "remove-member-toast" && (
           <div id={toast.id}>
@@ -325,9 +351,9 @@ function Team() {
         {project.teamMembers.length > 0 && (
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Aktuelle Teammitglieder
+              {t("content.current.headline")}
             </h2>
-            <p>Teammitglieder und Rollen sind hier aufgelistet.</p>
+            <p>{t("content.current.intro")}</p>
             <Form method="post">
               <List>
                 {project.teamMembers.map((teamMember) => {
@@ -345,8 +371,8 @@ function Team() {
                             teamMember.profile.username
                           );
                         })
-                          ? "Administrator:in"
-                          : "Teammitglied"}
+                          ? t("content.current.member.admin")
+                          : t("content.current.member.team")}
                       </List.Item.Subtitle>
                       <List.Item.Controls>
                         <Button
@@ -355,7 +381,7 @@ function Team() {
                           value={`remove_${teamMember.profile.username}`}
                           type="submit"
                         >
-                          Entfernen
+                          {t("content.current.remove")}
                         </Button>
                       </List.Item.Controls>
                     </List.Item>
@@ -374,7 +400,7 @@ function Team() {
         )}
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Teammitglied hinzufügen
+            {t("content.add.headline")}
           </h2>
           <Form
             method="get"
@@ -385,9 +411,13 @@ function Team() {
           >
             <Input {...conform.input(fields.deep)} type="hidden" />
             <Input {...conform.input(fields.search)} standalone>
-              <Input.Label htmlFor={fields.search.id}>Suche</Input.Label>
+              <Input.Label htmlFor={fields.search.id}>
+                {t("content.add.search")}
+              </Input.Label>
               <Input.SearchIcon />
-              <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
+              <Input.HelperText>
+                {t("content.add.requirements")}
+              </Input.HelperText>
               {typeof fields.search.error !== "undefined" && (
                 <Input.Error>{fields.search.error}</Input.Error>
               )}
@@ -409,7 +439,7 @@ function Team() {
                         value={`add_${profile.username}`}
                         type="submit"
                       >
-                        Hinzufügen
+                        {t("content.add.add")}
                       </Button>
                     </List.Item.Controls>
                   </List.Item>

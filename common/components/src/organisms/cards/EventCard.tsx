@@ -1,7 +1,6 @@
 import React from "react";
 import { removeHtmlTags } from "../../../../../app/lib/utils/sanitizeUserHtml";
 import Avatar, { AvatarList } from "../../molecules/Avatar";
-import { getDateDuration, getTimeDuration } from "../../utils";
 import {
   Card,
   CardBody,
@@ -12,6 +11,8 @@ import {
   CardInfoOverlay,
   CardStatus,
 } from "./Card";
+import { useTranslation } from "react-i18next";
+import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 
 export type EventCardProps = {
   match?: number;
@@ -99,11 +100,20 @@ function EventCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & EventCardProps
 ) {
   const { event } = props;
+  const { t, i18n } = useTranslation(["organisms/cards/event-card"]);
 
   const now = new Date();
 
-  const dateDuration = getDateDuration(event.startTime, event.endTime);
-  const timeDuration = getTimeDuration(event.startTime, event.endTime);
+  const dateDuration = getDateDuration(
+    event.startTime,
+    event.endTime,
+    i18n.language
+  );
+  const timeDuration = getTimeDuration(
+    event.startTime,
+    event.endTime,
+    i18n.language
+  );
   const hasStage = event.stage !== undefined && event.stage !== null;
 
   return (
@@ -118,21 +128,23 @@ function EventCard(
           />
         )}
         {props.match !== undefined && (
-          <CardStatus>{props.match}% Match</CardStatus>
+          <CardStatus>
+            {props.match}% {t("match")}
+          </CardStatus>
         )}
         {event.canceled && event.published && (
-          <CardStatus variant="negative">Wurde abgesagt</CardStatus>
+          <CardStatus variant="negative">{t("cancelled")}</CardStatus>
         )}
         {event.endTime.getTime() < now.getTime() && (
-          <CardStatus variant="neutral">Vergangen</CardStatus>
+          <CardStatus variant="neutral">{t("passed")}</CardStatus>
         )}
         {!event.published && event.isTeamMember && (
           <CardStatus variant="primary" inverted>
-            Entwurf
+            {t("draft")}
           </CardStatus>
         )}
         {event.published && event.isTeamMember && (
-          <CardStatus variant="positive">Veröffentlicht</CardStatus>
+          <CardStatus variant="positive">{t("published")}</CardStatus>
         )}
         <CardInfoOverlay>
           {event._count.childEvents === 0 &&
@@ -148,7 +160,7 @@ function EventCard(
           {event._count.childEvents === 0 &&
             typeof event.participantLimit !== "number" && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
-                Unbegrenzte Plätze
+                {t("organisms/cards/event-card:seats.unlimited")}
               </span>
             )}
           {event._count.childEvents === 0 &&
@@ -156,14 +168,22 @@ function EventCard(
             event.participantLimit - event._count.participants > 0 && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
                 {event.participantLimit - event._count.participants} /{" "}
-                {event.participantLimit} Plätze frei
+                {event.participantLimit}{" "}
+                {t("seats.free", {
+                  default: t("seats.default"),
+                  count: event.participantLimit - event._count.participants,
+                })}
               </span>
             )}
           {event._count.childEvents === 0 &&
             typeof event.participantLimit === "number" &&
             event.participantLimit - event._count.participants <= 0 && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
-                {event._count.waitingList} Wartelistenplätze
+                {event._count.waitingList}{" "}
+                {t("waitingList.places", {
+                  count: event._count.waitingList,
+                  default: t("waitingList.default"),
+                })}
               </span>
             )}
         </CardInfoOverlay>
@@ -265,7 +285,7 @@ function EventCard(
           !event.canceled &&
           event.isParticipant && (
             <span className="mv-text-xs mv-font-bold mv-text-positive">
-              Angemeldet
+              {t("registered")}
             </span>
           )}
         {!props.publicAccess &&
@@ -275,7 +295,7 @@ function EventCard(
           event.participationUntil.getTime() > Date.now() &&
           event.isOnWaitingList && (
             <span className="mv-text-xs mv-font-bold mv-text-neutral-700">
-              Auf Warteliste
+              {t("onWaitingList")}
             </span>
           )}
       </CardFooter>

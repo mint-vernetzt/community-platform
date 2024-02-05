@@ -468,7 +468,7 @@ describe("/event/$slug/settings/participants", () => {
       // TODO: fix type issue
       // @ts-ignore
       expect(responseBody.errors.participantLimit).toStrictEqual([
-        "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
+        "error.inputError",
       ]);
     });
 

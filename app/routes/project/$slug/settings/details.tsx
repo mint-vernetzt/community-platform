@@ -34,7 +34,7 @@ import {
   replaceHtmlEntities,
   sanitizeUserHtml,
 } from "~/lib/utils/sanitizeUserHtml";
-import { youtubeEmbedSchema } from "~/lib/utils/schemas";
+import { createYoutubeEmbedSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
@@ -42,139 +42,154 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { type TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
-const detailsSchema = z.object({
-  disciplines: z.array(z.string().uuid()),
-  additionalDisciplines: z.array(z.string().uuid()),
-  furtherDisciplines: z.array(z.string()),
-  participantLimit: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  projectTargetGroups: z.array(z.string().uuid()),
-  specialTargetGroups: z.array(z.string().uuid()),
-  targetGroupAdditions: z
-    .string()
-    .max(
-      200,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200."
-    )
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  excerpt: z
-    .string()
-    .max(
-      250,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 250."
-    )
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  idea: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
-      }
-    ),
-  goals: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
-      }
-    ),
-  implementation: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
-      }
-    ),
-  furtherDescription: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 8000
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 8000.",
-      }
-    ),
-  targeting: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
-      }
-    ),
-  hints: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
-      }
-    ),
-  video: youtubeEmbedSchema,
-  videoSubline: z
-    .string()
-    .max(
-      80,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
-    )
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-});
+const i18nNS = ["routes/project/settings/details", "utils/schemas"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createDetailSchema = (t: TFunction) =>
+  z.object({
+    disciplines: z.array(z.string().uuid()),
+    additionalDisciplines: z.array(z.string().uuid()),
+    furtherDisciplines: z.array(z.string()),
+    participantLimit: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    projectTargetGroups: z.array(z.string().uuid()),
+    specialTargetGroups: z.array(z.string().uuid()),
+    targetGroupAdditions: z
+      .string()
+      .max(200, t("validation.targetGroupAdditions.max"))
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    excerpt: z
+      .string()
+      .max(250, t("validation.targetGroupAdditions.excerpt"))
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    idea: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+          );
+        },
+        {
+          message: t("validation.idea.message"),
+        }
+      ),
+    goals: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+          );
+        },
+        {
+          message: t("validation.goals.message"),
+        }
+      ),
+    implementation: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+          );
+        },
+        {
+          message: t("validation.implementation.message"),
+        }
+      ),
+    furtherDescription: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 8000
+          );
+        },
+        {
+          message: t("validation.furtherDescription.message"),
+        }
+      ),
+    targeting: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+          );
+        },
+        {
+          message: t("validation.targeting.message"),
+        }
+      ),
+    hints: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+          );
+        },
+        {
+          message: t("validation.hints.message"),
+        }
+      ),
+    video: createYoutubeEmbedSchema(t),
+    videoSubline: z
+      .string()
+      .max(80, t("validation.videoSubline.max"))
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+  });
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: quillStyles },
@@ -182,12 +197,16 @@ export const links: LinksFunction = () => [
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -261,7 +280,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, "Project not found", {
+  invariantResponse(project !== null, t("error.projectNotFound"), {
     status: 404,
   });
 
@@ -311,8 +330,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
 export async function action({ request, params }: ActionFunctionArgs) {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
@@ -332,11 +354,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, "Project not found", {
+  invariantResponse(project !== null, t("error.projectNotFound"), {
     status: 404,
   });
   // Validation
   const formData = await request.formData();
+  const detailsSchema = createDetailSchema(t);
+
   const submission = await parse(formData, {
     schema: (intent) =>
       detailsSchema.transform(async (data, ctx) => {
@@ -352,8 +376,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             // Its working if you map this error to a normal input (f.e. path: ["excerpt"])
             // Current workarround is to show an alert below the save button
             path: ["additionalDisciplines"],
-            message:
-              "Zusätzliche Disziplinen können nur gewählt werden, wenn mindestens eine Hauptdisziplin ausgewählt wurde.",
+            message: t("validation.custom.message"),
           });
           return z.NEVER;
         }
@@ -461,8 +484,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           console.warn(e);
           ctx.addIssue({
             code: "custom",
-            message:
-              "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support.",
+            message: t("error.storage"),
           });
           return z.NEVER;
         }
@@ -485,13 +507,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   return redirectWithToast(
     request.url,
-    { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
+    { id: "settings-toast", key: hash, message: t("content.feedback") },
     { scrollToToast: true }
   );
 }
 
 function Details() {
   const location = useLocation();
+  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
   const {
     project,
@@ -509,6 +532,8 @@ function Details() {
   } = project;
   const actionData = useActionData<typeof action>();
   const formId = "details-form";
+
+  const detailsSchema = createDetailSchema(t);
   const [form, fields] = useForm({
     id: formId,
     constraint: getFieldsetConstraint(detailsSchema),
@@ -546,8 +571,7 @@ function Details() {
                 // TODO: Investigate why auto scroll to error is not working on lists
                 // Its working if you map this error to a normal input (f.e. path: ["excerpt"])
                 path: ["additionalDisciplines"],
-                message:
-                  "Zusätzliche Disziplinen können nur gewählt werden, wenn mindestens eine Hauptdisziplin ausgewählt wurde.",
+                message: t("validation.custom.message"),
               });
               return z.NEVER;
             }
@@ -596,9 +620,7 @@ function Details() {
       isDirty && currentLocation.pathname !== nextLocation.pathname
   );
   if (blocker.state === "blocked") {
-    const confirmed = confirm(
-      "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst."
-    );
+    const confirmed = confirm(t("content.nonPersistent"));
     if (confirmed) {
       blocker.proceed();
     } else {
@@ -606,12 +628,11 @@ function Details() {
     }
   }
 
+  // AKI stop
   return (
     <Section>
-      <BackButton to={location.pathname}>Projekt-Details</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">
-        Teile der Community mehr über Dein Projekt oder Bildungsangebot mit.
-      </p>
+      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
+      <p className="mv-my-6 md:mv-mt-0">{t("content.description")}</p>
       <Form
         method="post"
         {...form.props}
@@ -639,18 +660,18 @@ function Details() {
         <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              MINT-Disziplinen
+              {t("content.disciplines.headline")}
             </h2>
 
             <Select onChange={handleSelectChange}>
               <Select.Label htmlFor={fields.disciplines.id}>
-                Welche MINT-Disziplinen spielen in Deinem Projekt eine Rolle?
+                {t("content.disciplines.intro")}
               </Select.Label>
               <Select.HelperText>
-                Mehrfachnennungen sind möglich.
+                {t("content.disciplines.helper")}
               </Select.HelperText>
               <option selected hidden>
-                Bitte auswählen
+                {t("content.disciplines.choose")}
               </option>
               {allDisciplines
                 .filter((discipline) => {
@@ -702,14 +723,13 @@ function Details() {
 
             <Select onChange={handleSelectChange}>
               <Select.Label htmlFor={fields.additionalDisciplines.id}>
-                Welche zusätzlichen Disziplinen spielen in Deinem Projekt eine
-                Rolle?
+                {t("content.additionalDisciplines.headline")}
               </Select.Label>
               <Select.HelperText>
-                Mehrfachnennungen sind möglich.
+                {t("content.additionalDisciplines.helper")}
               </Select.HelperText>
               <option selected hidden>
-                Bitte auswählen
+                {t("content.additionalDisciplines.choose")}
               </option>
               {allAdditionalDisciplines
                 .filter((additionalDiscipline) => {
@@ -759,7 +779,7 @@ function Details() {
                               listAdditionalDiscipline.defaultValue
                             );
                           }
-                        )?.title || "Not Found"}
+                        )?.title || t("error.notFound")}
                         <Input
                           type="hidden"
                           {...conform.input(listAdditionalDiscipline)}
@@ -785,11 +805,10 @@ function Details() {
                 onChange={handleFurtherDisciplineInputChange}
               >
                 <Input.Label htmlFor={fields.furtherDisciplines.id}>
-                  Welche weiteren Teildisziplinen (oder Techniken, Verfahren)
-                  spielen eine Rolle?
+                  {t("content.furtherDisciplines.headline")}
                 </Input.Label>
                 <Input.HelperText>
-                  Bitte füge die Begriffe jeweils einzeln hinzu.
+                  {t("content.furtherDisciplines.helper")}
                 </Input.HelperText>
                 <Input.Controls>
                   <Button
@@ -799,7 +818,7 @@ function Details() {
                     variant="ghost"
                     disabled={furtherDiscipline === ""}
                   >
-                    Hinzufügen
+                    {t("content.furtherDisciplines.choose")}
                   </Button>
                 </Input.Controls>
               </Input>
@@ -811,7 +830,8 @@ function Details() {
                 {furtherDisciplinesList.map((listFurtherDiscipline, index) => {
                   return (
                     <Chip key={listFurtherDiscipline.key}>
-                      {listFurtherDiscipline.defaultValue || "Not Found"}
+                      {listFurtherDiscipline.defaultValue ||
+                        t("error.notFound")}
                       <Input
                         type="hidden"
                         {...conform.input(listFurtherDiscipline)}
@@ -832,32 +852,30 @@ function Details() {
 
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Teilnehmer:innen
+              {t("content.participants.headline")}
             </h2>
 
             <Input {...conform.input(fields.participantLimit)}>
               <Input.Label htmlFor={fields.participantLimit.id}>
-                Wenn Dein Projekt für eine konkrete Teilnehmer:innenzahl bspw.
-                pro Kurs konzipiert ist, gib diese bitte an.
+                {t("content.participants.intro")}
               </Input.Label>
               {typeof fields.participantLimit.error !== "undefined" && (
                 <Input.Error>{fields.participantLimit.error}</Input.Error>
               )}
               <Input.HelperText>
-                Hier kannst du Zahlen aber auch zusätzliche Informationen
-                eingeben.
+                {t("content.participants.helper")}
               </Input.HelperText>
             </Input>
 
             <Select onChange={handleSelectChange}>
               <Select.Label htmlFor={fields.projectTargetGroups.id}>
-                Welche Zielgruppe spricht das Projekt an?
+                {t("content.projectTargetGroups.intro")}
               </Select.Label>
               <Select.HelperText>
-                Mehrfachnennungen sind möglich.
+                {t("content.projectTargetGroups.helper")}
               </Select.HelperText>
               <option selected hidden>
-                Bitte auswählen
+                {t("content.projectTargetGroups.choose")}
               </option>
               {allProjectTargetGroups
                 .filter((targetGroup) => {
@@ -894,7 +912,7 @@ function Details() {
                     <Chip key={listTargetGroup.key}>
                       {allProjectTargetGroups.find((targetGroup) => {
                         return targetGroup.id === listTargetGroup.defaultValue;
-                      })?.title || "Not Found"}
+                      })?.title || t("error.notFound")}
                       <Input
                         type="hidden"
                         {...conform.input(listTargetGroup)}
@@ -914,15 +932,13 @@ function Details() {
 
             <Select onChange={handleSelectChange}>
               <Select.Label htmlFor={fields.specialTargetGroups.id}>
-                Wird eine bestimmte (geschlechtsspezifische, soziale, kulturelle
-                oder demografische etc.) Gruppe innerhalb der Zielgruppe
-                angesprochen?
+                {t("content.specialTargetGroups.intro")}
               </Select.Label>
               <Select.HelperText>
-                Mehrfachnennungen sind möglich.
+                {t("content.specialTargetGroups.helper")}
               </Select.HelperText>
               <option selected hidden>
-                Bitte auswählen
+                {t("content.specialTargetGroups.choose")}
               </option>
               {allSpecialTargetGroups
                 .filter((specialTargetGroup) => {
@@ -969,7 +985,7 @@ function Details() {
                           specialTargetGroup.id ===
                           listSpecialTargetGroup.defaultValue
                         );
-                      })?.title || "Not Found"}
+                      })?.title || t("error.notFound")}
                       <Input
                         type="hidden"
                         {...conform.input(listSpecialTargetGroup)}
@@ -989,7 +1005,7 @@ function Details() {
 
             <Input {...conform.input(fields.targetGroupAdditions)}>
               <Input.Label htmlFor={fields.targetGroupAdditions.id}>
-                Weitere
+                {t("content.targetGroupAdditions.more")}
               </Input.Label>
               {typeof fields.targetGroupAdditions.error !== "undefined" && (
                 <Input.Error>{fields.targetGroupAdditions.error}</Input.Error>
@@ -999,17 +1015,13 @@ function Details() {
 
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Kurztext zu Deinem Projekt
+              {t("content.shortDescription.headline")}
             </h2>
-
-            <p>
-              Fasse Dein Projekt in einem Satz zusammen. Dieser Text wird als
-              Teaser angezeigt.
-            </p>
+            <p>{t("content.shortDescription.intro")}</p>
 
             <Input {...conform.input(fields.excerpt)}>
               <Input.Label htmlFor={fields.excerpt.id}>
-                Kurzbeschreibung
+                {t("content.shortDescription.label")}
               </Input.Label>
               {typeof fields.excerpt.error !== "undefined" && (
                 <Input.Error>{fields.excerpt.error}</Input.Error>
@@ -1019,20 +1031,16 @@ function Details() {
 
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Ausführliche Beschreibung
+              {t("content.extendedDescription.headline")}
             </h2>
 
-            <p>
-              Nutze für Deine Beschreibungen die vorgegebenen Felder oder
-              strukturiere Deine Projektbeschreibung mit Hilfe von
-              selbstgewählten Überschriften in Feld “Sonstiges”.
-            </p>
+            <p>{t("content.extendedDescription.intro")}</p>
 
             <TextAreaWithCounter
               {...conform.textarea(fields.idea)}
               id={fields.idea.id || ""}
-              label="Idee"
-              helperText="Beschreibe die Idee hinter Deinem Projekt."
+              label={t("content.extendedDescription.idea.label")}
+              helperText={t("content.extendedDescription.idea.helper")}
               errorMessage={fields.idea.error}
               maxCharacters={2000}
               rte
@@ -1041,8 +1049,8 @@ function Details() {
             <TextAreaWithCounter
               {...conform.textarea(fields.goals)}
               id={fields.goals.id || ""}
-              label="Ziele"
-              helperText="Beschreibe Lernziele oder mögliche Ergebnisse."
+              label={t("content.extendedDescription.goals.label")}
+              helperText={t("content.extendedDescription.goals.helper")}
               errorMessage={fields.goals.error}
               maxCharacters={2000}
               rte
@@ -1051,8 +1059,10 @@ function Details() {
             <TextAreaWithCounter
               {...conform.textarea(fields.implementation)}
               id={fields.implementation.id || ""}
-              label="Durchführung"
-              helperText="Welche Schritte werden durchgeführt?"
+              label={t("content.extendedDescription.implementation.label")}
+              helperText={t(
+                "content.extendedDescription.implementation.helper"
+              )}
               errorMessage={fields.implementation.error}
               maxCharacters={2000}
               rte
@@ -1061,10 +1071,10 @@ function Details() {
             <TextAreaWithCounter
               {...conform.textarea(fields.furtherDescription)}
               id={fields.furtherDescription.id || ""}
-              label="Sonstiges"
-              helperText="Was möchtest Du außerdem der Community mitgeben? Nutze dieses Feld
-              um Deine Projekt-Beschreibung mit Überschriften selbst zu
-              strukturieren."
+              label={t("content.extendedDescription.furtherDescription.label")}
+              helperText={t(
+                "content.extendedDescription.furtherDescription.helper"
+              )}
               errorMessage={fields.furtherDescription.error}
               maxCharacters={8000}
               rte
@@ -1073,10 +1083,8 @@ function Details() {
             <TextAreaWithCounter
               {...conform.textarea(fields.targeting)}
               id={fields.targeting.id || ""}
-              label="Wie wird die Zielgruppe erreicht?"
-              helperText="Welche Maßnahmen werden durchgeführt um die Zielgruppe
-              anzusprechen? Womit wird geworben? Gibt es neben dem Erlernten
-              weitere Benefits?"
+              label={t("content.extendedDescription.targeting.label")}
+              helperText={t("content.extendedDescription.targeting.helper")}
               errorMessage={fields.targeting.error}
               maxCharacters={800}
               rte
@@ -1085,9 +1093,8 @@ function Details() {
             <TextAreaWithCounter
               {...conform.textarea(fields.hints)}
               id={fields.hints.id || ""}
-              label="Tipps zum Nachahmen"
-              helperText="Was kannst Du Akteur:innen mitgeben, die ein ähnliches Projekt auf
-              die Beine stellen wollen. Was gibt es zu beachten?"
+              label={t("content.extendedDescription.hints.label")}
+              helperText={t("content.extendedDescription.hints.helper")}
               errorMessage={fields.hints.error}
               maxCharacters={800}
               rte
@@ -1096,7 +1103,7 @@ function Details() {
 
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Video-Link zu Deinem Projekt
+              {t("content.video.headline")}
             </h2>
 
             <Input
@@ -1104,21 +1111,19 @@ function Details() {
               placeholder="youtube.com/watch?v=<videoCode>"
             >
               <Input.Label htmlFor={fields.video.id}>
-                Einbettungslink
+                {t("content.video.video.label")}
               </Input.Label>
               {typeof fields.video.error !== "undefined" && (
                 <Input.Error>{fields.video.error}</Input.Error>
               )}
               <Input.HelperText>
-                Kopiere die Youtube-URL deines Videos aus der Adresszeile des
-                Browsers, nutze die Teilenfunktion oder den Embed-Link von
-                YouTube.
+                {t("content.video.video.helper")}
               </Input.HelperText>
             </Input>
 
             <Input {...conform.input(fields.videoSubline)}>
               <Input.Label htmlFor={fields.videoSubline.id}>
-                Bitte gibt hier eine Bildunterschrift für Dein Video ein.
+                {t("content.video.videoSubline.label")}
               </Input.Label>
               {typeof fields.videoSubline.error !== "undefined" && (
                 <Input.Error>{fields.videoSubline.error}</Input.Error>
@@ -1145,13 +1150,13 @@ function Details() {
                   }}
                   className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
                 >
-                  Änderungen verwerfen
+                  {t("content.reset")}
                 </Button>
                 {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
                 {/* <Button type="reset" variant="outline" fullSize>
                   Änderungen verwerfen
                 </Button> */}
-                {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
+                {/* TODO: Add disabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
 
                 <Button
                   type="submit"
@@ -1160,7 +1165,7 @@ function Details() {
                     setIsDirty(false);
                   }}
                 >
-                  Speichern
+                  {t("content.submit")}
                 </Button>
               </Controls>
             </div>
@@ -1168,40 +1173,43 @@ function Details() {
           {/* Workarround error messages because conform mapping and error displaying is not working yet with Select and RTE components */}
           {fields.additionalDisciplines.error !== undefined && (
             <Alert level="negative">
-              Zusätzliche Disziplinen: {fields.additionalDisciplines.error}
+              {t("content.error.additionalDisciplines", {
+                list: fields.additionalDisciplines.error,
+              })}
             </Alert>
           )}
           {fields.idea.error !== undefined && (
             <Alert level="negative">
-              Ausführliche Beschreibung - Idee: {fields.idea.error}
+              {t("content.error.idea", { list: fields.idea.error })}
             </Alert>
           )}
           {fields.goals.error !== undefined && (
             <Alert level="negative">
-              Ausführliche Beschreibung - Ziele: {fields.goals.error}
+              {t("content.error.goals", { list: fields.goals.error })}
             </Alert>
           )}
           {fields.implementation.error !== undefined && (
             <Alert level="negative">
-              Ausführliche Beschreibung - Durchführung:{" "}
-              {fields.implementation.error}
+              {t("content.error.implementation", {
+                list: fields.implementation.error,
+              })}
             </Alert>
           )}
           {fields.furtherDescription.error !== undefined && (
             <Alert level="negative">
-              Ausführliche Beschreibung - Sonstiges:{" "}
-              {fields.furtherDescription.error}
+              {t("content.error.furtherDescription", {
+                list: fields.furtherDescription.error,
+              })}
             </Alert>
           )}
           {fields.targeting.error !== undefined && (
             <Alert level="negative">
-              Ausführliche Beschreibung - Zielgruppenansprache:{" "}
-              {fields.targeting.error}
+              {t("content.error.targeting", { list: fields.targeting.error })}
             </Alert>
           )}
           {fields.hints.error !== undefined && (
             <Alert level="negative">
-              Ausführliche Beschreibung - Tipps: {fields.hints.error}
+              {t("content.error.hints", { list: fields.hints.error })}
             </Alert>
           )}
         </div>

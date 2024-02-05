@@ -12,9 +12,15 @@ import {
 } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
+import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+
+const i18nNS = ["routes/explore/projects"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
@@ -146,15 +152,13 @@ function Projects() {
     }
   }, [fetcher.data]);
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Entdecke inspirierende Projekte</H1>
-        <p className="">
-          Finde passende Projekte, lerne von Erfahrungen anderer
-          MINT-Akteur:innen und teile Dein Wissen, indem Du Dein eigenes Projekt
-          anlegst.
-        </p>
+        <H1 like="h0">{t("title")}</H1>
+        <p className="">{t("intro")}</p>
       </section>
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <CardContainer type="multi row">
@@ -174,7 +178,7 @@ function Projects() {
               variant="outline"
               loading={fetcher.state === "loading"}
             >
-              Weitere laden
+              {t("more")}
             </Button>
           </fetcher.Form>
         </div>

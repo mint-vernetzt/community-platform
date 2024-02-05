@@ -3,8 +3,9 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import imgproxy from "imgproxy/dist/types.js";
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { GravityType, getImageURL } from "~/images.server";
 import {
@@ -18,7 +19,11 @@ import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
 } from "./utils.server";
-import { useHydrated } from "remix-utils/use-hydrated";
+
+const i18nNS = ["routes/search/events"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -158,6 +163,8 @@ export default function SearchView() {
 
   const isHydrated = useHydrated();
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       {items.length > 0 ? (
@@ -198,10 +205,7 @@ export default function SearchView() {
                   );
                 })
               ) : (
-                <p>
-                  Für Deine Filterkriterien konnten leider keine Profile
-                  gefunden werden.
-                </p>
+                <p>{t("empty.events")}</p>
               )}
             </CardContainer>
           </section>
@@ -215,16 +219,14 @@ export default function SearchView() {
                   variant="outline"
                   loading={fetcher.state === "loading"}
                 >
-                  Weitere laden
+                  {t("more")}
                 </Button>
               </fetcher.Form>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">
-          Für Deine Suche konnten leider keine Veranstaltungen gefunden werden.
-        </p>
+        <p className="text-center text-primary">{t("empty.events")}</p>
       )}
     </>
   );

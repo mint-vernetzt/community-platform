@@ -107,7 +107,7 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     expect(responseBody.errors).not.toBeNull();
     // @ts-ignore
     expect(responseBody.errors.profileId).toStrictEqual([
-      "Es existiert noch kein Profil unter diesem Namen.",
+      "error.inputError.doesNotExist",
     ]);
   });
 
@@ -147,7 +147,7 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     expect(responseBody.success).toBe(false);
     // @ts-ignore
     expect(responseBody.errors.profileId).toContain(
-      "Das Profil unter diesem Namen ist bereits Speaker Eurer Veranstaltung."
+      "error.inputError.alreadyIn"
     );
   });
 
@@ -225,8 +225,6 @@ describe("/event/$slug/settings/speakers/add-speaker", () => {
     });
     // TODO: fix type issue
     // @ts-ignore
-    expect(responseBody.message).toBe(
-      'Das Profil mit dem Namen "another-user-firstname another-user-lastname" wurde als Speaker:in hinzugefügt.'
-    );
+    expect(responseBody.message).toBe("feedback");
   });
 });

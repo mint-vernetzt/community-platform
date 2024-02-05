@@ -3,13 +3,23 @@ import JSZip from "jszip";
 import { createAuthClient } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
+
+const i18nNS = ["routes/project/detail/attachments/download"];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
-  invariantResponse(params.slug !== undefined, "No valid route", {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    t("error.invariant.invalidRoute"),
+    {
+      status: 400,
+    }
+  );
 
   const { authClient } = createAuthClient(request);
 
@@ -28,7 +38,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         type === "documents" ||
         type === "image" ||
         type === "images"),
-    "Wrong or missing parameters",
+    t("error.invariant.invalidParameters"),
     {
       status: 400,
     }
@@ -55,16 +65,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
         },
       },
     });
-    invariantResponse(project !== null, "Project not found", { status: 404 });
+    invariantResponse(project !== null, t("error.invariant.projectNotFound"), {
+      status: 404,
+    });
 
     if (type === "document") {
       const relation = project.documents.find((relation) => {
         return relation.document.id === fileId;
       });
 
-      invariantResponse(typeof relation !== "undefined", "Document not found", {
-        status: 404,
-      });
+      invariantResponse(
+        typeof relation !== "undefined",
+        t("error.invariant.documentNotFound"),
+        {
+          status: 404,
+        }
+      );
 
       const result = await authClient.storage
         .from("documents")
@@ -74,7 +90,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
       invariantResponse(
         result.error === null,
-        "Downloading from storage failed",
+        t("error.invariant.downloadFailed"),
         {
           status: 400,
         }
@@ -135,16 +151,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
       },
     });
 
-    invariantResponse(project !== null, "Project not found", { status: 404 });
+    invariantResponse(project !== null, t("error.invariant.projectNotFound"), {
+      status: 404,
+    });
 
     if (type === "image") {
       const relation = project.images.find((relation) => {
         return relation.image.id === fileId;
       });
 
-      invariantResponse(typeof relation !== "undefined", "Document not found", {
-        status: 404,
-      });
+      invariantResponse(
+        typeof relation !== "undefined",
+        t("error.invariant.documentNotFound"),
+        {
+          status: 404,
+        }
+      );
 
       const result = await authClient.storage
         .from("documents")
@@ -152,7 +174,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
       invariantResponse(
         result.error === null,
-        "Downloading from storage failed",
+        t("error.invariant.downloadFailed"),
         {
           status: 400,
         }

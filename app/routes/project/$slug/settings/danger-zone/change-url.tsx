@@ -13,29 +13,38 @@ import {
   useBlocker,
   useLoaderData,
 } from "@remix-run/react";
+import { type TFunction } from "i18next";
 import React from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "../utils.server";
 
-function createSchema(constraint?: {
-  isSlugUnique?: (slug: string) => Promise<boolean>;
-}) {
+const i18nNS = ["routes/project/settings/danger-zone/change-url"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+function createSchema(
+  t: TFunction,
+  constraint?: {
+    isSlugUnique?: (slug: string) => Promise<boolean>;
+  }
+) {
   return z.object({
     slug: z
       .string()
-      .min(3, "Es werden mind. 3 Zeichen benötigt.")
-      .max(50, "Es sind max. 50 Zeichen erlaubt.")
-      .regex(
-        /^[-a-z0-9-]+$/i,
-        "Nur Buchstaben, Zahlen und Bindestriche erlaubt."
-      )
+      .min(3, t("validation.slug.min"))
+      .max(50, t("validation.slug.max"))
+      .regex(/^[-a-z0-9-]+$/i, t("validation.slug.regex"))
       .refine(async (slug) => {
         if (
           typeof constraint !== "undefined" &&
@@ -44,18 +53,22 @@ function createSchema(constraint?: {
           return await constraint.isSlugUnique(slug);
         }
         return true;
-      }, "Diese URL ist bereits vergeben."),
+      }, t("validations.slug.unique")),
   });
 }
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   invariantResponse(
     typeof params.slug !== "undefined",
-    'Route parameter "slug" not found',
+    t("error.missingParameterSlug"),
     {
       status: 404,
     }
@@ -77,11 +90,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -98,7 +115,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const formData = await request.formData();
   const submission = await parse(formData, {
-    schema: createSchema({
+    schema: createSchema(t, {
       isSlugUnique: async (slug) => {
         const project = await prismaClient.project.findFirst({
           where: { slug: slug },
@@ -128,7 +145,7 @@ export const action = async (args: ActionFunctionArgs) => {
       {
         id: "settings-toast",
         key: hash,
-        message: "URL wurde geändert.",
+        message: t("content.feedback"),
       },
       { scrollToToast: true }
     );
@@ -141,10 +158,12 @@ function ChangeURL() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
+  const { t } = useTranslation(i18nNS);
+
   const [form, fields] = useForm({
     shouldValidate: "onSubmit",
     onValidate: (values) => {
-      return parse(values.formData, { schema: createSchema() });
+      return parse(values.formData, { schema: createSchema(t) });
     },
     shouldRevalidate: "onSubmit",
     lastSubmission: actionData,
@@ -156,9 +175,7 @@ function ChangeURL() {
       isDirty && currentLocation.pathname !== nextLocation.pathname
   );
   if (blocker.state === "blocked") {
-    const confirmed = confirm(
-      "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst."
-    );
+    const confirmed = confirm(t("content.prompt"));
     if (confirmed) {
       blocker.proceed();
     } else {
@@ -169,19 +186,17 @@ function ChangeURL() {
   return (
     <>
       <p>
-        Aktuell ist Dein Projekt über folgende URL "
-        <span className="mv-break-all">
-          {loaderData.baseURL}
-          /project/
-          <strong>{loaderData.slug}</strong>
-        </span>
-        " zu erreichen.
+        <Trans
+          i18nKey="content.reach"
+          ns={i18nNS}
+          components={[
+            <span className="mv-break-all">
+              {loaderData.baseURL}/project/<strong>{loaderData.slug}</strong>
+            </span>,
+          ]}
+        />
       </p>
-      <p>
-        Wenn du die URL deines Projekts änderst und den bisherigen Link bereits
-        geteilt hast, wird das Projekt über den alten Link nicht mehr erreichbar
-        sein.
-      </p>
+      <p>{t("content.note")}</p>
       <Form
         method="post"
         {...form.props}
@@ -195,7 +210,9 @@ function ChangeURL() {
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <Input id="deep" defaultValue="true" type="hidden" />
           <Input id="slug" defaultValue={loaderData.slug}>
-            <Input.Label htmlFor={fields.slug.id}>Projekt-URL</Input.Label>
+            <Input.Label htmlFor={fields.slug.id}>
+              {t("content.label")}
+            </Input.Label>
             {typeof actionData !== "undefined" &&
               typeof fields.slug.error !== "undefined" && (
                 <Input.Error>{fields.slug.error}</Input.Error>
@@ -211,7 +228,7 @@ function ChangeURL() {
                   setIsDirty(false);
                 }}
               >
-                URL ändern
+                {t("content.action")}
               </Button>
             </div>
           </div>

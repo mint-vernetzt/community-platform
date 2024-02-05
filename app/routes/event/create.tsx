@@ -25,42 +25,53 @@ import { generateEventSlug } from "~/utils.server";
 import { validateTimePeriods } from "./$slug/settings/utils.server";
 import { getEventById } from "./create.server";
 import { createEventOnProfile, transformFormToEvent } from "./utils.server";
+import { type TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
-const schema = object({
-  name: string().required("Bitte einen Veranstaltungsnamen angeben"),
-  startDate: string()
-    .transform((value) => {
-      value = value.trim();
-      try {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
-      } catch (error) {
-        console.log(error);
-      }
-      return undefined;
-    })
-    .required("Bitte gib den Beginn der Veranstaltung an"),
-  startTime: string().required("Bitte eine Startzeit angeben"),
-  endDate: greaterThanDate(
-    "endDate",
-    "startDate",
-    "Bitte gib das Ende der Veranstaltung an",
-    "Das Enddatum darf nicht vor dem Startdatum liegen"
-  ),
-  endTime: greaterThanTimeOnSameDate(
-    "endTime",
-    "startTime",
-    "startDate",
-    "endDate",
-    "Bitte gib das Ende der Veranstaltung an",
-    "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen"
-  ),
-  child: nullOrString(string()),
-  parent: nullOrString(string()),
-});
+const i18nNS = ["routes/event/create"];
+export const handle = {
+  i18n: i18nNS,
+};
 
-type SchemaType = typeof schema;
-type FormType = InferType<typeof schema>;
+const createSchema = (t: TFunction) => {
+  return object({
+    name: string().required(t("validation.name.required")),
+    startDate: string()
+      .transform((value) => {
+        value = value.trim();
+        try {
+          const date = new Date(value);
+          return format(date, "yyyy-MM-dd");
+        } catch (error) {
+          console.log(error);
+        }
+        return undefined;
+      })
+      .required(t("validation.startDate.required")),
+    startTime: string().required(t("validation.startTime.required")),
+    endDate: greaterThanDate(
+      "endDate",
+      "startDate",
+      t("validation.endDate.required"),
+      t("validation.endDate.greaterThan")
+    ),
+    endTime: greaterThanTimeOnSameDate(
+      "endTime",
+      "startTime",
+      "startDate",
+      "endDate",
+      t("validation.endTime.required"),
+      t("validation.endTime.greaterThan")
+    ),
+    child: nullOrString(string()),
+    parent: nullOrString(string()),
+  });
+};
+
+type SchemaType = ReturnType<typeof createSchema>;
+type FormType = InferType<SchemaType>;
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -78,8 +89,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
+
+  const schema = createSchema(t);
 
   const parsedFormData = await getFormValues<SchemaType>(request, schema);
 
@@ -91,7 +107,7 @@ export const action = async (args: ActionFunctionArgs) => {
     errors = result.errors;
     data = result.data;
   } catch (error) {
-    throw json({ message: "Validation failed" }, { status: 400 });
+    throw json({ message: t("error.validation.Failed") }, { status: 400 });
   }
 
   const eventData = transformFormToEvent(data);
@@ -127,6 +143,7 @@ export default function Create() {
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
   const { register } = useForm<FormType>();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
@@ -147,14 +164,14 @@ export default function Create() {
                 d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
               />
             </svg>
-            <span className="ml-2">Zurück</span>
+            <span className="ml-2">{t("content.back")}</span>
           </button>
         </div>
       </section>
       <div className="container relative pt-20 pb-44">
         <div className="flex -mx-4 justify-center">
           <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
-            <h4 className="font-semibold">Veranstaltung anlegen</h4>
+            <h4 className="font-semibold">{t("content.headline")}</h4>
             <div className="pt-10 lg:pt-0">
               <Form method="post">
                 <input name="child" defaultValue={loaderData.child} hidden />
@@ -162,7 +179,7 @@ export default function Create() {
                 <div className="mb-2">
                   <Input
                     id="name"
-                    label="Name der Veranstaltung"
+                    label={t("form.name.label")}
                     required
                     {...register("name")}
                     errorMessage={actionData?.errors?.name?.message}
@@ -175,7 +192,7 @@ export default function Create() {
                   {/* TODO: Date Input Component */}
                   <Input
                     id="startDate"
-                    label="Startdatum"
+                    label={t("form.startDate.label")}
                     type="date"
                     {...register("startDate")}
                     required
@@ -189,7 +206,7 @@ export default function Create() {
                   {/* TODO: Time Input Component */}
                   <Input
                     id="startTime"
-                    label="Startzeit"
+                    label={t("form.startTime.label")}
                     type="time"
                     {...register("startTime")}
                     required
@@ -203,7 +220,7 @@ export default function Create() {
                   {/* TODO: Date Input Component */}
                   <Input
                     id="endDate"
-                    label="Enddatum"
+                    label={t("form.endDate.label")}
                     type="date"
                     {...register("endDate")}
                     required
@@ -217,7 +234,7 @@ export default function Create() {
                   {/* TODO: Time Input Component */}
                   <Input
                     id="endTime"
-                    label="Endzeit"
+                    label={t("form.endTime.label")}
                     type="time"
                     {...register("endTime")}
                     required
@@ -231,7 +248,7 @@ export default function Create() {
                   type="submit"
                   className="btn btn-outline-primary ml-auto btn-small"
                 >
-                  Anlegen
+                  {t("form.submit.label")}
                 </button>
               </Form>
             </div>

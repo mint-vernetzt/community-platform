@@ -573,31 +573,31 @@ describe("/event/$slug/settings/general", () => {
         expect(responseBody.errors.name).toBeDefined();
         // @ts-ignore
         expect(responseBody.errors.name.message).toBe(
-          "Bitte gib den Namen der Veranstaltung an"
+          "validation.name.required"
         );
         // @ts-ignore
         expect(responseBody.errors.startDate).toBeDefined();
         // @ts-ignore
         expect(responseBody.errors.startDate.message).toBe(
-          "Bitte gib den Beginn der Veranstaltung an"
+          "validation.startDate.required"
         );
         // @ts-ignore
         expect(responseBody.errors.endDate).toBeDefined();
         // @ts-ignore
         expect(responseBody.errors.endDate.message).toBe(
-          "Bitte gib das Ende der Veranstaltung an"
+          "validation.endDate.required"
         );
         // @ts-ignore
         expect(responseBody.errors.participationUntilDate).toBeDefined();
         // @ts-ignore
         expect(responseBody.errors.participationUntilDate.message).toBe(
-          "Bitte gib das Ende für die Registrierung an"
+          "validation.participationUntilDate.required"
         );
         // @ts-ignore
         expect(responseBody.errors.participationFromDate).toBeDefined();
         // @ts-ignore
         expect(responseBody.errors.participationFromDate.message).toBe(
-          "Bitte gib den Beginn für die Registrierung an"
+          "validation.participationFromDate.required"
         );
         // @ts-ignore
         expect(responseBody.errors.submit).toBeDefined();

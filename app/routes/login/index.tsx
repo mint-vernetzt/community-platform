@@ -13,17 +13,26 @@ import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
+import { useTranslation } from "react-i18next";
+import { type TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
-const schema = z.object({
-  email: z
-    .string()
-    .email("Bitte gib eine gültige E-Mail-Adresse ein.")
-    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
-  password: z
-    .string()
-    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  loginRedirect: z.string().optional(),
-});
+const i18nNS = ["routes/login"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createSchema = (t: TFunction) => {
+  return z.object({
+    email: z
+      .string()
+      .email(t("validation.email.email"))
+      .min(1, t("validation.email.min")),
+    password: z.string().min(8, t("validation.password.min")),
+    loginRedirect: z.string().optional(),
+  });
+};
 
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
   return <RemixFormsForm<Schema> {...props} />;
@@ -41,11 +50,19 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return null;
 };
 
-const mutation = makeDomainFunction(schema)(async (values) => {
-  return { ...values };
-});
+// const mutation = makeDomainFunction(schema)(async (values) => {
+//   return { ...values };
+// });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
+  const schema = createSchema(t);
+  const mutation = makeDomainFunction(schema)(async (values) => {
+    return { ...values };
+  });
+
   const submission = await performMutation({
     request,
     schema,
@@ -62,8 +79,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     if (error !== null) {
       if (error.message === "Invalid login credentials") {
         return json({
-          message:
-            "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.",
+          message: t("error.invalidCredentials"),
         });
       } else {
         throw json({ message: "Server Error" }, { status: 500 });
@@ -94,6 +110,9 @@ export default function Index() {
     }
   };
 
+  const { t } = useTranslation(i18nNS);
+  const schema = createSchema(t);
+
   return (
     <LoginForm
       method="post"
@@ -114,22 +133,22 @@ export default function Index() {
                   <HeaderLogo />
                 </div>
                 <div className="ml-auto">
-                  Noch kein Mitglied?{" "}
+                  {t("content.question")}{" "}
                   <Link
                     to={`/register${
                       loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                     }`}
                     className="text-primary font-bold"
                   >
-                    Registrieren
+                    {t("content.action")}
                   </Link>
                 </div>
               </div>
             </div>
             <div className="flex flex-col md:flex-row -mx-4">
-              <div className="basis-full md:basis-6/12"> </div>
+              <div className="basis-full md:basis-6/12 px-4"> </div>
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
-                <h1 className="mb-8">Anmelden</h1>
+                <h1 className="mb-8">{t("content.headline")}</h1>
 
                 <Errors className="alert-error p-3 mb-3 text-white" />
 
@@ -139,7 +158,7 @@ export default function Index() {
                       <>
                         <Input
                           id="email"
-                          label="E-Mail"
+                          label={t("label.email")}
                           {...register("email")}
                         />
                         <Errors />
@@ -153,7 +172,7 @@ export default function Index() {
                       <>
                         <InputPassword
                           id="password"
-                          label="Passwort"
+                          label={t("label.password")}
                           {...register("password")}
                         />
                         <Errors />
@@ -166,7 +185,7 @@ export default function Index() {
                 <div className="flex flex-row -mx-4 mb-8 items-center">
                   <div className="basis-6/12 px-4">
                     <button type="submit" className="btn btn-primary">
-                      Login
+                      {t("label.submit")}
                     </button>
                   </div>
                   <div className="basis-6/12 px-4 text-right">
@@ -176,7 +195,7 @@ export default function Index() {
                       }`}
                       className="text-primary font-bold"
                     >
-                      Passwort vergessen?
+                      {t("label.reset")}
                     </Link>
                   </div>
                 </div>

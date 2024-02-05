@@ -20,30 +20,37 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { type action as publishAction, publishSchema } from "./events/publish";
 import {
   getEventBySlug,
   getSpeakerProfileDataFromEvent,
 } from "./speakers.server";
 import {
-  addSpeakerSchema,
   type action as addSpeakerAction,
+  addSpeakerSchema,
 } from "./speakers/add-speaker";
 import {
-  removeSpeakerSchema,
   type action as removeSpeakerAction,
+  removeSpeakerSchema,
 } from "./speakers/remove-speaker";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/speakers"]);
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = await getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const speakers = getSpeakerProfileDataFromEvent(event);
   const enhancedSpeakers = speakers.map((speaker) => {
@@ -92,18 +99,14 @@ function Speakers() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/event/settings/speakers"]);
 
   return (
     <>
-      <h1 className="mb-8">Vortragende</h1>
-      <p className="mb-8">
-        Wer ist Speaker:in bei Eurer Veranstaltung? Füge hier weitere
-        Speaker:innen hinzu oder entferne sie.
-      </p>
-      <h4 className="mb-4 mt-4 font-semibold">Vortragende hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
-      </p>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-8">{t("content.intro")}</p>
+      <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
       <RemixFormsForm
         schema={addSpeakerSchema}
         fetcher={addSpeakerFetcher}
@@ -123,7 +126,7 @@ function Speakers() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name oder Email der Speaker:in
+                      {t("content.add.label")}
                     </label>
                   </div>
                 </div>
@@ -160,10 +163,10 @@ function Speakers() {
           {addSpeakerFetcher.data.message}
         </div>
       ) : null}
-      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Speaker:innen</h4>
-      <p className="mb-8">
-        Hier siehst du alle Speaker:innen der Veranstaltung auf einen Blick.{" "}
-      </p>
+      <h4 className="mb-4 mt-16 font-semibold">
+        {t("content.current.headline")}
+      </h4>
+      <p className="mb-8">{t("content.current.intro")} </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.speakers.map((profile) => {
           const initials = getInitials(profile);
@@ -211,7 +214,10 @@ function Speakers() {
                     <>
                       <Errors />
                       <Field name="profileId" />
-                      <Button className="ml-auto btn-none" title="entfernen">
+                      <Button
+                        className="ml-auto btn-none"
+                        title={t("content.current.remove")}
+                      >
                         <svg
                           viewBox="0 0 10 10"
                           width="10px"
@@ -251,7 +257,9 @@ function Speakers() {
                   <>
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                      {loaderData.published
+                        ? t("content.hide")
+                        : t("content.publish")}
                     </Button>
                   </>
                 );

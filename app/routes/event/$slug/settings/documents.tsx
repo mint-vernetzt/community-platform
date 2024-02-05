@@ -12,22 +12,29 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug } from "./documents.server";
 import {
-  deleteDocumentSchema,
   type action as deleteDocumentAction,
+  deleteDocumentSchema,
 } from "./documents/delete-document";
 import {
-  editDocumentSchema,
   type action as editDocumentAction,
+  editDocumentSchema,
 } from "./documents/edit-document";
 import {
-  uploadDocumentSchema,
   type action as uploadDocumentAction,
+  uploadDocumentSchema,
 } from "./documents/upload-document";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 import { publishSchema, type action as publishAction } from "./events/publish";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/documents",
+  ]);
   const { authClient } = createAuthClient(request);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -36,9 +43,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   return json({
     event: event,
@@ -74,11 +83,13 @@ function Documents() {
   const deleteDocumentFetcher = useFetcher<typeof deleteDocumentAction>();
   const publishFetcher = useFetcher<typeof publishAction>();
 
+  const { t } = useTranslation(["routes/event/settings/documents"]);
+
   const [fileSelected, setFileSelected] = useState(false);
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       if (e.target.files[0].size > 5_000_000) {
-        alert("Die Datei ist zu groß. Maximal 5MB.");
+        alert(t("error.fileTooBig"));
         clearFileInput();
         setFileSelected(false);
       } else {
@@ -89,10 +100,10 @@ function Documents() {
 
   return (
     <>
-      <h1 className="mb-8">Dokumente verwalten</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
       {loaderData.event.documents.length > 0 ? (
         <div className="mb-8">
-          <h3>Aktuelle Dokumente</h3>
+          <h3>{t("content.current.headline")}</h3>
           <ul>
             {loaderData.event.documents.map((item) => {
               return (
@@ -110,13 +121,13 @@ function Documents() {
                       to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
                       reloadDocument
                     >
-                      Herunterladen
+                      {t("content.current.download")}
                     </Link>
                     <label
                       htmlFor={`modal-edit-document-${item.document.id}`}
                       className="btn btn-outline-primary btn-small mt-2 mr-2 w-full sm:w-auto"
                     >
-                      Editieren
+                      {t("content.current.edit")}
                     </label>
                     <Modal id={`modal-edit-document-${item.document.id}`}>
                       <RemixFormsForm
@@ -152,7 +163,7 @@ function Documents() {
                                   <InputText
                                     {...register("title")}
                                     id="title"
-                                    label="Titel"
+                                    label={t("form.title.label")}
                                     defaultValue={
                                       item.document.title ||
                                       item.document.filename
@@ -168,7 +179,7 @@ function Documents() {
                                   <TextAreaWithCounter
                                     {...register("description")}
                                     id="description"
-                                    label="Beschreibung"
+                                    label={t("form.description.label")}
                                     defaultValue={
                                       item.document.description || ""
                                     }
@@ -182,14 +193,14 @@ function Documents() {
                               type="submit"
                               className="btn btn-outline-primary ml-auto btn-small mt-2"
                             >
-                              Speichern
+                              {t("form.submit.label")}
                             </button>
                             <button
                               type="submit"
                               name="cancel"
                               className="btn btn-outline-primary ml-auto btn-small mt-2"
                             >
-                              Abbrechen
+                              {t("form.cancel.label")}
                             </button>
                             <Errors />
                           </>
@@ -213,7 +224,7 @@ function Documents() {
                             type="submit"
                             className="btn btn-outline-primary ml-auto btn-small mt-2 w-full sm:w-auto"
                           >
-                            Löschen
+                            {t("form.delete.label")}
                           </button>
                           <Errors />
                         </>
@@ -229,7 +240,7 @@ function Documents() {
             to={`/event/${loaderData.event.slug}/documents-download`}
             reloadDocument
           >
-            Alle Herunterladen
+            {t("content.downloadAll")}
           </Link>
         </div>
       ) : null}
@@ -266,7 +277,7 @@ function Documents() {
               className="btn btn-outline-primary ml-auto btn-small mt-2"
               disabled={!fileSelected}
             >
-              PDF Dokument hochladen
+              {t("form.upload.label")}
             </button>
             <Errors />
           </>
@@ -291,8 +302,8 @@ function Documents() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.event.published
-                        ? "Verstecken"
-                        : "Veröffentlichen"}
+                        ? t("form.hide.label")
+                        : t("form.publish.label")}
                     </Button>
                   </>
                 );

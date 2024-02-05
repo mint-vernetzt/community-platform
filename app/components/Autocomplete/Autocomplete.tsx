@@ -6,6 +6,7 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDuration } from "~/lib/utils/time";
 import { H3 } from "../Heading/Heading";
+import { useTranslation } from "react-i18next";
 
 export interface AutocompleteProps {
   suggestions:
@@ -131,6 +132,8 @@ const Autocomplete = React.forwardRef(
       setActiveSuggestion(0);
     };
 
+    const { i18n } = useTranslation();
+
     return (
       <>
         <input
@@ -249,7 +252,11 @@ const Autocomplete = React.forwardRef(
                         {suggestion.stage !== null
                           ? suggestion.stage.title + " | "
                           : ""}
-                        {getDuration(eventStartTime, eventEndTime)}
+                        {getDuration(
+                          eventStartTime,
+                          eventEndTime,
+                          i18n.language
+                        )}
                         {suggestion._count.childEvents === 0 ? (
                           <>
                             {suggestion.participantLimit === null
