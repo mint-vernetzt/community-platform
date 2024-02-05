@@ -1,3 +1,4 @@
+import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import { Alert, CircleButton, Footer } from "@mint-vernetzt/components";
 import type {
   LinksFunction,
@@ -18,6 +19,7 @@ import {
   useLocation,
   useMatches,
   useSearchParams,
+  useRouteError,
 } from "@remix-run/react";
 import classNames from "classnames";
 import * as React from "react";
@@ -410,6 +412,12 @@ function NavBar(props: NavBarProps) {
     </header>
   );
 }
+
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+  captureRemixErrorBoundaryError(error);
+  return <div>Something went wrong</div>;
+};
 
 export default function App() {
   const location = useLocation();

@@ -1,28 +1,45 @@
-/**
- * By default, Remix will handle generating the HTTP Response for you.
- * You are free to delete this file if you'd like to, but if you ever want it revealed again, you can run `npx remix reveal` ✨
- * For more information, see https://remix.run/file-conventions/entry.server
- */
-
-import { PassThrough } from "node:stream";
-
-import type { AppLoadContext, EntryContext } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  AppLoadContext,
+  EntryContext,
+  LoaderFunctionArgs,
+} from "@remix-run/node";
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
+import * as Sentry from "@sentry/remix";
 import { isbot } from "isbot";
+import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
 
-// TODO: Investigate issue
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      SUPABASE_ANON_KEY: string;
-      SESSION_SECRET: string;
-      SUPABASE_URL: string;
-      HASH_SECRET: string;
-      IMGPROXY_URL: string;
-      IMGPROXY_KEY: string;
-      IMGPROXY_SALT: string;
+      SUPABASE_ANON_KEY?: string;
+      SESSION_SECRET?: string;
+      SUPABASE_URL?: string;
+      HASH_SECRET?: string;
+      IMGPROXY_URL?: string;
+      IMGPROXY_KEY?: string;
+      IMGPROXY_SALT?: string;
+      COMMUNITY_BASE_URL?: string;
+      DATABASE_URL?: string;
+      SERVICE_ROLE_KEY?: string;
+      MATOMO_URL?: string;
+      MATOMO_SITE_ID?: string;
+      API_KEY?: string;
+      MAILER_HOST?: string;
+      MAILER_PORT?: string;
+      MAILER_USER?: string;
+      MAILER_PASS?: string;
+      SUBMISSION_SENDER?: string;
+      NEWSSUBMISSION_RECIPIENT?: string;
+      NEWSSUBMISSION_SUBJECT?: string;
+      EVENTSUBMISSION_RECIPIENT?: string;
+      EVENTSUBMISSION_SUBJECT?: string;
+      PAKTSUBMISSION_RECIPIENT?: string;
+      PAKTSUBMISSION_SUBJECT?: string;
+      FEATURE_FLAGS?: string;
+      SENTRY_DSN?: string;
     }
   }
 }
@@ -55,6 +72,18 @@ if (process.env.IMGPROXY_SALT === undefined) {
 }
 
 const ABORT_DELAY = 5_000;
+
+export function handleError(
+  error: unknown,
+  { request }: LoaderFunctionArgs | ActionFunctionArgs
+) {
+  Sentry.captureRemixServerException(error, "remix.server", request);
+}
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1,
+});
 
 export default function handleRequest(
   request: Request,

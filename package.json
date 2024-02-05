@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "prepare": "husky install",
-    "build": "npm run build:new-styles && npm run build:styles && cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix build",
+    "build": "npm run build:new-styles && npm run build:styles && cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix build --sourcemap && sentry-upload-sourcemaps --org matrix-gmbh --project stage-mint-vernetzt",
     "dev": "npm run build:styles:watch | npm run build:new-styles:watch | cross-env NODE_ENV=development node -r dotenv/config node_modules/.bin/remix dev",
     "start": "cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/remix-serve build/index.js",
     "create": "plop",
@@ -44,6 +44,7 @@
     "@remix-run/serve": "2.4.0",
     "@remix-run/server-runtime": "2.4.0",
     "@remix-run/web-fetch": "^4.4.2",
+    "@sentry/remix": "^7.99.0",
     "@supabase/ssr": "^0.0.10",
     "@supabase/supabase-js": "^2.39.1",
     "classnames": "^2.3.2",
