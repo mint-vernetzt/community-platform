@@ -110,8 +110,12 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     });
     const responseBody = await response.json();
     expect(responseBody.success).toBe(false);
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors.profileId).toStrictEqual([
       "error.inputError.doesNotExist",
     ]);
@@ -145,6 +149,8 @@ describe("/event/$slug/settings/participants/add-participant", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.errors.profileId).toContain(
       "error.inputError.alreadyIn"
     );
@@ -214,6 +220,8 @@ describe("/event/$slug/settings/participants/add-participant", () => {
         profileId: "another-user-id",
       },
     });
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe("feedback");
   });
 
@@ -249,6 +257,8 @@ describe("/event/$slug/settings/participants/add-participant", () => {
         profileId: "some-user-id",
       },
     });
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe("feedback");
   });
 });

@@ -27,11 +27,11 @@ function NewPassword(props: NewPasswordProps) {
           <div className="basis-6/12 px-4"> </div>
           <div className="basis-5/12 px-4">
             <div className="mb-4">
-              <InputPassword id="password" label="Passwort" isRequired />
+              <InputPassword id="password" label="Passwort" required />
             </div>
 
             <div className="mb-8">
-              <InputPassword id="" label="Passwort wiederholen" isRequired />
+              <InputPassword id="" label="Passwort wiederholen" required />
             </div>
 
             <div className="mb-8">

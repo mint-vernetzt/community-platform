@@ -1,4 +1,8 @@
-import type { ActionArgs, LinksFunction, LoaderArgs } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LinksFunction,
+  LoaderFunctionArgs,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -6,12 +10,11 @@ import {
   useActionData,
   useLoaderData,
   useParams,
-  useTransition,
+  useNavigation,
 } from "@remix-run/react";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import quillStyles from "react-quill/dist/quill.snow.css";
-import { badRequest, notFound, serverError } from "remix-utils";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -97,14 +100,12 @@ function makeFormProfileFromDbProfile(
   };
 }
 
-export const loader = async ({ request, params }: LoaderArgs) => {
-  const response = new Response();
-
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/profile/settings/general",
   ]);
-  const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -113,11 +114,11 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   });
   const dbProfile = await getWholeProfileFromUsername(username);
   if (dbProfile === null) {
-    throw notFound({ message: t("error.profileNotFound") });
+    throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
   const profileVisibilities = await getProfileVisibilitiesById(dbProfile.id);
   if (profileVisibilities === null) {
-    throw notFound({ message: t("error.noVisibilities") });
+    throw json({ message: t("error.noVisibilities") }, { status: 404 });
   }
 
   const profile = makeFormProfileFromDbProfile(dbProfile);
@@ -125,32 +126,26 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return json(
-    { profile, profileVisibilities, areas, offers },
-    { headers: response.headers }
-  );
+  return json({ profile, profileVisibilities, areas, offers });
 };
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: quillStyles },
 ];
 
-export const action = async ({ request, params }: ActionArgs) => {
-  const response = new Response();
-
+export const action = async ({ request, params }: ActionFunctionArgs) => {
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/profile/settings/general",
   ]);
-
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw notFound({ message: t("error.profileNotFound") });
+    throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
   const formData = await request.clone().formData();
 
@@ -171,7 +166,7 @@ export const action = async ({ request, params }: ActionArgs) => {
     data = result.data;
   } catch (error) {
     console.error(error);
-    throw badRequest({ message: t("error.validationFailed") });
+    throw json({ message: t("error.validationFailed") }, { status: 400 });
   }
 
   let updated = false;
@@ -186,7 +181,7 @@ export const action = async ({ request, params }: ActionArgs) => {
         updated = true;
       } catch (error) {
         console.error(error);
-        throw serverError({ message: t("error.serverError") });
+        throw json({ message: t("error.serverError") }, { status: 500 });
       }
     }
   } else {
@@ -202,21 +197,18 @@ export const action = async ({ request, params }: ActionArgs) => {
       data = objectListOperationResolver<ProfileFormType>(data, name, formData);
     });
   }
-  return json(
-    {
-      profile: data,
-      lastSubmit: (formData.get("submit") as string) ?? "",
-      errors,
-      updated,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    profile: data,
+    lastSubmit: (formData.get("submit") as string) ?? "",
+    errors,
+    updated,
+  });
 };
 
 export default function Index() {
   const { username } = useParams();
-  const transition = useTransition();
   const { t } = useTranslation(i18nNS);
+  const navigation = useNavigation();
   const {
     profile: dbProfile,
     areas,
@@ -228,7 +220,7 @@ export default function Index() {
   const profile = actionData?.profile ?? dbProfile;
 
   const formRef = React.createRef<HTMLFormElement>();
-  const isSubmitting = transition.state === "submitting";
+  const isSubmitting = navigation.state === "submitting";
   const errors = actionData?.errors;
   const methods = useForm<ProfileFormType>({
     defaultValues: profile,
@@ -312,8 +304,8 @@ export default function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <fieldset disabled={transition.state === "submitting"}>
-            <h1 className="mb-8">{t("headline")}</h1>
+          <fieldset disabled={navigation.state === "submitting"}>
+            <h1 className="mb-8">Persönliche Daten</h1>
 
             <h4 className="mb-4 font-semibold">{t("general.headline")}</h4>
 

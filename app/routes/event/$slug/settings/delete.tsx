@@ -1,9 +1,8 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
-import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { notFound } from "remix-utils";
+import { InputError, makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -22,6 +21,7 @@ import i18next from "~/i18next.server";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   eventName: z.string().optional(),
@@ -32,10 +32,9 @@ const environmentSchema = z.object({
   eventName: z.string(),
 });
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
 
@@ -51,14 +50,11 @@ export const loader = async (args: LoaderArgs) => {
     status: 403,
   });
 
-  return json(
-    {
-      published: event.published,
-      eventName: event.name,
-      childEvents: event.childEvents,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    eventName: event.name,
+    childEvents: event.childEvents,
+  });
 };
 
 const createMutation = (t: TFunction) => {
@@ -77,13 +73,12 @@ const createMutation = (t: TFunction) => {
   });
 };
 
-export const action = async (args: ActionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
-  const response = new Response();
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
-  const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", t("error.notPrivileged"), {
@@ -104,12 +99,12 @@ export const action = async (args: ActionArgs) => {
   if (result.success === true) {
     const profile = await getProfileById(sessionUser.id);
     if (profile === null) {
-      throw notFound(t("error.profileNotFound"));
+      throw json(t("error.profileNotFound"), { status: 404 });
     }
     return redirect(`/profile/${profile.username}`);
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 function Delete() {
@@ -147,7 +142,7 @@ function Delete() {
         </>
       ) : null}
 
-      <RemixForm method="post" schema={schema}>
+      <RemixFormsForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
             <Field name="eventName" className="mb-4">
@@ -171,11 +166,11 @@ function Delete() {
             <Errors />
           </>
         )}
-      </RemixForm>
+      </RemixFormsForm>
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -197,7 +192,7 @@ function Delete() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

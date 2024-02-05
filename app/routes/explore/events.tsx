@@ -1,5 +1,5 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -7,23 +7,20 @@ import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { getPaginationValues, prepareEvents } from "./utils.server";
-
 import { prismaClient } from "~/prisma.server";
-import { useHydrated } from "remix-utils";
 import { useTranslation } from "react-i18next";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 const i18nNS = ["routes/explore/events"];
 export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -70,17 +67,14 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
-  return json(
-    {
-      events,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
-      userId: sessionUser?.id || undefined,
+  return json({
+    events,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+    userId: sessionUser?.id || undefined,
+  });
 };
 
 function Events() {
@@ -173,7 +167,7 @@ function Events() {
             <Button
               size="large"
               variant="outline"
-              loading={fetcher.state === "submitting"}
+              loading={fetcher.state === "loading"}
             >
               {t("more")}
             </Button>

@@ -1,5 +1,5 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -9,18 +9,17 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { createAreaOptionFromData } from "~/lib/utils/components";
 import { prismaClient } from "~/prisma.server";
-import { getAllOffers } from "~/routes/utils.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
+import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -39,11 +38,9 @@ export const handle = {
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -62,10 +59,7 @@ export const loader = async (args: LoaderArgs) => {
         filterValues.areaId ? `&areaId=${filterValues.areaId}` : ""
       }${filterValues.offerId ? `&offerId=${filterValues.offerId}` : ""}${
         filterValues.seekingId ? `&seekingId=${filterValues.seekingId}` : ""
-      }`,
-      {
-        headers: response.headers,
-      }
+      }`
     );
   }
 
@@ -152,16 +146,13 @@ export const loader = async (args: LoaderArgs) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return json(
-    {
-      isLoggedIn,
-      profiles: enhancedProfiles,
-      areas,
-      offers,
-      pagination: { page, itemsPerPage },
-    },
-    { headers: response.headers }
-  );
+  return json({
+    isLoggedIn,
+    profiles: enhancedProfiles,
+    areas,
+    offers,
+    pagination: { page, itemsPerPage },
+  });
 };
 
 export default function Index() {
@@ -391,7 +382,7 @@ export default function Index() {
                   <Button
                     size="large"
                     variant="outline"
-                    loading={fetcher.state === "submitting"}
+                    loading={fetcher.state === "loading"}
                   >
                     {t("more")}
                   </Button>

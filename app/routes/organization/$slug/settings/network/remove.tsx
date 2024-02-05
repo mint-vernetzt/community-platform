@@ -1,11 +1,12 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher } from "@remix-run/react";
-import { makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
+import { makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -51,22 +52,18 @@ const createMutation = (t: TFunction) => {
   });
 };
 
-export const loader = async ({ request }: DataFunctionArgs) => {
-  const response = new Response();
-
-  createAuthClient(request, response);
-  return redirect(".", { headers: response.headers });
+export const loader = async () => {
+  return redirect(".");
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/organization/settings/network/remove",
   ]);
   const slug = getParamValueOrThrow(params, "slug");
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", t("error.notPrivileged"), {
@@ -80,7 +77,7 @@ export const action = async (args: DataFunctionArgs) => {
     environment: { slug: slug },
   });
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export function NetworkMemberRemoveForm(
@@ -91,7 +88,7 @@ export function NetworkMemberRemoveForm(
   const { networkMember, slug } = props;
 
   return (
-    <Form
+    <RemixFormsForm
       method="post"
       key={`${networkMember.slug}`}
       action={`/organization/${slug}/settings/network/remove`}
@@ -149,6 +146,6 @@ export function NetworkMemberRemoveForm(
           </div>
         );
       }}
-    </Form>
+    </RemixFormsForm>
   );
 }

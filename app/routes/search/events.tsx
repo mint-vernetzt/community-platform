@@ -1,12 +1,12 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
@@ -25,10 +25,10 @@ const i18nNS = ["routes/search/events"];
 export const handle = {
   i18n: i18nNS,
 };
+import { useHydrated } from "remix-utils/use-hydrated";
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
@@ -111,17 +111,14 @@ export const loader = async ({ request }: LoaderArgs) => {
   const enhancedEventsWithParticipationStatus =
     await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
-  return json(
-    {
-      events: enhancedEventsWithParticipationStatus,
-      userId: sessionUser?.id || undefined,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
+  return json({
+    events: enhancedEventsWithParticipationStatus,
+    userId: sessionUser?.id || undefined,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+  });
 };
 
 export default function SearchView() {
@@ -222,7 +219,7 @@ export default function SearchView() {
                 <Button
                   size="large"
                   variant="outline"
-                  loading={fetcher.state === "submitting"}
+                  loading={fetcher.state === "loading"}
                 >
                   {t("more")}
                 </Button>

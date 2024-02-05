@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -8,7 +8,6 @@ import {
 } from "@remix-run/react";
 import { format } from "date-fns-tz";
 import { useForm } from "react-hook-form";
-import { badRequest } from "remix-utils";
 import type { InferType } from "yup";
 import { object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -74,10 +73,9 @@ const createSchema = (t: TFunction) => {
 type SchemaType = ReturnType<typeof createSchema>;
 type FormType = InferType<SchemaType>;
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   await getSessionUserOrThrow(authClient);
 
   const url = new URL(request.url);
@@ -89,27 +87,27 @@ export const loader = async (args: LoaderArgs) => {
   return json({ child, parent }, { headers: response.headers });
 };
 
-export const action = async (args: ActionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const schema = createSchema(t);
 
-  let parsedFormData = await getFormValues<SchemaType>(request, schema);
+  const parsedFormData = await getFormValues<SchemaType>(request, schema);
 
   let errors: FormError | null;
   let data;
 
   try {
-    let result = await validateForm<SchemaType>(schema, parsedFormData);
+    const result = await validateForm<SchemaType>(schema, parsedFormData);
     errors = result.errors;
     data = result.data;
   } catch (error) {
-    throw badRequest({ message: t("error.validation.Failed") });
+    throw json({ message: t("error.validation.Failed") }, { status: 400 });
   }
 
   const eventData = transformFormToEvent(data);
@@ -135,9 +133,9 @@ export const action = async (args: ActionArgs) => {
       },
       { child: eventData.child, parent: eventData.parent }
     );
-    return redirect(`/event/${slug}`, { headers: response.headers });
+    return redirect(`/event/${slug}`);
   }
-  return json({ data, errors }, { headers: response.headers });
+  return json({ data, errors });
 };
 
 export default function Create() {

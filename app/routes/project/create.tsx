@@ -1,7 +1,7 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { Button, Input, Link } from "@mint-vernetzt/components";
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { z } from "zod";
@@ -33,18 +33,14 @@ const createSchema = (t: TFunction) =>
       .max(80, t("validation.projectName.max")),
   });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser === null) {
     const url = new URL(request.url);
-    return redirect(`/login?login_redirect=${url.pathname}`, {
-      headers: response.headers,
-    });
+    return redirect(`/login?login_redirect=${url.pathname}`);
   }
 
   const mode = await deriveMode(sessionUser);
@@ -56,17 +52,16 @@ export const loader = async (args: DataFunctionArgs) => {
     }
   );
 
-  return json({}, { headers: response.headers });
+  return null;
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveMode(sessionUser);
   invariantResponse(mode !== "anon", t("error.invariantResponse"), {
@@ -138,20 +133,15 @@ export const action = async (args: DataFunctionArgs) => {
   const hash = getSubmissionHash(submission);
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission, hash } as const, {
-      headers: response.headers,
-    });
+    return json({ status: "idle", submission, hash } as const);
   }
   if (!submission.value) {
     return json({ status: "error", submission, hash } as const, {
-      headers: response.headers,
       status: 400,
     });
   }
 
-  return redirect(`/project/${submission.value.slug}/settings`, {
-    headers: response.headers,
-  });
+  return redirect(`/project/${submission.value.slug}/settings`);
 };
 
 function Create() {

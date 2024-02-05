@@ -10,14 +10,16 @@ import {
   Select,
 } from "@mint-vernetzt/components";
 import {
-  type DataFunctionArgs,
   json,
-  type LinksFunction,
   redirect,
+  type ActionFunctionArgs,
+  type LinksFunction,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import {
   Form,
   useActionData,
+  useBlocker,
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
@@ -26,7 +28,6 @@ import quillStyles from "react-quill/dist/quill.snow.css";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
-import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   removeHtmlTags,
@@ -194,13 +195,13 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: quillStyles },
 ];
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -217,7 +218,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findUnique({
@@ -317,23 +318,17 @@ export const loader = async (args: DataFunctionArgs) => {
     }
   );
 
-  return json(
-    {
-      project,
-      allDisciplines,
-      allAdditionalDisciplines,
-      allProjectTargetGroups,
-      allSpecialTargetGroups,
-    },
-    {
-      headers: response.headers,
-    }
-  );
+  return json({
+    project,
+    allDisciplines,
+    allAdditionalDisciplines,
+    allProjectTargetGroups,
+    allSpecialTargetGroups,
+  });
 };
 
-export async function action({ request, params }: DataFunctionArgs) {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+export async function action({ request, params }: ActionFunctionArgs) {
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
@@ -349,7 +344,7 @@ export async function action({ request, params }: DataFunctionArgs) {
     authClient,
   });
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
   const project = await prismaClient.project.findUnique({
     select: {
@@ -502,21 +497,18 @@ export async function action({ request, params }: DataFunctionArgs) {
   const hash = getSubmissionHash(submission);
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission, hash } as const, {
-      headers: response.headers,
-    });
+    return json({ status: "idle", submission, hash } as const);
   }
   if (!submission.value) {
     return json({ status: "error", submission, hash } as const, {
       status: 400,
-      headers: response.headers,
     });
   }
 
   return redirectWithToast(
     request.url,
     { id: "settings-toast", key: hash, message: t("content.feedback") },
-    { init: { headers: response.headers }, scrollToToast: true }
+    { scrollToToast: true }
   );
 }
 
@@ -610,7 +602,7 @@ function Details() {
     setFurtherDiscipline(event.currentTarget.value);
   };
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    for (let child of event.currentTarget.children) {
+    for (const child of event.currentTarget.children) {
       const value = child.getAttribute("value");
       if (
         child.localName === "button" &&
@@ -623,9 +615,18 @@ function Details() {
     }
   };
   const [isDirty, setIsDirty] = React.useState(false);
-  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
-  // see https://remix.run/docs/en/main/hooks/use-blocker
-  usePrompt(t("content.nonPersistent"), isDirty);
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isDirty && currentLocation.pathname !== nextLocation.pathname
+  );
+  if (blocker.state === "blocked") {
+    const confirmed = confirm(t("content.nonPersistent"));
+    if (confirmed) {
+      blocker.proceed();
+    } else {
+      blocker.reset();
+    }
+  }
 
   // AKI stop
   return (

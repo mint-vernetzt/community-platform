@@ -93,9 +93,14 @@ describe("/event/$slug/settings/events/add-child", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors._global).toStrictEqual([
       "error.notFound.parent",
     ]);
@@ -126,9 +131,14 @@ describe("/event/$slug/settings/events/add-child", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors._global).toStrictEqual([
       "error.notFound.related",
     ]);
@@ -165,9 +175,14 @@ describe("/event/$slug/settings/events/add-child", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors.childEventId).toStrictEqual([
       "error.inputError",
     ]);
@@ -214,6 +229,8 @@ describe("/event/$slug/settings/events/add-child", () => {
         }),
       })
     );
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe("feedback");
   });
 });

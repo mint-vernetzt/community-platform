@@ -1,8 +1,8 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useActionData, useSearchParams } from "@remix-run/react";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
 import { prismaClient } from "~/prisma.server";
@@ -18,6 +18,7 @@ import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { Trans, useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const i18nNS = ["routes/reset/index"];
 export const handle = {
@@ -40,17 +41,16 @@ const environmentSchema = z.object({
   siteUrl: z.string(),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser !== null) {
-    return redirect("/dashboard", { headers: response.headers });
+    return redirect("/dashboard");
   }
 
-  return response;
+  return null;
 };
 
 const createMutation = (t: TFunction) => {
@@ -58,14 +58,14 @@ const createMutation = (t: TFunction) => {
     createSchema(t),
     environmentSchema
   )(async (values, environment) => {
-    // Passing through a possible redirect after login (e.g. to an event)
-    const emailRedirectTo = values.loginRedirect
-      ? `${environment.siteUrl}?login_redirect=${values.loginRedirect}`
-      : environment.siteUrl;
-
     // get profile by email to be able to find user
     const profile = await prismaClient.profile.findFirst({
-      where: { email: values.email },
+      where: {
+        email: {
+          contains: values.email,
+          mode: "insensitive",
+        },
+      },
       select: { id: true },
     });
 
@@ -79,33 +79,36 @@ const createMutation = (t: TFunction) => {
       } else if (data.user !== null) {
         // if user uses email provider send password reset link
         if (data.user.app_metadata.provider === "email") {
+          const loginRedirect = values.loginRedirect
+            ? `${environment.siteUrl}${values.loginRedirect}`
+            : undefined;
           const { error } = await sendResetPasswordLink(
             // TODO: fix type issue
             // @ts-ignore
             environment.authClient,
             values.email,
-            emailRedirectTo
+            loginRedirect
           );
+          console.log(error);
           if (error !== null && error.message !== "User not found") {
             throw error.message;
           }
         }
-      }
 
-      return values;
+        return values;
+      }
     }
   });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
+  const { authClient, headers } = createAuthClient(request);
 
-  const authClient = createAuthClient(request, response);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
+  const siteUrl = `${process.env.COMMUNITY_BASE_URL}`;
 
   const result = await performMutation({
     request,
@@ -114,7 +117,7 @@ export const action = async (args: DataFunctionArgs) => {
     environment: { authClient: authClient, siteUrl: siteUrl },
   });
 
-  return json(result, { headers: response.headers });
+  return json(result, { headers });
 };
 
 export default function Index() {
@@ -164,7 +167,7 @@ export default function Index() {
                 <p className="mb-4">{t("response.notice")}</p>
               </>
             ) : (
-              <RemixForm
+              <RemixFormsForm
                 method="post"
                 schema={schema}
                 hiddenFields={["loginRedirect"]}
@@ -201,7 +204,7 @@ export default function Index() {
                     <Errors />
                   </>
                 )}
-              </RemixForm>
+              </RemixFormsForm>
             )}
           </div>
         </div>

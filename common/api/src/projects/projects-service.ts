@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Request } from "express";
-import { GravityType } from "imgproxy/dist/types";
+import { GravityType } from "imgproxy/dist/types.js";
 import { filterProjectByVisibility } from "../public-fields-filtering.server";
 import { getBaseURL } from "../../src/utils";
 import { getImageURL, getPublicURL } from "../images.server";
@@ -99,7 +99,7 @@ async function getProjects(request: Request, skip: number, take: number) {
         }
       }
 
-      let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+      const baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
 
       const url =
         baseURL !== undefined

@@ -1,4 +1,4 @@
-import { type DataFunctionArgs, redirect } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, Outlet, useLocation } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -14,13 +14,12 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -37,7 +36,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   return null;

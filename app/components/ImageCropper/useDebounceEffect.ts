@@ -1,4 +1,4 @@
-import { useEffect, DependencyList } from "react";
+import { useEffect, type DependencyList } from "react";
 
 export function useDebounceEffect(
   fn: () => void,
@@ -7,8 +7,9 @@ export function useDebounceEffect(
 ) {
   useEffect(() => {
     const t = setTimeout(() => {
+      // TODO: fix type issue and fix eslint error
       // @ts-ignore
-      fn.apply(undefined, deps);
+      fn.apply(undefined, deps); // eslint-disable-line prefer-spread
     }, waitTime);
 
     return () => {

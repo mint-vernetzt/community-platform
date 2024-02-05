@@ -1,95 +1,33 @@
-/** @type {jest.Expect} */
-// @ts-ignore
-const expect = global.expect;
+/* 
 
-// TODO: write tests
+Unit tests:
 
-describe("context", () => {
-  test("call loader", async () => {
-    // const res = await loader({
-    //   request: new Request(path),
-    //   params: {},
-    //   context: {},
-    // });
-    // expect(res).toBeNull();
-  });
+Loader:
+- Redirect to /dashboard on authenticated
 
-  test("call action", async () => {
-    // Use create request with formData method from lib test utils
-    // const res = await action({
-    //   request: new Request(path, { method: "POST" }),
-    //   params: {},
-    //   context: {},
-    // });
-    // expect(res).toBeNull();
-  });
-});
+Action:
+- Returns correct error messages on validation failure
+- Returns correct error message on terms not accepted
+- Does not return "User already registered" error
+- Returns actionData.success === true on register success or on "User already registered" error
+? --> Trims the form input values and normalizes the email to lower case (TODO: Not current behaviour)
+? --> Only login_redirect param to own domain should work (TODO: Not current behaviour)
 
-/* TODO: run e2e test
-jest.mock("../../auth.server", () => {
-  return {
-    // eslint-disable-next-line
-    signUp: jest.fn().mockImplementation(() => {
-      return {};
-    }),
-  };
-});
 
-test("call loader", async () => {
-  const res = await loader({
-    request: new Request(path),
-    params: {},
-    context: {},
-  });
+Functional tests:
 
-  expect(res).toBeNull();
-});
+- Render test
+- Register form works (success, failure, login_redirect searchParam)
+--> submit with enter works
+--> validation errors are rendered on the input fields (or on the form if global)
+? --> After first validation the form is revalidated onChange and hides the errors on successful revalidation
+? --> Only redirect param to own domain should work (TODO: Not current behaviour)
+? --> E-Mail is sent (can we check this?)
+? --> E-Mail is not send on "User already registered" (can we check this?)
+? --> E-Mail verification link contains the correct login_redirect param if present
+- All links work
+--> Link to login ships along the login_redirect searchParam
+--> Don't forget password reset link that is only rendered on actionData.success === true
+? - No browser console warnings/errors
 
-test("handle empty body", async () => {
-  const responseEmpty = await action({
-    request: new Request(path, { method: "POST" }),
-    params: {},
-    context: {},
-  });
-  expect(responseEmpty.status).toBe(400);
-});
-
-test("handle empty fields", async () => {
-  const responseEmpty = await action({
-    request: new Request(path, { method: "POST", body: new FormData() }),
-    params: {},
-    context: {},
-  });
-  expect(responseEmpty.status).toBe(400);
-
-  const formData = new FormData();
-  formData.append("email", "");
-  formData.append("password", "");
-  formData.append("firstName", "");
-  formData.append("lastName", "");
-  formData.append("termsAccepted", "");
-  const responseEmptyString = await action({
-    request: new Request(path, {
-      method: "POST",
-      body: formData,
-    }),
-    params: {},
-    context: {},
-  });
-  expect(responseEmptyString.status).toBe(400);
-});
-
-test("academic title can be empty empty fields", async () => {
-  const formData = new FormData();
-  formData.append("email", "hello@someemail.dev");
-  formData.append("password", "pa$$w0rd");
-  formData.append("firstName", "John");
-  formData.append("lastName", "Doe");
-  formData.append("termsAccepted", "on");
-  const responseEmpty = await action({
-    request: new Request(path, { method: "POST", body: formData }),
-    params: {},
-    context: {},
-  });
-  expect(responseEmpty.status).not.toBe(400);
-});*/
+*/

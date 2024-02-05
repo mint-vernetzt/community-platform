@@ -1,13 +1,13 @@
 import type { Profile } from "@prisma/client";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { GravityType } from "imgproxy/dist/types";
+import imgproxy from "imgproxy/dist/types.js";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { notFound, useHydrated } from "remix-utils";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
@@ -17,7 +17,7 @@ import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
@@ -56,14 +56,13 @@ export function links() {
   ];
 }
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const username = getParamValueOrThrow(params, "username");
 
@@ -77,18 +76,16 @@ export const loader = async (args: LoaderArgs) => {
     });
     if (userProfile !== null) {
       if (userProfile.termsAccepted === false) {
-        return redirect(`/accept-terms?redirect_to=/profile/${username}`, {
-          headers: response.headers,
-        });
+        return redirect(`/accept-terms?redirect_to=/profile/${username}`);
       }
     } else {
-      throw notFound({ message: t("error.profileNotFound") });
+      throw json({ message: t("error.profileNotFound") }, { status: 404 });
     }
   }
 
   const profile = await getProfileByUsername(username, mode);
   if (profile === null) {
-    throw notFound(t("error.profileNotFound"));
+    throw json(t("error.profileNotFound"), { status: 404 });
   }
 
   const abilities = await getFeatureAbilities(authClient, [
@@ -150,7 +147,7 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   // Get images from image proxy
-  let images: {
+  const images: {
     avatar?: string;
     background?: string;
   } = {};
@@ -235,18 +232,15 @@ export const loader = async (args: LoaderArgs) => {
     !inFuture
   );
 
-  return json(
-    {
-      mode,
-      data: enhancedProfile,
-      images,
-      abilities,
-      futureEvents: profileFutureEvents,
-      pastEvents: profilePastEvents,
-      userId: sessionUser?.id,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    mode,
+    data: enhancedProfile,
+    images,
+    abilities,
+    futureEvents: profileFutureEvents,
+    pastEvents: profilePastEvents,
+    userId: sessionUser?.id,
+  });
 };
 
 function hasContactInformations(data: Pick<Profile, "email" | "phone">) {

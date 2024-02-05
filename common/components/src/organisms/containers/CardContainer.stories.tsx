@@ -1,4 +1,4 @@
-import { ProfileCard } from "@mint-vernetzt/components";
+import { ProfileCard } from "./../../../index";
 import CardContainer from "./CardContainer";
 
 const profile = {

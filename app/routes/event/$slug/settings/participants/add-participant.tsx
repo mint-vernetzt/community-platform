@@ -1,20 +1,21 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
-import { InputError, makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
+import { InputError, makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { getProfileById } from "../utils.server";
 import { connectParticipantToEvent, getEventBySlug } from "./utils.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import i18next from "~/i18next.server";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   profileId: z.string(),
@@ -49,15 +50,14 @@ const createMutation = (t: TFunction) => {
   });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/event/settings/participants/add-participant",
   ]);
   const slug = getParamValueOrThrow(params, "slug");
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const result = await performMutation({
@@ -82,18 +82,15 @@ export const action = async (args: DataFunctionArgs) => {
     } else {
       await connectParticipantToEvent(event.id, result.data.profileId);
     }
-    return json(
-      {
-        success: true,
-        message: t("feedback", {
-          firstName: result.data.firstName,
-          lastName: result.data.lastName,
-        }),
-      },
-      { headers: response.headers }
-    );
+    return json({
+      success: true,
+      message: t("feedback", {
+        firstName: result.data.firstName,
+        lastName: result.data.lastName,
+      }),
+    });
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 type AddParticipantButtonProps = {
@@ -107,7 +104,7 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
     "routes/event/settings/participants/add-participant",
   ]);
   return (
-    <Form
+    <RemixFormsForm
       action={props.action}
       fetcher={fetcher}
       schema={schema}
@@ -128,6 +125,6 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
           </>
         );
       }}
-    </Form>
+    </RemixFormsForm>
   );
 }

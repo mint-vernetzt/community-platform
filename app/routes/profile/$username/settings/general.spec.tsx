@@ -5,9 +5,10 @@ import { type User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import { updateProfileById } from "../utils.server";
 
-/** @type {jest.Expect} */
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
 // @ts-ignore
-const expect = global.expect;
+const expect = global.expect as jest.Expect;
 
 const username = "sookie";
 
@@ -452,7 +453,10 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.firstName).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.firstName.message).toEqual(
         expect.stringContaining("firstName must be a `string` type")
       );
@@ -481,7 +485,10 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.firstName).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.firstName.message).toEqual(
         "validation.firstName.required"
       );
@@ -512,7 +519,10 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.email).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.email.message).toEqual(
         expect.stringContaining("email must be a valid email")
       );
@@ -545,6 +555,8 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issue
+      // @ts-ignore
       expect(responseBody.errors.email).toBeUndefined();
       expect(responseBody.profile.email).toBe(email);
     });

@@ -1,18 +1,16 @@
-import type { LoaderArgs, MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { useNavigate } from "react-router-dom";
-import { forbidden, notFound, useHydrated } from "remix-utils";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { RichText } from "~/components/Richtext/RichText";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   canUserAccessConferenceLink,
   canUserBeAddedToWaitingList,
@@ -61,17 +59,20 @@ export function links() {
   ];
 }
 
-export const meta: MetaFunction = (args) => {
-  return {
-    title: `MINTvernetzt Community Plattform | ${args.data.event.name}`,
-  };
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    {
+      title: `MINTvernetzt Community Plattform${
+        data !== undefined ? ` | ${data.event.name}` : ""
+      }`,
+    },
+  ];
 };
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const abilities = await getFeatureAbilities(authClient, "events");
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/event/index"]);
@@ -85,19 +86,17 @@ export const loader = async (args: LoaderArgs) => {
     });
     if (userProfile !== null) {
       if (userProfile.termsAccepted === false) {
-        return redirect(`/accept-terms?redirect_to=/event/${slug}`, {
-          headers: response.headers,
-        });
+        return redirect(`/accept-terms?redirect_to=/event/${slug}`);
       }
     } else {
-      throw notFound({ message: t("error.notFound") });
+      throw json({ message: t("error.notFound") }, { status: 404 });
     }
   }
 
   const rawEvent = await getEvent(slug);
 
   if (rawEvent === null) {
-    throw notFound({ message: t("error.notFound") });
+    throw json({ message: t("error.notFound") }, { status: 404 });
   }
 
   const mode = await deriveEventMode(sessionUser, slug);
@@ -120,7 +119,7 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   if (mode !== "admin" && !isTeamMember && rawEvent.published === false) {
-    throw forbidden({ message: t("error.notPublished") });
+    throw json({ message: t("error.notPublished") }, { status: 403 });
   }
 
   let speakers: Awaited<
@@ -147,7 +146,7 @@ export const loader = async (args: LoaderArgs) => {
 
   // Filtering by publish status
   const filteredChildEvents = [];
-  for (let childEvent of enhancedEvent.childEvents) {
+  for (const childEvent of enhancedEvent.childEvents) {
     if (childEvent.published) {
       filteredChildEvents.push(childEvent);
     } else {
@@ -351,19 +350,16 @@ export const loader = async (args: LoaderArgs) => {
     }
   }
 
-  return json(
-    {
-      mode,
-      event: eventWithParticipationStatus,
-      userId: sessionUser?.id || undefined,
-      isParticipant,
-      isOnWaitingList,
-      isSpeaker,
-      isTeamMember,
-      abilities,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    mode,
+    event: eventWithParticipationStatus,
+    userId: sessionUser?.id || undefined,
+    isParticipant,
+    isOnWaitingList,
+    isSpeaker,
+    isTeamMember,
+    abilities,
+  });
 };
 
 function getForm(loaderData: {

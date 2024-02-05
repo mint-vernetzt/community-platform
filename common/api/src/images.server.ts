@@ -1,8 +1,7 @@
-import type { ResizingType } from "imgproxy/dist/types";
-import { GravityType } from "imgproxy/dist/types";
 import { builder } from "./imgproxy";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
-import { serverError } from "remix-utils";
+import { json } from "@remix-run/node";
+import { GravityType, type ResizingType } from "imgproxy/dist/types";
 
 type GetImageURLArguments = {
   resize?: {
@@ -12,7 +11,7 @@ type GetImageURLArguments = {
     enlarge?: boolean;
   };
   gravity?: GravityType;
-  dpr?: string | number;
+  dpr?: number;
 };
 
 export function getImageURL(url: string, args?: GetImageURLArguments) {
@@ -37,9 +36,12 @@ export function getPublicURL(
   } = authClient.storage.from(bucket).getPublicUrl(relativePath);
 
   if (publicUrl === "") {
-    throw serverError({
-      message: "Die öffentliche URL der Datei konnte nicht erzeugt werden.",
-    });
+    throw json(
+      {
+        message: "Die öffentliche URL der Datei konnte nicht angefragt werden.",
+      },
+      { status: 500 }
+    );
   }
 
   if (

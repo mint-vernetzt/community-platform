@@ -1,5 +1,5 @@
 import { Avatar, Chip, List, Video } from "@mint-vernetzt/components";
-import { type DataFunctionArgs, json } from "@remix-run/node";
+import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
@@ -31,13 +31,13 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   // check slug exists (throw bad request if not)
   invariantResponse(
@@ -207,7 +207,7 @@ export const loader = async (args: DataFunctionArgs) => {
     }
   );
 
-  return json({ project }, { headers: response.headers });
+  return json({ project });
 };
 
 function About() {

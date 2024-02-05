@@ -1,8 +1,7 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { useState } from "react";
-import { Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
@@ -24,19 +23,19 @@ import {
   type action as uploadDocumentAction,
   uploadDocumentSchema,
 } from "./documents/upload-document";
-import { type action as publishAction, publishSchema } from "./events/publish";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { publishSchema, type action as publishAction } from "./events/publish";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/event/settings/documents",
   ]);
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -50,12 +49,9 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 403,
   });
 
-  return json(
-    {
-      event: event,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    event: event,
+  });
 };
 
 function closeModal(id: string) {
@@ -134,13 +130,14 @@ function Documents() {
                       {t("content.current.edit")}
                     </label>
                     <Modal id={`modal-edit-document-${item.document.id}`}>
-                      <RemixForm
+                      <RemixFormsForm
                         method="post"
                         fetcher={editDocumentFetcher}
                         action={`/event/${loaderData.event.slug}/settings/documents/edit-document`}
                         schema={editDocumentSchema}
                         onSubmit={(event) => {
                           closeModal(item.document.id);
+                          // TODO: fix type issue
                           // @ts-ignore
                           if (event.nativeEvent.submitter.name === "cancel") {
                             event.preventDefault();
@@ -208,9 +205,9 @@ function Documents() {
                             <Errors />
                           </>
                         )}
-                      </RemixForm>
+                      </RemixFormsForm>
                     </Modal>
-                    <RemixForm
+                    <RemixFormsForm
                       method="post"
                       fetcher={deleteDocumentFetcher}
                       action={`/event/${loaderData.event.slug}/settings/documents/delete-document`}
@@ -232,7 +229,7 @@ function Documents() {
                           <Errors />
                         </>
                       )}
-                    </RemixForm>
+                    </RemixFormsForm>
                   </div>
                 </div>
               );
@@ -248,7 +245,7 @@ function Documents() {
         </div>
       ) : null}
 
-      <RemixForm
+      <RemixFormsForm
         method="post"
         fetcher={uploadDocumentFetcher}
         action={`/event/${loaderData.event.slug}/settings/documents/upload-document`}
@@ -285,11 +282,11 @@ function Documents() {
             <Errors />
           </>
         )}
-      </RemixForm>
+      </RemixFormsForm>
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -311,7 +308,7 @@ function Documents() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

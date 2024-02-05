@@ -5,6 +5,11 @@ import { prismaClient } from "~/prisma.server";
 import { redirect } from "@remix-run/node";
 import { redirectWithAlert } from "~/alert.server";
 
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
+
 jest.mock("~/auth.server", () => {
   return {
     ...jest.requireActual("~/auth.server"),

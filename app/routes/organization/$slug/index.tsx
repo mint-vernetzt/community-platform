@@ -1,13 +1,12 @@
 import type { Organization } from "@prisma/client";
-import type { LoaderArgs, MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { notFound, useHydrated } from "remix-utils";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
@@ -17,7 +16,7 @@ import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import ProfileCard from "~/components/ProfileCard/ProfileCard";
 import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
@@ -58,19 +57,21 @@ export function links() {
   ];
 }
 
-export const meta: MetaFunction = (args) => {
-  return {
-    title: `MINTvernetzt Community Plattform | ${args.data.organization.name}`,
-  };
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    {
+      title: `MINTvernetzt Community Plattform${
+        data !== undefined ? ` | ${data.organization.name}` : ""
+      }`,
+    },
+  ];
 };
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
@@ -81,15 +82,13 @@ export const loader = async (args: LoaderArgs) => {
       select: { termsAccepted: true },
     });
     if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(`/accept-terms?redirect_to=/organization/${slug}`, {
-        headers: response.headers,
-      });
+      return redirect(`/accept-terms?redirect_to=/organization/${slug}`);
     }
   }
 
   const organization = await getOrganizationBySlug(slug);
   if (organization === null) {
-    throw notFound({ message: t("error.notFound") });
+    throw json({ message: t("error.notFound") }, { status: 404 });
   }
 
   let enhancedOrganization = {
@@ -166,7 +165,7 @@ export const loader = async (args: LoaderArgs) => {
   }
 
   // Get images from image proxy
-  let images: {
+  const images: {
     logo?: string;
     background?: string;
   } = {};
@@ -285,17 +284,14 @@ export const loader = async (args: LoaderArgs) => {
     !inFuture
   );
 
-  return json(
-    {
-      organization: enhancedOrganization,
-      images,
-      futureEvents: organizationFutureEvents,
-      pastEvents: organizationPastEvents,
-      userId: sessionUser?.id,
-      mode,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    organization: enhancedOrganization,
+    images,
+    futureEvents: organizationFutureEvents,
+    pastEvents: organizationPastEvents,
+    userId: sessionUser?.id,
+    mode,
+  });
 };
 
 function hasContactInformations(

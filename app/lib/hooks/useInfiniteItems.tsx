@@ -71,11 +71,25 @@ export function useInfiniteItems(
   }, [clientHeight, scrollPosition]);
 
   React.useEffect(() => {
-    if (fetcher.data !== undefined && fetcher.data[key].length === 0) {
+    if (
+      fetcher.data !== undefined &&
+      fetcher.data !== null &&
+      // TODO: fix type issue
+      // @ts-ignore
+      fetcher.data[key].length === 0
+    ) {
       setShouldFetch(false);
       return;
     }
-    if (fetcher.data !== undefined && fetcher.data[key].length > 0) {
+    if (
+      fetcher.data !== undefined &&
+      fetcher.data !== null &&
+      // TODO: fix type issue
+      // @ts-ignore
+      fetcher.data[key].length > 0
+    ) {
+      // TODO: fix type issue
+      // @ts-ignore
       setItems((prevItems) => [...prevItems, ...fetcher.data[key]]);
       setPage((page: number) => page + 1);
       setShouldFetch(true);

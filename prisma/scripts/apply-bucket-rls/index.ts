@@ -1,4 +1,4 @@
-import type { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { createClient } from "@supabase/supabase-js";
 import { program } from "commander";
 import { prismaClient } from "~/prisma.server";

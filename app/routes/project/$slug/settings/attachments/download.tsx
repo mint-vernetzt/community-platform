@@ -1,4 +1,4 @@
-import { type DataFunctionArgs, redirect } from "@remix-run/node";
+import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
@@ -12,7 +12,7 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
@@ -21,8 +21,7 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 400,
   });
 
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
@@ -33,7 +32,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const url = new URL(request.url);
@@ -109,7 +108,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(buffer, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": relation.document.mimeType,
           "Content-Disposition": `attachment; filename="${relation.document.filename}"`,
         },
@@ -131,7 +129,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(content, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": "application/zip",
           "Content-Disposition": `attachment; filename="${filename}"`,
         },
@@ -191,7 +188,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(buffer, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": relation.image.mimeType,
           "Content-Disposition": `attachment; filename="${relation.image.filename}"`,
         },
@@ -213,7 +209,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(content, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": "application/zip",
           "Content-Disposition": `attachment; filename="${filename}"`,
         },

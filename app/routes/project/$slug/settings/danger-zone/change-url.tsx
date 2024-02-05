@@ -1,23 +1,32 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Button, Input } from "@mint-vernetzt/components";
-import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import {
+  json,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
+import {
+  Form,
+  useActionData,
+  useBlocker,
+  useLoaderData,
+} from "@remix-run/react";
+import { type TFunction } from "i18next";
+import React from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "../utils.server";
-import React from "react";
-import { usePrompt } from "~/lib/hooks/usePrompt";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { Trans, useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/settings/danger-zone/change-url"];
 export const handle = {
@@ -48,13 +57,13 @@ function createSchema(
   });
 }
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   invariantResponse(
@@ -73,22 +82,19 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
-  return json(
-    { slug: params.slug, baseURL: process.env.COMMUNITY_BASE_URL },
-    { headers: response.headers }
-  );
+  return json({ slug: params.slug, baseURL: process.env.COMMUNITY_BASE_URL });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
@@ -104,7 +110,7 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const formData = await request.formData();
@@ -141,11 +147,11 @@ export const action = async (args: DataFunctionArgs) => {
         key: hash,
         message: t("content.feedback"),
       },
-      { init: { headers: response.headers }, scrollToToast: true }
+      { scrollToToast: true }
     );
   }
 
-  return json(submission, { headers: response.headers });
+  return json(submission);
 };
 
 function ChangeURL() {
@@ -164,9 +170,18 @@ function ChangeURL() {
   });
 
   const [isDirty, setIsDirty] = React.useState(false);
-  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
-  // see https://remix.run/docs/en/main/hooks/use-blocker
-  usePrompt(t("content.prompt"), isDirty);
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isDirty && currentLocation.pathname !== nextLocation.pathname
+  );
+  if (blocker.state === "blocked") {
+    const confirmed = confirm(t("content.prompt"));
+    if (confirmed) {
+      blocker.proceed();
+    } else {
+      blocker.reset();
+    }
+  }
 
   return (
     <>

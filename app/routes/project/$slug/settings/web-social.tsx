@@ -1,26 +1,26 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { Button, Controls, Input, Section } from "@mint-vernetzt/components";
-import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
+import {
+  json,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import {
   Form,
   useActionData,
+  useBlocker,
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
+import { type TFunction } from "i18next";
+import React from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
-import { redirectWithToast } from "~/toast.server";
-import { BackButton } from "./__components";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
-} from "./utils.server";
-import React from "react";
-import { usePrompt } from "~/lib/hooks/usePrompt";
-import { type TFunction } from "i18next";
 import {
   createFacebookSchema,
   createInstagramSchema,
@@ -32,9 +32,14 @@ import {
   createXingSchema,
   createYoutubeSchema,
 } from "~/lib/utils/schemas";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
+import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
+import { redirectWithToast } from "~/toast.server";
+import { BackButton } from "./__components";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "./utils.server";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({
@@ -54,13 +59,13 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
-  const authClient = createAuthClient(request, response);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -77,7 +82,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findUnique({
@@ -100,17 +105,11 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 404,
   });
 
-  return json(
-    { project },
-    {
-      headers: response.headers,
-    }
-  );
+  return json({ project });
 };
 
-export async function action({ request, params }: DataFunctionArgs) {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+export async function action({ request, params }: ActionFunctionArgs) {
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
@@ -126,7 +125,7 @@ export async function action({ request, params }: DataFunctionArgs) {
     authClient,
   });
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
   // Validation
   const webSocialSchema = createWebSocialSchema(t);
@@ -166,21 +165,18 @@ export async function action({ request, params }: DataFunctionArgs) {
   const hash = getSubmissionHash(submission);
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission, hash } as const, {
-      headers: response.headers,
-    });
+    return json({ status: "idle", submission, hash } as const);
   }
   if (!submission.value) {
     return json({ status: "error", submission, hash } as const, {
       status: 400,
-      headers: response.headers,
     });
   }
 
   return redirectWithToast(
     request.url,
     { id: "settings-toast", key: hash, message: t("content.success") },
-    { init: { headers: response.headers }, scrollToToast: true }
+    { scrollToToast: true }
   );
 }
 
@@ -215,9 +211,18 @@ function WebSocial() {
   });
 
   const [isDirty, setIsDirty] = React.useState(false);
-  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
-  // see https://remix.run/docs/en/main/hooks/use-blocker
-  usePrompt(t("content.prompt"), isDirty);
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isDirty && currentLocation.pathname !== nextLocation.pathname
+  );
+  if (blocker.state === "blocked") {
+    const confirmed = confirm(t("content.prompt"));
+    if (confirmed) {
+      blocker.proceed();
+    } else {
+      blocker.reset();
+    }
+  }
 
   return (
     <Section>

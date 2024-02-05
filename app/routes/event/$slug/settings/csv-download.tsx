@@ -1,5 +1,4 @@
-import type { DataFunctionArgs } from "@remix-run/node";
-import { badRequest, notFound } from "remix-utils";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -29,9 +28,12 @@ async function getProfilesBySearchParams(
         return { ...participant.profile, participatedEvents: event.name };
       });
     } else {
-      throw badRequest({
-        message: t("error.badRequest.depth"),
-      });
+      throw json(
+        {
+          message: t("error.badRequest.depth"),
+        },
+        { status: 400 }
+      );
     }
   } else if (type === "waitingList") {
     if (depth === "full") {
@@ -44,18 +46,21 @@ async function getProfilesBySearchParams(
         };
       });
     } else {
-      throw badRequest({
-        message: t("error.badRequest.depth"),
+      throw json({
+        message: t("error.badRequest.depth", { status: 400 }),
       });
     }
   } else {
-    throw badRequest({
-      message: t("error.badRequest.type"),
-    });
+    throw json(
+      {
+        message: t("error.badRequest.type"),
+      },
+      { status: 400 }
+    );
   }
 
   if (profiles === null) {
-    throw notFound({ message: t("error.badRequest.notFound") });
+    throw json({ message: t("error.badRequest.notFound") }, { status: 404 });
   }
 
   return profiles;
@@ -110,14 +115,14 @@ function createCsvString(
   return csv;
 }
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/event/settings/csv-download",
   ]);
+
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -138,7 +143,6 @@ export const loader = async (args: DataFunctionArgs) => {
   return new Response(csv, {
     status: 200,
     headers: {
-      ...response.headers,
       "Content-Type": "text/csv",
       "Content-Disposition": `filename=${filename}`,
     },

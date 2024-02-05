@@ -1,7 +1,7 @@
 import { Alert, CircleButton, Footer } from "@mint-vernetzt/components";
 import type {
-  DataFunctionArgs,
   LinksFunction,
+  LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -22,7 +22,6 @@ import {
 import classNames from "classnames";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { notFound } from "remix-utils";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
@@ -37,17 +36,16 @@ import { combineHeaders } from "./utils.server";
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
-  return { title: "MINTvernetzt Community Plattform" };
+  return [{ title: "MINTvernetzt Community Plattform" }];
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const locale = detectLanguage(request);
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const { authClient, headers } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, [
     "events",
@@ -55,12 +53,15 @@ export const loader = async (args: DataFunctionArgs) => {
     "dashboard",
   ]);
 
-  const sessionUser = await getSessionUser(authClient);
+  const user = await getSessionUser(authClient);
 
   let sessionUserInfo;
 
-  if (sessionUser !== null) {
-    const profile = await getProfileByUserId(sessionUser.id);
+  if (user !== null) {
+    // Refresh session to reset the cookie max age
+    await authClient.auth.refreshSession();
+
+    const profile = await getProfileByUserId(user.id);
 
     let avatar: string | undefined;
 
@@ -80,7 +81,7 @@ export const loader = async (args: DataFunctionArgs) => {
         avatar,
       };
     } else {
-      throw notFound({ message: "profile not found." });
+      throw json({ message: "profile not found." }, { status: 404 });
     }
   }
 
@@ -95,7 +96,7 @@ export const loader = async (args: DataFunctionArgs) => {
       alert,
       locale,
     },
-    { headers: combineHeaders(response.headers, alertHeaders) }
+    { headers: combineHeaders(headers, alertHeaders) }
   );
 };
 
@@ -271,7 +272,7 @@ function NavBar(props: NavBarProps) {
                 </label>
                 <ul
                   tabIndex={0}
-                  className="dropdown-content menu shadow bg-base-100 rounded-box w-72 pb-4"
+                  className="dropdown-content menu shadow bg-base-100 rounded-box w-72 pb-4 z-10"
                 >
                   <li className="relative p-4 pb-2 flex">
                     <a
@@ -451,7 +452,7 @@ export default function App() {
     }
   }, [location, matomoSiteId]);
 
-  const nonAppBaseRoutes = ["/login", "/register", "/reset"];
+  const nonAppBaseRoutes = ["/login", "/register", "/reset", "/auth/confirm"];
   const isNonAppBaseRoute = nonAppBaseRoutes.some((baseRoute) =>
     location.pathname.startsWith(baseRoute)
   );

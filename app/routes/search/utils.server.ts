@@ -6,7 +6,7 @@ import type {
   Project,
 } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
-import { ArrayElement } from "~/lib/utils/types";
+import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 
 // **************
@@ -108,7 +108,7 @@ function getProfileWhereQueries(
   searchQuery: string[],
   sessionUser: User | null
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of searchQuery) {
     const contains: {
       OR: {
@@ -541,7 +541,7 @@ function getOrganizationWhereQueries(
   searchQuery: string[],
   sessionUser: User | null
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of searchQuery) {
     const contains: {
       OR: {
@@ -1055,7 +1055,7 @@ export async function countSearchedEvents(
 }
 
 function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of searchQuery) {
     const contains: {
       OR: {
@@ -1472,7 +1472,7 @@ function getProjectWhereQueries(
   searchQuery: string[],
   sessionUser: User | null
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of searchQuery) {
     const contains: {
       OR: {

@@ -1,7 +1,8 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Avatar, Button, Input, List } from "@mint-vernetzt/components";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -10,12 +11,11 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { type TFunction } from "i18next";
-import { GravityType } from "imgproxy/dist/types";
 import { useTranslation } from "react-i18next";
+import i18next from "~/i18next.server";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import i18next from "~/i18next.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
 import {
@@ -40,18 +40,15 @@ const createSchema = (t: TFunction) => {
   });
 };
 
-export async function loader(args: DataFunctionArgs) {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const url = new URL(request.url);
 
   if (sessionUser === null) {
-    return redirect(`/login?login_redirect=${url.pathname}`, {
-      headers: response.headers,
-    });
+    return redirect(`/login?login_redirect=${url.pathname}`);
   }
 
   const queryString = url.searchParams.get("search");
@@ -76,14 +73,13 @@ export async function loader(args: DataFunctionArgs) {
     });
   }
 
-  return json({ searchResult }, { headers: response.headers });
+  return json({ searchResult });
 }
 
-export async function action(args: DataFunctionArgs) {
+export async function action(args: ActionFunctionArgs) {
   const { request } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const url = new URL(request.url);
@@ -91,9 +87,7 @@ export async function action(args: DataFunctionArgs) {
   const queryString = url.searchParams.get("search");
 
   if (sessionUser === null) {
-    return redirect(`/login?login_redirect=${url.pathname}`, {
-      headers: response.headers,
-    });
+    return redirect(`/login?login_redirect=${url.pathname}`);
   }
 
   const locale = detectLanguage(request);
@@ -120,9 +114,7 @@ export async function action(args: DataFunctionArgs) {
           submission.value.organizationName,
           slug
         );
-        return redirect(`/organization/${slug}`, {
-          headers: response.headers,
-        });
+        return redirect(`/organization/${slug}`);
       } else {
         const redirectURL = new URL(request.url);
         redirectURL.searchParams.set(
@@ -130,16 +122,13 @@ export async function action(args: DataFunctionArgs) {
           submission.value.organizationName
         );
         return redirect(
-          `${redirectURL.pathname}?${redirectURL.searchParams.toString()}`,
-          {
-            headers: response.headers,
-          }
+          `${redirectURL.pathname}?${redirectURL.searchParams.toString()}`
         );
       }
     }
   }
 
-  return json(submission, { headers: response.headers });
+  return json(submission);
 }
 
 function Create() {

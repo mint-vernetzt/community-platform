@@ -8,17 +8,22 @@ import {
   Section,
   Select,
 } from "@mint-vernetzt/components";
-import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
+import {
+  json,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import {
   Form,
   useActionData,
+  useBlocker,
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
 import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
 import { createPhoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
@@ -106,13 +111,12 @@ const createGeneralSchema = (t: TFunction) =>
       ),
   });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -129,7 +133,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findUnique({
@@ -191,17 +195,11 @@ export const loader = async (args: DataFunctionArgs) => {
   });
   const areaOptions = await createAreaOptions(allAreas);
 
-  return json(
-    { project, allFormats, areaOptions },
-    {
-      headers: response.headers,
-    }
-  );
+  return json({ project, allFormats, areaOptions });
 };
 
-export async function action({ request, params }: DataFunctionArgs) {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+export async function action({ request, params }: ActionFunctionArgs) {
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
@@ -217,7 +215,7 @@ export async function action({ request, params }: DataFunctionArgs) {
     authClient,
   });
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
   const project = await prismaClient.project.findUnique({
     select: {
@@ -298,13 +296,10 @@ export async function action({ request, params }: DataFunctionArgs) {
   const hash = getSubmissionHash(submission);
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission, hash } as const, {
-      headers: response.headers,
-    });
+    return json({ status: "idle", submission, hash } as const);
   }
   if (!submission.value) {
     return json({ status: "error", submission, hash } as const, {
-      headers: response.headers,
       status: 400,
     });
   }
@@ -312,7 +307,7 @@ export async function action({ request, params }: DataFunctionArgs) {
   return redirectWithToast(
     request.url,
     { id: "settings-toast", key: hash, message: t("content.feedback") },
-    { init: { headers: response.headers }, scrollToToast: true }
+    { scrollToToast: true }
   );
 }
 
@@ -355,7 +350,7 @@ function General() {
     setFurtherFormat(event.currentTarget.value);
   };
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    for (let child of event.currentTarget.children) {
+    for (const child of event.currentTarget.children) {
       const value = child.getAttribute("value");
       if (
         child.localName === "button" &&
@@ -369,9 +364,18 @@ function General() {
   };
 
   const [isDirty, setIsDirty] = React.useState(false);
-  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
-  // see https://remix.run/docs/en/main/hooks/use-blocker
-  usePrompt(t("content.prompt"), isDirty);
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isDirty && currentLocation.pathname !== nextLocation.pathname
+  );
+  if (blocker.state === "blocked") {
+    const confirmed = confirm(t("content.prompt"));
+    if (confirmed) {
+      blocker.proceed();
+    } else {
+      blocker.reset();
+    }
+  }
 
   return (
     <Section>

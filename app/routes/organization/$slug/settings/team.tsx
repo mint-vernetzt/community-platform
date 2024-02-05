@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -8,43 +8,42 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { Form } from "remix-forms";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { deriveOrganizationMode } from "../utils.server";
 import { getMembersOfOrganization, getOrganizationBySlug } from "./team.server";
 import {
-  type action as addMemberAction,
   addMemberSchema,
+  type action as addMemberAction,
 } from "./team/add-member";
 import {
-  type action as removeMemberAction,
   removeMemberSchema,
+  type action as removeMemberAction,
 } from "./team/remove-member";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/organization/settings/team"];
 export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/organization/settings/team",
   ]);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -76,15 +75,12 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  return json(
-    {
-      members: enhancedMembers,
-      memberSuggestions,
-      organizationId: organization.id,
-      slug: slug,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    members: enhancedMembers,
+    memberSuggestions,
+    organizationId: organization.id,
+    slug: slug,
+  });
 };
 
 function Index() {
@@ -104,7 +100,7 @@ function Index() {
       <p className="mb-8">{t("content.intro2")}</p>
       <h4 className="mb-4 font-semibold">{t("content.add.headline")}</h4>
       <p className="mb-8">{t("content.add.intro")}</p>
-      <Form
+      <RemixFormsForm
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/organization/${slug}/settings/team/add-member`}
@@ -151,7 +147,7 @@ function Index() {
             </div>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addMemberFetcher.data !== undefined &&
       "message" in addMemberFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -193,7 +189,7 @@ function Index() {
                 ) : null}
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                <Form
+                <RemixFormsForm
                   method="post"
                   action={`/organization/${slug}/settings/team/remove-member`}
                   schema={removeMemberSchema}
@@ -230,7 +226,7 @@ function Index() {
                       </>
                     );
                   }}
-                </Form>
+                </RemixFormsForm>
               </div>
             </div>
           );

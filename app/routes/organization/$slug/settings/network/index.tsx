@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -30,15 +30,15 @@ export type NetworkMemberSuggestions =
   | Awaited<ReturnType<typeof getOrganizationSuggestionsForAutocomplete>>
   | undefined;
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/organization/settings/network/index",
   ]);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
@@ -69,10 +69,7 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  return json(
-    { networkMembers, networkMemberSuggestions },
-    { headers: response.headers }
-  );
+  return json({ networkMembers, networkMemberSuggestions });
 };
 
 function Index() {

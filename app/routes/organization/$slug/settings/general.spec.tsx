@@ -5,9 +5,10 @@ import * as authServerModule from "~/auth.server";
 import { type User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 
-/** @type {jest.Expect} */
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
 // @ts-ignore
-const expect = global.expect;
+const expect = global.expect as jest.Expect;
 
 const slug = "mintvernetzt";
 
@@ -481,7 +482,10 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.name).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.name.message).toEqual(
         expect.stringContaining("name must be a `string` type")
       );
@@ -512,7 +516,10 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.name).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.name.message).toEqual(
         expect.stringContaining("validation.name.required")
       );
@@ -545,7 +552,10 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.email).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.email.message).toEqual(
         expect.stringContaining("validation.email.email")
       );
@@ -580,6 +590,8 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issue
+      // @ts-ignore
       expect(responseBody.errors.email).toBeUndefined();
       expect(responseBody.organization.email).toBe(email);
     });

@@ -1,11 +1,11 @@
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import type { UploadHandler } from "@remix-run/node";
 import {
+  json,
   unstable_composeUploadHandlers,
   unstable_parseMultipartFormData,
 } from "@remix-run/node";
-import { fromBuffer } from "file-type";
-import { serverError } from "remix-utils";
+import { fileTypeFromBuffer } from "file-type";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { createHashFromString, triggerEntityScore } from "~/utils.server";
@@ -19,10 +19,10 @@ function generatePathName(extension: string, hash: string, name: string) {
 
 const uploadHandler: UploadHandler = async (part) => {
   // TODO: remove file-type package and use contentType...only if Remix uses file header
-  const { contentType, data, name, filename } = part;
+  const { data, name, filename } = part;
 
-  let bytes = [];
-  for await (let chunk of data) {
+  const bytes = [];
+  for await (const chunk of data) {
     bytes.push(...chunk);
   }
 
@@ -35,34 +35,43 @@ const uploadHandler: UploadHandler = async (part) => {
   }
 
   const hash = await createHashFromString(buffer.toString());
-  const fileTypeResult = await fromBuffer(buffer);
+  const fileTypeResult = await fileTypeFromBuffer(buffer);
 
   if (fileTypeResult === undefined) {
     console.log("Der Dateityp (MIME type) konnte nicht gelesen werden.");
-    throw serverError({
-      message: "Der Dateityp (MIME type) konnte nicht gelesen werden.",
-    });
+    throw json(
+      {
+        message: "Der Dateityp (MIME type) konnte nicht gelesen werden.",
+      },
+      { status: 500 }
+    );
   }
   if (name === "document" && fileTypeResult.mime !== "application/pdf") {
     console.log(
       "Aktuell können ausschließlich Dateien im PDF-Format hochgeladen werden."
     );
-    throw serverError({
-      message:
-        "Aktuell können ausschließlich Dateien im PDF-Format hochgeladen werden.",
-    });
+    throw json(
+      {
+        message:
+          "Aktuell können ausschließlich Dateien im PDF-Format hochgeladen werden.",
+      },
+      { status: 500 }
+    );
   }
   if (
     imageUploadKeys.includes(name) &&
     !fileTypeResult.mime.includes("image/")
   ) {
-    console.log(
+    console.error(
       "Die Datei entspricht keinem gängigem Bildformat und konnte somit nicht hochgeladen werden."
     );
-    throw serverError({
-      message:
-        "Die Datei entspricht keinem gängigem Bildformat und konnte somit nicht hochgeladen werden.",
-    });
+    throw json(
+      {
+        message:
+          "Die Datei entspricht keinem gängigem Bildformat und konnte somit nicht hochgeladen werden.",
+      },
+      { status: 500 }
+    );
   }
   const path = generatePathName(fileTypeResult.ext, hash, name);
   const sizeInBytes = buffer.length;
@@ -166,12 +175,18 @@ export const upload = async (
     const uploadKey = formData.get("uploadKey");
     if (uploadKey === null) {
       console.log("No upload Key");
-      throw serverError({ message: "Something went wrong on upload." });
+      throw json(
+        { message: "Something went wrong on upload." },
+        { status: 500 }
+      );
     }
     // TODO: can this type assertion be removed and proofen by code?
     const uploadHandlerResponseJSON = formData.get(uploadKey as string);
     if (uploadHandlerResponseJSON === null) {
-      throw serverError({ message: "Something went wrong on upload." });
+      throw json(
+        { message: "Something went wrong on upload." },
+        { status: 500 }
+      );
     }
     const uploadHandlerResponse: {
       buffer: {
@@ -187,7 +202,7 @@ export const upload = async (
     // Convert buffer data to Buffer
     const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
     if (buffer.length === 0) {
-      throw serverError({ message: "Cannot upload empty file." });
+      throw json({ message: "Cannot upload empty file." }, { status: 400 });
     }
 
     const { data, error } = await persistUpload(
@@ -207,7 +222,7 @@ export const upload = async (
 
     return formData;
   } catch (exception) {
-    throw serverError({ message: "Something went wrong on upload." });
+    throw json({ message: "Something went wrong on upload." }, { status: 500 });
   }
 };
 // TODO: fix any type
@@ -219,12 +234,15 @@ function validatePersistence(
   bucketName?: string
 ) {
   if (error || data === null) {
-    throw serverError({ message: "Hochladen fehlgeschlagen." });
+    throw json({ message: "Hochladen fehlgeschlagen." }, { status: 500 });
   }
 
   if (getPublicURL(authClient, path, bucketName) === null) {
-    throw serverError({
-      message: "Die angefragte URL konnte nicht gefunden werden.",
-    });
+    throw json(
+      {
+        message: "Die public URL konnte nicht angefragt werden.",
+      },
+      { status: 500 }
+    );
   }
 }

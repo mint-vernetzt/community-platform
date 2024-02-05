@@ -111,8 +111,12 @@ describe("/event/$slug/settings/waiting-list/add-to-waiting-list", () => {
     });
     const responseBody = await response.json();
     expect(responseBody.success).toBe(false);
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors.profileId).toStrictEqual([
       "error.inputError.notFound",
     ]);
@@ -147,6 +151,8 @@ describe("/event/$slug/settings/waiting-list/add-to-waiting-list", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.errors.profileId).toStrictEqual([
       "error.inputError.alreadyOn",
     ]);
@@ -181,6 +187,8 @@ describe("/event/$slug/settings/waiting-list/add-to-waiting-list", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.errors.profileId).toStrictEqual([
       "error.inputError.alreadyParticipant",
     ]);
@@ -254,6 +262,8 @@ describe("/event/$slug/settings/waiting-list/add-to-waiting-list", () => {
         profileId: "another-user-id",
       },
     });
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe("feedback");
   });
 
@@ -292,6 +302,8 @@ describe("/event/$slug/settings/waiting-list/add-to-waiting-list", () => {
         profileId: "some-user-id",
       },
     });
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe("feedback");
   });
 });

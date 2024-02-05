@@ -1,5 +1,4 @@
-import type { InferType } from "yup";
-import type { AnyObject, OptionalObjectSchema } from "yup/lib/object";
+import type { InferType, AnyObject, ObjectSchema } from "yup";
 import type {
   OptGroupProps,
   OptionOrGroup,
@@ -18,7 +17,7 @@ function getListOperationName(operation: string, key: string) {
 }
 
 // TODO: Find better name
-function addListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
+function addListEntry<T extends InferType<ObjectSchema<AnyObject>>>(
   key: keyof T,
   value: string,
   object: T
@@ -31,7 +30,7 @@ function addListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
 }
 
 // TODO: Find better name
-function removeListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
+function removeListEntry<T extends InferType<ObjectSchema<AnyObject>>>(
   key: keyof T,
   value: string,
   object: T
@@ -45,7 +44,7 @@ function removeListEntry<T extends InferType<OptionalObjectSchema<AnyObject>>>(
 
 // TODO: Find better name
 export function objectListOperationResolver<
-  T extends InferType<OptionalObjectSchema<AnyObject>>
+  T extends InferType<ObjectSchema<AnyObject>>
 >(object: T, key: keyof T, formData: FormData) {
   // TODO: can this type assertion be removed and proofen by code?
   key = key as string;

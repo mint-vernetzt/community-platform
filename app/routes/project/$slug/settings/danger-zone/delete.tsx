@@ -1,18 +1,23 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Button, Input } from "@mint-vernetzt/components";
-import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
+import {
+  json,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { type TFunction } from "i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
+import { redirectWithAlert } from "~/alert.server";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
-import { redirectWithAlert } from "~/alert.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { Trans, useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 
 const i18nNS = ["routes/project/settings/danger-zone/delete"];
 export const handle = {
@@ -27,13 +32,13 @@ function createSchema(t: TFunction, name: string) {
   });
 }
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -50,7 +55,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findFirst({
@@ -64,20 +69,18 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 404,
   });
 
-  return json(
-    {
-      project,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    project,
+  });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-  const authClient = createAuthClient(request, response);
+
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -94,7 +97,7 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findFirst({
@@ -120,16 +123,12 @@ export const action = async (args: DataFunctionArgs) => {
         id: project.id,
       },
     });
-    return redirectWithAlert(
-      `/dashboard`,
-      {
-        message: t("content.error", { name: project.name }),
-      },
-      { headers: response.headers }
-    );
+    return redirectWithAlert(`/dashboard`, {
+      message: t("content.error", { name: project.name }),
+    });
   }
 
-  return json(submission, { headers: response.headers });
+  return json(submission);
 };
 
 function Delete() {

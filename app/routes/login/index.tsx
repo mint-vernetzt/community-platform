@@ -1,23 +1,18 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useSearchParams, useSubmit } from "@remix-run/react";
+import { makeDomainFunction } from "domain-functions";
 import type { KeyboardEvent } from "react";
-import { makeDomainFunction } from "remix-domains";
 import type { FormProps } from "remix-forms";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
-import {
-  createAdminAuthClient,
-  createAuthClient,
-  getSessionUser,
-  signIn,
-} from "../../auth.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { getProfileByEmailCaseInsensitive } from "../organization/$slug/settings/utils.server";
 import { useTranslation } from "react-i18next";
 import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
@@ -39,94 +34,69 @@ const createSchema = (t: TFunction) => {
   });
 };
 
-const environmentSchema = z.object({
-  authClient: z.unknown(),
-  // authClient: z.instanceof(SupabaseClient),
-});
-
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
-  return <RemixForm<Schema> {...props} />;
+  return <RemixFormsForm<Schema> {...props} />;
 }
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
-    return redirect("/dashboard", { headers: response.headers });
+    return redirect("/dashboard");
   }
 
-  return response;
+  return null;
 };
 
-const createMutation = (t: TFunction) => {
-  return makeDomainFunction(
-    createSchema(t),
-    environmentSchema
-  )(async (values, environment) => {
-    const { error } = await signIn(
-      // @ts-ignore TODO: fix type issue
-      environment.authClient,
-      values.email,
-      values.password
-    );
+// const mutation = makeDomainFunction(schema)(async (values) => {
+//   return { ...values };
+// });
 
-    let profile;
-    if (error !== null) {
-      if (error.message === "Invalid login credentials") {
-        throw t("error.invalidCredentials");
-      } else {
-        throw error.message;
-      }
-    } else {
-      profile = await getProfileByEmailCaseInsensitive(values.email);
-      if (profile !== null) {
-        // changes provider of user to email
-        const adminAuthClient = createAdminAuthClient();
-        await adminAuthClient.auth.admin.updateUserById(profile.id, {
-          app_metadata: {
-            provider: "email",
-          },
-        });
-        // TODO: fix type issue
-        // @ts-ignore
-        await environment.authClient.auth.refreshSession();
-      }
-    }
-
-    return { values: { ...values, username: profile?.username } };
-  });
-};
-
-export const action = async ({ request }: DataFunctionArgs) => {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+export const action = async ({ request }: ActionFunctionArgs) => {
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const result = await performMutation({
-    request,
-    schema: createSchema(t),
-    mutation: createMutation(t),
-    environment: { authClient: authClient },
+  const schema = createSchema(t);
+  const mutation = makeDomainFunction(schema)(async (values) => {
+    return { ...values };
   });
 
-  if (result.success) {
-    if (result.data.values.loginRedirect) {
-      return redirect(result.data.values.loginRedirect, {
-        headers: response.headers,
+  const submission = await performMutation({
+    request,
+    schema,
+    mutation,
+  });
+
+  if (submission.success) {
+    const { error, headers } = await signIn(
+      request,
+      submission.data.email,
+      submission.data.password
+    );
+
+    if (error !== null) {
+      if (error.message === "Invalid login credentials") {
+        return json({
+          message: t("error.invalidCredentials"),
+        });
+      } else {
+        throw json({ message: "Server Error" }, { status: 500 });
+      }
+    }
+    if (submission.data.loginRedirect) {
+      return redirect(submission.data.loginRedirect, {
+        headers: headers,
       });
     } else {
-      // Default redirect after login
       return redirect("/dashboard", {
-        headers: response.headers,
+        headers: headers,
       });
     }
   }
 
-  return json(result, { headers: response.headers });
+  return json(submission);
 };
 
 export default function Index() {

@@ -1,9 +1,10 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useActionData, useLoaderData, useTransition } from "@remix-run/react";
-import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { forbidden, notFound } from "remix-utils";
+import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
+import { InputError, makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { Trans, useTranslation } from "react-i18next";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
   createAuthClient,
@@ -13,14 +14,13 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
 import { deriveProfileMode } from "../utils.server";
 import { getProfileByUsername } from "./security.server";
-import i18next from "~/i18next.server";
-import { type TFunction } from "i18next";
-import { Trans, useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/profile/settings/security"];
 export const handle = {
@@ -56,22 +56,20 @@ const passwordEnvironmentSchema = z.object({
 
 const emailEnvironmentSchema = z.object({
   authClient: z.unknown(),
-  siteUrl: z.string(),
   // authClient: z.instanceof(SupabaseClient),
 });
 
-export const loader = async ({ request, params }: DataFunctionArgs) => {
-  const response = new Response();
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/profile/settings/security",
   ]);
-  const authClient = createAuthClient(request, response);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw notFound({ message: "profile not found." });
+    throw json({ message: "profile not found." }, { status: 404 });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -121,8 +119,7 @@ const createEmailMutation = (t: TFunction) => {
       // TODO: fix type issue
       // @ts-ignore
       environment.authClient,
-      values.email,
-      environment.siteUrl
+      values.email
     );
     if (error !== null) {
       throw error.message;
@@ -132,14 +129,12 @@ const createEmailMutation = (t: TFunction) => {
   });
 };
 
-export const action = async ({ request, params }: DataFunctionArgs) => {
-  const response = new Response();
-
+export const action = async ({ request, params }: ActionFunctionArgs) => {
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/profile/settings/security",
   ]);
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -148,7 +143,7 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
   });
 
   if (sessionUser.app_metadata.provider === "keycloak") {
-    throw forbidden({ message: t("error.notAllowed") });
+    throw json({ message: t("error.notAllowed") }, { status: 403 });
   }
 
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
@@ -158,12 +153,11 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
 
   let result = null;
   if (submittedForm === "changeEmail") {
-    const siteUrl = `${process.env.COMMUNITY_BASE_URL}/verification`;
     result = await performMutation({
       request,
       schema: createEmailSchema(t),
       mutation: createEmailMutation(t),
-      environment: { authClient: authClient, siteUrl: siteUrl },
+      environment: { authClient: authClient },
     });
   } else {
     result = await performMutation({
@@ -173,11 +167,11 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
       environment: { authClient: authClient },
     });
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export default function Security() {
-  const transition = useTransition();
+  const navigation = useNavigation();
   const loaderData = useLoaderData<typeof loader>();
 
   const { t } = useTranslation(i18nNS);
@@ -223,7 +217,7 @@ export default function Security() {
           </p>
         </>
       ) : (
-        <fieldset disabled={transition.state === "submitting"}>
+        <fieldset disabled={navigation.state === "submitting"}>
           <h4 className="mb-4 font-semibold">
             {t("section.changePassword2.headline")}
           </h4>
@@ -231,7 +225,7 @@ export default function Security() {
           <p className="mb-8">{t("section.changePassword2.intro")}</p>
           <input type="hidden" name="action" value="changePassword" />
 
-          <RemixForm method="post" schema={passwordSchema}>
+          <RemixFormsForm method="post" schema={passwordSchema}>
             {({ Field, Button, Errors, register }) => (
               <>
                 <Field name="password" label="Neues Passwort" className="mb-4">
@@ -289,7 +283,7 @@ export default function Security() {
                 <Errors />
               </>
             )}
-          </RemixForm>
+          </RemixFormsForm>
           <hr className="border-neutral-400 my-10 lg:my-16" />
 
           <h4 className="mb-4 font-semibold">
@@ -297,7 +291,7 @@ export default function Security() {
           </h4>
 
           <p className="mb-8">{t("section.changeEmail.intro")}</p>
-          <RemixForm method="post" schema={emailSchema}>
+          <RemixFormsForm method="post" schema={emailSchema}>
             {({ Field, Button, Errors, register }) => (
               <>
                 <Field name="email" label="Neue E-Mail" className="mb-4">
@@ -353,7 +347,7 @@ export default function Security() {
                 <Errors />
               </>
             )}
-          </RemixForm>
+          </RemixFormsForm>
         </fieldset>
       )}
     </>

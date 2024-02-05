@@ -1,4 +1,4 @@
-import { Link } from "@mint-vernetzt/components";
+import { Link } from "./../../index";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
 import { LocaleSwitch } from "./buttons/LocaleSwitch";

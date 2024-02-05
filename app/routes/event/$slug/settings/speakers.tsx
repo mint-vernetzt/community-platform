@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -8,12 +8,11 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -38,12 +37,11 @@ import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/event/settings/speakers"]);
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = await getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -84,14 +82,11 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  return json(
-    {
-      published: event.published,
-      speakers: enhancedSpeakers,
-      speakerSuggestions,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    speakers: enhancedSpeakers,
+    speakerSuggestions,
+  });
 };
 
 function Speakers() {
@@ -112,7 +107,7 @@ function Speakers() {
       <p className="mb-8">{t("content.intro")}</p>
       <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
       <p className="mb-8">{t("content.add.intro")}</p>
-      <Form
+      <RemixFormsForm
         schema={addSpeakerSchema}
         fetcher={addSpeakerFetcher}
         action={`/event/${slug}/settings/speakers/add-speaker`}
@@ -161,7 +156,7 @@ function Speakers() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addSpeakerFetcher.data !== undefined &&
       "message" in addSpeakerFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -203,7 +198,7 @@ function Speakers() {
                 ) : null}
               </div>
 
-              <Form
+              <RemixFormsForm
                 schema={removeSpeakerSchema}
                 fetcher={removeSpeakerFetcher}
                 action={`/event/${slug}/settings/speakers/remove-speaker`}
@@ -239,7 +234,7 @@ function Speakers() {
                     </>
                   );
                 }}
-              </Form>
+              </RemixFormsForm>
             </div>
           );
         })}
@@ -247,7 +242,7 @@ function Speakers() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -269,7 +264,7 @@ function Speakers() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

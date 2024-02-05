@@ -1,18 +1,19 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
 import { deriveOrganizationMode } from "../utils.server";
 import { deleteOrganizationBySlug, getProfileByUserId } from "./delete.server";
-import i18next from "~/i18next.server";
-import { type TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/organization/settings/delete"];
 export const handle = {
@@ -34,15 +35,14 @@ const environmentSchema = z.object({
   slug: z.string(),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/organization/settings/delete",
   ]);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -50,7 +50,7 @@ export const loader = async (args: DataFunctionArgs) => {
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", t("error.notFound"), { status: 403 });
 
-  return response;
+  return null;
 };
 
 const createMutation = (t: TFunction) => {
@@ -67,15 +67,14 @@ const createMutation = (t: TFunction) => {
   });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/organization/settings/delete",
   ]);
   const slug = getParamValueOrThrow(params, "slug");
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", t("error.notPrivileged"), {
@@ -94,12 +93,10 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (result.success) {
-    return redirect(`/profile/${profile.username}`, {
-      headers: response.headers,
-    });
+    return redirect(`/profile/${profile.username}`);
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export default function Delete() {
@@ -114,7 +111,7 @@ export default function Delete() {
 
       <p className="mb-8">{t("content.confirmation")}</p>
 
-      <RemixForm method="post" schema={schema}>
+      <RemixFormsForm method="post" schema={schema}>
         {({ Field, Button, Errors, register }) => (
           <>
             <Field name="confirmedToken" className="mb-4">
@@ -139,7 +136,7 @@ export default function Delete() {
             <Errors />
           </>
         )}
-      </RemixForm>
+      </RemixFormsForm>
     </>
   );
 }

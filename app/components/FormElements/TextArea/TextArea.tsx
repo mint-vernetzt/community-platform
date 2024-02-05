@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 import { RTE } from "./RTE.client";
-import { ClientOnly } from "remix-utils";
+import { ClientOnly } from "remix-utils/client-only";
 import type ReactQuill from "react-quill";
 
 export interface TextAreaProps {
@@ -11,7 +11,6 @@ export interface TextAreaProps {
   withPublicPrivateToggle?: boolean;
   errorMessage?: string;
   publicPosition?: "top" | "side";
-  onChange?: Function; // <--- ?
   rte?: boolean;
   quillRef?: React.RefObject<ReactQuill>;
 }

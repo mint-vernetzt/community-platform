@@ -2,13 +2,13 @@ import type { Event, Prisma } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
-import { notFound } from "remix-utils";
 import { getImageURL } from "~/images.server";
 import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
 import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type getEventBySlug } from "./general.server";
+import { json } from "@remix-run/server-runtime";
 
 export function validateTimePeriods(
   // TODO: fix any type
@@ -45,7 +45,7 @@ export function validateTimePeriods(
     let firstIteration = true;
     let earliestStartTime;
     let latestEndTime;
-    for (let childEvent of childEvents) {
+    for (const childEvent of childEvents) {
       if (firstIteration) {
         firstIteration = false;
         earliestStartTime = childEvent.startTime;
@@ -193,7 +193,7 @@ export async function updateEventById(
   eventData: any,
   privateFields: string[]
 ) {
-  let eventVisibility = await prismaClient.eventVisibility.findFirst({
+  const eventVisibility = await prismaClient.eventVisibility.findFirst({
     where: {
       event: {
         id,
@@ -201,7 +201,7 @@ export async function updateEventById(
     },
   });
   if (eventVisibility === null) {
-    throw notFound("Event visibilities not found");
+    throw json("Event visibilities not found", { status: 404 });
   }
 
   let visibility: keyof typeof eventVisibility;
@@ -406,7 +406,7 @@ export async function getParentEventSuggestions(
   endTime: Date,
   userId: string
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of query) {
     const contains: {
       OR: {
@@ -505,7 +505,7 @@ export async function getChildEventSuggestions(
   endTime: Date,
   userId: string
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of query) {
     const contains: {
       OR: {

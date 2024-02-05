@@ -1,28 +1,28 @@
-import { Link, useLoaderData, useParams } from "@remix-run/react";
-import { type DataFunctionArgs, json } from "@remix-run/node";
+import { Button, Image } from "@mint-vernetzt/components";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient } from "~/auth.server";
+import i18next from "~/i18next.server";
+import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { MaterialList } from "../settings/__components";
-import { Button, Image } from "@mint-vernetzt/components";
-import { getPublicURL } from "~/storage.server";
-import { getImageURL } from "~/images.server";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { getPublicURL } from "~/storage.server";
+import { MaterialList } from "../settings/__components";
 
 const i18nNS = ["routes/project/detail/attachments"];
 export const handle = {
   i18n: i18nNS,
 };
 
-export async function loader(args: DataFunctionArgs) {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const response = new Response();
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   invariantResponse(
     params.slug !== undefined,
@@ -84,11 +84,10 @@ export async function loader(args: DataFunctionArgs) {
     return { ...relation, image: { ...relation.image, thumbnail } };
   });
 
-  return json({ project }, { headers: response.headers });
+  return json({ project });
 }
 
 function Attachments() {
-  const params = useParams();
   const loaderData = useLoaderData<typeof loader>();
   const { t } = useTranslation(i18nNS);
 

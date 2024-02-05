@@ -4,7 +4,7 @@ import React from "react";
 import type ReactQuill from "react-quill";
 import Counter from "../../Counter/Counter";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
-import { ClientOnly } from "remix-utils";
+import { ClientOnly } from "remix-utils/client-only";
 import { RTE } from "../TextArea/RTE.client";
 
 export interface TextAreaWithCounterProps {
@@ -14,7 +14,6 @@ export interface TextAreaWithCounterProps {
   withPublicPrivateToggle?: boolean;
   errorMessage?: string;
   publicPosition?: "top" | "side";
-  onChange?: Function; // <--- ?
   rte?: boolean;
   maxCharacters?: number;
   helperText?: string;

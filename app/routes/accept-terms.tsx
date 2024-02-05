@@ -1,16 +1,17 @@
 import {
-  type ActionArgs,
   json,
-  type LoaderArgs,
   redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useSearchParams, useSubmit } from "@remix-run/react";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import React from "react";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { prismaClient } from "~/prisma.server";
 import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
@@ -27,11 +28,10 @@ const schema = z.object({
   redirectTo: z.string().optional(),
 });
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser !== null) {
@@ -41,12 +41,12 @@ export const loader = async (args: LoaderArgs) => {
     });
     if (profile !== null) {
       if (profile.termsAccepted === true) {
-        return redirect("/dashboard", { headers: response.headers });
+        return redirect("/dashboard");
       }
-      return json({ profile }, { headers: response.headers });
+      return json({ profile });
     }
   }
-  return redirect("/", { headers: response.headers });
+  return redirect("/");
 };
 
 const createMutation = (t: TFunction) => {
@@ -75,12 +75,12 @@ const createMutation = (t: TFunction) => {
   });
 };
 
-export const action = async (args: ActionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
+  const { authClient } = createAuthClient(request);
 
   const result = await performMutation({
     request,
@@ -90,9 +90,7 @@ export const action = async (args: ActionArgs) => {
   });
 
   if (result.success === true) {
-    return redirect(result.data.redirectTo || "/dashboard", {
-      headers: response.headers,
-    });
+    return redirect(result.data.redirectTo || "/dashboard");
   }
   return result;
 };
@@ -120,7 +118,7 @@ function AcceptTerms() {
       <div className="flex -mx-4 justify-center">
         <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
           <h1 className="mb-4">{t("content.headline")}</h1>
-          <RemixForm
+          <RemixFormsForm
             method="post"
             schema={schema}
             hiddenFields={["redirectTo"]}
@@ -194,7 +192,7 @@ function AcceptTerms() {
                 <Errors />
               </>
             )}
-          </RemixForm>
+          </RemixFormsForm>
         </div>
       </div>
     </div>

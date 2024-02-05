@@ -1,15 +1,17 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { makeDomainFunction } from "remix-domains";
+import { utcToZonedTime } from "date-fns-tz";
+import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
-import { badRequest, serverError } from "remix-utils";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
+import { detectLanguage } from "~/root.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import {
   getEventBySlug,
@@ -19,9 +21,6 @@ import {
   connectParticipantToEvent,
   disconnectFromWaitingListOfEvent,
 } from "./utils.server";
-import { utcToZonedTime } from "date-fns-tz";
-import i18next from "~/i18next.server";
-import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -33,15 +32,14 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/event/settings/waiting-list/move-to-participants",
   ]);
   const slug = getParamValueOrThrow(params, "slug");
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(mode === "admin", t("error.notPrivileged"), {
@@ -62,16 +60,22 @@ export const action = async (args: DataFunctionArgs) => {
     const sender = process.env.SYSTEM_MAIL_SENDER;
     if (sender === undefined) {
       console.error(t("error.env.sender"));
-      throw badRequest({
-        message: t("error.env.sender"),
-      });
+      throw json(
+        {
+          message: t("error.env.sender"),
+        },
+        { status: 500 }
+      );
     }
     const baseUrl = process.env.COMMUNITY_BASE_URL;
     if (baseUrl === undefined) {
       console.error(t("error.env.url"));
-      throw badRequest({
-        message: t("error.env.url"),
-      });
+      throw json(
+        {
+          message: t("error.env.url"),
+        },
+        { status: 500 }
+      );
     }
     // -> mail of person which was moved to waitinglist
     const recipient = profile.email;
@@ -125,8 +129,8 @@ export const action = async (args: DataFunctionArgs) => {
     } catch (error) {
       // Throw a 500 -> Mailer issue
       console.error(error);
-      return serverError({ message: t("error.mailer") });
+      return json({ message: t("error.mailer") }, { status: 500 });
     }
   }
-  return json(result, { headers: response.headers });
+  return json({ success: true });
 };

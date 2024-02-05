@@ -426,6 +426,8 @@ describe("/event/$slug/settings/participants", () => {
       });
 
       const responseBody = await response.json();
+      // TODO: fix type issue
+      // @ts-ignore
       expect(responseBody.errors.participantLimit).toStrictEqual(["Invalid"]);
     });
 
@@ -463,6 +465,8 @@ describe("/event/$slug/settings/participants", () => {
       });
 
       const responseBody = await response.json();
+      // TODO: fix type issue
+      // @ts-ignore
       expect(responseBody.errors.participantLimit).toStrictEqual([
         "error.inputError",
       ]);

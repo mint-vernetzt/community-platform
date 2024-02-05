@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -24,15 +24,13 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const response = new Response();
-
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
 
-  const authClient = await createAuthClient(request, response);
+  const { authClient } = await createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
-  let countData = {
+  const countData = {
     profiles: 0,
     organizations: 0,
     events: 0,
@@ -52,15 +50,12 @@ export const loader = async ({ request }: LoaderArgs) => {
     countData.projects = projectsCount;
   }
 
-  return json(
-    {
-      profilesCount: countData.profiles,
-      organizationsCount: countData.organizations,
-      eventsCount: countData.events,
-      projectsCount: countData.projects,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    profilesCount: countData.profiles,
+    organizationsCount: countData.organizations,
+    eventsCount: countData.events,
+    projectsCount: countData.projects,
+  });
 };
 
 function SearchView() {

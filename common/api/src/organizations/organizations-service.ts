@@ -1,7 +1,7 @@
 import { prismaClient } from "./../prisma";
 import { getImageURL, getPublicURL } from "./../images.server";
 import { createClient } from "@supabase/supabase-js";
-import { GravityType } from "imgproxy/dist/types";
+import { GravityType } from "imgproxy/dist/types.js";
 import type { Request } from "express";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { getBaseURL } from "../../src/utils";
@@ -89,20 +89,20 @@ async function getOrganizations(request: Request, skip: number, take: number) {
         }
       }
 
-      let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+      const baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
 
       const url =
         baseURL !== undefined
           ? decorate(request, `${baseURL}/organization/${slug}`)
           : null;
 
-      let enhancedOrganization = {
+      const enhancedOrganization = {
         ...rest,
         logo: publicLogo,
         background: publicBackground,
       };
 
-      let filteredOrganization = await filterOrganizationByVisibility(
+      const filteredOrganization = await filterOrganizationByVisibility(
         enhancedOrganization
       );
 

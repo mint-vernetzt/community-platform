@@ -1,24 +1,36 @@
 import type { Profile } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
-import { createServerClient } from "@supabase/auth-helpers-remix";
-import { serverError, unauthorized } from "remix-utils";
 import { prismaClient } from "./prisma.server";
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient, parse, serialize } from "@supabase/ssr";
+import { json } from "@remix-run/server-runtime";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
 const SESSION_NAME = "sb2";
 
-export const createAuthClient = (request: Request, response: Response) => {
+export const createAuthClient = (request: Request) => {
   if (
     process.env.SUPABASE_URL !== undefined &&
     process.env.SUPABASE_ANON_KEY !== undefined
   ) {
+    const cookies = parse(request.headers.get("Cookie") ?? "");
+    const headers = new Headers();
+
     const authClient = createServerClient(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_ANON_KEY,
       {
-        request,
-        response,
+        cookies: {
+          get(key) {
+            return cookies[key];
+          },
+          set(key, value, options) {
+            headers.append("Set-Cookie", serialize(key, value, options));
+          },
+          remove(key, options) {
+            headers.append("Set-Cookie", serialize(key, "", options));
+          },
+        },
         cookieOptions: {
           name: SESSION_NAME,
           // normally you want this to be `secure: true`
@@ -26,19 +38,32 @@ export const createAuthClient = (request: Request, response: Response) => {
           // https://web.dev/when-to-use-local-https/
           secure: process.env.NODE_ENV === "production",
           // secrets: [process.env.SESSION_SECRET], -> Does not exist on type CookieOptions
-          sameSite: "lax", // TODO: check this setting
+          sameSite: "lax",
           path: "/",
           maxAge: 60 * 60 * 24 * 30,
-          // httpOnly: true, // TODO: check this setting -> Does not exist on type CookieOptions
+        },
+        auth: {
+          flowType: "pkce",
         },
       }
     );
-    return authClient;
-  } else {
-    throw serverError({
-      message:
-        "Could not find SUPABASE_URL or SUPABASE_ANON_KEY in the .env file.",
+
+    // Normally i would only return the headers and add them to the response on the caller side
+    // To avoid refactoring i return an empty response with only the updated headers,
+    // so the current code base can persist (adding additional headers via response.headers)
+    const response = new Response(null, {
+      headers,
     });
+
+    return { authClient, response, headers };
+  } else {
+    throw json(
+      {
+        message:
+          "Could not find SUPABASE_URL or SUPABASE_ANON_KEY in the .env file.",
+      },
+      { status: 500 }
+    );
   }
 };
 
@@ -54,15 +79,19 @@ export const createAdminAuthClient = () => {
         auth: {
           autoRefreshToken: false,
           persistSession: false,
+          flowType: "pkce",
         },
       }
     );
     return adminAuthClient;
   }
-  throw serverError({
-    message:
-      "Could not find SUPABASE_URL or SERVICE_ROLE_KEY in the .env file.",
-  });
+  throw json(
+    {
+      message:
+        "Could not find SUPABASE_URL or SERVICE_ROLE_KEY in the .env file.",
+    },
+    { status: 500 }
+  );
 };
 
 export const signUp = async (
@@ -87,20 +116,22 @@ export const signUp = async (
 };
 
 export const signIn = async (
-  authClient: SupabaseClient,
+  request: Request,
   email: string,
   password: string
 ) => {
+  const { authClient, headers } = createAuthClient(request);
   const { data, error } = await authClient.auth.signInWithPassword({
     email: email,
     password: password,
   });
-  return { data, error };
+  return { data, error, headers };
 };
 
-export const signOut = async (authClient: SupabaseClient) => {
+export const signOut = async (request: Request) => {
+  const { authClient, headers } = createAuthClient(request);
   const { error } = await authClient.auth.signOut();
-  return { error };
+  return { error, headers };
 };
 
 export const setSession = async (
@@ -127,9 +158,12 @@ export const getSession = async (authClient: SupabaseClient) => {
 export const getSessionOrThrow = async (authClient: SupabaseClient) => {
   const session = await getSession(authClient);
   if (session === null) {
-    throw unauthorized({
-      message: "No session found",
-    });
+    throw json(
+      {
+        message: "No session found",
+      },
+      { status: 401 }
+    );
   }
   return session;
 };
@@ -145,9 +179,12 @@ export const getSessionUser = async (authClient: SupabaseClient) => {
 export const getSessionUserOrThrow = async (authClient: SupabaseClient) => {
   const result = await getSessionUser(authClient);
   if (result === null) {
-    throw unauthorized({
-      message: "No session or session user found",
-    });
+    throw json(
+      {
+        message: "No session or session user found",
+      },
+      { status: 401 }
+    );
   }
   return result;
 };
@@ -173,10 +210,6 @@ export async function sendResetPasswordLink(
   return { error };
 }
 
-// TODO: Reset password rework see onAuthStateChanged() and resetPasswordForEmail()
-// Maybe use admin function updateUserById() -> https://supabase.com/docs/reference/javascript/auth-admin-updateuserbyid
-// https://supabase.com/docs/reference/javascript/auth-onauthstatechange
-// https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail
 export async function updatePassword(
   authClient: SupabaseClient,
   password: string
@@ -190,7 +223,7 @@ export async function updatePassword(
 export async function sendResetEmailLink(
   authClient: SupabaseClient,
   email: string,
-  redirectToAfterResetEmail: string
+  redirectToAfterResetEmail?: string
 ) {
   const { data, error } = await authClient.auth.updateUser(
     {

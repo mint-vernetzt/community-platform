@@ -1,16 +1,19 @@
-import type { ActionArgs, LinksFunction, LoaderArgs } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LinksFunction,
+  LoaderFunctionArgs,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
   Link,
   useActionData,
   useLoaderData,
+  useNavigation,
   useParams,
-  useTransition,
 } from "@remix-run/react";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { badRequest, notFound, serverError } from "remix-utils";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -45,13 +48,13 @@ import {
   updateOrganizationById,
 } from "./utils.server";
 
-import quillStyles from "react-quill/dist/quill.snow.css";
-import { invariantResponse } from "~/lib/utils/response";
-import { getOrganizationBySlug } from "./general.server";
-import i18next from "~/i18next.server";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import quillStyles from "react-quill/dist/quill.snow.css";
+import i18next from "~/i18next.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { detectLanguage } from "~/root.server";
+import { getOrganizationBySlug } from "./general.server";
 
 const i18nNS = ["routes/organization/settings/general"];
 export const handle = {
@@ -102,15 +105,15 @@ function makeFormOrganizationFromDbOrganization(
   };
 }
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
-  const authClient = createAuthClient(request, response);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/organization/settings/general",
   ]);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -119,15 +122,18 @@ export const loader = async (args: LoaderArgs) => {
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
-    throw notFound({
-      message: t("error.notFound.named", { slug: slug }),
-    });
+    throw json(
+      {
+        message: t("error.notFound.named", { slug: slug }),
+      },
+      { status: 404 }
+    );
   }
   const organizationVisibilities = await getOrganizationVisibilitiesById(
     dbOrganization.id
   );
   if (organizationVisibilities === null) {
-    throw notFound({ message: t("error.notFound.visibilities") });
+    throw json({ message: t("error.notFound.visibilities") }, { status: 404 });
   }
 
   const organization = makeFormOrganizationFromDbOrganization(dbOrganization);
@@ -136,31 +142,27 @@ export const loader = async (args: LoaderArgs) => {
   const focuses = await getFocuses();
   const areas = await getAreas();
 
-  return json(
-    {
-      organization,
-      organizationVisibilities,
-      organizationTypes,
-      areas,
-      focuses,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    organization,
+    organizationVisibilities,
+    organizationTypes,
+    areas,
+    focuses,
+  });
 };
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: quillStyles },
 ];
 
-export const action = async (args: ActionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/organization/settings/general",
   ]);
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -176,7 +178,7 @@ export const action = async (args: ActionArgs) => {
     { status: 404 }
   );
 
-  let parsedFormData = await getFormValues<OrganizationSchemaType>(
+  const parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,
     createOrganizationSchema(t)
   );
@@ -193,7 +195,7 @@ export const action = async (args: ActionArgs) => {
     data = result.data;
   } catch (error) {
     console.error(error);
-    throw badRequest({ message: t("error.validation") });
+    throw json({ message: t("error.validation") }, { status: 400 });
   }
 
   let updated = false;
@@ -213,7 +215,7 @@ export const action = async (args: ActionArgs) => {
         updated = true;
       } catch (error) {
         console.error(error);
-        throw serverError({ message: t("error.serverError") });
+        throw json({ message: t("error.serverError") }, { status: 500 });
       }
     }
   } else {
@@ -233,15 +235,12 @@ export const action = async (args: ActionArgs) => {
     });
   }
 
-  return json(
-    {
-      organization: data,
-      lastSubmit: (formData.get("submit") as string) ?? "",
-      updated,
-      errors,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    organization: data,
+    lastSubmit: (formData.get("submit") as string) ?? "",
+    updated,
+    errors,
+  });
 };
 
 function Index() {
@@ -254,11 +253,11 @@ function Index() {
     focuses,
   } = useLoaderData<typeof loader>();
 
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
 
   const formRef = React.createRef<HTMLFormElement>();
-  const isSubmitting = transition.state === "submitting";
+  const isSubmitting = navigation.state === "submitting";
 
   const organization = actionData?.organization ?? dbOrganization;
 

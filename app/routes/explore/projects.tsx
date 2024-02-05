@@ -1,12 +1,11 @@
 import { Button, CardContainer, ProjectCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
@@ -23,14 +22,12 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const response = new Response();
-
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
     itemsPerPage: 8,
   });
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const projects = await getAllProjects(skip, take);
 
@@ -112,16 +109,13 @@ export const loader = async ({ request }: LoaderArgs) => {
     enhancedProjects.push(enhancedProject);
   }
 
-  return json(
-    {
-      projects: enhancedProjects,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
+  return json({
+    projects: enhancedProjects,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+  });
 };
 
 function Projects() {
@@ -182,7 +176,7 @@ function Projects() {
             <Button
               size="large"
               variant="outline"
-              loading={fetcher.state === "submitting"}
+              loading={fetcher.state === "loading"}
             >
               {t("more")}
             </Button>

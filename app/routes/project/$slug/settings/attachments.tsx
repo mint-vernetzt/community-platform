@@ -2,13 +2,14 @@ import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Button, Image, Section, Toast } from "@mint-vernetzt/components";
 import {
-  type DataFunctionArgs,
+  type ActionFunctionArgs,
   json,
-  type NodeOnDiskFile,
   redirect,
   unstable_composeUploadHandlers,
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
+  type LoaderFunctionArgs,
+  type NodeOnDiskFile,
 } from "@remix-run/node";
 import {
   Form,
@@ -91,13 +92,13 @@ const actionSchema = z.object({
   filename: z.string(),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -114,7 +115,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findFirst({
@@ -180,16 +181,16 @@ export const loader = async (args: DataFunctionArgs) => {
     return { ...relation, image: { ...relation.image, thumbnail } };
   });
 
-  return json(project, { headers: response.headers });
+  return json(project);
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -206,7 +207,7 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const uploadHandler = unstable_composeUploadHandlers(
@@ -248,9 +249,7 @@ export const action = async (args: DataFunctionArgs) => {
     );
 
     if (intent === "validate/document") {
-      return json({ status: "idle", submission } as const, {
-        headers: response.headers,
-      });
+      return json({ status: "idle", submission } as const);
     }
 
     const filename = submission.value.filename as string;
@@ -276,9 +275,7 @@ export const action = async (args: DataFunctionArgs) => {
     );
 
     if (intent === "validate/image") {
-      return json({ status: "idle", submission } as const, {
-        headers: response.headers,
-      });
+      return json({ status: "idle", submission } as const);
     }
 
     const filename = submission.value.filename as string;

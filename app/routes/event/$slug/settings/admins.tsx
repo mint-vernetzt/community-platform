@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -8,12 +8,11 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -40,12 +39,12 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+
+  const { authClient } = createAuthClient(request);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-  const authClient = createAuthClient(request, response);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
@@ -87,14 +86,11 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  return json(
-    {
-      published: event.published,
-      admins: enhancedAdmins,
-      adminSuggestions,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    admins: enhancedAdmins,
+    adminSuggestions,
+  });
 };
 
 function Admins() {
@@ -116,7 +112,7 @@ function Admins() {
       <p className="mb-8">{t("content.intro.whom")}</p>
       <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
       <p className="mb-8">{t("content.add.intro")}</p>
-      <Form
+      <RemixFormsForm
         schema={addAdminSchema}
         fetcher={addAdminFetcher}
         action={`/event/${slug}/settings/admins/add-admin`}
@@ -165,7 +161,7 @@ function Admins() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addAdminFetcher.data !== undefined &&
       "message" in addAdminFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -209,7 +205,7 @@ function Admins() {
                 ) : null}
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                <Form
+                <RemixFormsForm
                   schema={removeAdminSchema}
                   fetcher={removeAdminFetcher}
                   action={`/event/${slug}/settings/admins/remove-admin`}
@@ -246,7 +242,7 @@ function Admins() {
                       </>
                     );
                   }}
-                </Form>
+                </RemixFormsForm>
               </div>
             </div>
           );
@@ -255,7 +251,7 @@ function Admins() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -277,7 +273,7 @@ function Admins() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

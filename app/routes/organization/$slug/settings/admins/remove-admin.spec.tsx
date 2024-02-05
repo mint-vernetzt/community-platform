@@ -134,6 +134,8 @@ describe("/organization/$slug/settings/admins/remove-admin", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.errors._global).toStrictEqual(["error.adminCount"]);
   });
 

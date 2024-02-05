@@ -2,9 +2,10 @@ import { addUuids } from "./utils";
 // @ts-ignore
 import { randomUUID } from "node:crypto";
 
-/** @type {jest.Expect} */
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
 // @ts-ignore
-const expect = global.expect;
+const expect = global.expect as jest.Expect;
 
 jest.mock("node:crypto", () => {
   return { randomUUID: jest.fn() };

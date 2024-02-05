@@ -1,6 +1,12 @@
 import { type EventFormData } from "./eventFormData";
 import { validateSubmission } from "../../validator/validateSubmission";
 import * as schema from "./validation.schema.json";
+
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
+
 describe("event submission validator", () => {
   let validFormPost = {
     name: "123", // length 3

@@ -1,9 +1,8 @@
 import type { Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
+import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
-import { GravityType } from "imgproxy/dist/types";
-import { notFound } from "remix-utils";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import {
@@ -32,9 +31,9 @@ export async function getAllProfiles(
   const { skip, take, areaId, offerId, seekingId, randomSeed } = options;
 
   let areaToFilter;
-  let whereClauses = [];
+  const whereClauses = [];
   let whereClause = Prisma.empty;
-  let offerJoin = Prisma.sql`
+  const offerJoin = Prisma.sql`
     LEFT JOIN offers_on_profiles
     ON profiles.id = offers_on_profiles."profileId"
     LEFT JOIN offer O
@@ -123,7 +122,7 @@ export async function getAllProfiles(
         whereClauses.push(areaWhere);
       }
     } else {
-      throw notFound({ message: "Area to filter not found" });
+      throw json({ message: "Area to filter not found" }, { status: 404 });
     }
   }
   if (offerId !== undefined) {

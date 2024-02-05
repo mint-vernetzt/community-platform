@@ -7,6 +7,11 @@ import {
   filterProjectByVisibility,
 } from "./public-fields-filtering.server";
 
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
+
 jest.mock("~/prisma.server", () => {
   return {
     prismaClient: {

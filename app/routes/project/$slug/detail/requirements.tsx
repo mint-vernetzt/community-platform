@@ -1,7 +1,7 @@
 import { Chip } from "@mint-vernetzt/components";
 import { useLoaderData } from "@remix-run/react";
-import { type DataFunctionArgs, json } from "@remix-run/server-runtime";
 import { createAuthClient } from "~/auth.server";
+import { json, type LoaderFunctionArgs } from "@remix-run/server-runtime";
 import { RichText } from "~/components/Richtext/RichText";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
@@ -11,13 +11,11 @@ import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/detail/requirements"];
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-
-  createAuthClient(request, response);
 
   // check slug exists (throw bad request if not)
   invariantResponse(
@@ -58,7 +56,7 @@ export const loader = async (args: DataFunctionArgs) => {
     status: 404,
   });
 
-  return json({ project }, { headers: response.headers });
+  return json({ project });
 };
 
 function Requirements() {

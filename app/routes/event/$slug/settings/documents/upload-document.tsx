@@ -1,6 +1,5 @@
 import type { Document } from "@prisma/client";
-import type { DataFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -19,14 +18,13 @@ const schema = z.object({
 
 export const uploadDocumentSchema = schema;
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/event/settings/documents/upload-document",
   ]);
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
@@ -56,5 +54,5 @@ export const action = async (args: DataFunctionArgs) => {
     throw t("error.server");
   }
 
-  return json({ headers: response.headers });
+  return null;
 };

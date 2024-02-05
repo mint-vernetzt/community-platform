@@ -10,7 +10,11 @@ import {
   TabBar,
   TextButton,
 } from "@mint-vernetzt/components";
-import { type DataFunctionArgs, json } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  json,
+} from "@remix-run/node";
 import {
   Form,
   Link,
@@ -43,14 +47,13 @@ export function links() {
   ];
 }
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const slug = getParamValue(params, "slug");
   invariantResponse(slug !== undefined, t("error.invariant.undefinedSlug"), {
@@ -143,20 +146,16 @@ export const loader = async (args: DataFunctionArgs) => {
     blurredLogo,
   };
 
-  return json(
-    { username, project: enhancedProject, mode },
-    { headers: response.headers }
-  );
+  return json({ username, project: enhancedProject, mode });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient, response } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const slug = getParamValue(params, "slug");
   invariantResponse(slug !== undefined, t("error.invariant.undefinedSlug"), {

@@ -1,10 +1,13 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import { json, type ActionFunctionArgs } from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
-import { badRequest, serverError } from "remix-utils";
+import { type TFunction } from "i18next";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { detectLanguage } from "~/root.server";
 import { deriveEventMode } from "../event/utils.server";
 import { deriveOrganizationMode } from "../organization/$slug/utils.server";
+import { deriveProfileMode } from "../profile/$username/utils.server";
 import { deriveProjectMode } from "../project/utils.server";
 import {
   updateEventBackgroundImage,
@@ -13,31 +16,11 @@ import {
   updateUserProfileImage,
   upload,
 } from "./uploadHandler.server";
-import { type Subject, uploadKeys } from "./utils.server";
-import { deriveProfileMode } from "../profile/$username/utils.server";
-import i18next from "~/i18next.server";
-import { type TFunction } from "i18next";
-import { detectLanguage } from "~/root.server";
+import { uploadKeys, type Subject } from "./utils.server";
 
 const i18nNS = ["routes/upload/image"];
 export const handle = {
   i18n: i18nNS,
-};
-
-export const loader = async ({ request }: DataFunctionArgs) => {
-  const response = new Response();
-
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
-  createAuthClient(request, response);
-
-  if (request.method !== "POST") {
-    throw badRequest({
-      message: t("error.teapot"),
-    });
-  }
-
-  return response;
 };
 
 async function handleAuth(
@@ -73,13 +56,11 @@ async function handleAuth(
   }
 }
 
-export const action = async ({ request }: DataFunctionArgs) => {
-  const response = new Response();
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
 
-  const authClient = createAuthClient(request, response);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-
   const sessionUser = await getSessionUserOrThrow(authClient);
   const profileId = sessionUser.id;
 
@@ -96,7 +77,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const uploadHandlerResponseJSON = formData.get(name as string);
 
   if (uploadHandlerResponseJSON === null) {
-    throw serverError({ message: t("error.serverError") });
+    throw json({ message: t("error.serverError") }, { status: 500 });
   }
   const uploadHandlerResponse: {
     buffer: Buffer;
@@ -137,5 +118,5 @@ export const action = async ({ request }: DataFunctionArgs) => {
     }
   }
 
-  return response;
+  return null;
 };

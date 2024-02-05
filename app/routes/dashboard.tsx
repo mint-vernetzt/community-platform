@@ -6,14 +6,11 @@ import {
   ProfileCard,
 } from "@mint-vernetzt/components";
 import type { Organization, Profile } from "@prisma/client";
-import type { LinksFunction, LoaderArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
-import { notFound } from "remix-utils";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import { GravityType, getImageURL } from "~/images.server";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css";
 import {
@@ -36,19 +33,13 @@ export const handle = {
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
-
-  const featureAbilities = await getFeatureAbilities(authClient, "dashboard");
-  if (featureAbilities["dashboard"].hasAccess === false) {
-    return redirect("/");
-  }
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -58,23 +49,18 @@ export const loader = async (args: LoaderArgs) => {
 
   const profile = await getProfileById(sessionUser.id);
   if (profile === null) {
-    throw notFound({ message: t("error.profileNotFound") });
+    throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
 
   if (profile.termsAccepted === false) {
-    return redirect("/accept-terms?redirect_to=/dashboard", {
-      headers: response.headers,
-    });
+    return redirect("/accept-terms?redirect_to=/dashboard");
   }
 
   let randomSeed = getRandomSeed(request);
   if (randomSeed === undefined) {
     randomSeed = parseFloat((Math.random() / 4).toFixed(3)); // use top 25% of profiles
     // use enhanced redirect to preserve flash cookies
-    return enhancedRedirect(`/dashboard?randomSeed=${randomSeed}`, {
-      response: { headers: response.headers },
-      request,
-    });
+    return enhancedRedirect(`/dashboard?randomSeed=${randomSeed}`, request);
   }
 
   const numberOfProfiles = 4;
@@ -87,7 +73,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const profiles = rawProfiles.map((profile) => {
     const { avatar, background, memberOf, ...otherFields } = profile;
-    let extensions: {
+    const extensions: {
       memberOf: Pick<Organization, "name" | "slug" | "logo">[];
       areas: string[];
       offers: string[];
@@ -161,7 +147,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const organizations = rawOrganizations.map((organization) => {
     const { logo, background, teamMembers, ...otherFields } = organization;
-    let extensions: {
+    const extensions: {
       teamMembers: Pick<
         Profile,
         "firstName" | "lastName" | "username" | "avatar"
@@ -227,16 +213,13 @@ export const loader = async (args: LoaderArgs) => {
       background: backgroundImage,
     };
   });
-  return json(
-    {
-      profiles,
-      organizations,
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      username: profile.username,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    profiles,
+    organizations,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    username: profile.username,
+  });
 };
 
 function Dashboard() {

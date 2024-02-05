@@ -100,9 +100,14 @@ describe("/event/$slug/settings/organization/add-organization", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors.organizationId).toStrictEqual([
       "error.notFound",
     ]);
@@ -139,7 +144,10 @@ describe("/event/$slug/settings/organization/add-organization", () => {
     });
     const responseBody = await response.json();
 
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors.organizationId).toStrictEqual([
       "error.inputError",
     ]);
@@ -227,6 +235,8 @@ describe("/event/$slug/settings/organization/add-organization", () => {
         organizationId: "some-organization-id",
       },
     });
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe("feedback");
   });
 });

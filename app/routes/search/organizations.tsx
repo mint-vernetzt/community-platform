@@ -3,13 +3,12 @@ import {
   CardContainer,
   OrganizationCard,
 } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -30,9 +29,8 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
@@ -114,17 +112,14 @@ export const loader = async ({ request }: LoaderArgs) => {
     enhancedOrganizations.push(enhancedOrganization);
   }
 
-  return json(
-    {
-      organizations: enhancedOrganizations,
-      isLoggedIn: sessionUser !== null,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
+  return json({
+    organizations: enhancedOrganizations,
+    isLoggedIn: sessionUser !== null,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+  });
 };
 
 export default function SearchView() {
@@ -199,7 +194,7 @@ export default function SearchView() {
                 <Button
                   size="large"
                   variant="outline"
-                  loading={fetcher.state === "submitting"}
+                  loading={fetcher.state === "loading"}
                 >
                   {t("more")}
                 </Button>

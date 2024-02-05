@@ -1,8 +1,7 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { notFound, serverError } from "remix-utils";
+import { makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
   createAdminAuthClient,
@@ -23,6 +22,7 @@ import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const i18nNS = ["routes/profile/settings/delete"];
 export const handle = {
@@ -44,15 +44,16 @@ const environmentSchema = z.object({
   userId: z.string(),
 });
 
-export const loader = async ({ request, params }: DataFunctionArgs) => {
-  const response = new Response();
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
+  const username = getParamValueOrThrow(params, "username");
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/profile/settings/delete"]);
-  const authClient = createAuthClient(request, response);
-  const username = getParamValueOrThrow(params, "username");
+
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw notFound({ message: t("error.profileNotFound") });
+    throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -60,7 +61,7 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
     status: 403,
   });
 
-  return json({}, { headers: response.headers });
+  return null;
 };
 
 const createMutation = (t: TFunction) => {
@@ -139,12 +140,12 @@ const createMutation = (t: TFunction) => {
   });
 };
 
-export const action = async ({ request, params }: DataFunctionArgs) => {
-  const response = new Response();
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/profile/settings/delete"]);
-  const authClient = createAuthClient(request, response);
+
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
@@ -159,19 +160,13 @@ export const action = async ({ request, params }: DataFunctionArgs) => {
     environment: { userId: sessionUser.id },
   });
   if (result.success) {
-    const { error } = await signOut(authClient);
+    const { error, headers } = await signOut(request);
     if (error !== null) {
-      throw serverError({ message: error.message });
+      throw json({ message: error.message }, { status: 500 });
     }
-
-    const cookie = response.headers.get("set-cookie");
-    if (cookie !== null) {
-      response.headers.set("set-cookie", cookie.replace("-code-verifier", ""));
-    }
-
-    return redirect("/goodbye", { headers: response.headers });
+    return redirect("/goodbye", { headers });
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export default function Index() {
@@ -186,7 +181,7 @@ export default function Index() {
 
       <p className="mb-8">{t("content.headline")}</p>
 
-      <RemixForm method="post" schema={schema}>
+      <RemixFormsForm method="post" schema={schema}>
         {({ Field, Button, Errors, register }) => (
           <>
             <Field name="confirmedToken" className="mb-4">
@@ -211,7 +206,7 @@ export default function Index() {
             <Errors />
           </>
         )}
-      </RemixForm>
+      </RemixFormsForm>
     </>
   );
 }

@@ -5,13 +5,18 @@ const request = new Request(testURL);
 const response = new Response();
 
 const authClient = createServerClient(
+  // TODO: fix type issues
+  // Globals of cypress and jest are conflicting
+  // @ts-ignore
   Cypress.env("SUPABASE_URL"),
+  // @ts-ignore
   Cypress.env("SERVICE_ROLE_KEY"),
   { request, response }
 );
 
 let uid: string | undefined;
 
+// @ts-ignore
 before(async () => {
   const email = "hello@songsforthe.dev";
   const password = "password";
@@ -48,13 +53,19 @@ before(async () => {
 });
 
 it("redirect after login", () => {
+  // @ts-ignore
   cy.visit("http://localhost:3000/");
+  // @ts-ignore
   cy.findByLabelText("E-Mail").type("hello@songsforthe.dev");
+  // @ts-ignore
   cy.findByLabelText("Passwort").type("password");
+  // @ts-ignore
   cy.findByText("Login").click();
+  // @ts-ignore
   cy.url().should("eq", "http://localhost:3000/peterhollo");
 });
 
+// @ts-ignore
 after(async () => {
   if (uid !== undefined) {
     await authClient.from("profiles").delete().match({ id: uid });

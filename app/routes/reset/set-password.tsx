@@ -1,16 +1,12 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useSearchParams } from "@remix-run/react";
-import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { badRequest } from "remix-utils";
+import { InputError, makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
-import {
-  createAuthClient,
-  getSessionUser,
-  setSession,
-  updatePassword,
-} from "../../auth.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { invariantResponse } from "~/lib/utils/response";
+import { createAuthClient, getSessionUser } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -28,8 +24,6 @@ const createSchema = (t: TFunction) => {
   return z.object({
     password: z.string().min(8, t("validation.password.min")),
     confirmPassword: z.string().min(8, t("validation.confirmPassword.min")),
-    accessToken: z.string().min(1, t("validation.accessToken.min")),
-    refreshToken: z.string().min(1, t("validation.refreshToken.min")),
     loginRedirect: z.string().optional(),
   });
 };
@@ -37,29 +31,15 @@ const createSchema = (t: TFunction) => {
 const environmentSchema = z.object({
   authClient: z.unknown(),
   // authClient: z.instanceof(SupabaseClient),
+  userId: z.string(),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  if (sessionUser !== null) {
-    return redirect("/dashboard", { headers: response.headers });
-  }
-
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
-
-  const url = new URL(request.url);
-  const accessToken = url.searchParams.get("access_token");
-  const refreshToken = url.searchParams.get("refresh_token");
-
-  if (accessToken === null || refreshToken === null) {
-    throw badRequest(t("error.badRequest"));
-  }
-
-  return response;
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
+  return null;
 };
 
 const createMutation = (t: TFunction) => {
@@ -71,56 +51,47 @@ const createMutation = (t: TFunction) => {
       throw new InputError(t("error.confirmation"), "confirmPassword"); // -- Field error
     }
 
-    // This automatically logs in the user
-    // Throws error on invalid refreshToken, accessToken combination
-    await setSession(
-      // TODO: fix type issue
-      // @ts-ignore
-      environment.authClient,
-      values.accessToken,
-      values.refreshToken
-    );
-
-    const { error } = await updatePassword(
-      // TODO: fix type issue
-      // @ts-ignore
-      environment.authClient,
-      values.password
-    );
+    // TODO: fix type issue
+    // @ts-ignore
+    const { error } = await environment.authClient.auth.updateUser({
+      password: values.password,
+    });
     if (error !== null) {
       throw error.message;
     }
+
     return values;
   });
 };
 
-export const action = async ({ request }: DataFunctionArgs) => {
-  const response = new Response();
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { authClient, headers } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-  const authClient = createAuthClient(request, response);
+
+  const schema = createSchema(t);
+  const mutation = createMutation(t);
+
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const result = await performMutation({
     request,
-    schema: createSchema(t),
-    mutation: createMutation(t),
-    environment: { authClient: authClient },
+    schema,
+    mutation,
+    environment: { authClient: authClient, userId: sessionUser.id },
   });
 
   if (result.success) {
-    return redirect(result.data.loginRedirect || "/explore?reason=5", {
-      headers: response.headers,
-    });
+    return redirect(result.data.loginRedirect || "/dashboard");
   }
 
-  return json(result, { headers: response.headers });
+  return json(result, { headers });
 };
 
 export default function SetPassword() {
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
-  const accessToken = urlSearchParams.get("access_token");
-  const refreshToken = urlSearchParams.get("refresh_token");
 
   const { t } = useTranslation(i18nNS);
   const schema = createSchema(t);
@@ -137,14 +108,12 @@ export default function SetPassword() {
             <div className="ml-auto"></div>
           </div>
         </div>
-        <RemixForm
+        <RemixFormsForm
           method="post"
           schema={schema}
-          hiddenFields={["loginRedirect", "accessToken", "refreshToken"]}
+          hiddenFields={["loginRedirect"]}
           values={{
             loginRedirect: loginRedirect,
-            accessToken: accessToken,
-            refreshToken: refreshToken,
           }}
         >
           {({ Field, Button, Errors, register }) => (
@@ -153,8 +122,6 @@ export default function SetPassword() {
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">Neues Passwort vergeben</h1>
                 <Field name="loginRedirect" />
-                <Field name="accessToken" />
-                <Field name="refreshToken" />
                 <div className="mb-4">
                   <Field name="password" label="Neues Passwort">
                     {({ Errors }) => (
@@ -194,7 +161,7 @@ export default function SetPassword() {
               </div>
             </div>
           )}
-        </RemixForm>
+        </RemixFormsForm>
       </div>
     </>
   );

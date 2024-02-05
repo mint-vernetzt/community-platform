@@ -1,6 +1,5 @@
 import { Button, Roadmap } from "@mint-vernetzt/components";
-
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Link,
@@ -8,31 +7,26 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
+import { makeDomainFunction } from "domain-functions";
 import type { KeyboardEvent } from "react";
-import CountUp from "react-countup";
-import { makeDomainFunction } from "remix-domains";
+import { Trans, useTranslation } from "react-i18next";
 import type { FormProps } from "remix-forms";
-import { Form, performMutation } from "remix-forms";
+import { performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
 import { z } from "zod";
-import {
-  createAdminAuthClient,
-  createAuthClient,
-  getSessionUser,
-  signIn,
-} from "~/auth.server";
+import { createAuthClient, getSessionUser, signIn } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import { H1, H3 } from "~/components/Heading/Heading";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { getProfileByEmailCaseInsensitive } from "./organization/$slug/settings/utils.server";
+import { CountUp } from "./__components";
 import {
   getEventCount,
   getOrganizationCount,
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { Trans, useTranslation } from "react-i18next";
 
 const i18nNS = ["routes/index"];
 export const handle = {
@@ -50,29 +44,20 @@ const schema = z.object({
   loginRedirect: z.string().optional(),
 });
 
-const environmentSchema = z.object({
-  authClient: z.unknown(),
-  // authClient: z.instanceof(SupabaseClient),
-});
-
 function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
-  return <Form<Schema> {...props} />;
+  return <RemixFormsForm<Schema> {...props} />;
 }
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser !== null) {
     // Default redirect on logged in user
-    return redirect("/dashboard", {
-      headers: response.headers,
-    });
+    return redirect("/dashboard");
   }
 
   const abilities = await getFeatureAbilities(authClient, ["keycloak"]);
@@ -82,95 +67,55 @@ export const loader = async (args: LoaderArgs) => {
   const eventCount = await getEventCount();
   const projectCount = await getProjectCount();
 
-  return json(
-    {
-      profileCount,
-      organizationCount,
-      eventCount,
-      projectCount,
-      abilities,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    profileCount,
+    organizationCount,
+    eventCount,
+    projectCount,
+    abilities,
+  });
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const { error } = await signIn(
-    // TODO: fix type issue
-    // @ts-ignore
-    environment.authClient,
-    values.email,
-    values.password
-  );
-
-  if (error !== null) {
-    if (error.message === "Invalid login credentials") {
-      throw "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.";
-    } else {
-      throw error.message;
-    }
-  } else {
-    const profile = await getProfileByEmailCaseInsensitive(values.email);
-    if (profile !== null) {
-      // changes provider of user to email
-      const adminAuthClient = createAdminAuthClient();
-      await adminAuthClient.auth.admin.updateUserById(profile.id, {
-        app_metadata: {
-          provider: "email",
-        },
-      });
-
-      // TODO: fix type issue
-      // @ts-ignore
-      await environment.authClient.auth.refreshSession();
-    }
-  }
-
+const mutation = makeDomainFunction(schema)(async (values) => {
   return { ...values };
 });
 
-export const action = async ({ request }: ActionArgs) => {
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
-
-  const result = await performMutation({
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const submission = await performMutation({
     request,
     schema,
     mutation,
-    environment: { authClient: authClient },
   });
 
-  if (result.success) {
-    if (result.data.loginRedirect) {
-      return redirect(result.data.loginRedirect, {
-        headers: response.headers,
-      });
-    } else {
-      // Default redirect after login
-      const profile = await getProfileByEmailCaseInsensitive(result.data.email);
-      if (profile !== null) {
-        const featureAbilities = await getFeatureAbilities(
-          authClient,
-          "dashboard"
-        );
-        let redirectRoute = `/profile/${profile.username}`;
-        if (featureAbilities["dashboard"].hasAccess === true) {
-          redirectRoute = `/dashboard`;
-        }
-        return redirect(redirectRoute, {
-          headers: response.headers,
+  if (submission.success) {
+    const { error, headers } = await signIn(
+      request,
+      submission.data.email,
+      submission.data.password
+    );
+
+    if (error !== null) {
+      if (error.message === "Invalid login credentials") {
+        return json({
+          message:
+            "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.",
         });
       } else {
-        return redirect(`/explore`, { headers: response.headers });
+        throw json({ message: "Server Error" }, { status: 500 });
       }
+    }
+    if (submission.data.loginRedirect) {
+      return redirect(submission.data.loginRedirect, {
+        headers: headers,
+      });
+    } else {
+      return redirect("/dashboard", {
+        headers: headers,
+      });
     }
   }
 
-  return json(result, { headers: response.headers });
+  return json(submission);
 };
 
 export default function Index() {
@@ -239,7 +184,11 @@ export default function Index() {
                       <Button
                         as="a"
                         size="large"
-                        href="/auth/keycloak"
+                        href={`/auth/keycloak${
+                          loginRedirect
+                            ? `?login_redirect=${loginRedirect}`
+                            : ""
+                        }`}
                         variant="outline"
                         fullSize
                       >

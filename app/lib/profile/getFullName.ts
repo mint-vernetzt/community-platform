@@ -1,4 +1,4 @@
-import { Profile } from "@prisma/client";
+import { type Profile } from "@prisma/client";
 
 type GetFullNameOptions = {
   withAcademicTitle: boolean;

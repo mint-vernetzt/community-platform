@@ -1,10 +1,15 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { makeDomainFunction } from "remix-domains";
+import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { fileUploadSchema } from "~/lib/utils/schemas";
+import { deriveEventMode } from "../event/utils.server";
+import { deriveOrganizationMode } from "../organization/$slug/utils.server";
+import { deriveProfileMode } from "../profile/$username/utils.server";
+import { deriveProjectMode } from "../project/utils.server";
 import {
   removeImageFromEvent,
   removeImageFromOrganization,
@@ -83,11 +88,10 @@ const createMutation = (t: TFunction) => {
   });
 };
 
-export const action = async ({ request }: DataFunctionArgs) => {
-  const response = new Response();
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-  const authClient = createAuthClient(request, response);
   const formData = await request.clone().formData();
   const redirectUrl = formData.get("redirect")?.toString();
 
@@ -101,8 +105,8 @@ export const action = async ({ request }: DataFunctionArgs) => {
   });
 
   if (result.success && redirectUrl !== undefined) {
-    return redirect(redirectUrl, { headers: response.headers });
+    return redirect(redirectUrl);
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };

@@ -1,9 +1,9 @@
 import type { Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
-import { notFound } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 import type { ArrayElement } from "~/lib/utils/types";
+import { json } from "@remix-run/server-runtime";
 
 export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
   const result = await prismaClient.eventVisibility.findFirst({
@@ -14,7 +14,7 @@ export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
     },
   });
   if (result === null) {
-    throw notFound({ message: "Event visbilities not found." });
+    throw json({ message: "Event visbilities not found." }, { status: 404 });
   }
   return result;
 }

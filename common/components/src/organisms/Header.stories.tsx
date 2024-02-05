@@ -6,7 +6,7 @@ import {
   Image,
   type ImageProps,
   Status,
-} from "@mint-vernetzt/components";
+} from "./../../index";
 import Header from "./Header";
 
 type HeaderPlaygroundProps = {

@@ -1,24 +1,15 @@
-import type { DataFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { serverError } from "remix-utils";
-import { createAuthClient, signOut } from "~/auth.server";
+import type { ActionFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { signOut } from "~/auth.server";
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
-
-  const { error } = await signOut(authClient);
+  const { error, headers } = await signOut(request);
 
   if (error !== null) {
-    throw serverError({ message: error.message });
+    throw json({ message: "Server Error" }, { status: 500 });
   }
 
-  const cookie = response.headers.get("set-cookie");
-  if (cookie !== null) {
-    response.headers.set("set-cookie", cookie.replace("-code-verifier", ""));
-  }
-
-  return redirect("/", { headers: response.headers });
+  return redirect("/", { headers: headers });
 };

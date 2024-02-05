@@ -7,16 +7,15 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import {
-  type DataFunctionArgs,
   json,
   redirect,
+  type LoaderFunctionArgs,
 } from "@remix-run/server-runtime";
 import classNames from "classnames";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getToast } from "~/toast.server";
-import { combineHeaders } from "~/utils.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
@@ -26,11 +25,9 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -47,7 +44,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findFirst({
@@ -68,7 +65,7 @@ export const loader = async (args: DataFunctionArgs) => {
       toast,
     },
     {
-      headers: combineHeaders(response.headers, toastHeaders),
+      headers: toastHeaders || undefined,
     }
   );
 };
@@ -117,13 +114,14 @@ function ProjectSettings() {
           <h3 className="mv-mb-0 mv-font-bold">{t("content.edit")}</h3>
         </div>
       </div>
-      {loaderData.toast !== null && loaderData.toast.id === "settings-toast" && (
-        <div id={loaderData.toast.id} className="md:mv-py-4">
-          <Toast key={loaderData.toast.key} level={loaderData.toast.level}>
-            {loaderData.toast.message}
-          </Toast>
-        </div>
-      )}
+      {loaderData.toast !== null &&
+        loaderData.toast.id === "settings-toast" && (
+          <div id={loaderData.toast.id} className="md:mv-py-4">
+            <Toast key={loaderData.toast.key} level={loaderData.toast.level}>
+              {loaderData.toast.message}
+            </Toast>
+          </div>
+        )}
       <div className="mv-hidden md:mv-block">
         <Section variant="primary" withBorder>
           <Section.Header>{loaderData.project.name}</Section.Header>

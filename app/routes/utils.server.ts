@@ -1,7 +1,6 @@
-import { type Profile, type Organization, type Prisma } from "@prisma/client";
+import { type Organization, type Prisma, type Profile } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { GravityType } from "imgproxy/dist/types";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -34,7 +33,7 @@ export async function getOrganizationSuggestionsForAutocomplete(
   notIncludedSlugs: string[],
   query: string[]
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of query) {
     const contains: {
       OR: [
@@ -112,7 +111,7 @@ export async function getProfileSuggestionsForAutocomplete(
   notIncludedIds: string[],
   query: string[]
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of query) {
     const contains: {
       OR: {

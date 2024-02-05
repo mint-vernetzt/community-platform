@@ -1,10 +1,10 @@
-import { faker } from "@faker-js/faker";
+import { Faker, faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
-import { fromBuffer } from "file-type";
+import { fileTypeFromBuffer } from "file-type";
 import fs from "fs-extra";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import {
   getMultipleRandomUniqueSubsets,
   getRandomUniqueSubset,
@@ -13,12 +13,12 @@ import type { ArrayElement } from "../../../app/lib/utils/types";
 import { prismaClient } from "../../../app/prisma.server";
 import { generatePathName } from "../../../app/storage.server";
 import {
+  createHashFromString,
   generateEventSlug,
   generateOrganizationSlug,
   generateProjectSlug,
   generateUsername as generateUsername_app,
 } from "../../../app/utils.server";
-import { createHashFromString } from "../../../app/utils.server";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
@@ -267,7 +267,7 @@ export async function uploadImageBucketData(
         //   );
         //   continue;
         // } else {
-        const fileTypeResult = await fromBuffer(arrayBuffer);
+        const fileTypeResult = await fileTypeFromBuffer(arrayBuffer);
         if (fileTypeResult === undefined) {
           console.error(
             "The MIME-type could not be read. The file was left out."
@@ -324,7 +324,7 @@ export async function uploadImageBucketData(
       const data = await fs.readFile(
         "./public/images/default-event-background.jpg"
       );
-      const fileTypeResult = await fromBuffer(data);
+      const fileTypeResult = await fileTypeFromBuffer(data);
       if (fileTypeResult === undefined) {
         console.error(
           "The MIME-type could not be read. The file was left out."
@@ -377,17 +377,25 @@ function getImageUrl(imageType?: ImageType) {
     return faker.image.avatar();
   }
   if (imageType === "logos") {
-    return faker.image.abstract();
+    return faker.image.urlLoremFlickr({
+      category: "abstract",
+      width: 248,
+      height: 248,
+    });
     // TODO: logoIpsum (svg validation)
-    // return `https://img.logoipsum.com/2${faker.datatype.number({
+    // return `https://img.logoipsum.com/2${faker.number.int({
     //   min: 11,
     //   max: 95,
     // })}.svg`;
   }
   if (imageType === "backgrounds") {
-    return faker.image.nature(1488, 480, true);
+    return faker.image.urlLoremFlickr({
+      category: "nature",
+      width: 1488,
+      height: 480,
+    });
   }
-  return faker.image.imageUrl();
+  return faker.image.url();
 }
 
 export async function uploadDocumentBucketData(
@@ -411,13 +419,13 @@ export async function uploadDocumentBucketData(
   for (let i = 1; i <= numberOfDocuments; i++) {
     const pdfDoc = await PDFDocument.create();
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-    const numberOfPages = faker.datatype.number({ min: 1, max: 10 });
+    const numberOfPages = faker.number.int({ min: 1, max: 10 });
     for (let j = 0; j < numberOfPages; j++) {
       const page = pdfDoc.addPage();
       const { height } = page.getSize();
       const fontSize = 30;
       page.drawText(
-        faker.lorem.paragraphs(faker.datatype.number({ min: 50, max: 1000 })),
+        faker.lorem.paragraphs(faker.number.int({ min: 50, max: 1000 })),
         {
           x: 50,
           y: height - 4 * fontSize,
@@ -429,7 +437,7 @@ export async function uploadDocumentBucketData(
     }
     const pdfBytes = await pdfDoc.save();
 
-    const fileTypeResult = await fromBuffer(pdfBytes);
+    const fileTypeResult = await fileTypeFromBuffer(pdfBytes);
     if (fileTypeResult === undefined) {
       console.error("The MIME-type could not be read. The file was left out.");
       continue;
@@ -561,7 +569,7 @@ export async function seedAllEntities(
           imageBucketData.avatars.length > 0
             ? {
                 path: imageBucketData.avatars[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.avatars.length - 1,
                   })
@@ -572,7 +580,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -608,7 +616,7 @@ export async function seedAllEntities(
           imageBucketData.logos.length > 0
             ? {
                 path: imageBucketData.logos[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.logos.length - 1,
                   })
@@ -619,7 +627,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -644,7 +652,7 @@ export async function seedAllEntities(
     );
     someProfileIds = getRandomUniqueSubset<
       ArrayElement<typeof standardProfileIds>
-    >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.memberOfOrganization.createMany({
       data: [
         ...someProfileIds.map((id) => {
@@ -667,7 +675,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.memberOfNetwork.createMany({
       data: [
         ...someOrganizationIds.map((id) => {
@@ -694,7 +702,7 @@ export async function seedAllEntities(
         {
           document:
             documentBucketData.documents[
-              faker.datatype.number({
+              faker.number.int({
                 min: 0,
                 max: documentBucketData.documents.length - 1,
               })
@@ -730,7 +738,7 @@ export async function seedAllEntities(
             imageBucketData.logos.length > 0
               ? {
                   path: imageBucketData.logos[
-                    faker.datatype.number({
+                    faker.number.int({
                       min: 0,
                       max: imageBucketData.logos.length - 1,
                     })
@@ -767,7 +775,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -827,7 +835,7 @@ export async function seedAllEntities(
         standardEvent.participantLimit
           ? Math.round(
               standardEvent.participantLimit /
-                faker.datatype.number({ min: 2, max: 10 })
+                faker.number.int({ min: 2, max: 10 })
             )
           : undefined
       );
@@ -844,7 +852,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         ...someOrganizationIds.map((id) => {
@@ -857,7 +865,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -885,7 +893,7 @@ export async function seedAllEntities(
           imageBucketData.logos.length > 0
             ? {
                 path: imageBucketData.logos[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.logos.length - 1,
                   })
@@ -896,7 +904,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -920,7 +928,7 @@ export async function seedAllEntities(
     );
     someProfileIds = getRandomUniqueSubset<
       ArrayElement<typeof standardProfileIds>
-    >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.teamMemberOfProject.createMany({
       data: [
         ...someProfileIds.map((id) => {
@@ -933,7 +941,7 @@ export async function seedAllEntities(
     });
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfProject.createMany({
       data: [
         ...someOrganizationIds.map((id) => {
@@ -960,7 +968,7 @@ export async function seedAllEntities(
         imageBucketData.avatars.length > 0
           ? {
               path: imageBucketData.avatars[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.avatars.length - 1,
                 })
@@ -971,7 +979,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1004,7 +1012,7 @@ export async function seedAllEntities(
         imageBucketData.avatars.length > 0
           ? {
               path: imageBucketData.avatars[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.avatars.length - 1,
                 })
@@ -1015,7 +1023,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1056,7 +1064,7 @@ export async function seedAllEntities(
         imageBucketData.avatars.length > 0
           ? {
               path: imageBucketData.avatars[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.avatars.length - 1,
                 })
@@ -1067,7 +1075,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1129,7 +1137,7 @@ export async function seedAllEntities(
         imageBucketData.avatars.length > 0
           ? {
               path: imageBucketData.avatars[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.avatars.length - 1,
                 })
@@ -1140,7 +1148,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1185,7 +1193,7 @@ export async function seedAllEntities(
         imageBucketData.avatars.length > 0
           ? {
               path: imageBucketData.avatars[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.avatars.length - 1,
                 })
@@ -1196,7 +1204,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1261,7 +1269,7 @@ export async function seedAllEntities(
         imageBucketData.avatars.length > 0
           ? {
               path: imageBucketData.avatars[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.avatars.length - 1,
                 })
@@ -1272,7 +1280,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1332,7 +1340,7 @@ export async function seedAllEntities(
           imageBucketData.logos.length > 0
             ? {
                 path: imageBucketData.logos[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.logos.length - 1,
                   })
@@ -1343,7 +1351,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -1368,7 +1376,7 @@ export async function seedAllEntities(
     );
     someProfileIds = getRandomUniqueSubset<
       ArrayElement<typeof standardProfileIds>
-    >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.memberOfOrganization.createMany({
       data: [
         ...someProfileIds.map((id) => {
@@ -1405,7 +1413,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -1416,7 +1424,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1441,7 +1449,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.memberOfOrganization.createMany({
     data: [
       ...someProfileIds.map((id) => {
@@ -1476,7 +1484,7 @@ export async function seedAllEntities(
         imageBucketData.avatars.length > 0
           ? {
               path: imageBucketData.avatars[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.avatars.length - 1,
                 })
@@ -1487,7 +1495,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1569,7 +1577,7 @@ export async function seedAllEntities(
         imageBucketData.avatars.length > 0
           ? {
               path: imageBucketData.avatars[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.avatars.length - 1,
                 })
@@ -1580,7 +1588,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1621,7 +1629,7 @@ export async function seedAllEntities(
         imageBucketData.avatars.length > 0
           ? {
               path: imageBucketData.avatars[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.avatars.length - 1,
                 })
@@ -1632,7 +1640,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1746,7 +1754,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -1757,7 +1765,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1782,7 +1790,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.memberOfOrganization.createMany({
     data: [
       {
@@ -1819,7 +1827,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -1830,7 +1838,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -1855,7 +1863,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 3 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 3 }));
   await prismaClient.memberOfOrganization.createMany({
     data: [
       {
@@ -1892,7 +1900,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -1903,7 +1911,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -2000,7 +2008,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -2011,7 +2019,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -2036,7 +2044,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.memberOfOrganization.createMany({
     data: [
       {
@@ -2073,7 +2081,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -2084,7 +2092,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -2109,7 +2117,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.memberOfOrganization.createMany({
     data: [
       {
@@ -2146,7 +2154,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -2157,7 +2165,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -2182,7 +2190,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.memberOfOrganization.createMany({
     data: [
       {
@@ -2219,7 +2227,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -2230,7 +2238,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -2255,7 +2263,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.memberOfOrganization.createMany({
     data: [
       {
@@ -2302,7 +2310,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -2313,7 +2321,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -2338,7 +2346,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.memberOfOrganization.createMany({
     data: [
       {
@@ -2385,7 +2393,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -2396,7 +2404,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -2421,7 +2429,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.memberOfOrganization.createMany({
     data: [
       {
@@ -2458,7 +2466,7 @@ export async function seedAllEntities(
       {
         document:
           documentBucketData.documents[
-            faker.datatype.number({
+            faker.number.int({
               min: 0,
               max: documentBucketData.documents.length - 1,
             })
@@ -2493,7 +2501,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -2647,7 +2655,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -2676,7 +2684,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -2687,7 +2695,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -2771,7 +2779,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -2782,7 +2790,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -2888,7 +2896,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -2964,7 +2972,7 @@ export async function seedAllEntities(
         developerEvent.participantLimit
           ? Math.round(
               developerEvent.participantLimit /
-                faker.datatype.number({ min: 2, max: 10 })
+                faker.number.int({ min: 2, max: 10 })
             )
           : undefined
       );
@@ -2985,7 +2993,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -3002,7 +3010,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -3029,7 +3037,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -3105,7 +3113,7 @@ export async function seedAllEntities(
         depth2Event.participantLimit
           ? Math.round(
               depth2Event.participantLimit /
-                faker.datatype.number({ min: 2, max: 10 })
+                faker.number.int({ min: 2, max: 10 })
             )
           : undefined
       );
@@ -3126,7 +3134,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -3143,7 +3151,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -3197,7 +3205,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -3273,7 +3281,7 @@ export async function seedAllEntities(
         depth3Event.participantLimit
           ? Math.round(
               depth3Event.participantLimit /
-                faker.datatype.number({ min: 2, max: 10 })
+                faker.number.int({ min: 2, max: 10 })
             )
           : undefined
       );
@@ -3294,7 +3302,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -3311,7 +3319,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -3363,7 +3371,7 @@ export async function seedAllEntities(
       {
         document:
           documentBucketData.documents[
-            faker.datatype.number({
+            faker.number.int({
               min: 0,
               max: documentBucketData.documents.length - 1,
             })
@@ -3450,7 +3458,7 @@ export async function seedAllEntities(
       {
         document:
           documentBucketData.documents[
-            faker.datatype.number({
+            faker.number.int({
               min: 0,
               max: documentBucketData.documents.length - 1,
             })
@@ -3485,7 +3493,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -3561,7 +3569,7 @@ export async function seedAllEntities(
         emptyStringsEvent.participantLimit
           ? Math.round(
               emptyStringsEvent.participantLimit /
-                faker.datatype.number({ min: 2, max: 10 })
+                faker.number.int({ min: 2, max: 10 })
             )
           : undefined
       );
@@ -3582,7 +3590,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -3599,7 +3607,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
 
     const data = someDocumentIds.map((id) => {
       return {
@@ -3633,7 +3641,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -3712,7 +3720,7 @@ export async function seedAllEntities(
       const waitingParticipantIds = standardProfileIds.slice(
         fullParticipantsEvent.participantLimit - 1,
         fullParticipantsEvent.participantLimit +
-          faker.datatype.number({ min: 0, max: 10 })
+          faker.number.int({ min: 0, max: 10 })
       );
       await prismaClient.waitingParticipantOfEvent.createMany({
         data: [
@@ -3728,7 +3736,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         ...someOrganizationIds.map((id) => {
@@ -3741,7 +3749,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -3769,7 +3777,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -3845,7 +3853,7 @@ export async function seedAllEntities(
         canceledEvent.participantLimit
           ? Math.round(
               canceledEvent.participantLimit /
-                faker.datatype.number({ min: 2, max: 10 })
+                faker.number.int({ min: 2, max: 10 })
             )
           : undefined
       );
@@ -3866,7 +3874,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -3883,7 +3891,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -3910,7 +3918,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -3978,7 +3986,7 @@ export async function seedAllEntities(
     });
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -3995,7 +4003,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -4022,7 +4030,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -4051,7 +4059,7 @@ export async function seedAllEntities(
     );
     someProfileIds = getRandomUniqueSubset<
       ArrayElement<typeof standardProfileIds>
-    >(standardProfileIds, faker.datatype.number({ min: 1, max: 3 }));
+    >(standardProfileIds, faker.number.int({ min: 1, max: 3 }));
     await prismaClient.teamMemberOfEvent.createMany({
       data: [
         ...someProfileIds.map((id) => {
@@ -4134,7 +4142,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -4185,7 +4193,7 @@ export async function seedAllEntities(
     });
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -4202,7 +4210,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
 
     let data = someDocumentIds.map((id) => {
       return {
@@ -4236,7 +4244,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -4312,7 +4320,7 @@ export async function seedAllEntities(
         manyResponsibleOrganizationsEvent.participantLimit
           ? Math.round(
               manyResponsibleOrganizationsEvent.participantLimit /
-                faker.datatype.number({ min: 2, max: 10 })
+                faker.number.int({ min: 2, max: 10 })
             )
           : undefined
       );
@@ -4347,7 +4355,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -4374,7 +4382,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -4433,7 +4441,7 @@ export async function seedAllEntities(
     });
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -4450,7 +4458,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -4477,7 +4485,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -4550,7 +4558,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -4567,7 +4575,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -4594,7 +4602,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -4670,7 +4678,7 @@ export async function seedAllEntities(
         manyDocumentsEvent.participantLimit
           ? Math.round(
               manyDocumentsEvent.participantLimit /
-                faker.datatype.number({ min: 2, max: 10 })
+                faker.number.int({ min: 2, max: 10 })
             )
           : undefined
       );
@@ -4691,7 +4699,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -4732,7 +4740,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -4814,7 +4822,7 @@ export async function seedAllEntities(
     });
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -4831,7 +4839,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.documentOfEvent.createMany({
       data: [
         ...someDocumentIds.map((id) => {
@@ -4857,7 +4865,7 @@ export async function seedAllEntities(
       {
         document:
           documentBucketData.documents[
-            faker.datatype.number({
+            faker.number.int({
               min: 0,
               max: documentBucketData.documents.length - 1,
             })
@@ -4892,7 +4900,7 @@ export async function seedAllEntities(
           imageBucketData.backgrounds.length > 0
             ? {
                 path: imageBucketData.backgrounds[
-                  faker.datatype.number({
+                  faker.number.int({
                     min: 0,
                     max: imageBucketData.backgrounds.length - 1,
                   })
@@ -4968,7 +4976,7 @@ export async function seedAllEntities(
         unicodeEvent.participantLimit
           ? Math.round(
               unicodeEvent.participantLimit /
-                faker.datatype.number({ min: 2, max: 10 })
+                faker.number.int({ min: 2, max: 10 })
             )
           : undefined
       );
@@ -4989,7 +4997,7 @@ export async function seedAllEntities(
     }
     someOrganizationIds = getRandomUniqueSubset<
       ArrayElement<typeof standardOrganizationIds>
-    >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
     await prismaClient.responsibleOrganizationOfEvent.createMany({
       data: [
         {
@@ -5006,7 +5014,7 @@ export async function seedAllEntities(
     });
     someDocumentIds = getRandomUniqueSubset<
       ArrayElement<typeof standardDocumentIds>
-    >(standardDocumentIds, faker.datatype.number({ min: 1, max: 10 }));
+    >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
 
     const data = someDocumentIds.map((id) => {
       return {
@@ -5033,7 +5041,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -5044,7 +5052,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -5064,7 +5072,7 @@ export async function seedAllEntities(
   await addBasicProjectRelations(developerProjectId, disciplines, targetGroups);
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
       ...someProfileIds.map((id) => {
@@ -5089,7 +5097,7 @@ export async function seedAllEntities(
   });
   someOrganizationIds = getRandomUniqueSubset<
     ArrayElement<typeof standardOrganizationIds>
-  >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.responsibleOrganizationOfProject.createMany({
     data: [
       {
@@ -5118,7 +5126,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -5173,7 +5181,7 @@ export async function seedAllEntities(
   });
   someOrganizationIds = getRandomUniqueSubset<
     ArrayElement<typeof standardOrganizationIds>
-  >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.responsibleOrganizationOfProject.createMany({
     data: [
       {
@@ -5204,7 +5212,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -5235,7 +5243,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -5246,7 +5254,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -5270,7 +5278,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
       ...someProfileIds.map((id) => {
@@ -5295,7 +5303,7 @@ export async function seedAllEntities(
   });
   someOrganizationIds = getRandomUniqueSubset<
     ArrayElement<typeof standardOrganizationIds>
-  >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.responsibleOrganizationOfProject.createMany({
     data: [
       {
@@ -5332,7 +5340,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -5343,7 +5351,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -5367,7 +5375,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
       ...someProfileIds.map((id) => {
@@ -5392,7 +5400,7 @@ export async function seedAllEntities(
   });
   someOrganizationIds = getRandomUniqueSubset<
     ArrayElement<typeof standardOrganizationIds>
-  >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.responsibleOrganizationOfProject.createMany({
     data: [
       {
@@ -5431,7 +5439,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -5442,7 +5450,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -5462,7 +5470,7 @@ export async function seedAllEntities(
   await addBasicProjectRelations(smallTeamProjectId, disciplines, targetGroups);
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 3 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 3 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
       ...someProfileIds.map((id) => {
@@ -5507,7 +5515,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -5518,7 +5526,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -5560,7 +5568,7 @@ export async function seedAllEntities(
   });
   someOrganizationIds = getRandomUniqueSubset<
     ArrayElement<typeof standardOrganizationIds>
-  >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.responsibleOrganizationOfProject.createMany({
     data: [
       {
@@ -5589,7 +5597,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -5600,7 +5608,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -5624,7 +5632,7 @@ export async function seedAllEntities(
   );
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
       ...someProfileIds.map((id) => {
@@ -5675,7 +5683,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -5704,7 +5712,7 @@ export async function seedAllEntities(
         imageBucketData.logos.length > 0
           ? {
               path: imageBucketData.logos[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.logos.length - 1,
                 })
@@ -5715,7 +5723,7 @@ export async function seedAllEntities(
         imageBucketData.backgrounds.length > 0
           ? {
               path: imageBucketData.backgrounds[
-                faker.datatype.number({
+                faker.number.int({
                   min: 0,
                   max: imageBucketData.backgrounds.length - 1,
                 })
@@ -5735,7 +5743,7 @@ export async function seedAllEntities(
   await addBasicProjectRelations(unicodeProjectId, disciplines, targetGroups);
   someProfileIds = getRandomUniqueSubset<
     ArrayElement<typeof standardProfileIds>
-  >(standardProfileIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardProfileIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.teamMemberOfProject.createMany({
     data: [
       ...someProfileIds.map((id) => {
@@ -5760,7 +5768,7 @@ export async function seedAllEntities(
   });
   someOrganizationIds = getRandomUniqueSubset<
     ArrayElement<typeof standardOrganizationIds>
-  >(standardOrganizationIds, faker.datatype.number({ min: 1, max: 10 }));
+  >(standardOrganizationIds, faker.number.int({ min: 1, max: 10 }));
   await prismaClient.responsibleOrganizationOfProject.createMany({
     data: [
       {
@@ -6001,7 +6009,7 @@ async function addBasicProfileRelations(
     ? areas
     : getRandomUniqueSubset<ArrayElement<typeof areas>>(
         areas,
-        faker.datatype.number({ min: 1, max: 10 })
+        faker.number.int({ min: 1, max: 10 })
       );
   const someOffers = addMaximum
     ? offersAndSeekings
@@ -6072,7 +6080,7 @@ async function addBasicOrganizationRelations(
     ? areas
     : getRandomUniqueSubset<ArrayElement<typeof areas>>(
         areas,
-        faker.datatype.number({ min: 1, max: 10 })
+        faker.number.int({ min: 1, max: 10 })
       );
   const someFocuses = addMaximum
     ? focuses
@@ -6145,7 +6153,7 @@ async function addBasicEventRelations(
     ? areas
     : getRandomUniqueSubset<ArrayElement<typeof areas>>(
         areas,
-        faker.datatype.number({ min: 1, max: 10 })
+        faker.number.int({ min: 1, max: 10 })
       );
   const someFocuses = addMaximum
     ? focuses
@@ -6735,7 +6743,7 @@ function generateEndTime<
     } else {
       // Hourly event
       const timeDelta = {
-        hours: faker.datatype.number({ min: 1, max: 4 }),
+        hours: faker.number.int({ min: 1, max: 4 }),
       };
       endTime = generateFutureAndPastTimes(index, timeDelta);
     }
@@ -6863,8 +6871,8 @@ function generateConferenceCode<
     } else if (entityStructure === "Empty Strings") {
       conferenceCode = "";
     } else {
-      conferenceCode = faker.datatype
-        .number({ min: 100000, max: 999999 })
+      conferenceCode = faker.number
+        .int({ min: 100000, max: 999999 })
         .toString();
     }
   }
@@ -6885,7 +6893,7 @@ function generateParticipantLimit<
   // event
   let participantLimit;
   const participantLimitSwitcher =
-    index % 2 === 0 ? null : faker.datatype.number({ min: 1, max: 300 });
+    index % 2 === 0 ? null : faker.number.int({ min: 1, max: 300 });
   if (entityType === "event") {
     if (entityStructure === "Smallest") {
       participantLimit = null;
@@ -6979,7 +6987,7 @@ function generateVenueStreet<
     } else if (entityStructure === "Largest") {
       venueStreet = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
     } else {
-      venueStreet = faker.address.street();
+      venueStreet = faker.location.street();
     }
   }
   return venueStreet;
@@ -6999,13 +7007,9 @@ function generateVenueStreetNumber<
     } else if (entityStructure === "Empty Strings") {
       venueStreetNumber = "";
     } else if (entityStructure === "Largest") {
-      venueStreetNumber = faker.datatype
-        .number({ min: 1000, max: 9999 })
-        .toString();
+      venueStreetNumber = faker.number.int({ min: 1000, max: 9999 }).toString();
     } else {
-      venueStreetNumber = faker.datatype
-        .number({ min: 1, max: 999 })
-        .toString();
+      venueStreetNumber = faker.number.int({ min: 1, max: 999 }).toString();
     }
   }
   return venueStreetNumber;
@@ -7029,7 +7033,7 @@ function generateVenueCity<
     } else if (entityStructure === "Largest") {
       venueCity = "The City Of The Greatest And Largest";
     } else {
-      venueCity = faker.address.cityName();
+      venueCity = faker.location.city();
     }
   }
   return venueCity;
@@ -7049,11 +7053,11 @@ function generateVenueZipCode<
     } else if (entityStructure === "Empty Strings") {
       venueZipCode = "";
     } else if (entityStructure === "Largest") {
-      venueZipCode = faker.datatype
-        .number({ min: 1000000000, max: 9999999999 })
+      venueZipCode = faker.number
+        .int({ min: 1000000000, max: 9999999999 })
         .toString();
     } else {
-      venueZipCode = faker.address.zipCode();
+      venueZipCode = faker.location.zipCode();
     }
   }
   return venueZipCode;
@@ -7115,7 +7119,15 @@ function generatePhone<
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile, organization, project
   let phone;
-  faker.locale = "de";
+  // With the new faker version locale can only be set via the constructor
+  // faker.locale = "de";
+  const tempGermanFaker = new Faker({
+    locale: {
+      phone_number: {
+        formats: ["####-########", "(###)#######", "####/######", "#########"],
+      },
+    },
+  });
   if (
     entityType === "profile" ||
     entityType === "organization" ||
@@ -7128,10 +7140,11 @@ function generatePhone<
     } else if (entityStructure === "Largest") {
       phone = "0123456/7891011121314151617181920";
     } else {
-      phone = faker.phone.number();
+      phone = tempGermanFaker.phone.number();
     }
   }
-  faker.locale = "en";
+  // See comment above
+  // faker.locale = "en";
   return phone;
 }
 
@@ -7153,7 +7166,7 @@ function generateStreet<
     } else if (entityStructure === "Largest") {
       street = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
     } else {
-      street = faker.address.street();
+      street = faker.location.street();
     }
   }
   return street;
@@ -7173,9 +7186,9 @@ function generateStreetNumber<
     } else if (entityStructure === "Empty Strings") {
       streetNumber = "";
     } else if (entityStructure === "Largest") {
-      streetNumber = faker.datatype.number({ min: 1000, max: 9999 }).toString();
+      streetNumber = faker.number.int({ min: 1000, max: 9999 }).toString();
     } else {
-      streetNumber = faker.datatype.number({ min: 1, max: 999 }).toString();
+      streetNumber = faker.number.int({ min: 1, max: 999 }).toString();
     }
   }
   return streetNumber;
@@ -7199,7 +7212,7 @@ function generateCity<
     } else if (entityStructure === "Largest") {
       city = "The City Of The Greatest And Largest";
     } else {
-      city = faker.address.cityName();
+      city = faker.location.city();
     }
   }
   return city;
@@ -7219,11 +7232,11 @@ function generateZipCode<
     } else if (entityStructure === "Empty Strings") {
       zipCode = "";
     } else if (entityStructure === "Largest") {
-      zipCode = faker.datatype
-        .number({ min: 1000000000, max: 9999999999 })
+      zipCode = faker.number
+        .int({ min: 1000000000, max: 9999999999 })
         .toString();
     } else {
-      zipCode = faker.address.zipCode();
+      zipCode = faker.location.zipCode();
     }
   }
   return zipCode;
@@ -7463,7 +7476,7 @@ function generateQuoteAuthor<
       quoteAuthor =
         "Oscar Wiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiilde";
     } else {
-      quoteAuthor = faker.name.fullName();
+      quoteAuthor = faker.person.fullName();
     }
   }
   return quoteAuthor;
@@ -7488,7 +7501,7 @@ function generateQuoteAuthorInformation<
       quoteAuthorInformation =
         "A very laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarge job title of the author";
     } else {
-      quoteAuthorInformation = faker.name.jobTitle();
+      quoteAuthorInformation = faker.person.jobTitle();
     }
   }
   return quoteAuthorInformation;
@@ -7516,7 +7529,7 @@ function generateSupportedBy<
       }
     } else {
       supportedBy = [];
-      let iterations = faker.datatype.number({ min: 1, max: 10 });
+      let iterations = faker.number.int({ min: 1, max: 10 });
       for (let i = 0; i < iterations; i++) {
         supportedBy.push(faker.company.name());
       }
@@ -7543,13 +7556,13 @@ function generateSkills<
     } else if (entityStructure === "Largest") {
       skills = [];
       for (let i = 0; i < 30; i++) {
-        skills.push(faker.name.jobArea());
+        skills.push(faker.person.jobArea());
       }
     } else {
       skills = [];
-      let iterations = faker.datatype.number({ min: 1, max: 10 });
+      let iterations = faker.number.int({ min: 1, max: 10 });
       for (let i = 0; i < iterations; i++) {
-        skills.push(faker.name.jobArea());
+        skills.push(faker.person.jobArea());
       }
     }
   }
@@ -7578,7 +7591,7 @@ function generateInterests<
       }
     } else {
       interests = [];
-      let iterations = faker.datatype.number({ min: 1, max: 10 });
+      let iterations = faker.number.int({ min: 1, max: 10 });
       for (let i = 0; i < iterations; i++) {
         interests.push(faker.hacker.phrase());
       }
@@ -7604,7 +7617,7 @@ function generateAcademicTitle<
     } else if (entityStructure === "Largest") {
       academicTitle = "Prof. Dr.";
     } else {
-      let index = faker.datatype.number({ min: 0, max: 4 });
+      let index = faker.number.int({ min: 0, max: 4 });
       academicTitle = academicTitles[index];
     }
   }
@@ -7628,7 +7641,7 @@ function generateFirstName<
       if (entityStructure === "Largest") {
         firstName = "Alexandros-Lukas-Nikolai-Ioanis-Giorgios-Petros";
       } else {
-        firstName = faker.name.firstName();
+        firstName = faker.person.firstName();
       }
     } else {
       if (entityStructure === "Developer") {
@@ -7660,7 +7673,7 @@ function generateLastName<
       if (entityStructure === "Largest") {
         lastName = "Di-Savoia-Aosta-Carignano-Genova-Montferrat-Casa-Nuova";
       } else {
-        lastName = faker.name.lastName();
+        lastName = faker.person.lastName();
       }
     } else {
       lastName = entityType;
@@ -7702,7 +7715,7 @@ function generatePosition<
       position =
         "A very laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarge job title";
     } else {
-      position = faker.name.jobTitle();
+      position = faker.person.jobTitle();
     }
   }
   return position;

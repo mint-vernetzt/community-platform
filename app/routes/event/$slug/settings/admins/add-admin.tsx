@@ -1,6 +1,6 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { InputError, makeDomainFunction } from "remix-domains";
+import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -50,14 +50,13 @@ const createMutation = (t: TFunction) => {
   });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/event/settings/admins/add-admin",
   ]);
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
@@ -78,15 +77,12 @@ export const action = async (args: DataFunctionArgs) => {
     invariantResponse(event, t("error.notFound"), { status: 404 });
     await addAdminToEvent(event.id, result.data.profileId);
 
-    return json(
-      {
-        message: t("feedback", {
-          firstName: result.data.firstName,
-          lastName: result.data.lastName,
-        }),
-      },
-      { headers: response.headers }
-    );
+    return json({
+      message: t("feedback", {
+        firstName: result.data.firstName,
+        lastName: result.data.lastName,
+      }),
+    });
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };

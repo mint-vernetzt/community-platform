@@ -27,8 +27,3 @@ node_modules
 **/supabase/.branches
 **/supabase/.temp
 **/supabase/storage
-
-# Cypress
-/cypress/videos
-/cypress/screenshots
-

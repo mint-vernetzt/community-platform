@@ -1,4 +1,8 @@
-import type { ActionArgs, LinksFunction, LoaderArgs } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LinksFunction,
+  LoaderFunctionArgs,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -7,12 +11,11 @@ import {
   useFetcher,
   useLoaderData,
   useParams,
-  useTransition,
+  useNavigation,
 } from "@remix-run/react";
 import { format } from "date-fns";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Form as RemixForm } from "remix-forms";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -63,6 +66,7 @@ import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const createSchema = (t: TFunction) => {
   return object({
@@ -154,12 +158,11 @@ const createSchema = (t: TFunction) => {
 type SchemaType = ReturnType<typeof createSchema>;
 type FormType = InferType<SchemaType>;
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/event/settings/general"]);
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
@@ -183,30 +186,26 @@ export const loader = async (args: LoaderArgs) => {
 
   const transformedEvent = transformEventToForm(event);
 
-  return json(
-    {
-      event: transformedEvent,
-      eventVisibilities,
-      focuses,
-      types,
-      tags,
-      eventTargetGroups,
-      experienceLevels,
-      stages,
-      areas,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    event: transformedEvent,
+    eventVisibilities,
+    focuses,
+    types,
+    tags,
+    eventTargetGroups,
+    experienceLevels,
+    stages,
+    areas,
+  });
 };
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: quillStyles },
 ];
 
-export const action = async (args: ActionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/event/settings/general"]);
 
@@ -265,15 +264,12 @@ export const action = async (args: ActionArgs) => {
     });
   }
 
-  return json(
-    {
-      data: { ...data, id: event.id },
-      errors,
-      updated,
-      lastSubmit: (formData.get("submit") as string) ?? "",
-    },
-    { headers: response.headers }
-  );
+  return json({
+    data: { ...data, id: event.id },
+    errors,
+    updated,
+    lastSubmit: (formData.get("submit") as string) ?? "",
+  });
 };
 
 function General() {
@@ -295,9 +291,9 @@ function General() {
   const cancelFetcher = useFetcher<typeof cancelAction>();
   const { t } = useTranslation(["routes/event/settings/general"]);
 
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
-  let event: typeof loaderData["event"];
+  let event: (typeof loaderData)["event"];
   if (actionData !== undefined) {
     const { focuses, types, eventTargetGroups, tags, areas, ...rest } =
       originalEvent;
@@ -314,7 +310,7 @@ function General() {
   }
 
   const formRef = React.createRef<HTMLFormElement>();
-  const isSubmitting = transition.state === "submitting";
+  const isSubmitting = navigation.state === "submitting";
 
   const methods = useForm<FormType>();
   const {
@@ -457,7 +453,7 @@ function General() {
 
   const isFormChanged =
     isDirty ||
-    transition.state === "submitting" ||
+    navigation.state === "submitting" ||
     (actionData !== undefined && actionData.updated === false);
 
   return (
@@ -467,7 +463,7 @@ function General() {
 
       <p className="mb-4">{t("content.start.intro")}</p>
       <div className="flex mb-4">
-        <RemixForm
+        <RemixFormsForm
           schema={cancelSchema}
           fetcher={cancelFetcher}
           action={`/event/${slug}/settings/events/cancel`}
@@ -489,7 +485,7 @@ function General() {
               </>
             );
           }}
-        </RemixForm>
+        </RemixFormsForm>
       </div>
       <FormProvider {...methods}>
         <Form
@@ -909,7 +905,7 @@ function General() {
             </button>
           </div>
           <div className="flex flex-row flex-nowrap items-center justify-end mb-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -931,7 +927,7 @@ function General() {
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

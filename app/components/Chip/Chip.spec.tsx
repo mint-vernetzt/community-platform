@@ -2,6 +2,11 @@ import { render } from "@testing-library/react";
 
 import Chip from "./Chip";
 
+// TODO: fix type issue
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
+
 describe("Chip", () => {
   it("should render successfully", () => {
     const { baseElement } = render(<Chip title="Tagtitle" slug="slug" />);

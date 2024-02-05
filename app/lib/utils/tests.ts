@@ -9,7 +9,7 @@ export function createRequestWithFormData(keyValuePairs: {
   [key: string]: string | string[];
 }) {
   const formData = new NodeFormData();
-  for (let key in keyValuePairs) {
+  for (const key in keyValuePairs) {
     if (Array.isArray(keyValuePairs[key])) {
       // TODO: can this type assertion be removed and proofen by code?
       (keyValuePairs[key] as string[]).forEach((item) => {

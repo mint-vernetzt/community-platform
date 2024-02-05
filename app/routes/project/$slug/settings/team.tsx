@@ -8,7 +8,12 @@ import {
   Toast,
 } from "@mint-vernetzt/components";
 import { type Prisma, type Profile } from "@prisma/client";
-import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
+import {
+  json,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import {
   Form,
   useLoaderData,
@@ -16,14 +21,12 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { getToast, redirectWithToast } from "~/toast.server";
-import { combineHeaders } from "~/utils.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
@@ -38,12 +41,13 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-  const authClient = createAuthClient(request, response);
+
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -60,7 +64,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   // get project team members and admins
@@ -180,18 +184,18 @@ export const loader = async (args: DataFunctionArgs) => {
 
   return json(
     { project, searchResult, toast },
-    { headers: combineHeaders(response.headers, toastHeaders) }
+    { headers: toastHeaders || undefined }
   );
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   // get action type
   const { request, params } = args;
-  const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
-  const authClient = createAuthClient(request, response);
+
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
@@ -207,7 +211,7 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const formData = await request.formData();
@@ -264,7 +268,7 @@ export const action = async (args: DataFunctionArgs) => {
           lastName: profile.lastName,
         }),
       },
-      { init: { headers: response.headers }, scrollToToast: true }
+      { scrollToToast: true }
     );
   } else if (action.startsWith("remove_")) {
     const username = action.replace("remove_", "");
@@ -312,14 +316,11 @@ export const action = async (args: DataFunctionArgs) => {
           lastName: profile.lastName,
         }),
       },
-      { init: { headers: response.headers }, scrollToToast: true }
+      { scrollToToast: true }
     );
   }
 
-  return json(
-    { success: false, action, profile: null },
-    { headers: response.headers }
-  );
+  return json({ success: false, action, profile: null });
 };
 
 function Team() {
