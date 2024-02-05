@@ -32,7 +32,7 @@ export const handle = {
 const createSchema = (t: TFunction) => {
   return z.object({
     // todo: i18n of enums?
-    academicTitle: z.enum(["Dr.", "Prof.", "Prof. Dr."]).optional(),
+    academicTitle: z.string().optional(), // TODO: empty string to "null"
     firstName: z.string().min(1, t("validation.firstName.min")),
     lastName: z.string().min(1, t("validation.lastName.min")),
     email: z

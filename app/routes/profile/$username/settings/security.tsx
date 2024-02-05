@@ -37,7 +37,7 @@ const createEmailSchema = (t: TFunction) => {
       .string()
       .min(1, t("validation.confirmEmail.min"))
       .email(t("validation.confirmEmail.email")),
-    submittedForm: z.enum(["changeEmail"]),
+    submittedForm: z.string(),
   });
 };
 
@@ -45,7 +45,7 @@ const createPasswordSchema = (t: TFunction) => {
   return z.object({
     password: z.string().min(8, t("validation.password.min")),
     confirmPassword: z.string().min(8, t("validation.confirmPassword.min")),
-    submittedForm: z.enum(["changePassword"]),
+    submittedForm: z.string(),
   });
 };
 
