@@ -1,7 +1,7 @@
 import type { Event, Organization, Profile, Project } from "@prisma/client";
 import type { EntitySubset } from "./lib/utils/types";
 
-type ProfileWithRelations = Profile & {
+export type ProfileWithRelations = Profile & {
   areas: any;
   memberOf: any;
   offers: any;
@@ -20,20 +20,7 @@ type ProfileWithRelations = Profile & {
   _count: any;
 };
 
-export async function filterListOfProfilesByVisibility<
-  T extends EntitySubset<ProfileWithRelations, T> &
-    Pick<ProfileWithRelations, "profileVisibility">
->(profiles: T[]) {
-  const filteredProfileList: T[] = await Promise.all(
-    profiles.map(async (profile) => {
-      const filteredProfile: T = await filterProfileByVisibility<T>(profile);
-      return filteredProfile;
-    })
-  );
-  return filteredProfileList;
-}
-
-export async function filterProfileByVisibility<
+export function filterProfileByVisibility<
   T extends EntitySubset<ProfileWithRelations, T> &
     Pick<ProfileWithRelations, "profileVisibility">
 >(profile: T) {
@@ -138,22 +125,8 @@ type OrganizationWithRelations = Organization & {
   admins: any;
   backgroundImage: any;
 };
-export async function filterListOfOrganizationsByVisibility<
-  T extends EntitySubset<OrganizationWithRelations, T> &
-    Pick<OrganizationWithRelations, "organizationVisibility">
->(organizations: T[]) {
-  const filteredOrganizationList: T[] = await Promise.all(
-    organizations.map(async (organization) => {
-      const filteredOrganization: T = await filterOrganizationByVisibility<T>(
-        organization
-      );
-      return filteredOrganization;
-    })
-  );
-  return filteredOrganizationList;
-}
 
-export async function filterOrganizationByVisibility<
+export function filterOrganizationByVisibility<
   T extends EntitySubset<OrganizationWithRelations, T> &
     Pick<OrganizationWithRelations, "organizationVisibility">
 >(organization: T) {
@@ -262,20 +235,7 @@ type EventWithRelations = Event & {
   _count: any;
 };
 
-export async function filterListOfEventsByVisibility<
-  T extends EntitySubset<EventWithRelations, T> &
-    Pick<EventWithRelations, "eventVisibility">
->(events: T[]) {
-  const filteredEventList: T[] = await Promise.all(
-    events.map(async (event) => {
-      const filteredEvent: T = await filterEventByVisibility<T>(event);
-      return filteredEvent;
-    })
-  );
-  return filteredEventList;
-}
-
-export async function filterEventByVisibility<
+export function filterEventByVisibility<
   T extends EntitySubset<EventWithRelations, T> &
     Pick<EventWithRelations, "eventVisibility">
 >(event: T) {
@@ -382,20 +342,7 @@ type ProjectWithRelations = Project & {
   _count: any;
 };
 
-export async function filterListOfProjectsByVisibility<
-  T extends EntitySubset<ProjectWithRelations, T> &
-    Pick<ProjectWithRelations, "projectVisibility">
->(projects: T[]) {
-  const filteredProjectList: T[] = await Promise.all(
-    projects.map(async (project) => {
-      const filteredProject: T = await filterProjectByVisibility<T>(project);
-      return filteredProject;
-    })
-  );
-  return filteredProjectList;
-}
-
-export async function filterProjectByVisibility<
+export function filterProjectByVisibility<
   T extends EntitySubset<ProjectWithRelations, T> &
     Pick<ProjectWithRelations, "projectVisibility">
 >(project: T) {

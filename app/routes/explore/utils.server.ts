@@ -5,8 +5,10 @@ import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { GravityType, getImageURL } from "~/images.server";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
-import { filterOrganizationByVisibility } from "~/public-fields-filtering.server";
-import { filterEventByVisibility } from "~/next-public-fields-filtering.server";
+import {
+  filterEventByVisibility,
+  filterOrganizationByVisibility,
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 
 export async function getAllProfiles(
@@ -576,18 +578,16 @@ export async function prepareEvents(
     // Filtering by visbility settings
     if (sessionUser === null) {
       // Filter event
-      enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
-        enhancedEvent
-      );
+      enhancedEvent =
+        filterEventByVisibility<typeof enhancedEvent>(enhancedEvent);
       // Filter responsible Organizations
-      enhancedEvent.responsibleOrganizations = await Promise.all(
-        enhancedEvent.responsibleOrganizations.map(async (relation) => {
-          const filteredOrganization = await filterOrganizationByVisibility<
+      enhancedEvent.responsibleOrganizations =
+        enhancedEvent.responsibleOrganizations.map((relation) => {
+          const filteredOrganization = filterOrganizationByVisibility<
             typeof relation.organization
           >(relation.organization);
           return { ...relation, organization: filteredOrganization };
-        })
-      );
+        });
     }
 
     // Add images from image proxy

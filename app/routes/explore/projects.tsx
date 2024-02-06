@@ -41,19 +41,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (sessionUser === null) {
       // Filter project
-      enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
-        enhancedProject
-      );
+      enhancedProject =
+        filterProjectByVisibility<typeof enhancedProject>(enhancedProject);
       // Filter responsible organizations of project
-      enhancedProject.responsibleOrganizations = await Promise.all(
-        enhancedProject.responsibleOrganizations.map(async (relation) => {
-          const filteredOrganization = await filterOrganizationByVisibility<
+      enhancedProject.responsibleOrganizations =
+        enhancedProject.responsibleOrganizations.map((relation) => {
+          const filteredOrganization = filterOrganizationByVisibility<
             typeof relation.organization
           >(relation.organization);
 
           return { ...relation, organization: filteredOrganization };
-        })
-      );
+        });
     }
 
     // Add images from image proxy
