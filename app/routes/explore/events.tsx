@@ -17,6 +17,7 @@ export const handle = {
 };
 
 export const loader = async (args: LoaderFunctionArgs) => {
+  console.time("total");
   const { request } = args;
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
@@ -66,6 +67,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       take,
     });
   }
+
+  console.timeEnd("total");
 
   return json({
     events,

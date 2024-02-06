@@ -5,10 +5,8 @@ import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import { GravityType, getImageURL } from "~/images.server";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
-import {
-  filterEventByVisibility,
-  filterOrganizationByVisibility,
-} from "~/public-fields-filtering.server";
+import { filterOrganizationByVisibility } from "~/public-fields-filtering.server";
+import { filterEventByVisibility } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 
 export async function getAllProfiles(
@@ -410,8 +408,36 @@ export async function getEvents(
               name: true,
               slug: true,
               logo: true,
+              organizationVisibility: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  logo: true,
+                },
+              },
             },
           },
+        },
+      },
+      eventVisibility: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          parentEventId: true,
+          startTime: true,
+          endTime: true,
+          participationUntil: true,
+          participationFrom: true,
+          participantLimit: true,
+          background: true,
+          published: true,
+          stage: true,
+          canceled: true,
+          subline: true,
+          description: true,
+          responsibleOrganizations: true,
         },
       },
     },
