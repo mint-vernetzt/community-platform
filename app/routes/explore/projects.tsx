@@ -9,7 +9,7 @@ import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
 import { useTranslation } from "react-i18next";
@@ -23,6 +23,7 @@ export const handle = {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  console.time("total");
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
     itemsPerPage: 8,
   });
@@ -108,6 +109,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     enhancedProjects.push(enhancedProject);
   }
+
+  console.timeEnd("total");
 
   return json({
     projects: enhancedProjects,
