@@ -101,27 +101,36 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { responsibleForEvents, ...organizationWithoutEvents } =
     enhancedOrganization;
   // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
+  type ResponsibleForEventsType = typeof responsibleForEvents;
   const { futureEvents, pastEvents } =
-    splitEventsIntoFutureAndPast<typeof responsibleForEvents>(
+    splitEventsIntoFutureAndPast<ResponsibleForEventsType>(
       responsibleForEvents
     );
   // Sorting events (future: startTime "desc", past: startTime "asc")
   let inFuture = true;
-  const sortedFutureEvents = sortEvents<typeof futureEvents>(
+  type FutureEventsType = typeof futureEvents;
+  const sortedFutureEvents = sortEvents<FutureEventsType>(
     futureEvents,
     inFuture
   );
-  const sortedPastEvents = sortEvents<typeof pastEvents>(pastEvents, !inFuture);
+  type PastEventsType = typeof pastEvents;
+  const sortedPastEvents = sortEvents<PastEventsType>(pastEvents, !inFuture);
   // Adding participation status of session user
+  type SortedFutureEventsType = typeof sortedFutureEvents;
   const enhancedFutureEvents = {
-    responsibleForEvents: await addUserParticipationStatus<
-      typeof sortedFutureEvents
-    >(sortedFutureEvents, sessionUser?.id),
+    responsibleForEvents:
+      await addUserParticipationStatus<SortedFutureEventsType>(
+        sortedFutureEvents,
+        sessionUser?.id
+      ),
   };
+  type SortedPastEventsType = typeof sortedPastEvents;
   const enhancedPastEvents = {
-    responsibleForEvents: await addUserParticipationStatus<
-      typeof sortedPastEvents
-    >(sortedPastEvents, sessionUser?.id),
+    responsibleForEvents:
+      await addUserParticipationStatus<SortedPastEventsType>(
+        sortedPastEvents,
+        sessionUser?.id
+      ),
   };
 
   return json({

@@ -116,37 +116,53 @@ export const loader = async (args: LoaderFunctionArgs) => {
     participatedEvents: [...participatedEvents, ...waitingForEvents],
   };
   // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
+  type EventsType = typeof events;
   const { futureEvents, pastEvents } =
-    splitEventsIntoFutureAndPast<typeof events>(events);
+    splitEventsIntoFutureAndPast<EventsType>(events);
   // Sorting events (future: startTime "desc", past: startTime "asc")
   let inFuture = true;
-  const sortedFutureEvents = sortEvents<typeof futureEvents>(
+  type FutureEventsType = typeof futureEvents;
+  const sortedFutureEvents = sortEvents<FutureEventsType>(
     futureEvents,
     inFuture
   );
-  const sortedPastEvents = sortEvents<typeof pastEvents>(pastEvents, !inFuture);
+  type PastEventsType = typeof pastEvents;
+  const sortedPastEvents = sortEvents<PastEventsType>(pastEvents, !inFuture);
   // Adding participation status of session user
+  type TeamMemberFutureType = typeof sortedFutureEvents.teamMemberOfEvents;
+  type ContributedFutureType = typeof sortedFutureEvents.contributedEvents;
+  type ParticipatedFutureType = typeof sortedFutureEvents.participatedEvents;
   const enhancedFutureEvents = {
-    teamMemberOfEvents: await addUserParticipationStatus<
-      typeof sortedFutureEvents.teamMemberOfEvents
-    >(sortedFutureEvents.teamMemberOfEvents, sessionUser?.id),
-    contributedEvents: await addUserParticipationStatus<
-      typeof sortedFutureEvents.contributedEvents
-    >(sortedFutureEvents.contributedEvents, sessionUser?.id),
-    participatedEvents: await addUserParticipationStatus<
-      typeof sortedFutureEvents.participatedEvents
-    >(sortedFutureEvents.participatedEvents, sessionUser?.id),
+    teamMemberOfEvents: await addUserParticipationStatus<TeamMemberFutureType>(
+      sortedFutureEvents.teamMemberOfEvents,
+      sessionUser?.id
+    ),
+    contributedEvents: await addUserParticipationStatus<ContributedFutureType>(
+      sortedFutureEvents.contributedEvents,
+      sessionUser?.id
+    ),
+    participatedEvents:
+      await addUserParticipationStatus<ParticipatedFutureType>(
+        sortedFutureEvents.participatedEvents,
+        sessionUser?.id
+      ),
   };
+  type TeamMemberPastType = typeof sortedPastEvents.teamMemberOfEvents;
+  type ContributedPastType = typeof sortedPastEvents.contributedEvents;
+  type ParticipatedPastType = typeof sortedPastEvents.participatedEvents;
   const enhancedPastEvents = {
-    teamMemberOfEvents: await addUserParticipationStatus<
-      typeof sortedPastEvents.teamMemberOfEvents
-    >(sortedPastEvents.teamMemberOfEvents, sessionUser?.id),
-    contributedEvents: await addUserParticipationStatus<
-      typeof sortedPastEvents.contributedEvents
-    >(sortedPastEvents.contributedEvents, sessionUser?.id),
-    participatedEvents: await addUserParticipationStatus<
-      typeof sortedPastEvents.participatedEvents
-    >(sortedPastEvents.participatedEvents, sessionUser?.id),
+    teamMemberOfEvents: await addUserParticipationStatus<TeamMemberPastType>(
+      sortedPastEvents.teamMemberOfEvents,
+      sessionUser?.id
+    ),
+    contributedEvents: await addUserParticipationStatus<ContributedPastType>(
+      sortedPastEvents.contributedEvents,
+      sessionUser?.id
+    ),
+    participatedEvents: await addUserParticipationStatus<ParticipatedPastType>(
+      sortedPastEvents.participatedEvents,
+      sessionUser?.id
+    ),
   };
 
   return json({

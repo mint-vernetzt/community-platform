@@ -9,7 +9,7 @@ import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
-import { filterProfileByVisibility as old_filterProfileByVisibility } from "~/public-fields-filtering.server";
+import { filterProfileByVisibility as legacy_filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { GravityType, getImageURL } from "~/images.server";
 
@@ -659,7 +659,7 @@ export async function filterEvent(
   // Filter participants
   enhancedEvent.participants = await Promise.all(
     enhancedEvent.participants.map(async (relation) => {
-      const filteredProfile = await old_filterProfileByVisibility<
+      const filteredProfile = await legacy_filterProfileByVisibility<
         typeof relation.profile
       >(relation.profile);
       return { ...relation, profile: filteredProfile };
@@ -669,7 +669,7 @@ export async function filterEvent(
   // Filter speakers
   enhancedEvent.speakers = await Promise.all(
     enhancedEvent.speakers.map(async (relation) => {
-      const filteredProfile = await old_filterProfileByVisibility<
+      const filteredProfile = await legacy_filterProfileByVisibility<
         typeof relation.profile
       >(relation.profile);
       return { ...relation, profile: filteredProfile };

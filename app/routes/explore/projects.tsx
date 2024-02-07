@@ -23,7 +23,6 @@ export const handle = {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  console.time("total");
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
     itemsPerPage: 8,
   });
@@ -41,14 +40,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (sessionUser === null) {
       // Filter project
+      type EnhancedProjectType = typeof enhancedProject;
       enhancedProject =
-        filterProjectByVisibility<typeof enhancedProject>(enhancedProject);
+        filterProjectByVisibility<EnhancedProjectType>(enhancedProject);
       // Filter responsible organizations of project
       enhancedProject.responsibleOrganizations =
         enhancedProject.responsibleOrganizations.map((relation) => {
-          const filteredOrganization = filterOrganizationByVisibility<
-            typeof relation.organization
-          >(relation.organization);
+          type OrganizationRelationType = typeof relation.organization;
+          const filteredOrganization =
+            filterOrganizationByVisibility<OrganizationRelationType>(
+              relation.organization
+            );
 
           return { ...relation, organization: filteredOrganization };
         });
@@ -107,8 +109,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     enhancedProjects.push(enhancedProject);
   }
-
-  console.timeEnd("total");
 
   return json({
     projects: enhancedProjects,
