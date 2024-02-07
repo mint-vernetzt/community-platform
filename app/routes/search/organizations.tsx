@@ -12,7 +12,7 @@ import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
@@ -59,17 +59,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (sessionUser === null) {
       // Filter organization
-      enhancedOrganization = await filterOrganizationByVisibility<
-        typeof enhancedOrganization
-      >(enhancedOrganization);
+      type EnhancedOrganization = typeof enhancedOrganization;
+      enhancedOrganization =
+        filterOrganizationByVisibility<EnhancedOrganization>(
+          enhancedOrganization
+        );
       // Filter team members
-      enhancedOrganization.teamMembers = await Promise.all(
-        enhancedOrganization.teamMembers.map(async (profile) => {
-          const filteredProfile = await filterProfileByVisibility<
-            typeof profile
-          >(profile);
+      enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
+        (profile) => {
+          type Profile = typeof profile;
+          const filteredProfile = filterProfileByVisibility<Profile>(profile);
           return { ...filteredProfile };
-        })
+        }
       );
     }
 

@@ -11,7 +11,7 @@ import { GravityType, getImageURL } from "~/images.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
@@ -48,18 +48,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (sessionUser === null) {
       // Filter event
-      enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
-        enhancedEvent
-      );
+      type EnhancedEvent = typeof enhancedEvent;
+      enhancedEvent = filterEventByVisibility<EnhancedEvent>(enhancedEvent);
       // Filter responsible organizations of event
-      enhancedEvent.responsibleOrganizations = await Promise.all(
-        enhancedEvent.responsibleOrganizations.map(async (relation) => {
-          const filteredOrganization = await filterOrganizationByVisibility<
-            typeof relation.organization
-          >(relation.organization);
+      enhancedEvent.responsibleOrganizations =
+        enhancedEvent.responsibleOrganizations.map((relation) => {
+          type Organization = typeof relation.organization;
+          const filteredOrganization =
+            filterOrganizationByVisibility<Organization>(relation.organization);
           return { ...relation, organization: filteredOrganization };
-        })
-      );
+        });
     }
 
     // Add images from image proxy
