@@ -27,3 +27,6 @@ node_modules
 **/supabase/.branches
 **/supabase/.temp
 **/supabase/storage
+
+# Sentry Config File
+.sentryclirc

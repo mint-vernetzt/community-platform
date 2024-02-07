@@ -1,24 +1,22 @@
-/**
- * By default, Remix will handle generating the HTTP Response for you.
- * You are free to delete this file if you'd like to, but if you ever want it revealed again, you can run `npx remix reveal` ✨
- * For more information, see https://remix.run/file-conventions/entry.server
- */
-
-import { PassThrough } from "node:stream";
-
-import type { AppLoadContext, EntryContext } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  AppLoadContext,
+  EntryContext,
+  LoaderFunctionArgs,
+} from "@remix-run/node";
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
-import { createInstance, i18n } from "i18next";
+import * as Sentry from "@sentry/remix";
+import { createInstance, type i18n } from "i18next";
 import Backend from "i18next-fs-backend";
 import { isbot } from "isbot";
 import { resolve } from "node:path";
+import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18nConfig from "~/i18n";
 import i18next from "~/i18next.server";
 
-// TODO: Investigate issue
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
@@ -29,6 +27,25 @@ declare global {
       IMGPROXY_URL: string;
       IMGPROXY_KEY: string;
       IMGPROXY_SALT: string;
+      COMMUNITY_BASE_URL: string;
+      DATABASE_URL: string;
+      SERVICE_ROLE_KEY: string;
+      MATOMO_URL: string;
+      MATOMO_SITE_ID: string;
+      API_KEY: string;
+      MAILER_HOST: string;
+      MAILER_PORT: string;
+      MAILER_USER: string;
+      MAILER_PASS: string;
+      SUBMISSION_SENDER: string;
+      NEWSSUBMISSION_RECIPIENT: string;
+      NEWSSUBMISSION_SUBJECT: string;
+      EVENTSUBMISSION_RECIPIENT: string;
+      EVENTSUBMISSION_SUBJECT: string;
+      PAKTSUBMISSION_RECIPIENT: string;
+      PAKTSUBMISSION_SUBJECT: string;
+      FEATURE_FLAGS: string;
+      SENTRY_DSN: string;
     }
   }
 }
@@ -59,6 +76,95 @@ if (process.env.IMGPROXY_KEY === undefined) {
 if (process.env.IMGPROXY_SALT === undefined) {
   throw new Error("'IMGPROXY_SALT' is required");
 }
+
+if (process.env.COMMUNITY_BASE_URL === undefined) {
+  throw new Error("'COMMUNITY_BASE_URL' is required");
+}
+
+if (process.env.DATABASE_URL === undefined) {
+  throw new Error("'DATABASE_URL' is required");
+}
+
+if (process.env.SERVICE_ROLE_KEY === undefined) {
+  throw new Error("'SERVICE_ROLE_KEY' is required");
+}
+
+if (process.env.MATOMO_URL === undefined) {
+  throw new Error("'MATOMO_URL' is required");
+}
+
+if (process.env.MATOMO_SITE_ID === undefined) {
+  throw new Error("'MATOMO_SITE_ID' is required");
+}
+
+if (process.env.API_KEY === undefined) {
+  throw new Error("'API_KEY' is required");
+}
+
+if (process.env.MAILER_HOST === undefined) {
+  throw new Error("'MAILER_HOST' is required");
+}
+
+if (process.env.MAILER_PORT === undefined) {
+  throw new Error("'MAILER_PORT' is required");
+}
+
+if (process.env.MAILER_USER === undefined) {
+  throw new Error("'MAILER_USER' is required");
+}
+
+if (process.env.MAILER_PASS === undefined) {
+  throw new Error("'MAILER_PASS' is required");
+}
+
+if (process.env.SUBMISSION_SENDER === undefined) {
+  throw new Error("'SUBMISSION_SENDER' is required");
+}
+
+if (process.env.NEWSSUBMISSION_RECIPIENT === undefined) {
+  throw new Error("'NEWSSUBMISSION_RECIPIENT' is required");
+}
+
+if (process.env.NEWSSUBMISSION_SUBJECT === undefined) {
+  throw new Error("'NEWSSUBMISSION_SUBJECT' is required");
+}
+
+if (process.env.EVENTSUBMISSION_RECIPIENT === undefined) {
+  throw new Error("'EVENTSUBMISSION_RECIPIENT' is required");
+}
+
+if (process.env.EVENTSUBMISSION_SUBJECT === undefined) {
+  throw new Error("'EVENTSUBMISSION_SUBJECT' is required");
+}
+
+if (process.env.PAKTSUBMISSION_RECIPIENT === undefined) {
+  throw new Error("'PAKTSUBMISSION_RECIPIENT' is required");
+}
+
+if (process.env.PAKTSUBMISSION_SUBJECT === undefined) {
+  throw new Error("'PAKTSUBMISSION_SUBJECT' is required");
+}
+
+if (process.env.FEATURE_FLAGS === undefined) {
+  throw new Error("'FEATURE_FLAGS' is required");
+}
+
+if (process.env.SENTRY_DSN === undefined) {
+  throw new Error("'SENTRY_DSN' is required");
+}
+
+export function handleError(
+  error: unknown,
+  { request }: LoaderFunctionArgs | ActionFunctionArgs
+) {
+  Sentry.captureRemixServerException(error, "remix.server", request);
+}
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1,
+  environment: process.env.COMMUNITY_BASE_URL.replace("https://", ""),
+});
 
 const ABORT_DELAY = 5_000;
 
