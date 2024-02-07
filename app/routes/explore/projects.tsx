@@ -40,15 +40,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (sessionUser === null) {
       // Filter project
-      type EnhancedProjectType = typeof enhancedProject;
+      type EnhancedProject = typeof enhancedProject;
       enhancedProject =
-        filterProjectByVisibility<EnhancedProjectType>(enhancedProject);
+        filterProjectByVisibility<EnhancedProject>(enhancedProject);
       // Filter responsible organizations of project
       enhancedProject.responsibleOrganizations =
         enhancedProject.responsibleOrganizations.map((relation) => {
-          type OrganizationRelationType = typeof relation.organization;
+          type OrganizationRelation = typeof relation.organization;
           const filteredOrganization =
-            filterOrganizationByVisibility<OrganizationRelationType>(
+            filterOrganizationByVisibility<OrganizationRelation>(
               relation.organization
             );
 

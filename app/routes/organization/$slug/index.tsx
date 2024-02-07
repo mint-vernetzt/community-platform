@@ -101,36 +101,29 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { responsibleForEvents, ...organizationWithoutEvents } =
     enhancedOrganization;
   // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
-  type ResponsibleForEventsType = typeof responsibleForEvents;
+  type ResponsibleForEvents = typeof responsibleForEvents;
   const { futureEvents, pastEvents } =
-    splitEventsIntoFutureAndPast<ResponsibleForEventsType>(
-      responsibleForEvents
-    );
+    splitEventsIntoFutureAndPast<ResponsibleForEvents>(responsibleForEvents);
   // Sorting events (future: startTime "desc", past: startTime "asc")
   let inFuture = true;
-  type FutureEventsType = typeof futureEvents;
-  const sortedFutureEvents = sortEvents<FutureEventsType>(
-    futureEvents,
-    inFuture
-  );
-  type PastEventsType = typeof pastEvents;
-  const sortedPastEvents = sortEvents<PastEventsType>(pastEvents, !inFuture);
+  type FutureEvents = typeof futureEvents;
+  const sortedFutureEvents = sortEvents<FutureEvents>(futureEvents, inFuture);
+  type PastEvents = typeof pastEvents;
+  const sortedPastEvents = sortEvents<PastEvents>(pastEvents, !inFuture);
   // Adding participation status of session user
-  type SortedFutureEventsType = typeof sortedFutureEvents;
+  type SortedFutureEvents = typeof sortedFutureEvents;
   const enhancedFutureEvents = {
-    responsibleForEvents:
-      await addUserParticipationStatus<SortedFutureEventsType>(
-        sortedFutureEvents,
-        sessionUser?.id
-      ),
+    responsibleForEvents: await addUserParticipationStatus<SortedFutureEvents>(
+      sortedFutureEvents,
+      sessionUser?.id
+    ),
   };
-  type SortedPastEventsType = typeof sortedPastEvents;
+  type SortedPastEvents = typeof sortedPastEvents;
   const enhancedPastEvents = {
-    responsibleForEvents:
-      await addUserParticipationStatus<SortedPastEventsType>(
-        sortedPastEvents,
-        sessionUser?.id
-      ),
+    responsibleForEvents: await addUserParticipationStatus<SortedPastEvents>(
+      sortedPastEvents,
+      sessionUser?.id
+    ),
   };
 
   return json({

@@ -27,7 +27,9 @@ export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
   return result;
 }
 
-type FullDepthProfilesQuery = Awaited<ReturnType<typeof getFullDepthProfiles>>;
+export type FullDepthProfilesQuery = Awaited<
+  ReturnType<typeof getFullDepthProfiles>
+>;
 
 export async function getFullDepthProfiles(
   eventId: string,
@@ -444,7 +446,9 @@ export async function getEvent(slug: string) {
   return result;
 }
 
-type ParticipantsQuery = Awaited<ReturnType<typeof getEventParticipants>>;
+export type ParticipantsQuery = Awaited<
+  ReturnType<typeof getEventParticipants>
+>;
 
 export async function getEventParticipants(currentEventId: string) {
   const result = await prismaClient.participantOfEvent.findMany({
@@ -473,7 +477,7 @@ export async function getEventParticipants(currentEventId: string) {
   return result;
 }
 
-type SpeakersQuery = Awaited<ReturnType<typeof getEventSpeakers>>;
+export type SpeakersQuery = Awaited<ReturnType<typeof getEventSpeakers>>;
 
 export async function getEventSpeakers(currentEventId: string) {
   const result = await prismaClient.speakerOfEvent.findMany({

@@ -557,6 +557,8 @@ export async function enhanceEventsWithParticipationStatus(
   }
 }
 
+export type PrepareEventsQuery = Awaited<ReturnType<typeof prepareEvents>>;
+
 export async function prepareEvents(
   authClient: SupabaseClient,
   sessionUser: User | null,

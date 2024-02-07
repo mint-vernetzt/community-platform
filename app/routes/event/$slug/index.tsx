@@ -32,6 +32,9 @@ import { RemoveParticipantButton } from "./settings/participants/remove-particip
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
 import {
+  type FullDepthProfilesQuery,
+  type ParticipantsQuery,
+  type SpeakersQuery,
   addImgUrls,
   enhanceChildEventsWithParticipationStatus,
   filterEvent,
@@ -115,12 +118,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     throw json({ message: t("error.notPublished") }, { status: 403 });
   }
 
-  let speakers: Awaited<
-    ReturnType<typeof getEventSpeakers | typeof getFullDepthProfiles>
-  > = [];
-  let participants: Awaited<
-    ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
-  > = [];
+  let speakers: SpeakersQuery | FullDepthProfilesQuery = [];
+  let participants: ParticipantsQuery | FullDepthProfilesQuery = [];
 
   // Adding participants and speakers
   if (rawEvent.childEvents.length > 0) {
