@@ -1,4 +1,10 @@
-import { Alert, CircleButton, Footer } from "@mint-vernetzt/components";
+import { captureRemixErrorBoundaryError } from "@sentry/remix";
+import {
+  Alert,
+  CircleButton,
+  Footer,
+  Link as StyledLink,
+} from "@mint-vernetzt/components";
 import type {
   LinksFunction,
   LoaderFunctionArgs,
@@ -18,6 +24,8 @@ import {
   useLocation,
   useMatches,
   useSearchParams,
+  useRouteError,
+  isRouteErrorResponse,
 } from "@remix-run/react";
 import classNames from "classnames";
 import * as React from "react";
@@ -33,6 +41,7 @@ import { detectLanguage, getProfileByUserId } from "./root.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders } from "./utils.server";
+import { H1, H2 } from "./components/Heading/Heading";
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
@@ -433,6 +442,68 @@ function NavBar(props: NavBarProps) {
     </header>
   );
 }
+
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+  captureRemixErrorBoundaryError(error);
+
+  const { i18n } = useTranslation();
+
+  let errorTitle;
+  let errorData;
+
+  if (isRouteErrorResponse(error)) {
+    errorTitle = `${error.status} ${error.statusText}`;
+    errorData = `${error.data}`;
+  } else if (error instanceof Error) {
+    errorTitle = `${error.message}`;
+    errorData = error.stack;
+  } else {
+    errorTitle = "Unknown Error";
+  }
+
+  return (
+    <html lang="en-US" dir={i18n.dir()} data-theme="light">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <Meta />
+        <Links />
+      </head>
+
+      <body>
+        <div id="top" className="flex flex-col min-h-screen">
+          <NavBar abilities={{}} />
+          <section className="container my-8 md:mt-10 lg:mt-20 text-center">
+            <H1 like="h0">{errorTitle}</H1>
+            <H2 like="h1">Sorry, something went wrong!</H2>
+            <p>
+              Please capture a screenshot and send it over to{" "}
+              <StyledLink
+                as="a"
+                to="mailto:support@mint-vernetzt.de"
+                variant="primary"
+              >
+                support@mint-vernetzt.de
+              </StyledLink>
+              . We will do our best to help you with this issue.
+            </p>
+          </section>
+          {errorData !== undefined ? (
+            <section className="container my-8 md:mt-10 lg:mt-20 text-center">
+              {errorData}
+            </section>
+          ) : null}
+        </div>
+        <Footer />
+
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
+      </body>
+    </html>
+  );
+};
 
 export default function App() {
   const location = useLocation();
