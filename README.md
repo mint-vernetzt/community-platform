@@ -1,83 +1,102 @@
-# Overview
+# MINT Community Platform
 
-# First steps
+## Prerequisites
 
-- create `.env` file in root directory (or copy and rename `.env.example`)
-- set `SUPABASE_ANON_KEY`, `SESSION_SECRET` and `SUPABASE_URL` (supabase)
-- set `DATABASE_URL` (prisma)
+Please note, that you will need an up and running **Docker** instance to operate the project locally. Also, **Node.js** is mandatory.
 
-## Generate files
+## Initial Bootstrap
 
-Run `npm run create` and select generator:
+The following steps are mandatory in order to put the project into operation for local development:
 
-- **route** - Create route
-- **component** - Create component
-- **test** - Create component test
-- **stories** - Create component stories
+### 1. Install Supabase
 
-## Fonts
+You will find a detailed description of the installation process at [Supabase "getting started" documentation](https://supabase.com/docs/guides/cli/getting-started).
+Please note that you will need a local Docker instance up and running for this.
 
-To use custom fonts we have to add font files from @fontsource to public folder. Just run `npm run copy:fonts` to do so. If you need more fonts or font faces add them to the script.
+On startup, via `supabase start`, supabase will provide all required information for further configuration.
+Alternatively use `supabase status` at runtime:
 
-# Local Supabase
+```dotenv
+              API URL: http://localhost:54321
+          GraphQL URL: http://localhost:54321/graphql/v1
+               DB URL: postgresql://postgres:postgres@localhost:54322/postgres
+           Studio URL: http://localhost:54323
+         Inbucket URL: http://localhost:54324
+           JWT secret: xxx-xxx-xxx-xxx-xxx
+             anon key: xxx-xxx-xxx-xxx-xxx
+     service_role key: xxx-xxx-xxx-xxx-xxx
+```
 
-Requirements [docker](https://docs.docker.com/get-docker/), [supabase cli](https://supabase.com/docs/reference/cli/installing-and-updating)
+The [Studio URL](http://localhost:54323) leads to Supabase studio, an administrative interface for Supabase.
+Supabase inbucket is a container for all e-mails sent by Supabase. These e-mails can be viewed under the [Inbucket URL](http://localhost:54324).
 
-1. run `supabase start`
-1. copy values of `anon key`, `API URL` and `DB URL` to the `.env` file
-1. run `make`
-1. browse to `Studio URL` and copy paste content of `supabase.enhancement.sql` to **SQL Editor** and run command
+### 2. Create your local .env file
 
-# Welcome to Remix!
+The easiest way is to copy the `.env.example` file and adjust the important entries accordingly by the values of `supabase status`:
 
-- [Remix Docs](https://remix.run/docs)
+```dotenv
+SUPABASE_ANON_KEY="xxx-xxx-xxx-xxx-xxx"
+SERVICE_ROLE_KEY="xxx-xxx-xxx-xxx-xxx"
+SUPABASE_URL="http://localhost:54321"
+DATABASE_URL="postgresql://postgres:postgres@localhost:54322/postgres"
+# ...
+```
 
-## Development
+### 3. Start local imgproxy
 
-From your terminal:
+A local [imgproxy](https://imgproxy.net/) instance is required for most of the graphics contained in the project. The easiest way to put this into operation is via `make`:
 
-```sh
+```shell
+# Start imgproxy
+make imgproxy
+
+# Stop imgproxy
+make imgproxy_stop
+```
+
+### 4. Seed database
+
+Run the script
+
+```shell
+npx ts-node prisma/scripts/seed-database/index.ts -s 2 -r -e 1 -i 1 -d 1
+```
+
+this will seed the database with random but reasonably data.
+
+### 5. Copy fonts
+
+To use the custom fonts integrated in the project, they must be copied to a local directory using a script.
+
+```shell
+npm run copy:fonts
+```
+
+## Run DEV
+
+```shell
 npm run dev
 ```
 
-This starts your app in development mode, rebuilding assets on file changes.
+## Run PROD
+
+```shell
+npm run build
+npm run start
+```
+
+## Storybook
+
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
 ## Deployment
 
-First, build your app for production:
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
-```sh
-npm run build
-```
+## Further information
 
-Then run the app in production mode:
-
-```sh
-npm start
-```
-
-Now you'll need to pick a host to deploy it to.
-
-### DIY
-
-If you're familiar with deploying node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `remix build`
-
-- `build/`
-- `public/build/`
-
-### Using a Template
-
-When you ran `npx create-remix@latest` there were a few choices for hosting. You can run that again to create a new project, then copy over your `app/` folder to the new project that's pre-configured for your target server.
-
-```sh
-cd ..
-# create a new project, and pick a pre-configured host
-npx create-remix@latest
-cd my-new-remix-app
-# remove the new project's app (not the old one!)
-rm -rf app
-# copy your app over
-cp -R ../my-old-remix-app/app app
-```
+- [Remix Docs](https://remix.run/docs)
+- [Supabase Docs](https://supabase.com/docs)
+- [Prisma Docs](https://www.prisma.io/docs/orm)
+- [DaisyUI](https://daisyui.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
