@@ -456,10 +456,10 @@ export const ErrorBoundary = () => {
     errorTitle = `${error.status} ${error.statusText}`;
     errorData = `${error.data}`;
   } else if (error instanceof Error) {
-    errorTitle = `Sorry, something went wrong: ${error.message}`;
+    errorTitle = `${error.message}`;
     errorData = error.stack;
   } else {
-    errorTitle = "Sorry, something went wrong: Unknown Error";
+    errorTitle = "Unknown Error";
   }
 
   return (
