@@ -3,9 +3,9 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import imgproxy from "imgproxy/dist/types.js";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -17,8 +17,9 @@ import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
-import { GravityType, getImageURL } from "~/images.server";
+import i18next from "~/i18next.server";
 import {
+  addUserParticipationStatus,
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
@@ -30,19 +31,17 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
-import {
-  filterOrganizationByVisibility,
-  filterProfileByVisibility,
-  filterProjectByVisibility,
-} from "~/public-fields-filtering.server";
+import { detectLanguage } from "~/root.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
-import { getPublicURL } from "~/storage.server";
 import { getProfileByUsername } from "./index.server";
-import { deriveProfileMode, prepareProfileEvents } from "./utils.server";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
+import {
+  addImgUrls,
+  deriveProfileMode,
+  filterProfile,
+  sortEvents,
+  splitEventsIntoFutureAndPast,
+} from "./utils.server";
 
 const i18nNS = ["routes/profile/index"];
 export const handle = {
@@ -93,152 +92,85 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "projects",
   ]);
 
-  let enhancedProfile = {
+  // Filtering by visbility settings
+  let filteredProfile = {
     ...profile,
   };
-
-  // Filtering by visbility settings
   if (mode === "anon") {
-    // Filter profile
-    enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
-      enhancedProfile
-    );
-
-    // Filter organizations where profile is member of
-    enhancedProfile.memberOf = await Promise.all(
-      enhancedProfile.memberOf.map(async (relation) => {
-        const filteredOrganization = await filterOrganizationByVisibility<
-          typeof relation.organization
-        >(relation.organization);
-        return { ...relation, organization: filteredOrganization };
-      })
-    );
-    // Filter projects where this profile is team member
-    enhancedProfile.teamMemberOfProjects = await Promise.all(
-      enhancedProfile.teamMemberOfProjects.map(async (relation) => {
-        const filteredProject = await filterProjectByVisibility<
-          typeof relation.project
-        >(relation.project);
-        return { ...relation, project: filteredProject };
-      })
-    );
-    // Filter organizations that are responsible for projects where this profile is team member
-    enhancedProfile.teamMemberOfProjects = await Promise.all(
-      enhancedProfile.teamMemberOfProjects.map(async (projectRelation) => {
-        const responsibleOrganizations = await Promise.all(
-          projectRelation.project.responsibleOrganizations.map(
-            async (organizationRelation) => {
-              const filteredOrganization = await filterOrganizationByVisibility<
-                typeof organizationRelation.organization
-              >(organizationRelation.organization);
-              return {
-                ...organizationRelation,
-                organization: filteredOrganization,
-              };
-            }
-          )
-        );
-        return {
-          ...projectRelation,
-          project: { ...projectRelation.project, responsibleOrganizations },
-        };
-      })
-    );
+    filteredProfile = filterProfile(profile);
   }
-
-  // Get images from image proxy
-  const images: {
-    avatar?: string;
-    background?: string;
-  } = {};
-
-  if (enhancedProfile.avatar !== null) {
-    const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
-    if (publicURL !== null) {
-      images.avatar = getImageURL(publicURL, {
-        resize: { type: "fill", width: 144, height: 144 },
-      });
-    }
-  }
-  if (enhancedProfile.background !== null) {
-    const publicURL = getPublicURL(authClient, enhancedProfile.background);
-    if (publicURL !== null) {
-      images.background = getImageURL(publicURL, {
-        resize: { type: "fit", width: 1488, height: 480 },
-      });
-    }
-  }
-  enhancedProfile.memberOf = enhancedProfile.memberOf.map((relation) => {
-    let logo = relation.organization.logo;
-    if (logo !== null) {
-      const publicURL = getPublicURL(authClient, logo);
-      if (publicURL !== null) {
-        logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
-      }
-    }
-    return { ...relation, organization: { ...relation.organization, logo } };
-  });
-  enhancedProfile.teamMemberOfProjects =
-    enhancedProfile.teamMemberOfProjects.map((projectRelation) => {
-      let projectLogo = projectRelation.project.logo;
-      if (projectLogo !== null) {
-        const publicURL = getPublicURL(authClient, projectLogo);
-        if (publicURL !== null) {
-          projectLogo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      const awards = projectRelation.project.awards.map((awardRelation) => {
-        let awardLogo = awardRelation.award.logo;
-        if (awardLogo !== null) {
-          const publicURL = getPublicURL(authClient, awardLogo);
-          if (publicURL !== null) {
-            awardLogo = getImageURL(publicURL, {
-              resize: { type: "fit", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
-        return {
-          ...awardRelation,
-          award: { ...awardRelation.award, logo: awardLogo },
-        };
-      });
-      return {
-        ...projectRelation,
-        project: { ...projectRelation.project, awards, logo: projectLogo },
-      };
-    });
-
-  // Get events, filter them by visibility settings and add participation status of session user
-  const inFuture = true;
-  const profileFutureEvents = await prepareProfileEvents(
-    authClient,
-    username,
-    mode,
-    sessionUser,
-    inFuture
-  );
-  const profilePastEvents = await prepareProfileEvents(
-    authClient,
-    username,
-    mode,
-    sessionUser,
-    !inFuture
-  );
+  // Add imgUrls for imgproxy call on client
+  const enhancedProfile = addImgUrls(authClient, filteredProfile);
+  // Split events and profile to handle them seperately
+  const {
+    contributedEvents,
+    teamMemberOfEvents,
+    participatedEvents,
+    waitingForEvents,
+    ...profileWithoutEvents
+  } = enhancedProfile;
+  // Combine participated and waiting events to show them both in one list in the frontend
+  const events = {
+    contributedEvents,
+    teamMemberOfEvents,
+    participatedEvents: [...participatedEvents, ...waitingForEvents],
+  };
+  // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
+  type Events = typeof events;
+  const { futureEvents, pastEvents } =
+    splitEventsIntoFutureAndPast<Events>(events);
+  // Sorting events (future: startTime "desc", past: startTime "asc")
+  let inFuture = true;
+  type FutureEvents = typeof futureEvents;
+  const sortedFutureEvents = sortEvents<FutureEvents>(futureEvents, inFuture);
+  type PastEvents = typeof pastEvents;
+  const sortedPastEvents = sortEvents<PastEvents>(pastEvents, !inFuture);
+  // Adding participation status of session user
+  type TeamMemberFutureEvents = typeof sortedFutureEvents.teamMemberOfEvents;
+  type ContributedFutureEvents = typeof sortedFutureEvents.contributedEvents;
+  type ParticipatedFutureEvents = typeof sortedFutureEvents.participatedEvents;
+  const enhancedFutureEvents = {
+    teamMemberOfEvents:
+      await addUserParticipationStatus<TeamMemberFutureEvents>(
+        sortedFutureEvents.teamMemberOfEvents,
+        sessionUser?.id
+      ),
+    contributedEvents:
+      await addUserParticipationStatus<ContributedFutureEvents>(
+        sortedFutureEvents.contributedEvents,
+        sessionUser?.id
+      ),
+    participatedEvents:
+      await addUserParticipationStatus<ParticipatedFutureEvents>(
+        sortedFutureEvents.participatedEvents,
+        sessionUser?.id
+      ),
+  };
+  type TeamMemberPastEvents = typeof sortedPastEvents.teamMemberOfEvents;
+  type ContributedPastEvents = typeof sortedPastEvents.contributedEvents;
+  type ParticipatedPastEvents = typeof sortedPastEvents.participatedEvents;
+  const enhancedPastEvents = {
+    teamMemberOfEvents: await addUserParticipationStatus<TeamMemberPastEvents>(
+      sortedPastEvents.teamMemberOfEvents,
+      sessionUser?.id
+    ),
+    contributedEvents: await addUserParticipationStatus<ContributedPastEvents>(
+      sortedPastEvents.contributedEvents,
+      sessionUser?.id
+    ),
+    participatedEvents:
+      await addUserParticipationStatus<ParticipatedPastEvents>(
+        sortedPastEvents.participatedEvents,
+        sessionUser?.id
+      ),
+  };
 
   return json({
     mode,
-    data: enhancedProfile,
-    images,
+    data: profileWithoutEvents,
     abilities,
-    futureEvents: profileFutureEvents,
-    pastEvents: profilePastEvents,
+    futureEvents: enhancedFutureEvents,
+    pastEvents: enhancedPastEvents,
     userId: sessionUser?.id,
   });
 };
@@ -296,21 +228,21 @@ export default function Index() {
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
 
-  const avatar = loaderData.images.avatar;
+  const avatar = loaderData.data.avatar;
   const Avatar = React.useCallback(
     () => (
       <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center overflow-hidden rounded-full border">
-        {avatar !== undefined ? <img src={avatar} alt={fullName} /> : initials}
+        {avatar !== null ? <img src={avatar} alt={fullName} /> : initials}
       </div>
     ),
     [avatar, fullName, initials]
   );
 
-  const background = loaderData.images.background;
+  const background = loaderData.data.background;
   const Background = React.useCallback(
     () => (
       <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
-        {background ? (
+        {background !== null ? (
           <img src={background} alt={t("images.currentBackground")} />
         ) : (
           <div className="w-[336px] min-h-[108px]" />
@@ -329,7 +261,7 @@ export default function Index() {
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
         <div className="rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
           <div className="w-full h-full">
-            {background !== undefined ? (
+            {background !== null ? (
               <img
                 src={background}
                 alt={fullName}
@@ -353,7 +285,7 @@ export default function Index() {
                   subject={"user"}
                   slug={loaderData.data.username}
                   uploadKey="background"
-                  image={background}
+                  image={background || undefined}
                   aspect={31 / 10}
                   minCropWidth={50}
                   minCropHeight={50}
@@ -399,7 +331,7 @@ export default function Index() {
                         slug={loaderData.data.username}
                         uploadKey="avatar"
                         headline={t("profile.changeAvatarHeadline")}
-                        image={avatar}
+                        image={avatar || undefined}
                         aspect={1}
                         minCropWidth={100}
                         minCropHeight={100}

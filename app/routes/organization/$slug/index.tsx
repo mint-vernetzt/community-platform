@@ -5,6 +5,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -16,8 +17,9 @@ import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import ProfileCard from "~/components/ProfileCard/ProfileCard";
 import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
-import { GravityType, getImageURL } from "~/images.server";
+import i18next from "~/i18next.server";
 import {
+  addUserParticipationStatus,
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
@@ -28,22 +30,17 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
-import {
-  filterOrganizationByVisibility,
-  filterProfileByVisibility,
-  filterProjectByVisibility,
-} from "~/public-fields-filtering.server";
+import { detectLanguage } from "~/root.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
-import { getPublicURL } from "~/storage.server";
 import {
+  addImgUrls,
+  filterOrganization,
   getOrganizationBySlug,
-  prepareOrganizationEvents,
+  sortEvents,
+  splitEventsIntoFutureAndPast,
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/organization/index"];
 export const handle = {
@@ -91,204 +88,48 @@ export const loader = async (args: LoaderFunctionArgs) => {
     throw json({ message: t("error.notFound") }, { status: 404 });
   }
 
-  let enhancedOrganization = {
+  // Filtering by visbility settings
+  let filteredOrganization = {
     ...organization,
   };
-
-  // Filtering by visbility settings
   if (mode === "anon") {
-    // Filter organization
-    enhancedOrganization = await filterOrganizationByVisibility<
-      typeof enhancedOrganization
-    >(enhancedOrganization);
-    // Filter networks where this organization is member of
-    enhancedOrganization.memberOf = await Promise.all(
-      enhancedOrganization.memberOf.map(async (relation) => {
-        const filteredNetwork = await filterOrganizationByVisibility<
-          typeof relation.network
-        >(relation.network);
-        return { ...relation, network: filteredNetwork };
-      })
-    );
-    // Filter network members of this organization
-    enhancedOrganization.networkMembers = await Promise.all(
-      enhancedOrganization.networkMembers.map(async (relation) => {
-        const filteredNetworkMember = await filterOrganizationByVisibility<
-          typeof relation.networkMember
-        >(relation.networkMember);
-        return { ...relation, networkMember: filteredNetworkMember };
-      })
-    );
-    // Filter team members
-    enhancedOrganization.teamMembers = await Promise.all(
-      enhancedOrganization.teamMembers.map(async (relation) => {
-        const filteredProfile = await filterProfileByVisibility<
-          typeof relation.profile
-        >(relation.profile);
-        return { ...relation, profile: filteredProfile };
-      })
-    );
-    // Filter projects where this organization is responsible for
-    enhancedOrganization.responsibleForProject = await Promise.all(
-      enhancedOrganization.responsibleForProject.map(async (relation) => {
-        const filteredProject = await filterProjectByVisibility<
-          typeof relation.project
-        >(relation.project);
-        return { ...relation, project: filteredProject };
-      })
-    );
-    // Filter responsible organizations of projects where this organization is responsible for
-    enhancedOrganization.responsibleForProject = await Promise.all(
-      enhancedOrganization.responsibleForProject.map(
-        async (projectRelation) => {
-          const responsibleOrganizations = await Promise.all(
-            projectRelation.project.responsibleOrganizations.map(
-              async (organizationRelation) => {
-                const filteredOrganization =
-                  await filterOrganizationByVisibility<
-                    typeof organizationRelation.organization
-                  >(organizationRelation.organization);
-                return {
-                  ...organizationRelation,
-                  organization: filteredOrganization,
-                };
-              }
-            )
-          );
-          return {
-            ...projectRelation,
-            project: { ...projectRelation.project, responsibleOrganizations },
-          };
-        }
-      )
-    );
+    filteredOrganization = filterOrganization(organization);
   }
-
-  // Get images from image proxy
-  const images: {
-    logo?: string;
-    background?: string;
-  } = {};
-  if (enhancedOrganization.logo !== null) {
-    const publicURL = getPublicURL(authClient, enhancedOrganization.logo);
-    if (publicURL) {
-      images.logo = getImageURL(publicURL, {
-        resize: { type: "fit", width: 144, height: 144 },
-      });
-    }
-  }
-  if (enhancedOrganization.background !== null) {
-    const publicURL = getPublicURL(authClient, enhancedOrganization.background);
-    if (publicURL) {
-      images.background = getImageURL(publicURL, {
-        resize: { type: "fit", width: 1488, height: 480 },
-      });
-    }
-  }
-
-  enhancedOrganization.memberOf = enhancedOrganization.memberOf.map(
-    (relation) => {
-      let logo = relation.network.logo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-          });
-        }
-      }
-      return { ...relation, network: { ...relation.network, logo } };
-    }
-  );
-
-  enhancedOrganization.networkMembers = enhancedOrganization.networkMembers.map(
-    (relation) => {
-      let logo = relation.networkMember.logo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-          });
-        }
-      }
-      return {
-        ...relation,
-        networkMember: { ...relation.networkMember, logo },
-      };
-    }
-  );
-
-  enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
-    (relation) => {
-      let avatar = relation.profile.avatar;
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      return { ...relation, profile: { ...relation.profile, avatar } };
-    }
-  );
-
-  enhancedOrganization.responsibleForProject =
-    enhancedOrganization.responsibleForProject.map((projectRelation) => {
-      let projectLogo = projectRelation.project.logo;
-      if (projectLogo !== null) {
-        const publicURL = getPublicURL(authClient, projectLogo);
-        if (publicURL !== null) {
-          projectLogo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      const awards = projectRelation.project.awards.map((awardRelation) => {
-        let awardLogo = awardRelation.award.logo;
-        if (awardLogo !== null) {
-          const publicURL = getPublicURL(authClient, awardLogo);
-          if (publicURL !== null) {
-            awardLogo = getImageURL(publicURL, {
-              resize: { type: "fit", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
-        return {
-          ...awardRelation,
-          award: { ...awardRelation.award, logo: awardLogo },
-        };
-      });
-      return {
-        ...projectRelation,
-        project: { ...projectRelation.project, awards, logo: projectLogo },
-      };
-    });
-
-  // Get events, filter them by visibility settings and add participation status of session user
-  const inFuture = true;
-  const organizationFutureEvents = await prepareOrganizationEvents(
-    authClient,
-    slug,
-    sessionUser,
-    inFuture
-  );
-  const organizationPastEvents = await prepareOrganizationEvents(
-    authClient,
-    slug,
-    sessionUser,
-    !inFuture
-  );
+  // Add imgUrls for imgproxy call on client
+  const enhancedOrganization = addImgUrls(authClient, filteredOrganization);
+  // Split events and profile to handle them seperately
+  const { responsibleForEvents, ...organizationWithoutEvents } =
+    enhancedOrganization;
+  // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
+  type ResponsibleForEvents = typeof responsibleForEvents;
+  const { futureEvents, pastEvents } =
+    splitEventsIntoFutureAndPast<ResponsibleForEvents>(responsibleForEvents);
+  // Sorting events (future: startTime "desc", past: startTime "asc")
+  let inFuture = true;
+  type FutureEvents = typeof futureEvents;
+  const sortedFutureEvents = sortEvents<FutureEvents>(futureEvents, inFuture);
+  type PastEvents = typeof pastEvents;
+  const sortedPastEvents = sortEvents<PastEvents>(pastEvents, !inFuture);
+  // Adding participation status of session user
+  type SortedFutureEvents = typeof sortedFutureEvents;
+  const enhancedFutureEvents = {
+    responsibleForEvents: await addUserParticipationStatus<SortedFutureEvents>(
+      sortedFutureEvents,
+      sessionUser?.id
+    ),
+  };
+  type SortedPastEvents = typeof sortedPastEvents;
+  const enhancedPastEvents = {
+    responsibleForEvents: await addUserParticipationStatus<SortedPastEvents>(
+      sortedPastEvents,
+      sessionUser?.id
+    ),
+  };
 
   return json({
-    organization: enhancedOrganization,
-    images,
-    futureEvents: organizationFutureEvents,
-    pastEvents: organizationPastEvents,
+    organization: organizationWithoutEvents,
+    futureEvents: enhancedFutureEvents,
+    pastEvents: enhancedPastEvents,
     userId: sessionUser?.id,
     mode,
   });
@@ -339,7 +180,7 @@ export default function Index() {
   const organizationName = loaderData.organization.name ?? "";
   const { t, i18n } = useTranslation(i18nNS);
 
-  const logo = loaderData.images.logo;
+  const logo = loaderData.organization.logo;
   const Avatar = React.useCallback(
     () => (
       <>
@@ -363,7 +204,7 @@ export default function Index() {
     [logo, organizationName, initialsOfOrganization]
   );
 
-  const background = loaderData.images.background;
+  const background = loaderData.organization.background;
   const Background = React.useCallback(
     () => (
       <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
@@ -409,7 +250,7 @@ export default function Index() {
                   subject="organization"
                   id="modal-background-upload"
                   uploadKey="background"
-                  image={background}
+                  image={background || undefined}
                   aspect={31 / 10}
                   minCropWidth={620}
                   minCropHeight={62}
@@ -458,7 +299,7 @@ export default function Index() {
                           slug={loaderData.organization.slug}
                           uploadKey="logo"
                           headline={t("image.logo.headline")}
-                          image={logo}
+                          image={logo || undefined}
                           aspect={1 / 1}
                           minCropWidth={100}
                           minCropHeight={100}

@@ -6,7 +6,11 @@ import { utcToZonedTime } from "date-fns-tz";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getPaginationValues, prepareEvents } from "./utils.server";
+import {
+  type PrepareEventsQuery,
+  getPaginationValues,
+  prepareEvents,
+} from "./utils.server";
 import { prismaClient } from "~/prisma.server";
 import { useTranslation } from "react-i18next";
 import { useHydrated } from "remix-utils/use-hydrated";
@@ -45,7 +49,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  let events: Awaited<ReturnType<typeof prepareEvents>> = [];
+  let events: PrepareEventsQuery = [];
   if (futureEventsCount - skip > 0) {
     const actuallyTake = Math.min(take, futureEventsCount - skip);
     events = await prepareEvents(authClient, sessionUser, inFuture, {

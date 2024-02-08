@@ -2,15 +2,17 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
+import { type TFunction } from "i18next";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
+import { Trans, useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { RichText } from "~/components/Richtext/RichText";
-import { GravityType, getImageURL } from "~/images.server";
+import i18next from "~/i18next.server";
 import {
   canUserAccessConferenceLink,
   canUserBeAddedToWaitingList,
@@ -22,22 +24,20 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
-import type { ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
-import {
-  filterEventByVisibility,
-  filterListOfEventsByVisibility,
-  filterOrganizationByVisibility,
-  filterProfileByVisibility,
-} from "~/public-fields-filtering.server";
-import { getPublicURL } from "~/storage.server";
+import { detectLanguage } from "~/root.server";
 import { deriveEventMode } from "../utils.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
 import {
+  type FullDepthProfilesQuery,
+  type ParticipantsQuery,
+  type SpeakersQuery,
+  addImgUrls,
   enhanceChildEventsWithParticipationStatus,
+  filterEvent,
   getEvent,
   getEventParticipants,
   getEventSpeakers,
@@ -47,10 +47,6 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
-import i18next from "~/i18next.server";
-import { Trans, useTranslation } from "react-i18next";
-import { type TFunction } from "i18next";
-import { detectLanguage } from "~/root.server";
 
 export function links() {
   return [
@@ -122,12 +118,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     throw json({ message: t("error.notPublished") }, { status: 403 });
   }
 
-  let speakers: Awaited<
-    ReturnType<typeof getEventSpeakers | typeof getFullDepthProfiles>
-  > = [];
-  let participants: Awaited<
-    ReturnType<typeof getEventParticipants | typeof getFullDepthProfiles>
-  > = [];
+  let speakers: SpeakersQuery | FullDepthProfilesQuery = [];
+  let participants: ParticipantsQuery | FullDepthProfilesQuery = [];
 
   // Adding participants and speakers
   if (rawEvent.childEvents.length > 0) {
@@ -165,164 +157,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
   enhancedEvent = { ...enhancedEvent, childEvents: filteredChildEvents };
 
   // Filtering by visbility settings
-  if (sessionUser === null) {
-    // Filter event
-    enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
-      enhancedEvent
-    );
-    // Filter parent event
-    if (enhancedEvent.parentEvent !== null) {
-      enhancedEvent.parentEvent = await filterEventByVisibility<
-        typeof enhancedEvent.parentEvent
-      >(enhancedEvent.parentEvent);
-    }
-    // Filter participants
-    enhancedEvent.participants = await Promise.all(
-      enhancedEvent.participants.map(async (relation) => {
-        const filteredProfile = await filterProfileByVisibility<
-          typeof relation.profile
-        >(relation.profile);
-        return { ...relation, profile: filteredProfile };
-      })
-    );
-    // Filter speakers
-    enhancedEvent.speakers = await Promise.all(
-      enhancedEvent.speakers.map(async (relation) => {
-        const filteredProfile = await filterProfileByVisibility<
-          typeof relation.profile
-        >(relation.profile);
-        return { ...relation, profile: filteredProfile };
-      })
-    );
-    // Filter team members
-    enhancedEvent.teamMembers = await Promise.all(
-      enhancedEvent.teamMembers.map(async (relation) => {
-        const filteredProfile = await filterProfileByVisibility<
-          typeof relation.profile
-        >(relation.profile);
-        return { ...relation, profile: filteredProfile };
-      })
-    );
-    // Filter child events
-    enhancedEvent.childEvents = await filterListOfEventsByVisibility<
-      ArrayElement<typeof enhancedEvent.childEvents>
-    >(enhancedEvent.childEvents);
-    // Filter responsible Organizations
-    enhancedEvent.responsibleOrganizations = await Promise.all(
-      enhancedEvent.responsibleOrganizations.map(async (relation) => {
-        const filteredOrganization = await filterOrganizationByVisibility<
-          typeof relation.organization
-        >(relation.organization);
-        return { ...relation, organization: filteredOrganization };
-      })
-    );
+  if (mode === "anon") {
+    // TODO: Still async as its using the old filter method for speakers and participants because of raw queries
+    enhancedEvent = await filterEvent(enhancedEvent);
   }
-
-  // Add images from image proxy
-  if (enhancedEvent.speakers !== null) {
-    enhancedEvent.speakers = enhancedEvent.speakers.map((relation) => {
-      let avatar = relation.profile.avatar;
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      return { ...relation, profile: { ...relation.profile, avatar } };
-    });
-  }
-
-  enhancedEvent.teamMembers = enhancedEvent.teamMembers.map((relation) => {
-    let avatar = relation.profile.avatar;
-    if (avatar !== null) {
-      const publicURL = getPublicURL(authClient, avatar);
-      if (publicURL !== null) {
-        avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
-      }
-    }
-    return { ...relation, profile: { ...relation.profile, avatar } };
-  });
-
-  if (enhancedEvent.participants !== null) {
-    enhancedEvent.participants = enhancedEvent.participants.map((relation) => {
-      let avatar = relation.profile.avatar;
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      return { ...relation, profile: { ...relation.profile, avatar } };
-    });
-  }
-
-  let blurredBackground;
-  if (enhancedEvent.background !== null) {
-    const publicURL = getPublicURL(authClient, enhancedEvent.background);
-    if (publicURL) {
-      enhancedEvent.background = getImageURL(publicURL, {
-        resize: { type: "fill", width: 720, height: 480, enlarge: true },
-      });
-      blurredBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 72, height: 48 },
-        blur: 5,
-      });
-    }
-  }
-
-  const imageEnhancedChildEvents = enhancedEvent.childEvents.map((relation) => {
-    let background = relation.background;
-    let blurredChildBackground;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
-      if (publicURL) {
-        background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 96 },
-        });
-      }
-      blurredChildBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 18, height: 12 },
-        blur: 5,
-      });
-    }
-    return { ...relation, background, blurredChildBackground };
-  });
-
-  enhancedEvent.responsibleOrganizations =
-    enhancedEvent.responsibleOrganizations.map((relation) => {
-      let logo = relation.organization.logo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL) {
-          logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 144, height: 144 },
-          });
-        }
-      }
-      return { ...relation, organization: { ...relation.organization, logo } };
-    });
-
-  const imageEnhancedEvent = {
-    ...enhancedEvent,
-    blurredBackground,
-    childEvents: imageEnhancedChildEvents,
-  };
+  // Add imgUrls for imgproxy call on client
+  const imageEnhancedEvent = addImgUrls(authClient, enhancedEvent);
 
   // Adding participation status
   const enhancedChildEvents = await enhanceChildEventsWithParticipationStatus(
     sessionUser,
     imageEnhancedEvent.childEvents
   );
-
   const eventWithParticipationStatus = {
     ...imageEnhancedEvent,
     childEvents: enhancedChildEvents,
@@ -1140,7 +986,7 @@ function Index() {
                             <div className="w-36 h-full relative">
                               <img
                                 src={
-                                  event.blurredChildBackground ||
+                                  event.blurredBackground ||
                                   "/images/default-event-background-blurred.jpg"
                                 }
                                 alt={t("content.borderOfImage")}
