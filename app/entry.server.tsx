@@ -46,6 +46,8 @@ declare global {
       PAKTSUBMISSION_SUBJECT: string;
       FEATURE_FLAGS: string;
       SENTRY_DSN: string;
+      SENTRY_ORGANIZATION_NAME: string;
+      SENTRY_PROJECT_NAME: string;
     }
   }
 }
@@ -151,6 +153,14 @@ if (process.env.FEATURE_FLAGS === undefined) {
 
 if (process.env.SENTRY_DSN === undefined) {
   throw new Error("'SENTRY_DSN' is required");
+}
+
+if (process.env.SENTRY_ORGANIZATION_NAME === undefined) {
+  throw new Error("'SENTRY_ORGANIZATION_NAME' is required");
+}
+
+if (process.env.SENTRY_PROJECT_NAME === undefined) {
+  throw new Error("'SENTRY_PROJECT_NAME' is required");
 }
 
 export function handleError(

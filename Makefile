@@ -53,3 +53,6 @@ download-storage-objects: ## Downloading all storage objects from supabase stora
 
 migrate-storage-objects: ## Migrating all storage objects from old supabase storage to the new supabase storage (Please look at the script and the .env.example located in "./supabase/scripts/migrate-storgae-objects/" before executing)
 	npx tsx supabase/scripts/download-storage-objects/index.ts
+
+upload-sentry-sourcemaps: ## Sourcemaps are created with each remix build (see npm script build). This command uploads those sourcemaps to sentry and sentry creates a new release.
+	npx tsx scripts/upload-sourcemaps-to-sentry.ts
