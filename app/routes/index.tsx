@@ -3,6 +3,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Link,
+  useActionData,
   useLoaderData,
   useSearchParams,
   useSubmit,
@@ -121,6 +122,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Index() {
   const submit = useSubmit();
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const loginError =
+    actionData !== undefined && "message" in actionData
+      ? actionData.message
+      : null;
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
@@ -221,7 +227,9 @@ export default function Index() {
                   >
                     {({ Field, Errors, register }) => (
                       <>
-                        <Errors className="alert-error p-3 mb-3 text-white" />
+                        <Errors className="mv-p-3 mv-mb-3 mv-bg-error mv-text-white">
+                          {loginError}
+                        </Errors>
 
                         <Field name="email" label="E-Mail">
                           {({ Errors }) => (

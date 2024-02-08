@@ -1,14 +1,17 @@
-import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient } from "@supabase/auth-helpers-remix";
-import type { User } from "@supabase/supabase-js";
-import { getImageURL } from "~/images.server";
-import { addUserParticipationStatus } from "~/lib/event/utils";
-import { prismaClient } from "~/prisma.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
-} from "~/public-fields-filtering.server";
+  filterProfileByVisibility,
+  filterProjectByVisibility,
+} from "~/next-public-fields-filtering.server";
+import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+
+export type OrganizationQuery = NonNullable<
+  Awaited<ReturnType<typeof getOrganizationBySlug>>
+>;
 
 export async function getOrganizationBySlug(slug: string) {
   const organization = await prismaClient.organization.findUnique({
@@ -68,6 +71,17 @@ export async function getOrganizationBySlug(slug: string) {
               lastName: true,
               academicTitle: true,
               position: true,
+              profileVisibility: {
+                select: {
+                  id: true,
+                  username: true,
+                  avatar: true,
+                  firstName: true,
+                  lastName: true,
+                  academicTitle: true,
+                  position: true,
+                },
+              },
             },
           },
         },
@@ -94,6 +108,15 @@ export async function getOrganizationBySlug(slug: string) {
                   },
                 },
               },
+              organizationVisibility: {
+                select: {
+                  id: true,
+                  slug: true,
+                  logo: true,
+                  name: true,
+                  types: true,
+                },
+              },
             },
           },
         },
@@ -118,6 +141,15 @@ export async function getOrganizationBySlug(slug: string) {
                       title: true,
                     },
                   },
+                },
+              },
+              organizationVisibility: {
+                select: {
+                  id: true,
+                  slug: true,
+                  logo: true,
+                  name: true,
+                  types: true,
                 },
               },
             },
@@ -170,8 +202,24 @@ export async function getOrganizationBySlug(slug: string) {
                     select: {
                       id: true,
                       name: true,
+                      organizationVisibility: {
+                        select: {
+                          id: true,
+                          name: true,
+                        },
+                      },
                     },
                   },
+                },
+              },
+              projectVisibility: {
+                select: {
+                  id: true,
+                  slug: true,
+                  logo: true,
+                  name: true,
+                  awards: true,
+                  responsibleOrganizations: true,
                 },
               },
             },
@@ -183,19 +231,6 @@ export async function getOrganizationBySlug(slug: string) {
           },
         },
       },
-    },
-  });
-
-  return organization;
-}
-
-export async function getOrganizationWithEvents(
-  slug: string,
-  inFuture: boolean
-) {
-  const organizationEvents = await prismaClient.organization.findFirst({
-    select: {
-      id: true,
       responsibleForEvents: {
         select: {
           event: {
@@ -225,74 +260,249 @@ export async function getOrganizationWithEvents(
                 },
               },
               background: true,
+              eventVisibility: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  published: true,
+                  parentEventId: true,
+                  startTime: true,
+                  endTime: true,
+                  participationUntil: true,
+                  participationFrom: true,
+                  participantLimit: true,
+                  stage: true,
+                  canceled: true,
+                  subline: true,
+                  description: true,
+                  background: true,
+                },
+              },
             },
           },
         },
         where: {
           event: {
-            endTime: inFuture
-              ? {
-                  gte: new Date(),
-                }
-              : { lte: new Date() },
             published: true,
           },
         },
-        orderBy: {
-          event: inFuture
-            ? {
-                startTime: "asc",
-              }
-            : { startTime: "desc" },
+      },
+      organizationVisibility: {
+        select: {
+          id: true,
+          slug: true,
+          logo: true,
+          background: true,
+          name: true,
+          email: true,
+          phone: true,
+          website: true,
+          linkedin: true,
+          facebook: true,
+          youtube: true,
+          instagram: true,
+          xing: true,
+          twitter: true,
+          street: true,
+          streetNumber: true,
+          zipCode: true,
+          city: true,
+          createdAt: true,
+          quote: true,
+          quoteAuthor: true,
+          quoteAuthorInformation: true,
+          bio: true,
+          supportedBy: true,
+          types: true,
+          focuses: true,
+          teamMembers: true,
+          memberOf: true,
+          networkMembers: true,
+          areas: true,
+          responsibleForProject: true,
+          responsibleForEvents: true,
         },
       },
     },
-    where: {
-      slug,
-    },
   });
 
-  return organizationEvents;
+  return organization;
 }
 
-export async function prepareOrganizationEvents(
-  authClient: SupabaseClient,
-  slug: string,
-  sessionUser: User | null,
-  inFuture: boolean
-) {
-  const organization = await getOrganizationWithEvents(slug, inFuture);
-
-  if (organization === null) {
-    throw json(
-      { message: "Organization with events not found" },
-      { status: 404 }
-    );
-  }
-
+export function filterOrganization(organization: OrganizationQuery) {
   let enhancedOrganization = {
     ...organization,
   };
-
-  // Filtering by visbility settings
-  if (sessionUser === null) {
-    // Filter organization holding event relations
-    enhancedOrganization = await filterOrganizationByVisibility<
-      typeof enhancedOrganization
-    >(enhancedOrganization);
-    // Filter events where organization is responsible for
-    enhancedOrganization.responsibleForEvents = await Promise.all(
-      enhancedOrganization.responsibleForEvents.map(async (relation) => {
-        const filteredEvent = await filterEventByVisibility<
-          typeof relation.event
-        >(relation.event);
-        return { ...relation, event: filteredEvent };
-      })
+  // Filter organization
+  enhancedOrganization =
+    filterOrganizationByVisibility<typeof enhancedOrganization>(
+      enhancedOrganization
     );
+  // Filter networks where this organization is member of
+  enhancedOrganization.memberOf = enhancedOrganization.memberOf.map(
+    (relation) => {
+      const filteredNetwork = filterOrganizationByVisibility<
+        typeof relation.network
+      >(relation.network);
+      return { ...relation, network: filteredNetwork };
+    }
+  );
+  // Filter network members of this organization
+  enhancedOrganization.networkMembers = enhancedOrganization.networkMembers.map(
+    (relation) => {
+      const filteredNetworkMember = filterOrganizationByVisibility<
+        typeof relation.networkMember
+      >(relation.networkMember);
+      return { ...relation, networkMember: filteredNetworkMember };
+    }
+  );
+  // Filter team members
+  enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
+    (relation) => {
+      const filteredProfile = filterProfileByVisibility<
+        typeof relation.profile
+      >(relation.profile);
+      return { ...relation, profile: filteredProfile };
+    }
+  );
+  // Filter projects and responsible organizations of projects where this organization is responsible for
+  enhancedOrganization.responsibleForProject =
+    enhancedOrganization.responsibleForProject.map((projectRelation) => {
+      const filteredProject = filterProjectByVisibility<
+        typeof projectRelation.project
+      >(projectRelation.project);
+      const responsibleOrganizations =
+        projectRelation.project.responsibleOrganizations.map(
+          (organizationRelation) => {
+            const filteredOrganization = filterOrganizationByVisibility<
+              typeof organizationRelation.organization
+            >(organizationRelation.organization);
+            return {
+              ...organizationRelation,
+              organization: filteredOrganization,
+            };
+          }
+        );
+      return {
+        ...projectRelation,
+        project: { ...filteredProject, responsibleOrganizations },
+      };
+    });
+  // Filter events where organization is responsible for
+  enhancedOrganization.responsibleForEvents =
+    enhancedOrganization.responsibleForEvents.map((relation) => {
+      const filteredEvent = filterEventByVisibility<typeof relation.event>(
+        relation.event
+      );
+      return { ...relation, event: filteredEvent };
+    });
+
+  return enhancedOrganization;
+}
+
+export function addImgUrls(
+  authClient: SupabaseClient,
+  organization: OrganizationQuery
+) {
+  let logo = null;
+  if (organization.logo !== null) {
+    const publicURL = getPublicURL(authClient, organization.logo);
+    if (publicURL) {
+      logo = getImageURL(publicURL, {
+        resize: { type: "fit", width: 144, height: 144 },
+      });
+    }
+  }
+  let background = null;
+  if (organization.background !== null) {
+    const publicURL = getPublicURL(authClient, organization.background);
+    if (publicURL) {
+      background = getImageURL(publicURL, {
+        resize: { type: "fit", width: 1488, height: 480 },
+      });
+    }
   }
 
-  // Get images from image proxy
-  const imageEnhancedEvents = enhancedOrganization.responsibleForEvents.map(
+  const memberOf = organization.memberOf.map((relation) => {
+    let logo = relation.network.logo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+        });
+      }
+    }
+    return { ...relation, network: { ...relation.network, logo } };
+  });
+
+  const networkMembers = organization.networkMembers.map((relation) => {
+    let logo = relation.networkMember.logo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+        });
+      }
+    }
+    return {
+      ...relation,
+      networkMember: { ...relation.networkMember, logo },
+    };
+  });
+
+  const teamMembers = organization.teamMembers.map((relation) => {
+    let avatar = relation.profile.avatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      if (publicURL !== null) {
+        avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+    return { ...relation, profile: { ...relation.profile, avatar } };
+  });
+
+  const responsibleForProject = organization.responsibleForProject.map(
+    (projectRelation) => {
+      let projectLogo = projectRelation.project.logo;
+      if (projectLogo !== null) {
+        const publicURL = getPublicURL(authClient, projectLogo);
+        if (publicURL !== null) {
+          projectLogo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      const awards = projectRelation.project.awards.map((awardRelation) => {
+        let awardLogo = awardRelation.award.logo;
+        if (awardLogo !== null) {
+          const publicURL = getPublicURL(authClient, awardLogo);
+          if (publicURL !== null) {
+            awardLogo = getImageURL(publicURL, {
+              resize: { type: "fit", width: 64, height: 64 },
+              gravity: GravityType.center,
+            });
+          }
+        }
+        return {
+          ...awardRelation,
+          award: { ...awardRelation.award, logo: awardLogo },
+        };
+      });
+      return {
+        ...projectRelation,
+        project: { ...projectRelation.project, awards, logo: projectLogo },
+      };
+    }
+  );
+
+  const responsibleForEvents = organization.responsibleForEvents.map(
     (relation) => {
       let background = relation.event.background;
       let blurredBackground;
@@ -315,17 +525,47 @@ export async function prepareOrganizationEvents(
     }
   );
 
-  const imageEnhancedOrganization = {
-    ...enhancedOrganization,
-    responsibleForEvents: imageEnhancedEvents,
+  return {
+    ...organization,
+    logo,
+    background,
+    memberOf,
+    networkMembers,
+    teamMembers,
+    responsibleForProject,
+    responsibleForEvents,
   };
+}
 
-  const enhancedOrganizationWithParticipationStatus = {
-    ...imageEnhancedOrganization,
-    responsibleForEvents: await addUserParticipationStatus<
-      typeof imageEnhancedOrganization.responsibleForEvents
-    >(imageEnhancedOrganization.responsibleForEvents, sessionUser?.id),
-  };
+export function splitEventsIntoFutureAndPast<
+  T extends OrganizationQuery["responsibleForEvents"]
+>(events: OrganizationQuery["responsibleForEvents"]) {
+  const futureEvents = [];
+  const pastEvents = [];
+  const now = new Date();
 
-  return enhancedOrganizationWithParticipationStatus;
+  for (const relation of events) {
+    if (relation.event.endTime >= now) {
+      futureEvents.push(relation);
+    } else {
+      pastEvents.push(relation);
+    }
+  }
+  return {
+    futureEvents,
+    pastEvents,
+  } as { futureEvents: T; pastEvents: T };
+}
+
+export function sortEvents<T extends OrganizationQuery["responsibleForEvents"]>(
+  events: OrganizationQuery["responsibleForEvents"],
+  inFuture: boolean
+) {
+  const sortedEvents = events.sort((a, b) => {
+    if (inFuture) {
+      return a.event.startTime >= b.event.startTime ? 1 : -1;
+    }
+    return a.event.startTime >= b.event.startTime ? -1 : 1;
+  });
+  return sortedEvents as T;
 }

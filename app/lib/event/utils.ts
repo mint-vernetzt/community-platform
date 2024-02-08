@@ -50,10 +50,10 @@ export function combineEventsSortChronologically<
 }
 
 export async function addUserParticipationStatus<
-  EventsType extends {
+  T extends {
     event: Pick<Event, "id">;
   }[]
->(events: EventsType, userId?: string) {
+>(events: T, userId?: string) {
   const result = await Promise.all(
     events.map(async (item) => {
       return {
@@ -67,9 +67,7 @@ export async function addUserParticipationStatus<
       };
     })
   );
-  return result as Array<
-    ArrayElement<EventsType> & ArrayElement<typeof result>
-  >;
+  return result as Array<ArrayElement<T> & ArrayElement<typeof result>>;
 }
 
 function reachedParticipateDeadline(event: {

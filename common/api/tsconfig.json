@@ -37,5 +37,9 @@
     /* Additional Stuff */
     "resolveJsonModule": true,
     "skipLibCheck": true
-  }
+  },
+  "ts-node": {
+    "files": true
+  },
+  "files": ["src/@types/matomo-tracker/index.d.ts"]
 }

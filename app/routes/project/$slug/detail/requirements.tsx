@@ -1,6 +1,5 @@
 import { Chip } from "@mint-vernetzt/components";
 import { useLoaderData } from "@remix-run/react";
-import { createAuthClient } from "~/auth.server";
 import { json, type LoaderFunctionArgs } from "@remix-run/server-runtime";
 import { RichText } from "~/components/Richtext/RichText";
 import { invariantResponse } from "~/lib/utils/response";

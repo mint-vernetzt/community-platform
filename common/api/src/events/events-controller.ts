@@ -33,6 +33,7 @@ export class EventsController extends Controller {
       {
         id: "a24004fa-aee8-40e2-aeb8-c6a40a1a2ee4",
         name: "Consensus in heterogeneous groups",
+        slug: "event-slug",
         url: "https://community.platform.org/url/to/event",
         background: "https://img.platform.org/public/url/of/event/background",
         description:
@@ -150,10 +151,25 @@ export class EventsController extends Controller {
         stage: {
           title: "Hybrid",
         },
+        _count: {
+          participants: 20,
+          waitingList: 3,
+        },
+        responsibleOrganizations: [
+          {
+            organization: {
+              name: "Platform",
+              slug: "platform",
+              logo: "https://img.platform.org/public/url/of/logo",
+              url: "https://community.platform.org/url/to/organization",
+            },
+          },
+        ],
       },
       {
         id: "ffca2a3a-c0bf-4931-b65a-8d8ccf867096",
         name: "Smallest Event",
+        slug: "smallest-event",
         url: null,
         background: null,
         description: null,
@@ -176,6 +192,11 @@ export class EventsController extends Controller {
         targetGroups: [],
         experienceLevel: null,
         stage: null,
+        _count: {
+          participants: 0,
+          waitingList: 0,
+        },
+        responsibleOrganizations: [],
       },
     ],
     skip: 0,

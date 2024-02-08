@@ -8,7 +8,7 @@ import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
@@ -54,21 +54,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (sessionUser === null) {
       // Filter profile
-      enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
-        enhancedProfile
-      );
+      type EnhancedProfile = typeof enhancedProfile;
+      enhancedProfile =
+        filterProfileByVisibility<EnhancedProfile>(enhancedProfile);
       // Filter organizations where profile belongs to
-      enhancedProfile.memberOf = await Promise.all(
-        enhancedProfile.memberOf.map(async (organization) => {
-          const filteredOrganization = await filterOrganizationByVisibility<
-            typeof organization
-          >(organization);
+      enhancedProfile.memberOf = enhancedProfile.memberOf.map(
+        (organization) => {
+          type Organization = typeof organization;
+          const filteredOrganization =
+            filterOrganizationByVisibility<Organization>(organization);
           return { ...filteredOrganization };
-        })
+        }
       );
     }
 
-    // Add images from image proxy
+    // Add imgUrls for imgproxy call on client
     if (enhancedProfile.avatar !== null) {
       const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
       if (publicURL !== null) {

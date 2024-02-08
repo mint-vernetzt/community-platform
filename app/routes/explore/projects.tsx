@@ -9,7 +9,7 @@ import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
 import { useTranslation } from "react-i18next";
@@ -40,19 +40,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (sessionUser === null) {
       // Filter project
-      enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
-        enhancedProject
-      );
+      type EnhancedProject = typeof enhancedProject;
+      enhancedProject =
+        filterProjectByVisibility<EnhancedProject>(enhancedProject);
       // Filter responsible organizations of project
-      enhancedProject.responsibleOrganizations = await Promise.all(
-        enhancedProject.responsibleOrganizations.map(async (relation) => {
-          const filteredOrganization = await filterOrganizationByVisibility<
-            typeof relation.organization
-          >(relation.organization);
+      enhancedProject.responsibleOrganizations =
+        enhancedProject.responsibleOrganizations.map((relation) => {
+          type OrganizationRelation = typeof relation.organization;
+          const filteredOrganization =
+            filterOrganizationByVisibility<OrganizationRelation>(
+              relation.organization
+            );
 
           return { ...relation, organization: filteredOrganization };
-        })
-      );
+        });
     }
 
     // Add images from image proxy
