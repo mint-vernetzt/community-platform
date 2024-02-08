@@ -15,7 +15,7 @@ Sentry.init({
   tracesSampleRate: 1,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1,
-  environment: process.env.COMMUNITY_BASE_URL.replace("https://", ""),
+  environment: new URL(process.env.COMMUNITY_BASE_URL).host,
 
   integrations: [
     Sentry.browserTracingIntegration({

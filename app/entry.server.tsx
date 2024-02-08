@@ -163,7 +163,7 @@ export function handleError(
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   tracesSampleRate: 1,
-  environment: process.env.COMMUNITY_BASE_URL.replace("https://", ""),
+  environment: new URL(process.env.COMMUNITY_BASE_URL).host,
 });
 
 const ABORT_DELAY = 5_000;
