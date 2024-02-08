@@ -5,6 +5,7 @@ import type { Request } from "express";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { getBaseURL } from "../../src/utils";
 import { filterEventByVisibility } from "../public-fields-filtering.server";
+import { GravityType } from "imgproxy/dist/types";
 
 type Events = Awaited<ReturnType<typeof getEvents>>;
 
@@ -83,6 +84,23 @@ async function getEvents(request: Request, skip: number, take: number) {
           title: true,
         },
       },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              name: true,
+              slug: true,
+              logo: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          participants: true,
+          waitingList: true,
+        },
+      },
     },
     where: {
       published: true,
@@ -110,7 +128,7 @@ async function getEvents(request: Request, skip: number, take: number) {
 
   const enhancedEvents = await Promise.all(
     events.map(async (event) => {
-      const { slug, background, ...rest } = event;
+      const { slug, background, responsibleOrganizations, ...rest } = event;
 
       let publicBackground: string | null = null;
       if (authClient !== undefined) {
@@ -131,7 +149,43 @@ async function getEvents(request: Request, skip: number, take: number) {
           ? decorate(request, `${baseURL}/event/${slug}`)
           : null;
 
-      const enhancedEvent = { ...rest, background: publicBackground };
+      const enhancedResponsibleOrganizations = responsibleOrganizations.map(
+        (relation) => {
+          const { slug, logo, ...rest } = relation.organization;
+          let publicLogo: string | null = null;
+          if (authClient !== undefined) {
+            if (logo !== null) {
+              const publicURL = getPublicURL(authClient, logo);
+              if (publicURL !== null) {
+                publicLogo = getImageURL(publicURL, {
+                  resize: { type: "fill", width: 64, height: 64 },
+                  gravity: GravityType.center,
+                });
+              }
+            }
+          }
+          let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+          const url =
+            baseURL !== undefined
+              ? decorate(request, `${baseURL}/organization/${slug}`)
+              : null;
+          return {
+            organization: {
+              ...rest,
+              logo: publicLogo,
+              slug,
+              url,
+            },
+          };
+        }
+      );
+
+      const enhancedEvent = {
+        ...rest,
+        background: publicBackground,
+        slug,
+        responsibleOrganizations: enhancedResponsibleOrganizations,
+      };
 
       const filteredEvent = await filterEventByVisibility(enhancedEvent);
 
