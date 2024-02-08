@@ -1,6 +1,11 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useSearchParams, useSubmit } from "@remix-run/react";
+import {
+  Link,
+  useActionData,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import type { KeyboardEvent } from "react";
 import type { FormProps } from "remix-forms";
@@ -100,6 +105,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Index() {
+  const actionData = useActionData<typeof action>();
+  const loginError =
+    actionData !== undefined && "message" in actionData
+      ? actionData.message
+      : null;
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const submit = useSubmit();
@@ -150,7 +160,9 @@ export default function Index() {
               <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
                 <h1 className="mb-8">{t("content.headline")}</h1>
 
-                <Errors className="alert-error p-3 mb-3 text-white" />
+                <Errors className="mv-p-3 mv-mb-3 mv-bg-error mv-text-white">
+                  {loginError}
+                </Errors>
 
                 <div className="mb-4">
                   <Field name="email" label="E-Mail">
