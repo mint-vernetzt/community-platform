@@ -55,4 +55,5 @@ migrate-storage-objects: ## Migrating all storage objects from old supabase stor
 	npx tsx supabase/scripts/download-storage-objects/index.ts
 
 upload-sentry-sourcemaps: ## Sourcemaps are created with each remix build (see npm script build). This command uploads those sourcemaps to sentry and sentry creates a new release.
-	npx tsx scripts/upload-sourcemaps-to-sentry.ts
+	npx sentry-upload-sourcemaps --org ${SENTRY_ORGANIZATION_NAME} --project ${SENTRY_PROJECT_NAME}
+  
