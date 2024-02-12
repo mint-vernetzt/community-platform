@@ -42,6 +42,8 @@ import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders } from "./utils.server";
 import { H1, H2 } from "./components/Heading/Heading";
+import { initializeSentry } from "./sentry.client";
+
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
@@ -96,6 +98,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { alert, headers: alertHeaders } = await getAlert(request);
 
+  const env = {
+    baseUrl: process.env.COMMUNITY_BASE_URL,
+    sentryDsn: process.env.SENTRY_DSN,
+  };
+
   return json(
     {
       matomoUrl: process.env.MATOMO_URL,
@@ -104,6 +111,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       abilities,
       alert,
       locale,
+      env,
     },
     { headers: combineHeaders(headers, alertHeaders) }
   );
@@ -514,7 +522,12 @@ export default function App() {
     abilities,
     alert,
     locale,
+    env,
   } = useLoaderData<typeof loader>();
+
+  React.useEffect(() => {
+    initializeSentry({ baseUrl: env.baseUrl, dsn: env.sentryDsn });
+  }, []);
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
@@ -605,7 +618,7 @@ export default function App() {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
-        {matomoSiteId !== undefined ? (
+        {typeof matomoSiteId !== "undefined" && matomoSiteId !== "" ? (
           <script
             async
             dangerouslySetInnerHTML={{
