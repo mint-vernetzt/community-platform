@@ -16,6 +16,7 @@ import { renderToPipeableStream } from "react-dom/server";
 import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18nConfig from "~/i18n";
 import i18next from "~/i18next.server";
+import { detectLanguage } from "./root.server";
 
 declare global {
   namespace NodeJS {
@@ -189,7 +190,7 @@ export default async function handleRequest(
   loadContext: AppLoadContext
 ) {
   const i18nInstance = createInstance();
-  const lng = await i18next.getLocale(request);
+  const lng = detectLanguage(request);
   const ns = i18next.getRouteNamespaces(remixContext);
 
   await i18nInstance
