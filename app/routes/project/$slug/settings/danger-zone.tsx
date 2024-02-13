@@ -52,12 +52,12 @@ function DangerZone() {
       <div id="danger-zone-tab-bar" className="md:mv--mt-6">
         <TabBar>
           <TabBar.Item active={location.pathname.endsWith("/change-url")}>
-            <Link to="./change-url?deep#danger-zone-tab-bar">
+            <Link to="./change-url?deep" preventScrollReset>
               {t("content.changeUrl")}
             </Link>
           </TabBar.Item>
           <TabBar.Item active={location.pathname.endsWith("/delete")}>
-            <Link to="./delete?deep#danger-zone-tab-bar">
+            <Link to="./delete?deep" preventScrollReset>
               {t("content.projectDelete")}
             </Link>
           </TabBar.Item>

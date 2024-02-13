@@ -39,54 +39,63 @@ function Settings() {
               <NavLink
                 to="general"
                 className={({ isActive }) => getClassName(isActive)}
+                preventScrollReset
               >
                 {t("content.general")}
               </NavLink>
               <NavLink
                 to="events"
                 className={({ isActive }) => getClassName(isActive)}
+                preventScrollReset
               >
                 {t("content.linkedEvents")}
               </NavLink>
               <NavLink
                 to="admins"
                 className={({ isActive }) => getClassName(isActive)}
+                preventScrollReset
               >
                 {t("content.administrators")}
               </NavLink>
               <NavLink
                 to="team"
                 className={({ isActive }) => getClassName(isActive)}
+                preventScrollReset
               >
                 {t("content.team")}
               </NavLink>
               <NavLink
                 to="speakers"
                 className={({ isActive }) => getClassName(isActive)}
+                preventScrollReset
               >
                 {t("content.speakers")}
               </NavLink>
               <NavLink
                 to="participants"
                 className={({ isActive }) => getClassName(isActive)}
+                preventScrollReset
               >
                 {t("content.participants")}
               </NavLink>
               <NavLink
                 to="waiting-list"
                 className={({ isActive }) => getClassName(isActive)}
+                preventScrollReset
               >
                 {t("content.waitingList")}
               </NavLink>
               <NavLink
                 to="organizations"
                 className={({ isActive }) => getClassName(isActive)}
+                preventScrollReset
               >
                 {t("content.organizations")}
               </NavLink>
               <NavLink
                 to="documents"
                 className={({ isActive }) => getClassName(isActive)}
+                preventScrollReset
               >
                 {t("content.documents")}
               </NavLink>
@@ -94,6 +103,7 @@ function Settings() {
               <NavLink
                 to="delete"
                 className={({ isActive }) => getClassName(isActive)}
+                preventScrollReset
               >
                 {t("content.delete")}
               </NavLink>

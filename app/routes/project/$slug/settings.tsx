@@ -17,7 +17,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getToast } from "~/toast.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
 const i18nNS = ["routes/project/settings"];
@@ -186,7 +186,7 @@ function ProjectSettings() {
                     to={`${navLink.to}?deep`}
                     className={linkClasses}
                     prefetch="intent"
-                    // TODO: after update to Remix v2 add preventScrollReset
+                    preventScrollReset
                   >
                     <span className="mv-truncate mv-overflow-hidden mv-block">
                       {navLink.label}
