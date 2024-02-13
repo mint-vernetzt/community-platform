@@ -36,6 +36,7 @@ declare global {
       MAILER_PORT: string;
       MAILER_USER: string;
       MAILER_PASS: string;
+      SYSTEM_MAIL_SENDER: string;
       SUBMISSION_SENDER: string;
       NEWSSUBMISSION_RECIPIENT: string;
       NEWSSUBMISSION_SUBJECT: string;
@@ -112,6 +113,10 @@ if (process.env.MAILER_USER === undefined) {
 
 if (process.env.MAILER_PASS === undefined) {
   throw new Error("'MAILER_PASS' is required");
+}
+
+if (process.env.SYSTEM_MAIL_SENDER === undefined) {
+  throw new Error("'SYSTEM_MAIL_SENDER' is required");
 }
 
 if (process.env.SUBMISSION_SENDER === undefined) {
