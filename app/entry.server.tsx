@@ -32,7 +32,6 @@ declare global {
       SERVICE_ROLE_KEY: string;
       MATOMO_URL: string;
       MATOMO_SITE_ID: string;
-      API_KEY: string;
       MAILER_HOST: string;
       MAILER_PORT: string;
       MAILER_USER: string;
@@ -97,10 +96,6 @@ if (process.env.MATOMO_URL === undefined) {
 
 if (process.env.MATOMO_SITE_ID === undefined) {
   throw new Error("'MATOMO_SITE_ID' is required");
-}
-
-if (process.env.API_KEY === undefined) {
-  throw new Error("'API_KEY' is required");
 }
 
 if (process.env.MAILER_HOST === undefined) {
