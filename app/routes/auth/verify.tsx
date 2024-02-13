@@ -4,6 +4,7 @@ import { createAuthClient } from "~/auth.server";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { updateProfileEmailByUserId } from "./verify.server";
 import { invariantResponse } from "~/lib/utils/response";
+import * as Sentry from "@sentry/remix";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const requestUrl = new URL(request.url);
@@ -40,8 +41,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       "Did not provide necessary user meta data to create a corresponding profile after sign up.",
       { status: 400 }
     );
-    // TODO: Send welcome email
-    sendWelcomeMail(profile);
+    sendWelcomeMail(profile).catch((error) => {
+      Sentry.captureException(error);
+    });
     return redirect(loginRedirect || `/profile/${profile.username}`, {
       headers,
     });

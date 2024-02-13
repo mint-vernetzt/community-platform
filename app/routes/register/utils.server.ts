@@ -1,5 +1,4 @@
-import { Profile } from "@prisma/client";
-import { json } from "@remix-run/node";
+import { type Profile } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
@@ -67,11 +66,5 @@ export async function sendWelcomeMail(
     profile,
     "html"
   );
-  try {
-    await mailer(mailerOptions, sender, recipient, subject, text, html);
-  } catch (error) {
-    // Throw a 500 -> Mailer issue
-    console.error(error);
-    return json("Server error: Mailer issue", { status: 500 });
-  }
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
 }
