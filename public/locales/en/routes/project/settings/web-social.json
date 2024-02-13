@@ -43,11 +43,11 @@
         "placeholder": "domainname.tld/@<name>"
       },
       "tiktok": {
-        "label": "tiktok",
+        "label": "TikTok",
         "placeholder": "tiktok.com/@<name>"
       },
       "instagram": {
-        "label": "Instagramm",
+        "label": "Instagram",
         "placeholder": "instagram.com/<name>"
       },
       "youtube": {
