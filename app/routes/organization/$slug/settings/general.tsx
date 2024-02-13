@@ -107,7 +107,6 @@ function makeFormOrganizationFromDbOrganization(
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
