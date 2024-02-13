@@ -43,6 +43,7 @@ import styles from "./styles/legacy-styles.css";
 import { combineHeaders } from "./utils.server";
 import { H1, H2 } from "./components/Heading/Heading";
 import { initializeSentry } from "./sentry.client";
+import { useChangeLanguage } from "remix-i18next";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -560,7 +561,8 @@ export default function App() {
   );
 
   const { i18n } = useTranslation();
-  // useChangeLanguage(locale);
+  useChangeLanguage(locale);
+
   const main = (
     <main className="flex-auto relative pb-8 w-full">
       {typeof alert !== "undefined" &&
