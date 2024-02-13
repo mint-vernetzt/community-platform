@@ -52,6 +52,7 @@ function Index() {
                     <NavLink
                       to="general"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
                       {t("context.general")}
                     </NavLink>
@@ -60,6 +61,7 @@ function Index() {
                     <NavLink
                       to="notifications"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
                       {t("context.notifications")}
                     </NavLink>
@@ -68,6 +70,7 @@ function Index() {
                     <NavLink
                       to="security"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
                       {t("context.security")}
                     </NavLink>
@@ -78,6 +81,7 @@ function Index() {
                   <NavLink
                     to="delete"
                     className={({ isActive }) => getClassName(isActive)}
+                    preventScrollReset
                   >
                     {t("context.delete")}
                   </NavLink>

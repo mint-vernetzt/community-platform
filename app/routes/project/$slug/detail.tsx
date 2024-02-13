@@ -378,9 +378,10 @@ function ProjectDetail() {
         <div className="md:mv-flex xl:mv-justify-center">
           <div className="mv-flex mv-flex-col mv-gap-8 xl:mv-w-2/3">
             <TabBar>
-              {/* TODO: When upgraded to remix v2 add a preventScrollReset to the Links below instead of the hash anchor */}
               <TabBar.Item active={pathname.endsWith("/about")}>
-                <Link to="./about#tab-bar-container">{t("content.about")}</Link>
+                <Link to="./about" preventScrollReset>
+                  {t("content.about")}
+                </Link>
               </TabBar.Item>
               {(project.timeframe !== null ||
                 project.jobFillings !== null ||
@@ -393,14 +394,14 @@ function ProjectDetail() {
                 project.roomSituation !== null ||
                 project.furtherRoomSituation !== null) && (
                 <TabBar.Item active={pathname.endsWith("/requirements")}>
-                  <Link to="./requirements#tab-bar-container">
+                  <Link to="./requirements" preventScrollReset>
                     {t("content.conditions")}
                   </Link>
                 </TabBar.Item>
               )}
               {(project.documents.length > 0 || project.images.length > 0) && (
                 <TabBar.Item active={pathname.endsWith("/attachments")}>
-                  <Link to="./attachments#tab-bar-container">
+                  <Link to="./attachments" preventScrollReset>
                     {t("content.material")}
                   </Link>
                 </TabBar.Item>

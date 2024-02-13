@@ -50,6 +50,7 @@ function Settings() {
                     <NavLink
                       to="general"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
                       {t("navigation.general")}
                     </NavLink>
@@ -58,6 +59,7 @@ function Settings() {
                     <NavLink
                       to="admins"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
                       {t("navigation.admins")}
                     </NavLink>
@@ -66,6 +68,7 @@ function Settings() {
                     <NavLink
                       to="team"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
                       {t("navigation.team")}
                     </NavLink>
@@ -74,6 +77,7 @@ function Settings() {
                     <NavLink
                       to="network"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
                       {t("navigation.network")}
                     </NavLink>
@@ -84,6 +88,7 @@ function Settings() {
                   <NavLink
                     to="./delete"
                     className={({ isActive }) => getClassName(isActive)}
+                    preventScrollReset
                   >
                     {t("navigation.delete")}
                   </NavLink>
