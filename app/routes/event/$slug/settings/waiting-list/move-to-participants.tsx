@@ -57,27 +57,8 @@ export const action = async (args: ActionFunctionArgs) => {
     await connectParticipantToEvent(event.id, result.data.profileId);
     await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
     // Send info mail
-    const sender = process.env.SYSTEM_MAIL_SENDER;
-    if (sender === undefined) {
-      console.error(t("error.env.sender"));
-      throw json(
-        {
-          message: t("error.env.sender"),
-        },
-        { status: 500 }
-      );
-    }
-    const baseUrl = process.env.COMMUNITY_BASE_URL;
-    if (baseUrl === undefined) {
-      console.error(t("error.env.url"));
-      throw json(
-        {
-          message: t("error.env.url"),
-        },
-        { status: 500 }
-      );
-    }
     // -> mail of person which was moved to waitinglist
+    const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = profile.email;
     const subject = t("email.subject", { title: event.name });
     const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
@@ -88,7 +69,7 @@ export const action = async (args: ActionFunctionArgs) => {
       },
       event: {
         name: event.name,
-        url: `${baseUrl}/event/${event.slug}`,
+        url: `${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`,
         startDate: `${startTime.getDate()}.${
           startTime.getMonth() + 1
         }.${startTime.getFullYear()}`,
@@ -110,17 +91,15 @@ export const action = async (args: ActionFunctionArgs) => {
       },
     };
     const textTemplatePath = "mail-templates/move-to-participants/text.hbs";
-    const text = await getCompiledMailTemplate<typeof textTemplatePath>(
+    const text = getCompiledMailTemplate<typeof textTemplatePath>(
       textTemplatePath,
       content,
-      baseUrl,
       "text"
     );
     const htmlTemplatePath = "mail-templates/move-to-participants/html.hbs";
-    const html = await getCompiledMailTemplate<typeof htmlTemplatePath>(
+    const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
       htmlTemplatePath,
       content,
-      baseUrl,
       "html"
     );
 

@@ -1,4 +1,7 @@
+import { type Profile } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
+import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
+import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 
 export async function createProfile(user: User) {
@@ -22,6 +25,12 @@ export async function createProfile(user: User) {
     };
     // Creates the profile and its corrsponding profileVisibility with default values defined in prisma.schema
     const profile = await prismaClient.profile.create({
+      select: {
+        id: true,
+        username: true,
+        firstName: true,
+        email: true,
+      },
       data: {
         profileVisibility: {
           create: {},
@@ -35,4 +44,27 @@ export async function createProfile(user: User) {
     return profile;
   }
   return null;
+}
+
+export async function sendWelcomeMail(
+  profile: Pick<Profile, "firstName" | "email">
+) {
+  // TODO: i18n
+  const subject = "Willkommen auf der MINTvernetzt Community-Plattform";
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const recipient = profile.email;
+  const textTemplatePath = "mail-templates/welcome/text.hbs";
+  const htmlTemplatePath = "mail-templates/welcome/html.hbs";
+
+  const text = getCompiledMailTemplate<typeof textTemplatePath>(
+    textTemplatePath,
+    profile,
+    "text"
+  );
+  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+    htmlTemplatePath,
+    profile,
+    "html"
+  );
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
 }

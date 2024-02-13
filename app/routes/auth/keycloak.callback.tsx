@@ -2,7 +2,8 @@ import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { createAuthClient, getSession } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { createProfile } from "../register/utils.server";
+import { createProfile, sendWelcomeMail } from "../register/utils.server";
+import * as Sentry from "@sentry/remix";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -36,6 +37,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "Did not provide necessary user meta data to create a corresponding profile after sign up.",
       { status: 400 }
     );
+    sendWelcomeMail(profile).catch((error) => {
+      Sentry.captureException(error);
+    });
     return redirect(loginRedirect || `/profile/${profile.username}`, {
       headers,
     });

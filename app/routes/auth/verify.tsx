@@ -1,9 +1,10 @@
 import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { createAuthClient } from "~/auth.server";
-import { createProfile } from "../register/utils.server";
+import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { updateProfileEmailByUserId } from "./verify.server";
 import { invariantResponse } from "~/lib/utils/response";
+import * as Sentry from "@sentry/remix";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const requestUrl = new URL(request.url);
@@ -40,6 +41,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       "Did not provide necessary user meta data to create a corresponding profile after sign up.",
       { status: 400 }
     );
+    sendWelcomeMail(profile).catch((error) => {
+      Sentry.captureException(error);
+    });
     return redirect(loginRedirect || `/profile/${profile.username}`, {
       headers,
     });
