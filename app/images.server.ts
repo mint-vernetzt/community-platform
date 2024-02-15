@@ -1,4 +1,3 @@
-import { en } from "@faker-js/faker";
 import crypto from "crypto";
 
 export type ResizeType = "fit" | "fill" | "crop";

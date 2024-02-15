@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import { getImageURL, getPublicURL } from "../images.server";
 import { prismaClient } from "../prisma";
 import type { Request } from "express";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { getBaseURL } from "../../src/utils";
 import { filterEventByVisibility } from "../public-fields-filtering.server";
-import { GravityType } from "imgproxy/dist/types";
+import { getPublicURL } from "../storage.server";
+import { getImageURL, GravityType } from "../images.server";
 
 type Events = Awaited<ReturnType<typeof getEvents>>;
 
