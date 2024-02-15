@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Request as ExpressRequest } from "express";
-import { GravityType } from "imgproxy/dist/types.js";
+
 import {
   Controller,
   Get,
@@ -12,7 +12,8 @@ import {
   Tags,
   type ValidateError,
 } from "tsoa";
-import { getImageURL, getPublicURL } from "../images.server";
+import { getPublicURL } from "../storage.server";
+import { getImageURL, GravityType } from "../images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { prismaClient } from "../prisma";
 import { filterOrganizationByVisibility } from "../public-fields-filtering.server";

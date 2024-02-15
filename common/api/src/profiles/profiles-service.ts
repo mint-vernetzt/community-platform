@@ -1,8 +1,8 @@
 import { type Request } from "express";
 import { prismaClient } from "../prisma";
 import { createClient } from "@supabase/supabase-js";
-import { getImageURL, getPublicURL } from "../images.server";
-import { GravityType } from "imgproxy/dist/types.js";
+import { getPublicURL } from "../storage.server";
+import { getImageURL, GravityType } from "../images.server";
 import { getBaseURL } from "../utils";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { filterProfileByVisibility } from "../public-fields-filtering.server";
