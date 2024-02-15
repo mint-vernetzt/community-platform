@@ -32,7 +32,8 @@
     "make": "make",
     "update:seed": "npx tsx scripts/update-seed.ts",
     "typecheck": "npx tsc",
-    "typecheck:api": "npx tsc -p ./common/api"
+    "typecheck:api": "npx tsc -p ./common/api",
+    "start:api": "ts-node ./common/api/src/server.ts"
   },
   "dependencies": {
     "@conform-to/react": "^0.9.1",
