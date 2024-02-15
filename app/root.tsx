@@ -194,7 +194,10 @@ function NavBar(props: NavBarProps) {
   const query = searchParams.get("query");
 
   const matches = useMatches();
-  const isSettings = matches[1].id === "routes/project/$slug/settings";
+  let isSettings = false;
+  if (matches[1] !== undefined) {
+    isSettings = matches[1].id === "routes/project/$slug/settings";
+  }
 
   const classes = classNames("shadow-md mb-8", isSettings && "hidden md:block");
 
@@ -544,14 +547,18 @@ export default function App() {
   const isIndexRoute = location.pathname === "/";
 
   const matches = useMatches();
-  const isProjectSettings = matches[1].id === "routes/project/$slug/settings";
-  const otherSettingsRoutes = [
-    "routes/profile/$username/settings",
-    "routes/organization/$slug/settings",
-    "routes/event/$slug/settings",
-    "routes/project/$slug/settings",
-  ];
-  const isSettings = otherSettingsRoutes.includes(matches[1].id);
+  let isSettings = false;
+  let isProjectSettings = false;
+  if (matches[1] !== undefined) {
+    isProjectSettings = matches[1].id === "routes/project/$slug/settings";
+    const otherSettingsRoutes = [
+      "routes/profile/$username/settings",
+      "routes/organization/$slug/settings",
+      "routes/event/$slug/settings",
+      "routes/project/$slug/settings",
+    ];
+    isSettings = otherSettingsRoutes.includes(matches[1].id);
+  }
 
   const [searchParams] = useSearchParams();
   const modal = searchParams.get("modal");

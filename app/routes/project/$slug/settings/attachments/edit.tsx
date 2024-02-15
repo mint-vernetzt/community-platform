@@ -246,6 +246,17 @@ function Edit() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const matches = useMatches();
+  let penultimateMatch;
+  if (matches.length >= 2) {
+    penultimateMatch = matches[matches.length - 2];
+  }
+  let pathname = "";
+  if (
+    penultimateMatch !== undefined &&
+    typeof penultimateMatch.pathname !== "undefined"
+  ) {
+    pathname = penultimateMatch.pathname;
+  }
   const type = searchParams.get("type") as "document" | "image";
 
   let defaultValue;
@@ -298,7 +309,7 @@ function Edit() {
               : t("content.editImage")}
           </h2>
           <Link
-            to={`${matches[matches.length - 2].pathname}?deep`} // last layout route
+            to={`${pathname}?deep`} // last layout route
             prefetch="intent"
             className="mv-pl-4"
           >
