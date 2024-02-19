@@ -417,14 +417,18 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <Form
+                      id="logout-form"
                       action="/logout?index"
                       method="post"
-                      className="py-2 hover:bg-neutral-300 focus:bg-neutral-300 rounded-none"
+                      className="hidden"
+                    />
+                    <button
+                      form="logout-form"
+                      type="submit"
+                      className="text-left w-full hover:bg-neutral-300 focus:bg-neutral-300"
                     >
-                      <button type="submit" className="w-full text-left">
-                        {t("root.logout")}
-                      </button>
-                    </Form>
+                      {t("root.logout")}
+                    </button>
                   </li>
                 </ul>
               </div>
