@@ -31,6 +31,9 @@ jobs:
             ssh-add ~/.ssh/github-dk
             cd repository/
             git pull
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            nvm use
             npm install
             npm run build
             pm2 restart npm
