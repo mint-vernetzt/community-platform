@@ -5,6 +5,10 @@ import {
 } from "./utils.server";
 
 // TODO: add more names to test
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
 test("generate username", () => {
   const testData: {
     given: { firstName: string; lastName: string };

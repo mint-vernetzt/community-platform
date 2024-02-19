@@ -1,5 +1,5 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -9,18 +9,17 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { createAreaOptionFromData } from "~/lib/utils/components";
 import { prismaClient } from "~/prisma.server";
-import { getAllOffers } from "~/routes/utils.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
+import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -29,15 +28,19 @@ import {
   getPaginationValues,
   getRandomSeed,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
+
+const i18nNS = ["routes/explore/profiles"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -56,10 +59,7 @@ export const loader = async (args: LoaderArgs) => {
         filterValues.areaId ? `&areaId=${filterValues.areaId}` : ""
       }${filterValues.offerId ? `&offerId=${filterValues.offerId}` : ""}${
         filterValues.seekingId ? `&seekingId=${filterValues.seekingId}` : ""
-      }`,
-      {
-        headers: response.headers,
-      }
+      }`
     );
   }
 
@@ -146,16 +146,13 @@ export const loader = async (args: LoaderArgs) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return json(
-    {
-      isLoggedIn,
-      profiles: enhancedProfiles,
-      areas,
-      offers,
-      pagination: { page, itemsPerPage },
-    },
-    { headers: response.headers }
-  );
+  return json({
+    isLoggedIn,
+    profiles: enhancedProfiles,
+    areas,
+    offers,
+    pagination: { page, itemsPerPage },
+  });
 };
 
 export default function Index() {
@@ -211,13 +208,13 @@ export default function Index() {
     submit(event.currentTarget);
   }
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Entdecke die Community</H1>
-        <p className="">
-          Hier findest du die Profile von Akteur:innen der MINT-Community.
-        </p>
+        <H1 like="h0">{t("headline")}</H1>
+        <p className="">{t("intro")}</p>
       </section>
 
       {loaderData.isLoggedIn ? (
@@ -233,7 +230,7 @@ export default function Index() {
             <div className="flex flex-wrap -mx-4">
               <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
                 <label className="block font-semibold mb-2">
-                  Aktivitätsgebiet
+                  {t("search.activityAreas")}
                 </label>
                 <select
                   id="areaId"
@@ -272,7 +269,9 @@ export default function Index() {
                 </select>
               </div>
               <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                <label className="block font-semibold mb-2">Ich suche</label>
+                <label className="block font-semibold mb-2">
+                  {t("search.lookingFor")}
+                </label>
                 <select
                   id="offerId"
                   name="offerId"
@@ -289,7 +288,7 @@ export default function Index() {
               </div>
               <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
                 <label className="block font-semibold mb-2">
-                  Ich möchte unterstützen mit
+                  {t("search.support")}
                 </label>
                 <select
                   id="seekingId"
@@ -383,19 +382,16 @@ export default function Index() {
                   <Button
                     size="large"
                     variant="outline"
-                    loading={fetcher.state === "submitting"}
+                    loading={fetcher.state === "loading"}
                   >
-                    Weitere laden
+                    {t("more")}
                   </Button>
                 </fetcher.Form>
               </div>
             )}
           </>
         ) : (
-          <p className="text-center text-primary">
-            Für Deine Filterkriterien konnten leider keine Profile gefunden
-            werden.
-          </p>
+          <p className="text-center text-primary">{t("empty")}</p>
         )}
       </section>
     </>

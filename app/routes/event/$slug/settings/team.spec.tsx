@@ -165,6 +165,8 @@ describe("/event/$slug/settings/team", () => {
           postion: "some-user-position",
         },
       ]);
+      // TODO: fix type issue
+      // @ts-ignore
       expect(responseBody.speakerSuggestions).toBe(undefined);
     });
 

@@ -2,7 +2,7 @@ import classNames from "classnames";
 import React from "react";
 export interface LinkProps {
   to: string;
-  children: string | React.ReactNode;
+  children?: string | React.ReactNode;
   variant?: "primary";
   active?: boolean;
   className?: string;

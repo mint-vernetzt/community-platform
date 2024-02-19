@@ -5,9 +5,10 @@ import { loader } from "./index";
 import * as imageServerModule from "~/images.server";
 import { redirect } from "@remix-run/node";
 
-/** @type {jest.Expect} */
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
 // @ts-ignore
-const expect = global.expect;
+const expect = global.expect as jest.Expect;
 
 const getImageURL = jest.spyOn(imageServerModule, "getImageURL");
 
@@ -471,7 +472,7 @@ describe("loader", () => {
       const json = await response.json();
 
       expect(response.status).toBe(404);
-      expect(json).toEqual({ message: "Profile not found" });
+      expect(json).toEqual({ message: "error.profileNotFound" });
     }
   });
 
@@ -534,7 +535,7 @@ describe("loader", () => {
       const json = await response.json();
 
       expect(response.status).toBe(404);
-      expect(json).toEqual({ message: "Profile not found" });
+      expect(json).toEqual("error.profileNotFound");
     }
   });
 

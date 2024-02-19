@@ -18,7 +18,7 @@ export function BackButton(props: PropsWithChildren<BackButtonProps>) {
   );
 }
 
-export function MaterialList(props: PropsWithChildren<{}>) {
+export function MaterialList(props: PropsWithChildren<unknown>) {
   return (
     <ul className="mv-list-none mv-max-w-full mv-flex mv-gap-4 mv-flex-col">
       {props.children}
@@ -63,11 +63,11 @@ export function JPGIcon() {
   );
 }
 
-export function MaterialListItemTitle(props: PropsWithChildren<{}>) {
+export function MaterialListItemTitle(props: PropsWithChildren<unknown>) {
   return <>{props.children}</>;
 }
 
-export function MaterialListItemMeta(props: PropsWithChildren<{}>) {
+export function MaterialListItemMeta(props: PropsWithChildren<unknown>) {
   return (
     <span className="mv-text-primary mv-text-base mv-font-normal">
       {" "}
@@ -76,7 +76,7 @@ export function MaterialListItemMeta(props: PropsWithChildren<{}>) {
   );
 }
 
-export function MaterialListItemParagraph(props: PropsWithChildren<{}>) {
+export function MaterialListItemParagraph(props: PropsWithChildren<unknown>) {
   return (
     <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-hidden md:mv-line-clamp-1">
       {props.children}
@@ -84,7 +84,7 @@ export function MaterialListItemParagraph(props: PropsWithChildren<{}>) {
   );
 }
 
-export function MaterialListItemControls(props: PropsWithChildren<{}>) {
+export function MaterialListItemControls(props: PropsWithChildren<unknown>) {
   return (
     <div className="mv-p-4 mv-shrink-0 mv-flex mv-gap-4 mv-ml-auto">
       {props.children}
@@ -170,7 +170,7 @@ export function MaterialListItemControlsDownload() {
   );
 }
 
-export function MaterialListItem(props: PropsWithChildren<{}>) {
+export function MaterialListItem(props: PropsWithChildren<unknown>) {
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
       return React.isValidElement(child) || typeof child === "string";

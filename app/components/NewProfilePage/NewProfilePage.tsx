@@ -58,19 +58,19 @@ function NewProfilePage(props: NewProfilePageProps) {
 
             <div className="flex flex-row -mx-4 mb-4">
               <div className="basis-6/12 px-4">
-                <InputText id="firstName" label="Vorname" isRequired />
+                <InputText id="firstName" label="Vorname" required />
               </div>
               <div className="basis-6/12 px-4">
-                <InputText id="lastName" label="Nachname" isRequired />
+                <InputText id="lastName" label="Nachname" required />
               </div>
             </div>
 
             <div className="mb-4">
-              <InputText id="email" label="E-Mail" isRequired />
+              <InputText id="email" label="E-Mail" required />
             </div>
 
             <div className="mb-4">
-              <InputPassword id="password" label="Passwort" isRequired />
+              <InputPassword id="password" label="Passwort" required />
             </div>
 
             {/* <div className="mb-4">

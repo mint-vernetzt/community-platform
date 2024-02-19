@@ -6,14 +6,11 @@ import {
   ProfileCard,
 } from "@mint-vernetzt/components";
 import type { Organization, Profile } from "@prisma/client";
-import type { LinksFunction, LoaderArgs } from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
-import { notFound } from "remix-utils";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import { GravityType, getImageURL } from "~/images.server";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css";
 import {
@@ -25,19 +22,24 @@ import {
   getProfilesForCards,
 } from "./dashboard.server";
 import { getRandomSeed } from "./explore/utils.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
+
+const i18nNS = ["routes/dashboard"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
-  const featureAbilities = await getFeatureAbilities(authClient, "dashboard");
-  if (featureAbilities["dashboard"].hasAccess === false) {
-    return redirect("/");
-  }
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -47,23 +49,18 @@ export const loader = async (args: LoaderArgs) => {
 
   const profile = await getProfileById(sessionUser.id);
   if (profile === null) {
-    throw notFound({ message: "Profile not found" });
+    throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
 
   if (profile.termsAccepted === false) {
-    return redirect("/accept-terms?redirect_to=/dashboard", {
-      headers: response.headers,
-    });
+    return redirect("/accept-terms?redirect_to=/dashboard");
   }
 
   let randomSeed = getRandomSeed(request);
   if (randomSeed === undefined) {
     randomSeed = parseFloat((Math.random() / 4).toFixed(3)); // use top 25% of profiles
     // use enhanced redirect to preserve flash cookies
-    return enhancedRedirect(`/dashboard?randomSeed=${randomSeed}`, {
-      response: { headers: response.headers },
-      request,
-    });
+    return enhancedRedirect(`/dashboard?randomSeed=${randomSeed}`, request);
   }
 
   const numberOfProfiles = 4;
@@ -76,7 +73,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const profiles = rawProfiles.map((profile) => {
     const { avatar, background, memberOf, ...otherFields } = profile;
-    let extensions: {
+    const extensions: {
       memberOf: Pick<Organization, "name" | "slug" | "logo">[];
       areas: string[];
       offers: string[];
@@ -150,7 +147,7 @@ export const loader = async (args: LoaderArgs) => {
 
   const organizations = rawOrganizations.map((organization) => {
     const { logo, background, teamMembers, ...otherFields } = organization;
-    let extensions: {
+    const extensions: {
       teamMembers: Pick<
         Profile,
         "firstName" | "lastName" | "username" | "avatar"
@@ -216,40 +213,36 @@ export const loader = async (args: LoaderArgs) => {
       background: backgroundImage,
     };
   });
-  return json(
-    {
-      profiles,
-      organizations,
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      username: profile.username,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    profiles,
+    organizations,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    username: profile.username,
+  });
 };
 
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-my-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <div className="mv-px-4 xl:mv-px-6">
           <h1 className="mv-text-primary mv-font-black mv-text-5xl lg:mv-text-7xl mv-leading-tight mv-mb-2">
-            Willkommen,
+            {t("content.welcome")}
             <br />
             {loaderData.firstName} {loaderData.lastName}
           </h1>
-          <p className="mv-font-semibold mv-mb-6">
-            in Deiner MINTvernetzt-Community!
-          </p>
+          <p className="mv-font-semibold mv-mb-6">{t("content.community")}</p>
           <p>
             <Button
               variant="outline"
               as="a"
               href={`/profile/${loaderData.username}`}
             >
-              Mein Profil besuchen
+              {t("content.myProfile")}
             </Button>
           </p>
         </div>
@@ -259,12 +252,12 @@ function Dashboard() {
         {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] 2xl:mv-max-w-[1563px] mv-mb-16"> */}
         <div className="mv-flex mv-mb-4 mv-px-4 xl:mv-px-6 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
-            Profile
+            {t("content.profiles")}
           </div>
           <div className="mv-text-right">
             <Link to="/explore/profiles">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
-                Alle Profile
+                {t("content.allProfiles")}
               </span>
             </Link>
           </div>
@@ -280,12 +273,12 @@ function Dashboard() {
       <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 xl:mv-px-6 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
-            Organisationen
+            {t("content.organizations")}
           </div>
           <div className="mv-text-right">
             <Link to="/explore/organizations">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
-                Alle Organisationen
+                {t("content.allOrganizations")}
               </span>
             </Link>
           </div>

@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -8,12 +8,11 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -22,35 +21,44 @@ import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
 import { getFullDepthProfiles } from "../utils.server";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { type action as publishAction, publishSchema } from "./events/publish";
 import {
   getEventBySlug,
   getParticipantsDataFromEvent,
 } from "./waiting-list.server";
 import {
-  addToWaitingListSchema,
   type action as addToWaitingListAction,
+  addToWaitingListSchema,
 } from "./waiting-list/add-to-waiting-list";
 import {
-  moveToParticipantsSchema,
   type action as moveToParticipantsAction,
+  moveToParticipantsSchema,
 } from "./waiting-list/move-to-participants";
 import {
-  removeFromWaitingListSchema,
   type action as removeFromWaitingListAction,
+  removeFromWaitingListSchema,
 } from "./waiting-list/remove-from-waiting-list";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/waiting-list",
+  ]);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const participants = getParticipantsDataFromEvent(event);
   const enhancedWaitingParticipants = participants.waitingList.map(
@@ -100,18 +108,15 @@ export const loader = async (args: LoaderArgs) => {
     "waitingList"
   );
 
-  return json(
-    {
-      published: event.published,
-      waitingList: enhancedWaitingParticipants,
-      waitingParticipantSuggestions,
-      hasFullDepthWaitingList:
-        fullDepthWaitingList !== null &&
-        fullDepthWaitingList.length > 0 &&
-        event._count.childEvents !== 0,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    waitingList: enhancedWaitingParticipants,
+    waitingParticipantSuggestions,
+    hasFullDepthWaitingList:
+      fullDepthWaitingList !== null &&
+      fullDepthWaitingList.length > 0 &&
+      event._count.childEvents !== 0,
+  });
 };
 
 function Participants() {
@@ -126,19 +131,15 @@ function Participants() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/event/settings/waiting-list"]);
 
   return (
     <>
-      <h1 className="mb-8">Warteliste</h1>
-      <p className="mb-8">
-        Wer wartet aktuell auf eine Teilnahme? Füge hier weitere Teilnehmende
-        der Warteliste hinzu oder füge Wartende der Teilnehmendenliste hinzu.
-      </p>
-      <h4 className="mb-4 font-semibold">Zur Warteliste hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier der Warteliste ein bereits bestehendes Profil hinzu.
-      </p>
-      <Form
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-8">{t("content.intro")}</p>
+      <h4 className="mb-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
+      <RemixFormsForm
         schema={addToWaitingListSchema}
         fetcher={addToWaitingListFetcher}
         action={`/event/${slug}/settings/waiting-list/add-to-waiting-list`}
@@ -156,7 +157,7 @@ function Participants() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name oder Email der wartenden Person
+                      {t("content.add.label")}
                     </label>
                   </div>
                 </div>
@@ -188,7 +189,7 @@ function Participants() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addToWaitingListFetcher.data !== undefined &&
       "message" in addToWaitingListFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -197,11 +198,10 @@ function Participants() {
       ) : null}
       {loaderData.waitingList.length > 0 ? (
         <>
-          <h4 className="mb-4 mt-16 font-semibold">Warteliste</h4>
-          <p className="mb-4">
-            Folgende Profile stehen aktuell auf der Warteliste (in Reihenfolge
-            ihrer Anmeldung.)
-          </p>
+          <h4 className="mb-4 mt-16 font-semibold">
+            {t("content.current.headline")}
+          </h4>
+          <p className="mb-4">{t("content.current.intro")}</p>
         </>
       ) : null}
       {loaderData.waitingList.length > 0 ? (
@@ -211,7 +211,7 @@ function Participants() {
             to="../csv-download?type=waitingList&amp;depth=single"
             reloadDocument
           >
-            Warteliste herunterladen
+            {t("content.current.download1")}
           </Link>
         </p>
       ) : null}
@@ -222,14 +222,14 @@ function Participants() {
             to="../csv-download?type=waitingList&amp;depth=full"
             reloadDocument
           >
-            Warteliste aller Subveranstaltungen herunterladen
+            {t("content.current.download2")}
           </Link>
         </p>
       ) : null}
 
       {moveToParticipantsFetcher.data !== undefined &&
         moveToParticipantsFetcher.data.success === true && (
-          <div>Teilnehmende wurde hinzugefügt und per E-Mail informiert.</div>
+          <div>{t("content.current.feedback")}</div>
         )}
       {loaderData.waitingList.length > 0 ? (
         <div className="mb-4 mt-8 md:max-h-[630px] overflow-auto">
@@ -265,7 +265,7 @@ function Participants() {
                   ) : null}
                 </div>
                 <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                  <Form
+                  <RemixFormsForm
                     schema={moveToParticipantsSchema}
                     fetcher={moveToParticipantsFetcher}
                     action={`/event/${slug}/settings/waiting-list/move-to-participants`}
@@ -282,13 +282,13 @@ function Participants() {
                           <Errors />
                           <Field name="profileId" />
                           <Button className="btn btn-outline-primary ml-auto btn-small">
-                            Zu Teilnehmenden hinzufügen
+                            {t("content.current.action")}
                           </Button>
                         </>
                       );
                     }}
-                  </Form>
-                  <Form
+                  </RemixFormsForm>
+                  <RemixFormsForm
                     schema={removeFromWaitingListSchema}
                     fetcher={removeFromWaitingListFetcher}
                     action={`/event/${slug}/settings/waiting-list/remove-from-waiting-list`}
@@ -305,7 +305,7 @@ function Participants() {
                           <Field name="profileId" />
                           <Button
                             className="ml-auto btn-none"
-                            title="entfernen"
+                            title={t("content.current.remove")}
                           >
                             <svg
                               viewBox="0 0 10 10"
@@ -323,7 +323,7 @@ function Participants() {
                         </>
                       );
                     }}
-                  </Form>
+                  </RemixFormsForm>
                 </div>
               </div>
             );
@@ -333,7 +333,7 @@ function Participants() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -348,12 +348,14 @@ function Participants() {
                   <>
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                      {loaderData.published
+                        ? t("content.hide")
+                        : t("content.publish")}
                     </Button>
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

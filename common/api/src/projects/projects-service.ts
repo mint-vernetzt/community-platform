@@ -1,9 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Request } from "express";
-import { GravityType } from "imgproxy/dist/types";
 import { filterProjectByVisibility } from "../public-fields-filtering.server";
 import { getBaseURL } from "../../src/utils";
-import { getImageURL, getPublicURL } from "../images.server";
+import { getPublicURL } from "../storage.server";
+import { getImageURL, GravityType } from "../images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { prismaClient } from "../prisma";
 
@@ -99,7 +99,7 @@ async function getProjects(request: Request, skip: number, take: number) {
         }
       }
 
-      let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+      const baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
 
       const url =
         baseURL !== undefined

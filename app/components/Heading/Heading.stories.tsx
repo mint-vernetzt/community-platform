@@ -1,6 +1,7 @@
-import { Story, Meta } from "@storybook/react";
+import { type Story, type Meta } from "@storybook/react";
 import type { HeadingProps } from "./Heading";
 import Heading, { H1, H2, H3, H4, H5, H6 } from "./Heading";
+import React from "react";
 
 export default {
   title: "Components/Heading",
@@ -10,7 +11,10 @@ export const Playground: Story<{ changeStyle: boolean } & HeadingProps> = (
   args
 ) => {
   const { changeStyle, like, ...otherArgs } = args;
-  return <Heading like={changeStyle ? like : undefined} {...otherArgs} />;
+  const ref = React.createRef<HTMLHeadingElement>();
+  return (
+    <Heading like={changeStyle ? like : undefined} {...otherArgs} ref={ref} />
+  );
 };
 
 const defaultText =

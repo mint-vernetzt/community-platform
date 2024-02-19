@@ -1,16 +1,17 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { GravityType } from "imgproxy/dist/types";
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
@@ -18,11 +19,14 @@ import {
   getQueryValueAsArrayOfWords,
   searchEventsViaLike,
 } from "./utils.server";
-import { useHydrated } from "remix-utils";
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+const i18nNS = ["routes/search/events"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
@@ -44,18 +48,16 @@ export const loader = async ({ request }: LoaderArgs) => {
 
     if (sessionUser === null) {
       // Filter event
-      enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
-        enhancedEvent
-      );
+      type EnhancedEvent = typeof enhancedEvent;
+      enhancedEvent = filterEventByVisibility<EnhancedEvent>(enhancedEvent);
       // Filter responsible organizations of event
-      enhancedEvent.responsibleOrganizations = await Promise.all(
-        enhancedEvent.responsibleOrganizations.map(async (relation) => {
-          const filteredOrganization = await filterOrganizationByVisibility<
-            typeof relation.organization
-          >(relation.organization);
+      enhancedEvent.responsibleOrganizations =
+        enhancedEvent.responsibleOrganizations.map((relation) => {
+          type Organization = typeof relation.organization;
+          const filteredOrganization =
+            filterOrganizationByVisibility<Organization>(relation.organization);
           return { ...relation, organization: filteredOrganization };
-        })
-      );
+        });
     }
 
     // Add images from image proxy
@@ -105,17 +107,14 @@ export const loader = async ({ request }: LoaderArgs) => {
   const enhancedEventsWithParticipationStatus =
     await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
-  return json(
-    {
-      events: enhancedEventsWithParticipationStatus,
-      userId: sessionUser?.id || undefined,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
+  return json({
+    events: enhancedEventsWithParticipationStatus,
+    userId: sessionUser?.id || undefined,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+  });
 };
 
 export default function SearchView() {
@@ -162,6 +161,8 @@ export default function SearchView() {
 
   const isHydrated = useHydrated();
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       {items.length > 0 ? (
@@ -202,10 +203,7 @@ export default function SearchView() {
                   );
                 })
               ) : (
-                <p>
-                  Für Deine Filterkriterien konnten leider keine Profile
-                  gefunden werden.
-                </p>
+                <p>{t("empty.events")}</p>
               )}
             </CardContainer>
           </section>
@@ -217,18 +215,16 @@ export default function SearchView() {
                 <Button
                   size="large"
                   variant="outline"
-                  loading={fetcher.state === "submitting"}
+                  loading={fetcher.state === "loading"}
                 >
-                  Weitere laden
+                  {t("more")}
                 </Button>
               </fetcher.Form>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">
-          Für Deine Suche konnten leider keine Veranstaltungen gefunden werden.
-        </p>
+        <p className="text-center text-primary">{t("empty.events")}</p>
       )}
     </>
   );

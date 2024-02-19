@@ -262,7 +262,7 @@ export type AvatarProps = {
 
 export function Avatar(props: AvatarProps) {
   let displayName = "";
-  let initials = getInitials(props);
+  const initials = getInitials(props);
   let src;
   if ("name" in props) {
     displayName = props.name;

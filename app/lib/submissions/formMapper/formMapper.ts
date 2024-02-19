@@ -1,4 +1,4 @@
-import { Schema } from "jsonschema";
+import { type Schema } from "jsonschema";
 
 export function formMapper<T>(formData: FormData, schema: Schema): T {
   return Object.keys(schema.properties ?? {}).reduce(

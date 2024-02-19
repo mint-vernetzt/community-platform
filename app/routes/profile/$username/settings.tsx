@@ -1,15 +1,19 @@
-import { json, redirect, type LoaderArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { NavLink, Outlet } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
+import { useTranslation } from "react-i18next";
 
-export const loader = async (args: LoaderArgs) => {
+const i18nNS = ["routes/profile/settings"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const username = getParamValueOrThrow(params, "username");
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
@@ -20,12 +24,11 @@ export const loader = async (args: LoaderArgs) => {
     // TODO: Could this be moved to root.tsx?
     if (userProfile !== null && userProfile.termsAccepted === false) {
       return redirect(
-        `/accept-terms?redirect_to=/profile/${username}/settings`,
-        { headers: response.headers }
+        `/accept-terms?redirect_to=/profile/${username}/settings`
       );
     }
   }
-  return json({});
+  return null;
 };
 
 function Index() {
@@ -34,37 +37,42 @@ function Index() {
       active ? "text-primary" : "text-neutral-500"
     }  hover:text-primary py-3`;
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       <div className="container relative">
         <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">Profil bearbeiten</h3>
+              <h3 className="font-bold mb-7">{t("context.headline")}</h3>
               <menu>
                 <ul>
                   <li>
                     <NavLink
                       to="general"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
-                      Allgemein
+                      {t("context.general")}
                     </NavLink>
                   </li>
                   <li>
                     <NavLink
                       to="notifications"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
-                      Benachrichtigungen
+                      {t("context.notifications")}
                     </NavLink>
                   </li>
                   <li>
                     <NavLink
                       to="security"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
-                      Login und Sicherheit
+                      {t("context.security")}
                     </NavLink>
                   </li>
                 </ul>
@@ -73,8 +81,9 @@ function Index() {
                   <NavLink
                     to="delete"
                     className={({ isActive }) => getClassName(isActive)}
+                    preventScrollReset
                   >
-                    Profil löschen
+                    {t("context.delete")}
                   </NavLink>
                 </div>
               </menu>
@@ -97,7 +106,7 @@ function Index() {
                     />
                   </svg>
                 </span>
-                <span>Für alle sichtbar</span>
+                <span>{t("state.public")}</span>
               </p>
 
               <p className="text-xs flex items-center mb-4">
@@ -122,7 +131,7 @@ function Index() {
                     />
                   </svg>
                 </span>
-                <span>Für unregistrierte Nutzer:innen nicht sichtbar</span>
+                <span>{t("state.registered")}</span>
               </p>
             </div>
           </div>

@@ -1,30 +1,33 @@
 import { Button, CardContainer, ProjectCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getAllProjects, getPaginationValues } from "./utils.server";
+import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const response = new Response();
+const i18nNS = ["routes/explore/projects"];
+export const handle = {
+  i18n: i18nNS,
+};
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
     itemsPerPage: 8,
   });
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const projects = await getAllProjects(skip, take);
 
@@ -37,19 +40,20 @@ export const loader = async ({ request }: LoaderArgs) => {
 
     if (sessionUser === null) {
       // Filter project
-      enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
-        enhancedProject
-      );
+      type EnhancedProject = typeof enhancedProject;
+      enhancedProject =
+        filterProjectByVisibility<EnhancedProject>(enhancedProject);
       // Filter responsible organizations of project
-      enhancedProject.responsibleOrganizations = await Promise.all(
-        enhancedProject.responsibleOrganizations.map(async (relation) => {
-          const filteredOrganization = await filterOrganizationByVisibility<
-            typeof relation.organization
-          >(relation.organization);
+      enhancedProject.responsibleOrganizations =
+        enhancedProject.responsibleOrganizations.map((relation) => {
+          type OrganizationRelation = typeof relation.organization;
+          const filteredOrganization =
+            filterOrganizationByVisibility<OrganizationRelation>(
+              relation.organization
+            );
 
           return { ...relation, organization: filteredOrganization };
-        })
-      );
+        });
     }
 
     // Add images from image proxy
@@ -106,16 +110,13 @@ export const loader = async ({ request }: LoaderArgs) => {
     enhancedProjects.push(enhancedProject);
   }
 
-  return json(
-    {
-      projects: enhancedProjects,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
+  return json({
+    projects: enhancedProjects,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+  });
 };
 
 function Projects() {
@@ -152,15 +153,13 @@ function Projects() {
     }
   }, [fetcher.data]);
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Entdecke inspirierende Projekte</H1>
-        <p className="">
-          Finde passende Projekte, lerne von Erfahrungen anderer
-          MINT-Akteur:innen und teile Dein Wissen, indem Du Dein eigenes Projekt
-          anlegst.
-        </p>
+        <H1 like="h0">{t("title")}</H1>
+        <p className="">{t("intro")}</p>
       </section>
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <CardContainer type="multi row">
@@ -178,9 +177,9 @@ function Projects() {
             <Button
               size="large"
               variant="outline"
-              loading={fetcher.state === "submitting"}
+              loading={fetcher.state === "loading"}
             >
-              Weitere laden
+              {t("more")}
             </Button>
           </fetcher.Form>
         </div>

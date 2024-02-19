@@ -93,11 +93,16 @@ describe("/event/$slug/settings/events/set-parent", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors._global).toStrictEqual([
-      "Die aktuelle Veranstaltung konnte nicht gefunden werden.",
+      "error.notFound.current",
     ]);
   });
 
@@ -126,11 +131,16 @@ describe("/event/$slug/settings/events/set-parent", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors._global).toStrictEqual([
-      "Die Rahmenveranstaltung konnte nicht gefunden werden.",
+      "error.notFound.parent",
     ]);
   });
 
@@ -165,11 +175,16 @@ describe("/event/$slug/settings/events/set-parent", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors.parentEventId).toStrictEqual([
-      "Deine Veranstaltung liegt nicht im Zeitraum der Rahmenveranstaltung.",
+      "error.notInTime",
     ]);
   });
 
@@ -197,9 +212,9 @@ describe("/event/$slug/settings/events/set-parent", () => {
         data: expect.objectContaining({ parentEvent: { disconnect: true } }),
       })
     );
-    expect(responseBody.message).toBe(
-      "Die aktuelle Rahmenversanstaltung ist jetzt nicht mehr Rahmenveranstaltung deiner Veranstaltung."
-    );
+    // TODO: fix type issue
+    // @ts-ignore
+    expect(responseBody.message).toBe("feedback");
   });
 
   test("set parent event", async () => {
@@ -243,6 +258,8 @@ describe("/event/$slug/settings/events/set-parent", () => {
         }),
       })
     );
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe(
       'Die Veranstaltung "some-parent-name" ist jetzt Rahmenveranstaltung für Eure Veranstaltung.'
     );

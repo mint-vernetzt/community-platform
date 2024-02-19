@@ -52,6 +52,18 @@ double_confirm_changes = false
 # If enabled, users need to confirm their email address before signing in.
 enable_confirmations = true
 
+[auth.email.template.confirmation]
+subject = "Hey developer! This is your registration confirmation mail."
+content_path = "./supabase/email-templates-dev/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Hey developer! This is your recovery mail."
+content_path = "./supabase/email-templates-dev/recovery.html"
+
+[auth.email.template.email_change]
+subject = "Hey developer! This is your email change mail."
+content_path = "./supabase/email-templates-dev/email-change.html"
+
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `twitch`, `twitter`, `slack`, `spotify`.
 [auth.external.apple]

@@ -1,6 +1,5 @@
 import type { Document } from "@prisma/client";
-import type { DataFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -9,6 +8,8 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { doPersistUpload, parseMultipart } from "~/storage.server";
 import { createDocumentOnEvent } from "./utils.server";
+import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   uploadKey: z.string(),
@@ -17,14 +18,19 @@ const schema = z.object({
 
 export const uploadDocumentSchema = schema;
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/documents/upload-document",
+  ]);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const parsedData = await parseMultipart(request);
@@ -45,8 +51,8 @@ export const action = async (args: DataFunctionArgs) => {
   try {
     await createDocumentOnEvent(slug, document);
   } catch (error) {
-    throw "Dokument konnte nicht in der Datenbank gespeichert werden.";
+    throw t("error.server");
   }
 
-  return json({ headers: response.headers });
+  return null;
 };

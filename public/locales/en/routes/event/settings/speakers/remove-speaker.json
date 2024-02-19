@@ -1,0 +1,6 @@
+{
+  "error": {
+    "notFound": "Event not found",
+    "notPrivileged": "Not privileged"
+  }
+}

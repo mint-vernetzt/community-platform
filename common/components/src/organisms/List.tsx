@@ -1,7 +1,7 @@
 import React from "react";
 import Avatar from "../molecules/Avatar";
 import classNames from "classnames";
-import { type ImageProps } from "@mint-vernetzt/components";
+import { type ImageProps } from "./../../index";
 
 type Size = "sm" | "md";
 

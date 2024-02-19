@@ -1,8 +1,8 @@
 import { type Request } from "express";
 import { prismaClient } from "../prisma";
 import { createClient } from "@supabase/supabase-js";
-import { getImageURL, getPublicURL } from "../images.server";
-import { GravityType } from "imgproxy/dist/types";
+import { getPublicURL } from "../storage.server";
+import { getImageURL, GravityType } from "../images.server";
 import { getBaseURL } from "../utils";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { filterProfileByVisibility } from "../public-fields-filtering.server";
@@ -94,7 +94,7 @@ async function getProfiles(request: Request, skip: number, take: number) {
           }
         }
       }
-      let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+      const baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
 
       const url =
         baseURL !== undefined

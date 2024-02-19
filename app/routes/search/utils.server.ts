@@ -6,7 +6,7 @@ import type {
   Project,
 } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
-import { ArrayElement } from "~/lib/utils/types";
+import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 
 // **************
@@ -58,6 +58,14 @@ export async function searchProfilesViaLike(
               name: true,
               slug: true,
               logo: true,
+              organizationVisibility: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  logo: true,
+                },
+              },
             },
           },
         },
@@ -69,6 +77,23 @@ export async function searchProfilesViaLike(
               title: true,
             },
           },
+        },
+      },
+      profileVisibility: {
+        select: {
+          id: true,
+          academicTitle: true,
+          firstName: true,
+          lastName: true,
+          username: true,
+          bio: true,
+          avatar: true,
+          position: true,
+          score: true,
+          background: true,
+          areas: true,
+          memberOf: true,
+          offers: true,
         },
       },
     },
@@ -108,7 +133,7 @@ function getProfileWhereQueries(
   searchQuery: string[],
   sessionUser: User | null
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of searchQuery) {
     const contains: {
       OR: {
@@ -500,8 +525,31 @@ export async function searchOrganizationsViaLike(
               lastName: true,
               avatar: true,
               username: true,
+              profileVisibility: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                  username: true,
+                },
+              },
             },
           },
+        },
+      },
+      organizationVisibility: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          logo: true,
+          background: true,
+          bio: true,
+          areas: true,
+          types: true,
+          focuses: true,
+          teamMembers: true,
         },
       },
     },
@@ -541,7 +589,7 @@ function getOrganizationWhereQueries(
   searchQuery: string[],
   sessionUser: User | null
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of searchQuery) {
     const contains: {
       OR: {
@@ -1021,8 +1069,36 @@ export async function searchEventsViaLike(
               name: true,
               slug: true,
               logo: true,
+              organizationVisibility: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  logo: true,
+                },
+              },
             },
           },
+        },
+      },
+      eventVisibility: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          parentEventId: true,
+          startTime: true,
+          endTime: true,
+          participationUntil: true,
+          participationFrom: true,
+          participantLimit: true,
+          background: true,
+          published: true,
+          stage: true,
+          canceled: true,
+          subline: true,
+          description: true,
+          responsibleOrganizations: true,
         },
       },
     },
@@ -1055,7 +1131,7 @@ export async function countSearchedEvents(
 }
 
 function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of searchQuery) {
     const contains: {
       OR: {
@@ -1435,8 +1511,28 @@ export async function searchProjectsViaLike(
               name: true,
               slug: true,
               logo: true,
+              organizationVisibility: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  logo: true,
+                },
+              },
             },
           },
+        },
+      },
+      projectVisibility: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          logo: true,
+          background: true,
+          excerpt: true,
+          awards: true,
+          responsibleOrganizations: true,
         },
       },
     },
@@ -1472,7 +1568,7 @@ function getProjectWhereQueries(
   searchQuery: string[],
   sessionUser: User | null
 ) {
-  let whereQueries = [];
+  const whereQueries = [];
   for (const word of searchQuery) {
     const contains: {
       OR: {

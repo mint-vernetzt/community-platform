@@ -1,97 +1,117 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
+import { makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
 import { deriveOrganizationMode } from "../utils.server";
 import { deleteOrganizationBySlug, getProfileByUserId } from "./delete.server";
 
-const schema = z.object({
-  confirmedToken: z
-    .string()
-    .regex(/wirklich löschen/, 'Bitte "wirklich löschen" eingeben.'),
-});
+const i18nNS = ["routes/organization/settings/delete"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createSchema = (t: TFunction) => {
+  return z.object({
+    confirmedToken: z
+      .string()
+      .regex(
+        new RegExp(t("validation.confirmedToken.regex")),
+        t("validation.confirmedToken.message")
+      ),
+  });
+};
 
 const environmentSchema = z.object({
   slug: z.string(),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/organization/settings/delete",
+  ]);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notFound"), { status: 403 });
 
-  return response;
+  return null;
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  try {
-    await deleteOrganizationBySlug(environment.slug);
-  } catch {
-    throw "Die Organisation konnte nicht gelöscht werden.";
-  }
-  return values;
-});
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    createSchema(t),
+    environmentSchema
+  )(async (values, environment) => {
+    try {
+      await deleteOrganizationBySlug(environment.slug);
+    } catch {
+      throw t("error.serverError");
+    }
+    return values;
+  });
+};
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/organization/settings/delete",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   const profile = await getProfileByUserId(sessionUser.id);
-  invariantResponse(profile, "Profile not found", { status: 404 });
+  invariantResponse(profile, t("error.ProfileNotFound"), { status: 404 });
 
   const result = await performMutation({
     request,
-    schema,
-    mutation,
+    schema: createSchema(t),
+    mutation: createMutation(t),
     environment: {
       slug: slug,
     },
   });
 
   if (result.success) {
-    return redirect(`/profile/${profile.username}`, {
-      headers: response.headers,
-    });
+    return redirect(`/profile/${profile.username}`);
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export default function Delete() {
+  const { t } = useTranslation(i18nNS);
+  const schema = createSchema(t);
+
   return (
     <>
-      <h1 className="mb-8">Organisation löschen</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
 
-      <p className="mb-4 font-semibold">
-        Schade, dass Du Eure Organisation löschen willst.
-      </p>
+      <p className="mb-4 font-semibold">{t("content.intro")}</p>
 
-      <p className="mb-8">
-        Bitte gib "wirklich löschen" ein, um das Löschen zu bestätigen. Wenn Du
-        danach auf Organisation endgültig löschen” klickst, wird Eure
-        Organisation ohne erneute Abfrage gelöscht.
-      </p>
+      <p className="mb-8">{t("content.confirmation")}</p>
 
-      <RemixForm method="post" schema={schema}>
+      <RemixFormsForm method="post" schema={schema}>
         {({ Field, Button, Errors, register }) => (
           <>
             <Field name="confirmedToken" className="mb-4">
@@ -99,8 +119,8 @@ export default function Delete() {
                 <>
                   <Input
                     id="confirmedToken"
-                    label="Löschung bestätigen"
-                    placeholder="wirklich löschen"
+                    label={t("form.confirmedToken.label")}
+                    placeholder={t("form.confirmedToken.placeholder")}
                     {...register("confirmedToken")}
                   />
                   <Errors />
@@ -111,12 +131,12 @@ export default function Delete() {
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small"
             >
-              Organisation endgültig löschen
+              {t("form.submit.label")}
             </button>
             <Errors />
           </>
         )}
-      </RemixForm>
+      </RemixFormsForm>
     </>
   );
 }

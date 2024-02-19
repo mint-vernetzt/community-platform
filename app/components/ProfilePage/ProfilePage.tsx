@@ -14,11 +14,11 @@ function ProfilePage(props: ProfilePageProps) {
             </div>
             <div className="ml-auto">
               <div className="dropdown dropdown-end">
-                <label tabIndex="0" className="btn btn-primary w-10 h-10">
+                <label tabIndex={0} className="btn btn-primary w-10 h-10">
                   AS
                 </label>
                 <ul
-                  tabIndex="0"
+                  tabIndex={0}
                   className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
                 >
                   <li>
@@ -63,7 +63,7 @@ function ProfilePage(props: ProfilePageProps) {
               <div className="">
                 <p className="text-mb mb-2">
                   <a
-                    href="anna.schroeter@mint-vernetzt.de"
+                    href="mailto:anna.schroeter@mint-vernetzt.de"
                     className="flex items-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
                   >
                     <span className="icon w-6 mr-4">
@@ -82,7 +82,7 @@ function ProfilePage(props: ProfilePageProps) {
                 </p>
                 <p className="text-md text-neutral-600 mb-2">
                   <a
-                    href="492117570762"
+                    href="tel:492117570762"
                     className="flex items-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
                   >
                     <span className="icon w-6 mr-4">

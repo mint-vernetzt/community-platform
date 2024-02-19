@@ -1,18 +1,27 @@
-import { type DataFunctionArgs } from "@remix-run/node";
+import { type LoaderFunctionArgs } from "@remix-run/node";
 import JSZip from "jszip";
 import { createAuthClient } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
-export const loader = async (args: DataFunctionArgs) => {
+const i18nNS = ["routes/project/detail/attachments/download"];
+
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
-  invariantResponse(params.slug !== undefined, "No valid route", {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    t("error.invariant.invalidRoute"),
+    {
+      status: 400,
+    }
+  );
 
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const url = new URL(request.url);
   const type = url.searchParams.get("type") as
@@ -29,7 +38,7 @@ export const loader = async (args: DataFunctionArgs) => {
         type === "documents" ||
         type === "image" ||
         type === "images"),
-    "Wrong or missing parameters",
+    t("error.invariant.invalidParameters"),
     {
       status: 400,
     }
@@ -56,16 +65,22 @@ export const loader = async (args: DataFunctionArgs) => {
         },
       },
     });
-    invariantResponse(project !== null, "Project not found", { status: 404 });
+    invariantResponse(project !== null, t("error.invariant.projectNotFound"), {
+      status: 404,
+    });
 
     if (type === "document") {
       const relation = project.documents.find((relation) => {
         return relation.document.id === fileId;
       });
 
-      invariantResponse(typeof relation !== "undefined", "Document not found", {
-        status: 404,
-      });
+      invariantResponse(
+        typeof relation !== "undefined",
+        t("error.invariant.documentNotFound"),
+        {
+          status: 404,
+        }
+      );
 
       const result = await authClient.storage
         .from("documents")
@@ -75,7 +90,7 @@ export const loader = async (args: DataFunctionArgs) => {
 
       invariantResponse(
         result.error === null,
-        "Downloading from storage failed",
+        t("error.invariant.downloadFailed"),
         {
           status: 400,
         }
@@ -87,7 +102,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(buffer, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": relation.document.mimeType,
           "Content-Disposition": `attachment; filename="${relation.document.filename}"`,
         },
@@ -109,7 +123,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(content, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": "application/zip",
           "Content-Disposition": `attachment; filename="${filename}"`,
         },
@@ -138,16 +151,22 @@ export const loader = async (args: DataFunctionArgs) => {
       },
     });
 
-    invariantResponse(project !== null, "Project not found", { status: 404 });
+    invariantResponse(project !== null, t("error.invariant.projectNotFound"), {
+      status: 404,
+    });
 
     if (type === "image") {
       const relation = project.images.find((relation) => {
         return relation.image.id === fileId;
       });
 
-      invariantResponse(typeof relation !== "undefined", "Document not found", {
-        status: 404,
-      });
+      invariantResponse(
+        typeof relation !== "undefined",
+        t("error.invariant.documentNotFound"),
+        {
+          status: 404,
+        }
+      );
 
       const result = await authClient.storage
         .from("documents")
@@ -155,7 +174,7 @@ export const loader = async (args: DataFunctionArgs) => {
 
       invariantResponse(
         result.error === null,
-        "Downloading from storage failed",
+        t("error.invariant.downloadFailed"),
         {
           status: 400,
         }
@@ -167,7 +186,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(buffer, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": relation.image.mimeType,
           "Content-Disposition": `attachment; filename="${relation.image.filename}"`,
         },
@@ -189,7 +207,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(content, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": "application/zip",
           "Content-Disposition": `attachment; filename="${filename}"`,
         },

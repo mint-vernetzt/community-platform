@@ -134,9 +134,9 @@ describe("/organization/$slug/settings/admins/remove-admin", () => {
     const responseBody = await response.json();
 
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors._global).toContain(
-      "Es muss immer eine:n Administrator:in geben. Bitte füge zuerst jemand anderen als Administrator:in hinzu."
-    );
+    // TODO: fix type issue
+    // @ts-ignore
+    expect(responseBody.errors._global).toStrictEqual(["error.adminCount"]);
   });
 
   test("remove organization admin (self)", async () => {

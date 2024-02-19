@@ -1,4 +1,4 @@
-import { Button } from "@mint-vernetzt/components";
+import { Button } from "./../../../index";
 import Controls, { type ControlsProps } from "./Controls";
 
 type ControlsPlaygroundProps = {

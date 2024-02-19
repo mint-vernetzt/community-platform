@@ -1,19 +1,27 @@
-import { type DataFunctionArgs, redirect } from "@remix-run/node";
+import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import { prismaClient } from "~/prisma.server";
 import JSZip from "jszip";
+import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
-export const loader = async (args: DataFunctionArgs) => {
+const i18nNS = ["routes/project/settings/attachments/download"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
@@ -24,7 +32,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const url = new URL(request.url);
@@ -42,7 +50,7 @@ export const loader = async (args: DataFunctionArgs) => {
         type === "documents" ||
         type === "image" ||
         type === "images"),
-    "Wrong or missing parameters",
+    t("error.invalidParameters"),
     {
       status: 400,
     }
@@ -69,28 +77,30 @@ export const loader = async (args: DataFunctionArgs) => {
         },
       },
     });
-    invariantResponse(project !== null, "Project not found", { status: 404 });
+    invariantResponse(project !== null, t("error.projectNotFound"), {
+      status: 404,
+    });
 
     if (type === "document") {
       const relation = project.documents.find((relation) => {
         return relation.document.id === fileId;
       });
 
-      invariantResponse(typeof relation !== "undefined", "Document not found", {
-        status: 404,
-      });
+      invariantResponse(
+        typeof relation !== "undefined",
+        t("error.documentNotFound"),
+        {
+          status: 404,
+        }
+      );
 
       const result = await authClient.storage
         .from("documents")
         .download(relation.document.path);
 
-      invariantResponse(
-        result.error === null,
-        "Downloading from storage failed",
-        {
-          status: 400,
-        }
-      );
+      invariantResponse(result.error === null, t("error.downloadFailed"), {
+        status: 400,
+      });
 
       const arrayBuffer = await result.data.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -98,7 +108,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(buffer, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": relation.document.mimeType,
           "Content-Disposition": `attachment; filename="${relation.document.filename}"`,
         },
@@ -120,7 +129,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(content, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": "application/zip",
           "Content-Disposition": `attachment; filename="${filename}"`,
         },
@@ -149,28 +157,30 @@ export const loader = async (args: DataFunctionArgs) => {
       },
     });
 
-    invariantResponse(project !== null, "Project not found", { status: 404 });
+    invariantResponse(project !== null, t("error.projectNotFound"), {
+      status: 404,
+    });
 
     if (type === "image") {
       const relation = project.images.find((relation) => {
         return relation.image.id === fileId;
       });
 
-      invariantResponse(typeof relation !== "undefined", "Document not found", {
-        status: 404,
-      });
+      invariantResponse(
+        typeof relation !== "undefined",
+        t("error.documentNotFound"),
+        {
+          status: 404,
+        }
+      );
 
       const result = await authClient.storage
         .from("documents")
         .download(relation.image.path);
 
-      invariantResponse(
-        result.error === null,
-        "Downloading from storage failed",
-        {
-          status: 400,
-        }
-      );
+      invariantResponse(result.error === null, t("error.downloadFailed"), {
+        status: 400,
+      });
 
       const arrayBuffer = await result.data.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -178,7 +188,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(buffer, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": relation.image.mimeType,
           "Content-Disposition": `attachment; filename="${relation.image.filename}"`,
         },
@@ -200,7 +209,6 @@ export const loader = async (args: DataFunctionArgs) => {
       return new Response(content, {
         status: 200,
         headers: {
-          ...response.headers,
           "Content-Type": "application/zip",
           "Content-Disposition": `attachment; filename="${filename}"`,
         },

@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import InputText, { InputTextProps } from "./InputText";
+import { type ComponentStory, type ComponentMeta } from "@storybook/react";
+import InputText, { type InputTextProps } from "./InputText";
 
 export default {
   title: "FormElements/InputText",
@@ -14,7 +14,7 @@ Default.storyName = "default";
 
 Default.args = {
   label: "Label",
-  isRequired: false,
+  required: false,
   placeholder: "Placeholder",
   id: "input",
 };

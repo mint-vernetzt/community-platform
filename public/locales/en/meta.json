@@ -1,0 +1,27 @@
+{
+  "root": {
+    "logo": "Logo: MINTvernetzt",
+    "community": "Community",
+    "profiles": "Profiles",
+    "organizations": "Organizations",
+    "events": "Events",
+    "projects": "Projects",
+    "myProfile": "My profile",
+    "showProfile": "Show profile",
+    "myOrganizations": "My organizations",
+    "showOrganizations": "Show organizations",
+    "createOrganization": "Create organization",
+    "myEvents": "My events",
+    "showEvents": "Show events",
+    "createEvent": "Create event",
+    "myProjects": "My projects",
+    "showProjects": "Show projects",
+    "createProject": "Create project",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "search": {
+      "placeholder": "Search (min. 3 letters)"
+    }
+  }
+}

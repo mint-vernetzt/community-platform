@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -8,12 +8,11 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -21,28 +20,34 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { type action as publishAction, publishSchema } from "./events/publish";
 import { getEvent } from "./team.server";
 import {
-  addMemberSchema,
   type action as addMemberAction,
+  addMemberSchema,
 } from "./team/add-member";
 import {
-  removeMemberSchema,
   type action as removeMemberAction,
+  removeMemberSchema,
 } from "./team/remove-member";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/team"]);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEvent(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const enhancedTeamMembers = event.teamMembers.map((relation) => {
     let avatar = relation.profile.avatar;
@@ -74,14 +79,11 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  return json(
-    {
-      published: event.published,
-      teamMembers: enhancedTeamMembers,
-      teamMemberSuggestions,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    teamMembers: enhancedTeamMembers,
+    teamMemberSuggestions,
+  });
 };
 
 function Team() {
@@ -93,23 +95,16 @@ function Team() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/event/settings/team"]);
 
   return (
     <>
-      <h1 className="mb-8">Das Team</h1>
-      <p className="mb-2">
-        Wer ist Teil Eures Veranstaltungsteams? Füge hier weitere Teammitglieder
-        hinzu oder entferne sie.
-      </p>
-      <p className="mb-8">
-        Team-Mitglieder werden auf der Event-Detailseite gezeigt. Sie können
-        Events im Entwurf einsehen, diese aber nicht bearbeiten.
-      </p>
-      <h4 className="mb-4 mt-4 font-semibold">Teammitglied hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
-      </p>
-      <Form
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-2">{t("content.intro1")}</p>
+      <p className="mb-8">{t("content.intro2")}</p>
+      <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
+      <RemixFormsForm
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
         action={`/event/${slug}/settings/team/add-member`}
@@ -128,7 +123,7 @@ function Team() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name oder Email
+                      {t("content.add.label")}
                     </label>
                   </div>
                 </div>
@@ -158,17 +153,17 @@ function Team() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addMemberFetcher.data !== undefined &&
       "message" in addMemberFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
           {addMemberFetcher.data.message}
         </div>
       ) : null}
-      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Teammitglieder</h4>
-      <p className="mb-8">
-        Hier siehst du alle Mitglieder des Veranstaltungsteams auf einen Blick.{" "}
-      </p>
+      <h4 className="mb-4 mt-16 font-semibold">
+        {t("content.current.headline")}
+      </h4>
+      <p className="mb-8">{t("content.current.intro")} </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.teamMembers.map((teamMember) => {
           const initials = getInitials(teamMember);
@@ -200,7 +195,7 @@ function Team() {
                 ) : null}
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                <Form
+                <RemixFormsForm
                   schema={removeMemberSchema}
                   fetcher={removeMemberFetcher}
                   action={`/event/${slug}/settings/team/remove-member`}
@@ -218,7 +213,7 @@ function Team() {
                         {loaderData.teamMembers.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
-                            title="entfernen"
+                            title={"content.current.remove"}
                           >
                             <svg
                               viewBox="0 0 10 10"
@@ -237,7 +232,7 @@ function Team() {
                       </>
                     );
                   }}
-                </Form>
+                </RemixFormsForm>
               </div>
             </div>
           );
@@ -246,7 +241,7 @@ function Team() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -261,12 +256,14 @@ function Team() {
                   <>
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                      {loaderData.published
+                        ? t("content.hide")
+                        : t("content.publish")}
                     </Button>
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

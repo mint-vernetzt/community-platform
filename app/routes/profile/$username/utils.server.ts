@@ -1,18 +1,17 @@
 import type { Profile } from "@prisma/client";
+import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
-import { notFound } from "remix-utils";
-import { getImageURL } from "~/images.server";
-import {
-  addUserParticipationStatus,
-  combineEventsSortChronologically,
-} from "~/lib/event/utils";
+import { GravityType, getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import {
   filterEventByVisibility,
+  filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/public-fields-filtering.server";
+  filterProjectByVisibility,
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, triggerEntityScore, type Mode } from "~/utils.server";
+import { type ProfileQuery } from "./index.server";
 
 export type ProfileMode = Mode | "owner";
 
@@ -99,7 +98,7 @@ export async function updateProfileById(
 ) {
   const { email: _email, ...rest } = profileData;
 
-  let profileVisibility = await prismaClient.profileVisibility.findFirst({
+  const profileVisibility = await prismaClient.profileVisibility.findFirst({
     where: {
       profile: {
         id,
@@ -107,7 +106,7 @@ export async function updateProfileById(
     },
   });
   if (profileVisibility === null) {
-    throw notFound("Profile visibilities not found");
+    throw json("Profile visibilities not found", { status: 404 });
   }
 
   let visibility: keyof typeof profileVisibility;
@@ -174,423 +173,335 @@ export async function updateProfileById(
   await triggerEntityScore({ entity: "profile", where: { id } });
 }
 
-export async function getProfileWithEventsByMode(
-  username: string,
-  mode: ProfileMode,
-  inFuture: boolean
-) {
-  let teamMemberWhere;
-  if (mode === "owner") {
-    teamMemberWhere = {
-      event: {
-        endTime: inFuture
-          ? {
-              gte: new Date(),
-            }
-          : { lte: new Date() },
-      },
-    };
-  } else {
-    teamMemberWhere = {
-      event: {
-        endTime: inFuture
-          ? {
-              gte: new Date(),
-            }
-          : { lte: new Date() },
-        published: true,
-      },
-    };
+export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
+  let avatar = null;
+  if (profile.avatar !== null) {
+    const publicURL = getPublicURL(authClient, profile.avatar);
+    if (publicURL !== null) {
+      avatar = getImageURL(publicURL, {
+        resize: { type: "fill", width: 144, height: 144 },
+      });
+    }
   }
+  let background = null;
+  if (profile.background !== null) {
+    const publicURL = getPublicURL(authClient, profile.background);
+    if (publicURL !== null) {
+      background = getImageURL(publicURL, {
+        resize: { type: "fit", width: 1488, height: 480 },
+      });
+    }
+  }
+  const memberOf = profile.memberOf.map((relation) => {
+    let logo = relation.organization.logo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 64, height: 64 },
+          gravity: GravityType.center,
+        });
+      }
+    }
+    return { ...relation, organization: { ...relation.organization, logo } };
+  });
+  const teamMemberOfProjects = profile.teamMemberOfProjects.map(
+    (projectRelation) => {
+      let projectLogo = projectRelation.project.logo;
+      if (projectLogo !== null) {
+        const publicURL = getPublicURL(authClient, projectLogo);
+        if (publicURL !== null) {
+          projectLogo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      const awards = projectRelation.project.awards.map((awardRelation) => {
+        let awardLogo = awardRelation.award.logo;
+        if (awardLogo !== null) {
+          const publicURL = getPublicURL(authClient, awardLogo);
+          if (publicURL !== null) {
+            awardLogo = getImageURL(publicURL, {
+              resize: { type: "fit", width: 64, height: 64 },
+              gravity: GravityType.center,
+            });
+          }
+        }
+        return {
+          ...awardRelation,
+          award: { ...awardRelation.award, logo: awardLogo },
+        };
+      });
+      return {
+        ...projectRelation,
+        project: { ...projectRelation.project, awards, logo: projectLogo },
+      };
+    }
+  );
 
-  const profileEvents = await prismaClient.profile.findFirst({
-    select: {
-      id: true,
-      teamMemberOfEvents: {
-        select: {
-          event: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              published: true,
-              parentEventId: true,
-              startTime: true,
-              endTime: true,
-              participationUntil: true,
-              participationFrom: true,
-              participantLimit: true,
-              stage: {
-                select: {
-                  title: true,
-                },
-              },
-              canceled: true,
-              subline: true,
-              description: true,
-              _count: {
-                select: {
-                  participants: true,
-                  waitingList: true,
-                },
-              },
-              background: true,
-            },
-          },
-        },
-        where: teamMemberWhere,
-        orderBy: {
-          event: inFuture
-            ? {
-                startTime: "asc",
-              }
-            : { startTime: "desc" },
-        },
-      },
-      participatedEvents: {
-        select: {
-          event: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              published: true,
-              parentEventId: true,
-              startTime: true,
-              endTime: true,
-              participationUntil: true,
-              participationFrom: true,
-              participantLimit: true,
-              stage: {
-                select: {
-                  title: true,
-                },
-              },
-              canceled: true,
-              subline: true,
-              description: true,
-              _count: {
-                select: {
-                  childEvents: true,
-                  participants: true,
-                  waitingList: true,
-                },
-              },
-              background: true,
-            },
-          },
-        },
-        where: {
-          event: {
-            endTime: inFuture
-              ? {
-                  gte: new Date(),
-                }
-              : { lte: new Date() },
-            published: true,
-          },
-        },
-        orderBy: {
-          event: inFuture
-            ? {
-                startTime: "asc",
-              }
-            : { startTime: "desc" },
-        },
-      },
-      contributedEvents: {
-        select: {
-          event: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              published: true,
-              parentEventId: true,
-              startTime: true,
-              endTime: true,
-              participationUntil: true,
-              participationFrom: true,
-              participantLimit: true,
-              stage: {
-                select: {
-                  title: true,
-                },
-              },
-              canceled: true,
-              subline: true,
-              description: true,
-              _count: {
-                select: {
-                  childEvents: true,
-                  participants: true,
-                  waitingList: true,
-                },
-              },
-              background: true,
-            },
-          },
-        },
-        where: {
-          event: {
-            endTime: inFuture
-              ? {
-                  gte: new Date(),
-                }
-              : { lte: new Date() },
-            published: true,
-          },
-        },
-        orderBy: {
-          event: inFuture
-            ? {
-                startTime: "asc",
-              }
-            : { startTime: "desc" },
-        },
-      },
-      waitingForEvents: {
-        select: {
-          event: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              published: true,
-              parentEventId: true,
-              startTime: true,
-              endTime: true,
-              participationUntil: true,
-              participationFrom: true,
-              participantLimit: true,
-              stage: {
-                select: {
-                  title: true,
-                },
-              },
-              canceled: true,
-              subline: true,
-              description: true,
-              _count: {
-                select: {
-                  childEvents: true,
-                  participants: true,
-                  waitingList: true,
-                },
-              },
-              background: true,
-            },
-          },
-        },
-        where: {
-          event: {
-            endTime: inFuture
-              ? {
-                  gte: new Date(),
-                }
-              : { lte: new Date() },
-            published: true,
-          },
-        },
-        orderBy: {
-          event: inFuture
-            ? {
-                startTime: "asc",
-              }
-            : { startTime: "desc" },
-        },
-      },
-    },
-    where: {
-      username,
-    },
+  const teamMemberOfEvents = profile.teamMemberOfEvents.map((relation) => {
+    let background = relation.event.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL) {
+        background = getImageURL(publicURL, {
+          resize: { type: "fill", width: 144, height: 96 },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: { type: "fill", width: 18, height: 12 },
+          blur: 5,
+        });
+      }
+    }
+    return {
+      ...relation,
+      event: { ...relation.event, background, blurredBackground },
+    };
   });
 
-  return profileEvents;
+  const contributedEvents = profile.contributedEvents.map((relation) => {
+    let background = relation.event.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL) {
+        background = getImageURL(publicURL, {
+          resize: { type: "fill", width: 144, height: 96 },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: { type: "fill", width: 18, height: 12 },
+          blur: 5,
+        });
+      }
+    }
+    return {
+      ...relation,
+      event: { ...relation.event, background, blurredBackground },
+    };
+  });
+
+  const participatedEvents = profile.participatedEvents.map((relation) => {
+    let background = relation.event.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL) {
+        background = getImageURL(publicURL, {
+          resize: { type: "fill", width: 144, height: 96 },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: { type: "fill", width: 18, height: 12 },
+          blur: 5,
+        });
+      }
+    }
+    return {
+      ...relation,
+      event: { ...relation.event, background, blurredBackground },
+    };
+  });
+
+  const waitingForEvents = profile.waitingForEvents.map((relation) => {
+    let background = relation.event.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL) {
+        background = getImageURL(publicURL, {
+          resize: { type: "fill", width: 144, height: 96 },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: { type: "fill", width: 18, height: 12 },
+          blur: 5,
+        });
+      }
+    }
+    return {
+      ...relation,
+      event: { ...relation.event, background, blurredBackground },
+    };
+  });
+
+  return {
+    ...profile,
+    avatar,
+    background,
+    memberOf,
+    teamMemberOfProjects,
+    teamMemberOfEvents,
+    contributedEvents,
+    participatedEvents,
+    waitingForEvents,
+  };
 }
 
-export async function prepareProfileEvents(
-  authClient: SupabaseClient,
-  username: string,
-  mode: ProfileMode,
-  sessionUser: User | null,
-  inFuture: boolean
-) {
-  const profile = await getProfileWithEventsByMode(username, mode, inFuture);
-  if (profile === null) {
-    throw notFound({ message: "Profile with events not found" });
-  }
-
+export function filterProfile(profile: ProfileQuery) {
   let enhancedProfile = {
     ...profile,
   };
+  // Filter profile
+  enhancedProfile =
+    filterProfileByVisibility<typeof enhancedProfile>(enhancedProfile);
 
-  // Filtering by visbility settings
-  if (mode === "anon") {
-    // Filter profile holding event relations
-    enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
-      enhancedProfile
-    );
-    // Filter events where profile is team member
-    enhancedProfile.teamMemberOfEvents = await Promise.all(
-      enhancedProfile.teamMemberOfEvents.map(async (relation) => {
-        const filteredEvent = await filterEventByVisibility<
-          typeof relation.event
-        >(relation.event);
-        return { ...relation, event: filteredEvent };
-      })
-    );
-    // Filter events where profile is speaker
-    enhancedProfile.contributedEvents = await Promise.all(
-      enhancedProfile.contributedEvents.map(async (relation) => {
-        const filteredEvent = await filterEventByVisibility<
-          typeof relation.event
-        >(relation.event);
-        return { ...relation, event: filteredEvent };
-      })
-    );
-    // Filter events where profile is participant
-    enhancedProfile.participatedEvents = await Promise.all(
-      enhancedProfile.participatedEvents.map(async (relation) => {
-        const filteredEvent = await filterEventByVisibility<
-          typeof relation.event
-        >(relation.event);
-        return { ...relation, event: filteredEvent };
-      })
-    );
-    // Filter events where profile is on waiting list
-    enhancedProfile.waitingForEvents = await Promise.all(
-      enhancedProfile.waitingForEvents.map(async (relation) => {
-        const filteredEvent = await filterEventByVisibility<
-          typeof relation.event
-        >(relation.event);
-        return { ...relation, event: filteredEvent };
-      })
-    );
-  }
-
-  // Get images from image proxy
-  const imageEnhancedTeamMemberEvents = enhancedProfile.teamMemberOfEvents.map(
-    (relation) => {
-      let background = relation.event.background;
-      let blurredBackground;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL) {
-          background = getImageURL(publicURL, {
-            resize: { type: "fill", width: 144, height: 96 },
-          });
-          blurredBackground = getImageURL(publicURL, {
-            resize: { type: "fill", width: 18, height: 12 },
-            blur: 5,
-          });
-        }
-      }
+  // Filter organizations where profile is member of
+  enhancedProfile.memberOf = enhancedProfile.memberOf.map((relation) => {
+    const filteredOrganization = filterOrganizationByVisibility<
+      typeof relation.organization
+    >(relation.organization);
+    return { ...relation, organization: filteredOrganization };
+  });
+  // Filter projects where this profile is team member
+  enhancedProfile.teamMemberOfProjects =
+    enhancedProfile.teamMemberOfProjects.map((relation) => {
+      const filteredProject = filterProjectByVisibility<
+        typeof relation.project
+      >(relation.project);
+      return { ...relation, project: filteredProject };
+    });
+  // Filter organizations that are responsible for projects where this profile is team member
+  enhancedProfile.teamMemberOfProjects =
+    enhancedProfile.teamMemberOfProjects.map((projectRelation) => {
+      const responsibleOrganizations =
+        projectRelation.project.responsibleOrganizations.map(
+          (organizationRelation) => {
+            const filteredOrganization = filterOrganizationByVisibility<
+              typeof organizationRelation.organization
+            >(organizationRelation.organization);
+            return {
+              ...organizationRelation,
+              organization: filteredOrganization,
+            };
+          }
+        );
       return {
-        ...relation,
-        event: { ...relation.event, background, blurredBackground },
-      };
-    }
-  );
-
-  const imageEnhancedContributedEvents = enhancedProfile.contributedEvents.map(
-    (relation) => {
-      let background = relation.event.background;
-      let blurredBackground;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL) {
-          background = getImageURL(publicURL, {
-            resize: { type: "fill", width: 144, height: 96 },
-          });
-          blurredBackground = getImageURL(publicURL, {
-            resize: { type: "fill", width: 18, height: 12 },
-            blur: 5,
-          });
-        }
-      }
-      return {
-        ...relation,
-        event: { ...relation.event, background, blurredBackground },
-      };
-    }
-  );
-
-  const imageEnhancedParticipatedEvents =
-    enhancedProfile.participatedEvents.map((relation) => {
-      let background = relation.event.background;
-      let blurredBackground;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL) {
-          background = getImageURL(publicURL, {
-            resize: { type: "fill", width: 144, height: 96 },
-          });
-          blurredBackground = getImageURL(publicURL, {
-            resize: { type: "fill", width: 18, height: 12 },
-            blur: 5,
-          });
-        }
-      }
-      return {
-        ...relation,
-        event: { ...relation.event, background, blurredBackground },
+        ...projectRelation,
+        project: { ...projectRelation.project, responsibleOrganizations },
       };
     });
-
-  const imageEnhancedWaitingEvents = enhancedProfile.waitingForEvents.map(
+  // Filter events where profile is team member
+  enhancedProfile.teamMemberOfEvents = enhancedProfile.teamMemberOfEvents.map(
     (relation) => {
-      let background = relation.event.background;
-      let blurredBackground;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL) {
-          background = getImageURL(publicURL, {
-            resize: { type: "fill", width: 144, height: 96 },
-          });
-          blurredBackground = getImageURL(publicURL, {
-            resize: { type: "fill", width: 18, height: 12 },
-            blur: 5,
-          });
-        }
-      }
-      return {
-        ...relation,
-        event: { ...relation.event, background, blurredBackground },
-      };
+      const filteredEvent = filterEventByVisibility<typeof relation.event>(
+        relation.event
+      );
+      return { ...relation, event: filteredEvent };
+    }
+  );
+  // Filter events where profile is speaker
+  enhancedProfile.contributedEvents = enhancedProfile.contributedEvents.map(
+    (relation) => {
+      const filteredEvent = filterEventByVisibility<typeof relation.event>(
+        relation.event
+      );
+      return { ...relation, event: filteredEvent };
+    }
+  );
+  // Filter events where profile is participant
+  enhancedProfile.participatedEvents = enhancedProfile.participatedEvents.map(
+    (relation) => {
+      const filteredEvent = filterEventByVisibility<typeof relation.event>(
+        relation.event
+      );
+      return { ...relation, event: filteredEvent };
+    }
+  );
+  // Filter events where profile is on waiting list
+  enhancedProfile.waitingForEvents = enhancedProfile.waitingForEvents.map(
+    (relation) => {
+      const filteredEvent = filterEventByVisibility<typeof relation.event>(
+        relation.event
+      );
+      return { ...relation, event: filteredEvent };
     }
   );
 
-  const imageEnhancedProfile = {
-    ...enhancedProfile,
-    teamMemberOfEvents: imageEnhancedTeamMemberEvents,
-    contributedEvents: imageEnhancedContributedEvents,
-    participatedEvents: imageEnhancedParticipatedEvents,
-    waitingForEvents: imageEnhancedWaitingEvents,
+  return enhancedProfile;
+}
+
+export function splitEventsIntoFutureAndPast<
+  T extends Pick<
+    ProfileQuery,
+    "contributedEvents" | "teamMemberOfEvents" | "participatedEvents"
+  >
+>(events: T) {
+  const futureEvents: Pick<
+    ProfileQuery,
+    "contributedEvents" | "teamMemberOfEvents" | "participatedEvents"
+  > = {
+    contributedEvents: [],
+    teamMemberOfEvents: [],
+    participatedEvents: [],
   };
-
-  const combinedParticipatedAndWaitingForEvents =
-    combineEventsSortChronologically<
-      typeof imageEnhancedProfile.participatedEvents,
-      typeof imageEnhancedProfile.waitingForEvents
-    >(
-      imageEnhancedProfile.participatedEvents,
-      imageEnhancedProfile.waitingForEvents
-    );
-
-  const enhancedProfileWithParticipationStatus = {
-    ...imageEnhancedProfile,
-    teamMemberOfEvents: await addUserParticipationStatus<
-      typeof imageEnhancedProfile.teamMemberOfEvents
-    >(imageEnhancedProfile.teamMemberOfEvents, sessionUser?.id),
-    contributedEvents: await addUserParticipationStatus<
-      typeof imageEnhancedProfile.contributedEvents
-    >(imageEnhancedProfile.contributedEvents, sessionUser?.id),
-    participatedEvents: await addUserParticipationStatus<
-      typeof combinedParticipatedAndWaitingForEvents
-    >(combinedParticipatedAndWaitingForEvents, sessionUser?.id),
-    waitingForEvents: undefined,
+  const pastEvents: Pick<
+    ProfileQuery,
+    "contributedEvents" | "teamMemberOfEvents" | "participatedEvents"
+  > = {
+    contributedEvents: [],
+    teamMemberOfEvents: [],
+    participatedEvents: [],
   };
+  const now = new Date();
 
-  return enhancedProfileWithParticipationStatus;
+  for (const relation of events.contributedEvents) {
+    if (relation.event.endTime >= now) {
+      futureEvents.contributedEvents.push(relation);
+    } else {
+      pastEvents.contributedEvents.push(relation);
+    }
+  }
+  for (const relation of events.participatedEvents) {
+    if (relation.event.endTime >= now) {
+      futureEvents.participatedEvents.push(relation);
+    } else {
+      pastEvents.participatedEvents.push(relation);
+    }
+  }
+  for (const relation of events.teamMemberOfEvents) {
+    if (relation.event.endTime >= now) {
+      futureEvents.teamMemberOfEvents.push(relation);
+    } else {
+      pastEvents.teamMemberOfEvents.push(relation);
+    }
+  }
+  return {
+    futureEvents,
+    pastEvents,
+  } as { futureEvents: T; pastEvents: T };
+}
+
+export function sortEvents<
+  T extends Pick<
+    ProfileQuery,
+    "contributedEvents" | "teamMemberOfEvents" | "participatedEvents"
+  >
+>(
+  events: Pick<
+    ProfileQuery,
+    "contributedEvents" | "participatedEvents" | "teamMemberOfEvents"
+  >,
+  inFuture: boolean
+) {
+  const sortedEvents = {
+    contributedEvents: events.contributedEvents.sort((a, b) => {
+      if (inFuture) {
+        return a.event.startTime >= b.event.startTime ? 1 : -1;
+      }
+      return a.event.startTime >= b.event.startTime ? -1 : 1;
+    }),
+    participatedEvents: events.participatedEvents.sort((a, b) => {
+      if (inFuture) {
+        return a.event.startTime >= b.event.startTime ? 1 : -1;
+      }
+      return a.event.startTime >= b.event.startTime ? -1 : 1;
+    }),
+    teamMemberOfEvents: events.teamMemberOfEvents.sort((a, b) => {
+      if (inFuture) {
+        return a.event.startTime >= b.event.startTime ? 1 : -1;
+      }
+      return a.event.startTime >= b.event.startTime ? -1 : 1;
+    }),
+  };
+  return sortedEvents as T;
 }

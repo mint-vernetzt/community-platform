@@ -1,0 +1,7 @@
+{
+  "error": {
+    "notPrivileged": "Not privileged",
+    "server": "Document could not be saved in the database."
+  }
+}
+

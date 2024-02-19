@@ -21,7 +21,7 @@ export async function mailer(
   text: Mail.Options["text"],
   html: Mail.Options["html"]
 ) {
-  let transporter = nodemailer.createTransport(
+  const transporter = nodemailer.createTransport(
     options.auth?.user !== ""
       ? options
       : { host: options.host, port: options.port }
@@ -66,9 +66,16 @@ type MoveToParticipantsContent = {
   };
 };
 
+type WelcomeContent = {
+  firstName: string;
+  email: string;
+};
+
 type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
+  | "mail-templates/welcome/html.hbs"
+  | "mail-templates/welcome/text.hbs"
   | "mail-templates/move-to-participants/html.hbs"
   | "mail-templates/move-to-participants/text.hbs";
 
@@ -80,15 +87,18 @@ type TemplateContent<TemplatePath> = TemplatePath extends
       | "mail-templates/move-to-participants/html.hbs"
       | "mail-templates/move-to-participants/text.hbs"
   ? MoveToParticipantsContent
+  : TemplatePath extends
+      | "mail-templates/welcome/html.hbs"
+      | "mail-templates/welcome/text.hbs"
+  ? WelcomeContent
   : never;
 
-export async function getCompiledMailTemplate<T extends TemplatePath>(
+export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,
   content: TemplateContent<T>,
-  baseUrl: string,
   type: "text" | "html" = "html"
 ) {
-  const bodyTemplateSource = await fs.readFileSync(templatePath, {
+  const bodyTemplateSource = fs.readFileSync(templatePath, {
     encoding: "utf8",
   });
   const bodyTemplate = Handlebars.compile(bodyTemplateSource, {});
@@ -97,12 +107,10 @@ export async function getCompiledMailTemplate<T extends TemplatePath>(
     return body;
   }
   // On html templates we have header and footer (see mail-templates/layout.hbs)
-  const layoutTemplateSource = await fs.readFileSync(
-    "mail-templates/layout.hbs",
-    {
-      encoding: "utf8",
-    }
-  );
+  const baseUrl = process.env.COMMUNITY_BASE_URL;
+  const layoutTemplateSource = fs.readFileSync("mail-templates/layout.hbs", {
+    encoding: "utf8",
+  });
   const layoutTemplate = Handlebars.compile(layoutTemplateSource, {});
   Handlebars.registerPartial("body", body);
   const compiledHtml = layoutTemplate({ baseUrl });

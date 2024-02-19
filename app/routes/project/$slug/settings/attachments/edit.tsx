@@ -1,12 +1,12 @@
-import { type DataFunctionArgs, json, redirect } from "@remix-run/node";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
-} from "../utils.server";
-import { prismaClient } from "~/prisma.server";
+import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
+import { Button, Input } from "@mint-vernetzt/components";
+import {
+  json,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import {
   Form,
   Link,
@@ -15,9 +15,22 @@ import {
   useMatches,
   useSearchParams,
 } from "@remix-run/react";
-import { Button, Input } from "@mint-vernetzt/components";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { conform, useForm } from "@conform-to/react";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getSubmissionHash,
+} from "../utils.server";
+
+const i18nNS = ["routes/project/settings/attachments/edit"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const documentSchema = z.object({
   title: z
@@ -60,14 +73,16 @@ const imageSchema = z.object({
     ),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
@@ -78,7 +93,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const url = new URL(request.url);
@@ -89,7 +104,7 @@ export const loader = async (args: DataFunctionArgs) => {
     type !== null &&
       (type === "document" || type === "image") &&
       fileId !== null,
-    "Wrong or missing parameters",
+    t("error.invalidParameters"),
     {
       status: 400,
     }
@@ -142,19 +157,21 @@ export const loader = async (args: DataFunctionArgs) => {
 
   invariantResponse(file !== null, "File not found", { status: 404 });
 
-  return json(file, { headers: response.headers });
+  return json(file);
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -166,7 +183,7 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const url = new URL(request.url);
@@ -175,7 +192,7 @@ export const action = async (args: DataFunctionArgs) => {
 
   invariantResponse(
     type !== null && (type === "document" || type === "image") && id !== null,
-    "Wrong or missing parameters",
+    t("error.invalidParameters"),
     {
       status: 400,
     }
@@ -214,7 +231,6 @@ export const action = async (args: DataFunctionArgs) => {
     }
   } else {
     return json({ status: "error", submission, hash } as const, {
-      headers: response.headers,
       status: 400,
     });
   }
@@ -222,9 +238,7 @@ export const action = async (args: DataFunctionArgs) => {
   const redirectUrl = new URL("./", request.url);
   redirectUrl.searchParams.set("deep", "true");
 
-  return redirect(redirectUrl.toString(), {
-    headers: response.headers,
-  });
+  return redirect(redirectUrl.toString());
 };
 
 function Edit() {
@@ -232,6 +246,17 @@ function Edit() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const matches = useMatches();
+  let penultimateMatch;
+  if (matches.length >= 2) {
+    penultimateMatch = matches[matches.length - 2];
+  }
+  let pathname = "";
+  if (
+    penultimateMatch !== undefined &&
+    typeof penultimateMatch.pathname !== "undefined"
+  ) {
+    pathname = penultimateMatch.pathname;
+  }
   const type = searchParams.get("type") as "document" | "image";
 
   let defaultValue;
@@ -272,17 +297,19 @@ function Edit() {
       typeof actionData !== "undefined" ? actionData.submission : undefined,
   });
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <div className="mv-absolute mv-top-0 mv-left-0 mv-z-20 mv-w-full p-4 mv-min-h-full mv-bg-black mv-flex mv-justify-center mv-items-center mv-bg-opacity-50">
       <div className="mv-w-[480px] mv-max-w-full mv-bg-white mv-p-8 mv-flex mv-flex-col mv-gap-6 mv-shadow-lg mv-rounded-lg">
         <div className="mv-flex mv-justify-between">
           <h2 className="mv-text-primary mv-text-5xl mv-font-semibold mv-mb-0">
             {type === "document"
-              ? "Dokument edititeren"
-              : "Fotoinformation edititeren"}
+              ? t("content.editDocument")
+              : t("content.editImage")}
           </h2>
           <Link
-            to={`${matches[matches.length - 2].pathname}?deep`} // last layout route
+            to={`${pathname}?deep`} // last layout route
             prefetch="intent"
             className="mv-pl-4"
           >
@@ -314,9 +341,9 @@ function Edit() {
               // TODO: fix type issue
               // @ts-ignore
               <Input {...conform.input(fields.credits)} maxLength={80}>
-                <Input.Label>Credits</Input.Label>
+                <Input.Label>{t("content.credits.label")}</Input.Label>
                 <Input.HelperText>
-                  Bitte nenne hier den oder die Urheber:in des Bildes
+                  {t("content.credits.helper")}
                 </Input.HelperText>
                 {/* @ts-ignore */}
                 {typeof fields.credits.error !== "undefined" && (
@@ -326,11 +353,10 @@ function Edit() {
               </Input>
             )}
             <Input {...conform.input(fields.description)} maxLength={80}>
-              <Input.Label>Beschreibung</Input.Label>
+              <Input.Label>{t("content.description.label")}</Input.Label>
               {type === "image" && (
                 <Input.HelperText>
-                  Hilf blinden Menschen mit Deiner Bildbeschreibung zu
-                  verstehen, was auf dem Bild zu sehen ist.
+                  {t("content.description.helper")}
                 </Input.HelperText>
               )}
               {typeof fields.description.error !== "undefined" && (
@@ -338,13 +364,13 @@ function Edit() {
               )}
             </Input>
             <div className="mv-flex mv-flex-col mv-gap-4">
-              <Button type="submit">Speichern</Button>
+              <Button type="submit">{t("content.submit")}</Button>
               <Button
                 as="a"
                 href={`${matches[matches.length - 2].pathname}?deep`}
                 variant="outline"
               >
-                Verwerfen
+                {t("content.reset")}
               </Button>
             </div>
           </div>

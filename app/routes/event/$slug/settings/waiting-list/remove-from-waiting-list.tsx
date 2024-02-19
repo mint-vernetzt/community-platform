@@ -1,8 +1,8 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
-import { makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
+import { makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -13,6 +13,10 @@ import {
   disconnectFromWaitingListOfEvent,
   getEventBySlug,
 } from "./utils.server";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   profileId: z.string(),
@@ -24,26 +28,31 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/waiting-list/remove-from-waiting-list",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const result = await performMutation({ request, schema, mutation });
 
   if (result.success === true) {
     const event = await getEventBySlug(slug);
-    invariantResponse(event, "Event not found", { status: 404 });
+    invariantResponse(event, t("error.notFound"), { status: 404 });
     if (sessionUser.id !== result.data.profileId) {
       const mode = await deriveEventMode(sessionUser, slug);
-      invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+      invariantResponse(mode === "admin", t("error.notPrivileged"), {
+        status: 403,
+      });
       await checkFeatureAbilitiesOrThrow(authClient, "events");
     }
     await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
   }
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 type RemoveFromWaitingListButtonProps = {
@@ -55,8 +64,11 @@ export function RemoveFromWaitingListButton(
   props: RemoveFromWaitingListButtonProps
 ) {
   const fetcher = useFetcher<typeof action>();
+  const { t } = useTranslation([
+    "routes/event/settings/waiting-list/remove-from-waiting-list",
+  ]);
   return (
-    <Form
+    <RemixFormsForm
       action={props.action}
       fetcher={fetcher}
       schema={schema}
@@ -71,12 +83,12 @@ export function RemoveFromWaitingListButton(
           <>
             <Field name="profileId" />
             <button className="btn btn-primary" type="submit">
-              Von der Warteliste entfernen
+              {t("action")}
             </button>
             <Errors />
           </>
         );
       }}
-    </Form>
+    </RemixFormsForm>
   );
 }

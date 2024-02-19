@@ -1,23 +1,30 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getPaginationValues, prepareEvents } from "./utils.server";
-
+import {
+  type PrepareEventsQuery,
+  getPaginationValues,
+  prepareEvents,
+} from "./utils.server";
 import { prismaClient } from "~/prisma.server";
-import { useHydrated } from "remix-utils";
+import { useTranslation } from "react-i18next";
+import { useHydrated } from "remix-utils/use-hydrated";
 
-export const loader = async (args: LoaderArgs) => {
+const i18nNS = ["routes/explore/events"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -42,7 +49,7 @@ export const loader = async (args: LoaderArgs) => {
     },
   });
 
-  let events: Awaited<ReturnType<typeof prepareEvents>> = [];
+  let events: PrepareEventsQuery = [];
   if (futureEventsCount - skip > 0) {
     const actuallyTake = Math.min(take, futureEventsCount - skip);
     events = await prepareEvents(authClient, sessionUser, inFuture, {
@@ -64,17 +71,14 @@ export const loader = async (args: LoaderArgs) => {
     });
   }
 
-  return json(
-    {
-      events,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
-      userId: sessionUser?.id || undefined,
+  return json({
+    events,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+    userId: sessionUser?.id || undefined,
+  });
 };
 
 function Events() {
@@ -114,11 +118,13 @@ function Events() {
 
   const isHydrated = useHydrated();
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Entdecke Veranstaltungen</H1>
-        <p className="">Finde aktuelle Veranstaltungen der MINT-Community.</p>
+        <H1 like="h0">{t("title")}</H1>
+        <p className="">{t("intro")}</p>
       </section>
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <CardContainer type="multi row">
@@ -154,10 +160,7 @@ function Events() {
               );
             })
           ) : (
-            <p>
-              Für Deine Filterkriterien konnten leider keine Profile gefunden
-              werden.
-            </p>
+            <p>{t("empty")}</p>
           )}
         </CardContainer>
       </section>
@@ -168,9 +171,9 @@ function Events() {
             <Button
               size="large"
               variant="outline"
-              loading={fetcher.state === "submitting"}
+              loading={fetcher.state === "loading"}
             >
-              Weitere laden
+              {t("more")}
             </Button>
           </fetcher.Form>
         </div>

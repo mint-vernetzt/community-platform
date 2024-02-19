@@ -1,7 +1,14 @@
 import { render } from "@testing-library/react";
 import PageBackground from "./PageBackground";
 
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
+
 test("render component", () => {
-  const { baseElement } = render(<PageBackground />);
+  const { baseElement } = render(
+    <PageBackground imagePath="some-image-path" />
+  );
   expect(baseElement).toBeTruthy();
 });

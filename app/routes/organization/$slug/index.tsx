@@ -1,13 +1,13 @@
 import type { Organization } from "@prisma/client";
-import type { LoaderArgs, MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { notFound, useHydrated } from "remix-utils";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
@@ -17,8 +17,9 @@ import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import ProfileCard from "~/components/ProfileCard/ProfileCard";
 import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
-import { getImageURL } from "~/images.server";
+import i18next from "~/i18next.server";
 import {
+  addUserParticipationStatus,
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
@@ -29,19 +30,22 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
-import {
-  filterOrganizationByVisibility,
-  filterProfileByVisibility,
-  filterProjectByVisibility,
-} from "~/public-fields-filtering.server";
+import { detectLanguage } from "~/root.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
-import { getPublicURL } from "~/storage.server";
 import {
+  addImgUrls,
+  filterOrganization,
   getOrganizationBySlug,
-  prepareOrganizationEvents,
+  sortEvents,
+  splitEventsIntoFutureAndPast,
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
+
+const i18nNS = ["routes/organization/index"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export function links() {
   return [
@@ -50,17 +54,21 @@ export function links() {
   ];
 }
 
-export const meta: MetaFunction = (args) => {
-  return {
-    title: `MINTvernetzt Community Plattform | ${args.data.organization.name}`,
-  };
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    {
+      title: `MINTvernetzt Community Plattform${
+        data !== undefined ? ` | ${data.organization.name}` : ""
+      }`,
+    },
+  ];
 };
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
@@ -71,221 +79,60 @@ export const loader = async (args: LoaderArgs) => {
       select: { termsAccepted: true },
     });
     if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(`/accept-terms?redirect_to=/organization/${slug}`, {
-        headers: response.headers,
-      });
+      return redirect(`/accept-terms?redirect_to=/organization/${slug}`);
     }
   }
 
   const organization = await getOrganizationBySlug(slug);
   if (organization === null) {
-    throw notFound({ message: "Not found" });
+    throw json({ message: t("error.notFound") }, { status: 404 });
   }
-
-  let enhancedOrganization = {
-    ...organization,
-  };
 
   // Filtering by visbility settings
+  let filteredOrganization = {
+    ...organization,
+  };
   if (mode === "anon") {
-    // Filter organization
-    enhancedOrganization = await filterOrganizationByVisibility<
-      typeof enhancedOrganization
-    >(enhancedOrganization);
-    // Filter networks where this organization is member of
-    enhancedOrganization.memberOf = await Promise.all(
-      enhancedOrganization.memberOf.map(async (relation) => {
-        const filteredNetwork = await filterOrganizationByVisibility<
-          typeof relation.network
-        >(relation.network);
-        return { ...relation, network: filteredNetwork };
-      })
-    );
-    // Filter network members of this organization
-    enhancedOrganization.networkMembers = await Promise.all(
-      enhancedOrganization.networkMembers.map(async (relation) => {
-        const filteredNetworkMember = await filterOrganizationByVisibility<
-          typeof relation.networkMember
-        >(relation.networkMember);
-        return { ...relation, networkMember: filteredNetworkMember };
-      })
-    );
-    // Filter team members
-    enhancedOrganization.teamMembers = await Promise.all(
-      enhancedOrganization.teamMembers.map(async (relation) => {
-        const filteredProfile = await filterProfileByVisibility<
-          typeof relation.profile
-        >(relation.profile);
-        return { ...relation, profile: filteredProfile };
-      })
-    );
-    // Filter projects where this organization is responsible for
-    enhancedOrganization.responsibleForProject = await Promise.all(
-      enhancedOrganization.responsibleForProject.map(async (relation) => {
-        const filteredProject = await filterProjectByVisibility<
-          typeof relation.project
-        >(relation.project);
-        return { ...relation, project: filteredProject };
-      })
-    );
-    // Filter responsible organizations of projects where this organization is responsible for
-    enhancedOrganization.responsibleForProject = await Promise.all(
-      enhancedOrganization.responsibleForProject.map(
-        async (projectRelation) => {
-          const responsibleOrganizations = await Promise.all(
-            projectRelation.project.responsibleOrganizations.map(
-              async (organizationRelation) => {
-                const filteredOrganization =
-                  await filterOrganizationByVisibility<
-                    typeof organizationRelation.organization
-                  >(organizationRelation.organization);
-                return {
-                  ...organizationRelation,
-                  organization: filteredOrganization,
-                };
-              }
-            )
-          );
-          return {
-            ...projectRelation,
-            project: { ...projectRelation.project, responsibleOrganizations },
-          };
-        }
-      )
-    );
+    filteredOrganization = filterOrganization(organization);
   }
+  // Add imgUrls for imgproxy call on client
+  const enhancedOrganization = addImgUrls(authClient, filteredOrganization);
+  // Split events and profile to handle them seperately
+  const { responsibleForEvents, ...organizationWithoutEvents } =
+    enhancedOrganization;
+  // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
+  type ResponsibleForEvents = typeof responsibleForEvents;
+  const { futureEvents, pastEvents } =
+    splitEventsIntoFutureAndPast<ResponsibleForEvents>(responsibleForEvents);
+  // Sorting events (future: startTime "desc", past: startTime "asc")
+  let inFuture = true;
+  type FutureEvents = typeof futureEvents;
+  const sortedFutureEvents = sortEvents<FutureEvents>(futureEvents, inFuture);
+  type PastEvents = typeof pastEvents;
+  const sortedPastEvents = sortEvents<PastEvents>(pastEvents, !inFuture);
+  // Adding participation status of session user
+  type SortedFutureEvents = typeof sortedFutureEvents;
+  const enhancedFutureEvents = {
+    responsibleForEvents: await addUserParticipationStatus<SortedFutureEvents>(
+      sortedFutureEvents,
+      sessionUser?.id
+    ),
+  };
+  type SortedPastEvents = typeof sortedPastEvents;
+  const enhancedPastEvents = {
+    responsibleForEvents: await addUserParticipationStatus<SortedPastEvents>(
+      sortedPastEvents,
+      sessionUser?.id
+    ),
+  };
 
-  // Get images from image proxy
-  let images: {
-    logo?: string;
-    background?: string;
-  } = {};
-  if (enhancedOrganization.logo !== null) {
-    const publicURL = getPublicURL(authClient, enhancedOrganization.logo);
-    if (publicURL) {
-      images.logo = getImageURL(publicURL, {
-        resize: { type: "fit", width: 144, height: 144 },
-      });
-    }
-  }
-  if (enhancedOrganization.background !== null) {
-    const publicURL = getPublicURL(authClient, enhancedOrganization.background);
-    if (publicURL) {
-      images.background = getImageURL(publicURL, {
-        resize: { type: "fit", width: 1488, height: 480 },
-      });
-    }
-  }
-
-  enhancedOrganization.memberOf = enhancedOrganization.memberOf.map(
-    (relation) => {
-      let logo = relation.network.logo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-          });
-        }
-      }
-      return { ...relation, network: { ...relation.network, logo } };
-    }
-  );
-
-  enhancedOrganization.networkMembers = enhancedOrganization.networkMembers.map(
-    (relation) => {
-      let logo = relation.networkMember.logo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-          });
-        }
-      }
-      return {
-        ...relation,
-        networkMember: { ...relation.networkMember, logo },
-      };
-    }
-  );
-
-  enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
-    (relation) => {
-      let avatar = relation.profile.avatar;
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      return { ...relation, profile: { ...relation.profile, avatar } };
-    }
-  );
-
-  enhancedOrganization.responsibleForProject =
-    enhancedOrganization.responsibleForProject.map((projectRelation) => {
-      let projectLogo = projectRelation.project.logo;
-      if (projectLogo !== null) {
-        const publicURL = getPublicURL(authClient, projectLogo);
-        if (publicURL !== null) {
-          projectLogo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      const awards = projectRelation.project.awards.map((awardRelation) => {
-        let awardLogo = awardRelation.award.logo;
-        if (awardLogo !== null) {
-          const publicURL = getPublicURL(authClient, awardLogo);
-          if (publicURL !== null) {
-            awardLogo = getImageURL(publicURL, {
-              resize: { type: "fit", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
-        return {
-          ...awardRelation,
-          award: { ...awardRelation.award, logo: awardLogo },
-        };
-      });
-      return {
-        ...projectRelation,
-        project: { ...projectRelation.project, awards, logo: projectLogo },
-      };
-    });
-
-  // Get events, filter them by visibility settings and add participation status of session user
-  const inFuture = true;
-  const organizationFutureEvents = await prepareOrganizationEvents(
-    authClient,
-    slug,
-    sessionUser,
-    inFuture
-  );
-  const organizationPastEvents = await prepareOrganizationEvents(
-    authClient,
-    slug,
-    sessionUser,
-    !inFuture
-  );
-
-  return json(
-    {
-      organization: enhancedOrganization,
-      images,
-      futureEvents: organizationFutureEvents,
-      pastEvents: organizationPastEvents,
-      userId: sessionUser?.id,
-      mode,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    organization: organizationWithoutEvents,
+    futureEvents: enhancedFutureEvents,
+    pastEvents: enhancedPastEvents,
+    userId: sessionUser?.id,
+    mode,
+  });
 };
 
 function hasContactInformations(
@@ -317,6 +164,7 @@ const ExternalServices: ExternalService[] = [
   "instagram",
   "xing",
 ];
+
 function hasWebsiteOrSocialService(
   organization: Pick<Organization, ExternalService>,
   externalServices: ExternalService[]
@@ -330,8 +178,9 @@ export default function Index() {
     ? getInitialsOfName(loaderData.organization.name)
     : "";
   const organizationName = loaderData.organization.name ?? "";
+  const { t, i18n } = useTranslation(i18nNS);
 
-  const logo = loaderData.images.logo;
+  const logo = loaderData.organization.logo;
   const Avatar = React.useCallback(
     () => (
       <>
@@ -355,12 +204,12 @@ export default function Index() {
     [logo, organizationName, initialsOfOrganization]
   );
 
-  const background = loaderData.images.background;
+  const background = loaderData.organization.background;
   const Background = React.useCallback(
     () => (
       <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
         {background ? (
-          <img src={background} alt={`Aktuelles Hintergrundbild`} />
+          <img src={background} alt={t("image.background.alt")} />
         ) : (
           <div className="w-[336px] min-h-[108px]" />
         )}
@@ -392,16 +241,16 @@ export default function Index() {
                 htmlFor="modal-background-upload"
                 className="btn btn-primary modal-button"
               >
-                Bild ändern
+                {t("image.background.change")}
               </label>
 
               <Modal id="modal-background-upload">
                 <ImageCropper
-                  headline="Hintergrundbild"
+                  headline={t("image.background.headline")}
                   subject="organization"
                   id="modal-background-upload"
                   uploadKey="background"
-                  image={background}
+                  image={background || undefined}
                   aspect={31 / 10}
                   minCropWidth={620}
                   minCropHeight={62}
@@ -439,7 +288,9 @@ export default function Index() {
                         >
                           <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                         </svg>
-                        <span className="ml-2 mr-4">Logo ändern</span>
+                        <span className="ml-2 mr-4">
+                          {t("image.logo.change")}
+                        </span>
                       </label>
                       <Modal id="modal-avatar">
                         <ImageCropper
@@ -447,8 +298,8 @@ export default function Index() {
                           subject="organization"
                           slug={loaderData.organization.slug}
                           uploadKey="logo"
-                          headline="Logo"
-                          image={logo}
+                          headline={t("image.logo.headline")}
+                          image={logo || undefined}
                           aspect={1 / 1}
                           minCropWidth={100}
                           minCropHeight={100}
@@ -479,7 +330,9 @@ export default function Index() {
                   loaderData.organization,
                   ExternalServices
                 ) ? (
-                  <h5 className="font-semibold mb-6 mt-8">Kontakt</h5>
+                  <h5 className="font-semibold mb-6 mt-8">
+                    {t("content.contact")}
+                  </h5>
                 ) : null}
                 {hasContactInformations(loaderData.organization) ? (
                   <>
@@ -566,7 +419,9 @@ export default function Index() {
                 (typeof loaderData.organization.city === "string" &&
                   loaderData.organization.city !== "") ? (
                   <>
-                    <h5 className="font-semibold mb-6 mt-8">Anschrift</h5>
+                    <h5 className="font-semibold mb-6 mt-8">
+                      {t("content.address")}
+                    </h5>
                     <p className="text-md text-neutral-600 mb-2 flex nowrap flex-row items-center px-4 py-3 bg-neutral-300 rounded-lg">
                       <span className="icon w-6 mr-4">
                         <svg
@@ -597,14 +452,15 @@ export default function Index() {
                 <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
                 <p className="text-xs mb-4 text-center">
-                  Profil besteht seit dem{" "}
-                  {utcToZonedTime(
-                    loaderData.organization.createdAt,
-                    "Europe/Berlin"
-                  ).toLocaleDateString("de-De", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
+                  {t("since", {
+                    timestamp: utcToZonedTime(
+                      loaderData.organization.createdAt,
+                      "Europe/Berlin"
+                    ).toLocaleDateString("de-De", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    }),
                   })}
                 </p>
               </div>
@@ -636,7 +492,7 @@ export default function Index() {
                     className="btn btn-outline btn-primary"
                     to={`/organization/${loaderData.organization.slug}/settings`}
                   >
-                    Organisation bearbeiten
+                    {t("content.edit")}
                   </Link>
                 </div>
               </div>
@@ -651,7 +507,7 @@ export default function Index() {
             {loaderData.organization.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  Aktivitätsgebiete
+                  {t("content.activityAreas")}
                 </div>
                 <div className="lg:flex-auto">
                   {loaderData.organization.areas
@@ -663,7 +519,7 @@ export default function Index() {
             {loaderData.organization.focuses.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  MINT-Schwerpunkte
+                  {t("content.focuses")}
                 </div>
 
                 <div className="flex-auto">
@@ -676,7 +532,7 @@ export default function Index() {
             {loaderData.organization.supportedBy.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  Unterstützt und gefördert von
+                  {t("content.supportedBy")}
                 </div>
 
                 <div className="flex-auto">
@@ -686,7 +542,9 @@ export default function Index() {
             ) : null}
             {loaderData.organization.memberOf.length > 0 ? (
               <>
-                <h3 className="mb-6 mt-14 font-bold">Teil des Netzwerks</h3>
+                <h3 className="mb-6 mt-14 font-bold">
+                  {t("content.networks")}
+                </h3>
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.organization.memberOf.map((relation) => (
                     <OrganizationCard
@@ -703,9 +561,7 @@ export default function Index() {
             ) : null}
             {loaderData.organization.networkMembers.length > 0 ? (
               <>
-                <h3 className="mb-6 mt-14 font-bold">
-                  Mitgliedsorganisationen
-                </h3>
+                <h3 className="mb-6 mt-14 font-bold">{t("content.members")}</h3>
                 <div className="flex flex-wrap -mx-3 items-stretch">
                   {loaderData.organization.networkMembers.map((relation) => (
                     <OrganizationCard
@@ -723,7 +579,7 @@ export default function Index() {
             {loaderData.organization.teamMembers.length > 0 ? (
               <>
                 <h3 id="team-members" className="mb-6 mt-14 font-bold">
-                  Das Team
+                  {t("content.team")}
                 </h3>
                 <div className="flex flex-wrap -mx-3 lg:items-stretch">
                   {loaderData.organization.teamMembers.map((relation) => (
@@ -747,7 +603,7 @@ export default function Index() {
                   className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
                   <div className="flex-auto pr-4">
-                    <h3 className="mb-0 font-bold">Projekte</h3>
+                    <h3 className="mb-0 font-bold">{t("content.projects")}</h3>
                   </div>
                 </div>
 
@@ -840,7 +696,7 @@ export default function Index() {
                             ) : null}
                             <div className="hidden md:flex items-center flex-initial">
                               <button className="btn btn-primary">
-                                Zum Projekt
+                                {t("content.toProject")}
                               </button>
                             </div>
                           </div>
@@ -855,12 +711,12 @@ export default function Index() {
             loaderData.pastEvents.responsibleForEvents.length > 0 ? (
               <>
                 <h3 id="organized-events" className="mt-14 mb-6 font-bold">
-                  Organisierte Veranstaltungen
+                  {t("content.organizedEvents")}
                 </h3>
                 {loaderData.futureEvents.responsibleForEvents.length > 0 ? (
                   <>
                     <h6 id="organized-future-events" className="mb-4 font-bold">
-                      Anstehende Veranstaltungen
+                      {t("content.futureEvents")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.responsibleForEvents.map(
@@ -889,7 +745,7 @@ export default function Index() {
                                         relation.event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("content.background")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -922,15 +778,19 @@ export default function Index() {
                                     {relation.event.stage !== null
                                       ? relation.event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {relation.event.participantLimit === null
-                                      ? " | Unbegrenzte Plätze"
+                                      ? ` | ${t("content.unlimitedSeats")}`
                                       : ` | ${
                                           relation.event.participantLimit -
                                           relation.event._count.participants
                                         } / ${
                                           relation.event.participantLimit
-                                        } Plätzen frei`}
+                                        }  ${t("content.seatsFree")}`}
                                     {relation.event.participantLimit !== null &&
                                     relation.event._count.participants >=
                                       relation.event.participantLimit ? (
@@ -939,7 +799,7 @@ export default function Index() {
                                         |{" "}
                                         <span>
                                           {relation.event._count.waitingList}{" "}
-                                          auf der Warteliste
+                                          {t("content.waitingList")}
                                         </span>
                                       </>
                                     ) : (
@@ -964,13 +824,13 @@ export default function Index() {
                               </Link>
                               {relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Abgesagt
+                                  {t("content.cancelled")}
                                 </div>
                               ) : null}
                               {relation.event.isParticipant &&
                               !relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Angemeldet</p>
+                                  <p>{t("content.registered")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -985,7 +845,7 @@ export default function Index() {
                               {relation.event.isOnWaitingList &&
                               !relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>Wartend</p>
+                                  <p>{t("content.waiting")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1010,7 +870,7 @@ export default function Index() {
                                     to={`/event/${relation.event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("content.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1024,7 +884,7 @@ export default function Index() {
                 {loaderData.pastEvents.responsibleForEvents.length > 0 ? (
                   <>
                     <h6 id="organized-past-events" className="mb-4 font-bold">
-                      Vergangene Veranstaltungen
+                      {t("content.pastEvents")}
                     </h6>
                     <div className="mb-16">
                       {loaderData.pastEvents.responsibleForEvents.map(
@@ -1053,7 +913,7 @@ export default function Index() {
                                         relation.event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("content.background")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1086,7 +946,11 @@ export default function Index() {
                                     {relation.event.stage !== null
                                       ? relation.event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:line-clamp-1">
                                     {relation.event.name}
@@ -1106,13 +970,13 @@ export default function Index() {
                               </Link>
                               {relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Wurde abgesagt
+                                  {t("content.wasCancelled")}
                                 </div>
                               ) : null}
                               {relation.event.isParticipant &&
                               !relation.event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Teilgenommen</p>
+                                  <p>{t("content.participated")}</p>
                                 </div>
                               ) : null}
 
@@ -1128,7 +992,7 @@ export default function Index() {
                                     to={`/event/${relation.event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("content.more")}
                                   </Link>
                                 </div>
                               ) : null}

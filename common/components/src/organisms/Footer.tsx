@@ -1,11 +1,14 @@
-import { Link } from "@mint-vernetzt/components";
+import { Link } from "./../../index";
 import classNames from "classnames";
+import { useTranslation } from "react-i18next";
+import { LocaleSwitch } from "./buttons/LocaleSwitch";
 
 function Footer(props: { isSettings?: boolean }) {
   const classes = classNames(
     "mv-shadow-md",
     props.isSettings && "hidden md:block"
   );
+  const { t } = useTranslation(["organisms/footer"]);
 
   return (
     <div className={classes}>
@@ -14,13 +17,13 @@ function Footer(props: { isSettings?: boolean }) {
           <hr className="mv-hidden lg:mv-block lg:mv-order-2" />
           <div className="lg:mv-order-3 mv-container lg:mv-py-6 lg:mv-flex ">
             <div className="mv-font-bold mv-hidden lg:mv-block lg:mv-w-3/12">
-              © 2021-2023 matrix gGmbH
+              {t("meta.copyright")}
             </div>
             <div className="mv-pb-4 mv-pt-8 lg:mv-py-0 lg:mv-w-6/12">
               <ul className="mv-flex mv-flex-col lg:mv-flex-row lg:mv-justify-center mv-gap-4 lg:mv-gap-6">
                 <li>
                   <Link as="a" to="/imprint" isExternal>
-                    Impressum
+                    {t("meta.imprint")}
                   </Link>
                 </li>
                 <li>
@@ -30,7 +33,7 @@ function Footer(props: { isSettings?: boolean }) {
                     className=""
                     isExternal
                   >
-                    Datenschutz
+                    {t("meta.privacyPolicy")}
                   </Link>
                 </li>
                 <li>
@@ -40,7 +43,7 @@ function Footer(props: { isSettings?: boolean }) {
                     className=""
                     isExternal
                   >
-                    Nutzungsbedingungen
+                    {t("meta.termsOfUse")}
                   </Link>
                 </li>
                 <li>
@@ -50,7 +53,7 @@ function Footer(props: { isSettings?: boolean }) {
                     className=""
                     isExternal
                   >
-                    Kontakt
+                    {t("meta.contact")}
                   </Link>
                 </li>
               </ul>
@@ -161,8 +164,10 @@ function Footer(props: { isSettings?: boolean }) {
                   </span>
                 </Link>
                 <span className="mv-block mv-text-sm mv-text-primary mv-font-semibold">
-                  Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in
-                  Deutschland.
+                  {t(
+                    "description",
+                    "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland."
+                  )}
                 </span>
               </div>
             </div>
@@ -170,34 +175,34 @@ function Footer(props: { isSettings?: boolean }) {
             <div className="mv-py-4 mv-flex mv-flex-col mv-gap-4 lg:mv-py-0 lg:mv-pt-3 lg:mv-flex-row lg:mv-gap-16">
               <div className="">
                 <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
-                  Entdecken
+                  {t("discover.title")}
                 </h5>
                 <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                   <li>
                     <Link to="/explore/profiles" className="">
-                      Profile
+                      {t("discover.profiles")}
                     </Link>
                   </li>
                   <li>
                     <Link to="/explore/organizations" className="">
-                      Organisationen
+                      {t("discover.organizations")}
                     </Link>
                   </li>
                   <li>
                     <Link to="/explore/events" className="">
-                      Veranstaltungen
+                      {t("discover.events")}
                     </Link>
                   </li>
                   <li>
                     <Link to="/explore/projects" className="">
-                      Projekte
+                      {t("discover.projects")}
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="">
                 <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
-                  Mitwirken
+                  {t("participate.title")}
                 </h5>
                 <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                   <li>
@@ -206,14 +211,14 @@ function Footer(props: { isSettings?: boolean }) {
                       to="https://github.com/mint-vernetzt/community-platform"
                       isExternal
                     >
-                      GitHub Repository
+                      {t("participate.github")}
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="">
                 <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
-                  Mehr erfahren
+                  {t("learnMore.title")}
                 </h5>
                 <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                   <li>
@@ -223,10 +228,13 @@ function Footer(props: { isSettings?: boolean }) {
                       className=""
                       isExternal
                     >
-                      MINTvernetzt-Website
+                      {t("learnMore.website")}
                     </Link>
                   </li>
                 </ul>
+              </div>
+              <div>
+                <LocaleSwitch />
               </div>
             </div>
 
@@ -262,13 +270,13 @@ function Footer(props: { isSettings?: boolean }) {
               </Link>
             </div>
             <div className="mv-font-bold mv-text-xs lg:mv-hidden mv-pt-4 mv-pb-2">
-              © 2021-2023 matrix gGmbH
+              {t("meta.copyright")}
             </div>
           </div>
         </div>
 
         <div className="mv-py-4 mv-bg-primary-400 mv-text-white mv-text-center mv-text-xs mv-font-semibold">
-          Benötigst Du Hilfe? Melde Dich bei{" "}
+          {t("meta.needHelp")}{" "}
           <Link as="a" to="mailto:support@mint-vernetzt.de">
             support@mint-vernetzt.de
           </Link>

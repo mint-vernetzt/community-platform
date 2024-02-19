@@ -1,20 +1,31 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { json, type DataFunctionArgs } from "@remix-run/node";
+import { Button } from "@mint-vernetzt/components";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  json,
+} from "@remix-run/node";
 import {
   Form,
   useActionData,
   useLoaderData,
   useSubmit,
 } from "@remix-run/react";
-import { notFound } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { deriveProfileMode } from "../utils.server";
 import { z } from "zod";
-import { Button } from "@mint-vernetzt/components";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
+
+const i18nNS = ["routes/profile/settings/notifications"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const schema = z.object({
   updates: z
@@ -28,10 +39,13 @@ const schema = z.object({
     }),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/profile/settings/notifications",
+  ]);
+  const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const profile = await prismaClient.profile.findFirst({
     where: { username },
@@ -40,11 +54,13 @@ export const loader = async (args: DataFunctionArgs) => {
     },
   });
   if (profile === null) {
-    throw notFound("Profile not found");
+    throw json(t("error.profileNotFound"), { status: 404 });
   }
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const notificationSettings = profile.notificationSettings ?? {
     updates: false,
@@ -53,15 +69,19 @@ export const loader = async (args: DataFunctionArgs) => {
   return json({ profile: { ...profile, notificationSettings } });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/profile/settings/notifications",
+  ]);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const username = getParamValueOrThrow(params, "username");
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const formData = await request.formData();
   const submission = parse(formData, { schema });
@@ -85,7 +105,7 @@ export const action = async (args: DataFunctionArgs) => {
     });
   }
 
-  return json(submission, { headers: response.headers });
+  return json(submission);
 };
 
 function Notifications() {
@@ -112,15 +132,17 @@ function Notifications() {
     lastSubmission: actionData,
   });
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
-      <h1 className="mv-mb-8">Benachrichtigungen</h1>
+      <h1 className="mv-mb-8">{t("content.headline")}</h1>
       {loaderData.profile.notificationSettings !== null ? (
         <ul>
           <Form method="post" {...form.props}>
             <div className="mv-flex mv-justify-between">
               <label className="mv-font-semibold" htmlFor={fields.updates.name}>
-                Ich möchte zu Plattform-Updates informiert werden.
+                {t("form.updates.label")}
               </label>
               <input {...conform.input(fields.updates, { type: "checkbox" })} />
             </div>
@@ -131,13 +153,13 @@ function Notifications() {
             )}
             <noscript>
               <div className="mv-mt-2">
-                <Button variant="outline">Speichern</Button>
+                <Button variant="outline">{t("form.submit.label")}</Button>
               </div>
             </noscript>
           </Form>
         </ul>
       ) : (
-        "Keine Einstellungen gefunden."
+        <>{t("content.empty")}</>
       )}
     </>
   );

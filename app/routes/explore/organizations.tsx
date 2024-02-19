@@ -3,20 +3,19 @@ import {
   CardContainer,
   OrganizationCard,
 } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
-import { getAllOffers } from "~/routes/utils.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/public-fields-filtering.server";
+import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -24,23 +23,25 @@ import {
   getPaginationValues,
   getRandomSeed,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async (args: LoaderArgs) => {
-  const { request } = args;
-  const response = new Response();
+const i18nNS = ["routes/explore/organizations"];
+export const handle = {
+  i18n: i18nNS,
+};
 
-  const authClient = createAuthClient(request, response);
+export const loader = async (args: LoaderFunctionArgs) => {
+  const { request } = args;
+  const { authClient } = createAuthClient(request);
 
   let randomSeed = getRandomSeed(request);
 
   if (randomSeed === undefined) {
     randomSeed = parseFloat(Math.random().toFixed(3));
-    return redirect(`/explore/organizations?randomSeed=${randomSeed}`, {
-      headers: response.headers,
-    });
+    return redirect(`/explore/organizations?randomSeed=${randomSeed}`);
   }
 
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
@@ -137,16 +138,13 @@ export const loader = async (args: LoaderArgs) => {
     enhancedOrganizations.push(enhancedOrganization);
   }
 
-  return json(
-    {
-      isLoggedIn,
-      organizations: enhancedOrganizations,
-      areas,
-      offers,
-      pagination: { page, itemsPerPage },
-    },
-    { headers: response.headers }
-  );
+  return json({
+    isLoggedIn,
+    organizations: enhancedOrganizations,
+    areas,
+    offers,
+    pagination: { page, itemsPerPage },
+  });
 };
 
 export default function Index() {
@@ -184,11 +182,13 @@ export default function Index() {
     }
   }, [fetcher.data]);
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">Entdecke Organisationen</H1>
-        <p className="">Hier findest du Organisationen und Netzwerke.</p>
+        <H1 like="h0">{t("title")}</H1>
+        <p className="">{t("intro")}</p>
       </section>
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <CardContainer type="multi row">
@@ -203,10 +203,7 @@ export default function Index() {
               );
             })
           ) : (
-            <p>
-              Für Deine Filterkriterien konnten leider keine Profile gefunden
-              werden.
-            </p>
+            <p>{t("empty")}</p>
           )}
         </CardContainer>
         {shouldFetch && (
@@ -222,9 +219,9 @@ export default function Index() {
               <Button
                 size="large"
                 variant="outline"
-                loading={fetcher.state === "submitting"}
+                loading={fetcher.state === "loading"}
               >
-                Weitere laden
+                {t("more")}
               </Button>
             </fetcher.Form>
           </div>

@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -8,12 +8,11 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { GravityType, getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -21,32 +20,40 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { type action as publishAction, publishSchema } from "./events/publish";
 import {
   getEventBySlug,
   getOwnOrganizationsSuggestions,
   getResponsibleOrganizationDataFromEvent,
 } from "./organizations.server";
 import {
-  addOrganizationSchema,
   type action as addOrganizationAction,
+  addOrganizationSchema,
 } from "./organizations/add-organization";
 import {
-  removeOrganizationSchema,
   type action as removeOrganizationAction,
+  removeOrganizationSchema,
 } from "./organizations/remove-organization";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/organizations",
+  ]);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const organizations = getResponsibleOrganizationDataFromEvent(event);
 
@@ -104,15 +111,12 @@ export const loader = async (args: LoaderArgs) => {
       );
   }
 
-  return json(
-    {
-      published: event.published,
-      responsibleOrganizations: enhancedOrganizations,
-      responsibleOrganizationSuggestions,
-      ownOrganizationsSuggestions: enhancedOwnOrganizations,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    responsibleOrganizations: enhancedOrganizations,
+    responsibleOrganizationSuggestions,
+    ownOrganizationsSuggestions: enhancedOwnOrganizations,
+  });
 };
 
 function Organizations() {
@@ -125,20 +129,15 @@ function Organizations() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/event/settings/organizations"]);
 
   return (
     <>
-      <h1 className="mb-8">Verantwortliche Organisationen</h1>
-      <p className="mb-8">
-        Welche Organisation ist verantwortlich für Eure Veransatltung? Füge hier
-        weitere Organisationen hinzu oder entferne sie.
-      </p>
-      <h4 className="mb-4 mt-4 font-semibold">Organisation hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Deiner Veranstaltung eine bereits bestehende Organisation
-        hinzu.
-      </p>
-      <Form
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-8">{t("content.headline")}</p>
+      <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
+      <RemixFormsForm
         schema={addOrganizationSchema}
         fetcher={addOrganizationFetcher}
         action={`/event/${slug}/settings/organizations/add-organization`}
@@ -157,7 +156,7 @@ function Organizations() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name der Organisation
+                      {t("content.add.label")}
                     </label>
                   </div>
                 </div>
@@ -189,7 +188,7 @@ function Organizations() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addOrganizationFetcher.data !== undefined &&
       "message" in addOrganizationFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -199,12 +198,9 @@ function Organizations() {
       {loaderData.ownOrganizationsSuggestions.length > 0 ? (
         <>
           <h4 className="mb-4 mt-16 font-semibold">
-            Eigene Organisationen hinzufügen
+            {t("content.own.headline")}
           </h4>
-          <p className="mb-8">
-            Hier werden dir Deine eigenen Organisationen vorgeschlagen um sie
-            auf einen Klick als verantwortliche Organisationen hinzuzufügen.
-          </p>
+          <p className="mb-8">{t("content.own.intro")}</p>
           <div className="mb-4 md:max-h-[630px] overflow-auto">
             <ul>
               {loaderData.ownOrganizationsSuggestions.map((organization) => {
@@ -241,7 +237,7 @@ function Organizations() {
                         </p>
                       ) : null}
                     </div>
-                    <Form
+                    <RemixFormsForm
                       schema={addOrganizationSchema}
                       fetcher={addOrganizationFetcher}
                       action={`/event/${slug}/settings/organizations/add-organization`}
@@ -262,12 +258,12 @@ function Organizations() {
                               title="Hinzufügen"
                               type="submit"
                             >
-                              Hinzufügen
+                              {t("content.own.label")}
                             </button>
                           </>
                         );
                       }}
-                    </Form>
+                    </RemixFormsForm>
                   </li>
                 );
               })}
@@ -276,11 +272,10 @@ function Organizations() {
         </>
       ) : null}
 
-      <h4 className="mb-4 mt-16 font-semibold">Organisationen</h4>
-      <p className="mb-8">
-        Hier siehst du alle für die Veranstaltung verantwortlichen
-        Organisationen auf einen Blick.
-      </p>
+      <h4 className="mb-4 mt-16 font-semibold">
+        {t("content.current.headline")}
+      </h4>
+      <p className="mb-8">{t("content.current.intro")}</p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         <ul>
           {loaderData.responsibleOrganizations.map((organization) => {
@@ -316,7 +311,7 @@ function Organizations() {
                     </p>
                   ) : null}
                 </div>
-                <Form
+                <RemixFormsForm
                   schema={removeOrganizationSchema}
                   fetcher={removeOrganizationFetcher}
                   action={`/event/${slug}/settings/organizations/remove-organization`}
@@ -332,7 +327,10 @@ function Organizations() {
                       <>
                         <Errors />
                         <Field name="organizationId" />
-                        <Button className="ml-auto btn-none" title="entfernen">
+                        <Button
+                          className="ml-auto btn-none"
+                          title={t("content.current.remove")}
+                        >
                           <svg
                             viewBox="0 0 10 10"
                             width="10px"
@@ -349,7 +347,7 @@ function Organizations() {
                       </>
                     );
                   }}
-                </Form>
+                </RemixFormsForm>
               </li>
             );
           })}
@@ -358,7 +356,7 @@ function Organizations() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -373,12 +371,14 @@ function Organizations() {
                   <>
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                      {loaderData.published
+                        ? t("content.hide")
+                        : t("content.publish")}
                     </Button>
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

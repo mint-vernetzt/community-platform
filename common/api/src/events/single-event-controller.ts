@@ -11,10 +11,11 @@ import {
   Tags,
   type ValidateError,
 } from "tsoa";
-import { getImageURL, getPublicURL } from "../images.server";
+import { getImageURL } from "../images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { prismaClient } from "../prisma";
 import { filterEventByVisibility } from "../public-fields-filtering.server";
+import { getPublicURL } from "../storage.server";
 import { getBaseURL } from "../utils";
 
 @Route("event")

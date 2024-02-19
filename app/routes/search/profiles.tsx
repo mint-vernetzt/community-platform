@@ -1,28 +1,32 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
   getQueryValueAsArrayOfWords,
   searchProfilesViaLike,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+const i18nNS = ["routes/search/profiles"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
@@ -50,21 +54,21 @@ export const loader = async ({ request }: LoaderArgs) => {
 
     if (sessionUser === null) {
       // Filter profile
-      enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
-        enhancedProfile
-      );
+      type EnhancedProfile = typeof enhancedProfile;
+      enhancedProfile =
+        filterProfileByVisibility<EnhancedProfile>(enhancedProfile);
       // Filter organizations where profile belongs to
-      enhancedProfile.memberOf = await Promise.all(
-        enhancedProfile.memberOf.map(async (organization) => {
-          const filteredOrganization = await filterOrganizationByVisibility<
-            typeof organization
-          >(organization);
+      enhancedProfile.memberOf = enhancedProfile.memberOf.map(
+        (organization) => {
+          type Organization = typeof organization;
+          const filteredOrganization =
+            filterOrganizationByVisibility<Organization>(organization);
           return { ...filteredOrganization };
-        })
+        }
       );
     }
 
-    // Add images from image proxy
+    // Add imgUrls for imgproxy call on client
     if (enhancedProfile.avatar !== null) {
       const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
       if (publicURL !== null) {
@@ -99,17 +103,14 @@ export const loader = async ({ request }: LoaderArgs) => {
     enhancedProfiles.push(enhancedProfile);
   }
 
-  return json(
-    {
-      profiles: enhancedProfiles,
-      isLoggedIn: sessionUser !== null,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
+  return json({
+    profiles: enhancedProfiles,
+    isLoggedIn: sessionUser !== null,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+  });
 };
 
 export default function Profiles() {
@@ -154,6 +155,8 @@ export default function Profiles() {
 
   const query = searchParams.get("query") ?? "";
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <section
       id="search-results-profiles"
@@ -180,18 +183,16 @@ export default function Profiles() {
                 <Button
                   size="large"
                   variant="outline"
-                  loading={fetcher.state === "submitting"}
+                  loading={fetcher.state === "loading"}
                 >
-                  Weitere laden
+                  {t("more")}
                 </Button>
               </fetcher.Form>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">
-          Für Deine Suche konnten leider keine Profile gefunden werden.
-        </p>
+        <p className="text-center text-primary">{t("empty")}</p>
       )}
     </section>
   );

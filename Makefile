@@ -13,19 +13,19 @@ prisma-migrate: ## Migrate the prisma database
 	npm run prisma:migrate
 
 german-states-and-districts-dataset: ## Import german states and districts into the database as areas, states and districts (see prisma.schema for more details)
-	npx ts-node prisma/scripts/german-states-and-districts-dataset/load-german-states-and-districts.ts
+	npx tsx prisma/scripts/german-states-and-districts-dataset/load-german-states-and-districts.ts
 
 import-datasets: ## Import other static datasets (located in ./prisma/scripts/import-datasets/data/)
-	npx ts-node prisma/scripts/import-datasets/index.ts
+	npx tsx prisma/scripts/import-datasets/index.ts
 
 apply-create-profile-trigger: ## Applies the "create profile" trigger, which creates a public profile everytime a user is created on the auth.users table
-	npx ts-node prisma/scripts/apply-create-profile-trigger/index.ts
+	npx tsx prisma/scripts/apply-create-profile-trigger/index.ts
 
 create-buckets: ## Create supabase buckets
-	npx ts-node supabase/scripts/create-buckets/index.ts
+	npx tsx supabase/scripts/create-buckets/index.ts
 
 apply-bucket-rls: ## Applies the RLS policies for the supabase storage buckets
-	npx ts-node prisma/scripts/apply-bucket-rls/index.ts
+	npx tsx prisma/scripts/apply-bucket-rls/index.ts
 
 imgproxy: ## Start imgproxy
 	docker run --rm -p 8080:8080 --network supabase_network_community-platform -e IMGPROXY_KEY -e IMGPROXY_SALT --name imgproxy -itd darthsim/imgproxy
@@ -34,22 +34,26 @@ imgproxy_stop: ## Stop imgproxy
 	docker stop `docker ps --format "{{.ID}}" --filter name=imgproxy`
 
 update-score: ## Update score of profiles and organizations
-	npx ts-node prisma/scripts/update-score/index.ts
+	npx tsx prisma/scripts/update-score/index.ts
 
 seed-database: ## Seed the database with fake data
-	npx ts-node prisma/scripts/seed-database/index.ts
+	npx tsx prisma/scripts/seed-database/index.ts
 
 truncate-tables: ## Truncate all database tables except the migration table
-	npx ts-node prisma/scripts/truncate-tables/index.ts
+	npx tsx prisma/scripts/truncate-tables/index.ts
 
 delete-users: ## Delete all users on the auth.users table
-	npx ts-node supabase/scripts/delete-users/index.ts
+	npx tsx supabase/scripts/delete-users/index.ts
 
 empty-buckets: ## Empty all buckets in supabase storage if they exist
-	npx ts-node supabase/scripts/empty-buckets/index.ts
+	npx tsx supabase/scripts/empty-buckets/index.ts
 
 download-storage-objects: ## Downloading all storage objects from supabase storage (Please look at the script and the .env.example located in "./supabase/scripts/download-storgae-objects/" before executing)
-	npx ts-node supabase/scripts/download-storage-objects/index.ts
+	npx tsx supabase/scripts/download-storage-objects/index.ts
 
 migrate-storage-objects: ## Migrating all storage objects from old supabase storage to the new supabase storage (Please look at the script and the .env.example located in "./supabase/scripts/migrate-storgae-objects/" before executing)
-	npx ts-node supabase/scripts/download-storage-objects/index.ts
+	npx tsx supabase/scripts/download-storage-objects/index.ts
+
+upload-sentry-sourcemaps: ## Sourcemaps are created with each remix build (see npm script build). This command uploads those sourcemaps to sentry and sentry creates a new release.
+	npx sentry-upload-sourcemaps --org ${SENTRY_ORGANIZATION_NAME} --project ${SENTRY_PROJECT_NAME}
+  

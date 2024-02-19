@@ -1,14 +1,7 @@
-import type { DataFunctionArgs } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
-import { createAuthClient } from "~/auth.server";
 
-export const loader = async (args: DataFunctionArgs) => {
-  const { request } = args;
-  const response = new Response();
-
-  createAuthClient(request, response);
-
-  return response;
+export const loader = async () => {
+  return null;
 };
 
 function Explore() {

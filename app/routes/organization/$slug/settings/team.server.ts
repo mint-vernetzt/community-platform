@@ -1,6 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { GravityType } from "imgproxy/dist/types";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 

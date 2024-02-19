@@ -1,25 +1,29 @@
 import { Button, CardContainer, ProjectCard } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
   getQueryValueAsArrayOfWords,
   searchProjectsViaLike,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+const i18nNS = ["routes/search/projects"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
@@ -44,18 +48,17 @@ export const loader = async ({ request }: LoaderArgs) => {
 
     if (sessionUser === null) {
       // Filter project
-      enhancedProject = await filterProjectByVisibility<typeof enhancedProject>(
-        enhancedProject
-      );
+      type EnhancedProject = typeof enhancedProject;
+      enhancedProject =
+        filterProjectByVisibility<EnhancedProject>(enhancedProject);
       // Filter responsible organizations of project
-      enhancedProject.responsibleOrganizations = await Promise.all(
-        enhancedProject.responsibleOrganizations.map(async (relation) => {
-          const filteredOrganization = await filterOrganizationByVisibility<
-            typeof relation.organization
-          >(relation.organization);
+      enhancedProject.responsibleOrganizations =
+        enhancedProject.responsibleOrganizations.map((relation) => {
+          type Organization = typeof relation.organization;
+          const filteredOrganization =
+            filterOrganizationByVisibility<Organization>(relation.organization);
           return { ...relation, organization: filteredOrganization };
-        })
-      );
+        });
     }
 
     // Add images from image proxy
@@ -112,13 +115,10 @@ export const loader = async ({ request }: LoaderArgs) => {
     enhancedProjects.push(enhancedProject);
   }
 
-  return json(
-    {
-      projects: enhancedProjects,
-      pagination: { page, itemsPerPage },
-    },
-    { headers: response.headers }
-  );
+  return json({
+    projects: enhancedProjects,
+    pagination: { page, itemsPerPage },
+  });
 };
 
 export default function SearchView() {
@@ -161,6 +161,8 @@ export default function SearchView() {
     setItems(loaderData.projects);
   }, [loaderData.projects, loaderData.pagination.itemsPerPage]);
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <>
       {items.length > 0 ? (
@@ -190,18 +192,16 @@ export default function SearchView() {
                 <Button
                   size="large"
                   variant="outline"
-                  loading={fetcher.state === "submitting"}
+                  loading={fetcher.state === "loading"}
                 >
-                  Weitere laden
+                  {t("more")}
                 </Button>
               </fetcher.Form>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">
-          Für Deine Suche konnten leider keine Projekte gefunden werden.
-        </p>
+        <p className="text-center text-primary">{t("empty")}</p>
       )}
     </>
   );

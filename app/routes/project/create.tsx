@@ -1,7 +1,7 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { Button, Input, Link } from "@mint-vernetzt/components";
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { z } from "zod";
@@ -14,30 +14,33 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { deriveMode, generateProjectSlug } from "~/utils.server";
 import { getSubmissionHash } from "./$slug/settings/utils.server";
+import { type TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { Trans, useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
-const createSchema = z.object({
-  projectName: z
-    .string({
-      required_error: "Der Projektname ist eine erforderliche Angabe.",
-    })
-    .max(
-      80,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
-    ),
-});
+const i18nNS = ["routes/project/create"];
+export const handle = {
+  i18n: i18nNS,
+};
 
-export const loader = async (args: DataFunctionArgs) => {
+const createSchema = (t: TFunction) =>
+  z.object({
+    projectName: z
+      .string({
+        required_error: t("validation.projectName.required"),
+      })
+      .max(80, t("validation.projectName.max")),
+  });
+
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser === null) {
     const url = new URL(request.url);
-    return redirect(`/login?login_redirect=${url.pathname}`, {
-      headers: response.headers,
-    });
+    return redirect(`/login?login_redirect=${url.pathname}`);
   }
 
   const mode = await deriveMode(sessionUser);
@@ -49,29 +52,29 @@ export const loader = async (args: DataFunctionArgs) => {
     }
   );
 
-  return json({}, { headers: response.headers });
+  return null;
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveMode(sessionUser);
-  invariantResponse(
-    mode !== "anon",
-    "You have to be logged in to access this route",
-    {
-      status: 403,
-    }
-  );
+  invariantResponse(mode !== "anon", t("error.invariantResponse"), {
+    status: 403,
+  });
+
+  const schema = createSchema(t);
 
   // Validation
   const formData = await request.formData();
   const submission = await parse(formData, {
     schema: (intent) =>
-      createSchema.transform(async (data, ctx) => {
+      schema.transform(async (data, ctx) => {
         const slug = generateProjectSlug(data.projectName);
         if (intent !== "submit") {
           return { ...data, slug };
@@ -117,8 +120,7 @@ export const action = async (args: DataFunctionArgs) => {
           console.warn(e);
           ctx.addIssue({
             code: "custom",
-            message:
-              "Das Projekt konnte nicht angelegt werden. Bitte versuche es erneut oder wende dich an den Support.",
+            message: t("error.unableToCreate"),
           });
           return z.NEVER;
         }
@@ -131,34 +133,32 @@ export const action = async (args: DataFunctionArgs) => {
   const hash = getSubmissionHash(submission);
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission, hash } as const, {
-      headers: response.headers,
-    });
+    return json({ status: "idle", submission, hash } as const);
   }
   if (!submission.value) {
     return json({ status: "error", submission, hash } as const, {
-      headers: response.headers,
       status: 400,
     });
   }
 
-  return redirect(`/project/${submission.value.slug}/settings`, {
-    headers: response.headers,
-  });
+  return redirect(`/project/${submission.value.slug}/settings`);
 };
 
 function Create() {
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
 
+  const { t } = useTranslation(i18nNS);
+  const schema = createSchema(t);
+
   const [form, fields] = useForm({
     id: "create-project-form",
-    constraint: getFieldsetConstraint(createSchema),
+    constraint: getFieldsetConstraint(schema),
     lastSubmission: actionData?.submission,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",
     onValidate({ formData }) {
-      return parse(formData, { schema: createSchema });
+      return parse(formData, { schema: schema });
     },
   });
 
@@ -169,7 +169,7 @@ function Create() {
           <div className="mv-flex mv-flex-col mv-w-[480px] mv-gap-6 mv-p-8 mv-border mv-rounded-lg mv-border-gray-200">
             <div className="mv-flex mv-justify-between mv-items-center mv-gap-4">
               <h1 className="mv-text-primary mv-text-5xl mv-font-bold mv-mb-0">
-                Projekt anlegen
+                {t("content.headline")}
               </h1>
               {/* TODO: Add and style this when putting the create dialog inside a modal */}
               {/* <CircleButton variant="ghost" size="small">
@@ -187,49 +187,40 @@ function Create() {
                 </svg>
               </CircleButton> */}
             </div>
+            <p className="mv-text-sm">{t("content.intro1")}</p>
             <p className="mv-text-sm">
-              Lege Dein Gute-Praxis-Projekt/Bildungsangebot an und inspiriere
-              damit andere MINT-Akteur:innen.
-            </p>
-            <p className="mv-text-sm">
-              Bitte beachte, dass Du hier nicht Deine Zielgruppe ansprichst,
-              sondern Dein Projekt für MINT-Akteur:innen vorstellst. Lies Dir
-              unsere{" "}
-              <Link
-                as="a"
-                to="https://mint-vernetzt.de/terms-of-use-community-platform/"
-                className="mv-text-primary"
-                isExternal
-              >
-                Nutzungsbedingungen
-              </Link>{" "}
-              sorgfältig durch, da wir uns das Recht vorbehalten, Inhalte zu
-              löschen.
+              <Trans
+                i18nKey="content.intro2"
+                ns={i18nNS}
+                components={[
+                  <Link
+                    as="a"
+                    to="https://mint-vernetzt.de/terms-of-use-community-platform/"
+                    className="mv-text-primary"
+                    isExternal
+                  />,
+                ]}
+              />
             </p>
             <Form method="post" {...form.props}>
               <Input {...conform.input(fields.projectName)}>
                 <Input.Label htmlFor={fields.projectName.id}>
-                  Titel des Projekts oder Bildungsangebotes*
+                  {t("form.projectName.label")}
                 </Input.Label>
                 {typeof fields.projectName.error !== "undefined" && (
                   <Input.Error>{fields.projectName.error}</Input.Error>
                 )}
               </Input>
             </Form>
-            <p className="mv-text-xs">*Erforderliche Angaben</p>
-            <p className="mv-text-xs">
-              Du erstellst einen Entwurf, der nur Dir angezeigt wird. Über
-              Projekt bearbeiten kannst Du nach der Entwurfserstellung Dein
-              Projekt mit Informationen anreichern und es anschließend
-              veröffentlichen.
-            </p>
+            <p className="mv-text-xs">{t("content.explanation.headline")}</p>
+            <p className="mv-text-xs">{t("content.explanation.intro")}</p>
             <div className="mv-flex mv-flex-col mv-gap-2">
               <Button type="submit" form={form.id}>
-                Entwurf speichern und bearbeiten
+                {t("form.submit.label")}
               </Button>
               {/* TODO: Add and style this when putting the create dialog inside a modal */}
               <Button variant="outline" onClick={() => navigate(-1)}>
-                Entwurf verwerfen
+                {t("form.reset.label")}
               </Button>
             </div>
           </div>

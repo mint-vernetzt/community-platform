@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -8,12 +8,11 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
-import { Form } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -22,24 +21,35 @@ import { getPublicURL } from "~/storage.server";
 import { deriveOrganizationMode } from "../utils.server";
 import { getOrganization } from "./admins.server";
 import {
-  addAdminSchema,
   type action as addAdminAction,
+  addAdminSchema,
 } from "./admins/add-admin";
 import {
-  removeAdminSchema,
   type action as removeAdminAction,
+  removeAdminSchema,
 } from "./admins/remove-admin";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
-export const loader = async (args: LoaderArgs) => {
+const i18nNS = ["routes/organization/settings/admins"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const organization = await getOrganization(slug);
-  invariantResponse(organization, "Organization not found", { status: 404 });
+  invariantResponse(organization, t("error.notFound"), { status: 404 });
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const enhancedAdmins = organization.admins.map((relation) => {
     let avatar = relation.profile.avatar;
@@ -71,13 +81,10 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  return json(
-    {
-      admins: enhancedAdmins,
-      adminSuggestions,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    admins: enhancedAdmins,
+    adminSuggestions,
+  });
 };
 
 function Admins() {
@@ -88,28 +95,17 @@ function Admins() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
-      <h1 className="mb-8">Die Administrator:innen</h1>
-      <p className="mb-2">
-        Wer verwaltet die Organisation auf der Community Plattform? Füge hier
-        weitere Administrator:innen hinzu oder entferne sie.
-      </p>
-      <p className="mb-2">
-        Administrator:innen können Organisationen anlegen, bearbeiten, löschen,
-        sowie Team-Mitglieder hinzufügen. Sie sind nicht auf der
-        Organisations-Detailseite sichtbar.
-      </p>
-      <p className="mb-8">
-        Team-Mitglieder werden auf der Organisations-Detailseite gezeigt. Sie
-        können Organisationen nicht bearbeiten.
-      </p>
-      <h4 className="mb-4 mt-4 font-semibold">Administrator:in hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Deiner Organisation ein bereits bestehendes Profil hinzu.
-      </p>
-      <Form
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-2">{t("content.intro1")}</p>
+      <p className="mb-2">{t("content.intro2")}</p>
+      <p className="mb-8">{t("content.intro3")}</p>
+      <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
+      <RemixFormsForm
         schema={addAdminSchema}
         fetcher={addAdminFetcher}
         action={`/organization/${slug}/settings/admins/add-admin`}
@@ -128,7 +124,7 @@ function Admins() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name oder Email
+                      {t("content.add.label")}
                     </label>
                   </div>
                 </div>
@@ -158,7 +154,7 @@ function Admins() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addAdminFetcher.data !== undefined &&
       "message" in addAdminFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -166,16 +162,10 @@ function Admins() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
-        {loaderData.admins.length <= 1
-          ? "Administrator:in"
-          : "Administrator:innen"}
+        {t("content.current.headline", { count: loaderData.admins.length })}
       </h4>
       <p className="mb-8">
-        Hier siehst du die{" "}
-        {loaderData.admins.length <= 1
-          ? "Administrator:in"
-          : "Administrator:innen"}{" "}
-        der Organisation auf einen Blick.{" "}
+        {t("content.current.intro", { count: loaderData.admins.length })}{" "}
       </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.admins.map((admin) => {
@@ -208,7 +198,7 @@ function Admins() {
                 ) : null}
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                <Form
+                <RemixFormsForm
                   schema={removeAdminSchema}
                   fetcher={removeAdminFetcher}
                   action={`/organization/${slug}/settings/admins/remove-admin`}
@@ -226,7 +216,7 @@ function Admins() {
                         {loaderData.admins.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
-                            title="entfernen"
+                            title={t("content.current.remove")}
                           >
                             <svg
                               viewBox="0 0 10 10"
@@ -245,7 +235,7 @@ function Admins() {
                       </>
                     );
                   }}
-                </Form>
+                </RemixFormsForm>
               </div>
             </div>
           );

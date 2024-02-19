@@ -5,6 +5,11 @@ import * as eventSchema from "../../lib/submissions/forms/event/validation.schem
 import { mailerOptions } from "../../lib/submissions/mailer/mailerOptions";
 import { testURL } from "~/lib/utils/tests";
 
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
+
 jest.mock("../../lib/submissions/mailer/submissionMailer");
 
 const path = "/submission/event";

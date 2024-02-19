@@ -5,9 +5,10 @@ import { createRequestWithFormData, testURL } from "~/lib/utils/tests";
 import { prismaClient } from "~/prisma.server";
 import { action, loader } from "./index";
 
-/** @type {jest.Expect} */
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
 // @ts-ignore
-const expect = global.expect;
+const expect = global.expect as jest.Expect;
 
 jest.mock("~/prisma.server", () => {
   return {
@@ -168,9 +169,7 @@ test("call login action with wrong credentials", async () => {
 
   expect(data).toStrictEqual({
     errors: {
-      _global: [
-        "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.",
-      ],
+      _global: ["error.invalidCredentials"],
       email: [],
       loginRedirect: [],
       password: [],

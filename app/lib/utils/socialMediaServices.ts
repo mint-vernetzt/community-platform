@@ -1,55 +1,47 @@
 import type { Organization, Profile } from "@prisma/client";
+import { TFunction } from "i18next";
+
+type SocialMediaIdType =
+  | keyof Pick<
+      Organization,
+      "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
+    >
+  | keyof Pick<
+      Profile,
+      "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
+    >;
 
 type SocialMediaService = {
-  id:
-    | keyof Pick<
-        Organization,
-        "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
-      >
-    | keyof Pick<
-        Profile,
-        "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
-      >;
+  id: SocialMediaIdType;
   label: string;
   placeholder: string;
   organizationPlaceholder: string;
 };
 
-export const socialMediaServices: SocialMediaService[] = [
-  {
-    id: "facebook",
-    label: "facebook",
-    placeholder: "facebook.com/<Nutzername>",
-    organizationPlaceholder: "facebook.com/<Organisationsname>",
-  },
-  {
-    id: "linkedin",
-    label: "LinkedIn",
-    placeholder: "linkedin.com/in/<Nutzername>",
-    organizationPlaceholder: "linkedin.com/company/<Organisationsname>",
-  },
-  {
-    id: "twitter",
-    label: "Twitter",
-    placeholder: "twitter.com/<Nutzername>",
-    organizationPlaceholder: "twitter.com/<Organisationsname>",
-  },
-  {
-    id: "youtube",
-    label: "YouTube",
-    placeholder: "youtube.com/<Nutzername>",
-    organizationPlaceholder: "youtube.com/<Organisationsname>",
-  },
-  {
-    id: "instagram",
-    label: "Instagram",
-    placeholder: "instagram.com/<Nutzername>",
-    organizationPlaceholder: "instagram.com/<Organisationsname>",
-  },
-  {
-    id: "xing",
-    label: "Xing",
-    placeholder: "xing.com/profile/<Nutzername>",
-    organizationPlaceholder: "xing.com/pages/<Organisationsname>",
-  },
+const socialMediaServiceIds: SocialMediaIdType[] = [
+  "facebook",
+  "linkedin",
+  "twitter",
+  "youtube",
+  "instagram",
+  "xing",
 ];
+
+export const createSocialMediaServices = (
+  t: TFunction
+): SocialMediaService[] => {
+  return socialMediaServiceIds.map(
+    (id: SocialMediaIdType): SocialMediaService => {
+      return {
+        id: id,
+        label: t(`${id}.label`, { ns: "utils/social-media-services" }),
+        placeholder: t(`${id}.placeholder`, {
+          ns: "utils/social-media-services",
+        }),
+        organizationPlaceholder: t(`${id}.organizationPlaceholder`, {
+          ns: "utils/social-media-services",
+        }),
+      };
+    }
+  );
+};

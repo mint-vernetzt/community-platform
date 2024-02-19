@@ -1,57 +1,102 @@
-import type { ResizingType } from "imgproxy/dist/types";
-import { GravityType } from "imgproxy/dist/types";
-import { builder } from "./imgproxy";
-import type { SupabaseClient } from "@supabase/auth-helpers-remix";
-import { serverError } from "remix-utils";
+import crypto from "crypto";
 
-type GetImageURLArguments = {
-  resize?: {
-    type?: ResizingType;
-    width?: number;
-    height?: number;
-    enlarge?: boolean;
-  };
-  gravity?: GravityType;
-  dpr?: string | number;
+export type ResizeType = "fit" | "fill" | "crop";
+
+export const GravityType = {
+  center: "ce",
+  north: "no",
+  south: "so",
+  east: "ea",
+  west: "we",
+  northEast: "noea",
+  northWest: "nowe",
+  southEast: "soea",
+  southWest: "sowe",
+  smart: "sm",
 };
 
-export function getImageURL(url: string, args?: GetImageURLArguments) {
-  const { resize = {}, gravity = GravityType.center, dpr = 2 } = args ?? {};
+const baseUrl = process.env.IMGPROXY_URL;
+const key = process.env.IMGPROXY_KEY;
+const salt = process.env.IMGPROXY_SALT;
 
-  const imageURL = builder
-    .resize(resize.type, resize.width, resize.height, resize.enlarge)
-    .gravity(gravity)
-    .dpr(dpr)
-    .generateUrl(url);
-
-  return imageURL;
+function encodeUrlCharacters(url: string) {
+  const encodedUrl = url
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+  return encodedUrl;
 }
 
-export function getPublicURL(
-  authClient: SupabaseClient,
-  relativePath: string,
-  bucket = "images"
+function encodeUrl(data: Buffer | string) {
+  if (Buffer.isBuffer(data)) {
+    return encodeUrlCharacters(data.toString("base64"));
+  }
+  return encodeUrlCharacters(Buffer.from(data, "utf-8").toString("base64"));
+}
+
+function serialize(obj: { [key: string]: string }) {
+  const keys = Object.keys(obj);
+  if (keys.length === 0) {
+    return "";
+  }
+
+  return keys
+    .map((key) => {
+      return `${key}:${obj[key]}`;
+    })
+    .join("/");
+}
+
+export function getImageURL(
+  url: string,
+  options?: {
+    resize?: {
+      type?: ResizeType;
+      width?: number;
+      height?: number;
+      enlarge?: boolean;
+    };
+    gravity?: string;
+    dpr?: number;
+    blur?: number;
+  }
 ) {
-  const {
-    data: { publicUrl },
-  } = authClient.storage.from(bucket).getPublicUrl(relativePath);
-
-  if (publicUrl === "") {
-    throw serverError({
-      message: "Die öffentliche URL der Datei konnte nicht erzeugt werden.",
-    });
-  }
-
   if (
-    bucket === "images" &&
-    process.env.SUPABASE_IMG_URL !== undefined &&
-    process.env.SUPABASE_URL !== undefined
+    typeof baseUrl === "undefined" ||
+    typeof key === "undefined" ||
+    typeof salt === "undefined"
   ) {
-    return publicUrl.replace(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_IMG_URL
-    );
+    throw new Error("imgproxy environment variables are not set");
   }
 
-  return publicUrl;
+  const { resize, gravity = "ce", dpr = 2, blur = 0 } = options || {};
+
+  const imgOptions: { [key: string]: string } = {};
+
+  // create resize part of the url
+  if (typeof resize !== "undefined") {
+    imgOptions.rs = [
+      resize.type,
+      resize.width,
+      resize.height,
+      resize.enlarge ? 1 : 0,
+    ].join(":");
+  }
+
+  imgOptions.g = gravity;
+  imgOptions.dpr = dpr.toString();
+  imgOptions.bl = blur.toString();
+
+  const serializedOptions = serialize(imgOptions); // {key: "value"} --> "/key:value"
+  const uri = `/${serializedOptions}/${encodeUrl(url)}`;
+
+  const hmac = crypto.createHmac("sha256", Buffer.from(key, "hex"));
+  hmac.update(Buffer.from(salt, "hex"));
+  hmac.update(Buffer.from(uri));
+
+  const signature = encodeUrl(hmac.digest().subarray(0, 32));
+
+  const imgUrl = new URL(`${signature}${uri}`, baseUrl);
+
+  return imgUrl.toString();
 }

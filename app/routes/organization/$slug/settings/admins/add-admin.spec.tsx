@@ -100,11 +100,16 @@ describe("/organization/$slug/settings/admins/add-admin", () => {
       params: { slug: "some-organization-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors.profileId).toStrictEqual([
-      "Es existiert noch kein Profil unter diesem Namen.",
+      "error.inputError.doesNotExist",
     ]);
   });
 
@@ -141,10 +146,14 @@ describe("/organization/$slug/settings/admins/add-admin", () => {
     });
     const responseBody = await response.json();
 
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.profileId).toContain(
-      "Das Profil unter diesem Namen ist bereits Administrator:in Eurer Organisation."
-    );
+    // TODO: fix type issues
+    // @ts-ignore
+    expect(responseBody.errors.profileId).toStrictEqual([
+      "error.inputError.alreadyAdmin",
+    ]);
   });
 
   test("organization not found", async () => {
@@ -225,8 +234,11 @@ describe("/organization/$slug/settings/admins/add-admin", () => {
         profileId: "another-user-id",
       },
     });
+    // TODO: fix type issue
+    // @ts-ignore
     expect(responseBody.message).toBe(
-      '"another-user-firstname another-user-lastname" wurde als Administrator:in hinzugefügt.'
+      // '"another-user-firstname another-user-lastname" wurde als Administrator:in hinzugefügt.'
+      "feedback"
     );
   });
 });

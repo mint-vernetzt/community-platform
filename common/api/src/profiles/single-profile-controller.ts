@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Request as ExpressRequest } from "express";
-import { GravityType } from "imgproxy/dist/types";
 import {
   Controller,
   Get,
@@ -12,7 +11,8 @@ import {
   Tags,
   type ValidateError,
 } from "tsoa";
-import { getImageURL, getPublicURL } from "../images.server";
+import { getPublicURL } from "../storage.server";
+import { getImageURL, GravityType } from "../images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { prismaClient } from "../prisma";
 import { filterProfileByVisibility } from "../public-fields-filtering.server";
@@ -137,7 +137,7 @@ export class ProfileController extends Controller {
         }
       }
     }
-    let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+    const baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
 
     const url =
       baseURL !== undefined

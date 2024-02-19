@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import InputPassword, { InputPasswordProps } from "./InputPassword";
+import { type ComponentStory, type ComponentMeta } from "@storybook/react";
+import InputPassword, { type InputPasswordProps } from "./InputPassword";
 
 export default {
   title: "FormElements/InputPassword",
@@ -14,6 +14,6 @@ Default.storyName = "default";
 
 Default.args = {
   label: "Label",
-  isRequired: false,
+  required: false,
   id: "password",
 };

@@ -1,4 +1,4 @@
-import { Avatar, Controls, Image, Status } from "@mint-vernetzt/components";
+import { Avatar, Controls, Image, Status } from "./../../index";
 import React, { type ReactNode } from "react";
 
 type HeaderProps = {

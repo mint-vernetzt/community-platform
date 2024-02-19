@@ -5,9 +5,10 @@ import { type User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import { updateProfileById } from "../utils.server";
 
-/** @type {jest.Expect} */
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
 // @ts-ignore
-const expect = global.expect;
+const expect = global.expect as jest.Expect;
 
 const username = "sookie";
 
@@ -182,7 +183,7 @@ describe("loader", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe(`profile not found.`);
+      expect(json.message).toBe("error.profileNotFound");
     }
   });
   test("profile visibilities not found", async () => {
@@ -211,7 +212,7 @@ describe("loader", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe("profile visbilities not found.");
+      expect(json.message).toBe("error.noVisibilities");
     }
   });
   test("admin user full loader call", async () => {
@@ -422,7 +423,7 @@ describe("action", () => {
       expect(response.status).toBe(400);
 
       const json = await response.json();
-      expect(json.message).toBe("Validation failed");
+      expect(json.message).toBe("error.validationFailed");
     }
   });
 
@@ -452,7 +453,10 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.firstName).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.firstName.message).toEqual(
         expect.stringContaining("firstName must be a `string` type")
       );
@@ -481,9 +485,12 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.firstName).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.firstName.message).toEqual(
-        expect.stringContaining("Bitte gib Deinen Vornamen ein.")
+        "validation.firstName.required"
       );
     });
 
@@ -512,7 +519,10 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.email).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.email.message).toEqual(
         expect.stringContaining("email must be a valid email")
       );
@@ -545,6 +555,8 @@ describe("action", () => {
         params: { username },
       });
       const responseBody = await response.json();
+      // TODO: fix type issue
+      // @ts-ignore
       expect(responseBody.errors.email).toBeUndefined();
       expect(responseBody.profile.email).toBe(email);
     });

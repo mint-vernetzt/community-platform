@@ -1,4 +1,4 @@
-import type { DataFunctionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -9,15 +9,15 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
-import { InputError, makeDomainFunction } from "remix-domains";
-import { Form, Form as RemixForm, performMutation } from "remix-forms";
+import { InputError, makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import InputText from "~/components/FormElements/InputText/InputText";
 import { H3 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -26,7 +26,7 @@ import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
 import { getFullDepthProfiles } from "../utils.server";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { type action as publishAction, publishSchema } from "./events/publish";
 import {
   getEventBySlug,
   getEventWithParticipantCount,
@@ -34,37 +34,49 @@ import {
   updateParticipantLimit,
 } from "./participants.server";
 import {
-  addParticipantSchema,
   type action as addParticipantAction,
+  addParticipantSchema,
 } from "./participants/add-participant";
 import {
-  removeParticipantSchema,
   type action as removeParticipantAction,
+  removeParticipantSchema,
 } from "./participants/remove-participant";
+import i18next from "~/i18next.server";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
-const participantLimitSchema = z.object({
-  participantLimit: z
-    .string({ invalid_type_error: "Bitte eine Zahl eingeben" })
-    .regex(/^\d+$/)
-    .transform(Number)
-    .optional(),
-});
+const createParticipantLimitSchema = (t: TFunction) => {
+  return z.object({
+    participantLimit: z
+      .string({ invalid_type_error: t("validation.participantLimit.type") })
+      .regex(/^\d+$/)
+      .transform(Number)
+      .optional(),
+  });
+};
 
 const environmentSchema = z.object({
   participantsCount: z.number(),
 });
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/participants",
+  ]);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const participants = getParticipantsDataFromEvent(event);
   const enhancedParticipants = participants.participants.map((participant) => {
@@ -112,44 +124,43 @@ export const loader = async (args: LoaderArgs) => {
     "participants"
   );
 
-  return json(
-    {
-      published: event.published,
-      participantLimit: event.participantLimit,
-      participants: enhancedParticipants,
-      participantSuggestions,
-      hasFullDepthParticipants:
-        fullDepthParticipants !== null &&
-        fullDepthParticipants.length > 0 &&
-        event._count.childEvents !== 0,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    participantLimit: event.participantLimit,
+    participants: enhancedParticipants,
+    participantSuggestions,
+    hasFullDepthParticipants:
+      fullDepthParticipants !== null &&
+      fullDepthParticipants.length > 0 &&
+      event._count.childEvents !== 0,
+  });
 };
 
-const mutation = makeDomainFunction(
-  participantLimitSchema,
-  environmentSchema
-)(async (values, environment) => {
-  const participantLimit =
-    values.participantLimit === undefined || values.participantLimit <= 0
-      ? null
-      : values.participantLimit;
-  if (participantLimit) {
-    if (environment.participantsCount > participantLimit) {
-      throw new InputError(
-        "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
-        "participantLimit"
-      );
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    createParticipantLimitSchema(t),
+    environmentSchema
+  )(async (values, environment) => {
+    const participantLimit =
+      values.participantLimit === undefined || values.participantLimit <= 0
+        ? null
+        : values.participantLimit;
+    if (participantLimit) {
+      if (environment.participantsCount > participantLimit) {
+        throw new InputError(t("error.inputError"), "participantLimit");
+      }
     }
-  }
-  return values;
-});
+    return values;
+  });
+};
 
-export async function action({ request, params }: DataFunctionArgs) {
-  const response = new Response();
+export async function action({ request, params }: ActionFunctionArgs) {
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/participants",
+  ]);
   const eventSlug = getParamValueOrThrow(params, "slug");
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventWithParticipantCount(eventSlug);
@@ -159,11 +170,10 @@ export async function action({ request, params }: DataFunctionArgs) {
 
   const result = await performMutation({
     request,
-    schema: participantLimitSchema,
-    mutation,
+    schema: createParticipantLimitSchema(t),
+    mutation: createMutation(t),
     environment: { participantsCount: event._count.participants },
   });
-  console.log(result);
   if (result.success) {
     // All checked, lets update the event
     await updateParticipantLimit(
@@ -172,7 +182,7 @@ export async function action({ request, params }: DataFunctionArgs) {
     );
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 }
 
 function Participants() {
@@ -184,23 +194,18 @@ function Participants() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/event/settings/participants"]);
   const actionData = useActionData<typeof action>();
+
+  const participantLimitSchema = createParticipantLimitSchema(t);
 
   return (
     <>
-      <h1 className="mb-8">Teilnehmende</h1>
-      <p className="mb-8">
-        Wer nimmt an der Veranstaltung teil? Füge hier weitere Teilnehmende
-        hinzu oder entferne sie. Außerdem kannst Du eine Begrenzung der
-        Teilnehmenden festlegen.
-      </p>
-      <h4 className="mb-4 font-semibold">Begrenzung der Teilnehmenden</h4>
-      <p className="mb-8">
-        Hier kann die Teilnehmerzahl begrenzt werden. Auch wenn die
-        Teilnehmerzahl erreicht ist kannst du später noch manuell Personen von
-        der Warteliste zu den Teilnehmenden verschieben.
-      </p>
-      <Form schema={participantLimitSchema}>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-8">{t("content.intro")}</p>
+      <h4 className="mb-4 font-semibold">{t("content.limit.headline")}</h4>
+      <p className="mb-8">{t("content.limit.intro")}</p>
+      <RemixFormsForm schema={participantLimitSchema}>
         {({ Field, Errors, Button, register }) => {
           return (
             <>
@@ -210,7 +215,7 @@ function Participants() {
                     <InputText
                       {...register("participantLimit")}
                       id="participantLimit"
-                      label="Begrenzung der Teilnehmenden"
+                      label={t("content.limit.label")}
                       defaultValue={loaderData.participantLimit || undefined}
                       type="number"
                       autoFocus
@@ -221,27 +226,24 @@ function Participants() {
               </Field>
               <div className="flex flex-row">
                 <Button type="submit" className="btn btn-primary mb-8">
-                  Speichern
+                  {t("content.limit.submit")}
                 </Button>
                 <div
                   className={`text-green-500 text-bold ml-4 mt-2 ${
                     actionData?.success ? "block animate-fade-out" : "hidden"
                   }`}
                 >
-                  Deine Informationen wurden aktualisiert.
+                  {t("content.limit.feedback")}
                 </div>
               </div>
             </>
           );
         }}
-      </Form>
-      <h4 className="mb-4 font-semibold">Teilnehmende hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als
-        Teilnehmende hinzu.
-      </p>
+      </RemixFormsForm>
+      <h4 className="mb-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
       <div className="mb-8">
-        <Form
+        <RemixFormsForm
           schema={addParticipantSchema}
           fetcher={addParticipantFetcher}
           action={`/event/${slug}/settings/participants/add-participant`}
@@ -263,7 +265,7 @@ function Participants() {
                         htmlFor="Name"
                         className="label"
                       >
-                        Name oder Email der Teilnehmer:in
+                        {t("content.add.label")}
                       </label>
                     </div>
                   </div>
@@ -296,7 +298,7 @@ function Participants() {
               </>
             );
           }}
-        </Form>
+        </RemixFormsForm>
         {addParticipantFetcher.data !== undefined &&
         "message" in addParticipantFetcher.data ? (
           <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -304,8 +306,10 @@ function Participants() {
           </div>
         ) : null}
       </div>
-      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Teilnehmende</h4>
-      <p className="mb-4">Hier siehst du alle Teilnehmenden auf einen Blick.</p>
+      <h4 className="mb-4 mt-16 font-semibold">
+        {t("content.current.headline")}
+      </h4>
+      <p className="mb-4">{t("content.current.intro")}</p>
       {loaderData.participants.length > 0 ? (
         <p className="mb-4">
           <Link
@@ -313,7 +317,7 @@ function Participants() {
             to="../csv-download?type=participants&amp;depth=single"
             reloadDocument
           >
-            Teilnehmerliste herunterladen
+            {t("content.current.download1")}
           </Link>
         </p>
       ) : null}
@@ -324,7 +328,7 @@ function Participants() {
             to="../csv-download?type=participants&amp;depth=full"
             reloadDocument
           >
-            Teilnehmerliste aller Subveranstaltungen herunterladen
+            {t("content.current.download2")}
           </Link>
         </p>
       ) : null}
@@ -358,7 +362,7 @@ function Participants() {
                   </p>
                 ) : null}
               </div>
-              <Form
+              <RemixFormsForm
                 schema={removeParticipantSchema}
                 fetcher={removeParticipantFetcher}
                 action={`/event/${slug}/settings/participants/remove-participant`}
@@ -374,7 +378,10 @@ function Participants() {
                     <>
                       <Errors />
                       <Field name="profileId" />
-                      <Button className="ml-auto btn-none" title="entfernen">
+                      <Button
+                        className="ml-auto btn-none"
+                        title={t("content.current.remove")}
+                      >
                         <svg
                           viewBox="0 0 10 10"
                           width="10px"
@@ -391,7 +398,7 @@ function Participants() {
                     </>
                   );
                 }}
-              </Form>
+              </RemixFormsForm>
             </div>
           );
         })}
@@ -399,7 +406,7 @@ function Participants() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -414,12 +421,14 @@ function Participants() {
                   <>
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                      {loaderData.published
+                        ? t("content.hide")
+                        : t("content.publish")}
                     </Button>
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

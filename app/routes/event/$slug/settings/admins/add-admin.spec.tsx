@@ -98,11 +98,16 @@ describe("/event/$slug/settings/admins/add-admin", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors.profileId).toStrictEqual([
-      "Es existiert noch kein Profil unter diesem Namen.",
+      "error.inputError.doesNotExist",
     ]);
   });
 
@@ -138,11 +143,13 @@ describe("/event/$slug/settings/admins/add-admin", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
-
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
-    expect(responseBody.errors.profileId).toContain(
-      "Das Profil unter diesem Namen ist bereits Administrator:in Eurer Veranstaltung."
-    );
+    // @ts-ignore
+    expect(responseBody.errors.profileId).toStrictEqual([
+      "error.inputError.alreadyAdmin",
+    ]);
   });
 
   test("event not found", async () => {
@@ -221,8 +228,8 @@ describe("/event/$slug/settings/admins/add-admin", () => {
         profileId: "another-user-id",
       },
     });
-    expect(responseBody.message).toBe(
-      '"another-user-firstname another-user-lastname" wurde als Administrator:in hinzugefügt.'
-    );
+    // TODO: fix type issue
+    // @ts-ignore
+    expect(responseBody.message).toBe("feedback");
   });
 });

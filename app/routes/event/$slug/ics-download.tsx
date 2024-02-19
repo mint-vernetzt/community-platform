@@ -1,8 +1,7 @@
 import { type Event } from "@prisma/client";
-import type { DataFunctionArgs } from "@remix-run/node";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import type { DateArray } from "ics";
 import * as ics from "ics";
-import { forbidden } from "remix-utils";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { invariantResponse } from "~/lib/utils/response";
@@ -120,10 +119,9 @@ function createIcsString(
   return result as string | null;
 }
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const slug = getParamValueOrThrow(params, "slug");
@@ -136,14 +134,17 @@ export const loader = async (args: DataFunctionArgs) => {
   const isParticipant = await getIsParticipant(event.id, sessionUser.id);
 
   if (!(isTeamMember || isSpeaker || isParticipant)) {
-    throw forbidden({
-      message:
-        "Um den Kalender-Eintrag herunterzuladen musst du entweder Teammitglied, Speaker oder Teilnehmer der Veranstaltung sein.",
-    });
+    throw json(
+      {
+        message:
+          "Um den Kalender-Eintrag herunterzuladen musst du entweder Teammitglied, Speaker oder Teilnehmer der Veranstaltung sein.",
+      },
+      { status: 403 }
+    );
   }
 
   if (mode !== "admin" && event.published === false) {
-    throw forbidden({ message: "Event not published" });
+    throw json({ message: "Event not published" }, { status: 403 });
   }
 
   const url = new URL(request.url);
@@ -156,7 +157,6 @@ export const loader = async (args: DataFunctionArgs) => {
   return new Response(ics, {
     status: 200,
     headers: {
-      ...response.headers,
       "Content-Type": "text/calendar",
       "Content-Disposition": `filename=${filename}`,
     },

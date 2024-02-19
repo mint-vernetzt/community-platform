@@ -1,6 +1,6 @@
 import { type Schema } from "jsonschema";
 import { json } from "@remix-run/node";
-import { cors } from "remix-utils";
+import { cors } from "remix-utils/cors";
 import { formMapper } from "../formMapper/formMapper";
 import { mailerOptions } from "../mailer/mailerOptions";
 import { submissionMailer } from "../mailer/submissionMailer";
@@ -17,10 +17,10 @@ export async function processSubmission<T>(
   recipient: string,
   subject: string
 ) {
-  let formData = await request.formData();
+  const formData = await request.formData();
 
-  let data = formMapper<T>(formData, schema);
-  let errors = validateSubmission<T>(data, schema);
+  const data = formMapper<T>(formData, schema);
+  const errors = validateSubmission<T>(data, schema);
 
   if (errors.length === 0) {
     try {

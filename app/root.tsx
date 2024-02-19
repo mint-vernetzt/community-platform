@@ -1,7 +1,13 @@
-import { Alert, CircleButton, Footer } from "@mint-vernetzt/components";
+import { captureRemixErrorBoundaryError } from "@sentry/remix";
+import {
+  Alert,
+  CircleButton,
+  Footer,
+  Link as StyledLink,
+} from "@mint-vernetzt/components";
 import type {
-  DataFunctionArgs,
   LinksFunction,
+  LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -18,10 +24,12 @@ import {
   useLocation,
   useMatches,
   useSearchParams,
+  useRouteError,
+  isRouteErrorResponse,
 } from "@remix-run/react";
 import classNames from "classnames";
 import * as React from "react";
-import { notFound } from "remix-utils";
+import { useTranslation } from "react-i18next";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
@@ -29,24 +37,27 @@ import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
-import { getProfileByUserId } from "./root.server";
+import { detectLanguage, getProfileByUserId } from "./root.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders } from "./utils.server";
+import { H1, H2 } from "./components/Heading/Heading";
+import { initializeSentry } from "./sentry.client";
+import { useChangeLanguage } from "remix-i18next";
+
 // import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction = () => {
-  return { title: "MINTvernetzt Community Plattform" };
+  return [{ title: "MINTvernetzt Community Plattform" }];
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
+  const locale = detectLanguage(request);
 
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient, headers } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, [
     "events",
@@ -54,12 +65,15 @@ export const loader = async (args: DataFunctionArgs) => {
     "dashboard",
   ]);
 
-  const sessionUser = await getSessionUser(authClient);
+  const user = await getSessionUser(authClient);
 
   let sessionUserInfo;
 
-  if (sessionUser !== null) {
-    const profile = await getProfileByUserId(sessionUser.id);
+  if (user !== null) {
+    // Refresh session to reset the cookie max age
+    await authClient.auth.refreshSession();
+
+    const profile = await getProfileByUserId(user.id);
 
     let avatar: string | undefined;
 
@@ -79,11 +93,16 @@ export const loader = async (args: DataFunctionArgs) => {
         avatar,
       };
     } else {
-      throw notFound({ message: "profile not found." });
+      throw json({ message: "profile not found." }, { status: 404 });
     }
   }
 
   const { alert, headers: alertHeaders } = await getAlert(request);
+
+  const env = {
+    baseUrl: process.env.COMMUNITY_BASE_URL,
+    sentryDsn: process.env.SENTRY_DSN,
+  };
 
   return json(
     {
@@ -92,12 +111,28 @@ export const loader = async (args: DataFunctionArgs) => {
       sessionUserInfo,
       abilities,
       alert,
+      locale,
+      env,
     },
-    { headers: combineHeaders(response.headers, alertHeaders) }
+    { headers: combineHeaders(headers, alertHeaders) }
   );
 };
 
+export const handle = {
+  i18n: [
+    "meta",
+    "organisms/footer",
+    "organisms/roadmap",
+    "utils/social-media-services",
+    "components/image-cropper",
+    "organisms/cards/event-card",
+    "organisms/cards/profile-card",
+    "organisms/cards/organization-card",
+  ],
+};
+
 function HeaderLogo() {
+  const { t } = useTranslation(["meta"]);
   return (
     <div className="flex flex-row items-center">
       <svg
@@ -109,7 +144,7 @@ function HeaderLogo() {
         role="img"
         className="w-10 h-10 md:w-auto md:h-auto"
       >
-        <title id="mint-title-header">Logo: mint vernetzt</title>
+        <title id="mint-title-header">{t("root.logo")}</title>
         <g fill="none">
           <path
             fill="#154194"
@@ -126,7 +161,7 @@ function HeaderLogo() {
         </g>
       </svg>
       <span className="hidden md:block font-bold text-primary ml-2">
-        Community
+        {t("root.community")}
       </span>
     </div>
   );
@@ -159,9 +194,14 @@ function NavBar(props: NavBarProps) {
   const query = searchParams.get("query");
 
   const matches = useMatches();
-  const isSettings = matches[1].id === "routes/project/$slug/settings";
+  let isSettings = false;
+  if (matches[1] !== undefined) {
+    isSettings = matches[1].id === "routes/project/$slug/settings";
+  }
 
   const classes = classNames("shadow-md mb-8", isSettings && "hidden md:block");
+
+  const { t } = useTranslation(["meta"]);
 
   return (
     <header id="header" className={classes}>
@@ -187,7 +227,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/profiles"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Profile
+                  {t("root.profiles")}
                 </Link>
               </li>
               <li className="px-2 md:px-5">
@@ -195,7 +235,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/organizations"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Organisationen
+                  {t("root.organizations")}
                 </Link>
               </li>
               <li className="px-2 md:px-5">
@@ -203,7 +243,7 @@ function NavBar(props: NavBarProps) {
                   to="/explore/events"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Veranstaltungen
+                  {t("root.events")}
                 </Link>
               </li>
               <li className="px-2 md:px-5">
@@ -211,13 +251,17 @@ function NavBar(props: NavBarProps) {
                   to="/explore/projects"
                   className="font-semibold text-primary inline-block border-y border-transparent hover:border-b-primary md:leading-7 pb-2 md:pb-0"
                 >
-                  Projekte
+                  {t("root.projects")}
                 </Link>
               </li>
             </ul>
             <div className="flex-initial w-full lg:w-auto order-last lg:order-2 py-3 lg:py-0 lg:px-5 ">
               <Form method="get" action="/search">
-                <Search name="query" query={query} />
+                <Search
+                  placeholder={t("root.search.placeholder")}
+                  name="query"
+                  query={query}
+                />
               </Form>
             </div>
           </div>
@@ -249,7 +293,7 @@ function NavBar(props: NavBarProps) {
                 </label>
                 <ul
                   tabIndex={0}
-                  className="dropdown-content menu shadow bg-base-100 rounded-box w-72 pb-4"
+                  className="dropdown-content menu shadow bg-base-100 rounded-box w-72 pb-4 z-10"
                 >
                   <li className="relative p-4 pb-2 flex">
                     <a
@@ -272,7 +316,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                      Mein Profil
+                      {t("root.myProfile")}
                     </h5>
                   </li>
                   <li>
@@ -281,7 +325,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Profil anzeigen
+                      {t("root.showProfile")}
                     </Link>
                   </li>
                   <li className="p-4 pb-6">
@@ -289,7 +333,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                      Meine Organisationen
+                      {t("root.myOrganizations")}
                     </h5>
                   </li>
                   <li>
@@ -298,7 +342,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Organisationen anzeigen
+                      {t("root.showOrganizations")}
                     </Link>
                   </li>
                   <li>
@@ -307,7 +351,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Organisation anlegen
+                      {t("root.createOrganization")}
                     </Link>
                   </li>
 
@@ -317,7 +361,7 @@ function NavBar(props: NavBarProps) {
                     </li>
                     <li>
                       <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                        Meine Veranstaltungen
+                        {t("root.myEvents")}
                       </h5>
                     </li>
                     <li>
@@ -326,7 +370,7 @@ function NavBar(props: NavBarProps) {
                         className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                         onClick={closeDropdown}
                       >
-                        Veranstaltungen anzeigen
+                        {t("root.showEvents")}
                       </Link>
                     </li>
                     {props.abilities.events !== undefined &&
@@ -337,7 +381,7 @@ function NavBar(props: NavBarProps) {
                           className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                           onClick={closeDropdown}
                         >
-                          Veranstaltung anlegen
+                          {t("root.createEvent")}
                         </Link>
                       </li>
                     ) : null}
@@ -347,7 +391,7 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <h5 className="px-4 py-0 mb-3 text-xl text-primary font-bold hover:bg-white">
-                      Meine Projekte
+                      {t("root.myProjects")}
                     </h5>
                   </li>
                   <li>
@@ -356,7 +400,7 @@ function NavBar(props: NavBarProps) {
                       className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                       onClick={closeDropdown}
                     >
-                      Projekte anzeigen
+                      {t("root.showProjects")}
                     </Link>
                   </li>
                   {props.abilities.projects !== undefined &&
@@ -367,7 +411,7 @@ function NavBar(props: NavBarProps) {
                         className="py-2 hover:bg-neutral-300 focus:bg-neutral-300"
                         onClick={closeDropdown}
                       >
-                        Projekt anlegen
+                        {t("root.createProject")}
                       </Link>
                     </li>
                   ) : null}
@@ -376,14 +420,18 @@ function NavBar(props: NavBarProps) {
                   </li>
                   <li>
                     <Form
+                      id="logout-form"
                       action="/logout?index"
                       method="post"
-                      className="py-2 hover:bg-neutral-300 focus:bg-neutral-300 rounded-none"
+                      className="hidden"
+                    />
+                    <button
+                      form="logout-form"
+                      type="submit"
+                      className="text-left w-full hover:bg-neutral-300 focus:bg-neutral-300"
                     >
-                      <button type="submit" className="w-full text-left">
-                        Logout
-                      </button>
-                    </Form>
+                      {t("root.logout")}
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -394,14 +442,14 @@ function NavBar(props: NavBarProps) {
                 to="/login"
                 className="text-primary font-semibold hover:underline"
               >
-                Anmelden
+                {t("root.login")}
               </Link>{" "}
               /{" "}
               <Link
                 to="/register"
                 className="text-primary font-semibold hover:underline"
               >
-                Registrieren
+                {t("root.register")}
               </Link>
             </div>
           )}
@@ -411,6 +459,68 @@ function NavBar(props: NavBarProps) {
   );
 }
 
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+  captureRemixErrorBoundaryError(error);
+
+  const { i18n } = useTranslation();
+
+  let errorTitle;
+  let errorData;
+
+  if (isRouteErrorResponse(error)) {
+    errorTitle = `${error.status} ${error.statusText}`;
+    errorData = `${error.data}`;
+  } else if (error instanceof Error) {
+    errorTitle = `${error.message}`;
+    errorData = error.stack;
+  } else {
+    errorTitle = "Unknown Error";
+  }
+
+  return (
+    <html lang="en-US" dir={i18n.dir()} data-theme="light">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <Meta />
+        <Links />
+      </head>
+
+      <body>
+        <div id="top" className="flex flex-col min-h-screen">
+          <NavBar abilities={{}} />
+          <section className="container my-8 md:mt-10 lg:mt-20 text-center">
+            <H1 like="h0">{errorTitle}</H1>
+            <H2 like="h1">Sorry, something went wrong!</H2>
+            <p>
+              Please capture a screenshot and send it over to{" "}
+              <StyledLink
+                as="a"
+                to="mailto:support@mint-vernetzt.de"
+                variant="primary"
+              >
+                support@mint-vernetzt.de
+              </StyledLink>
+              . We will do our best to help you with this issue.
+            </p>
+          </section>
+          {errorData !== undefined ? (
+            <section className="container my-8 md:mt-10 lg:mt-20 text-center">
+              {errorData}
+            </section>
+          ) : null}
+        </div>
+        <Footer />
+
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
+      </body>
+    </html>
+  );
+};
+
 export default function App() {
   const location = useLocation();
   const {
@@ -419,7 +529,13 @@ export default function App() {
     sessionUserInfo: currentUserInfo,
     abilities,
     alert,
+    locale,
+    env,
   } = useLoaderData<typeof loader>();
+
+  React.useEffect(() => {
+    initializeSentry({ baseUrl: env.baseUrl, dsn: env.sentryDsn });
+  }, []);
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
@@ -428,21 +544,25 @@ export default function App() {
     }
   }, [location, matomoSiteId]);
 
-  const nonAppBaseRoutes = ["/login", "/register", "/reset"];
+  const nonAppBaseRoutes = ["/login", "/register", "/reset", "/auth/confirm"];
   const isNonAppBaseRoute = nonAppBaseRoutes.some((baseRoute) =>
     location.pathname.startsWith(baseRoute)
   );
   const isIndexRoute = location.pathname === "/";
 
   const matches = useMatches();
-  const isProjectSettings = matches[1].id === "routes/project/$slug/settings";
-  const otherSettingsRoutes = [
-    "routes/profile/$username/settings",
-    "routes/organization/$slug/settings",
-    "routes/event/$slug/settings",
-    "routes/project/$slug/settings",
-  ];
-  const isSettings = otherSettingsRoutes.includes(matches[1].id);
+  let isSettings = false;
+  let isProjectSettings = false;
+  if (matches[1] !== undefined) {
+    isProjectSettings = matches[1].id === "routes/project/$slug/settings";
+    const otherSettingsRoutes = [
+      "routes/profile/$username/settings",
+      "routes/organization/$slug/settings",
+      "routes/event/$slug/settings",
+      "routes/project/$slug/settings",
+    ];
+    isSettings = otherSettingsRoutes.includes(matches[1].id);
+  }
 
   const [searchParams] = useSearchParams();
   const modal = searchParams.get("modal");
@@ -450,6 +570,9 @@ export default function App() {
   const bodyClasses = classNames(
     modal !== null && modal !== "false" && "overflow-hidden"
   );
+
+  const { i18n } = useTranslation();
+  useChangeLanguage(locale);
 
   const main = (
     <main className="flex-auto relative pb-8 w-full">
@@ -502,13 +625,13 @@ export default function App() {
   );
 
   return (
-    <html lang="de" data-theme="light">
+    <html lang={locale} dir={i18n.dir()} data-theme="light">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
-        {matomoSiteId !== undefined ? (
+        {typeof matomoSiteId !== "undefined" && matomoSiteId !== "" ? (
           <script
             async
             dangerouslySetInnerHTML={{

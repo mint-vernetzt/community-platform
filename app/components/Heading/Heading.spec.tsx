@@ -1,6 +1,10 @@
 import { render, screen } from "@testing-library/react";
-
 import { H1, H2, H3, H4, H5, H6 } from "./Heading";
+
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
 
 test("render heading of different levels", () => {
   render(<H1>Hello Heading</H1>);

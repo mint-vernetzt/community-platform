@@ -8,7 +8,12 @@ import {
   Toast,
 } from "@mint-vernetzt/components";
 import { type Organization, type Prisma } from "@prisma/client";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import {
+  json,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import {
   Form,
   useLoaderData,
@@ -17,11 +22,13 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { type User } from "@supabase/supabase-js";
-import { GravityType } from "imgproxy/dist/types";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import i18next from "~/i18next.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import { getToast, redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
@@ -29,18 +36,24 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { combineHeaders } from "~/utils.server";
 
-export const loader = async (args: DataFunctionArgs) => {
+const i18nNS = ["routes/project/settings/responsible-orgs"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -52,7 +65,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   // get project
@@ -73,7 +86,7 @@ export const loader = async (args: DataFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, "Not found", {
+  invariantResponse(project !== null, t("error.notFound"), {
     status: 404,
   });
 
@@ -123,7 +136,7 @@ export const loader = async (args: DataFunctionArgs) => {
     }
   );
 
-  invariantResponse(profile !== null, "Not found", {
+  invariantResponse(profile !== null, t("error.notFound"), {
     status: 404,
   });
 
@@ -249,20 +262,22 @@ export const loader = async (args: DataFunctionArgs) => {
       searchResult,
       toast,
     },
-    { headers: combineHeaders(response.headers, toastHeaders) }
+    { headers: toastHeaders || undefined }
   );
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   // get action type
   const { request, params } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -274,7 +289,7 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const formData = await request.formData();
@@ -300,9 +315,13 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    invariantResponse(project !== null && organization !== null, "Not found", {
-      status: 404,
-    });
+    invariantResponse(
+      project !== null && organization !== null,
+      t("error.notFound"),
+      {
+        status: 404,
+      }
+    );
 
     await prismaClient.responsibleOrganizationOfProject.upsert({
       where: {
@@ -323,9 +342,9 @@ export const action = async (args: DataFunctionArgs) => {
       {
         id: "add-organization-toast",
         key: hash,
-        message: `${organization.name} hinzugefügt.`,
+        message: t("content.added", { name: organization.name }),
       },
-      { init: { headers: response.headers }, scrollToToast: true }
+      { scrollToToast: true }
     );
   } else if (action.startsWith("remove_")) {
     const slug = action.replace("remove_", "");
@@ -345,9 +364,13 @@ export const action = async (args: DataFunctionArgs) => {
       },
     });
 
-    invariantResponse(project !== null && organization !== null, "Not found", {
-      status: 404,
-    });
+    invariantResponse(
+      project !== null && organization !== null,
+      t("error.notFound"),
+      {
+        status: 404,
+      }
+    );
 
     await prismaClient.responsibleOrganizationOfProject.delete({
       where: {
@@ -365,14 +388,11 @@ export const action = async (args: DataFunctionArgs) => {
         key: hash,
         message: `${organization.name} entfernt.`,
       },
-      { init: { headers: response.headers }, scrollToToast: true }
+      { scrollToToast: true }
     );
   }
 
-  return json(
-    { success: false, action, organization: null },
-    { headers: response.headers }
-  );
+  return json({ success: false, action, organization: null });
 };
 
 function ResponsibleOrgs() {
@@ -381,6 +401,7 @@ function ResponsibleOrgs() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useSubmit();
+  const { t } = useTranslation(i18nNS);
 
   const [searchForm, fields] = useForm({
     defaultValue: {
@@ -391,13 +412,8 @@ function ResponsibleOrgs() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>
-        Verantwortliche Organisationen
-      </BackButton>
-      <p className="mv-my-6 md:mv-mt-0">
-        Welche Organisationen stecken hinter dem Projekt? Verwalte hier die
-        verantwortlichen Organisationen.
-      </p>
+      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
+      <p className="mv-my-6 md:mv-mt-0">{t("content.intro")}</p>
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
         {toast !== null && toast.id === "remove-organization-toast" && (
           <div id={toast.id}>
@@ -409,12 +425,9 @@ function ResponsibleOrgs() {
         {project.responsibleOrganizations.length > 0 && (
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Aktuell hinzugefügte Organsiation(en)
+              {t("content.current.headline")}
             </h2>
-            <p>
-              Hier siehst Du Organisationen, die aktuelle als verantwortliche
-              Organisation hinterlegt wurden.
-            </p>
+            <p>{t("content.current.intro")}</p>
             <Form method="post">
               <List>
                 {project.responsibleOrganizations.map((relation) => {
@@ -431,7 +444,7 @@ function ResponsibleOrgs() {
                           value={`remove_${relation.organization.slug}`}
                           type="submit"
                         >
-                          Entfernen
+                          {t("content.current.remove")}
                         </Button>
                       </List.Item.Controls>
                     </List.Item>
@@ -451,13 +464,9 @@ function ResponsibleOrgs() {
         {ownOrganizations.length > 0 && (
           <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Eigene Organisation(en) hinzufügen
+              {t("content.add.headline")}
             </h2>
-            <p>
-              Hier werden Dir Deine eigenen Organisationen aufgelistet, so dass
-              Du sie mit einen Klick als verantwortliche Organisationen
-              hinzuzufügen kannst.
-            </p>
+            <p>{t("content.add.intro")}</p>
             <Form method="post">
               <List>
                 {ownOrganizations.map((relation) => {
@@ -474,7 +483,7 @@ function ResponsibleOrgs() {
                           value={`add_own_${relation.organization.slug}`}
                           type="submit"
                         >
-                          Hinzufügen
+                          {t("content.add.add")}
                         </Button>
                       </List.Item.Controls>
                     </List.Item>
@@ -486,7 +495,7 @@ function ResponsibleOrgs() {
         )}
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Andere Organisation(en) hinzufügen
+            {t("content.other.headline")}
           </h2>
           <Form
             method="get"
@@ -497,9 +506,13 @@ function ResponsibleOrgs() {
           >
             <Input {...conform.input(fields.deep)} type="hidden" />
             <Input {...conform.input(fields.search)} standalone>
-              <Input.Label htmlFor={fields.search.id}>Suche</Input.Label>
+              <Input.Label htmlFor={fields.search.id}>
+                {t("content.other.search.label")}
+              </Input.Label>
               <Input.SearchIcon />
-              <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
+              <Input.HelperText>
+                {t("content.other.search.helper")}
+              </Input.HelperText>
               {typeof fields.search.error !== "undefined" && (
                 <Input.Error>{fields.search.error}</Input.Error>
               )}
@@ -519,7 +532,7 @@ function ResponsibleOrgs() {
                         value={`add_${organization.slug}`}
                         type="submit"
                       >
-                        Hinzufügen
+                        {t("content.other.add")}
                       </Button>
                     </List.Item.Controls>
                   </List.Item>

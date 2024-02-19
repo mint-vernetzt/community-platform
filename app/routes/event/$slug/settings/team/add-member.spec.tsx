@@ -98,11 +98,16 @@ describe("/event/$slug/settings/team/add-member", () => {
       params: { slug: "some-event-slug" },
     });
     const responseBody = await response.json();
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors).toBeDefined();
+    // @ts-ignore
     expect(responseBody.errors).not.toBeNull();
+    // @ts-ignore
     expect(responseBody.errors.profileId).toStrictEqual([
-      "Es existiert noch kein Profil unter diesem Namen.",
+      "error.inputError.doesNotExist",
     ]);
   });
 
@@ -137,9 +142,12 @@ describe("/event/$slug/settings/team/add-member", () => {
     });
     const responseBody = await response.json();
 
+    // TODO: fix type issues
+    // @ts-ignore
     expect(responseBody.success).toBe(false);
+    // @ts-ignore
     expect(responseBody.errors.profileId).toContain(
-      "Das Profil unter diesem Namen ist bereits Teammitglied Eurer Veranstaltung."
+      "error.inputError.alreadyIn"
     );
   });
 
@@ -217,8 +225,8 @@ describe("/event/$slug/settings/team/add-member", () => {
         profileId: "another-user-id",
       },
     });
-    expect(responseBody.message).toBe(
-      'Ein neues Teammitglied mit dem Namen "another-user-firstname another-user-lastname" wurde hinzugefügt.'
-    );
+    // TODO: fix type issue
+    // @ts-ignore
+    expect(responseBody.message).toBe("feedback");
   });
 });

@@ -5,9 +5,10 @@ import * as authServerModule from "~/auth.server";
 import { type User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 
-/** @type {jest.Expect} */
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
 // @ts-ignore
-const expect = global.expect;
+const expect = global.expect as jest.Expect;
 
 const slug = "mintvernetzt";
 
@@ -189,7 +190,7 @@ describe("loader", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe(`Organization with slug "${slug}" not found.`);
+      expect(json.message).toBe("error.notFound.named");
     }
   });
   test("organization visibilities not found", async () => {
@@ -218,7 +219,7 @@ describe("loader", () => {
       expect(response.status).toBe(404);
 
       const json = await response.json();
-      expect(json.message).toBe("organization visbilities not found.");
+      expect(json.message).toBe("error.notFound.visibilities");
     }
   });
   test("admin user full loader call", async () => {
@@ -449,7 +450,7 @@ describe("action", () => {
       expect(response.status).toBe(400);
 
       const json = await response.json();
-      expect(json.message).toBe("Validation failed");
+      expect(json.message).toBe("error.validation");
     }
   });
 
@@ -481,7 +482,10 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.name).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.name.message).toEqual(
         expect.stringContaining("name must be a `string` type")
       );
@@ -512,9 +516,12 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.name).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.name.message).toEqual(
-        expect.stringContaining("Bitte gib Euren Namen ein.")
+        expect.stringContaining("validation.name.required")
       );
     });
 
@@ -545,11 +552,12 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issues
+      // @ts-ignore
       expect(responseBody.errors.email).not.toBeUndefined();
+      // @ts-ignore
       expect(responseBody.errors.email.message).toEqual(
-        expect.stringContaining(
-          "Deine Eingabe entspricht nicht dem Format einer E-Mail."
-        )
+        expect.stringContaining("validation.email.email")
       );
     });
 
@@ -582,6 +590,8 @@ describe("action", () => {
         params: { slug: slug },
       });
       const responseBody = await response.json();
+      // TODO: fix type issue
+      // @ts-ignore
       expect(responseBody.errors.email).toBeUndefined();
       expect(responseBody.organization.email).toBe(email);
     });

@@ -69,7 +69,7 @@ export async function createEventOnProfile(
   }
 ) {
   // TODO: fix any type
-  let relations: { parentEvent?: any; childEvents?: any } = {};
+  const relations: { parentEvent?: any; childEvents?: any } = {};
   if (relationOptions !== undefined) {
     if (relationOptions.parent !== null) {
       relations.parentEvent = { connect: { id: relationOptions.parent } };
@@ -149,7 +149,7 @@ export async function getRootEvents(
     event: Pick<Event, "id" | "parentEventId" | "name" | "slug" | "published">;
   }[]
 ) {
-  let publishedRootEvents: {
+  const publishedRootEvents: {
     event: ArrayElement<NonNullable<Awaited<ReturnType<typeof getRootEvent>>>>;
   }[] = [];
   await Promise.all(

@@ -1,5 +1,10 @@
 import { removeHtmlTags, sanitizeUserHtml } from "./sanitizeUserHtml";
 
+// TODO: fix type issues
+// Globals of cypress and jest are conflicting
+// @ts-ignore
+const expect = global.expect as jest.Expect;
+
 describe("sanitizeUserHtml", () => {
   test("keep allowed tags (unnested)", () => {
     const allowedHtml = `

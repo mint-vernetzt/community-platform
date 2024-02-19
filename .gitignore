@@ -28,7 +28,8 @@ node_modules
 **/supabase/.temp
 **/supabase/storage
 
-# Cypress
-/cypress/videos
-/cypress/screenshots
+# Sentry Config File
+.sentryclirc
 
+# i18n no-cache
+app/lib/no-cache/seed.ts

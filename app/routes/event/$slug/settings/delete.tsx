@@ -1,9 +1,8 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
-import { InputError, makeDomainFunction } from "remix-domains";
-import { Form as RemixForm, performMutation } from "remix-forms";
-import { notFound } from "remix-utils";
+import { InputError, makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
@@ -16,8 +15,13 @@ import {
   getEventBySlugForAction,
   getProfileById,
 } from "./delete.server";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { type action as publishAction, publishSchema } from "./events/publish";
 import { deleteEventBySlug } from "./utils.server";
+import i18next from "~/i18next.server";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   eventName: z.string().optional(),
@@ -28,10 +32,11 @@ const environmentSchema = z.object({
   eventName: z.string(),
 });
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -39,89 +44,86 @@ export const loader = async (args: LoaderArgs) => {
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEventBySlug(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.eventNotFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
-  return json(
-    {
-      published: event.published,
-      eventName: event.name,
-      childEvents: event.childEvents,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    eventName: event.name,
+    childEvents: event.childEvents,
+  });
 };
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  if (values.eventName !== environment.eventName) {
-    throw new InputError(
-      "Der Name der Veranstaltung ist nicht korrekt",
-      "eventName"
-    );
-  }
-  try {
-    await deleteEventBySlug(environment.eventSlug);
-  } catch (error) {
-    throw "Die Veranstaltung konnte nicht gelöscht werden.";
-  }
-});
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    if (values.eventName !== environment.eventName) {
+      throw new InputError(t("error.input"), "eventName");
+    }
+    try {
+      await deleteEventBySlug(environment.eventSlug);
+    } catch (error) {
+      throw t("error.delete");
+    }
+  });
+};
 
-export const action = async (args: ActionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
-  const authClient = createAuthClient(request, response);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const event = await getEventBySlugForAction(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.eventNotFound"), { status: 404 });
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { eventSlug: slug, eventName: event.name },
   });
 
   if (result.success === true) {
     const profile = await getProfileById(sessionUser.id);
     if (profile === null) {
-      throw notFound("Profile not found");
+      throw json(t("error.profileNotFound"), { status: 404 });
     }
     return redirect(`/profile/${profile.username}`);
   }
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();
   const { slug } = useParams();
   const publishFetcher = useFetcher<typeof publishAction>();
+  const { t } = useTranslation(["routes/event/settings/delete"]);
 
   return (
     <>
-      <h1 className="mb-8">Veranstaltung löschen</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
 
       <p className="mb-8">
-        Bitte gib den Namen der Veranstaltung "{loaderData.eventName}" ein, um
-        das Löschen zu bestätigen. Wenn Du danach auf "Veranstaltung löschen”
-        klickst, wird Eure Veranstaltung ohne erneute Abfrage gelöscht.
+        {t("content.intro", { name: loaderData.eventName })}
       </p>
 
       {loaderData.childEvents.length > 0 ? (
         <>
-          <p className="mb-2">
-            Folgende Veranstaltung und zugehörige Veranstaltung werden auch
-            gelöscht:
-          </p>{" "}
+          <p className="mb-2">{t("content.list")}</p>{" "}
           <ul className="mb-8">
             {loaderData.childEvents.map((childEvent) => {
               return (
@@ -140,7 +142,7 @@ function Delete() {
         </>
       ) : null}
 
-      <RemixForm method="post" schema={schema}>
+      <RemixFormsForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
             <Field name="eventName" className="mb-4">
@@ -148,7 +150,7 @@ function Delete() {
                 <>
                   <Input
                     id="eventName"
-                    label="Löschung bestätigen"
+                    label={t("form.eventName.label")}
                     {...register("eventName")}
                   />
                   <Errors />
@@ -159,16 +161,16 @@ function Delete() {
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small"
             >
-              Veranstaltung löschen
+              {t("form.submit.label")}
             </button>
             <Errors />
           </>
         )}
-      </RemixForm>
+      </RemixFormsForm>
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -183,12 +185,14 @@ function Delete() {
                   <>
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                      {loaderData.published
+                        ? t("form.hide.label")
+                        : t("form.publish.label")}
                     </Button>
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

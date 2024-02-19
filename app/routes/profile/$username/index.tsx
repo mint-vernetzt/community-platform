@@ -1,13 +1,13 @@
 import type { Profile } from "@prisma/client";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { GravityType } from "imgproxy/dist/types";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { notFound, useHydrated } from "remix-utils";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
@@ -17,8 +17,9 @@ import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
-import { getImageURL } from "~/images.server";
+import i18next from "~/i18next.server";
 import {
+  addUserParticipationStatus,
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
@@ -30,16 +31,22 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
-import {
-  filterOrganizationByVisibility,
-  filterProfileByVisibility,
-  filterProjectByVisibility,
-} from "~/public-fields-filtering.server";
+import { detectLanguage } from "~/root.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
-import { getPublicURL } from "~/storage.server";
 import { getProfileByUsername } from "./index.server";
-import { deriveProfileMode, prepareProfileEvents } from "./utils.server";
+import {
+  addImgUrls,
+  deriveProfileMode,
+  filterProfile,
+  sortEvents,
+  splitEventsIntoFutureAndPast,
+} from "./utils.server";
+
+const i18nNS = ["routes/profile/index"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export function links() {
   return [
@@ -48,11 +55,13 @@ export function links() {
   ];
 }
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
+  const { authClient } = createAuthClient(request);
 
   const username = getParamValueOrThrow(params, "username");
 
@@ -66,18 +75,16 @@ export const loader = async (args: LoaderArgs) => {
     });
     if (userProfile !== null) {
       if (userProfile.termsAccepted === false) {
-        return redirect(`/accept-terms?redirect_to=/profile/${username}`, {
-          headers: response.headers,
-        });
+        return redirect(`/accept-terms?redirect_to=/profile/${username}`);
       }
     } else {
-      throw notFound({ message: "Profile not found" });
+      throw json({ message: t("error.profileNotFound") }, { status: 404 });
     }
   }
 
   const profile = await getProfileByUsername(username, mode);
   if (profile === null) {
-    throw notFound({ message: "Profile not found" });
+    throw json(t("error.profileNotFound"), { status: 404 });
   }
 
   const abilities = await getFeatureAbilities(authClient, [
@@ -85,157 +92,87 @@ export const loader = async (args: LoaderArgs) => {
     "projects",
   ]);
 
-  let enhancedProfile = {
+  // Filtering by visbility settings
+  let filteredProfile = {
     ...profile,
   };
-
-  // Filtering by visbility settings
   if (mode === "anon") {
-    // Filter profile
-    enhancedProfile = await filterProfileByVisibility<typeof enhancedProfile>(
-      enhancedProfile
-    );
-
-    // Filter organizations where profile is member of
-    enhancedProfile.memberOf = await Promise.all(
-      enhancedProfile.memberOf.map(async (relation) => {
-        const filteredOrganization = await filterOrganizationByVisibility<
-          typeof relation.organization
-        >(relation.organization);
-        return { ...relation, organization: filteredOrganization };
-      })
-    );
-    // Filter projects where this profile is team member
-    enhancedProfile.teamMemberOfProjects = await Promise.all(
-      enhancedProfile.teamMemberOfProjects.map(async (relation) => {
-        const filteredProject = await filterProjectByVisibility<
-          typeof relation.project
-        >(relation.project);
-        return { ...relation, project: filteredProject };
-      })
-    );
-    // Filter organizations that are responsible for projects where this profile is team member
-    enhancedProfile.teamMemberOfProjects = await Promise.all(
-      enhancedProfile.teamMemberOfProjects.map(async (projectRelation) => {
-        const responsibleOrganizations = await Promise.all(
-          projectRelation.project.responsibleOrganizations.map(
-            async (organizationRelation) => {
-              const filteredOrganization = await filterOrganizationByVisibility<
-                typeof organizationRelation.organization
-              >(organizationRelation.organization);
-              return {
-                ...organizationRelation,
-                organization: filteredOrganization,
-              };
-            }
-          )
-        );
-        return {
-          ...projectRelation,
-          project: { ...projectRelation.project, responsibleOrganizations },
-        };
-      })
-    );
+    filteredProfile = filterProfile(profile);
   }
+  // Add imgUrls for imgproxy call on client
+  const enhancedProfile = addImgUrls(authClient, filteredProfile);
+  // Split events and profile to handle them seperately
+  const {
+    contributedEvents,
+    teamMemberOfEvents,
+    participatedEvents,
+    waitingForEvents,
+    ...profileWithoutEvents
+  } = enhancedProfile;
+  // Combine participated and waiting events to show them both in one list in the frontend
+  const events = {
+    contributedEvents,
+    teamMemberOfEvents,
+    participatedEvents: [...participatedEvents, ...waitingForEvents],
+  };
+  // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
+  type Events = typeof events;
+  const { futureEvents, pastEvents } =
+    splitEventsIntoFutureAndPast<Events>(events);
+  // Sorting events (future: startTime "desc", past: startTime "asc")
+  let inFuture = true;
+  type FutureEvents = typeof futureEvents;
+  const sortedFutureEvents = sortEvents<FutureEvents>(futureEvents, inFuture);
+  type PastEvents = typeof pastEvents;
+  const sortedPastEvents = sortEvents<PastEvents>(pastEvents, !inFuture);
+  // Adding participation status of session user
+  type TeamMemberFutureEvents = typeof sortedFutureEvents.teamMemberOfEvents;
+  type ContributedFutureEvents = typeof sortedFutureEvents.contributedEvents;
+  type ParticipatedFutureEvents = typeof sortedFutureEvents.participatedEvents;
+  const enhancedFutureEvents = {
+    teamMemberOfEvents:
+      await addUserParticipationStatus<TeamMemberFutureEvents>(
+        sortedFutureEvents.teamMemberOfEvents,
+        sessionUser?.id
+      ),
+    contributedEvents:
+      await addUserParticipationStatus<ContributedFutureEvents>(
+        sortedFutureEvents.contributedEvents,
+        sessionUser?.id
+      ),
+    participatedEvents:
+      await addUserParticipationStatus<ParticipatedFutureEvents>(
+        sortedFutureEvents.participatedEvents,
+        sessionUser?.id
+      ),
+  };
+  type TeamMemberPastEvents = typeof sortedPastEvents.teamMemberOfEvents;
+  type ContributedPastEvents = typeof sortedPastEvents.contributedEvents;
+  type ParticipatedPastEvents = typeof sortedPastEvents.participatedEvents;
+  const enhancedPastEvents = {
+    teamMemberOfEvents: await addUserParticipationStatus<TeamMemberPastEvents>(
+      sortedPastEvents.teamMemberOfEvents,
+      sessionUser?.id
+    ),
+    contributedEvents: await addUserParticipationStatus<ContributedPastEvents>(
+      sortedPastEvents.contributedEvents,
+      sessionUser?.id
+    ),
+    participatedEvents:
+      await addUserParticipationStatus<ParticipatedPastEvents>(
+        sortedPastEvents.participatedEvents,
+        sessionUser?.id
+      ),
+  };
 
-  // Get images from image proxy
-  let images: {
-    avatar?: string;
-    background?: string;
-  } = {};
-
-  if (enhancedProfile.avatar !== null) {
-    const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
-    if (publicURL !== null) {
-      images.avatar = getImageURL(publicURL, {
-        resize: { type: "fill", width: 144, height: 144 },
-      });
-    }
-  }
-  if (enhancedProfile.background !== null) {
-    const publicURL = getPublicURL(authClient, enhancedProfile.background);
-    if (publicURL !== null) {
-      images.background = getImageURL(publicURL, {
-        resize: { type: "fit", width: 1488, height: 480 },
-      });
-    }
-  }
-  enhancedProfile.memberOf = enhancedProfile.memberOf.map((relation) => {
-    let logo = relation.organization.logo;
-    if (logo !== null) {
-      const publicURL = getPublicURL(authClient, logo);
-      if (publicURL !== null) {
-        logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
-      }
-    }
-    return { ...relation, organization: { ...relation.organization, logo } };
+  return json({
+    mode,
+    data: profileWithoutEvents,
+    abilities,
+    futureEvents: enhancedFutureEvents,
+    pastEvents: enhancedPastEvents,
+    userId: sessionUser?.id,
   });
-  enhancedProfile.teamMemberOfProjects =
-    enhancedProfile.teamMemberOfProjects.map((projectRelation) => {
-      let projectLogo = projectRelation.project.logo;
-      if (projectLogo !== null) {
-        const publicURL = getPublicURL(authClient, projectLogo);
-        if (publicURL !== null) {
-          projectLogo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      const awards = projectRelation.project.awards.map((awardRelation) => {
-        let awardLogo = awardRelation.award.logo;
-        if (awardLogo !== null) {
-          const publicURL = getPublicURL(authClient, awardLogo);
-          if (publicURL !== null) {
-            awardLogo = getImageURL(publicURL, {
-              resize: { type: "fit", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
-        return {
-          ...awardRelation,
-          award: { ...awardRelation.award, logo: awardLogo },
-        };
-      });
-      return {
-        ...projectRelation,
-        project: { ...projectRelation.project, awards, logo: projectLogo },
-      };
-    });
-
-  // Get events, filter them by visibility settings and add participation status of session user
-  const inFuture = true;
-  const profileFutureEvents = await prepareProfileEvents(
-    authClient,
-    username,
-    mode,
-    sessionUser,
-    inFuture
-  );
-  const profilePastEvents = await prepareProfileEvents(
-    authClient,
-    username,
-    mode,
-    sessionUser,
-    !inFuture
-  );
-
-  return json(
-    {
-      mode,
-      data: enhancedProfile,
-      images,
-      abilities,
-      futureEvents: profileFutureEvents,
-      pastEvents: profilePastEvents,
-      userId: sessionUser?.id,
-    },
-    { headers: response.headers }
-  );
 };
 
 function hasContactInformations(data: Pick<Profile, "email" | "phone">) {
@@ -263,12 +200,14 @@ const ExternalServices: ExternalService[] = [
   "instagram",
   "xing",
 ];
+
 function hasWebsiteOrSocialService(
   data: Pick<Profile, ExternalService>,
   externalServices: ExternalService[]
 ) {
   return externalServices.some((item) => notEmptyData(item, data));
 }
+
 // TODO: fix any type
 function canViewEvents(events: {
   teamMemberOfEvents: any[];
@@ -284,26 +223,27 @@ function canViewEvents(events: {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t, i18n } = useTranslation(i18nNS);
 
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
 
-  const avatar = loaderData.images.avatar;
+  const avatar = loaderData.data.avatar;
   const Avatar = React.useCallback(
     () => (
       <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center overflow-hidden rounded-full border">
-        {avatar !== undefined ? <img src={avatar} alt={fullName} /> : initials}
+        {avatar !== null ? <img src={avatar} alt={fullName} /> : initials}
       </div>
     ),
     [avatar, fullName, initials]
   );
 
-  const background = loaderData.images.background;
+  const background = loaderData.data.background;
   const Background = React.useCallback(
     () => (
       <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
-        {background ? (
-          <img src={background} alt={`Aktuelles Hintergrundbild`} />
+        {background !== null ? (
+          <img src={background} alt={t("images.currentBackground")} />
         ) : (
           <div className="w-[336px] min-h-[108px]" />
         )}
@@ -321,7 +261,7 @@ export default function Index() {
       <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
         <div className="rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
           <div className="w-full h-full">
-            {background !== undefined ? (
+            {background !== null ? (
               <img
                 src={background}
                 alt={fullName}
@@ -335,17 +275,17 @@ export default function Index() {
                 htmlFor="modal-background-upload"
                 className="btn btn-primary modal-button"
               >
-                Bild ändern
+                {t("profile.changeBackground")}
               </label>
 
               <Modal id="modal-background-upload">
                 <ImageCropper
-                  headline="Hintergrundbild"
+                  headline={t("profile.changeBackgroundHeadline")}
                   id="modal-background-upload"
                   subject={"user"}
                   slug={loaderData.data.username}
                   uploadKey="background"
-                  image={background}
+                  image={background || undefined}
                   aspect={31 / 10}
                   minCropWidth={50}
                   minCropHeight={50}
@@ -381,7 +321,7 @@ export default function Index() {
                       >
                         <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                       </svg>
-                      <span className="ml-2">Bild ändern</span>
+                      <span className="ml-2">{t("profile.changeAvatar")}</span>
                     </label>
 
                     <Modal id="modal-avatar">
@@ -390,8 +330,8 @@ export default function Index() {
                         subject="user"
                         slug={loaderData.data.username}
                         uploadKey="avatar"
-                        headline="Profilfoto"
-                        image={avatar}
+                        headline={t("profile.changeAvatarHeadline")}
+                        image={avatar || undefined}
                         aspect={1}
                         minCropWidth={100}
                         minCropHeight={100}
@@ -415,7 +355,9 @@ export default function Index() {
               </div>
               {hasContactInformations(loaderData.data) ||
               hasWebsiteOrSocialService(loaderData.data, ExternalServices) ? (
-                <h5 className="font-semibold mb-6 mt-8">Kontakt</h5>
+                <h5 className="font-semibold mb-6 mt-8">
+                  {t("profile.contact")}
+                </h5>
               ) : null}
               {hasContactInformations(loaderData.data) ? (
                 <>
@@ -495,14 +437,15 @@ export default function Index() {
                   <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
                   <p className="text-xs mb-4 text-center">
-                    Profil besteht seit dem{" "}
-                    {utcToZonedTime(
-                      loaderData.data.createdAt,
-                      "Europe/Berlin"
-                    ).toLocaleDateString("de-De", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
+                    {t("profile.existsSince", {
+                      timestamp: utcToZonedTime(
+                        loaderData.data.createdAt,
+                        "Europe/Berlin"
+                      ).toLocaleDateString("de-De", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }),
                     })}
                   </p>
                 </>
@@ -514,8 +457,11 @@ export default function Index() {
             <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">
-                  Hi, ich bin{" "}
-                  {getFullName(loaderData.data, { withAcademicTitle: false })}
+                  {t("profile.introduction", {
+                    name: getFullName(loaderData.data, {
+                      withAcademicTitle: false,
+                    }),
+                  })}
                 </h1>
               </div>
               {loaderData.mode === "owner" ? (
@@ -524,7 +470,7 @@ export default function Index() {
                     className="btn btn-outline btn-primary"
                     to={`/profile/${loaderData.data.username}/settings`}
                   >
-                    Profil bearbeiten
+                    {t("profile.editProfile")}
                   </Link>
                 </div>
               ) : null}
@@ -538,7 +484,7 @@ export default function Index() {
             {loaderData.data.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 mb-2 lg:mb-0 lg:leading-6">
-                  Aktivitätsgebiete
+                  {t("profile.activityAreas")}
                 </div>
                 <div className="lg:flex-auto">
                   {loaderData.data.areas
@@ -550,7 +496,7 @@ export default function Index() {
             {loaderData.data.skills.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  Kompetenzen
+                  {t("profile.competences")}
                 </div>
 
                 <div className="flex-auto">
@@ -562,7 +508,7 @@ export default function Index() {
             {loaderData.data.interests.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
-                  Interessen
+                  {t("profile.interests")}
                 </div>
                 <div className="flex-auto">
                   {loaderData.data.interests.join(" / ")}
@@ -572,7 +518,7 @@ export default function Index() {
             {loaderData.data.offers.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
-                  Ich biete
+                  {t("profile.offer")}
                 </div>
                 <div className="flex-auto">
                   {loaderData.data.offers.map((relation) => (
@@ -589,7 +535,7 @@ export default function Index() {
             {loaderData.data.seekings.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col lg:flex-row">
                 <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
-                  Ich suche
+                  {t("profile.lookingFor")}
                 </div>
                 <div className="flex-auto">
                   {loaderData.data.seekings.map((relation) => (
@@ -612,7 +558,9 @@ export default function Index() {
                   className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
                   <div className="flex-auto pr-4">
-                    <h3 className="mb-0 font-bold">Organisationen</h3>
+                    <h3 className="mb-0 font-bold">
+                      {t("section.organizations.title")}
+                    </h3>
                   </div>
                   {loaderData.mode === "owner" ? (
                     <div className="flex-initial pl-4">
@@ -620,7 +568,7 @@ export default function Index() {
                         to="/organization/create"
                         className="btn btn-outline btn-primary"
                       >
-                        Organisation anlegen
+                        {t("section.organizations.create")}
                       </Link>
                     </div>
                   ) : null}
@@ -649,7 +597,9 @@ export default function Index() {
                   className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
                   <div className="flex-auto pr-4">
-                    <h3 className="mb-0 font-bold">Projekte</h3>
+                    <h3 className="mb-0 font-bold">
+                      {t("section.projects.title")}
+                    </h3>
                   </div>
                   {loaderData.mode === "owner" &&
                   loaderData.abilities.projects.hasAccess ? (
@@ -658,7 +608,7 @@ export default function Index() {
                         to="/project/create"
                         className="btn btn-outline btn-primary"
                       >
-                        Projekt anlegen
+                        {t("section.projects.create")}
                       </Link>
                     </div>
                   ) : null}
@@ -754,7 +704,7 @@ export default function Index() {
                             ) : null}
                             <div className="hidden md:flex items-center flex-initial">
                               <button className="btn btn-primary">
-                                Zum Projekt
+                                {t("section.projects.to")}
                               </button>
                             </div>
                           </div>
@@ -775,7 +725,7 @@ export default function Index() {
                 >
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">
-                      Bevorstehende Veranstaltungen
+                      {t("section.comingEvents.title")}
                     </h3>
                   </div>
                   {loaderData.mode === "owner" &&
@@ -785,7 +735,7 @@ export default function Index() {
                         to="/event/create"
                         className="btn btn-outline btn-primary"
                       >
-                        Veranstaltung anlegen
+                        {t("section.comingEvents.create")}
                       </Link>
                     </div>
                   ) : null}
@@ -796,7 +746,7 @@ export default function Index() {
                       id="team-member-future-events"
                       className="mb-4 font-bold"
                     >
-                      Organisation/Team
+                      {t("section.event.team")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.teamMemberOfEvents.map(
@@ -825,7 +775,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -858,15 +808,21 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {event.participantLimit === null
-                                      ? " | Unbegrenzte Plätze"
+                                      ? ` | ${t(
+                                          "section.event.unlimitedSeats"
+                                        )}`
                                       : ` | ${
                                           event.participantLimit -
                                           event._count.participants
-                                        } / ${
-                                          event.participantLimit
-                                        } Plätzen frei`}
+                                        } / ${event.participantLimit} ${t(
+                                          "section.event.seatsFree"
+                                        )}`}
                                     {event.participantLimit !== null &&
                                     event._count.participants >=
                                       event.participantLimit ? (
@@ -874,23 +830,23 @@ export default function Index() {
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList} auf der
-                                          Warteliste
+                                          {event._count.waitingList}{" "}
+                                          {t("section.event.onWaitingList")}
                                         </span>
                                       </>
                                     ) : (
                                       ""
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -902,25 +858,25 @@ export default function Index() {
                                 <>
                                   {event.published ? (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                      Veröffentlicht
+                                      {t("section.event.published")}
                                     </div>
                                   ) : (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
-                                      Entwurf
+                                      {t("section.event.draft")}
                                     </div>
                                   )}
                                 </>
                               ) : null}
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Abgesagt
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Angemeldet</p>
+                                  <p>{t("section.event.registered")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -936,7 +892,7 @@ export default function Index() {
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>Wartend</p>
+                                  <p>{t("section.event.waiting")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -962,7 +918,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -980,7 +936,7 @@ export default function Index() {
                       id="future-contributed-events"
                       className="mb-4 font-bold"
                     >
-                      Speaker:in
+                      {t("section.event.speaker")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.contributedEvents.map(
@@ -1009,7 +965,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1042,15 +998,21 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {event.participantLimit === null
-                                      ? " | Unbegrenzte Plätze"
+                                      ? ` | ${t(
+                                          "section.event.unlimitedSeats"
+                                        )}`
                                       : ` | ${
                                           event.participantLimit -
                                           event._count.participants
-                                        } / ${
-                                          event.participantLimit
-                                        } Plätzen frei`}
+                                        } / ${event.participantLimit} ${t(
+                                          "section.event.seatsFree"
+                                        )}`}
                                     {event.participantLimit !== null &&
                                     event._count.participants >=
                                       event.participantLimit ? (
@@ -1058,23 +1020,23 @@ export default function Index() {
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList} auf der
-                                          Warteliste
+                                          {event._count.waitingList}{" "}
+                                          {t("section.event.onWaitingList")}
                                         </span>
                                       </>
                                     ) : (
                                       ""
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1082,12 +1044,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Abgesagt
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Angemeldet</p>
+                                  <p>{t("section.event.registered")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1101,7 +1063,7 @@ export default function Index() {
                               ) : null}
                               {event.isOnWaitingList && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>Wartend</p>
+                                  <p>{t("section.event.waiting")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1126,7 +1088,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1143,7 +1105,7 @@ export default function Index() {
                       id="future-participated-events"
                       className="mb-4 font-bold"
                     >
-                      Teilnahme
+                      {t("section.event.participation")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.participatedEvents.map(
@@ -1172,7 +1134,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1205,15 +1167,21 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {event.participantLimit === null
-                                      ? " | Unbegrenzte Plätze"
+                                      ? ` | ${t(
+                                          "section.event.unlimitedSeats"
+                                        )}`
                                       : ` | ${
                                           event.participantLimit -
                                           event._count.participants
-                                        } / ${
-                                          event.participantLimit
-                                        } Plätzen frei`}
+                                        } / ${event.participantLimit} ${t(
+                                          "section.event.seatsFree"
+                                        )}`}
                                     {event.participantLimit !== null &&
                                     event._count.participants >=
                                       event.participantLimit ? (
@@ -1221,23 +1189,23 @@ export default function Index() {
                                         {" "}
                                         |{" "}
                                         <span>
-                                          {event._count.waitingList} auf der
-                                          Warteliste
+                                          {event._count.waitingList}{" "}
+                                          {t("section.event.onWaitingList")}
                                         </span>
                                       </>
                                     ) : (
                                       ""
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1245,12 +1213,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Abgesagt
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Angemeldet</p>
+                                  <p>{t("section.event.registered")}</p>
                                 </div>
                               ) : null}
                               {canUserParticipate(event) ? (
@@ -1263,7 +1231,7 @@ export default function Index() {
                               ) : null}
                               {event.isOnWaitingList && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>Wartend</p>
+                                  <p>{t("section.event.waiting")}</p>
                                 </div>
                               ) : null}
                               {canUserBeAddedToWaitingList(event) ? (
@@ -1284,7 +1252,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1304,14 +1272,14 @@ export default function Index() {
                 <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">
-                      Vergangene Veranstaltungen
+                      {t("section.pastEvents.title")}
                     </h3>
                   </div>
                 </div>
                 {loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
                   <>
                     <h6 id="past-team-member-events" className="mb-4 font-bold">
-                      Organisation/Team
+                      {t("section.event.team")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.teamMemberOfEvents.map(
@@ -1340,7 +1308,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1373,17 +1341,21 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1395,25 +1367,25 @@ export default function Index() {
                                 <>
                                   {event.published ? (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                      Veröffentlicht
+                                      {t("section.event.published")}
                                     </div>
                                   ) : (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
-                                      Entwurf
+                                      {t("section.event.draft")}
                                     </div>
                                   )}
                                 </>
                               ) : null}
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Wurde abgesagt
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Teilgenommen</p>
+                                  <p>{t("section.event.participated")}</p>
                                 </div>
                               ) : null}
                               {(loaderData.mode !== "owner" &&
@@ -1429,7 +1401,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1444,7 +1416,7 @@ export default function Index() {
                 {loaderData.pastEvents.contributedEvents.length > 0 ? (
                   <>
                     <h6 id="past-contributed-events" className="mb-4 font-bold">
-                      Speaker:in
+                      {t("section.event.speaker")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.contributedEvents.map(
@@ -1473,7 +1445,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1506,17 +1478,21 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1524,12 +1500,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Wurde abgesagt
+                                  {t("section.event.wasCancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Teilgenommen</p>
+                                  <p>{t("section.event.participated")}</p>
                                 </div>
                               ) : null}
                               {(!event.isParticipant &&
@@ -1544,7 +1520,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1558,7 +1534,7 @@ export default function Index() {
                 {loaderData.pastEvents.participatedEvents.length > 0 ? (
                   <>
                     <h6 id="past-participated-events" className="mb-4font-bold">
-                      Teilnahme
+                      {t("section.event.participation")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.participatedEvents.map(
@@ -1587,7 +1563,7 @@ export default function Index() {
                                         event.blurredBackground ||
                                         "/images/default-event-background-blurred.jpg"
                                       }
-                                      alt="Rahmen des Hintergrundbildes"
+                                      alt={t("images.blurredBackground")}
                                       className="w-full h-full object-cover"
                                     />
                                     <img
@@ -1620,17 +1596,21 @@ export default function Index() {
                                     {event.stage !== null
                                       ? event.stage.title + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1638,12 +1618,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  Wurde abgesagt
+                                  {t("section.event.wasCancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>Teilgenommen</p>
+                                  <p>{t("section.event.participated")}</p>
                                 </div>
                               ) : null}
                               {!event.isParticipant &&
@@ -1656,7 +1636,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    Mehr erfahren
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}

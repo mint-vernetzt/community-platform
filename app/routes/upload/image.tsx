@@ -1,10 +1,13 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import { json, type ActionFunctionArgs } from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
-import { badRequest, serverError } from "remix-utils";
+import { type TFunction } from "i18next";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { detectLanguage } from "~/root.server";
 import { deriveEventMode } from "../event/utils.server";
 import { deriveOrganizationMode } from "../organization/$slug/utils.server";
+import { deriveProfileMode } from "../profile/$username/utils.server";
 import { deriveProjectMode } from "../project/utils.server";
 import {
   updateEventBackgroundImage,
@@ -14,47 +17,50 @@ import {
   upload,
 } from "./uploadHandler.server";
 import { uploadKeys, type Subject } from "./utils.server";
-import { deriveProfileMode } from "../profile/$username/utils.server";
 
-export const loader = ({ request }: DataFunctionArgs) => {
-  const response = new Response();
-
-  createAuthClient(request, response);
-
-  if (request.method !== "POST") {
-    throw badRequest({
-      message: `I'm a teapot. This endpoint is only for method POST uploads`,
-    });
-  }
-
-  return response;
+const i18nNS = ["routes/upload/image"];
+export const handle = {
+  i18n: i18nNS,
 };
 
-async function handleAuth(subject: Subject, slug: string, sessionUser: User) {
+async function handleAuth(
+  subject: Subject,
+  slug: string,
+  sessionUser: User,
+  t: TFunction
+) {
   if (subject === "user") {
     const username = slug;
     const mode = await deriveProfileMode(sessionUser, username);
-    invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+    invariantResponse(mode === "owner", t("error.notPrivileged"), {
+      status: 403,
+    });
   }
   if (subject === "organization") {
     const mode = await deriveOrganizationMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+    invariantResponse(mode === "admin", t("error.notPrivileged"), {
+      status: 403,
+    });
   }
   if (subject === "event") {
     const mode = await deriveEventMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+    invariantResponse(mode === "admin", t("error.notPrivileged"), {
+      status: 403,
+    });
   }
   if (subject === "project") {
     const mode = await deriveProjectMode(sessionUser, slug);
-    invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+    invariantResponse(mode === "admin", t("error.notPrivileged"), {
+      status: 403,
+    });
   }
 }
 
-export const action = async ({ request }: DataFunctionArgs) => {
-  const response = new Response();
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
 
-  const authClient = createAuthClient(request, response);
-
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const profileId = sessionUser.id;
 
@@ -63,7 +69,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const subject = formData.get("subject") as Subject;
   const slug = formData.get("slug") as string;
 
-  await handleAuth(subject, slug, sessionUser);
+  await handleAuth(subject, slug, sessionUser, t);
 
   const formDataUploadKey = formData.get("uploadKey");
   const name = uploadKeys.filter((key) => key === formDataUploadKey)[0];
@@ -71,7 +77,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   const uploadHandlerResponseJSON = formData.get(name as string);
 
   if (uploadHandlerResponseJSON === null) {
-    throw serverError({ message: "Something went wrong on upload." });
+    throw json({ message: t("error.serverError") }, { status: 500 });
   }
   const uploadHandlerResponse: {
     buffer: Buffer;
@@ -112,5 +118,5 @@ export const action = async ({ request }: DataFunctionArgs) => {
     }
   }
 
-  return response;
+  return null;
 };

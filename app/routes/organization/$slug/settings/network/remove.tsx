@@ -1,11 +1,12 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher } from "@remix-run/react";
-import { makeDomainFunction } from "remix-domains";
-import { Form, performMutation } from "remix-forms";
+import { makeDomainFunction } from "domain-functions";
+import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { H3 } from "~/components/Heading/Heading";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -15,6 +16,15 @@ import {
   disconnectOrganizationFromNetwork,
   getOrganizationIdBySlug,
 } from "../utils.server";
+import i18next from "~/i18next.server";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
+
+const i18nNS = ["routes/organization/settings/network/remove"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const schema = z.object({
   organizationId: z.string().uuid(),
@@ -24,57 +34,61 @@ const environmentSchema = z.object({
   slug: z.string(),
 });
 
-const mutation = makeDomainFunction(
-  schema,
-  environmentSchema
-)(async (values, environment) => {
-  const { organizationId } = values;
+const createMutation = (t: TFunction) => {
+  return makeDomainFunction(
+    schema,
+    environmentSchema
+  )(async (values, environment) => {
+    const { organizationId } = values;
 
-  const network = await getOrganizationIdBySlug(environment.slug);
-  if (network === null) {
-    throw "Eure Organisation konnte nicht gefunden werden.";
-  }
+    const network = await getOrganizationIdBySlug(environment.slug);
+    if (network === null) {
+      throw t("error.notFound");
+    }
 
-  await disconnectOrganizationFromNetwork(organizationId, network.id);
+    await disconnectOrganizationFromNetwork(organizationId, network.id);
 
-  return values;
-});
-
-export const loader = async ({ request }: DataFunctionArgs) => {
-  const response = new Response();
-
-  createAuthClient(request, response);
-  return redirect(".", { headers: response.headers });
+    return values;
+  });
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const loader = async () => {
+  return redirect(".");
+};
+
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/organization/settings/network/remove",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const result = await performMutation({
     request,
     schema,
-    mutation,
+    mutation: createMutation(t),
     environment: { slug: slug },
   });
 
-  return json(result, { headers: response.headers });
+  return json(result);
 };
 
 export function NetworkMemberRemoveForm(
   props: NetworkMember & { slug: string }
 ) {
   const fetcher = useFetcher<typeof action>();
-
+  const { t } = useTranslation(i18nNS);
   const { networkMember, slug } = props;
 
   return (
-    <Form
+    <RemixFormsForm
       method="post"
       key={`${networkMember.slug}`}
       action={`/organization/${slug}/settings/network/remove`}
@@ -113,7 +127,7 @@ export function NetworkMemberRemoveForm(
                 </p>
               ) : null}
             </div>
-            <Button className="ml-auto btn-none" title="entfernen">
+            <Button className="ml-auto btn-none" title={t("remove")}>
               <svg
                 viewBox="0 0 10 10"
                 width="10px"
@@ -132,6 +146,6 @@ export function NetworkMemberRemoveForm(
           </div>
         );
       }}
-    </Form>
+    </RemixFormsForm>
   );
 }

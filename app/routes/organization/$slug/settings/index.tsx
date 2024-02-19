@@ -1,14 +1,10 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { createAuthClient } from "~/auth.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 // handle "/general" as default route
-export const loader = async (args: DataFunctionArgs) => {
-  const { request, params } = args;
-  const response = new Response();
-
-  createAuthClient(request, response);
-  return redirect(`/organization/${params.slug}/settings/general`, {
-    headers: response.headers,
-  });
+export const loader = async (args: LoaderFunctionArgs) => {
+  const { params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
+  return redirect(`/organization/${slug}/settings/general`);
 };

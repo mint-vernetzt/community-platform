@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -8,12 +8,11 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
-import { Form, Form as RemixForm } from "remix-forms";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -23,26 +22,39 @@ import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
 import { getEvent } from "./admins.server";
 import {
-  addAdminSchema,
   type action as addAdminAction,
+  addAdminSchema,
 } from "./admins/add-admin";
 import {
-  removeAdminSchema,
   type action as removeAdminAction,
+  removeAdminSchema,
 } from "./admins/remove-admin";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { type action as publishAction, publishSchema } from "./events/publish";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
-export const loader = async (args: LoaderArgs) => {
+const i18nNS = ["routes/event/settings/admins"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+
+  const { authClient } = createAuthClient(request);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const event = await getEvent(slug);
-  invariantResponse(event, "Event not found", { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
 
   const enhancedAdmins = event.admins.map((relation) => {
     let avatar = relation.profile.avatar;
@@ -74,14 +86,11 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  return json(
-    {
-      published: event.published,
-      admins: enhancedAdmins,
-      adminSuggestions,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    published: event.published,
+    admins: enhancedAdmins,
+    adminSuggestions,
+  });
 };
 
 function Admins() {
@@ -93,28 +102,17 @@ function Admins() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
-      <h1 className="mb-8">Die Administrator:innen</h1>
-      <p className="mb-2">
-        Wer verwaltet die Veranstaltung auf der Community Plattform? Füge hier
-        weitere Administrator:innen hinzu oder entferne sie.
-      </p>
-      <p className="mb-2">
-        Administrator:innen können Events bearbeiten, veröffentlichen, auf
-        Entwurf zurück stellen, absagen und löschen. Sie sind nicht auf der
-        Event-Detailseite sichtbar.
-      </p>
-      <p className="mb-8">
-        Team-Mitglieder werden auf der Event-Detailseite gezeigt. Sie können
-        Events im Entwurf einsehen, diese aber nicht bearbeiten.
-      </p>
-      <h4 className="mb-4 mt-4 font-semibold">Administrator:in hinzufügen</h4>
-      <p className="mb-8">
-        Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.
-      </p>
-      <Form
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-2">{t("content.intro.who")}</p>
+      <p className="mb-2">{t("content.intro.what")}</p>
+      <p className="mb-8">{t("content.intro.whom")}</p>
+      <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
+      <RemixFormsForm
         schema={addAdminSchema}
         fetcher={addAdminFetcher}
         action={`/event/${slug}/settings/admins/add-admin`}
@@ -133,7 +131,7 @@ function Admins() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      Name oder Email
+                      {t("form.name.label")}
                     </label>
                   </div>
                 </div>
@@ -163,7 +161,7 @@ function Admins() {
             </>
           );
         }}
-      </Form>
+      </RemixFormsForm>
       {addAdminFetcher.data !== undefined &&
       "message" in addAdminFetcher.data ? (
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
@@ -171,16 +169,10 @@ function Admins() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
-        {loaderData.admins.length <= 1
-          ? "Administrator:in"
-          : "Administrator:innen"}
+        {t("content.current.headline", { count: loaderData.admins.length })}
       </h4>
       <p className="mb-8">
-        Hier siehst du die{" "}
-        {loaderData.admins.length <= 1
-          ? "Administrator:in"
-          : "Administrator:innen"}{" "}
-        der Veranstaltung auf einen Blick.{" "}
+        {t("content.current.intro", { count: loaderData.admins.length })}
       </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.admins.map((admin) => {
@@ -213,7 +205,7 @@ function Admins() {
                 ) : null}
               </div>
               <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
-                <Form
+                <RemixFormsForm
                   schema={removeAdminSchema}
                   fetcher={removeAdminFetcher}
                   action={`/event/${slug}/settings/admins/remove-admin`}
@@ -231,7 +223,7 @@ function Admins() {
                         {loaderData.admins.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
-                            title="entfernen"
+                            title={t("form.remove.label")}
                           >
                             <svg
                               viewBox="0 0 10 10"
@@ -250,7 +242,7 @@ function Admins() {
                       </>
                     );
                   }}
-                </Form>
+                </RemixFormsForm>
               </div>
             </div>
           );
@@ -259,7 +251,7 @@ function Admins() {
       <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
         <div className="container">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-            <RemixForm
+            <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
@@ -274,12 +266,14 @@ function Admins() {
                   <>
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
-                      {loaderData.published ? "Verstecken" : "Veröffentlichen"}
+                      {loaderData.published
+                        ? t("form.hide.label")
+                        : t("form.publish.label")}
                     </Button>
                   </>
                 );
               }}
-            </RemixForm>
+            </RemixFormsForm>
           </div>
         </div>
       </footer>

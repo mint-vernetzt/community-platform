@@ -1,15 +1,14 @@
 import type { Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
+import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
-import { GravityType } from "imgproxy/dist/types";
-import { notFound } from "remix-utils";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 
 export async function getAllProfiles(
@@ -32,9 +31,9 @@ export async function getAllProfiles(
   const { skip, take, areaId, offerId, seekingId, randomSeed } = options;
 
   let areaToFilter;
-  let whereClauses = [];
+  const whereClauses = [];
   let whereClause = Prisma.empty;
-  let offerJoin = Prisma.sql`
+  const offerJoin = Prisma.sql`
     LEFT JOIN offers_on_profiles
     ON profiles.id = offers_on_profiles."profileId"
     LEFT JOIN offer O
@@ -123,7 +122,7 @@ export async function getAllProfiles(
         whereClauses.push(areaWhere);
       }
     } else {
-      throw notFound({ message: "Area to filter not found" });
+      throw json({ message: "Area to filter not found" }, { status: 404 });
     }
   }
   if (offerId !== undefined) {
@@ -297,8 +296,29 @@ export async function getAllProjects(
               name: true,
               slug: true,
               logo: true,
+              organizationVisibility: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  logo: true,
+                },
+              },
             },
           },
+        },
+      },
+      projectVisibility: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          logo: true,
+          background: true,
+          excerpt: true,
+          subline: true,
+          awards: true,
+          responsibleOrganizations: true,
         },
       },
     },
@@ -411,8 +431,36 @@ export async function getEvents(
               name: true,
               slug: true,
               logo: true,
+              organizationVisibility: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  logo: true,
+                },
+              },
             },
           },
+        },
+      },
+      eventVisibility: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          parentEventId: true,
+          startTime: true,
+          endTime: true,
+          participationUntil: true,
+          participationFrom: true,
+          participantLimit: true,
+          background: true,
+          published: true,
+          stage: true,
+          canceled: true,
+          subline: true,
+          description: true,
+          responsibleOrganizations: true,
         },
       },
     },
@@ -509,6 +557,8 @@ export async function enhanceEventsWithParticipationStatus(
   }
 }
 
+export type PrepareEventsQuery = Awaited<ReturnType<typeof prepareEvents>>;
+
 export async function prepareEvents(
   authClient: SupabaseClient,
   sessionUser: User | null,
@@ -530,18 +580,16 @@ export async function prepareEvents(
     // Filtering by visbility settings
     if (sessionUser === null) {
       // Filter event
-      enhancedEvent = await filterEventByVisibility<typeof enhancedEvent>(
-        enhancedEvent
-      );
+      enhancedEvent =
+        filterEventByVisibility<typeof enhancedEvent>(enhancedEvent);
       // Filter responsible Organizations
-      enhancedEvent.responsibleOrganizations = await Promise.all(
-        enhancedEvent.responsibleOrganizations.map(async (relation) => {
-          const filteredOrganization = await filterOrganizationByVisibility<
+      enhancedEvent.responsibleOrganizations =
+        enhancedEvent.responsibleOrganizations.map((relation) => {
+          const filteredOrganization = filterOrganizationByVisibility<
             typeof relation.organization
           >(relation.organization);
           return { ...relation, organization: filteredOrganization };
-        })
-      );
+        });
     }
 
     // Add images from image proxy

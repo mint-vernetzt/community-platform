@@ -1,22 +1,36 @@
-import { Link, useLoaderData, useParams } from "@remix-run/react";
-import { type DataFunctionArgs, json } from "@remix-run/node";
+import { Button, Image } from "@mint-vernetzt/components";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient } from "~/auth.server";
+import i18next from "~/i18next.server";
+import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { MaterialList } from "../settings/__components";
-import { Button, Image } from "@mint-vernetzt/components";
+import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
-import { getImageURL } from "~/images.server";
+import { MaterialList } from "../settings/__components";
 
-export async function loader(args: DataFunctionArgs) {
+const i18nNS = ["routes/project/detail/attachments"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
-  invariantResponse(params.slug !== undefined, "No valid route", {
-    status: 400,
-  });
+  const { authClient } = createAuthClient(request);
+
+  invariantResponse(
+    params.slug !== undefined,
+    t("error.invatiant.invalidRoute"),
+    {
+      status: 400,
+    }
+  );
 
   const project = await prismaClient.project.findFirst({
     where: {
@@ -58,7 +72,7 @@ export async function loader(args: DataFunctionArgs) {
     },
   });
 
-  invariantResponse(project !== null, "Not found", {
+  invariantResponse(project !== null, t("error.invariant.notFound"), {
     status: 404,
   });
 
@@ -70,21 +84,21 @@ export async function loader(args: DataFunctionArgs) {
     return { ...relation, image: { ...relation.image, thumbnail } };
   });
 
-  return json({ project }, { headers: response.headers });
+  return json({ project });
 }
 
 function Attachments() {
-  const params = useParams();
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
       <h1 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-        Material zum Download
+        {t("content.headline")}
       </h1>
       <div className="mv-flex mv-flex-col mv-gap-6">
         <h2 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-          Dokumente
+          {t("content.documents.title")}
         </h2>
         {loaderData.project.documents.length > 0 ? (
           <>
@@ -132,17 +146,17 @@ function Attachments() {
                 variant="outline"
                 fullSize
               >
-                Alle herunterladen
+                {t("content.documents.downloadAll")}
               </Button>
             </div>
           </>
         ) : (
-          <p>Keine Dokumente vorhanden.</p>
+          <p>{t("content.documents.empty")}</p>
         )}
       </div>
       <div className="mv-flex mv-flex-col mv-gap-6">
         <h2 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-          Bilder
+          {t("content.images.title")}
         </h2>
         {loaderData.project.images.length > 0 ? (
           <>
@@ -197,12 +211,12 @@ function Attachments() {
                 variant="outline"
                 fullSize
               >
-                Alle herunterladen
+                {t("content.images.downloadAll")}
               </Button>
             </div>
           </>
         ) : (
-          <p>Keine Dokumente vorhanden.</p>
+          <p>{t("content.images.empty")}</p>
         )}
       </div>
     </>

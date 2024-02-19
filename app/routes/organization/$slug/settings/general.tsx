@@ -1,16 +1,19 @@
-import type { ActionArgs, LinksFunction, LoaderArgs } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LinksFunction,
+  LoaderFunctionArgs,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
   Link,
   useActionData,
   useLoaderData,
+  useNavigation,
   useParams,
-  useTransition,
 } from "@remix-run/react";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { badRequest, notFound, serverError } from "remix-utils";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -23,7 +26,7 @@ import {
   objectListOperationResolver,
 } from "~/lib/utils/components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { socialMediaServices } from "~/lib/utils/socialMediaServices";
+import { createSocialMediaServices } from "~/lib/utils/socialMediaServices";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormValues,
@@ -45,40 +48,49 @@ import {
   updateOrganizationById,
 } from "./utils.server";
 
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import quillStyles from "react-quill/dist/quill.snow.css";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { detectLanguage } from "~/root.server";
 import { getOrganizationBySlug } from "./general.server";
 
-const organizationSchema = object({
-  name: string().required("Bitte gib Euren Namen ein."),
-  email: nullOrString(
-    string().email("Deine Eingabe entspricht nicht dem Format einer E-Mail.")
-  ),
-  phone: nullOrString(phone()),
-  street: nullOrString(string()),
-  streetNumber: nullOrString(string()),
-  zipCode: nullOrString(string()),
-  city: nullOrString(string()),
-  website: nullOrString(website()),
-  facebook: nullOrString(social("facebook")),
-  linkedin: nullOrString(social("linkedin")),
-  twitter: nullOrString(social("twitter")),
-  youtube: nullOrString(social("youtube")),
-  instagram: nullOrString(social("instagram")),
-  xing: nullOrString(social("xing")),
-  bio: nullOrString(multiline()),
-  types: array(string().required()).required(),
-  quote: nullOrString(multiline()),
-  quoteAuthor: nullOrString(string()),
-  quoteAuthorInformation: nullOrString(string()),
-  supportedBy: array(string().required()).required(),
-  privateFields: array(string().required()).required(),
-  areas: array(string().required()).required(),
-  focuses: array(string().required()).required(),
-});
+const i18nNS = ["routes/organization/settings/general"];
+export const handle = {
+  i18n: i18nNS,
+};
 
-type OrganizationSchemaType = typeof organizationSchema;
-type OrganizationFormType = InferType<typeof organizationSchema>;
+const createOrganizationSchema = (t: TFunction) => {
+  return object({
+    name: string().required(t("validation.name.required")),
+    email: nullOrString(string().email(t("validation.email.email"))),
+    phone: nullOrString(phone()),
+    street: nullOrString(string()),
+    streetNumber: nullOrString(string()),
+    zipCode: nullOrString(string()),
+    city: nullOrString(string()),
+    website: nullOrString(website()),
+    facebook: nullOrString(social("facebook")),
+    linkedin: nullOrString(social("linkedin")),
+    twitter: nullOrString(social("twitter")),
+    youtube: nullOrString(social("youtube")),
+    instagram: nullOrString(social("instagram")),
+    xing: nullOrString(social("xing")),
+    bio: nullOrString(multiline()),
+    types: array(string().required()).required(),
+    quote: nullOrString(multiline()),
+    quoteAuthor: nullOrString(string()),
+    quoteAuthorInformation: nullOrString(string()),
+    supportedBy: array(string().required()).required(),
+    privateFields: array(string().required()).required(),
+    areas: array(string().required()).required(),
+    focuses: array(string().required()).required(),
+  });
+};
+
+type OrganizationSchemaType = ReturnType<typeof createOrganizationSchema>;
+type OrganizationFormType = InferType<OrganizationSchemaType>;
 
 function makeFormOrganizationFromDbOrganization(
   dbOrganization: NonNullable<
@@ -93,11 +105,14 @@ function makeFormOrganizationFromDbOrganization(
   };
 }
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/organization/settings/general",
+  ]);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -106,15 +121,18 @@ export const loader = async (args: LoaderArgs) => {
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
-    throw notFound({
-      message: `Organization with slug "${slug}" not found.`,
-    });
+    throw json(
+      {
+        message: t("error.notFound.named", { slug: slug }),
+      },
+      { status: 404 }
+    );
   }
   const organizationVisibilities = await getOrganizationVisibilitiesById(
     dbOrganization.id
   );
   if (organizationVisibilities === null) {
-    throw notFound({ message: "organization visbilities not found." });
+    throw json({ message: t("error.notFound.visibilities") }, { status: 404 });
   }
 
   const organization = makeFormOrganizationFromDbOrganization(dbOrganization);
@@ -123,39 +141,45 @@ export const loader = async (args: LoaderArgs) => {
   const focuses = await getFocuses();
   const areas = await getAreas();
 
-  return json(
-    {
-      organization,
-      organizationVisibilities,
-      organizationTypes,
-      areas,
-      focuses,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    organization,
+    organizationVisibilities,
+    organizationTypes,
+    areas,
+    focuses,
+  });
 };
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: quillStyles },
 ];
 
-export const action = async (args: ActionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/organization/settings/general",
+  ]);
+  const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   const organization = await getOrganizationBySlug(slug);
-  invariantResponse(organization, "Organization not found", { status: 404 });
+  invariantResponse(
+    organization,
+    t('error.notFound.organization"organization visbilities not found."'),
+    { status: 404 }
+  );
 
-  let parsedFormData = await getFormValues<OrganizationSchemaType>(
+  const parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,
-    organizationSchema
+    createOrganizationSchema(t)
   );
 
   let errors: FormError | null;
@@ -163,14 +187,14 @@ export const action = async (args: ActionArgs) => {
 
   try {
     let result = await validateForm<OrganizationSchemaType>(
-      organizationSchema,
+      createOrganizationSchema(t),
       parsedFormData
     );
     errors = result.errors;
     data = result.data;
   } catch (error) {
     console.error(error);
-    throw badRequest({ message: "Validation failed" });
+    throw json({ message: t("error.validation") }, { status: 400 });
   }
 
   let updated = false;
@@ -183,15 +207,14 @@ export const action = async (args: ActionArgs) => {
         const { privateFields, ...organizationData } = data;
         await updateOrganizationById(
           organization.id,
-          // TODO: fix type issue
-          // @ts-ignore
+          // @ts-ignore TODO: fix type issue
           organizationData,
           privateFields
         );
         updated = true;
       } catch (error) {
         console.error(error);
-        throw serverError({ message: "Something went wrong on update." });
+        throw json({ message: t("error.serverError") }, { status: 500 });
       }
     }
   } else {
@@ -211,15 +234,12 @@ export const action = async (args: ActionArgs) => {
     });
   }
 
-  return json(
-    {
-      organization: data,
-      lastSubmit: (formData.get("submit") as string) ?? "",
-      updated,
-      errors,
-    },
-    { headers: response.headers }
-  );
+  return json({
+    organization: data,
+    lastSubmit: (formData.get("submit") as string) ?? "",
+    updated,
+    errors,
+  });
 };
 
 function Index() {
@@ -232,11 +252,11 @@ function Index() {
     focuses,
   } = useLoaderData<typeof loader>();
 
-  const transition = useTransition();
+  const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
 
   const formRef = React.createRef<HTMLFormElement>();
-  const isSubmitting = transition.state === "submitting";
+  const isSubmitting = navigation.state === "submitting";
 
   const organization = actionData?.organization ?? dbOrganization;
 
@@ -322,6 +342,7 @@ function Index() {
   }, [actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
@@ -333,16 +354,18 @@ function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <h1 className="mb-8">Deine Organisation</h1>
+          <h1 className="mb-8">{t("content.headline")}</h1>
 
-          <h4 className="mb-4 font-semibold">Allgemein</h4>
+          <h4 className="mb-4 font-semibold">
+            {t("content.general.headline")}
+          </h4>
 
-          <p className="mb-8">Wie kann die Community Euch erreichen?</p>
+          <p className="mb-8">{t("content.general.intro")}</p>
           <div className="mb-6">
             <InputText
               {...register("name")}
               id="name"
-              label="Name"
+              label={t("form.name.label")}
               withPublicPrivateToggle={false}
               isPublic={organizationVisibilities.name}
               defaultValue={organization.name}
@@ -354,7 +377,7 @@ function Index() {
               <InputText
                 {...register("email")}
                 id="email"
-                label="E-Mail"
+                label={t("form.email.label")}
                 errorMessage={errors?.email?.message}
                 withPublicPrivateToggle={true}
                 isPublic={organizationVisibilities.email}
@@ -364,20 +387,22 @@ function Index() {
               <InputText
                 {...register("phone")}
                 id="phone"
-                label="Telefon"
+                label={t("form.phone.label")}
                 errorMessage={errors?.phone?.message}
                 withPublicPrivateToggle={true}
                 isPublic={organizationVisibilities.phone}
               />
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">Anschrift</h4>
+          <h4 className="mb-4 font-semibold">
+            {t("content.address.headline")}
+          </h4>
           <div className="flex flex-col md:flex-row -mx-4">
             <div className="basis-full md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("street")}
                 id="street"
-                label="Straßenname"
+                label={t("form.street.label")}
                 errorMessage={errors?.street?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.street}
@@ -387,7 +412,7 @@ function Index() {
               <InputText
                 {...register("streetNumber")}
                 id="streetNumber"
-                label="Hausnummer"
+                label={t("form.streetNumber.label")}
                 errorMessage={errors?.streetNumber?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.streetNumber}
@@ -399,7 +424,7 @@ function Index() {
               <InputText
                 {...register("zipCode")}
                 id="zipCode"
-                label="PLZ"
+                label={t("form.zipCode.label")}
                 errorMessage={errors?.zipCode?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.zipCode}
@@ -409,7 +434,7 @@ function Index() {
               <InputText
                 {...register("city")}
                 id="city"
-                label="Stadt"
+                label={t("form.city.label")}
                 errorMessage={errors?.city?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.city}
@@ -419,18 +444,16 @@ function Index() {
 
           <hr className="border-neutral-400 my-10 lg:my-16" />
 
-          <h4 className="font-semibold mb-4">Über uns</h4>
+          <h4 className="font-semibold mb-4">{t("content.about.headline")}</h4>
 
-          <p className="mb-8">
-            Teile der Community mehr über Deine Organisation mit.
-          </p>
+          <p className="mb-8">{t("content.about.intro")}</p>
 
           <div className="mb-4">
             <TextAreaWithCounter
               {...register("bio")}
               id="bio"
               defaultValue={organization.bio || ""}
-              label="Kurzbeschreibung"
+              label={t("form.bio.label")}
               withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.bio}
               errorMessage={errors?.bio?.message}
@@ -441,7 +464,7 @@ function Index() {
           <div className="mb-4">
             <SelectAdd
               name="types"
-              label="Organisationsform"
+              label={t("form.organizationForm.label")}
               entries={selectedOrganizationTypes.map((type) => ({
                 label: type.title,
                 value: type.id,
@@ -449,7 +472,7 @@ function Index() {
               options={organizationTypesOptions.filter((option) => {
                 return !organization.types.includes(option.value);
               })}
-              placeholder="Füge Eure Organisationsformen hinzu."
+              placeholder={t("form.organizationForm.placeholder")}
               withPublicPrivateToggle={false}
               isPublic={organizationVisibilities.types}
             />
@@ -457,8 +480,8 @@ function Index() {
           <div className="mb-4">
             <SelectAdd
               name="areas"
-              label={"Aktivitätsgebiete"}
-              placeholder="Füge Eure Aktivitätsgebiete hinzu."
+              label={t("form.areas.label")}
+              placeholder={t("form.areas.placeholder")}
               entries={selectedAreas.map((area) => ({
                 label: area.name,
                 value: area.id,
@@ -471,7 +494,7 @@ function Index() {
           <div className="mb-4">
             <InputAdd
               name="supportedBy"
-              label="Gefördert von"
+              label={t("form.supportedBy.label")}
               entries={organization.supportedBy ?? []}
               withPublicPrivateToggle={false}
               isPublic={organizationVisibilities.supportedBy}
@@ -480,8 +503,8 @@ function Index() {
           <div className="mb-4">
             <SelectAdd
               name="focuses"
-              label={"MINT-Schwerpunkte"}
-              placeholder="Füge Eure MINT-Schwerpunkte hinzu."
+              label={t("form.focuses.label")}
+              placeholder={t("form.focuses.placeholder")}
               entries={selectedFocuses.map((focus) => ({
                 label: focus.title,
                 value: focus.id,
@@ -497,7 +520,7 @@ function Index() {
             <TextAreaWithCounter
               {...register("quote")}
               id="quote"
-              label="Zitat"
+              label={t("form.quote.label")}
               withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.quote}
               errorMessage={errors?.quote?.message}
@@ -509,7 +532,7 @@ function Index() {
               <InputText
                 {...register("quoteAuthor")}
                 id="quoteAuthor"
-                label="Von wem stammt das Zitat?"
+                label={t("form.quoteAuthor.label")}
                 errorMessage={errors?.quoteAuthor?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.quoteAuthor}
@@ -519,7 +542,7 @@ function Index() {
               <InputText
                 {...register("quoteAuthorInformation")}
                 id="quoteAuthorInformation"
-                label="Zusatzinformationen des Zitatautors (Position/Beruf)"
+                label={t("form.quoteAuthorInformation.label")}
                 errorMessage={errors?.quoteAuthorInformation?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.quoteAuthorInformation}
@@ -529,20 +552,20 @@ function Index() {
 
           <hr className="border-neutral-400 my-10 lg:my-16" />
 
-          <h2 className="mb-8">Website und Soziale Netzwerke</h2>
+          <h2 className="mb-8">{t("content.websiteAndSocial.headline")}</h2>
 
-          <h4 className="mb-4 font-semibold">Website</h4>
+          <h4 className="mb-4 font-semibold">
+            {t("content.websiteAndSocial.website.headline")}
+          </h4>
 
-          <p className="mb-8">
-            Wo kann die Community mehr über Euer Angebot erfahren?
-          </p>
+          <p className="mb-8">{t("content.websiteAndSocial.website.intro")}</p>
 
           <div className="basis-full mb-4">
             <InputText
               {...register("website")}
               id="website"
-              label="Website"
-              placeholder="domainname.tld"
+              label={t("form.website.label")}
+              placeholder={t("form.website.placeholder")}
               withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.website}
               errorMessage={errors?.website?.message}
@@ -552,13 +575,13 @@ function Index() {
 
           <hr className="border-neutral-400 my-10 lg:my-16" />
 
-          <h4 className="mb-4 font-semibold">Soziale Netzwerke</h4>
+          <h4 className="mb-4 font-semibold">
+            {t("content.websiteAndSocial.social.headline")}
+          </h4>
 
-          <p className="mb-8">
-            In welchen Netzwerken ist Deine Organisation vertreten?
-          </p>
+          <p className="mb-8">{t("content.websiteAndSocial.social.intro")}</p>
 
-          {socialMediaServices.map((service) => (
+          {createSocialMediaServices(t).map((service) => (
             <div className="w-full mb-4" key={service.id}>
               <InputText
                 {...register(service.id)}
@@ -583,7 +606,7 @@ function Index() {
                       : "hidden"
                   }`}
                 >
-                  Informationen wurden aktualisiert.
+                  {t("content.feedback")}
                 </div>
 
                 {isFormChanged ? (
@@ -592,7 +615,7 @@ function Index() {
                     reloadDocument
                     className={`btn btn-link`}
                   >
-                    Änderungen verwerfen
+                    {t("form.reset.label")}
                   </Link>
                 ) : null}
                 <div></div>
@@ -603,7 +626,7 @@ function Index() {
                   className="btn btn-primary ml-4"
                   disabled={isSubmitting || !isFormChanged}
                 >
-                  Speichern
+                  {t("form.submit.label")}
                 </button>
               </div>
             </div>

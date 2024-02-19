@@ -2,13 +2,14 @@ import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Button, Image, Section, Toast } from "@mint-vernetzt/components";
 import {
-  type NodeOnDiskFile,
+  type ActionFunctionArgs,
   json,
   redirect,
   unstable_composeUploadHandlers,
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
-  type DataFunctionArgs,
+  type LoaderFunctionArgs,
+  type NodeOnDiskFile,
 } from "@remix-run/node";
 import {
   Form,
@@ -31,67 +32,78 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { type TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
 const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5MB
+const i18nNS = ["routes/project/settings/attachments"];
+export const handle = {
+  i18n: i18nNS,
+};
 
-// TODO: DRY
-const documentUploadSchema = z.object({
-  filename: z
-    .string()
-    .transform((filename) => {
-      const extension = getExtension(filename);
-      return `${filename
-        .replace(`.${extension}`, "")
-        .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
-    })
-    .optional(),
-  document: z
-    .any()
-    .refine((file) => {
-      return file.size <= MAX_UPLOAD_SIZE;
-    }, "Die Datei darf nicht größer als 5MB sein.")
-    .refine((file) => {
-      return file.type === "application/pdf" || file.type === "image/jpeg";
-    }, "Die Datei muss ein PDF oder ein JPEG sein.")
-    .optional(),
-});
+const createDocumentUploadSchema = (t: TFunction) =>
+  z.object({
+    filename: z
+      .string()
+      .transform((filename) => {
+        const extension = getExtension(filename);
+        return `${filename
+          .replace(`.${extension}`, "")
+          .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
+      })
+      .optional(),
+    document: z
+      .any()
+      .refine((file) => {
+        return file.size <= MAX_UPLOAD_SIZE;
+      }, t("validation.document.size"))
+      .refine((file) => {
+        return file.type === "application/pdf" || file.type === "image/jpeg";
+      }, t("validation.document.type"))
+      .optional(),
+  });
 
-const imageUploadSchema = z.object({
-  filename: z
-    .string()
-    .transform((filename) => {
-      const extension = getExtension(filename);
-      return `${filename
-        .replace(`.${extension}`, "")
-        .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
-    })
-    .optional(),
-  image: z
-    .any()
-    .refine((file) => {
-      return file.size <= MAX_UPLOAD_SIZE;
-    }, "Die Datei darf nicht größer als 5MB sein.")
-    .refine((file) => {
-      return file.type === "image/png" || file.type === "image/jpeg";
-    }, "Die Datei muss ein PNG oder ein JPEG sein.")
-    .optional(),
-});
+const createImageUploadSchema = (t: TFunction) =>
+  z.object({
+    filename: z
+      .string()
+      .transform((filename) => {
+        const extension = getExtension(filename);
+        return `${filename
+          .replace(`.${extension}`, "")
+          .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
+      })
+      .optional(),
+    image: z
+      .any()
+      .refine((file) => {
+        return file.size <= MAX_UPLOAD_SIZE;
+      }, t("validation.image.size"))
+      .refine((file) => {
+        return file.type === "image/png" || file.type === "image/jpeg";
+      }, t("validation.image.type"))
+      .optional(),
+  });
 
 const actionSchema = z.object({
   id: z.string().uuid(),
   filename: z.string(),
 });
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -103,7 +115,7 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const project = await prismaClient.project.findFirst({
@@ -146,7 +158,9 @@ export const loader = async (args: DataFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, "Project not found", { status: 404 });
+  invariantResponse(project !== null, t("error.projectNotFound"), {
+    status: 404,
+  });
 
   // project.documents = project.documents.map((relation) => {
   //   if (relation.document.mimeType === "image/jpeg") {
@@ -167,19 +181,21 @@ export const loader = async (args: DataFunctionArgs) => {
     return { ...relation, image: { ...relation.image, thumbnail } };
   });
 
-  return json(project, { headers: response.headers });
+  return json(project);
 };
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -191,7 +207,7 @@ export const action = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
   const uploadHandler = unstable_composeUploadHandlers(
@@ -212,7 +228,7 @@ export const action = async (args: DataFunctionArgs) => {
       intent === "delete_image" ||
       intent === "validate/document" ||
       intent === "validate/image",
-    "No valid action",
+    t("error.invalidAction"),
     {
       status: 400,
     }
@@ -221,20 +237,19 @@ export const action = async (args: DataFunctionArgs) => {
   let submission;
 
   if (intent === "upload_document" || intent === "validate/document") {
+    const documentUploadSchema = createDocumentUploadSchema(t);
     submission = parse(formData, {
       schema: documentUploadSchema,
     });
 
     invariantResponse(
       typeof submission.value !== "undefined" && submission.value !== null,
-      "No valid submission",
+      t("error.invalidSubmission"),
       { status: 400 }
     );
 
     if (intent === "validate/document") {
-      return json({ status: "idle", submission } as const, {
-        headers: response.headers,
-      });
+      return json({ status: "idle", submission } as const);
     }
 
     const filename = submission.value.filename as string;
@@ -245,23 +260,22 @@ export const action = async (args: DataFunctionArgs) => {
       document,
     });
 
-    invariantResponse(error === null, "Error on storing document", {
+    invariantResponse(error === null, t("error.onStoring"), {
       status: 400,
     });
   } else if (intent === "upload_image" || intent === "validate/image") {
+    const imageUploadSchema = createImageUploadSchema(t);
     submission = parse(formData, {
       schema: imageUploadSchema,
     });
     invariantResponse(
       typeof submission.value !== "undefined" && submission.value !== null,
-      "No valid submission",
+      t("error.invalidSubmission"),
       { status: 400 }
     );
 
     if (intent === "validate/image") {
-      return json({ status: "idle", submission } as const, {
-        headers: response.headers,
-      });
+      return json({ status: "idle", submission } as const);
     }
 
     const filename = submission.value.filename as string;
@@ -274,7 +288,7 @@ export const action = async (args: DataFunctionArgs) => {
     });
     console.log(error);
 
-    invariantResponse(error === null, "Error on storing document", {
+    invariantResponse(error === null, t("error.onStoring"), {
       status: 400,
     });
   } else if (intent === "delete_document") {
@@ -284,7 +298,7 @@ export const action = async (args: DataFunctionArgs) => {
 
     invariantResponse(
       typeof submission.value !== "undefined" && submission.value !== null,
-      "No valid submission",
+      t("error.invalidSubmission"),
       { status: 400 }
     );
 
@@ -301,7 +315,7 @@ export const action = async (args: DataFunctionArgs) => {
 
     invariantResponse(
       typeof submission.value !== "undefined" && submission.value !== null,
-      "No valid submission",
+      t("error.invalidSubmission"),
       { status: 400 }
     );
 
@@ -331,6 +345,9 @@ function Attachments() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
+  const { t } = useTranslation(i18nNS);
+
+  const documentUploadSchema = createDocumentUploadSchema(t);
   const [documentUploadForm, documentUploadfields] = useForm({
     shouldValidate: "onInput",
     onValidate: (values) => {
@@ -342,6 +359,7 @@ function Attachments() {
     shouldRevalidate: "onInput",
   });
 
+  const imageUploadSchema = createImageUploadSchema(t);
   const [imageUploadForm, imageUploadFields] = useForm({
     shouldValidate: "onInput",
     onValidate: (values) => {
@@ -398,17 +416,14 @@ function Attachments() {
   return (
     <Section>
       <Outlet />
-      <BackButton to={location.pathname}>Material verwalten</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">
-        Füge Materialien wie Flyer, Bilder, Checklisten zu Deinem Projekt hinzu
-        oder entferne sie.
-      </p>
+      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
+      <p className="mv-my-6 md:mv-mt-0">{t("content.description")}</p>
       <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Dokumente hochladen
+            {t("content.document.upload")}
           </h2>
-          <p>Mögliche Dateiformate: PDF, jpg. Maximal 5MB.</p>
+          <p>{t("content.document.type")}</p>
           {/* TODO: no-JS version */}
           <Form
             method="post"
@@ -426,7 +441,7 @@ function Attachments() {
                 htmlFor={documentUploadfields.document.id}
                 className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
               >
-                Datei auswählen
+                {t("content.document.select")}
                 <input
                   id={documentUploadfields.document.id}
                   name={documentUploadfields.document.name}
@@ -450,15 +465,17 @@ function Attachments() {
                 name={conform.INTENT}
                 value="upload_document"
               >
-                Datei hochladen
+                {t("content.document.action")}
               </Button>
             </div>
             <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
               {typeof documentUploadfields.document.error === "undefined" && (
                 <p>
                   {documentName === null
-                    ? "Du hast keine Datei ausgewählt."
-                    : `${documentName} ausgewählt.`}
+                    ? t("content.document.selection.empty")
+                    : t("content.document.selection.selected", {
+                        name: documentName,
+                      })}
                 </p>
               )}
               {typeof documentUploadfields.document.error !== "undefined" && (
@@ -474,7 +491,9 @@ function Attachments() {
                 typeof actionData.submission.value !== "undefined" &&
                 actionData.submission.value !== null && (
                   <Toast key={actionData.hash}>
-                    {actionData.submission.value.filename} hinzugefügt.
+                    {t("content.document.added", {
+                      name: actionData.submission.value.filename,
+                    })}
                   </Toast>
                 )}
             </div>
@@ -483,7 +502,7 @@ function Attachments() {
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <>
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              Aktuell hochgeladene Dokumente
+              {t("content.document.current")}
             </h2>
             {loaderData !== null && loaderData.documents.length > 0 ? (
               <>
@@ -561,7 +580,7 @@ function Attachments() {
                     variant="outline"
                     fullSize
                   >
-                    Alle herunterladen
+                    {t("content.document.downloadAll")}
                   </Button>
                 </div>
                 {/* <Link to={`./download?type=documents`} reloadDocument>
@@ -569,7 +588,7 @@ function Attachments() {
                 </Link> */}
               </>
             ) : (
-              <p>Keine Dokumente vorhanden.</p>
+              <p>{t("content.document.empty")}</p>
             )}
             {typeof actionData !== "undefined" &&
               actionData !== null &&
@@ -579,16 +598,18 @@ function Attachments() {
               typeof actionData.submission.value !== "undefined" &&
               actionData.submission.value !== null && (
                 <Toast key={actionData.hash}>
-                  {actionData.submission.value.filename} gelöscht.
+                  {t("content.document.deleted", {
+                    name: actionData.submission.value.filename,
+                  })}
                 </Toast>
               )}
           </>
         </div>
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Bildmaterial hochladen
+            {t("content.image.upload")}
           </h2>
-          <p>Mögliche Dateiformate: jpg, png. Maximal 5MB.</p>
+          <p>{t("content.image.requirements")}</p>
           {/* TODO: no-JS version */}
           <Form
             method="post"
@@ -606,7 +627,7 @@ function Attachments() {
                 htmlFor={imageUploadFields.image.id}
                 className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
               >
-                Datei auswählen
+                {t("content.image.select")}
                 <input
                   id={imageUploadFields.image.id}
                   name={imageUploadFields.image.name}
@@ -630,15 +651,17 @@ function Attachments() {
                 name={conform.INTENT}
                 value="upload_image"
               >
-                Datei hochladen
+                {t("content.image.action")}
               </Button>
             </div>
             <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
               {typeof imageUploadFields.image.error === "undefined" && (
                 <p>
                   {imageName === null
-                    ? "Du hast keine Datei ausgewählt."
-                    : `${imageName} ausgewählt.`}
+                    ? t("content.image.selection.empty")
+                    : t("content.image.selection.selected", {
+                        name: imageName,
+                      })}
                 </p>
               )}
               {typeof imageUploadFields.image.error !== "undefined" && (
@@ -654,7 +677,9 @@ function Attachments() {
                 typeof actionData.submission.value !== "undefined" &&
                 actionData.submission.value !== null && (
                   <Toast key={actionData.hash}>
-                    {actionData.submission.value.filename} hinzugefügt.
+                    {t("content.image.added", {
+                      name: actionData.submission.value.filename,
+                    })}
                   </Toast>
                 )}
             </div>
@@ -662,7 +687,7 @@ function Attachments() {
         </div>
         <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            Aktuell hochgeladenes Bildmaterial
+            {t("content.image.current")}
           </h2>
           {loaderData !== null && loaderData.images.length > 0 ? (
             <>
@@ -743,12 +768,12 @@ function Attachments() {
                   variant="outline"
                   fullSize
                 >
-                  Alle herunterladen
+                  {t("content.image.downloadAll")}
                 </Button>
               </div>
             </>
           ) : (
-            <p>Keine Bilder vorhanden.</p>
+            <p>{t("content.image.empty")}</p>
           )}
           {typeof actionData !== "undefined" &&
             actionData !== null &&
@@ -758,7 +783,9 @@ function Attachments() {
             typeof actionData.submission.value !== "undefined" &&
             actionData.submission.value !== null && (
               <Toast key={actionData.hash}>
-                {actionData.submission.value.filename} gelöscht.
+                {t("content.image.deleted", {
+                  name: actionData.submission.value.filename,
+                })}
               </Toast>
             )}
         </div>

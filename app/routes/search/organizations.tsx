@@ -3,30 +3,34 @@ import {
   CardContainer,
   OrganizationCard,
 } from "@mint-vernetzt/components";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import { GravityType } from "imgproxy/dist/types";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getPaginationValues } from "../explore/utils.server";
 import {
   getQueryValueAsArrayOfWords,
   searchOrganizationsViaLike,
 } from "./utils.server";
+import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+const i18nNS = ["routes/search/organizations"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
@@ -55,17 +59,18 @@ export const loader = async ({ request }: LoaderArgs) => {
 
     if (sessionUser === null) {
       // Filter organization
-      enhancedOrganization = await filterOrganizationByVisibility<
-        typeof enhancedOrganization
-      >(enhancedOrganization);
+      type EnhancedOrganization = typeof enhancedOrganization;
+      enhancedOrganization =
+        filterOrganizationByVisibility<EnhancedOrganization>(
+          enhancedOrganization
+        );
       // Filter team members
-      enhancedOrganization.teamMembers = await Promise.all(
-        enhancedOrganization.teamMembers.map(async (profile) => {
-          const filteredProfile = await filterProfileByVisibility<
-            typeof profile
-          >(profile);
+      enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
+        (profile) => {
+          type Profile = typeof profile;
+          const filteredProfile = filterProfileByVisibility<Profile>(profile);
           return { ...filteredProfile };
-        })
+        }
       );
     }
 
@@ -108,17 +113,14 @@ export const loader = async ({ request }: LoaderArgs) => {
     enhancedOrganizations.push(enhancedOrganization);
   }
 
-  return json(
-    {
-      organizations: enhancedOrganizations,
-      isLoggedIn: sessionUser !== null,
-      pagination: {
-        page,
-        itemsPerPage,
-      },
+  return json({
+    organizations: enhancedOrganizations,
+    isLoggedIn: sessionUser !== null,
+    pagination: {
+      page,
+      itemsPerPage,
     },
-    { headers: response.headers }
-  );
+  });
 };
 
 export default function SearchView() {
@@ -165,6 +167,8 @@ export default function SearchView() {
 
   const query = searchParams.get("query") ?? "";
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <section
       id="search-results-organizations"
@@ -191,18 +195,16 @@ export default function SearchView() {
                 <Button
                   size="large"
                   variant="outline"
-                  loading={fetcher.state === "submitting"}
+                  loading={fetcher.state === "loading"}
                 >
-                  Weitere laden
+                  {t("more")}
                 </Button>
               </fetcher.Form>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">
-          Für Deine Suche konnten leider keine Organisationen gefunden werden.
-        </p>
+        <p className="text-center text-primary">{t("empty")}</p>
       )}
     </section>
   );

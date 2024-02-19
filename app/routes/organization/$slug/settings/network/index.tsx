@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -13,6 +13,14 @@ import {
 } from "../utils.server";
 import Add from "./add";
 import { NetworkMemberRemoveForm } from "./remove";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
+
+const i18nNS = ["routes/organization/settings/network/index"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export type NetworkMember = ArrayElement<
   Awaited<ReturnType<typeof getNetworkMembersOfOrganization>>
@@ -22,17 +30,23 @@ export type NetworkMemberSuggestions =
   | Awaited<ReturnType<typeof getOrganizationSuggestionsForAutocomplete>>
   | undefined;
 
-export const loader = async (args: LoaderArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/organization/settings/network/index",
+  ]);
+
+  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+    status: 403,
+  });
   const organization = await getOrganizationIdBySlug(slug);
-  invariantResponse(organization, "Organization not found", { status: 404 });
+  invariantResponse(organization, t("error.notFound"), { status: 404 });
 
   const networkMembers = await getNetworkMembersOfOrganization(
     authClient,
@@ -55,29 +69,23 @@ export const loader = async (args: LoaderArgs) => {
     );
   }
 
-  return json(
-    { networkMembers, networkMemberSuggestions },
-    { headers: response.headers }
-  );
+  return json({ networkMembers, networkMemberSuggestions });
 };
 
 function Index() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
-      <h1 className="mb-8">Euer Netzwerk</h1>
-      <p className="mb-8">
-        Wer ist Teil Eures Netzwerks? Füge hier weitere Organisationen hinzu
-        oder entferne sie.
-      </p>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-8">{t("content.intro")}</p>
       <Add networkMemberSuggestions={loaderData.networkMemberSuggestions} />
-      <h4 className="mb-4 mt-16 font-semibold">Aktuelle Netzwerkmitglieder</h4>
-      <p className="mb-8">
-        Hier siehst du alle Organisationen, die Teil eures Netzwerkes sind, auf
-        einen Blick.{" "}
-      </p>
+      <h4 className="mb-4 mt-16 font-semibold">
+        {t("content.current.headline")}
+      </h4>
+      <p className="mb-8">{t("content.current.intro")} </p>
       <div className="mb-4 md:max-h-[630px] overflow-auto">
         {loaderData.networkMembers.map((member) => {
           return (

@@ -12,12 +12,14 @@ import {
 import {
   json,
   redirect,
-  type DataFunctionArgs,
+  type ActionFunctionArgs,
   type LinksFunction,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import {
   Form,
   useActionData,
+  useBlocker,
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
@@ -26,7 +28,6 @@ import quillStyles from "react-quill/dist/quill.snow.css";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
-import { usePrompt } from "~/lib/hooks/usePrompt";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   removeHtmlTags,
@@ -40,161 +41,180 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { type TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 
-const requirementsSchema = z.object({
-  timeframe: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
-      }
-    ),
-  jobFillings: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
-      }
-    ),
-  furtherJobFillings: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
-      }
-    ),
-  yearlyBudget: z
-    .string()
-    .max(
-      80,
-      "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80."
-    )
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value)),
-  financings: z.array(z.string().uuid()),
-  furtherFinancings: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
-      }
-    ),
-  technicalRequirements: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 500
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500.",
-      }
-    ),
-  furtherTechnicalRequirements: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 500
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500.",
-      }
-    ),
-  roomSituation: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
-      }
-    ),
-  furtherRoomSituation: z
-    .string()
-    .optional()
-    .transform((value) => (value === undefined || value === "" ? null : value))
-    .refine(
-      (value) => {
-        return (
-          // Entities are being replaced by "x" just to get the right count for them.
-          replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
-        );
-      },
-      {
-        message:
-          "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
-      }
-    ),
-});
+const i18nNS = ["routes/project/settings/requirements"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createRequirementsSchema = (t: TFunction) =>
+  z.object({
+    timeframe: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+          );
+        },
+        {
+          message: t("validation.timeframe.length"),
+        }
+      ),
+    jobFillings: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+          );
+        },
+        {
+          message: t("validation.jobFillings.length"),
+        }
+      ),
+    furtherJobFillings: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+          );
+        },
+        {
+          message: t("validation.furtherJobFillings.length"),
+        }
+      ),
+    yearlyBudget: z
+      .string()
+      .max(80, t("validation.yearlyBudget.max"))
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      ),
+    financings: z.array(z.string().uuid()),
+    furtherFinancings: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+          );
+        },
+        {
+          message: t("validation.furtherFinancings.length"),
+        }
+      ),
+    technicalRequirements: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 500
+          );
+        },
+        {
+          message: t("validation.technicalRequirements.length"),
+        }
+      ),
+    furtherTechnicalRequirements: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 500
+          );
+        },
+        {
+          message: t("validation.furtherTechnicalRequirements.length"),
+        }
+      ),
+    roomSituation: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+          );
+        },
+        {
+          message: t("validation.roomSituation.length"),
+        }
+      ),
+    furtherRoomSituation: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value === undefined || value === "" ? null : value
+      )
+      .refine(
+        (value) => {
+          return (
+            // Entities are being replaced by "x" just to get the right count for them.
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+          );
+        },
+        {
+          message: t("validation.furtherRoomSituation.length"),
+        }
+      ),
+  });
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: quillStyles },
 ];
 
-export const loader = async (args: DataFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
 
-  const authClient = createAuthClient(request, response);
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -206,10 +226,10 @@ export const loader = async (args: DataFunctionArgs) => {
   });
 
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
 
-  invariantResponse(sessionUser !== null, "Not logged in", {
+  invariantResponse(sessionUser !== null, t("error.notLoggedIn"), {
     status: 403,
   });
 
@@ -239,7 +259,7 @@ export const loader = async (args: DataFunctionArgs) => {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, "Project not found", {
+  invariantResponse(project !== null, t("error.projectNotFound"), {
     status: 404,
   });
 
@@ -250,20 +270,18 @@ export const loader = async (args: DataFunctionArgs) => {
     },
   });
 
-  return json(
-    { project, allFinancings },
-    {
-      headers: response.headers,
-    }
-  );
+  return json({ project, allFinancings });
 };
 
-export async function action({ request, params }: DataFunctionArgs) {
-  const response = new Response();
-  const authClient = createAuthClient(request, response);
+export async function action({ request, params }: ActionFunctionArgs) {
+  const { authClient } = createAuthClient(request);
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   const sessionUser = await getSessionUser(authClient);
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, "No valid route", {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
@@ -273,7 +291,7 @@ export async function action({ request, params }: DataFunctionArgs) {
     authClient,
   });
   if (redirectPath !== null) {
-    return redirect(redirectPath, { headers: response.headers });
+    return redirect(redirectPath);
   }
   const project = await prismaClient.project.findUnique({
     select: {
@@ -283,10 +301,11 @@ export async function action({ request, params }: DataFunctionArgs) {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, "Project not found", {
+  invariantResponse(project !== null, t("error.projectNotFound"), {
     status: 404,
   });
   // Validation
+  const requirementsSchema = createRequirementsSchema(t);
   const formData = await request.formData();
   const submission = await parse(formData, {
     schema: (intent) =>
@@ -345,8 +364,7 @@ export async function action({ request, params }: DataFunctionArgs) {
           console.warn(e);
           ctx.addIssue({
             code: "custom",
-            message:
-              "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support.",
+            message: t("error.custom"),
           });
           return z.NEVER;
         }
@@ -359,21 +377,18 @@ export async function action({ request, params }: DataFunctionArgs) {
   const hash = getSubmissionHash(submission);
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission, hash } as const, {
-      headers: response.headers,
-    });
+    return json({ status: "idle", submission, hash } as const);
   }
   if (!submission.value) {
     return json({ status: "error", submission, hash } as const, {
       status: 400,
-      headers: response.headers,
     });
   }
 
   return redirectWithToast(
     request.url,
-    { id: "settings-toast", key: hash, message: "Daten gespeichert!" },
-    { init: { headers: response.headers }, scrollToToast: true }
+    { id: "settings-toast", key: hash, message: t("content.success") },
+    { scrollToToast: true }
   );
 }
 
@@ -383,6 +398,8 @@ function Requirements() {
   const { project, allFinancings } = loaderData;
   const { financings, ...rest } = project;
   const actionData = useActionData<typeof action>();
+  const { t } = useTranslation(i18nNS);
+  const requirementsSchema = createRequirementsSchema(t);
   const [form, fields] = useForm({
     id: "requirements-form",
     constraint: getFieldsetConstraint(requirementsSchema),
@@ -401,7 +418,7 @@ function Requirements() {
   const financingList = useFieldList(form.ref, fields.financings);
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    for (let child of event.currentTarget.children) {
+    for (const child of event.currentTarget.children) {
       const value = child.getAttribute("value");
       if (
         child.localName === "button" &&
@@ -415,23 +432,24 @@ function Requirements() {
   };
 
   const [isDirty, setIsDirty] = React.useState(false);
-  // TODO: When updating to remix v2 use "useBlocker()" hook instead to provide custom ui (Modal, etc...)
-  // see https://remix.run/docs/en/main/hooks/use-blocker
-  usePrompt(
-    "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
-    isDirty
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isDirty && currentLocation.pathname !== nextLocation.pathname
   );
+  if (blocker.state === "blocked") {
+    const confirmed = confirm(t("content.prompt"));
+    if (confirmed) {
+      blocker.proceed();
+    } else {
+      blocker.reset();
+    }
+  }
 
   return (
     <>
       <Section>
-        <BackButton to={location.pathname}>Rahmenbedingungen</BackButton>
-        <p className="mv-my-6 md:mv-mt-0">
-          Die genannten Informationen zu Finanziellem und personellem Rahmen
-          beziehen sich auf das angegebene Projekt, nicht allgemein auf die
-          Organisation. Die Infos sollen eine Anregung sein für Interessierte,
-          die das Projekt als Inspiration nehmen wollen.
-        </p>
+        <BackButton to={location.pathname}>{t("content.back")}</BackButton>
+        <p className="mv-my-6 md:mv-mt-0">{t("content.intro")}</p>
         <Form
           method="post"
           {...form.props}
@@ -460,13 +478,13 @@ function Requirements() {
           <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
             <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-                Zeitlicher Rahmen
+                {t("form.timeframe.headline")}
               </h2>
 
               <TextAreaWithCounter
                 {...conform.textarea(fields.timeframe)}
                 id={fields.timeframe.id || ""}
-                label="Projektstart bzw. Projektlaufzeit"
+                label={t("form.timeframe.label")}
                 errorMessage={fields.timeframe.error}
                 maxCharacters={200}
                 rte
@@ -475,15 +493,14 @@ function Requirements() {
 
             <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-                Personelle Situation
+                {t("form.personellSituation.headline")}
               </h2>
 
               <TextAreaWithCounter
                 {...conform.textarea(fields.jobFillings)}
                 id={fields.jobFillings.id || ""}
-                label="Stellen und / oder Stundenkontingent"
-                helperText="Wie viele Menschen sind an der Verwirklichung des Projektes
-              oder Bildungsangebotes beteiligt?"
+                label={t("form.personellSituation.jobFillings.label")}
+                helperText={t("form.personellSituation.jobFillings.helper")}
                 errorMessage={fields.jobFillings.error}
                 maxCharacters={800}
                 rte
@@ -492,8 +509,10 @@ function Requirements() {
               <TextAreaWithCounter
                 {...conform.textarea(fields.furtherJobFillings)}
                 id={fields.furtherJobFillings.id || ""}
-                label="Weitere Infos"
-                helperText="Gibt es noch weitere Punkte, die Du anderen Akteur:innen dazu mitteilen möchtest?"
+                label={t("form.personellSituation.furtherJobFillings.label")}
+                helperText={t(
+                  "form.personellSituation.furtherJobFillings.helper"
+                )}
                 errorMessage={fields.furtherJobFillings.error}
                 maxCharacters={200}
                 rte
@@ -502,31 +521,30 @@ function Requirements() {
 
             <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-                Finanzieller Rahmen
+                {t("form.budget.headline")}
               </h2>
 
               <Input {...conform.input(fields.yearlyBudget)}>
                 <Input.Label htmlFor={fields.yearlyBudget.id}>
-                  Jährliches Budget
+                  {t("form.budget.yearlyBudget.label")}
                 </Input.Label>
                 {typeof fields.yearlyBudget.error !== "undefined" && (
                   <Input.Error>{fields.yearlyBudget.error}</Input.Error>
                 )}
                 <Input.HelperText>
-                  Nutze dieses Freitextfeld um andere Akteur:innen über Eure
-                  finanziellen Ressourcen zu informieren.
+                  {t("form.budget.yearlyBudget.helper")}
                 </Input.HelperText>
               </Input>
 
               <Select onChange={handleSelectChange}>
                 <Select.Label htmlFor={fields.financings.id}>
-                  Art der Finanzierung
+                  {t("form.budget.financings.label")}
                 </Select.Label>
                 <Select.HelperText>
-                  Wöhle die Art der Finanzierung aus.
+                  {t("form.budget.financings.helper")}
                 </Select.HelperText>
                 <option selected hidden>
-                  Bitte auswählen
+                  {t("form.budget.financings.option")}
                 </option>
                 {allFinancings
                   .filter((financing) => {
@@ -563,7 +581,7 @@ function Requirements() {
                       <Chip key={listFinancing.key}>
                         {allFinancings.find((financing) => {
                           return financing.id === listFinancing.defaultValue;
-                        })?.title || "Not Found"}
+                        })?.title || t("content.notFound")}
                         <Input
                           type="hidden"
                           {...conform.input(listFinancing)}
@@ -582,9 +600,8 @@ function Requirements() {
               <TextAreaWithCounter
                 {...conform.textarea(fields.furtherFinancings)}
                 id={fields.furtherFinancings.id || ""}
-                label="Weitere Infos"
-                helperText="Nutze dieses Feld, wenn du keine passende Finanzierungsart
-              vorgefunden hast."
+                label={t("form.budget.furtherFinancings.label")}
+                helperText={t("form.budget.furtherFinancings.helper")}
                 errorMessage={fields.furtherFinancings.error}
                 maxCharacters={800}
                 rte
@@ -593,14 +610,13 @@ function Requirements() {
 
             <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-                Technischer Rahmen
+                {t("form.technicalFrame.headline")}
               </h2>
 
               <TextAreaWithCounter
                 {...conform.textarea(fields.technicalRequirements)}
                 id={fields.technicalRequirements.id || ""}
-                label="Welche Software/Hardware/Bausätze oder Maschinen kommen zum
-                Einsatz?"
+                label={t("form.technicalFrame.technicalRequirements.label")}
                 errorMessage={fields.technicalRequirements.error}
                 maxCharacters={500}
                 rte
@@ -609,7 +625,9 @@ function Requirements() {
               <TextAreaWithCounter
                 {...conform.textarea(fields.furtherTechnicalRequirements)}
                 id={fields.furtherTechnicalRequirements.id || ""}
-                label="Sonstige Erläuterungen"
+                label={t(
+                  "form.technicalFrame.furtherTechnicalRequirements.label"
+                )}
                 errorMessage={fields.furtherTechnicalRequirements.error}
                 maxCharacters={500}
                 rte
@@ -618,14 +636,14 @@ function Requirements() {
 
             <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-                Räumliche Situation
+                {t("form.spatialSituation.headline")}
               </h2>
 
               <TextAreaWithCounter
                 {...conform.textarea(fields.roomSituation)}
                 id={fields.roomSituation.id || ""}
-                label="Arbeitsorte"
-                helperText="Welche räumliche Situation ist nötig?"
+                label={t("form.spatialSituation.roomSituation.label")}
+                helperText={t("form.spatialSituation.roomSituation.helper")}
                 errorMessage={fields.roomSituation.error}
                 maxCharacters={200}
                 rte
@@ -634,7 +652,7 @@ function Requirements() {
               <TextAreaWithCounter
                 {...conform.textarea(fields.furtherRoomSituation)}
                 id={fields.furtherRoomSituation.id || ""}
-                label="Weitere Informationen"
+                label={t("form.spatialSituation.furtherRoomSituation.label")}
                 errorMessage={fields.furtherRoomSituation.error}
                 maxCharacters={200}
                 rte
@@ -660,7 +678,7 @@ function Requirements() {
                     }}
                     className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
                   >
-                    Änderungen verwerfen
+                    {t("form.reset")}
                   </Button>
                   {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
                   {/* <Button type="reset" variant="outline" fullSize>
@@ -675,7 +693,7 @@ function Requirements() {
                       setIsDirty(false);
                     }}
                   >
-                    Speichern
+                    {t("form.submit")}
                   </Button>
                 </Controls>
               </div>

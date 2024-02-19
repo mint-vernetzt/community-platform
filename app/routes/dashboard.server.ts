@@ -107,16 +107,10 @@ export async function getOrganizationsForCards(skip: number, take: number) {
   return profiles;
 }
 
-export async function enhancedRedirect(
-  url: string,
-  options: {
-    request: Request;
-    response?: ResponseInit;
-  }
-) {
-  const { alert } = await getAlert(options.request);
+export async function enhancedRedirect(url: string, request: Request) {
+  const { alert } = await getAlert(request);
   if (alert !== undefined) {
-    return redirectWithAlert(url, alert, options.response);
+    return redirectWithAlert(url, alert);
   }
-  return redirect(url, options.response);
+  return redirect(url);
 }

@@ -1,0 +1,6 @@
+{
+  "error": {
+    "notPrivileged": "Not privileged",
+    "notFound": "Es existiert noch keine Organisation mit diesem Namen."
+  }
+}

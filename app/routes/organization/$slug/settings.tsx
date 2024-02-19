@@ -1,15 +1,19 @@
 import { NavLink, Outlet } from "@remix-run/react";
-import { type LoaderArgs, redirect } from "@remix-run/node";
+import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { useTranslation } from "react-i18next";
 
-export const loader = async (args: LoaderArgs) => {
+const i18nNS = ["routes/organization/settings"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const response = new Response();
-
-  const authClient = createAuthClient(request, response);
+  const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
@@ -19,8 +23,7 @@ export const loader = async (args: LoaderArgs) => {
     });
     if (userProfile !== null && userProfile.termsAccepted === false) {
       return redirect(
-        `/accept-terms?redirect_to=/organization/${slug}/settings`,
-        { headers: response.headers }
+        `/accept-terms?redirect_to=/organization/${slug}/settings`
       );
     }
   }
@@ -32,6 +35,7 @@ function Settings() {
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
     }  hover:text-primary py-3`;
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
@@ -39,39 +43,43 @@ function Settings() {
         <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">Organisation bearbeiten</h3>
+              <h3 className="font-bold mb-7">{t("headline")}</h3>
               <menu>
                 <ul>
                   <li>
                     <NavLink
                       to="general"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
-                      Allgemein
+                      {t("navigation.general")}
                     </NavLink>
                   </li>
                   <li>
                     <NavLink
                       to="admins"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
-                      Administrator:innen
+                      {t("navigation.admins")}
                     </NavLink>
                   </li>
                   <li>
                     <NavLink
                       to="team"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
-                      Das Team
+                      {t("navigation.team")}
                     </NavLink>
                   </li>
                   <li>
                     <NavLink
                       to="network"
                       className={({ isActive }) => getClassName(isActive)}
+                      preventScrollReset
                     >
-                      Euer Netzwerk
+                      {t("navigation.network")}
                     </NavLink>
                   </li>
                 </ul>
@@ -80,8 +88,9 @@ function Settings() {
                   <NavLink
                     to="./delete"
                     className={({ isActive }) => getClassName(isActive)}
+                    preventScrollReset
                   >
-                    Organisation löschen
+                    {t("navigation.delete")}
                   </NavLink>
                 </div>
               </menu>
@@ -104,7 +113,7 @@ function Settings() {
                     />
                   </svg>
                 </span>
-                <span>Für alle sichtbar</span>
+                <span>{t("state.public")}</span>
               </p>
 
               <p className="text-xs flex items-center mb-4">
@@ -129,7 +138,7 @@ function Settings() {
                     />
                   </svg>
                 </span>
-                <span>Für unregistrierte Nutzer:innen nicht sichtbar</span>
+                <span>{t("state.private")}</span>
               </p>
             </div>
           </div>

@@ -1,9 +1,9 @@
-import { serverError } from "remix-utils";
 import { prismaClient } from "~/prisma.server";
 // important for testing nested calls (https://stackoverflow.com/a/55193363)
 // maybe move helper functions like getUserByRequest to other module
 // then we can just mock external modules
 import * as self from "./utils.server";
+import { json } from "@remix-run/server-runtime";
 
 export async function updateParentEventRelationOrThrow(
   slug: string,
@@ -25,7 +25,7 @@ export async function updateParentEventRelationOrThrow(
     }
   } catch (error) {
     console.error(error);
-    throw serverError({ message: "Couldn't set parent event" });
+    throw json({ message: "Couldn't set parent event" }, { status: 500 });
   }
 }
 
@@ -47,7 +47,7 @@ export async function addChildEventRelationOrThrow(
     });
   } catch (error) {
     console.error(error);
-    throw serverError({ message: "Couldn't add child event" });
+    throw json({ message: "Couldn't add child event" }, { status: 500 });
   }
 }
 
@@ -69,7 +69,7 @@ export async function removeChildEventRelationOrThrow(
     });
   } catch (error) {
     console.error(error);
-    throw serverError({ message: "Couldn't remove child event" });
+    throw json({ message: "Couldn't remove child event" }, { status: 500 });
   }
 }
 
@@ -108,7 +108,7 @@ export async function getAllSlugsOfChildEvents(slug: string) {
   const slugs = result.childEvents.map((childEvent) => childEvent.slug);
 
   let childEventChildrenSlugs: string[] = [];
-  for (let slug of slugs) {
+  for (const slug of slugs) {
     const childrenSlugs = await self.getAllSlugsOfChildEvents(slug);
     childEventChildrenSlugs = childEventChildrenSlugs.concat(childrenSlugs);
   }
