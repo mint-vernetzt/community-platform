@@ -838,15 +838,15 @@ export default function Index() {
                                       ""
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1028,15 +1028,15 @@ export default function Index() {
                                       ""
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1197,15 +1197,15 @@ export default function Index() {
                                       ""
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1347,15 +1347,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1484,15 +1484,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1602,15 +1602,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:line-clamp-1">
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
