@@ -1121,6 +1121,7 @@ function Index() {
                         {event.published &&
                         !event.isParticipant &&
                         loaderData.mode !== "admin" &&
+                        !loaderData.isTeamMember &&
                         !canUserParticipate(event) &&
                         !event.isOnWaitingList &&
                         !canUserBeAddedToWaitingList(event) &&
