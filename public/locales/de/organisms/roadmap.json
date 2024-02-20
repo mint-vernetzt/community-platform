@@ -38,10 +38,6 @@
       "description": "Mit dem Filter kannst Du innerhalb der Übersichtseiten der Profile, Organisa-tionen, Events oder Projekte nach bestimmten Kriterien durchsuchen."
     },
     "secondCard": {
-      "title": "Spracheinstellung: Englisch",
-      "description": "Mit der erweiterten Spracheinstellung ermöglichen wir einem größeren Akteur:innen-Kreis die Community Plattform gut zu nutzen."
-    },
-    "thirdCard": {
       "title": "Dashboard",
       "description": "Über das Dashboard siehst du nach dem Einloggen übersichtlich alle Funktionen der Plattform auf einen Blick und wirst über Neuigkeiten informiert."
     }
@@ -49,22 +45,26 @@
   "thirdColumn": {
     "title": "Bereits umgesetzt",
     "firstCard": {
+      "title": "Spracheinstellung: Englisch",
+      "description": "Mit der erweiterten Spracheinstellung ermöglichen wir einem größeren Akteur:innen-Kreis die Community Plattform gut zu nutzen."
+    },
+    "secondCard": {
       "title": "Profil & Organisationsprofil",
       "description": "Du stellst Dich mithilfe Deines Profils der MINT-Community vor und legst Deine Organisation mit Teammitgliedern an."
     },
-    "secondCard": {
+    "thirdCard": {
       "title": "Eventmanagement",
       "description": "Stöbere nach passenden MINTvernetzt-Events, melde Dich an und schau, wer sich auch für das Event angemeldet hat."
     },
-    "thirdCard": {
+    "fourthCard": {
       "title": "Suche",
       "description": "Über die Suchfunktion kannst Du nach Profilen, Organisationen, Events, Projekten und nach Stichwörtern suchen."
     },
-    "fourthCard": {
+    "fifthCard": {
       "title": "MINT-ID",
       "description": "Um bequem zwischen den beiden Angeboten MINTvernetzt und MINT-Campus wechseln zu können, gibt es die MINT-ID, mit der man beide Plattformen nutzen kann (Single-Sign-in)."
     },
-    "fifthCard": {
+    "sixthCard": {
       "title": "Startseite",
       "description": "Die Startseite informiert neue Mitglieder über Inhalte und Nutzungszahlen der Community-Plattform."
     }
