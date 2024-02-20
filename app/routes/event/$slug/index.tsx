@@ -941,7 +941,7 @@ function Index() {
                                 profile.firstName
                               } ${profile.lastName}`.trimStart()}
                             </h5>
-                            <p className="text-sm m-0 line-clamp-2">
+                            <p className="text-sm m-0 mv-line-clamp-2">
                               {profile.position}
                             </p>
                           </div>
@@ -1051,15 +1051,15 @@ function Index() {
                                 ""
                               )}
                             </p>
-                            <h4 className="font-bold text-base m-0 md:line-clamp-1">
+                            <h4 className="font-bold text-base m-0 md:mv-line-clamp-1">
                               {event.name}
                             </h4>
                             {event.subline !== null ? (
-                              <p className="hidden md:block text-xs mt-1 md:line-clamp-1">
+                              <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-1">
                                 {event.subline}
                               </p>
                             ) : (
-                              <p className="hidden md:block text-xs mt-1 md:line-clamp-1">
+                              <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-1">
                                 {removeHtmlTags(event.description ?? "")}
                               </p>
                             )}
@@ -1186,7 +1186,7 @@ function Index() {
                                 member.profile.firstName
                               } ${member.profile.lastName}`.trimStart()}
                             </h5>
-                            <p className="text-sm m-0 line-clamp-2">
+                            <p className="text-sm m-0 mv-line-clamp-2">
                               {member.profile.position}
                             </p>
                           </div>
@@ -1231,7 +1231,7 @@ function Index() {
                               {item.organization.name}
                             </h5>
 
-                            <p className="text-sm m-0 line-clamp-2">
+                            <p className="text-sm m-0 mv-line-clamp-2">
                               {item.organization.types
                                 .map((item) => item.organizationType.title)
                                 .join(", ")}
@@ -1280,7 +1280,7 @@ function Index() {
                                 profile.firstName
                               } ${profile.lastName}`.trimStart()}
                             </h5>
-                            <p className="text-sm m-0 line-clamp-2">
+                            <p className="text-sm m-0 mv-line-clamp-2">
                               {profile.position}
                             </p>
                           </div>
