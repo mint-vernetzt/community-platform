@@ -177,7 +177,7 @@ function EventCard(
             )}
           {event._count.childEvents === 0 &&
             typeof event.participantLimit === "number" &&
-            event.participantLimit - event._count.participants <= 0 && (
+            event._count.waitingList >= 1 && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
                 {event._count.waitingList}{" "}
                 {t("waitingList.places", {

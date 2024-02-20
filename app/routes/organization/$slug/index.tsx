@@ -787,13 +787,16 @@ export default function Index() {
                                       ? ` | ${t("content.unlimitedSeats")}`
                                       : ` | ${
                                           relation.event.participantLimit -
-                                          relation.event._count.participants
+                                            relation.event._count
+                                              .participants >=
+                                          0
+                                            ? relation.event.participantLimit -
+                                              relation.event._count.participants
+                                            : 0
                                         } / ${
                                           relation.event.participantLimit
                                         }  ${t("content.seatsFree")}`}
-                                    {relation.event.participantLimit !== null &&
-                                    relation.event._count.participants >=
-                                      relation.event.participantLimit ? (
+                                    {relation.event._count.waitingList >= 1 ? (
                                       <>
                                         {" "}
                                         |{" "}

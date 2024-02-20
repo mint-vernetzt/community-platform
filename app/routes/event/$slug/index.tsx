@@ -1032,12 +1032,14 @@ function Index() {
                                 : t("content.event.seatsFree", {
                                     count:
                                       event.participantLimit -
-                                      event._count.participants,
+                                        event._count.participants >=
+                                      0
+                                        ? event.participantLimit -
+                                          event._count.participants
+                                        : 0,
                                     total: event.participantLimit,
                                   })}
-                              {event.participantLimit !== null &&
-                              event._count.participants >=
-                                event.participantLimit ? (
+                              {event._count.waitingList >= 1 ? (
                                 <>
                                   {" "}
                                   |{" "}
