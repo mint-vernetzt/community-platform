@@ -366,6 +366,59 @@ export async function getProfileByUsername(
           },
         },
       },
+      administeredEvents: {
+        select: {
+          event: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              published: true,
+              parentEventId: true,
+              startTime: true,
+              endTime: true,
+              participationUntil: true,
+              participationFrom: true,
+              participantLimit: true,
+              stage: {
+                select: {
+                  title: true,
+                },
+              },
+              canceled: true,
+              subline: true,
+              description: true,
+              _count: {
+                select: {
+                  childEvents: true,
+                  participants: true,
+                  waitingList: true,
+                },
+              },
+              background: true,
+              eventVisibility: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  published: true,
+                  parentEventId: true,
+                  startTime: true,
+                  endTime: true,
+                  participationUntil: true,
+                  participationFrom: true,
+                  participantLimit: true,
+                  stage: true,
+                  canceled: true,
+                  subline: true,
+                  description: true,
+                  background: true,
+                },
+              },
+            },
+          },
+        },
+      },
       profileVisibility: {
         select: {
           id: true,

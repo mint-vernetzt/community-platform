@@ -92,10 +92,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "projects",
   ]);
 
-  // Filtering by visbility settings
+  // Overwrite administeredeEvents on mode !== "owner" with empty array
   let filteredProfile = {
     ...profile,
+    administeredEvents: mode !== "owner" ? [] : profile.administeredEvents,
   };
+  // Filtering by visbility settings
   if (mode === "anon") {
     filteredProfile = filterProfile(profile);
   }
@@ -107,6 +109,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     teamMemberOfEvents,
     participatedEvents,
     waitingForEvents,
+    administeredEvents,
     ...profileWithoutEvents
   } = enhancedProfile;
   // Combine participated and waiting events to show them both in one list in the frontend
@@ -114,6 +117,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     contributedEvents,
     teamMemberOfEvents,
     participatedEvents: [...participatedEvents, ...waitingForEvents],
+    administeredEvents,
   };
   // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
   type Events = typeof events;
@@ -129,6 +133,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   type TeamMemberFutureEvents = typeof sortedFutureEvents.teamMemberOfEvents;
   type ContributedFutureEvents = typeof sortedFutureEvents.contributedEvents;
   type ParticipatedFutureEvents = typeof sortedFutureEvents.participatedEvents;
+  type AdministeredFutureEvents = typeof sortedFutureEvents.administeredEvents;
   const enhancedFutureEvents = {
     teamMemberOfEvents:
       await addUserParticipationStatus<TeamMemberFutureEvents>(
@@ -145,10 +150,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
         sortedFutureEvents.participatedEvents,
         sessionUser?.id
       ),
+    administeredEvents:
+      await addUserParticipationStatus<AdministeredFutureEvents>(
+        sortedFutureEvents.administeredEvents,
+        sessionUser?.id
+      ),
   };
   type TeamMemberPastEvents = typeof sortedPastEvents.teamMemberOfEvents;
   type ContributedPastEvents = typeof sortedPastEvents.contributedEvents;
   type ParticipatedPastEvents = typeof sortedPastEvents.participatedEvents;
+  type AdministeredPastEvents = typeof sortedPastEvents.administeredEvents;
   const enhancedPastEvents = {
     teamMemberOfEvents: await addUserParticipationStatus<TeamMemberPastEvents>(
       sortedPastEvents.teamMemberOfEvents,
@@ -161,6 +172,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     participatedEvents:
       await addUserParticipationStatus<ParticipatedPastEvents>(
         sortedPastEvents.participatedEvents,
+        sessionUser?.id
+      ),
+    administeredEvents:
+      await addUserParticipationStatus<AdministeredPastEvents>(
+        sortedPastEvents.administeredEvents,
         sessionUser?.id
       ),
   };
@@ -740,16 +756,13 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {loaderData.futureEvents.teamMemberOfEvents.length > 0 ? (
+                {loaderData.futureEvents.administeredEvents.length > 0 ? (
                   <>
-                    <h6
-                      id="team-member-future-events"
-                      className="mb-4 font-bold"
-                    >
-                      {t("section.event.team")}
+                    <h6 id="admin-future-events" className="mb-4 font-bold">
+                      {t("section.event.admin")}
                     </h6>
                     <div className="mb-6">
-                      {loaderData.futureEvents.teamMemberOfEvents.map(
+                      {loaderData.futureEvents.administeredEvents.map(
                         ({ event }) => {
                           const startTime = utcToZonedTime(
                             event.startTime,
@@ -761,7 +774,7 @@ export default function Index() {
                           );
                           return (
                             <div
-                              key={`future-team-member-event-${event.id}`}
+                              key={`future-admin-event-${event.id}`}
                               className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
@@ -906,6 +919,180 @@ export default function Index() {
                               ) : null}
                               {(loaderData.mode !== "owner" &&
                                 !event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled &&
+                                loaderData.mode !== "anon") ||
+                              (loaderData.mode === "anon" &&
+                                !event.canceled) ? (
+                                <div className="flex items-center ml-auto pr-4 py-6">
+                                  <Link
+                                    to={`/event/${event.slug}`}
+                                    className="btn btn-primary"
+                                  >
+                                    {t("section.event.more")}
+                                  </Link>
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  </>
+                ) : null}
+                {loaderData.futureEvents.teamMemberOfEvents.length > 0 ? (
+                  <>
+                    <h6
+                      id="team-member-future-events"
+                      className="mb-4 font-bold"
+                    >
+                      {t("section.event.team")}
+                    </h6>
+                    <div className="mb-6">
+                      {loaderData.futureEvents.teamMemberOfEvents.map(
+                        ({ event }) => {
+                          const startTime = utcToZonedTime(
+                            event.startTime,
+                            "Europe/Berlin"
+                          );
+                          const endTime = utcToZonedTime(
+                            event.endTime,
+                            "Europe/Berlin"
+                          );
+                          return (
+                            <div
+                              key={`future-team-member-event-${event.id}`}
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                            >
+                              <Link
+                                className="flex"
+                                to={`/event/${event.slug}`}
+                              >
+                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
+                                    <img
+                                      src={
+                                        event.blurredBackground ||
+                                        "/images/default-event-background-blurred.jpg"
+                                      }
+                                      alt={t("images.blurredBackground")}
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className={`w-full h-full object-cover absolute inset-0 ${
+                                        isHydrated
+                                          ? "opacity-100 transition-opacity duration-200 ease-in"
+                                          : "opacity-0 invisible"
+                                      }`}
+                                    />
+                                    <noscript>
+                                      <img
+                                        src={
+                                          event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={event.name}
+                                        className={`w-full h-full object-cover absolute inset-0`}
+                                      />
+                                    </noscript>
+                                  </div>
+                                </div>
+                                <div className="px-4 py-4">
+                                  <p className="text-xs mb-1">
+                                    {/* TODO: Display icons (see figma) */}
+                                    {event.stage !== null
+                                      ? event.stage.title + " | "
+                                      : ""}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
+                                    {event.participantLimit === null
+                                      ? ` | ${t(
+                                          "section.event.unlimitedSeats"
+                                        )}`
+                                      : ` | ${
+                                          event.participantLimit -
+                                          event._count.participants
+                                        } / ${event.participantLimit} ${t(
+                                          "section.event.seatsFree"
+                                        )}`}
+                                    {event.participantLimit !== null &&
+                                    event._count.participants >=
+                                      event.participantLimit ? (
+                                      <>
+                                        {" "}
+                                        |{" "}
+                                        <span>
+                                          {event._count.waitingList}{" "}
+                                          {t("section.event.onWaitingList")}
+                                        </span>
+                                      </>
+                                    ) : (
+                                      ""
+                                    )}
+                                  </p>
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                    {event.name}
+                                  </h4>
+                                  {event.subline !== null ? (
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                      {event.subline}
+                                    </p>
+                                  ) : (
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                      {removeHtmlTags(event.description ?? "")}
+                                    </p>
+                                  )}
+                                </div>
+                              </Link>
+
+                              {event.canceled ? (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                  {t("section.event.cancelled")}
+                                </div>
+                              ) : null}
+                              {event.isParticipant &&
+                              !event.canceled &&
+                              loaderData.mode !== "owner" ? (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                  <p>{t("section.event.registered")}</p>
+                                </div>
+                              ) : null}
+                              {loaderData.mode !== "anon" &&
+                              canUserParticipate(event) ? (
+                                <div className="flex items-center ml-auto pr-4 py-6">
+                                  <AddParticipantButton
+                                    action={`/event/${event.slug}/settings/participants/add-participant`}
+                                    profileId={loaderData.userId}
+                                  />
+                                </div>
+                              ) : null}
+                              {event.isOnWaitingList &&
+                              !event.canceled &&
+                              loaderData.mode !== "owner" ? (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                                  <p>{t("section.event.waiting")}</p>
+                                </div>
+                              ) : null}
+                              {loaderData.mode !== "anon" &&
+                              canUserBeAddedToWaitingList(event) ? (
+                                <div className="flex items-center ml-auto pr-4 py-6">
+                                  <AddToWaitingListButton
+                                    action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
+                                    profileId={loaderData.userId}
+                                  />
+                                </div>
+                              ) : null}
+                              {(!event.isParticipant &&
                                 !canUserParticipate(event) &&
                                 !event.isOnWaitingList &&
                                 !canUserBeAddedToWaitingList(event) &&
@@ -1276,13 +1463,13 @@ export default function Index() {
                     </h3>
                   </div>
                 </div>
-                {loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
+                {loaderData.pastEvents.administeredEvents.length > 0 ? (
                   <>
-                    <h6 id="past-team-member-events" className="mb-4 font-bold">
-                      {t("section.event.team")}
+                    <h6 id="past-admin-events" className="mb-4 font-bold">
+                      {t("section.event.admin")}
                     </h6>
                     <div className="mb-6">
-                      {loaderData.pastEvents.teamMemberOfEvents.map(
+                      {loaderData.pastEvents.administeredEvents.map(
                         ({ event }) => {
                           const startTime = utcToZonedTime(
                             event.startTime,
@@ -1294,7 +1481,7 @@ export default function Index() {
                           );
                           return (
                             <div
-                              key={`past-team-member-event-${event.id}`}
+                              key={`past-admin-event-${event.id}`}
                               className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
@@ -1390,6 +1577,128 @@ export default function Index() {
                               ) : null}
                               {(loaderData.mode !== "owner" &&
                                 !event.isParticipant &&
+                                !canUserParticipate(event) &&
+                                !event.isOnWaitingList &&
+                                !canUserBeAddedToWaitingList(event) &&
+                                !event.canceled) ||
+                              (loaderData.mode === "anon" &&
+                                !event.canceled) ? (
+                                <div className="flex items-center ml-auto pr-4 py-6">
+                                  <Link
+                                    to={`/event/${event.slug}`}
+                                    className="btn btn-primary"
+                                  >
+                                    {t("section.event.more")}
+                                  </Link>
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  </>
+                ) : null}
+
+                {loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
+                  <>
+                    <h6 id="past-team-member-events" className="mb-4 font-bold">
+                      {t("section.event.team")}
+                    </h6>
+                    <div className="mb-6">
+                      {loaderData.pastEvents.teamMemberOfEvents.map(
+                        ({ event }) => {
+                          const startTime = utcToZonedTime(
+                            event.startTime,
+                            "Europe/Berlin"
+                          );
+                          const endTime = utcToZonedTime(
+                            event.endTime,
+                            "Europe/Berlin"
+                          );
+                          return (
+                            <div
+                              key={`past-team-member-event-${event.id}`}
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                            >
+                              <Link
+                                className="flex"
+                                to={`/event/${event.slug}`}
+                              >
+                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
+                                    <img
+                                      src={
+                                        event.blurredBackground ||
+                                        "/images/default-event-background-blurred.jpg"
+                                      }
+                                      alt={t("images.blurredBackground")}
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <img
+                                      src={
+                                        event.background ||
+                                        "/images/default-event-background.jpg"
+                                      }
+                                      alt={event.name}
+                                      className={`w-full h-full object-cover absolute inset-0 ${
+                                        isHydrated
+                                          ? "opacity-100 transition-opacity duration-200 ease-in"
+                                          : "opacity-0 invisible"
+                                      }`}
+                                    />
+                                    <noscript>
+                                      <img
+                                        src={
+                                          event.background ||
+                                          "/images/default-event-background.jpg"
+                                        }
+                                        alt={event.name}
+                                        className={`w-full h-full object-cover absolute inset-0`}
+                                      />
+                                    </noscript>
+                                  </div>
+                                </div>
+                                <div className="px-4 py-4">
+                                  <p className="text-xs mb-1">
+                                    {/* TODO: Display icons (see figma) */}
+                                    {event.stage !== null
+                                      ? event.stage.title + " | "
+                                      : ""}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
+                                  </p>
+                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                    {event.name}
+                                  </h4>
+                                  {event.subline !== null ? (
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                      {event.subline}
+                                    </p>
+                                  ) : (
+                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                      {removeHtmlTags(event.description ?? "")}
+                                    </p>
+                                  )}
+                                </div>
+                              </Link>
+
+                              {event.canceled ? (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                                  {t("section.event.cancelled")}
+                                </div>
+                              ) : null}
+                              {event.isParticipant &&
+                              !event.canceled &&
+                              loaderData.mode !== "owner" ? (
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                                  <p>{t("section.event.participated")}</p>
+                                </div>
+                              ) : null}
+                              {(!event.isParticipant &&
                                 !canUserParticipate(event) &&
                                 !event.isOnWaitingList &&
                                 !canUserBeAddedToWaitingList(event) &&

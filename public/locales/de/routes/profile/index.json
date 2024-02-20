@@ -39,6 +39,7 @@
       "title": "Vergangene Veranstaltungen"
     },
     "event": {
+      "admin": "Administrator:in",
       "team": "Team",
       "speaker": "Speaker:in",
       "participation": "Teilnahme",
