@@ -1023,13 +1023,15 @@ export default function Index() {
                                         )}`
                                       : ` | ${
                                           event.participantLimit -
-                                          event._count.participants
+                                            event._count.participants >=
+                                          0
+                                            ? event.participantLimit -
+                                              event._count.participants
+                                            : 0
                                         } / ${event.participantLimit} ${t(
                                           "section.event.seatsFree"
                                         )}`}
-                                    {event.participantLimit !== null &&
-                                    event._count.participants >=
-                                      event.participantLimit ? (
+                                    {event._count.waitingList >= 1 ? (
                                       <>
                                         {" "}
                                         |{" "}
