@@ -297,16 +297,18 @@ function Events() {
                             ""
                           )}
                         </p>
-                        <h4 className="font-bold text-base m-0 md:line-clamp-1">
+                        <h4 className="font-bold text-base m-0 md:mv-line-clamp-1">
                           {loaderData.parentEvent.name}
                         </h4>
                         {loaderData.parentEvent.subline !== null ? (
-                          <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                          <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
                             {loaderData.parentEvent.subline}
                           </p>
                         ) : (
-                          <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
-                            {loaderData.parentEvent.description}
+                          <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
+                            {removeHtmlTags(
+                              loaderData.parentEvent.description ?? ""
+                            )}
                           </p>
                         )}
                       </div>
@@ -483,15 +485,15 @@ function Events() {
                                 ""
                               )}
                             </p>
-                            <h4 className="font-bold text-base m-0 md:line-clamp-1">
+                            <h4 className="font-bold text-base m-0 md:mv-line-clamp-1">
                               {childEvent.name}
                             </h4>
                             {childEvent.subline !== null ? (
-                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                              <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
                                 {childEvent.subline}
                               </p>
                             ) : (
-                              <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                              <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
                                 {removeHtmlTags(childEvent.description ?? "")}
                               </p>
                             )}

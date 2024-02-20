@@ -285,15 +285,15 @@ const Autocomplete = React.forwardRef(
                           ""
                         )}
                       </p>
-                      <h4 className="font-bold text-base m-0 md:line-clamp-1">
+                      <h4 className="font-bold text-base m-0 md:mv-line-clamp-1">
                         {suggestion.name}
                       </h4>
                       {suggestion.subline !== null ? (
-                        <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                        <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
                           {suggestion.subline}
                         </p>
                       ) : (
-                        <p className="hidden md:block text-xs mt-1 md:line-clamp-2">
+                        <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
                           {suggestion.description}
                         </p>
                       )}
