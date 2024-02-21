@@ -171,7 +171,7 @@ function EventCard(
                 {event.participantLimit}{" "}
                 {t("seats.free", {
                   default: t("seats.default"),
-                  count: event.participantLimit - event._count.participants,
+                  count: event.participantLimit,
                 })}
               </span>
             )}

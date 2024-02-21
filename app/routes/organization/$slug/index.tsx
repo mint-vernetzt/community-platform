@@ -783,17 +783,23 @@ export default function Index() {
                                       endTime,
                                       i18n.language
                                     )}
-                                    {relation.event.participantLimit === null
-                                      ? ` | ${t("content.unlimitedSeats")}`
-                                      : ` | ${
-                                          relation.event.participantLimit -
-                                          relation.event._count.participants
-                                        } / ${
-                                          relation.event.participantLimit
-                                        }  ${t("content.seatsFree")}`}
+                                    {relation.event.participantLimit === null &&
+                                      ` | ${t("content.unlimitedSeats")}`}
                                     {relation.event.participantLimit !== null &&
-                                    relation.event._count.participants >=
-                                      relation.event.participantLimit ? (
+                                      relation.event.participantLimit -
+                                        relation.event._count.participants >
+                                        0 &&
+                                      ` | ${
+                                        relation.event.participantLimit -
+                                        relation.event._count.participants
+                                      } / ${
+                                        relation.event.participantLimit
+                                      } ${t("content.seatsFree")}`}
+
+                                    {relation.event.participantLimit !== null &&
+                                    relation.event.participantLimit -
+                                      relation.event._count.participants <=
+                                      0 ? (
                                       <>
                                         {" "}
                                         |{" "}
@@ -802,9 +808,7 @@ export default function Index() {
                                           {t("content.waitingList")}
                                         </span>
                                       </>
-                                    ) : (
-                                      ""
-                                    )}
+                                    ) : null}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {relation.event.name}

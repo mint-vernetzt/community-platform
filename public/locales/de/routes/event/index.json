@@ -32,6 +32,8 @@
       "registrationEnd": "Registrierungsende",
       "numberOfPlaces": "Verfügbare Plätze",
       "withoutRestriction": "ohne Beschränkung",
+      "numberOfWaitingSeats": "Wartelistenplätze",
+      "onWaitingList": "auf der Warteliste",
       "calenderItem": "Kalender-Eintrag",
       "download": "Download",
       "downloads": "Downloads",

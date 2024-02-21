@@ -826,19 +826,24 @@ export default function Index() {
                                       endTime,
                                       i18n.language
                                     )}
-                                    {event.participantLimit === null
-                                      ? ` | ${t(
-                                          "section.event.unlimitedSeats"
-                                        )}`
-                                      : ` | ${
-                                          event.participantLimit -
-                                          event._count.participants
-                                        } / ${event.participantLimit} ${t(
-                                          "section.event.seatsFree"
-                                        )}`}
+
+                                    {event.participantLimit === null &&
+                                      ` | ${t("section.event.unlimitedSeats")}`}
                                     {event.participantLimit !== null &&
-                                    event._count.participants >=
-                                      event.participantLimit ? (
+                                      event.participantLimit -
+                                        event._count.participants >
+                                        0 &&
+                                      ` | ${
+                                        event.participantLimit -
+                                        event._count.participants
+                                      } / ${event.participantLimit} ${t(
+                                        "section.event.seatsFree"
+                                      )}`}
+
+                                    {event.participantLimit !== null &&
+                                    event.participantLimit -
+                                      event._count.participants <=
+                                      0 ? (
                                       <>
                                         {" "}
                                         |{" "}
@@ -847,9 +852,7 @@ export default function Index() {
                                           {t("section.event.onWaitingList")}
                                         </span>
                                       </>
-                                    ) : (
-                                      ""
-                                    )}
+                                    ) : null}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
@@ -1015,19 +1018,23 @@ export default function Index() {
                                       endTime,
                                       i18n.language
                                     )}
-                                    {event.participantLimit === null
-                                      ? ` | ${t(
-                                          "section.event.unlimitedSeats"
-                                        )}`
-                                      : ` | ${
-                                          event.participantLimit -
-                                          event._count.participants
-                                        } / ${event.participantLimit} ${t(
-                                          "section.event.seatsFree"
-                                        )}`}
+                                    {event.participantLimit === null &&
+                                      ` | ${t("section.event.unlimitedSeats")}`}
                                     {event.participantLimit !== null &&
-                                    event._count.participants >=
-                                      event.participantLimit ? (
+                                      event.participantLimit -
+                                        event._count.participants >
+                                        0 &&
+                                      ` | ${
+                                        event.participantLimit -
+                                        event._count.participants
+                                      } / ${event.participantLimit} ${t(
+                                        "section.event.seatsFree"
+                                      )}`}
+
+                                    {event.participantLimit !== null &&
+                                    event.participantLimit -
+                                      event._count.participants <=
+                                      0 ? (
                                       <>
                                         {" "}
                                         |{" "}
@@ -1036,9 +1043,7 @@ export default function Index() {
                                           {t("section.event.onWaitingList")}
                                         </span>
                                       </>
-                                    ) : (
-                                      ""
-                                    )}
+                                    ) : null}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
@@ -1190,19 +1195,23 @@ export default function Index() {
                                       endTime,
                                       i18n.language
                                     )}
-                                    {event.participantLimit === null
-                                      ? ` | ${t(
-                                          "section.event.unlimitedSeats"
-                                        )}`
-                                      : ` | ${
-                                          event.participantLimit -
-                                          event._count.participants
-                                        } / ${event.participantLimit} ${t(
-                                          "section.event.seatsFree"
-                                        )}`}
+                                    {event.participantLimit === null &&
+                                      ` | ${t("section.event.unlimitedSeats")}`}
                                     {event.participantLimit !== null &&
-                                    event._count.participants >=
-                                      event.participantLimit ? (
+                                      event.participantLimit -
+                                        event._count.participants >
+                                        0 &&
+                                      ` | ${
+                                        event.participantLimit -
+                                        event._count.participants
+                                      } / ${event.participantLimit} ${t(
+                                        "section.event.seatsFree"
+                                      )}`}
+
+                                    {event.participantLimit !== null &&
+                                    event.participantLimit -
+                                      event._count.participants <=
+                                      0 ? (
                                       <>
                                         {" "}
                                         |{" "}
@@ -1211,9 +1220,7 @@ export default function Index() {
                                           {t("section.event.onWaitingList")}
                                         </span>
                                       </>
-                                    ) : (
-                                      ""
-                                    )}
+                                    ) : null}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
@@ -1359,19 +1366,23 @@ export default function Index() {
                                       endTime,
                                       i18n.language
                                     )}
-                                    {event.participantLimit === null
-                                      ? ` | ${t(
-                                          "section.event.unlimitedSeats"
-                                        )}`
-                                      : ` | ${
-                                          event.participantLimit -
-                                          event._count.participants
-                                        } / ${event.participantLimit} ${t(
-                                          "section.event.seatsFree"
-                                        )}`}
+                                    {event.participantLimit === null &&
+                                      ` | ${t("section.event.unlimitedSeats")}`}
                                     {event.participantLimit !== null &&
-                                    event._count.participants >=
-                                      event.participantLimit ? (
+                                      event.participantLimit -
+                                        event._count.participants >
+                                        0 &&
+                                      ` | ${
+                                        event.participantLimit -
+                                        event._count.participants
+                                      } / ${event.participantLimit} ${t(
+                                        "section.event.seatsFree"
+                                      )}`}
+
+                                    {event.participantLimit !== null &&
+                                    event.participantLimit -
+                                      event._count.participants <=
+                                      0 ? (
                                       <>
                                         {" "}
                                         |{" "}
@@ -1380,9 +1391,7 @@ export default function Index() {
                                           {t("section.event.onWaitingList")}
                                         </span>
                                       </>
-                                    ) : (
-                                      ""
-                                    )}
+                                    ) : null}
                                   </p>
                                   <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
                                     {event.name}
