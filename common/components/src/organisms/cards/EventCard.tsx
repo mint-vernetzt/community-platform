@@ -171,13 +171,13 @@ function EventCard(
                 {event.participantLimit}{" "}
                 {t("seats.free", {
                   default: t("seats.default"),
-                  count: event.participantLimit - event._count.participants,
+                  count: event.participantLimit,
                 })}
               </span>
             )}
           {event._count.childEvents === 0 &&
             typeof event.participantLimit === "number" &&
-            event._count.waitingList >= 1 && (
+            event.participantLimit - event._count.participants <= 0 && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
                 {event._count.waitingList}{" "}
                 {t("waitingList.places", {

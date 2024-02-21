@@ -745,24 +745,45 @@ function Index() {
                 </>
               ) : null}
 
-              <div className="text-xs leading-6">
-                {t("content.event.numberOfPlaces")}
-              </div>
-              <div className="pb-3 md:pb-0">
-                {loaderData.event.participantLimit === null ? (
-                  t("content.event.withoutRestriction")
-                ) : (
-                  <>
-                    {loaderData.event.participantLimit -
-                      loaderData.event._count.participants <
-                    0
-                      ? 0
-                      : loaderData.event.participantLimit -
-                        loaderData.event._count.participants}{" "}
-                    / {loaderData.event.participantLimit}
-                  </>
-                )}
-              </div>
+              {loaderData.event.participantLimit === null ||
+              loaderData.event.participantLimit -
+                loaderData.event._count.participants >
+                0 ? (
+                <>
+                  <div className="text-xs leading-6">
+                    {t("content.event.numberOfPlaces")}
+                  </div>
+                  <div className="pb-3 md:pb-0">
+                    {loaderData.event.participantLimit !== null &&
+                    loaderData.event.participantLimit -
+                      loaderData.event._count.participants >
+                      0 ? (
+                      <>
+                        {loaderData.event.participantLimit -
+                          loaderData.event._count.participants}{" "}
+                        / {loaderData.event.participantLimit}
+                      </>
+                    ) : (
+                      t("content.event.withoutRestriction")
+                    )}
+                  </div>
+                </>
+              ) : null}
+
+              {loaderData.event.participantLimit !== null &&
+              loaderData.event.participantLimit -
+                loaderData.event._count.participants <=
+                0 ? (
+                <>
+                  <div className="text-xs leading-6">
+                    {t("content.event.numberOfWaitingSeats")}
+                  </div>
+                  <div className="pb-3 md:pb-0">
+                    {loaderData.event._count.waitingList}{" "}
+                    {t("content.event.onWaitingList")}
+                  </div>
+                </>
+              ) : null}
 
               {loaderData.isParticipant === true ||
               loaderData.isSpeaker === true ||
@@ -1027,19 +1048,23 @@ function Index() {
                                 eventEndTime,
                                 i18n.language
                               )}
-                              {event.participantLimit === null
-                                ? t("content.event.unlimitedSeats")
-                                : t("content.event.seatsFree", {
-                                    count:
-                                      event.participantLimit -
-                                        event._count.participants >=
-                                      0
-                                        ? event.participantLimit -
-                                          event._count.participants
-                                        : 0,
-                                    total: event.participantLimit,
-                                  })}
-                              {event._count.waitingList >= 1 ? (
+                              {event.participantLimit === null &&
+                                t("content.event.unlimitedSeats")}
+                              {event.participantLimit !== null &&
+                                event.participantLimit -
+                                  event._count.participants >
+                                  0 &&
+                                t("content.event.seatsFree", {
+                                  count:
+                                    event.participantLimit -
+                                    event._count.participants,
+                                  total: event.participantLimit,
+                                })}
+
+                              {event.participantLimit !== null &&
+                              event.participantLimit -
+                                event._count.participants <=
+                                0 ? (
                                 <>
                                   {" "}
                                   |{" "}
@@ -1049,9 +1074,7 @@ function Index() {
                                     })}
                                   </span>
                                 </>
-                              ) : (
-                                ""
-                              )}
+                              ) : null}
                             </p>
                             <h4 className="font-bold text-base m-0 md:mv-line-clamp-1">
                               {event.name}

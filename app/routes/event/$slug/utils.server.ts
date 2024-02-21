@@ -403,6 +403,7 @@ export async function getEvent(slug: string) {
         select: {
           participants: true,
           childEvents: true,
+          waitingList: true,
         },
       },
       eventVisibility: {
