@@ -466,16 +466,19 @@ export const ErrorBoundary = () => {
   const { i18n } = useTranslation();
 
   let errorTitle;
+  let errorText;
   let errorData;
 
   if (isRouteErrorResponse(error)) {
-    errorTitle = `${error.status} ${error.statusText}`;
+    errorTitle = `${error.status}`;
+    errorText = error.statusText;
     errorData = `${error.data}`;
   } else if (error instanceof Error) {
-    errorTitle = `${error.message}`;
+    errorTitle = "Client error";
+    errorText = error.message;
     errorData = error.stack;
   } else {
-    errorTitle = "Unknown Error";
+    errorTitle = "Unknown error";
   }
 
   return (
@@ -505,8 +508,15 @@ export const ErrorBoundary = () => {
               . We will do our best to help you with this issue.
             </p>
           </section>
+          {errorText !== undefined ? (
+            <section className="container my-8 md:mt-10 lg:mt-20 text-center">
+              <p>Error Text:</p>
+              {errorText}
+            </section>
+          ) : null}
           {errorData !== undefined ? (
             <section className="container my-8 md:mt-10 lg:mt-20 text-center">
+              <p>Error Data:</p>
               {errorData}
             </section>
           ) : null}
