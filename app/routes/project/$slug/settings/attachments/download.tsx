@@ -175,7 +175,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       );
 
       const result = await authClient.storage
-        .from("documents")
+        .from("images")
         .download(relation.image.path);
 
       invariantResponse(result.error === null, t("error.downloadFailed"), {
