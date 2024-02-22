@@ -438,6 +438,8 @@ export async function getEvent(slug: string) {
           experienceLevel: true,
           responsibleOrganizations: true,
           teamMembers: true,
+          participants: true,
+          speakers: true,
           childEvents: true,
           documents: true,
         },
