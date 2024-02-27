@@ -1,3 +1,12 @@
+/**
+ * @vitest-environment jsdom
+ */
+import { beforeAll, test, vi } from "vitest";
+import { createAuthClient, getSessionUser } from "~/__mocks__/auth.server";
+import prismaClient from "~/__mocks__/prisma.server";
+import { loader } from ".";
+import { consoleError } from "./../../tests/setup/setup-test-env";
+
 /* 
 
 Unit tests:
@@ -32,3 +41,41 @@ Functional tests:
 ? - No browser console warnings/errors
 
 */
+
+vi.mock("~/prisma.server");
+vi.mock("~/auth.server");
+
+beforeAll(() => {
+  process.env.FEATURE_FLAGS = "keycloak: some-profile-id";
+});
+
+test("Landing page is rendered", async () => {
+  createAuthClient.mockRejectedValue({});
+  getSessionUser.mockResolvedValue(null);
+  consoleError.mockImplementationOnce(() => {});
+  prismaClient.profile.count.mockResolvedValue(20);
+  prismaClient.organization.count.mockResolvedValue(20);
+  prismaClient.event.count.mockResolvedValue(20);
+  prismaClient.project.count.mockResolvedValue(20);
+
+  const response = await loader({
+    request: new Request("http://localhost:3000/"),
+    params: {},
+    context: {},
+  }).catch((e) => console.log(e));
+
+  console.log(response);
+
+  // const LandingPage = createRemixStub([
+  //   {
+  //     path: "/",
+  //     Component: LandingPageRoute,
+  //     loader,
+  //   },
+  // ]);
+
+  // const routeUrl = `/`;
+  // await render(<LandingPage initialEntries={[routeUrl]} />);
+
+  // await screen.findByRole("heading", { level: 1, name: "welcome" });
+});

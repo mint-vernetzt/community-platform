@@ -1,3 +1,8 @@
+/**
+ * @vitest-environment jsdom
+ */
+import { test } from "vitest";
+
 /* 
 
 Unit tests:
@@ -22,3 +27,5 @@ Functional tests:
 --> Alert is shown if user registered and isn't shown if user logged in
 
 */
+
+test.skip("TODO", async () => {});

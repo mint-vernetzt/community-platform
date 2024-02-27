@@ -33,3 +33,7 @@ app/lib/no-cache/seed.ts
 
 # Prisma crts
 *.crt
+
+# Vitest
+/test-results/
+/coverage

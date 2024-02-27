@@ -189,16 +189,6 @@ export const getSessionUserOrThrow = async (authClient: SupabaseClient) => {
   return result;
 };
 
-export const getUserByAccessToken = async (
-  authClient: SupabaseClient,
-  accessToken: string
-) => {
-  const {
-    data: { user },
-  } = await authClient.auth.getUser(accessToken);
-  return { user };
-};
-
 export async function sendResetPasswordLink(
   authClient: SupabaseClient,
   email: string,

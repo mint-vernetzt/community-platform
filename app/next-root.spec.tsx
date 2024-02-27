@@ -1,3 +1,8 @@
+/**
+ * @vitest-environment jsdom
+ */
+import { test } from "vitest";
+
 /* 
 
 Unit tests:
@@ -34,3 +39,5 @@ Functional tests:
 ? - Matomo script is correctly added and working
 
 */
+
+test.skip("TODO", async () => {});
