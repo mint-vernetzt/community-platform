@@ -547,7 +547,9 @@ model Area {
 
 model Offer {
   id                 String               @id @default(uuid())
+  slug               String?
   title              String               @unique
+  description        String?
   OffersOnProfiles   OffersOnProfiles[]
   SeekingsOnProfiles SeekingsOnProfiles[]
 
@@ -556,7 +558,9 @@ model Offer {
 
 model OrganizationType {
   id            String                             @id @default(uuid())
+  slug          String?
   title         String                             @unique
+  description   String?
   organizations OrganizationTypesOnOrganizations[]
 
   @@map("organization_types")
@@ -564,7 +568,9 @@ model OrganizationType {
 
 model Focus {
   id            String                   @id @default(uuid())
+  slug          String?
   title         String                   @unique
+  description   String?
   events        FocusOfEvent[]
   organizations FocusesOnOrganizations[]
 
@@ -594,19 +600,21 @@ model ProjectTargetGroupOfProject {
 }
 
 model EventTargetGroup {
-  id     String                    @id @default(uuid())
-  slug   String                    @unique
-  title  String                    @unique
-  events EventTargetGroupOfEvent[]
+  id          String                    @id @default(uuid())
+  slug        String                    @unique
+  title       String                    @unique
+  description String?
+  events      EventTargetGroupOfEvent[]
 
   @@map("event_target_groups")
 }
 
 model ProjectTargetGroup {
-  id       String                        @id @default(uuid())
-  slug     String                        @unique
-  title    String                        @unique
-  projects ProjectTargetGroupOfProject[]
+  id          String                        @id @default(uuid())
+  slug        String                        @unique
+  title       String                        @unique
+  description String?
+  projects    ProjectTargetGroupOfProject[]
 
   @@map("project_target_groups")
 }
@@ -641,6 +649,7 @@ model TargetGroup {
   referenceId Int                    @unique
   slug        String                 @unique
   title       String                 @unique
+  description String?
   events      TargetGroupOfEvent[]
   projects    TargetGroupOfProject[]
 
@@ -658,17 +667,21 @@ model SpecialTargetGroup {
 }
 
 model Format {
-  id       String            @id @default(uuid())
-  title    String            @unique
-  projects FormatOfProject[]
+  id          String            @id @default(uuid())
+  slug        String?
+  title       String            @unique
+  description String?
+  projects    FormatOfProject[]
 
   @@map("formats")
 }
 
 model Financing {
-  id       String               @id @default(uuid())
-  title    String               @unique
-  projects FinancingOfProject[]
+  id          String               @id @default(uuid())
+  slug        String?
+  title       String               @unique
+  description String?
+  projects    FinancingOfProject[]
 
   @@map("financings")
 }
@@ -678,6 +691,7 @@ model ExperienceLevel {
   title       String  @unique
   referenceId Int     @unique
   slug        String  @unique
+  description String?
   events      Event[] @relation("experience_level_of_event")
 
   @@map("experience_levels")
@@ -688,6 +702,7 @@ model EventType {
   title       String        @unique
   referenceId Int           @unique
   slug        String        @unique
+  description String?
   events      TypeOfEvent[]
 
   @@map("event_types")
@@ -698,16 +713,18 @@ model Tag {
   slug        String       @unique
   referenceId Int          @unique
   title       String       @unique
+  description String?
   events      TagOfEvent[]
 
   @@map("tags")
 }
 
 model Stage {
-  id     String  @id @default(uuid())
-  title  String  @unique
-  slug   String  @unique
-  events Event[] @relation("stage_of_event")
+  id          String  @id @default(uuid())
+  title       String  @unique
+  slug        String  @unique
+  description String?
+  events      Event[] @relation("stage_of_event")
 
   @@map("stages")
 }
@@ -880,16 +897,18 @@ model Discipline {
   referenceId Int                   @unique
   title       String                @unique
   slug        String                @unique
+  description String?
   projects    DisciplineOfProject[]
 
   @@map("disciplines")
 }
 
 model AdditionalDiscipline {
-  id       String                          @id @default(uuid())
-  title    String                          @unique
-  slug     String                          @unique
-  projects AdditionalDisciplineOfProject[]
+  id          String                          @id @default(uuid())
+  title       String                          @unique
+  slug        String                          @unique
+  description String?
+  projects    AdditionalDisciplineOfProject[]
 
   @@map("additional_disciplines")
 }

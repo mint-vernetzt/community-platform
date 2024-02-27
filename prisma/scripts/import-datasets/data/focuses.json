@@ -1,28 +1,68 @@
 [
   {
     "id": "b9c1feaf-8b95-45ab-8059-6bf634f579e1",
-    "title": "Mädchen und Frauen in MINT"
+    "title": "Mädchen und Frauen in MINT",
+    "slug": "girls_and_women_in_stem",
+    "description": null
   },
-  { "id": "74463931-bc4b-4cfc-8700-3557e940d8b9", "title": "Netzwerkarbeit" },
+  {
+    "id": "74463931-bc4b-4cfc-8700-3557e940d8b9",
+    "title": "Netzwerkarbeit",
+    "slug": "networking",
+    "description": null
+  },
   {
     "id": "bf9e6a9a-7601-4cd4-92d0-090ef5125e9c",
-    "title": "Social Media Management"
+    "title": "Social Media Management",
+    "slug": "social_media_management",
+    "description": null
   },
-  { "id": "3d932637-0901-4c6e-b805-d8535e2edb82", "title": "Gute Praxis" },
-  { "id": "ef3ce7a8-9f6b-4e6c-b386-e1971c7289c8", "title": "MINT-Forschung" },
-  { "id": "994f0feb-5772-409b-99fb-216e4df944f7", "title": "Innovation" },
-  { "id": "e878ac4c-f78a-4f6e-a23f-55f3e6e0e603", "title": "Politik" },
+  {
+    "id": "3d932637-0901-4c6e-b805-d8535e2edb82",
+    "title": "Gute Praxis",
+    "slug": "good_practice",
+    "description": null
+  },
+  {
+    "id": "ef3ce7a8-9f6b-4e6c-b386-e1971c7289c8",
+    "title": "MINT-Forschung",
+    "slug": "stem_research",
+    "description": null
+  },
+  {
+    "id": "994f0feb-5772-409b-99fb-216e4df944f7",
+    "title": "Innovation",
+    "slug": "innovation",
+    "description": null
+  },
+  {
+    "id": "e878ac4c-f78a-4f6e-a23f-55f3e6e0e603",
+    "title": "Politik",
+    "slug": "politics",
+    "description": null
+  },
   {
     "id": "275e5327-26d5-4c15-9403-b82a5474f537",
-    "title": "Berufsorientierung"
+    "title": "Berufsorientierung",
+    "slug": "career_orientation",
+    "description": null
   },
   {
     "id": "307c7ac8-ffe2-41d8-ab20-9bbfbfcc5937",
-    "title": "Frühkindliche Bildung"
+    "title": "Frühkindliche Bildung",
+    "slug": "early_childhood_education",
+    "description": null
   },
   {
     "id": "59cfd5bc-821f-4f2c-8194-81fa6c5b4136",
-    "title": "Schulische MINT-Bildung"
+    "title": "Schulische MINT-Bildung",
+    "slug": "school_stem_education",
+    "description": null
   },
-  { "id": "d5fb8226-3e54-4015-b882-ede9df5ae8c2", "title": "Ländlicher Raum" }
+  {
+    "id": "d5fb8226-3e54-4015-b882-ede9df5ae8c2",
+    "title": "Ländlicher Raum",
+    "slug": "rural_area",
+    "description": null
+  }
 ]
