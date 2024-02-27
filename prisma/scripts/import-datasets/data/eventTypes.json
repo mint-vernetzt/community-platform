@@ -3,48 +3,56 @@
     "referenceId": 1060,
     "title": "Austauschrunde",
     "slug": "exchange",
-    "id": "0bf12a00-4bf1-4da4-b3af-caf0f0c9aebb"
+    "id": "0bf12a00-4bf1-4da4-b3af-caf0f0c9aebb",
+    "description": null
   },
   {
     "referenceId": 1065,
     "title": "Finde deinen Match",
     "slug": "find-your-match",
-    "id": "73aa4901-1c9d-4445-b2fd-925aedef1b07"
+    "id": "73aa4901-1c9d-4445-b2fd-925aedef1b07",
+    "description": null
   },
   {
     "referenceId": 1061,
     "title": "Impulsvortrag",
     "slug": "keynote-speech",
-    "id": "d7098fc3-cdc3-4989-a863-071daa1f48ce"
+    "id": "d7098fc3-cdc3-4989-a863-071daa1f48ce",
+    "description": null
   },
   {
     "referenceId": 1064,
     "title": "Keynote",
     "slug": "keynote",
-    "id": "876b9c30-b385-4073-aba4-0261c755dc16"
+    "id": "876b9c30-b385-4073-aba4-0261c755dc16",
+    "description": null
   },
   {
     "referenceId": 1059,
     "title": "Moderierter Workshop",
     "slug": "workshop",
-    "id": "448f0556-18d2-490c-8944-b525fe9b1377"
+    "id": "448f0556-18d2-490c-8944-b525fe9b1377",
+    "description": null
   },
   {
     "referenceId": 1066,
     "title": "Öffentliche Sprechstunde",
     "slug": "public-office-hour",
-    "id": "27eb42cc-fba1-4e5f-9bac-11e3d749166e"
+    "id": "27eb42cc-fba1-4e5f-9bac-11e3d749166e",
+    "description": null
   },
   {
     "referenceId": 1062,
     "title": "Paneldiskussion",
     "slug": "panel-discussion",
-    "id": "f9cb7a24-156d-4b1f-99cb-8e3295d691cd"
+    "id": "f9cb7a24-156d-4b1f-99cb-8e3295d691cd",
+    "description": null
   },
   {
     "referenceId": 1063,
     "title": "Speed-Dating",
     "slug": "speed-dating",
-    "id": "846cd250-2ab6-4887-b0b1-c070eebbc454"
+    "id": "846cd250-2ab6-4887-b0b1-c070eebbc454",
+    "description": null
   }
 ]

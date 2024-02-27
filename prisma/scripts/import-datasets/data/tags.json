@@ -3,84 +3,98 @@
     "referenceId": 461,
     "title": "Didaktik",
     "slug": "didactics",
-    "id": "cf4ae4cf-62aa-4d54-b47b-96397007ae1b"
+    "id": "cf4ae4cf-62aa-4d54-b47b-96397007ae1b",
+    "description": null
   },
   {
     "referenceId": 453,
     "title": "Gender",
     "slug": "gender",
-    "id": "9eedb754-3794-4792-88df-fa944b0b1815"
+    "id": "9eedb754-3794-4792-88df-fa944b0b1815",
+    "description": null
   },
   {
     "referenceId": 456,
     "title": "Gute Praxis",
     "slug": "best-practice",
-    "id": "39da0002-133f-4ce5-ab49-f81904bb3d34"
+    "id": "39da0002-133f-4ce5-ab49-f81904bb3d34",
+    "description": null
   },
   {
     "referenceId": 459,
     "title": "Innovation",
     "slug": "innovation",
-    "id": "0bf96e64-e9b4-4c85-8e33-df603067249c"
+    "id": "0bf96e64-e9b4-4c85-8e33-df603067249c",
+    "description": null
   },
   {
     "referenceId": 786,
     "title": "MINT+",
     "slug": "steam",
-    "id": "5118c87f-44b2-4f07-abb9-70266d739907"
+    "id": "5118c87f-44b2-4f07-abb9-70266d739907",
+    "description": null
   },
   {
     "referenceId": 52,
     "title": "MINTvernetzt",
     "slug": "mintvernetzt",
-    "id": "09c3d826-b046-4475-9ec7-7332d45ae731"
+    "id": "09c3d826-b046-4475-9ec7-7332d45ae731",
+    "description": null
   },
   {
     "referenceId": 466,
     "title": "Transfer",
     "slug": "transfer",
-    "id": "757f7ab9-ecb3-431e-8865-df3cfe21191e"
+    "id": "757f7ab9-ecb3-431e-8865-df3cfe21191e",
+    "description": null
   },
   {
     "referenceId": 464,
     "title": "Vernetzung",
     "slug": "networking",
-    "id": "1e79b778-20d7-47a4-bbf9-07ef45665e17"
+    "id": "1e79b778-20d7-47a4-bbf9-07ef45665e17",
+    "description": null
   },
   {
     "referenceId": 1604,
     "title": "Förderung",
     "slug": "foerderung",
-    "id": "9f1c6c3b-820a-4d42-8279-f4bbb2ed3b83"
+    "id": "9f1c6c3b-820a-4d42-8279-f4bbb2ed3b83",
+    "description": null
   },
   {
     "referenceId": 1513,
     "title": "Diversität",
     "slug": "diversitaet",
-    "id": "f0cfccca-5da4-448a-aeef-4b8c038f76d7"
+    "id": "f0cfccca-5da4-448a-aeef-4b8c038f76d7",
+    "description": null
   },
   {
     "referenceId": 1701,
     "title": "Bündnis für Frauen",
     "slug": "buendnis-fuer-frauen",
-    "id": "6a453e7f-688d-4dab-a654-96b1968a2a18"
+    "id": "6a453e7f-688d-4dab-a654-96b1968a2a18",
+    "description": null
   },
   {
     "referenceId": 3408,
     "title": "MINT-Cluster",
     "slug": "mint-cluster",
-    "id": "3900afae-d799-4d4d-80cf-b2a59f43ebde"
+    "id": "3900afae-d799-4d4d-80cf-b2a59f43ebde",
+    "description": null
   },
   {
     "referenceId": 3410,
     "title": "MINT-Regionen",
     "slug": "mint-regions",
-    "id": "f9b3231b-7a46-4171-bcf8-672cfa55675e"
+    "id": "f9b3231b-7a46-4171-bcf8-672cfa55675e",
+    "description": null
   },
   {
     "referenceId": 3412,
     "title": "Teilhabe",
     "slug": "participation",
-    "id": "2a239c93-8b68-42f3-83ad-f27bcc89093e"
+    "id": "2a239c93-8b68-42f3-83ad-f27bcc89093e",
+    "description": null
   }
 ]
