@@ -54,6 +54,9 @@ model Profile {
   administeredProjects      AdminOfProject[]
   notificationSettings      NotificationSettings?
 
+  filterVector Unsupported("tsvector")? @map("filter_vector")
+
+  @@index([filterVector])
   @@map("profiles")
 }
 
@@ -184,6 +187,9 @@ model Organization {
   organizationVisibility OrganizationVisibility?
   admins                 AdminOfOrganization[]
 
+  filterVector Unsupported("tsvector")? @map("filter_vector")
+
+  @@index([filterVector])
   @@map("organizations")
 }
 
@@ -342,6 +348,9 @@ model Event {
   eventVisibility          EventVisibility?
   admins                   AdminOfEvent[]
 
+  filterVector Unsupported("tsvector")? @map("filter_vector")
+
+  @@index([filterVector])
   @@map("events")
 }
 
@@ -816,6 +825,9 @@ model Project {
   documents                    DocumentOfProject[]
   images                       ImageOfProject[]
 
+  filterVector Unsupported("tsvector")? @map("filter_vector")
+
+  @@index([filterVector])
   @@map("projects")
 }
 
