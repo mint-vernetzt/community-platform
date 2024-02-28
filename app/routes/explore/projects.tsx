@@ -201,7 +201,7 @@ function Projects() {
               <select
                 id="sortBy"
                 name="sortBy"
-                defaultValue="nameAsc"
+                defaultValue={sortBy || "nameAsc"}
                 className="select w-full select-bordered"
               >
                 <option key="nameAsc" value="nameAsc">

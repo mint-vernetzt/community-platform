@@ -298,7 +298,7 @@ export default function Index() {
               <select
                 id="sortBy"
                 name="sortBy"
-                defaultValue="firstNameAsc"
+                defaultValue={sortBy || "firstNameAsc"}
                 className="select w-full select-bordered"
               >
                 <option key="firstNameAsc" value="firstNameAsc">
