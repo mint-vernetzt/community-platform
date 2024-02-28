@@ -34,7 +34,7 @@ async function main() {
     `\n--- Creating filter vectors of ${profiles.length} profiles ---`
   );
 
-  for await (const profile of profiles) {
+  for (const profile of profiles) {
     if (profile.offers.length === 0 && profile.seekings.length === 0) {
       const promise = prismaClient.$queryRawUnsafe(
         `update profiles set filter_vector = NULL where id = '${profile.id}'`
@@ -91,7 +91,7 @@ async function main() {
     `\n--- Creating filter vectors of ${organizations.length} organizations ---`
   );
 
-  for await (const organization of organizations) {
+  for (const organization of organizations) {
     if (organization.focuses.length === 0 && organization.types.length === 0) {
       const promise = prismaClient.$queryRawUnsafe(
         `update organizations set filter_vector = NULL where id = '${organization.id}'`
