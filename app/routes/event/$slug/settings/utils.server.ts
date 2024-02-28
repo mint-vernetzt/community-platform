@@ -329,6 +329,72 @@ export async function updateEventById(
       data: eventVisibility,
     }),
   ]);
+
+  updateFilterVectorOfEvent(id);
+}
+
+async function updateFilterVectorOfEvent(eventId: string) {
+  const event = await prismaClient.event.findFirst({
+    where: { id: eventId },
+    select: {
+      id: true,
+      slug: true,
+      types: {
+        select: {
+          eventType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+      focuses: {
+        select: {
+          focus: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+      eventTargetGroups: {
+        select: {
+          eventTargetGroup: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (event !== null) {
+    if (
+      event.types.length === 0 &&
+      event.focuses.length === 0 &&
+      event.eventTargetGroups.length === 0
+    ) {
+      await prismaClient.$queryRawUnsafe(
+        `update events set filter_vector = NULL where id = '${event.id}'`
+      );
+    } else {
+      const typeVectors = event.types.map(
+        (relation) => `type:${relation.eventType.slug}`
+      );
+      const focusVectors = event.focuses.map(
+        (relation) => `focus:${relation.focus.slug}`
+      );
+      const targetGroupVectors = event.eventTargetGroups.map(
+        (relation) => `eventTargetGroup:${relation.eventTargetGroup.slug}`
+      );
+      const vectors = [...typeVectors, ...focusVectors, ...targetGroupVectors];
+      const vectorString = `{"${vectors.join(`","`)}"}`;
+      const query = `update events set filter_vector = array_to_tsvector('${vectorString}') where id = '${event.id}'`;
+
+      await prismaClient.$queryRawUnsafe(query);
+    }
+  }
 }
 
 export async function deleteEventBySlug(slug: string) {
