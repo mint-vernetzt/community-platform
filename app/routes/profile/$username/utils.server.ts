@@ -171,6 +171,38 @@ export async function updateProfileById(
   ]);
 
   await triggerEntityScore({ entity: "profile", where: { id } });
+
+  updateFilterVectorOfProfile(id);
+}
+
+async function updateFilterVectorOfProfile(profileId: string) {
+  const profile = await prismaClient.profile.findFirst({
+    where: { id: profileId },
+    select: {
+      id: true,
+      username: true,
+      offers: { select: { offer: { select: { slug: true } } } },
+      seekings: { select: { offer: { select: { slug: true } } } },
+    },
+  });
+  if (profile !== null) {
+    if (profile.offers.length === 0 && profile.seekings.length === 0) {
+      await prismaClient.$queryRawUnsafe(
+        `update profiles set filter_vector = NULL where id = '${profile.id}'`
+      );
+    } else {
+      const offerVectors = profile.offers.map(
+        (relation) => `offer:${relation.offer.slug}`
+      );
+      const seekingVectors = profile.seekings.map(
+        (relation) => `seeking:${relation.offer.slug}`
+      );
+      const vectors = [...offerVectors, ...seekingVectors];
+      const vectorString = `{"${vectors.join(`","`)}"}`;
+      const query = `update profiles set filter_vector = array_to_tsvector('${vectorString}') where id = '${profile.id}'`;
+      await prismaClient.$queryRawUnsafe(query);
+    }
+  }
 }
 
 export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
