@@ -27,6 +27,7 @@ import {
   getAllProfiles,
   getFilterValues,
   getPaginationValues,
+  getSortValues,
 } from "./utils.server";
 // import styles from "../../../common/design/styles/styles.css";
 
@@ -49,10 +50,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const filterValues = isLoggedIn
     ? getFilterValues(request)
     : { areaId: undefined, offerId: undefined, seekingId: undefined };
+  const { sortBy } = getSortValues(request);
 
   const rawProfiles = await getAllProfiles({
     skip,
     take,
+    sortBy,
     ...filterValues,
   });
 
@@ -162,6 +165,7 @@ export default function Index() {
   const areaId = searchParams.get("areaId");
   const offerId = searchParams.get("offerId");
   const seekingId = searchParams.get("seekingId");
+  const sortBy = searchParams.get("sortBy");
   const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
 
@@ -208,9 +212,9 @@ export default function Index() {
           <Form method="get" onChange={handleChange} reloadDocument>
             <input hidden name="page" value={1} readOnly />
             <div className="flex flex-wrap -mx-4">
-              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
+              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">
                 <label className="block font-semibold mb-2">
-                  {t("search.activityAreas")}
+                  {t("filter.activityAreas")}
                 </label>
                 <select
                   id="areaId"
@@ -248,9 +252,9 @@ export default function Index() {
                   ))}
                 </select>
               </div>
-              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
+              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">
                 <label className="block font-semibold mb-2">
-                  {t("search.lookingFor")}
+                  {t("filter.lookingFor")}
                 </label>
                 <select
                   id="offerId"
@@ -266,9 +270,9 @@ export default function Index() {
                   ))}
                 </select>
               </div>
-              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
+              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">
                 <label className="block font-semibold mb-2">
-                  {t("search.support")}
+                  {t("filter.support")}
                 </label>
                 <select
                   id="seekingId"
@@ -284,9 +288,36 @@ export default function Index() {
                   ))}
                 </select>
               </div>
+              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">
+                <label className="block font-semibold mb-2">
+                  {t("filter.sort.label")}
+                </label>
+                <select
+                  id="sortBy"
+                  name="sortBy"
+                  defaultValue="firstNameAsc"
+                  className="select w-full select-bordered"
+                >
+                  <option key="firstNameAsc" value="firstNameAsc">
+                    {t("filter.sortBy.firstNameAsc")}
+                  </option>
+                  <option key="firstNameDesc" value="firstNameDesc">
+                    {t("filter.sortBy.firstNameDesc")}
+                  </option>
+                  <option key="lastNameAsc" value="lastNameAsc">
+                    {t("filter.sortBy.lastNameAsc")}
+                  </option>
+                  <option key="lastNameDesc" value="lastNameDesc">
+                    {t("filter.sortBy.lastNameDesc")}
+                  </option>
+                  <option key="newest" value="newest">
+                    {t("filter.sortBy.newest")}
+                  </option>
+                </select>
+              </div>
               <input hidden name="page" defaultValue={1} readOnly />
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-end items-end">
               <noscript>
                 <button
                   id="noScriptSubmitButton"
@@ -304,7 +335,7 @@ export default function Index() {
                       : ""
                   }`}
                 >
-                  Filter zurücksetzen
+                  {t("filter.reset")}
                 </div>
               </Link>
             </div>
@@ -330,12 +361,6 @@ export default function Index() {
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
                 <fetcher.Form method="get">
                   <input
-                    key="randomSeed"
-                    type="hidden"
-                    name="randomSeed"
-                    value={searchParams.get("randomSeed") ?? ""}
-                  />
-                  <input
                     key="page"
                     type="hidden"
                     name="page"
@@ -358,6 +383,12 @@ export default function Index() {
                     type="hidden"
                     name="seekingId"
                     value={seekingId ?? ""}
+                  />
+                  <input
+                    key="sortBy"
+                    type="hidden"
+                    name="sortBy"
+                    value={sortBy ?? "firstNameAsc"}
                   />
                   <Button
                     size="large"
