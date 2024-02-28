@@ -139,7 +139,6 @@ export default function Index() {
 
   ///* Verlauf (weiß) */
   //background: linear-gradient(358.45deg, #FFFFFF 12.78%, rgba(255, 255, 255, 0.4) 74.48%, rgba(255, 255, 255, 0.4) 98.12%);
-
   return (
     <>
       <section className="-mt-8 bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
@@ -197,8 +196,9 @@ export default function Index() {
                         }`}
                         variant="outline"
                         fullSize
+                        name={t("login.withMintId")}
                       >
-                        {t("login.intro")}
+                        {t("login.withMintId")}
                       </Button>
                       <a
                         href="https://mint-id.org/faq"
@@ -258,7 +258,11 @@ export default function Index() {
 
                         <Field name="loginRedirect" />
                         <div className="mt-4 mb-2">
-                          <Button size="large" fullSize>
+                          <Button
+                            size="large"
+                            fullSize
+                            name={t("form.label.submit")}
+                          >
                             {t("form.label.submit")}
                           </Button>
                         </div>

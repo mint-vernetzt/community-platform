@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npm test -- --changedSince=main
+npm test -- --changed origin/main --run

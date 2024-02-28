@@ -11,9 +11,6 @@ node_modules
 .env
 /public/fonts
 
-# jest
-/coverage
-
 # tailwind
 /app/styles/*styles.css
 
@@ -36,3 +33,7 @@ app/lib/no-cache/seed.ts
 
 # Prisma crts
 *.crt
+
+# Vitest
+/test-results/
+/coverage

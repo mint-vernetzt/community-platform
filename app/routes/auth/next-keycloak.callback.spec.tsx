@@ -1,3 +1,8 @@
+/**
+ * @vitest-environment jsdom
+ */
+import { test } from "vitest";
+
 /* 
 
 Unit tests:
@@ -32,3 +37,5 @@ Functional tests:
 
 
 */
+
+test.skip("TODO", async () => {});

@@ -36,7 +36,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 try {
-  prismaClient.$connect();
+  await prismaClient.$connect();
   console.log("prismaClient.$connect success");
 } catch (error) {
   console.error("on prismaClient $connect", error);

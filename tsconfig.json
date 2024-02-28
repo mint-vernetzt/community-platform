@@ -16,7 +16,7 @@
       "@mint-vernetzt/components": ["./common/components/*"]
     },
     "noEmit": true,
-    "types": ["jest", "node"],
+    "types": ["node"],
     "allowJs": true,
     "forceConsistentCasingInFileNames": true
   },

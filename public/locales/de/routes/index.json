@@ -3,7 +3,7 @@
   "intro": "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
   "opportunities": "<strong>Erstelle Profilseiten</strong> für Dich, für Deine <strong>Organisation</strong> und lege <strong>Projekte</strong> oder <strong>Veranstaltungen</strong> an.",
   "login": {
-    "intro": "Anmelden mit MINT-ID",
+    "withMintId": "Anmelden mit MINT-ID",
     "moreInformation": "Mehr Informationen",
     "or": "oder",
     "passwordForgotten": "Passwort vergessen?",
