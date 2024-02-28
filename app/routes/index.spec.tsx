@@ -1,11 +1,14 @@
 /**
  * @vitest-environment jsdom
  */
-import { beforeAll, test, vi } from "vitest";
-import prismaClient from "~/__mocks__/prisma.server";
+import { beforeAll, expect, test, vi } from "vitest";
+import { prismaClient } from "~/__mocks__/prisma.server";
 import { loader } from ".";
 import { consoleError } from "./../../tests/setup/setup-test-env";
 import { createServerClient } from "~/__mocks__/auth.server";
+import { createRemixStub } from "@remix-run/testing";
+import { default as LandingPageRoute } from "./index";
+import { render, screen } from "@testing-library/react";
 
 /* 
 
@@ -62,24 +65,28 @@ test("Landing page is rendered", async () => {
   prismaClient.event.count.mockResolvedValue(20);
   prismaClient.project.count.mockResolvedValue(20);
 
-  const response = await loader({
-    request: new Request("http://localhost:3000/"),
-    params: {},
-    context: {},
-  }).catch((e) => console.log(e));
+  // const response = await loader({
+  //   request: new Request("http://localhost:3000/"),
+  //   params: {},
+  //   context: {},
+  // }).catch((e) => console.log(e));
 
-  console.log(response);
+  // console.log(response);
 
-  // const LandingPage = createRemixStub([
-  //   {
-  //     path: "/",
-  //     Component: LandingPageRoute,
-  //     loader,
-  //   },
-  // ]);
+  const LandingPage = createRemixStub([
+    {
+      path: "/",
+      Component: LandingPageRoute,
+      loader,
+    },
+  ]);
 
-  // const routeUrl = `/`;
-  // await render(<LandingPage initialEntries={[routeUrl]} />);
+  const routeUrl = `/`;
+  await render(<LandingPage initialEntries={[routeUrl]} />);
 
-  // await screen.findByRole("heading", { level: 1, name: "welcome" });
+  const heading = await screen.findByRole("heading", {
+    level: 1,
+    // name: "welcome",
+  });
+  expect(heading.innerHTML).toEqual("welcome");
 });
