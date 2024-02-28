@@ -4,7 +4,7 @@ import {
   OrganizationCard,
 } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -18,11 +18,7 @@ import {
 import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
-import {
-  getAllOrganizations,
-  getPaginationValues,
-  getRandomSeed,
-} from "./utils.server";
+import { getAllOrganizations, getPaginationValues } from "./utils.server";
 import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
@@ -37,13 +33,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  let randomSeed = getRandomSeed(request);
-
-  if (randomSeed === undefined) {
-    randomSeed = parseFloat(Math.random().toFixed(3));
-    return redirect(`/explore/organizations?randomSeed=${randomSeed}`);
-  }
-
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
   const sessionUser = await getSessionUser(authClient);
@@ -56,7 +45,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const rawOrganizations = await getAllOrganizations({
     skip: skip,
     take: take,
-    randomSeed: randomSeed,
   });
 
   const enhancedOrganizations = [];

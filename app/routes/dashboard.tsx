@@ -9,22 +9,18 @@ import type { Organization, Profile } from "@prisma/client";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { GravityType, getImageURL } from "~/images.server";
+import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css";
 import {
-  enhancedRedirect,
-  getOrganizationCount,
   getOrganizationsForCards,
   getProfileById,
-  getProfileCount,
   getProfilesForCards,
 } from "./dashboard.server";
-import { getRandomSeed } from "./explore/utils.server";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/dashboard"];
 export const handle = {
@@ -56,20 +52,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/accept-terms?redirect_to=/dashboard");
   }
 
-  let randomSeed = getRandomSeed(request);
-  if (randomSeed === undefined) {
-    randomSeed = parseFloat((Math.random() / 4).toFixed(3)); // use top 25% of profiles
-    // use enhanced redirect to preserve flash cookies
-    return enhancedRedirect(`/dashboard?randomSeed=${randomSeed}`, request);
-  }
-
   const numberOfProfiles = 4;
-  const profileCount = await getProfileCount();
-  const profileSkip = Math.floor(
-    randomSeed * (profileCount - numberOfProfiles)
-  );
   const profileTake = numberOfProfiles;
-  const rawProfiles = await getProfilesForCards(profileSkip, profileTake);
+  const rawProfiles = await getProfilesForCards(profileTake);
 
   const profiles = rawProfiles.map((profile) => {
     const { avatar, background, memberOf, ...otherFields } = profile;
@@ -135,15 +120,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
   });
   const numberOfOrganizations = 4;
-  const organizationCount = await getOrganizationCount();
-  const organizationSkip = Math.floor(
-    randomSeed * (organizationCount - numberOfOrganizations)
-  );
   const organizationTake = numberOfOrganizations;
-  const rawOrganizations = await getOrganizationsForCards(
-    organizationSkip,
-    organizationTake
-  );
+  const rawOrganizations = await getOrganizationsForCards(organizationTake);
 
   const organizations = rawOrganizations.map((organization) => {
     const { logo, background, teamMembers, ...otherFields } = organization;

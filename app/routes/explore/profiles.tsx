@@ -1,6 +1,6 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -10,6 +10,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { GravityType, getImageURL } from "~/images.server";
@@ -26,9 +27,7 @@ import {
   getAllProfiles,
   getFilterValues,
   getPaginationValues,
-  getRandomSeed,
 } from "./utils.server";
-import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -51,23 +50,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     ? getFilterValues(request)
     : { areaId: undefined, offerId: undefined, seekingId: undefined };
 
-  let randomSeed = getRandomSeed(request);
-  if (randomSeed === undefined) {
-    randomSeed = parseFloat(Math.random().toFixed(3));
-    return redirect(
-      `/explore/profiles?randomSeed=${randomSeed}${
-        filterValues.areaId ? `&areaId=${filterValues.areaId}` : ""
-      }${filterValues.offerId ? `&offerId=${filterValues.offerId}` : ""}${
-        filterValues.seekingId ? `&seekingId=${filterValues.seekingId}` : ""
-      }`
-    );
-  }
-
   const rawProfiles = await getAllProfiles({
     skip,
     take,
     ...filterValues,
-    randomSeed,
   });
 
   const enhancedProfiles = [];
@@ -220,12 +206,6 @@ export default function Index() {
       {loaderData.isLoggedIn ? (
         <section className="container mb-8">
           <Form method="get" onChange={handleChange} reloadDocument>
-            <input
-              hidden
-              name="randomSeed"
-              value={searchParams.get("randomSeed") ?? ""}
-              readOnly
-            />
             <input hidden name="page" value={1} readOnly />
             <div className="flex flex-wrap -mx-4">
               <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">

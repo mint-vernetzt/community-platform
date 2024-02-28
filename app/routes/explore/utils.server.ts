@@ -18,17 +18,15 @@ export async function getAllProfiles(
     areaId: string | undefined;
     offerId: string | undefined;
     seekingId: string | undefined;
-    randomSeed: number | undefined;
   } = {
     skip: undefined,
     take: undefined,
     areaId: undefined,
     offerId: undefined,
     seekingId: undefined,
-    randomSeed: 0,
   }
 ) {
-  const { skip, take, areaId, offerId, seekingId, randomSeed } = options;
+  const { skip, take, areaId, offerId, seekingId } = options;
 
   let areaToFilter;
   const whereClauses = [];
@@ -39,10 +37,7 @@ export async function getAllProfiles(
     LEFT JOIN offer O
     ON offers_on_profiles."offerId" = O.id`;
   let seekingJoin = Prisma.empty;
-  // Default Ordering with no filter: Deterministic random ordering with seed
-  // Set seed for deterministic random order
-  await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}::double precision) AS TEXT);`;
-  let orderByClause = Prisma.sql`ORDER BY "score" DESC, RANDOM()`;
+  let orderByClause = Prisma.sql`ORDER BY "firstName" ASC`;
   if (areaId !== undefined) {
     areaToFilter = await getAreaById(areaId);
     if (areaToFilter !== null) {
@@ -60,8 +55,7 @@ export async function getAllProfiles(
                             ELSE 5 
                           END
                         ) ASC,
-                        "score" DESC,
-                        RANDOM()`;
+                        "firstName" ASC`;
       }
       if (areaToFilter.type === "country") {
         /* No WHERE statement needed as we want to select all profiles that have at least one area */
@@ -75,8 +69,7 @@ export async function getAllProfiles(
                             ELSE 4 
                           END
                         ) ASC,
-                        "score" DESC,
-                        RANDOM()`;
+                        "firstName" ASC`;
       }
       if (areaToFilter.type === "state") {
         /* Filter profiles that have the exact state as area or districts inside that state as area or an area of the type country */
@@ -95,8 +88,7 @@ export async function getAllProfiles(
                             ELSE 4 
                           END
                         ) ASC, 
-                        "score" DESC,
-                        RANDOM()`;
+                        "firstName" ASC`;
       }
       if (areaToFilter.type === "district") {
         /* Filter profiles that have the exact district as area or the state where the district is part of or an area of the type country */
@@ -115,8 +107,7 @@ export async function getAllProfiles(
                             ELSE 4 
                           END
                         ) ASC, 
-                        "score" DESC,
-                        RANDOM()`;
+                        "firstName" ASC`;
       }
       if (areaWhere !== undefined) {
         whereClauses.push(areaWhere);
@@ -198,17 +189,12 @@ export async function getAllOrganizations(
   options: {
     skip: number | undefined;
     take: number | undefined;
-    randomSeed: number | undefined;
   } = {
     skip: undefined,
     take: undefined,
-    randomSeed: 0,
   }
 ) {
-  const { skip, take, randomSeed } = options;
-
-  // Set seed for deterministic random order
-  await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}::double precision) AS TEXT);`;
+  const { skip, take } = options;
 
   const organizations: Array<
     Pick<
@@ -249,7 +235,7 @@ export async function getAllOrganizations(
     LEFT JOIN focuses
     ON focuses_on_organizations."focusId" = focuses.id
   GROUP BY organizations.id
-  ORDER BY "score" DESC, RANDOM()
+  ORDER BY "name" ASC
   LIMIT ${take}
   OFFSET ${skip}
 ;`;
@@ -353,16 +339,6 @@ export function getFilterValues(request: Request) {
   const offerId = url.searchParams.get("offerId") || undefined;
   const seekingId = url.searchParams.get("seekingId") || undefined;
   return { areaId, offerId, seekingId };
-}
-
-export function getRandomSeed(request: Request) {
-  const url = new URL(request.url);
-  const randomSeedQueryString = url.searchParams.get("randomSeed") || undefined;
-  if (randomSeedQueryString !== undefined) {
-    return parseFloat(randomSeedQueryString);
-  } else {
-    return randomSeedQueryString;
-  }
 }
 
 export async function getEvents(
