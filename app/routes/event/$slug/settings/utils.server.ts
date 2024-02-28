@@ -333,7 +333,7 @@ export async function updateEventById(
   updateFilterVectorOfEvent(id);
 }
 
-async function updateFilterVectorOfEvent(eventId: string) {
+export async function updateFilterVectorOfEvent(eventId: string) {
   const event = await prismaClient.event.findFirst({
     where: { id: eventId },
     select: {

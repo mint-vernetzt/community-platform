@@ -320,7 +320,7 @@ export async function updateOrganizationById(
   updateFilterVectorOfOrganization(id);
 }
 
-async function updateFilterVectorOfOrganization(organizationId: string) {
+export async function updateFilterVectorOfOrganization(organizationId: string) {
   const organization = await prismaClient.organization.findFirst({
     where: { id: organizationId },
     select: {

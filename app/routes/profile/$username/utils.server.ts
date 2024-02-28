@@ -175,7 +175,7 @@ export async function updateProfileById(
   updateFilterVectorOfProfile(id);
 }
 
-async function updateFilterVectorOfProfile(profileId: string) {
+export async function updateFilterVectorOfProfile(profileId: string) {
   const profile = await prismaClient.profile.findFirst({
     where: { id: profileId },
     select: {
