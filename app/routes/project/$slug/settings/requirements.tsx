@@ -40,6 +40,7 @@ import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
+  updateFilterVectorOfProject,
 } from "./utils.server";
 import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
@@ -360,6 +361,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
               },
             },
           });
+          updateFilterVectorOfProject(project.id);
         } catch (e) {
           console.warn(e);
           ctx.addIssue({
