@@ -5,7 +5,6 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
 export async function getProfileCount() {
-  console.log(prismaClient);
   return await prismaClient.profile.count();
 }
 
