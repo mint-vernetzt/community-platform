@@ -3,11 +3,10 @@
  */
 import { beforeAll, expect, test, vi } from "vitest";
 import { prismaClient } from "~/__mocks__/prisma.server";
-import { loader } from ".";
 import { consoleError } from "./../../tests/setup/setup-test-env";
 import { createServerClient } from "~/__mocks__/auth.server";
 import { createRemixStub } from "@remix-run/testing";
-import { default as LandingPageRoute } from "./index";
+import { default as LandingPageRoute, loader } from "./index";
 import { render, screen } from "@testing-library/react";
 
 /* 
@@ -51,7 +50,7 @@ beforeAll(() => {
   process.env.FEATURE_FLAGS = "keycloak: some-profile-id";
 });
 
-test("Landing page is rendered", async () => {
+test("Landing page is rendered without errors", async () => {
   createServerClient.auth.getSession.mockResolvedValue({
     data: {
       session: null,
@@ -59,19 +58,10 @@ test("Landing page is rendered", async () => {
     error: null,
   });
   consoleError.mockImplementationOnce(() => {});
-  console.log(prismaClient.profile.count);
   prismaClient.profile.count.mockResolvedValue(20);
   prismaClient.organization.count.mockResolvedValue(20);
   prismaClient.event.count.mockResolvedValue(20);
   prismaClient.project.count.mockResolvedValue(20);
-
-  // const response = await loader({
-  //   request: new Request("http://localhost:3000/"),
-  //   params: {},
-  //   context: {},
-  // }).catch((e) => console.log(e));
-
-  // console.log(response);
 
   const LandingPage = createRemixStub([
     {
@@ -86,7 +76,6 @@ test("Landing page is rendered", async () => {
 
   const heading = await screen.findByRole("heading", {
     level: 1,
-    // name: "welcome",
   });
   expect(heading.innerHTML).toEqual("welcome");
 });

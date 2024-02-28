@@ -62,22 +62,19 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   const abilities = await getFeatureAbilities(authClient, ["keycloak"]);
-  try {
-    const profileCount = await getProfileCount();
-    const organizationCount = await getOrganizationCount();
-    const eventCount = await getEventCount();
-    const projectCount = await getProjectCount();
 
-    return json({
-      profileCount,
-      organizationCount,
-      eventCount,
-      projectCount,
-      abilities,
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  const profileCount = await getProfileCount();
+  const organizationCount = await getOrganizationCount();
+  const eventCount = await getEventCount();
+  const projectCount = await getProjectCount();
+
+  return json({
+    profileCount,
+    organizationCount,
+    eventCount,
+    projectCount,
+    abilities,
+  });
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -178,10 +175,7 @@ export default function Index() {
             <div className="md:grid md:grid-cols-12 md:gap-6 lg:gap-8">
               <div className="md:col-start-1 md:col-span-7 xl:col-start-2 xl:col-span-5 md:flex md:items-center">
                 <div>
-                  <H1
-                    name={t("welcome")}
-                    className="text-center sm:text-left leading-none"
-                  >
+                  <H1 className="text-center sm:text-left leading-none">
                     {t("welcome")}
                   </H1>
                   <p className="mt-8 mb-8 lg:mb-0 text-primary">{t("intro")}</p>
@@ -202,8 +196,9 @@ export default function Index() {
                         }`}
                         variant="outline"
                         fullSize
+                        name={t("login.withMintId")}
                       >
-                        {t("login.intro")}
+                        {t("login.withMintId")}
                       </Button>
                       <a
                         href="https://mint-id.org/faq"

@@ -3,7 +3,7 @@
   "intro": "Discover other STEM actors, organizations, and STEM events on the MINTvernetzt community platform and get inspired for your work.",
   "opportunities": "<strong>Create profile pages</strong> for yourself, your <strong>organization</strong>, and create <strong>projects</strong> or <strong>events</strong>.",
   "login": {
-    "intro": "Log in with MINT-ID",
+    "withMintId": "Log in with MINT-ID",
     "moreInformation": "More information",
     "or": "or",
     "passwordForgotten": "Forgot password?",
