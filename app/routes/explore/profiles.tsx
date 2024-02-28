@@ -192,7 +192,7 @@ export default function Index() {
       setShouldFetch(true);
     }
     setPage(1);
-  }, [loaderData.profiles]);
+  }, [loaderData.profiles, loaderData.pagination.itemsPerPage]);
 
   function handleChange(event: React.FormEvent<HTMLFormElement>) {
     submit(event.currentTarget);

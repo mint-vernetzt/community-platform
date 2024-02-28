@@ -1,7 +1,13 @@
 import { Button, CardContainer, ProjectCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  Form,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
@@ -11,7 +17,11 @@ import {
   filterProjectByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { getAllProjects, getPaginationValues } from "./utils.server";
+import {
+  getAllProjects,
+  getPaginationValues,
+  getSortValue,
+} from "./utils.server";
 import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
@@ -26,10 +36,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
     itemsPerPage: 8,
   });
+  const { sortBy } = getSortValue(request);
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  const projects = await getAllProjects(skip, take);
+  const projects = await getAllProjects({ skip, take, sortBy });
 
   const enhancedProjects = [];
 
@@ -124,6 +135,7 @@ function Projects() {
 
   const fetcher = useFetcher<typeof loader>();
   const [searchParams] = useSearchParams();
+  const sortBy = searchParams.get("sortBy");
   const [items, setItems] = React.useState(loaderData.projects);
   const [shouldFetch, setShouldFetch] = React.useState(() => {
     if (loaderData.projects.length < loaderData.pagination.itemsPerPage) {
@@ -153,6 +165,22 @@ function Projects() {
     }
   }, [fetcher.data]);
 
+  React.useEffect(() => {
+    setItems(loaderData.projects);
+
+    if (loaderData.projects.length < loaderData.pagination.itemsPerPage) {
+      setShouldFetch(false);
+    } else {
+      setShouldFetch(true);
+    }
+    setPage(1);
+  }, [loaderData.projects, loaderData.pagination.itemsPerPage]);
+
+  const submit = useSubmit();
+  function handleChange(event: React.FormEvent<HTMLFormElement>) {
+    submit(event.currentTarget);
+  }
+
   const { t } = useTranslation(i18nNS);
 
   return (
@@ -161,6 +189,47 @@ function Projects() {
         <H1 like="h0">{t("title")}</H1>
         <p className="">{t("intro")}</p>
       </section>
+
+      <section className="container mb-8">
+        <Form method="get" onChange={handleChange} reloadDocument>
+          <input hidden name="page" value={1} readOnly />
+          <div className="flex flex-wrap -mx-4">
+            <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">
+              <label className="block font-semibold mb-2">
+                {t("filter.sort.label")}
+              </label>
+              <select
+                id="sortBy"
+                name="sortBy"
+                defaultValue="nameAsc"
+                className="select w-full select-bordered"
+              >
+                <option key="nameAsc" value="nameAsc">
+                  {t("filter.sortBy.nameAsc")}
+                </option>
+                <option key="nameDesc" value="nameDesc">
+                  {t("filter.sortBy.nameDesc")}
+                </option>
+                <option key="newest" value="newest">
+                  {t("filter.sortBy.newest")}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end items-end">
+            <noscript>
+              <button
+                id="noScriptSubmitButton"
+                type="submit"
+                className="btn btn-primary mr-2"
+              >
+                Sortierung anwenden
+              </button>
+            </noscript>
+          </div>
+        </Form>
+      </section>
+
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         <CardContainer type="multi row">
           {items.map((project) => {
@@ -173,6 +242,12 @@ function Projects() {
       {shouldFetch && (
         <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
           <fetcher.Form method="get">
+            <input
+              key="sortBy"
+              type="hidden"
+              name="sortBy"
+              value={sortBy || "nameAsc"}
+            />
             <input key="page" type="hidden" name="page" value={page + 1} />
             <Button
               size="large"

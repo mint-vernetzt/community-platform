@@ -212,10 +212,29 @@ export async function getAllOrganizations(options: {
   return organizations;
 }
 
-export async function getAllProjects(
-  skip: number | undefined = undefined,
-  take: number | undefined = undefined
-) {
+export async function getAllProjects(options: {
+  skip: number;
+  take: number;
+  sortBy?: string;
+}) {
+  const { skip, take, sortBy = "nameAsc" } = options;
+
+  let orderBy = {};
+  if (sortBy === "nameDesc") {
+    orderBy = {
+      name: "desc",
+    };
+  } else if (sortBy === "newest") {
+    orderBy = {
+      createdAt: "desc",
+    };
+  } else {
+    // default
+    orderBy = {
+      name: "asc",
+    };
+  }
+
   const projects = await prismaClient.project.findMany({
     skip,
     take,
@@ -277,6 +296,7 @@ export async function getAllProjects(
         },
       },
     },
+    orderBy,
   });
 
   return projects;
