@@ -8,6 +8,8 @@ import { createServerClient } from "~/__mocks__/auth.server";
 import { createRemixStub } from "@remix-run/testing";
 import { default as LandingPageRoute, loader } from "./index";
 import { render, screen } from "@testing-library/react";
+import { I18nextProvider } from "react-i18next";
+import i18n from "./../../tests/i18n-for-tests";
 
 /* 
 
@@ -72,7 +74,11 @@ test("Landing page is rendered without errors", async () => {
   ]);
 
   const routeUrl = `/`;
-  await render(<LandingPage initialEntries={[routeUrl]} />);
+  await render(
+    <I18nextProvider i18n={i18n}>
+      <LandingPage initialEntries={[routeUrl]} />
+    </I18nextProvider>
+  );
 
   const heading = await screen.findByRole("heading", {
     level: 1,
