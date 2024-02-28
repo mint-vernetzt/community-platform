@@ -6,118 +6,128 @@ import {
   type WeakPassword,
 } from "@supabase/supabase-js";
 import { beforeEach, vi } from "vitest";
-import { mockReset } from "vitest-mock-extended";
+import { mockDeep, mockReset } from "vitest-mock-extended";
 
 beforeEach(() => {
-  mockReset(createAuthClient);
-  mockReset(createAdminAuthClient);
-  mockReset(signUp);
-  mockReset(signIn);
-  mockReset(signOut);
-  mockReset(setSession);
-  mockReset(getSession);
-  mockReset(getSessionOrThrow);
-  mockReset(getSessionUser);
-  mockReset(getSessionUserOrThrow);
-  mockReset(sendResetPasswordLink);
-  mockReset(updatePassword);
-  mockReset(sendResetEmailLink);
-  mockReset(deleteUserByUid);
+  process.env.SUPABASE_URL = "http://mocked.supabase.url";
+  process.env.SUPABASE_ANON_KEY = "123456789";
+  process.env.SERVICE_ROLE_KEY = "987654321";
+  mockReset(createServerClient);
+  mockReset(createClient);
+  // mockReset(createAuthClient);
+  // mockReset(createAdminAuthClient);
+  // mockReset(signUp);
+  // mockReset(signIn);
+  // mockReset(signOut);
+  // mockReset(setSession);
+  // mockReset(getSession);
+  // mockReset(getSessionOrThrow);
+  // mockReset(getSessionUser);
+  // mockReset(getSessionUserOrThrow);
+  // mockReset(sendResetPasswordLink);
+  // mockReset(updatePassword);
+  // mockReset(sendResetEmailLink);
+  // mockReset(deleteUserByUid);
 });
 
-export const createAuthClient = vi.fn<
-  [],
-  {
-    authClient: SupabaseClient<any, "public", any>;
-    response: Response;
-    headers: Headers;
-  }
->();
+export const createServerClient =
+  mockDeep<SupabaseClient<any, "public", any>>();
 
-export const createAdminAuthClient = vi.fn<
-  [],
-  SupabaseClient<any, "public", any>
->();
+export const createClient = mockDeep<SupabaseClient<any, "public", any>>();
 
-export const signUp = vi.fn<
-  [],
-  {
-    data: {
-      user: User | null;
-      session: Session | null;
-    };
-    error: AuthError | null;
-  }
->();
+// export const createAuthClient = vi.fn<
+//   [],
+//   {
+//     authClient: SupabaseClient<any, "public", any>;
+//     response: Response;
+//     headers: Headers;
+//   }
+// >();
 
-export const signIn = vi.fn<
-  [],
-  {
-    data:
-      | {
-          user: User;
-          session: Session;
-          weakPassword?: WeakPassword | undefined;
-        }
-      | {
-          user: null;
-          session: null;
-          weakPassword?: null | undefined;
-        };
-    error: AuthError | null;
-    headers: Headers;
-  }
->();
+// export const createAdminAuthClient = vi.fn<
+//   [],
+//   SupabaseClient<any, "public", any>
+// >();
 
-export const signOut = vi.fn<
-  [],
-  {
-    error: AuthError | null;
-    headers: Headers;
-  }
->();
+// export const signUp = vi.fn<
+//   [],
+//   {
+//     data: {
+//       user: User | null;
+//       session: Session | null;
+//     };
+//     error: AuthError | null;
+//   }
+// >();
 
-export const setSession = vi.fn<
-  [],
-  {
-    session: Session | null;
-    user: User | null;
-  }
->();
+// export const signIn = vi.fn<
+//   [],
+//   {
+//     data:
+//       | {
+//           user: User;
+//           session: Session;
+//           weakPassword?: WeakPassword | undefined;
+//         }
+//       | {
+//           user: null;
+//           session: null;
+//           weakPassword?: null | undefined;
+//         };
+//     error: AuthError | null;
+//     headers: Headers;
+//   }
+// >();
 
-export const getSession = vi.fn<[], Session | null>();
+// export const signOut = vi.fn<
+//   [],
+//   {
+//     error: AuthError | null;
+//     headers: Headers;
+//   }
+// >();
 
-export const getSessionOrThrow = vi.fn<[], Session>();
+// export const setSession = vi.fn<
+//   [],
+//   {
+//     session: Session | null;
+//     user: User | null;
+//   }
+// >();
 
-export const getSessionUser = vi.fn<[], User | null>();
+// export const getSession = vi.fn<[], Session | null>();
 
-export const getSessionUserOrThrow = vi.fn<[], User>();
+// export const getSessionOrThrow = vi.fn<[], Session>();
 
-export const sendResetPasswordLink = vi.fn<[], { error: AuthError | null }>();
+// export const getSessionUser = vi.fn<[], User | null>();
 
-export const updatePassword = vi.fn<
-  [],
-  {
-    data: {
-      user: User | null;
-    };
-    error: AuthError | null;
-  }
->();
+// export const getSessionUserOrThrow = vi.fn<[], User>();
 
-export const sendResetEmailLink = vi.fn<
-  [],
-  {
-    data: {
-      user: User | null;
-    };
-    error: AuthError | null;
-  }
->();
+// export const sendResetPasswordLink = vi.fn<[], { error: AuthError | null }>();
 
-export const deleteUserByUid = vi.fn<
-  [],
-  {
-    error: AuthError | null;
-  }
->();
+// export const updatePassword = vi.fn<
+//   [],
+//   {
+//     data: {
+//       user: User | null;
+//     };
+//     error: AuthError | null;
+//   }
+// >();
+
+// export const sendResetEmailLink = vi.fn<
+//   [],
+//   {
+//     data: {
+//       user: User | null;
+//     };
+//     error: AuthError | null;
+//   }
+// >();
+
+// export const deleteUserByUid = vi.fn<
+//   [],
+//   {
+//     error: AuthError | null;
+//   }
+// >();

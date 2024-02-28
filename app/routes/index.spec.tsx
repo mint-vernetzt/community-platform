@@ -2,10 +2,10 @@
  * @vitest-environment jsdom
  */
 import { beforeAll, test, vi } from "vitest";
-import { createAuthClient, getSessionUser } from "~/__mocks__/auth.server";
 import prismaClient from "~/__mocks__/prisma.server";
 import { loader } from ".";
 import { consoleError } from "./../../tests/setup/setup-test-env";
+import { createServerClient } from "~/__mocks__/auth.server";
 
 /* 
 
@@ -43,16 +43,20 @@ Functional tests:
 */
 
 vi.mock("~/prisma.server");
-vi.mock("~/auth.server");
 
 beforeAll(() => {
   process.env.FEATURE_FLAGS = "keycloak: some-profile-id";
 });
 
 test("Landing page is rendered", async () => {
-  createAuthClient.mockRejectedValue({});
-  getSessionUser.mockResolvedValue(null);
+  createServerClient.auth.getSession.mockResolvedValue({
+    data: {
+      session: null,
+    },
+    error: null,
+  });
   consoleError.mockImplementationOnce(() => {});
+  console.log(prismaClient.profile.count);
   prismaClient.profile.count.mockResolvedValue(20);
   prismaClient.organization.count.mockResolvedValue(20);
   prismaClient.event.count.mockResolvedValue(20);

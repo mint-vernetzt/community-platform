@@ -62,19 +62,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   const abilities = await getFeatureAbilities(authClient, ["keycloak"]);
+  try {
+    const profileCount = await getProfileCount();
+    const organizationCount = await getOrganizationCount();
+    const eventCount = await getEventCount();
+    const projectCount = await getProjectCount();
 
-  const profileCount = await getProfileCount();
-  const organizationCount = await getOrganizationCount();
-  const eventCount = await getEventCount();
-  const projectCount = await getProjectCount();
-
-  return json({
-    profileCount,
-    organizationCount,
-    eventCount,
-    projectCount,
-    abilities,
-  });
+    return json({
+      profileCount,
+      organizationCount,
+      eventCount,
+      projectCount,
+      abilities,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
