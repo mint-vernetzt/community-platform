@@ -146,16 +146,22 @@ export async function getAllProfiles(options: {
   return profiles;
 }
 
-export async function getAllOrganizations(
-  options: {
-    skip: number | undefined;
-    take: number | undefined;
-  } = {
-    skip: undefined,
-    take: undefined,
+export async function getAllOrganizations(options: {
+  skip: number;
+  take: number;
+  sortBy?: string;
+}) {
+  const { skip, take, sortBy = "nameAsc" } = options;
+
+  let orderByClause = Prisma.empty;
+  if (sortBy === "nameDesc") {
+    orderByClause = Prisma.sql`ORDER BY "name" DESC`;
+  } else if (sortBy === "newest") {
+    orderByClause = Prisma.sql`ORDER BY "createdAt" DESC`;
+  } else {
+    // default
+    orderByClause = Prisma.sql`ORDER BY "name" ASC`;
   }
-) {
-  const { skip, take } = options;
 
   const organizations: Array<
     Pick<
@@ -168,6 +174,7 @@ export async function getAllOrganizations(
       | "logo"
       | "score"
       | "background"
+      | "createdAt"
     > & { areas: string[]; types: string[]; focuses: string[] }
   > = await prismaClient.$queryRaw`
   SELECT 
@@ -178,6 +185,7 @@ export async function getAllOrganizations(
     organizations.logo,
     organizations.score,
     organizations.background,
+    organizations.created_at as "createdAt",
     array_remove(array_agg(DISTINCT areas.name), null) as "areas",
     array_remove(array_agg(DISTINCT organization_types.title), null) as "types",
     array_remove(array_agg(DISTINCT focuses.title), null) as "focuses"
@@ -196,7 +204,7 @@ export async function getAllOrganizations(
     LEFT JOIN focuses
     ON focuses_on_organizations."focusId" = focuses.id
   GROUP BY organizations.id
-  ORDER BY "name" ASC
+  ${orderByClause}
   LIMIT ${take}
   OFFSET ${skip}
 ;`;
@@ -302,7 +310,7 @@ export function getFilterValues(request: Request) {
   return { areaId, offerId, seekingId };
 }
 
-export function getSortValues(request: Request) {
+export function getSortValue(request: Request) {
   const url = new URL(request.url);
   const sortBy = url.searchParams.get("sortBy") || "firstNameAsc";
   return { sortBy };
