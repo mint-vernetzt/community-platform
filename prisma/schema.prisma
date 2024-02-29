@@ -543,6 +543,7 @@ model District {
 model Area {
   id                   String                 @id @default(uuid())
   name                 String
+  slug                 String?
   type                 AreaType
   stateId              String?
   state                State?                 @relation(fields: [stateId], references: [agsPrefix])

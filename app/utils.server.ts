@@ -202,7 +202,11 @@ export function generateProjectSlug(name: string) {
 
 // TODO: Use libraray (Don't know the name anymore) to convert all Unicode in a valid slug
 // (Greek letters, chinese letters, arabic letters, etc...)
-export function generateValidSlug(string: string) {
+export function generateValidSlug(
+  string: string,
+  options?: { noHash: boolean }
+) {
+  const { noHash } = options || { noHash: false };
   const slug = string
     .toLowerCase()
     .replace(/[áàâãå]/, "a")
@@ -219,6 +223,9 @@ export function generateValidSlug(string: string) {
     .replace(/[^\w ]/g, "")
     .replace(/[\s]/g, "");
 
+  if (noHash) {
+    return slug;
+  }
   const timestamp = Date.now();
   const stringFromTimestamp = timestamp.toString(36);
   return `${slug}-${stringFromTimestamp}`;

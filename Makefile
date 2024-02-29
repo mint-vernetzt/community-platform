@@ -16,7 +16,7 @@ german-states-and-districts-dataset: ## Import german states and districts into 
 	npx tsx prisma/scripts/german-states-and-districts-dataset/load-german-states-and-districts.ts
 
 import-datasets: ## Import other static datasets (located in ./prisma/scripts/import-datasets/data/)
-	npx tsx prisma/scripts/import-datasets/index.ts
+	npx tsx prisma/scripts/import-datasets/index.ts && npx tsx prisma/scripts/add-slugs-to-areas
 
 apply-create-profile-trigger: ## Applies the "create profile" trigger, which creates a public profile everytime a user is created on the auth.users table
 	npx tsx prisma/scripts/apply-create-profile-trigger/index.ts

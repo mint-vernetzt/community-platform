@@ -1,6 +1,7 @@
 import https from "https";
 import type { Area, District, DistrictType, State } from "@prisma/client";
 import { prismaClient } from "../../../../app/prisma.server";
+import { generateValidSlug } from "~/utils.server";
 
 // The main function, which is called by the cli (load-german-states-and-districts.ts)
 export async function main(
@@ -191,6 +192,7 @@ export function getAreas(districts, states, countries) {
   districts.forEach((district) => {
     const area = {
       name: district.name,
+      slug: generateValidSlug(district.name),
       type: "district",
       stateId: district.stateAgsPrefix,
     };
@@ -201,6 +203,7 @@ export function getAreas(districts, states, countries) {
   states.forEach((state) => {
     const area = {
       name: state.name,
+      slug: generateValidSlug(state.name),
       type: "state",
       stateId: state.agsPrefix,
     };
@@ -212,6 +215,7 @@ export function getAreas(districts, states, countries) {
   countries.forEach((country) => {
     const area = {
       name: country.name,
+      slug: generateValidSlug(country.name),
       type: "country",
       stateId: null,
     };
@@ -222,6 +226,7 @@ export function getAreas(districts, states, countries) {
   // @ts-ignore
   areas.push({
     name: "Bundesweit",
+    slug: generateValidSlug("Bundesweit"),
     type: "country",
     stateId: null,
   });
@@ -229,6 +234,7 @@ export function getAreas(districts, states, countries) {
   // @ts-ignore
   areas.push({
     name: "International",
+    slug: generateValidSlug("international"),
     type: "global",
     stateId: null,
   });
@@ -246,6 +252,7 @@ export function prepareQueries(
   const currentAreas = current.areas;
 
   let areas: Area[] = getAreas(data.districts, data.states, []);
+  console.log({ areas });
 
   // Sort the new states and districts into the categories create, update and delete
   const insertDistricts = data.districts.filter(
