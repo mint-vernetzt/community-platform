@@ -1,5 +1,15 @@
 {
   "title": "Entdecke inspirierende Projekte",
   "intro": "Finde passende Projekte, lerne von Erfahrungen anderer MINT-Akteur:innen und teile Dein Wissen, indem Du Dein eigenes Projekt anlegst.",
+  "filter": {
+    "sort": {
+      "label": "Sortieren nach"
+    },
+    "sortBy": {
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "newest": "Neueste zuerst"
+    }
+  },
   "more": "Weitere laden"
 }

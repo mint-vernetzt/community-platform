@@ -1,6 +1,6 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -10,6 +10,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { GravityType, getImageURL } from "~/images.server";
@@ -26,9 +27,8 @@ import {
   getAllProfiles,
   getFilterValues,
   getPaginationValues,
-  getRandomSeed,
+  getSortValue,
 } from "./utils.server";
-import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -50,24 +50,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const filterValues = isLoggedIn
     ? getFilterValues(request)
     : { areaId: undefined, offerId: undefined, seekingId: undefined };
-
-  let randomSeed = getRandomSeed(request);
-  if (randomSeed === undefined) {
-    randomSeed = parseFloat(Math.random().toFixed(3));
-    return redirect(
-      `/explore/profiles?randomSeed=${randomSeed}${
-        filterValues.areaId ? `&areaId=${filterValues.areaId}` : ""
-      }${filterValues.offerId ? `&offerId=${filterValues.offerId}` : ""}${
-        filterValues.seekingId ? `&seekingId=${filterValues.seekingId}` : ""
-      }`
-    );
-  }
+  const { sortBy } = getSortValue(request);
 
   const rawProfiles = await getAllProfiles({
     skip,
     take,
+    sortBy,
     ...filterValues,
-    randomSeed,
   });
 
   const enhancedProfiles = [];
@@ -176,6 +165,7 @@ export default function Index() {
   const areaId = searchParams.get("areaId");
   const offerId = searchParams.get("offerId");
   const seekingId = searchParams.get("seekingId");
+  const sortBy = searchParams.get("sortBy");
   const submit = useSubmit();
   const areaOptions = createAreaOptionFromData(loaderData.areas);
 
@@ -202,7 +192,7 @@ export default function Index() {
       setShouldFetch(true);
     }
     setPage(1);
-  }, [loaderData.profiles]);
+  }, [loaderData.profiles, loaderData.pagination.itemsPerPage]);
 
   function handleChange(event: React.FormEvent<HTMLFormElement>) {
     submit(event.currentTarget);
@@ -217,120 +207,142 @@ export default function Index() {
         <p className="">{t("intro")}</p>
       </section>
 
-      {loaderData.isLoggedIn ? (
-        <section className="container mb-8">
-          <Form method="get" onChange={handleChange} reloadDocument>
-            <input
-              hidden
-              name="randomSeed"
-              value={searchParams.get("randomSeed") ?? ""}
-              readOnly
-            />
-            <input hidden name="page" value={1} readOnly />
-            <div className="flex flex-wrap -mx-4">
-              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                <label className="block font-semibold mb-2">
-                  {t("search.activityAreas")}
-                </label>
-                <select
-                  id="areaId"
-                  name="areaId"
-                  defaultValue={areaId || undefined}
-                  className="select w-full select-bordered"
-                >
-                  <option></option>
-                  {areaOptions.map((option, index) => (
-                    <React.Fragment key={index}>
-                      {"value" in option ? (
-                        <option key={`area-${index}`} value={option.value}>
-                          {option.label}
-                        </option>
-                      ) : null}
+      <section className="container mb-8">
+        <Form method="get" onChange={handleChange}>
+          <input hidden name="page" value={1} readOnly />
+          <div className="flex flex-wrap -mx-4">
+            {loaderData.isLoggedIn ? (
+              <>
+                <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">
+                  <label className="block font-semibold mb-2">
+                    {t("filter.activityAreas")}
+                  </label>
+                  <select
+                    id="areaId"
+                    name="areaId"
+                    defaultValue={areaId || undefined}
+                    className="select w-full select-bordered"
+                  >
+                    <option></option>
+                    {areaOptions.map((option, index) => (
+                      <React.Fragment key={index}>
+                        {"value" in option ? (
+                          <option key={`area-${index}`} value={option.value}>
+                            {option.label}
+                          </option>
+                        ) : null}
 
-                      {"options" in option ? (
-                        <optgroup
-                          key={`area-group-${index}`}
-                          label={option.label}
-                        >
-                          {option.options.map(
-                            (groupOption, groupOptionIndex) => (
-                              <option
-                                key={`area-${index}-${groupOptionIndex}`}
-                                value={groupOption.value}
-                              >
-                                {groupOption.label}
-                              </option>
-                            )
-                          )}
-                        </optgroup>
-                      ) : null}
-                    </React.Fragment>
-                  ))}
-                </select>
-              </div>
-              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                <label className="block font-semibold mb-2">
-                  {t("search.lookingFor")}
-                </label>
-                <select
-                  id="offerId"
-                  name="offerId"
-                  defaultValue={offerId || undefined}
-                  className="select w-full select-bordered"
-                >
-                  <option></option>
-                  {loaderData.offers.map((offer) => (
-                    <option key={`offer-${offer.id}`} value={offer.id}>
-                      {offer.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/3">
-                <label className="block font-semibold mb-2">
-                  {t("search.support")}
-                </label>
-                <select
-                  id="seekingId"
-                  name="seekingId"
-                  defaultValue={seekingId || undefined}
-                  className="select w-full select-bordered"
-                >
-                  <option></option>
-                  {loaderData.offers.map((offer) => (
-                    <option key={`seeking-${offer.id}`} value={offer.id}>
-                      {offer.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <input hidden name="page" defaultValue={1} readOnly />
-            </div>
-            <div className="flex justify-end">
-              <noscript>
-                <button
-                  id="noScriptSubmitButton"
-                  type="submit"
-                  className="btn btn-primary mr-2"
-                >
-                  Filter anwenden
-                </button>
-              </noscript>
-              <Link to={"./"} reloadDocument>
-                <div
-                  className={`btn btn-primary btn-outline ${
-                    areaId === null && offerId === null && seekingId === null
-                      ? "hidden"
-                      : ""
-                  }`}
-                >
-                  Filter zurücksetzen
+                        {"options" in option ? (
+                          <optgroup
+                            key={`area-group-${index}`}
+                            label={option.label}
+                          >
+                            {option.options.map(
+                              (groupOption, groupOptionIndex) => (
+                                <option
+                                  key={`area-${index}-${groupOptionIndex}`}
+                                  value={groupOption.value}
+                                >
+                                  {groupOption.label}
+                                </option>
+                              )
+                            )}
+                          </optgroup>
+                        ) : null}
+                      </React.Fragment>
+                    ))}
+                  </select>
                 </div>
-              </Link>
+                <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">
+                  <label className="block font-semibold mb-2">
+                    {t("filter.lookingFor")}
+                  </label>
+                  <select
+                    id="offerId"
+                    name="offerId"
+                    defaultValue={offerId || undefined}
+                    className="select w-full select-bordered"
+                  >
+                    <option></option>
+                    {loaderData.offers.map((offer) => (
+                      <option key={`offer-${offer.id}`} value={offer.id}>
+                        {offer.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">
+                  <label className="block font-semibold mb-2">
+                    {t("filter.support")}
+                  </label>
+                  <select
+                    id="seekingId"
+                    name="seekingId"
+                    defaultValue={seekingId || undefined}
+                    className="select w-full select-bordered"
+                  >
+                    <option></option>
+                    {loaderData.offers.map((offer) => (
+                      <option key={`seeking-${offer.id}`} value={offer.id}>
+                        {offer.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            ) : null}
+            <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">
+              <label className="block font-semibold mb-2">
+                {t("filter.sort.label")}
+              </label>
+              <select
+                id="sortBy"
+                name="sortBy"
+                defaultValue={sortBy || "firstNameAsc"}
+                className="select w-full select-bordered"
+              >
+                <option key="firstNameAsc" value="firstNameAsc">
+                  {t("filter.sortBy.firstNameAsc")}
+                </option>
+                <option key="firstNameDesc" value="firstNameDesc">
+                  {t("filter.sortBy.firstNameDesc")}
+                </option>
+                <option key="lastNameAsc" value="lastNameAsc">
+                  {t("filter.sortBy.lastNameAsc")}
+                </option>
+                <option key="lastNameDesc" value="lastNameDesc">
+                  {t("filter.sortBy.lastNameDesc")}
+                </option>
+                <option key="newest" value="newest">
+                  {t("filter.sortBy.newest")}
+                </option>
+              </select>
             </div>
-          </Form>
-        </section>
-      ) : null}
+          </div>
+          <div className="flex justify-end items-end">
+            <noscript>
+              <button
+                id="noScriptSubmitButton"
+                type="submit"
+                className="btn btn-primary mr-2"
+              >
+                Filter anwenden
+              </button>
+            </noscript>
+            <Link to={"./"} reloadDocument>
+              <div
+                className={`btn btn-primary btn-outline ${
+                  areaId === null && offerId === null && seekingId === null
+                    ? "hidden"
+                    : ""
+                }`}
+              >
+                {t("filter.reset")}
+              </div>
+            </Link>
+          </div>
+        </Form>
+      </section>
 
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         {items.length > 0 ? (
@@ -349,12 +361,6 @@ export default function Index() {
             {shouldFetch && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
                 <fetcher.Form method="get">
-                  <input
-                    key="randomSeed"
-                    type="hidden"
-                    name="randomSeed"
-                    value={searchParams.get("randomSeed") ?? ""}
-                  />
                   <input
                     key="page"
                     type="hidden"
@@ -378,6 +384,12 @@ export default function Index() {
                     type="hidden"
                     name="seekingId"
                     value={seekingId ?? ""}
+                  />
+                  <input
+                    key="sortBy"
+                    type="hidden"
+                    name="sortBy"
+                    value={sortBy ?? "firstNameAsc"}
                   />
                   <Button
                     size="large"

@@ -39,6 +39,9 @@ update-score: ## Update score of profiles and organizations
 seed-database: ## Seed the database with fake data
 	npx tsx prisma/scripts/seed-database/index.ts
 
+seed-database-minimal: ## Seed the database with fake data (minimal option)
+	npx tsx prisma/scripts/seed-database/index.ts -s 2 -r -e 1 -i 1 -d 1
+
 truncate-tables: ## Truncate all database tables except the migration table
 	npx tsx prisma/scripts/truncate-tables/index.ts
 

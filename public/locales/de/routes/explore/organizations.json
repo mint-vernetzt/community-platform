@@ -1,6 +1,16 @@
 {
   "title": "Entdecke Organisationen",
   "intro": "Hier findest du Organisationen und Netzwerke.",
+  "filter": {
+    "sort": {
+      "label": "Sortieren nach"
+    },
+    "sortBy": {
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "newest": "Neueste zuerst"
+    }
+  },
   "empty": "Für Deine Filterkriterien konnten leider keine Profile gefunden werden.",
   "more": "Weitere laden"
 }

@@ -11,73 +11,49 @@ import {
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 
-export async function getAllProfiles(
-  options: {
-    skip: number | undefined;
-    take: number | undefined;
-    areaId: string | undefined;
-    offerId: string | undefined;
-    seekingId: string | undefined;
-    randomSeed: number | undefined;
-  } = {
-    skip: undefined,
-    take: undefined,
-    areaId: undefined,
-    offerId: undefined,
-    seekingId: undefined,
-    randomSeed: 0,
-  }
-) {
-  const { skip, take, areaId, offerId, seekingId, randomSeed } = options;
+export async function getAllProfiles(options: {
+  skip: number;
+  take: number;
+  areaId?: string;
+  offerId?: string;
+  seekingId?: string;
+  sortBy?: string;
+}) {
+  const {
+    skip,
+    take,
+    areaId,
+    offerId,
+    seekingId,
+    sortBy = "firstNameAsc",
+  } = options;
 
   let areaToFilter;
-  const whereClauses = [];
+  const whereStatements = [];
   let whereClause = Prisma.empty;
   const offerJoin = Prisma.sql`
-    LEFT JOIN offers_on_profiles
-    ON profiles.id = offers_on_profiles."profileId"
-    LEFT JOIN offer O
-    ON offers_on_profiles."offerId" = O.id`;
+  LEFT JOIN offers_on_profiles
+  ON profiles.id = offers_on_profiles."profileId"
+  LEFT JOIN offer O
+  ON offers_on_profiles."offerId" = O.id`;
   let seekingJoin = Prisma.empty;
-  // Default Ordering with no filter: Deterministic random ordering with seed
-  // Set seed for deterministic random order
-  await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}::double precision) AS TEXT);`;
-  let orderByClause = Prisma.sql`ORDER BY "score" DESC, RANDOM()`;
+  let orderByClause = Prisma.empty;
+  if (sortBy === "firstNameDesc") {
+    orderByClause = Prisma.sql`ORDER BY "firstName" DESC`;
+  } else if (sortBy === "lastNameAsc") {
+    orderByClause = Prisma.sql`ORDER BY "lastName" ASC`;
+  } else if (sortBy === "lastNameDesc") {
+    orderByClause = Prisma.sql`ORDER BY "lastName" DESC`;
+  } else if (sortBy === "newest") {
+    orderByClause = Prisma.sql`ORDER BY "createdAt" DESC`;
+  } else {
+    // default
+    orderByClause = Prisma.sql`ORDER BY "firstName" ASC`;
+  }
   if (areaId !== undefined) {
     areaToFilter = await getAreaById(areaId);
     if (areaToFilter !== null) {
       let areaWhere;
-      if (areaToFilter.type === "global") {
-        /* No WHERE statement needed as we want to select all profiles that have at least one area */
-        /* ORDER BY: global -> country -> state -> district */
-        orderByClause = Prisma.sql`
-                        ORDER BY (
-                          CASE 
-                            WHEN 'global' = ANY (array_agg(DISTINCT areas.type)) THEN 1 
-                            WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 2 
-                            WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 3 
-                            WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 4 
-                            ELSE 5 
-                          END
-                        ) ASC,
-                        "score" DESC,
-                        RANDOM()`;
-      }
-      if (areaToFilter.type === "country") {
-        /* No WHERE statement needed as we want to select all profiles that have at least one area */
-        /* ORDER BY: country -> state -> district */
-        orderByClause = Prisma.sql`
-                        ORDER BY (
-                          CASE 
-                            WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 1 
-                            WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 2 
-                            WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 3 
-                            ELSE 4 
-                          END
-                        ) ASC,
-                        "score" DESC,
-                        RANDOM()`;
-      }
       if (areaToFilter.type === "state") {
         /* Filter profiles that have the exact state as area or districts inside that state as area or an area of the type country */
         if (areaToFilter.stateId !== null) {
@@ -85,18 +61,6 @@ export async function getAllProfiles(
         } else {
           areaWhere = Prisma.sql`areas.id = ${areaToFilter.id} OR type = 'country'`;
         }
-        /* ORDER BY: state -> district -> country */
-        orderByClause = Prisma.sql`
-                        ORDER BY (
-                          CASE 
-                            WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 1 
-                            WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 2 
-                            WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 3 
-                            ELSE 4 
-                          END
-                        ) ASC, 
-                        "score" DESC,
-                        RANDOM()`;
       }
       if (areaToFilter.type === "district") {
         /* Filter profiles that have the exact district as area or the state where the district is part of or an area of the type country */
@@ -105,21 +69,9 @@ export async function getAllProfiles(
         } else {
           areaWhere = Prisma.sql`areas.id = ${areaToFilter.id} OR type = 'state' OR type = 'country'`;
         }
-        /* ORDER BY: district -> state -> country */
-        orderByClause = Prisma.sql`
-                        ORDER BY (
-                          CASE 
-                            WHEN 'district' = ANY (array_agg(DISTINCT areas.type)) THEN 1 
-                            WHEN 'state' = ANY (array_agg(DISTINCT areas.type)) THEN 2 
-                            WHEN 'country' = ANY (array_agg(DISTINCT areas.type)) THEN 3 
-                            ELSE 4 
-                          END
-                        ) ASC, 
-                        "score" DESC,
-                        RANDOM()`;
       }
       if (areaWhere !== undefined) {
-        whereClauses.push(areaWhere);
+        whereStatements.push(areaWhere);
       }
     } else {
       throw json({ message: "Area to filter not found" }, { status: 404 });
@@ -128,7 +80,7 @@ export async function getAllProfiles(
   if (offerId !== undefined) {
     /* Filter profiles that have the exact offer */
     const offerWhere = Prisma.sql`O.id = ${offerId}`;
-    whereClauses.push(offerWhere);
+    whereStatements.push(offerWhere);
   }
   if (seekingId !== undefined) {
     seekingJoin = Prisma.sql`
@@ -138,11 +90,11 @@ export async function getAllProfiles(
                   ON seekings_on_profiles."offerId" = S.id`;
     /* Filter profiles that have the exact seeking */
     const seekingWhere = Prisma.sql`S.id = ${seekingId}`;
-    whereClauses.push(seekingWhere);
+    whereStatements.push(seekingWhere);
   }
-  if (whereClauses.length > 0) {
+  if (whereStatements.length > 0) {
     /* All WHERE clauses must hold true and are therefore connected with an logical AND */
-    whereClause = Prisma.join(whereClauses, ") AND (", "WHERE (", ")");
+    whereClause = Prisma.join(whereStatements, ") AND (", "WHERE (", ")");
   }
 
   const profiles: Array<
@@ -158,7 +110,7 @@ export async function getAllProfiles(
       | "background"
       | "position"
       | "score"
-      | "updatedAt"
+      | "createdAt"
     > & { areas: string[]; offers: string[] }
   > = await prismaClient.$queryRaw`
     SELECT 
@@ -172,7 +124,7 @@ export async function getAllProfiles(
       profiles.avatar,
       profiles.background,
       profiles.score,
-      profiles.updated_at as "updatedAt",
+      profiles.created_at as "createdAt",
       array_remove(array_agg(DISTINCT areas.name), null) as "areas",
       array_remove(array_agg(DISTINCT O.title), null) as "offers"
     FROM profiles
@@ -194,21 +146,22 @@ export async function getAllProfiles(
   return profiles;
 }
 
-export async function getAllOrganizations(
-  options: {
-    skip: number | undefined;
-    take: number | undefined;
-    randomSeed: number | undefined;
-  } = {
-    skip: undefined,
-    take: undefined,
-    randomSeed: 0,
-  }
-) {
-  const { skip, take, randomSeed } = options;
+export async function getAllOrganizations(options: {
+  skip: number;
+  take: number;
+  sortBy?: string;
+}) {
+  const { skip, take, sortBy = "nameAsc" } = options;
 
-  // Set seed for deterministic random order
-  await prismaClient.$queryRaw`SELECT CAST(SETSEED(${randomSeed}::double precision) AS TEXT);`;
+  let orderByClause = Prisma.empty;
+  if (sortBy === "nameDesc") {
+    orderByClause = Prisma.sql`ORDER BY "name" DESC`;
+  } else if (sortBy === "newest") {
+    orderByClause = Prisma.sql`ORDER BY "createdAt" DESC`;
+  } else {
+    // default
+    orderByClause = Prisma.sql`ORDER BY "name" ASC`;
+  }
 
   const organizations: Array<
     Pick<
@@ -221,6 +174,7 @@ export async function getAllOrganizations(
       | "logo"
       | "score"
       | "background"
+      | "createdAt"
     > & { areas: string[]; types: string[]; focuses: string[] }
   > = await prismaClient.$queryRaw`
   SELECT 
@@ -231,6 +185,7 @@ export async function getAllOrganizations(
     organizations.logo,
     organizations.score,
     organizations.background,
+    organizations.created_at as "createdAt",
     array_remove(array_agg(DISTINCT areas.name), null) as "areas",
     array_remove(array_agg(DISTINCT organization_types.title), null) as "types",
     array_remove(array_agg(DISTINCT focuses.title), null) as "focuses"
@@ -249,7 +204,7 @@ export async function getAllOrganizations(
     LEFT JOIN focuses
     ON focuses_on_organizations."focusId" = focuses.id
   GROUP BY organizations.id
-  ORDER BY "score" DESC, RANDOM()
+  ${orderByClause}
   LIMIT ${take}
   OFFSET ${skip}
 ;`;
@@ -257,10 +212,29 @@ export async function getAllOrganizations(
   return organizations;
 }
 
-export async function getAllProjects(
-  skip: number | undefined = undefined,
-  take: number | undefined = undefined
-) {
+export async function getAllProjects(options: {
+  skip: number;
+  take: number;
+  sortBy?: string;
+}) {
+  const { skip, take, sortBy = "nameAsc" } = options;
+
+  let orderBy = {};
+  if (sortBy === "nameDesc") {
+    orderBy = {
+      name: "desc",
+    };
+  } else if (sortBy === "newest") {
+    orderBy = {
+      createdAt: "desc",
+    };
+  } else {
+    // default
+    orderBy = {
+      name: "asc",
+    };
+  }
+
   const projects = await prismaClient.project.findMany({
     skip,
     take,
@@ -322,6 +296,7 @@ export async function getAllProjects(
         },
       },
     },
+    orderBy,
   });
 
   return projects;
@@ -355,14 +330,10 @@ export function getFilterValues(request: Request) {
   return { areaId, offerId, seekingId };
 }
 
-export function getRandomSeed(request: Request) {
+export function getSortValue(request: Request) {
   const url = new URL(request.url);
-  const randomSeedQueryString = url.searchParams.get("randomSeed") || undefined;
-  if (randomSeedQueryString !== undefined) {
-    return parseFloat(randomSeedQueryString);
-  } else {
-    return randomSeedQueryString;
-  }
+  const sortBy = url.searchParams.get("sortBy") || "firstNameAsc";
+  return { sortBy };
 }
 
 export async function getEvents(

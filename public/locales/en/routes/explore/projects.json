@@ -1,5 +1,15 @@
 {
   "title": "Find inspiring projects",
   "intro": "Here you can take a look at various projects within the STEM community.",
+  "filter": {
+    "sort": {
+      "label": "Sortieren nach"
+    },
+    "sortBy": {
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "newest": "Newest first"
+    }
+  },
   "more": "Load more"
 }

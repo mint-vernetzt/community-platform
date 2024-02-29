@@ -1,10 +1,21 @@
 {
   "headline": "Discover the community",
   "intro": "Discover profiles from diverse individuals within the STEM community here.",
-  "search": {
+  "filter": {
     "activityAreas": "Field of activity",
     "lookingFor": "I'm looking for",
-    "support": "I want to support with"
+    "support": "I want to support with",
+    "reset": "Reset filter",
+    "sort": {
+      "label": "Sort by"
+    },
+    "sortBy": {
+      "firstNameAsc": "First name (A-Z)",
+      "firstNameDesc": "First name (Z-A)",
+      "lastNameAsc": "Last name (A-Z)",
+      "lastNameDesc": "Last name (Z-A)",
+      "newest": "Newest first"
+    }
   },
   "more": "Load more",
   "empty": "Unfortunately, no profiles could be found for your filter criteria."

@@ -1,5 +1,3 @@
-import { redirect } from "@remix-run/node";
-import { getAlert, redirectWithAlert } from "~/alert.server";
 import { prismaClient } from "~/prisma.server";
 
 export async function getProfileById(id: string) {
@@ -16,11 +14,7 @@ export async function getProfileById(id: string) {
   return profile;
 }
 
-export async function getProfileCount() {
-  return await prismaClient.profile.count();
-}
-
-export async function getProfilesForCards(skip: number, take: number) {
+export async function getProfilesForCards(take: number) {
   const profiles = await prismaClient.profile.findMany({
     select: {
       academicTitle: true,
@@ -54,19 +48,14 @@ export async function getProfilesForCards(skip: number, take: number) {
         },
       },
     },
-    skip,
     take,
-    orderBy: [{ score: "desc" }, { updatedAt: "desc" }],
+    orderBy: { createdAt: "desc" },
   });
 
   return profiles;
 }
 
-export async function getOrganizationCount() {
-  return await prismaClient.organization.count();
-}
-
-export async function getOrganizationsForCards(skip: number, take: number) {
+export async function getOrganizationsForCards(take: number) {
   const profiles = await prismaClient.organization.findMany({
     select: {
       slug: true,
@@ -99,18 +88,9 @@ export async function getOrganizationsForCards(skip: number, take: number) {
         },
       },
     },
-    skip,
     take,
-    orderBy: [{ score: "desc" }, { updatedAt: "desc" }],
+    orderBy: { createdAt: "desc" },
   });
 
   return profiles;
-}
-
-export async function enhancedRedirect(url: string, request: Request) {
-  const { alert } = await getAlert(request);
-  if (alert !== undefined) {
-    return redirectWithAlert(url, alert);
-  }
-  return redirect(url);
 }
