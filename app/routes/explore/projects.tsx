@@ -191,7 +191,7 @@ function Projects() {
       </section>
 
       <section className="container mb-8">
-        <Form method="get" onChange={handleChange} reloadDocument>
+        <Form method="get" onChange={handleChange}>
           <input hidden name="page" value={1} readOnly />
           <div className="flex flex-wrap -mx-4">
             <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">

@@ -208,7 +208,7 @@ export default function Index() {
       </section>
 
       <section className="container mb-8">
-        <Form method="get" onChange={handleChange} reloadDocument>
+        <Form method="get" onChange={handleChange}>
           <input hidden name="page" value={1} readOnly />
           <div className="flex flex-wrap -mx-4">
             {loaderData.isLoggedIn ? (
