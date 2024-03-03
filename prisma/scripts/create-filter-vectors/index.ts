@@ -5,65 +5,29 @@ import { updateFilterVectorOfProfile } from "~/routes/profile/$username/utils.se
 import { updateFilterVectorOfProject } from "~/routes/project/$slug/settings/utils.server";
 
 async function main() {
-  const bulk = [];
-
   // profiles
 
+  const profileBulk = [];
   const profiles = await prismaClient.profile.findMany({
     select: {
       id: true,
-      username: true,
-      offers: {
-        select: {
-          offer: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-      seekings: {
-        select: {
-          offer: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
     },
   });
 
   console.log(`Creating filter vectors of ${profiles.length} profiles.`);
 
   for (const profile of profiles) {
-    bulk.push(updateFilterVectorOfProfile(profile.id));
+    profileBulk.push(updateFilterVectorOfProfile(profile.id));
   }
+
+  await Promise.all(profileBulk);
 
   // organizations
 
+  const organizationBulk = [];
   const organizations = await prismaClient.organization.findMany({
     select: {
       id: true,
-      slug: true,
-      types: {
-        select: {
-          organizationType: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-      focuses: {
-        select: {
-          focus: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
     },
   });
 
@@ -72,118 +36,49 @@ async function main() {
   );
 
   for (const organization of organizations) {
-    bulk.push(updateFilterVectorOfOrganization(organization.id));
+    organizationBulk.push(updateFilterVectorOfOrganization(organization.id));
   }
+
+  await Promise.all(organizationBulk);
 
   // events
 
+  const eventBulk = [];
   const events = await prismaClient.event.findMany({
     select: {
       id: true,
-      slug: true,
-      types: {
-        select: {
-          eventType: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-      focuses: {
-        select: {
-          focus: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-      eventTargetGroups: {
-        select: {
-          eventTargetGroup: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
     },
   });
 
   console.log(`Creating filter vectors of ${events.length} events.`);
 
   for (const event of events) {
-    bulk.push(updateFilterVectorOfEvent(event.id));
+    eventBulk.push(updateFilterVectorOfEvent(event.id));
   }
+
+  await Promise.all(eventBulk);
 
   // projects
 
+  const projectBulk = [];
   const projects = await prismaClient.project.findMany({
     select: {
       id: true,
-      slug: true,
-      disciplines: {
-        select: {
-          discipline: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-      projectTargetGroups: {
-        select: {
-          projectTargetGroup: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-      formats: {
-        select: {
-          format: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-      specialTargetGroups: {
-        select: {
-          specialTargetGroup: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-      financings: {
-        select: {
-          financing: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
     },
   });
 
   console.log(`Creating filter vectors of ${projects.length} projects.`);
 
   for (const project of projects) {
-    bulk.push(updateFilterVectorOfProject(project.id));
+    projectBulk.push(updateFilterVectorOfProject(project.id));
   }
 
-  await Promise.all(bulk);
+  await Promise.all(projectBulk);
 }
 
 main()
   .catch((error) => {
     console.error(error);
-    process.exit(1);
   })
   .finally(async () => {
     await prismaClient.$disconnect();

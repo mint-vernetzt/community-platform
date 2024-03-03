@@ -1,5 +1,13 @@
 import { prismaClient } from "~/prisma.server";
 import { generateValidSlug } from "~/utils.server";
+// import crypto from "node:crypto";
+
+// function hashFunction(slug: string) {
+//   const hash = crypto.createHash("md5").update(slug).digest("hex");
+//   const hashValue = parseInt(hash, 16);
+//   console.log(hash, hashValue, hashValue.toString(36));
+//   return hashValue.toString(36);
+// }
 
 async function main() {
   console.log("Add slugs to areas...");
@@ -16,9 +24,11 @@ async function main() {
   const areaSlugs: String[] = [];
 
   for (const area of areas) {
-    const slug = `${generateValidSlug(area.name, { noHash: true })}-${
-      area.type
-    }`;
+    const slug = generateValidSlug(`${area.name}`, {
+      hashFunction: (slug) => {
+        return `${slug}-${area.type}`;
+      },
+    });
     const update = prismaClient.area.update({
       where: { id: area.id },
       data: {

@@ -84,6 +84,15 @@ export async function updateFilterVectorOfProject(projectId: string) {
           },
         },
       },
+      // areas: {
+      //   select: {
+      //     area: {
+      //       select: {
+      //         slug: true,
+      //       },
+      //     },
+      //   },
+      // },
     },
   });
 
@@ -94,6 +103,8 @@ export async function updateFilterVectorOfProject(projectId: string) {
       project.formats.length === 0 &&
       project.specialTargetGroups.length === 0 &&
       project.financings.length === 0
+      // project.financings.length === 0 &&
+      // project.areas.length === 0
     ) {
       await prismaClient.$queryRawUnsafe(
         `update projects set filter_vector = NULL where id = '${project.id}'`
@@ -114,12 +125,16 @@ export async function updateFilterVectorOfProject(projectId: string) {
       const financingVectors = project.financings.map(
         (relation) => `financing:${relation.financing.slug}`
       );
+      // const areaVectors = project.areas.map(
+      //   (relation) => `area:${relation.area.slug}`
+      // );
       const vectors = [
         ...disciplineVectors,
         ...targetGroupVectors,
         ...formatVectors,
         ...specialTargetGroupVectors,
         ...financingVectors,
+        // ...areaVectors,
       ];
       const vectorString = `{"${vectors.join(`","`)}"}`;
       const query = `update projects set filter_vector = array_to_tsvector('${vectorString}') where id = '${project.id}'`;
