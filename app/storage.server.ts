@@ -1,4 +1,3 @@
-import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import type { Document } from "@prisma/client";
 import {
   json,
@@ -10,6 +9,7 @@ import { fileTypeFromBuffer } from "file-type";
 import JSZip from "jszip";
 import { createHashFromString } from "./utils.server";
 import { escapeFilenameSpecialChars } from "./lib/string/escapeFilenameSpecialChars";
+import { type SupabaseClient } from "@supabase/supabase-js";
 
 const uploadKeys = ["avatar", "background", "logo", "document"];
 const imageUploadKeys = ["avatar", "background", "logo"];

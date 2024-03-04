@@ -1,5 +1,5 @@
 import { json } from "@remix-run/server-runtime";
-import type { SupabaseClient } from "@supabase/auth-helpers-remix";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { getSessionUser } from "~/auth.server";
 
 export async function getFeatureAbilities(

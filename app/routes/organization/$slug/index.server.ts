@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { GravityType, getImageURL } from "~/images.server";
 import {
   filterEventByVisibility,

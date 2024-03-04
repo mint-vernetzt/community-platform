@@ -1,6 +1,6 @@
 import type { Profile } from "@prisma/client";
 import { json } from "@remix-run/server-runtime";
-import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { GravityType, getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import {
