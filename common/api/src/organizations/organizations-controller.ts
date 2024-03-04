@@ -141,9 +141,13 @@ export class OrganizationsController extends Controller {
   @Security("api_key")
   @Get()
   public async getAllOrganizations(
+    // @ts-ignore
     @Query("skip") skip: number,
+    // @ts-ignore
     @Query("take") take: number,
+    // @ts-ignore
     @Request() request: ExpressRequest,
+    // @ts-ignore
     @Res()
     badRequestResponse: TsoaResponse<
       400,

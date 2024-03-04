@@ -51,7 +51,9 @@ export class OrganizationController extends Controller {
     }
   )
   public async getOrganization(
+    // @ts-ignore
     @Request() request: ExpressRequest,
+    // @ts-ignore
     @Path() slug: string
   ) {
     const organization = await prismaClient.organization.findFirst({

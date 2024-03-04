@@ -50,7 +50,9 @@ export class ProjectController extends Controller {
     }
   )
   public async getProject(
+    // @ts-ignore
     @Request() request: ExpressRequest,
+    // @ts-ignore
     @Path() slug: string
   ) {
     const project = await prismaClient.project.findFirst({

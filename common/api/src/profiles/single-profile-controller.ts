@@ -50,7 +50,9 @@ export class ProfileController extends Controller {
     }
   )
   public async getProfile(
+    // @ts-ignore
     @Request() request: ExpressRequest,
+    // @ts-ignore
     @Path() username: string
   ) {
     const profile = await prismaClient.profile.findFirst({
