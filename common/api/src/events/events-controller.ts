@@ -1,21 +1,194 @@
 import {
   Controller,
   Get,
-  Query,
   Route,
   Response,
   Security,
-  Res,
   Tags,
   Example,
   Request,
+  Query,
+  Res,
 } from "tsoa";
 import type { ValidateError, TsoaResponse } from "tsoa";
 
 import { getAllEvents } from "./events-service";
 import type { Request as ExpressRequest } from "express";
 
-type GetEventsResult = ReturnType<typeof getAllEvents>;
+const exampleResponse = {
+  result: [
+    {
+      id: "a24004fa-aee8-40e2-aeb8-c6a40a1a2ee4",
+      name: "Consensus in heterogeneous groups",
+      slug: "event-slug",
+      url: "https://community.platform.org/url/to/event",
+      background: "https://img.platform.org/public/url/of/event/background",
+      description:
+        "Welcome to our event where we present and discuss multiple ways to find consensus in heterogeneous groups. In <strong>multiple workshops</strong> and keynote speeches we will explore strategies to ...",
+      subline: "Discussing different approaches to find consensus",
+      startTime: new Date("Sat, 17 Jun 2017 10:00:00 GMT"),
+      endTime: new Date("Sun, 18 Jun 2017 18:00:00 GMT"),
+      participationFrom: new Date("Mon, 12 Jun 2017 00:00:00 GMT"),
+      participationUntil: new Date("Fri, 16 Jun 2017 00:00:00 GMT"),
+      participantLimit: 20,
+      venueName: "Meetingpalace",
+      venueStreet: "Gatheringstreet",
+      venueStreetNumber: "12",
+      venueCity: "City of Happenings",
+      venueZipCode: "12345",
+      canceled: false,
+      areas: [
+        {
+          area: {
+            name: "India",
+          },
+        },
+        {
+          area: {
+            name: "Bavaria",
+          },
+        },
+        {
+          area: {
+            name: "New York City",
+          },
+        },
+      ],
+      types: [
+        {
+          eventType: {
+            title: "Exchange",
+          },
+        },
+        {
+          eventType: {
+            title: "Keynote",
+          },
+        },
+        {
+          eventType: {
+            title: "Workshop",
+          },
+        },
+      ],
+      focuses: [
+        {
+          focus: {
+            title: "Social Media Management",
+          },
+        },
+        {
+          focus: {
+            title: "Politics",
+          },
+        },
+        {
+          focus: {
+            title: "Science",
+          },
+        },
+        {
+          focus: {
+            title: "Career Orientation",
+          },
+        },
+      ],
+      tags: [
+        {
+          tag: {
+            title: "Didactics",
+          },
+        },
+        {
+          tag: {
+            title: "Gender",
+          },
+        },
+        {
+          tag: {
+            title: "Innovation",
+          },
+        },
+        {
+          tag: {
+            title: "Networking",
+          },
+        },
+      ],
+      targetGroups: [
+        {
+          targetGroup: {
+            title: "Elementary School",
+          },
+        },
+        {
+          targetGroup: {
+            title: "Early Childhood Education",
+          },
+        },
+        {
+          targetGroup: {
+            title: "Teachers",
+          },
+        },
+      ],
+      experienceLevel: {
+        title: "Beginner",
+      },
+      stage: {
+        title: "Hybrid",
+      },
+      _count: {
+        participants: 20,
+        waitingList: 3,
+      },
+      responsibleOrganizations: [
+        {
+          organization: {
+            name: "Platform",
+            slug: "platform",
+            logo: "https://img.platform.org/public/url/of/logo",
+            url: "https://community.platform.org/url/to/organization",
+          },
+        },
+      ],
+    },
+    {
+      id: "ffca2a3a-c0bf-4931-b65a-8d8ccf867096",
+      name: "Smallest Event",
+      slug: "smallest-event",
+      url: null,
+      background: null,
+      description: null,
+      subline: null,
+      startTime: new Date("Sat, 17 Jun 2017 10:00:00 GMT"),
+      endTime: new Date("Sun, 18 Jun 2017 18:00:00 GMT"),
+      participationFrom: new Date("Mon, 12 Jun 2017 00:00:00 GMT"),
+      participationUntil: new Date("Fri, 16 Jun 2017 00:00:00 GMT"),
+      participantLimit: null,
+      venueName: null,
+      venueStreet: null,
+      venueStreetNumber: null,
+      venueCity: null,
+      venueZipCode: null,
+      canceled: true,
+      areas: [],
+      types: [],
+      focuses: [],
+      tags: [],
+      targetGroups: [],
+      experienceLevel: null,
+      stage: null,
+      _count: {
+        participants: 0,
+        waitingList: 0,
+      },
+      responsibleOrganizations: [],
+    },
+  ],
+  skip: 0,
+  take: 2,
+};
 
 @Route("events")
 @Tags("Events")
@@ -28,180 +201,7 @@ export class EventsController extends Controller {
    * @param badRequestResponse A take parameter larger than 50 is not allowed
    * @summary Retrieve all events.
    */
-  @Example<Awaited<GetEventsResult>>({
-    result: [
-      {
-        id: "a24004fa-aee8-40e2-aeb8-c6a40a1a2ee4",
-        name: "Consensus in heterogeneous groups",
-        slug: "event-slug",
-        url: "https://community.platform.org/url/to/event",
-        background: "https://img.platform.org/public/url/of/event/background",
-        description:
-          "Welcome to our event where we present and discuss multiple ways to find consensus in heterogeneous groups. In <strong>multiple workshops</strong> and keynote speeches we will explore strategies to ...",
-        subline: "Discussing different approaches to find consensus",
-        startTime: new Date("Sat, 17 Jun 2017 10:00:00 GMT"),
-        endTime: new Date("Sun, 18 Jun 2017 18:00:00 GMT"),
-        participationFrom: new Date("Mon, 12 Jun 2017 00:00:00 GMT"),
-        participationUntil: new Date("Fri, 16 Jun 2017 00:00:00 GMT"),
-        participantLimit: 20,
-        venueName: "Meetingpalace",
-        venueStreet: "Gatheringstreet",
-        venueStreetNumber: "12",
-        venueCity: "City of Happenings",
-        venueZipCode: "12345",
-        canceled: false,
-        areas: [
-          {
-            area: {
-              name: "India",
-            },
-          },
-          {
-            area: {
-              name: "Bavaria",
-            },
-          },
-          {
-            area: {
-              name: "New York City",
-            },
-          },
-        ],
-        types: [
-          {
-            eventType: {
-              title: "Exchange",
-            },
-          },
-          {
-            eventType: {
-              title: "Keynote",
-            },
-          },
-          {
-            eventType: {
-              title: "Workshop",
-            },
-          },
-        ],
-        focuses: [
-          {
-            focus: {
-              title: "Social Media Management",
-            },
-          },
-          {
-            focus: {
-              title: "Politics",
-            },
-          },
-          {
-            focus: {
-              title: "Science",
-            },
-          },
-          {
-            focus: {
-              title: "Career Orientation",
-            },
-          },
-        ],
-        tags: [
-          {
-            tag: {
-              title: "Didactics",
-            },
-          },
-          {
-            tag: {
-              title: "Gender",
-            },
-          },
-          {
-            tag: {
-              title: "Innovation",
-            },
-          },
-          {
-            tag: {
-              title: "Networking",
-            },
-          },
-        ],
-        targetGroups: [
-          {
-            targetGroup: {
-              title: "Elementary School",
-            },
-          },
-          {
-            targetGroup: {
-              title: "Early Childhood Education",
-            },
-          },
-          {
-            targetGroup: {
-              title: "Teachers",
-            },
-          },
-        ],
-        experienceLevel: {
-          title: "Beginner",
-        },
-        stage: {
-          title: "Hybrid",
-        },
-        _count: {
-          participants: 20,
-          waitingList: 3,
-        },
-        responsibleOrganizations: [
-          {
-            organization: {
-              name: "Platform",
-              slug: "platform",
-              logo: "https://img.platform.org/public/url/of/logo",
-              url: "https://community.platform.org/url/to/organization",
-            },
-          },
-        ],
-      },
-      {
-        id: "ffca2a3a-c0bf-4931-b65a-8d8ccf867096",
-        name: "Smallest Event",
-        slug: "smallest-event",
-        url: null,
-        background: null,
-        description: null,
-        subline: null,
-        startTime: new Date("Sat, 17 Jun 2017 10:00:00 GMT"),
-        endTime: new Date("Sun, 18 Jun 2017 18:00:00 GMT"),
-        participationFrom: new Date("Mon, 12 Jun 2017 00:00:00 GMT"),
-        participationUntil: new Date("Fri, 16 Jun 2017 00:00:00 GMT"),
-        participantLimit: null,
-        venueName: null,
-        venueStreet: null,
-        venueStreetNumber: null,
-        venueCity: null,
-        venueZipCode: null,
-        canceled: true,
-        areas: [],
-        types: [],
-        focuses: [],
-        tags: [],
-        targetGroups: [],
-        experienceLevel: null,
-        stage: null,
-        _count: {
-          participants: 0,
-          waitingList: 0,
-        },
-        responsibleOrganizations: [],
-      },
-    ],
-    skip: 0,
-    take: 2,
-  })
+  @Example<typeof exampleResponse>(exampleResponse)
   @Response<Pick<ValidateError, "status" | "message" | "fields">>(
     401,
     "Authentication failed",
@@ -262,7 +262,7 @@ export class EventsController extends Controller {
         status: 400;
       }
     >
-  ): GetEventsResult {
+  ) {
     if (take > 50) {
       return badRequestResponse(400, {
         status: 400,

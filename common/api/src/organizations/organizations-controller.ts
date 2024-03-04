@@ -1,20 +1,93 @@
 import {
   Controller,
   Get,
-  Query,
   Route,
   Response,
   Security,
-  Request,
-  Res,
   Tags,
   Example,
+  Request,
+  Query,
+  Res,
 } from "tsoa";
 import type { TsoaResponse, ValidateError } from "tsoa";
 import { getAllOrganizations } from "./organizations-service";
 import type { Request as ExpressRequest } from "express";
 
-type GetOrganizationsResult = ReturnType<typeof getAllOrganizations>;
+const exampleResponse = {
+  result: [
+    {
+      id: "52907745-7672-470e-a803-a2f8feb52944",
+      name: "Association For Love And Harmony",
+      url: "https://community.platform.org/url/to/organization",
+      logo: "https://img.platform.org/public/url/of/organization/logo",
+      background:
+        "https://img.platform.org/public/url/of/organization/background",
+      bio: "I am a <strong>bio</strong>",
+      street: "Freedom Road",
+      streetNumber: "22",
+      city: "City of Relief",
+      zipCode: "12345",
+      supportedBy: [
+        "Aung San Suu Kyi",
+        "Rigoberta Menchú",
+        "Nelson Mandela",
+        "Jody Williams",
+      ],
+      areas: [
+        {
+          area: {
+            name: "India",
+          },
+        },
+        {
+          area: {
+            name: "Bavaria",
+          },
+        },
+        {
+          area: {
+            name: "New York City",
+          },
+        },
+      ],
+      types: [
+        {
+          organizationType: {
+            title: "Association",
+          },
+        },
+        {
+          organizationType: {
+            title: "Company",
+          },
+        },
+        {
+          organizationType: {
+            title: "Initiative",
+          },
+        },
+      ],
+    },
+    {
+      id: "87e17b22-4846-4234-9d88-01958ab61960",
+      name: "Smallest Organization",
+      url: null,
+      logo: null,
+      background: null,
+      bio: null,
+      street: null,
+      streetNumber: null,
+      city: null,
+      zipCode: null,
+      supportedBy: [],
+      areas: [],
+      types: [],
+    },
+  ],
+  skip: 0,
+  take: 2,
+};
 
 @Route("organizations")
 @Tags("Organizations")
@@ -27,80 +100,7 @@ export class OrganizationsController extends Controller {
    * @param badRequestResponse A take parameter larger than 50 is not allowed
    * @summary Retrieve all organizations.
    */
-  @Example<Awaited<GetOrganizationsResult>>({
-    result: [
-      {
-        id: "52907745-7672-470e-a803-a2f8feb52944",
-        name: "Association For Love And Harmony",
-        url: "https://community.platform.org/url/to/organization",
-        logo: "https://img.platform.org/public/url/of/organization/logo",
-        background:
-          "https://img.platform.org/public/url/of/organization/background",
-        bio: "I am a <strong>bio</strong>",
-        street: "Freedom Road",
-        streetNumber: "22",
-        city: "City of Relief",
-        zipCode: "12345",
-        supportedBy: [
-          "Aung San Suu Kyi",
-          "Rigoberta Menchú",
-          "Nelson Mandela",
-          "Jody Williams",
-        ],
-        areas: [
-          {
-            area: {
-              name: "India",
-            },
-          },
-          {
-            area: {
-              name: "Bavaria",
-            },
-          },
-          {
-            area: {
-              name: "New York City",
-            },
-          },
-        ],
-        types: [
-          {
-            organizationType: {
-              title: "Association",
-            },
-          },
-          {
-            organizationType: {
-              title: "Company",
-            },
-          },
-          {
-            organizationType: {
-              title: "Initiative",
-            },
-          },
-        ],
-      },
-      {
-        id: "87e17b22-4846-4234-9d88-01958ab61960",
-        name: "Smallest Organization",
-        url: null,
-        logo: null,
-        background: null,
-        bio: null,
-        street: null,
-        streetNumber: null,
-        city: null,
-        zipCode: null,
-        supportedBy: [],
-        areas: [],
-        types: [],
-      },
-    ],
-    skip: 0,
-    take: 2,
-  })
+  @Example<typeof exampleResponse>(exampleResponse)
   @Response<Pick<ValidateError, "status" | "message" | "fields">>(
     401,
     "Authentication failed",
@@ -161,7 +161,7 @@ export class OrganizationsController extends Controller {
         status: 400;
       }
     >
-  ): GetOrganizationsResult {
+  ) {
     if (take > 50) {
       return badRequestResponse(400, {
         status: 400,
