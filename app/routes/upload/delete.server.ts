@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import { triggerEntityScore } from "~/utils.server";
 import type { UploadKey } from "./utils.server";

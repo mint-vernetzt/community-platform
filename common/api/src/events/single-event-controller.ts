@@ -50,7 +50,9 @@ export class EventController extends Controller {
     }
   )
   public async getEvent(
+    // @ts-ignore
     @Request() request: ExpressRequest,
+    // @ts-ignore
     @Path() slug: string
   ) {
     const event = await prismaClient.event.findFirst({

@@ -1,7 +1,6 @@
 import type { Profile } from "@prisma/client";
-import type { SupabaseClient } from "@supabase/auth-helpers-remix";
 import { prismaClient } from "./prisma.server";
-import { createClient } from "@supabase/supabase-js";
+import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 import { createServerClient, parse, serialize } from "@supabase/ssr";
 import { json } from "@remix-run/server-runtime";
 

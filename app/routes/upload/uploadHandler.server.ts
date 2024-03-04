@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/auth-helpers-remix";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { UploadHandler } from "@remix-run/node";
 import {
   json,

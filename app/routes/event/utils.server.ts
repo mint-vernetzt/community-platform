@@ -1,5 +1,5 @@
 import { type Event } from "@prisma/client";
-import { type User } from "@supabase/auth-helpers-remix";
+import { type User } from "@supabase/supabase-js";
 import { zonedTimeToUtc } from "date-fns-tz";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";

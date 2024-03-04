@@ -3,7 +3,7 @@
   "noImplicitAdditionalProperties": "throw-on-extras",
   "controllerPathGlobs": ["src/**/*-controller.ts"],
   "spec": {
-    "outputDirectory": "build",
+    "outputDirectory": ".",
     "specVersion": 3,
     "securityDefinitions": {
       "api_key": {
@@ -14,7 +14,7 @@
     }
   },
   "routes": {
-    "routesDir": "build",
+    "routesDir": "src",
     "authenticationModule": "./src/authentication.ts"
   }
 }

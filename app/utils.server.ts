@@ -1,10 +1,10 @@
-import type { SupabaseClient, User } from "@supabase/auth-helpers-remix";
 import type { BinaryToTextEncoding } from "crypto";
 import { createHmac, randomBytes } from "crypto";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { getSession } from "./auth.server";
 import { prismaClient } from "./prisma.server";
 import { json } from "@remix-run/server-runtime";
+import { type SupabaseClient, type User } from "@supabase/supabase-js";
 
 export type Mode = "anon" | "authenticated";
 

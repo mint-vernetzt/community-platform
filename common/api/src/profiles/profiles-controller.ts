@@ -1,21 +1,72 @@
 import {
   Controller,
   Get,
-  Query,
   Route,
   Response,
   Security,
-  Res,
   Tags,
   Example,
   Request,
+  Query,
+  Res,
 } from "tsoa";
 import type { ValidateError, TsoaResponse } from "tsoa";
-
-import { getAllProfiles } from "./profiles-service";
 import type { Request as ExpressRequest } from "express";
+import { getAllProfiles } from "./profiles-service";
 
-type GetProfilesResult = ReturnType<typeof getAllProfiles>;
+const exampleResponse = {
+  result: [
+    {
+      id: "ffca2a3a-c0bf-4931-b65a-8d8ccf867096",
+      firstName: "John",
+      lastName: "Doe",
+      academicTitle: "Dr.",
+      email: "",
+      url: null,
+      avatar: "https://img.platform.org/public/url/of/profile/avatar",
+      background: "https://img.platform.org/public/url/of/profile/background",
+      bio: "I am a </strong>bio</strong>",
+      areas: [
+        {
+          area: {
+            name: "India",
+          },
+        },
+        {
+          area: {
+            name: "Bavaria",
+          },
+        },
+      ],
+      offers: [
+        {
+          offer: {
+            title: "Offer 1",
+          },
+        },
+        {
+          offer: {
+            title: "Offer 2",
+          },
+        },
+      ],
+      seekings: [
+        {
+          offer: {
+            title: "Offer 1",
+          },
+        },
+        {
+          offer: {
+            title: "Offer 2",
+          },
+        },
+      ],
+    },
+  ],
+  skip: 0,
+  take: 2,
+};
 
 @Route("profiles")
 @Tags("Profiles")
@@ -28,59 +79,7 @@ export class ProfilesController extends Controller {
    * @param badRequestResponse A take parameter larger than 50 is not allowed
    * @summary Retrieve all profiles.
    */
-  @Example<Awaited<GetProfilesResult>>({
-    result: [
-      {
-        id: "ffca2a3a-c0bf-4931-b65a-8d8ccf867096",
-        firstName: "John",
-        lastName: "Doe",
-        academicTitle: "Dr.",
-        email: "",
-        url: null,
-        avatar: "https://img.platform.org/public/url/of/profile/avatar",
-        background: "https://img.platform.org/public/url/of/profile/background",
-        bio: "I am a </strong>bio</strong>",
-        areas: [
-          {
-            area: {
-              name: "India",
-            },
-          },
-          {
-            area: {
-              name: "Bavaria",
-            },
-          },
-        ],
-        offers: [
-          {
-            offer: {
-              title: "Offer 1",
-            },
-          },
-          {
-            offer: {
-              title: "Offer 2",
-            },
-          },
-        ],
-        seekings: [
-          {
-            offer: {
-              title: "Offer 1",
-            },
-          },
-          {
-            offer: {
-              title: "Offer 2",
-            },
-          },
-        ],
-      },
-    ],
-    skip: 0,
-    take: 2,
-  })
+  @Example<typeof exampleResponse>(exampleResponse)
   @Response<Pick<ValidateError, "status" | "message" | "fields">>(
     401,
     "Authentication failed",
@@ -121,9 +120,13 @@ export class ProfilesController extends Controller {
   @Security("api_key")
   @Get()
   public async getAllEvents(
+    // @ts-ignore
     @Query("skip") skip: number,
+    // @ts-ignore
     @Query("take") take: number,
+    // @ts-ignore
     @Request() request: ExpressRequest,
+    // @ts-ignore
     @Res()
     badRequestResponse: TsoaResponse<
       400,
@@ -137,7 +140,7 @@ export class ProfilesController extends Controller {
         status: 400;
       }
     >
-  ): GetProfilesResult {
+  ) {
     if (take > 50) {
       return badRequestResponse(400, {
         status: 400,

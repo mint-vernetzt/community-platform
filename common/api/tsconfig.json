@@ -2,9 +2,10 @@
   "compilerOptions": {
     /* Basic Options */
     "incremental": true,
-    "target": "es6",
-    "module": "commonjs",
+    "target": "ESNext",
+    "module": "CommonJS",
     "outDir": "build",
+    "lib": ["ESNext"],
 
     /* Strict Type-Checking Options */
     "strict": true,
@@ -41,5 +42,5 @@
   "ts-node": {
     "files": true
   },
-  "files": ["src/@types/matomo-tracker/index.d.ts"]
+  "include": ["src/**/*"]
 }

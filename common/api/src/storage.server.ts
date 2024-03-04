@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import type { SupabaseClient } from "@supabase/auth-helpers-remix";
+import { type SupabaseClient } from "@supabase/supabase-js";
 
 export function getPublicURL(
   authClient: SupabaseClient,

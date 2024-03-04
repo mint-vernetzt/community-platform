@@ -4,9 +4,9 @@ import type {
   Request as ExRequest,
   NextFunction,
 } from "express";
-import { RegisterRoutes } from "../build/routes";
+import { RegisterRoutes } from "./routes";
 import swaggerUI from "swagger-ui-express";
-import swaggerDocument from "../build/swagger.json";
+import swaggerDocument from "../swagger.json";
 import { ValidateError } from "tsoa";
 import matomoMiddleware from "./middlewares/express-matomo-middleware";
 
