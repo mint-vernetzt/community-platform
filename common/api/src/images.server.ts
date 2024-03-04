@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import { createHmac } from "crypto";
 
 export type ResizeType = "fit" | "fill" | "crop";
 
@@ -90,7 +90,7 @@ export function getImageURL(
   const serializedOptions = serialize(imgOptions); // {key: "value"} --> "/key:value"
   const uri = `/${serializedOptions}/${encodeUrl(url)}`;
 
-  const hmac = crypto.createHmac("sha256", Buffer.from(key, "hex"));
+  const hmac = createHmac("sha256", Buffer.from(key, "hex"));
   hmac.update(Buffer.from(salt, "hex"));
   hmac.update(Buffer.from(uri));
 
