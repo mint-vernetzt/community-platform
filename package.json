@@ -37,7 +37,9 @@
   },
   "dependencies": {
     "@conform-to/react": "^0.9.1",
+    "@conform-to/react-v1": "npm:@conform-to/react@^1.0.2",
     "@conform-to/zod": "^0.9.1",
+    "@conform-to/zod-v1": "npm:@conform-to/zod@^1.0.2",
     "@fontsource/source-sans-pro": "^5.0.8",
     "@hookform/resolvers": "^3.3.2",
     "@prisma/client": "^5.7.1",

@@ -189,6 +189,7 @@ export async function getAllOffers() {
     select: {
       id: true,
       title: true,
+      slug: true,
     },
   });
 }
