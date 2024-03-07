@@ -10,6 +10,7 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
+  Link,
   useFetcher,
   useLoaderData,
   useSearchParams,
@@ -195,6 +196,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       itemsPerPage: pagination.itemsPerPage,
     },
     submission: transformedSubmission,
+    filterVector,
   });
 };
 
@@ -275,7 +277,7 @@ export default function Index() {
         <Form
           method="get"
           onChange={handleChange}
-          preventScrollReset={true}
+          preventScrollReset
           {...getFormProps(form)}
         >
           <input name="page" defaultValue="1" hidden />
@@ -284,14 +286,24 @@ export default function Index() {
               <legend className="font-bold mb-2">Angebotene Kompetenzen</legend>
               <ul>
                 {loaderData.offers.map((offer) => {
+                  const offerVector = loaderData.filterVector.find((vector) => {
+                    return vector.attr === "offer";
+                  });
+                  // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
+                  const offerIndex = offerVector?.value.indexOf(
+                    offer.slug || ""
+                  );
+                  const offerCount = offerVector?.count.at(offerIndex || 0);
                   return (
                     <li key={offer.id}>
-                      <label className="mr-2">{offer.title}</label>
+                      <label className="mr-2">
+                        {offer.title} ({offerCount})
+                      </label>
                       <input
                         name={filter.offer.name}
                         type="checkbox"
-                        // TODO: Remove not found when slug isn't optional anymore (after migration)
-                        defaultValue={offer.slug || "Not found"}
+                        // TODO: Remove undefined when slug isn't optional anymore (after migration)
+                        defaultValue={offer.slug || undefined}
                         defaultChecked={selectedOffers.some((selectedOffer) => {
                           return selectedOffer.value === offer.slug;
                         })}
@@ -362,6 +374,10 @@ export default function Index() {
           >
             Alles zurücksetzen
           </button> */}
+          {/* TODO: sortValue as search param to keept it saved? */}
+          <Link to={"/explore/profiles"} preventScrollReset>
+            Alles zurücksetzen
+          </Link>
         </Form>
       </section>
 
@@ -426,6 +442,8 @@ export default function Index() {
         ) : (
           <p className="text-center text-primary">{t("empty")}</p>
         )}
+        {/* TODO: Show message when the result is shortened because of profile visibilities */}
+        {/* Something like: X profiles are not shown because they want to keep this information private. Login to see more. */}
       </section>
     </>
   );

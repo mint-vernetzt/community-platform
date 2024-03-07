@@ -138,28 +138,53 @@ export async function getProfileFilterVector(options: {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
       for (const slug of options.filter[typedFilterKey]) {
-        const tuple = `'${typedFilterKey}:${slug}'`;
-        const whereStatement = Prisma.sql`filter_vector @@ ${tuple}::tsquery`;
+        const tuple = `${typedFilterKey}:${slug}`;
+        const whereStatement = Prisma.sql`filter_vector @@ 'offer\:volunteering'::tsquery`;
+        // const whereStatement = Prisma.sql`filter_vector @@ '${tuple}'::tsquery`;
         whereStatements.push(whereStatement);
       }
     }
   }
 
   if (whereStatements.length > 0) {
-    whereClause = Prisma.join(whereStatements, ") AND (", "WHERE (", ")");
+    whereClause = Prisma.join(whereStatements, " AND ", "WHERE ");
   }
 
   console.log("\n", whereClause.sql, "\n");
 
-  const filterVector = await prismaClient.$queryRaw`
+  // TODO: Where clause not working as expected
+  const filterVector: {
+    attr: keyof NonNullable<typeof options.filter>;
+    value: string[];
+    count: number[];
+  }[] = await prismaClient.$queryRaw`
   SELECT
     split_part(word, ':', 1) AS attr,
-    split_part(word, ':', 2) AS value,
-    ndoc AS count
+    array_agg(split_part(word, ':', 2)) AS value,
+    array_agg(ndoc) AS count
   FROM ts_stat($$
-    SELECT filter_vector FROM projects
-    ${whereClause}		 
-  $$);`;
+    SELECT filter_vector FROM profiles
+    -- WHERE filter_vector @@ 'offer\:volunteering'::tsquery
+  $$)
+  GROUP BY attr;`;
+  // const filterVector = await prismaClient.$queryRawUnsafe(`
+  // SELECT
+  //   split_part(word, ':', 1) AS attr,
+  //   split_part(word, ':', 2) AS value,
+  //   ndoc AS count
+  // FROM ts_stat($$
+  //   SELECT filter_vector FROM profiles
+  //   WHERE filter_vector @@ 'offer\:volunteering'::tsquery
+  // $$);`);
+  // const filterVector = await prismaClient.$queryRaw`
+  // SELECT
+  //   split_part(word, ':', 1) AS attr,
+  //   split_part(word, ':', 2) AS value,
+  //   ndoc AS count
+  // FROM ts_stat($$
+  //   SELECT filter_vector FROM profiles
+  //   ${whereClause}
+  // $$);`;
   // ORDER BY attr, value;`;
 
   return filterVector;
