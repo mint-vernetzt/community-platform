@@ -165,8 +165,10 @@ export async function getProfileFilterVector(options: {
   FROM ts_stat($$
     SELECT filter_vector FROM profiles
     -- WHERE filter_vector @@ 'offer\:volunteering'::tsquery
+    -- WHERE filter_vector @@ to_tsquery('offer\:volunteering')
   $$)
   GROUP BY attr;`;
+
   // const filterVector = await prismaClient.$queryRawUnsafe(`
   // SELECT
   //   split_part(word, ':', 1) AS attr,
@@ -176,6 +178,7 @@ export async function getProfileFilterVector(options: {
   //   SELECT filter_vector FROM profiles
   //   WHERE filter_vector @@ 'offer\:volunteering'::tsquery
   // $$);`);
+
   // const filterVector = await prismaClient.$queryRaw`
   // SELECT
   //   split_part(word, ':', 1) AS attr,
