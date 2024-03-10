@@ -79,6 +79,7 @@ module.exports = {
     },
   },
   safelist: [
+    "mv-grid-rows-[repeat(1,_1fr)_repeat(1,_0fr)",
     "mv-grid-rows-[repeat(2,_1fr)_repeat(8,_0fr)]",
     "mv-grid-rows-[repeat(2,_1fr)_repeat(7,_0fr)]",
     "mv-grid-rows-[repeat(2,_1fr)_repeat(6,_0fr)]",
@@ -91,6 +92,7 @@ module.exports = {
     "md:mv-grid-rows-[repeat(3,_1fr)_repeat(5,_0fr)]",
     "md:mv-grid-rows-[repeat(3,_1fr)_repeat(4,_0fr)]",
     "md:mv-grid-rows-[repeat(3,_1fr)_repeat(3,_0fr)]",
+    "peer-checked:mv-grid-rows-1",
     "peer-checked:mv-grid-rows-3",
     "peer-checked:mv-grid-rows-3",
     "peer-checked:mv-grid-rows-3",
