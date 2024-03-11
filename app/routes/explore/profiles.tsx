@@ -213,10 +213,6 @@ export default function Index() {
     }
     return 1;
   });
-  const areaId = searchParams.get("areaId");
-  const offerId = searchParams.get("offerId");
-  const seekingId = searchParams.get("seekingId");
-  const sortBy = searchParams.get("sortBy");
 
   React.useEffect(() => {
     if (fetcher.data !== undefined) {
@@ -352,8 +348,11 @@ export default function Index() {
                     return offer.slug === selectedOffer.value;
                   });
                   return offerMatch[0] !== undefined ? (
-                    <li key={selectedOffer.value}>
+                    <li key={`remove-${selectedOffer.value}`}>
                       <label className="mr-2">{offerMatch[0].title}</label>
+                      {/* <button name={filter.offer.name} defaultValue={undefined}>
+                        X
+                      </button> */}
                       <input
                         name={filter.offer.name}
                         type="checkbox"
@@ -426,30 +425,30 @@ export default function Index() {
                     name="page"
                     defaultValue={page + 1}
                   />
-                  <input
-                    key="areaId"
-                    type="hidden"
-                    name="areaId"
-                    defaultValue={areaId ?? ""}
-                  />
-                  <input
-                    key="offerId"
-                    type="hidden"
-                    name="offerId"
-                    defaultValue={offerId ?? ""}
-                  />
-                  <input
-                    key="seekingId"
-                    type="hidden"
-                    name="seekingId"
-                    defaultValue={seekingId ?? ""}
-                  />
-                  <input
-                    key="sortBy"
-                    type="hidden"
-                    name="sortBy"
-                    defaultValue={sortBy ?? "firstNameAsc"}
-                  />
+                  <fieldset>
+                    <ul>
+                      {selectedOffers.map((selectedOffer) => {
+                        return (
+                          <li key={selectedOffer.value}>
+                            <input
+                              type="hidden"
+                              name={filter.offer.name}
+                              defaultValue={selectedOffer.value}
+                            />
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </fieldset>
+                  <fieldset>
+                    <input
+                      key="sortBy"
+                      type="hidden"
+                      name={fields.sortBy.name}
+                      // @ts-ignore TODO: fix type issue
+                      defaultValue={fields.sortBy.value || sortValues[0]}
+                    />
+                  </fieldset>
                   <Button
                     size="large"
                     variant="outline"

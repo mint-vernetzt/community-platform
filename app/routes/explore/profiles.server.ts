@@ -3,7 +3,8 @@ import { type GetProfilesSchema } from "./profiles";
 import { Prisma } from "@prisma/client";
 
 export function getPaginationOptions(page: GetProfilesSchema["page"] = 1) {
-  const itemsPerPage = 12;
+  // TODO: Set back to 12
+  const itemsPerPage = 4;
   const skip = itemsPerPage * (page - 1);
   const take = itemsPerPage;
   return {
@@ -138,6 +139,7 @@ export async function getProfileFilterVector(options: {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
       for (const slug of options.filter[typedFilterKey]) {
+        // TODO: Try strings instead of Prisma.sql and maybe use executeRawUnsafe for that
         const tuple = `${typedFilterKey}:${slug}`;
         const whereStatement = Prisma.sql`filter_vector @@ 'offer\:volunteering'::tsquery`;
         // const whereStatement = Prisma.sql`filter_vector @@ '${tuple}'::tsquery`;
