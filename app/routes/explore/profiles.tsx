@@ -1,11 +1,6 @@
 import { getFieldsetProps, getFormProps, useForm } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import {
-  Button,
-  CardContainer,
-  Chip,
-  ProfileCard,
-} from "@mint-vernetzt/components";
+import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -18,6 +13,7 @@ import {
 } from "@remix-run/react";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { GravityType, getImageURL } from "~/images.server";
@@ -34,7 +30,6 @@ import {
   getPaginationOptions,
   getProfileFilterVector,
 } from "./profiles.server";
-import { z } from "zod";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -303,8 +298,7 @@ export default function Index() {
                       <input
                         name={filter.offer.name}
                         type="checkbox"
-                        // TODO: Remove undefined when slug isn't optional anymore (after migration)
-                        defaultValue={offer.slug || undefined}
+                        defaultValue={offer.slug || undefined} // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                         defaultChecked={selectedOffers.some((selectedOffer) => {
                           return selectedOffer.value === offer.slug;
                         })}
@@ -343,31 +337,58 @@ export default function Index() {
         {selectedOffers.length > 0 && (
           <>
             <p className="font-bold mb-2">Ausgewählte Filter</p>
-            <div className="mb-2">
-              <Chip.Container>
+            <Form
+              method="get"
+              onChange={handleChange}
+              className="mb-2"
+              // TODO: This does not work yet
+              preventScrollReset
+              {...getFormProps(form)}
+            >
+              {/* <Chip.Container> */}
+              <ul>
                 {selectedOffers.map((selectedOffer, index) => {
                   const offerMatch = loaderData.offers.filter((offer) => {
                     return offer.slug === selectedOffer.value;
                   });
                   return offerMatch[0] !== undefined ? (
-                    <Chip key={selectedOffer.key}>
-                      {offerMatch[0].title}
-                      {/* TODO: This throws an error because the submission.status gets undefined,
-                                which is kind of a hustle because then the submission.value field is missing */}
-                      {/* Workarround try: New Form with the Chips and a checkbox input for each offer to delete it (defaultChecked: true) */}
-                      {/* <Chip.Delete>
-                        <button
-                          {...form.remove.getButtonProps({
-                            name: filter.offer.name,
-                            index,
-                          })}
-                        />
-                      </Chip.Delete> */}
-                    </Chip>
+                    <li key={selectedOffer.value}>
+                      <label className="mr-2">{offerMatch[0].title}</label>
+                      <input
+                        name={filter.offer.name}
+                        type="checkbox"
+                        defaultValue={selectedOffer.value}
+                        defaultChecked={true}
+                      />
+                    </li>
                   ) : null;
+                  // <Chip key={selectedOffer.key}>
+                  //   {offerMatch[0].title}
+                  //   {/* TODO: This throws an error because the submission.status gets undefined,
+                  //             which is kind of a hustle because then the submission.value field is missing */}
+                  //   {/* <Chip.Delete>
+                  //     <button
+                  //       {...form.remove.getButtonProps({
+                  //         name: filter.offer.name,
+                  //         index,
+                  //       })}
+                  //     />
+                  //   </Chip.Delete> */}
+                  //   {/* Workarround try: New Form with the Chips and a checkbox input for each offer to delete it (defaultChecked: true) */}
+                  //   {/* Note: This still has an issue as the Chip.Delete Component tries to add children to the input element (svg icon) */}
+                  //   <Chip.Delete>
+                  //     <input
+                  //       name={filter.offer.name}
+                  //       type="checkbox"
+                  //       defaultValue={selectedOffer.value}
+                  //       defaultChecked={true}
+                  //     />
+                  //   </Chip.Delete>
+                  // </Chip>
                 })}
-              </Chip.Container>
-            </div>
+              </ul>
+              {/* </Chip.Container> */}
+            </Form>
             <Link
               to={`/explore/profiles${
                 loaderData.submission.value.sortBy !== undefined
