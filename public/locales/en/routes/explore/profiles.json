@@ -18,5 +18,6 @@
     }
   },
   "more": "Load more",
-  "empty": "Unfortunately, no profiles could be found for your filter criteria."
+  "empty": "Unfortunately, no profiles could be found for your filter criteria.",
+  "emptyOrFiltered": "Either no profiles could be found for your filter criteria or the person in question specified them as not public. Log in to be able to see the non-public information of platform users."
 }

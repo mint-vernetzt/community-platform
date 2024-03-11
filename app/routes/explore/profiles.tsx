@@ -240,7 +240,7 @@ export default function Index() {
     } else {
       setShouldFetch(true);
     }
-    setPage(1);
+    // setPage(1);
   }, [loaderData.profiles, loaderData.pagination.itemsPerPage]);
 
   const { t } = useTranslation(i18nNS);
@@ -462,10 +462,10 @@ export default function Index() {
             )}
           </>
         ) : (
-          <p className="text-center text-primary">{t("empty")}</p>
+          <p className="text-center text-primary">
+            {loaderData.isLoggedIn ? t("empty") : t("emptyOrFiltered")}
+          </p>
         )}
-        {/* TODO: Show message when the result is shortened because of profile visibilities */}
-        {/* Something like: X profiles are not shown because they want to keep this information private. Login to see more. */}
       </section>
     </>
   );
