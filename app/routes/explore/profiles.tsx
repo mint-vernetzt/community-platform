@@ -277,6 +277,7 @@ export default function Index() {
         <Form
           method="get"
           onChange={handleChange}
+          // TODO: This does not work yet
           preventScrollReset
           {...getFormProps(form)}
         >
@@ -335,8 +336,13 @@ export default function Index() {
               </ul>
             </fieldset>
           </div>
-          <p className="font-bold mb-2">Ausgewählte Filter</p>
-          {selectedOffers.length > 0 && (
+          <noscript>
+            <button type="submit">Filter anwenden</button>
+          </noscript>
+        </Form>
+        {selectedOffers.length > 0 && (
+          <>
+            <p className="font-bold mb-2">Ausgewählte Filter</p>
             <div className="mb-2">
               <Chip.Container>
                 {selectedOffers.map((selectedOffer, index) => {
@@ -348,6 +354,7 @@ export default function Index() {
                       {offerMatch[0].title}
                       {/* TODO: This throws an error because the submission.status gets undefined,
                                 which is kind of a hustle because then the submission.value field is missing */}
+                      {/* Workarround try: New Form with the Chips and a checkbox input for each offer to delete it (defaultChecked: true) */}
                       {/* <Chip.Delete>
                         <button
                           {...form.remove.getButtonProps({
@@ -361,24 +368,18 @@ export default function Index() {
                 })}
               </Chip.Container>
             </div>
-          )}
-          <noscript>
-            <button type="submit">Filter anwenden</button>
-          </noscript>
-          {/* TODO: This throws an error because the submission.status gets undefined,
-                    which is kind of a hustle because then the submission.value field is missing */}
-          {/* <button
-            {...form.reset.getButtonProps({
-              name: fields.filter.name,
-            })}
-          >
-            Alles zurücksetzen
-          </button> */}
-          {/* TODO: sortValue as search param to keept it saved? */}
-          <Link to={"/explore/profiles"} preventScrollReset>
-            Alles zurücksetzen
-          </Link>
-        </Form>
+            <Link
+              to={`/explore/profiles${
+                loaderData.submission.value.sortBy !== undefined
+                  ? `?sortBy=${loaderData.submission.value.sortBy}`
+                  : ""
+              }`}
+              preventScrollReset
+            >
+              Alles zurücksetzen
+            </Link>
+          </>
+        )}
       </section>
 
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
