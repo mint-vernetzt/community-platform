@@ -436,7 +436,7 @@ export default function Index() {
             </CardContainer>
             {shouldFetch && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
-                <fetcher.Form method="get">
+                <fetcher.Form method="get" id={form.id}>
                   <input
                     key="page"
                     type="hidden"
