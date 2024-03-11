@@ -1,6 +1,6 @@
 import { prismaClient } from "~/prisma.server";
 import { type GetProfilesSchema } from "./profiles";
-import { Prisma } from "@prisma/client";
+import { invariantResponse } from "~/lib/utils/response";
 
 export function getPaginationOptions(page: GetProfilesSchema["page"] = 1) {
   // TODO: Set back to 12
@@ -203,15 +203,27 @@ export async function getAllProfiles(options: {
 export async function getProfileFilterVector(options: {
   filter: GetProfilesSchema["filter"];
 }) {
-  let whereClause = Prisma.empty;
+  // let whereClause = Prisma.empty;
+  let whereClause = "";
   const whereStatements = [];
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
       for (const slug of options.filter[typedFilterKey]) {
-        // TODO: Try strings instead of Prisma.sql and maybe use executeRawUnsafe for that
-        const tuple = `${typedFilterKey}:${slug}`;
-        const whereStatement = Prisma.sql`filter_vector @@ 'offer\:volunteering'::tsquery`;
+        // Validate slug because of queryRawUnsafe
+        const filterValue = await prismaClient[typedFilterKey].findFirst({
+          where: {
+            slug,
+          },
+        });
+        invariantResponse(
+          filterValue !== null,
+          "Cannot filter by the specified slug.",
+          { status: 400 }
+        );
+        const tuple = `${typedFilterKey}\\:${slug}`;
+        // const tuple = Prisma.sql`${typedFilterKey}\\:${slug}`;
+        const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
         // const whereStatement = Prisma.sql`filter_vector @@ '${tuple}'::tsquery`;
         whereStatements.push(whereStatement);
       }
@@ -219,48 +231,45 @@ export async function getProfileFilterVector(options: {
   }
 
   if (whereStatements.length > 0) {
-    whereClause = Prisma.join(whereStatements, " AND ", "WHERE ");
+    whereClause = `WHERE ${whereStatements.join(" AND ")}`;
+    // whereClause = Prisma.join(whereStatements, " AND ", "WHERE ");
   }
 
-  console.log("\n", whereClause.sql, "\n");
-
-  // TODO: Where clause not working as expected
   const filterVector: {
     attr: keyof NonNullable<typeof options.filter>;
     value: string[];
     count: number[];
-  }[] = await prismaClient.$queryRaw`
+  }[] = await prismaClient.$queryRawUnsafe(`
   SELECT
     split_part(word, ':', 1) AS attr,
     array_agg(split_part(word, ':', 2)) AS value,
     array_agg(ndoc) AS count
   FROM ts_stat($$
-    SELECT filter_vector FROM profiles
-    -- WHERE filter_vector @@ 'offer\:volunteering'::tsquery
-    -- WHERE filter_vector @@ to_tsquery('offer\:volunteering')
+    SELECT filter_vector
+    FROM profiles
+    ${whereClause}
   $$)
-  GROUP BY attr;`;
+  GROUP BY attr;
+  `);
 
-  // const filterVector = await prismaClient.$queryRawUnsafe(`
+  // const sqlStatement = Prisma.sql`
   // SELECT
   //   split_part(word, ':', 1) AS attr,
-  //   split_part(word, ':', 2) AS value,
-  //   ndoc AS count
+  //   array_agg(split_part(word, ':', 2)) AS value,
+  //   array_agg(ndoc) AS count
   // FROM ts_stat($$
-  //   SELECT filter_vector FROM profiles
-  //   WHERE filter_vector @@ 'offer\:volunteering'::tsquery
-  // $$);`);
-
-  // const filterVector = await prismaClient.$queryRaw`
-  // SELECT
-  //   split_part(word, ':', 1) AS attr,
-  //   split_part(word, ':', 2) AS value,
-  //   ndoc AS count
-  // FROM ts_stat($$
-  //   SELECT filter_vector FROM profiles
+  //   SELECT filter_vector
+  //   FROM profiles
   //   ${whereClause}
-  // $$);`;
-  // ORDER BY attr, value;`;
+  // $$)
+  // GROUP BY attr;
+  // `;
+  // console.log(sqlStatement.inspect());
+  // const filterVector: {
+  //   attr: keyof NonNullable<typeof options.filter>;
+  //   value: string[];
+  //   count: number[];
+  // }[] = await prismaClient.$queryRaw`${sqlStatement}`;
 
   return filterVector;
 }

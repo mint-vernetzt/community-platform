@@ -6,7 +6,6 @@ import { json } from "@remix-run/node";
 import {
   Form,
   Link,
-  useFetcher,
   useLoaderData,
   useNavigation,
   useSearchParams,
@@ -171,12 +170,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedProfiles.push(transformedProfile);
   }
 
-  // TODO: How to handle profile visibility with filter vector?
-  // Joining profileVisibilities and formulate where clause for each filter field on anon (f.e. profileVisibility: { areas: true })
   const filterVector = await getProfileFilterVector({
     filter: submission.value.filter,
   });
-  console.log(filterVector);
 
   const areas = await getAreas();
   const offers = await getAllOffers();
@@ -288,6 +284,7 @@ export default function Index() {
         <Form
           {...getFormProps(form)}
           method="get"
+          // TODO: handleChange is sometimes not triggered
           // onClick={handleChange}
           onChange={handleChange}
           preventScrollReset
@@ -302,10 +299,14 @@ export default function Index() {
                     return vector.attr === "offer";
                   });
                   // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
-                  const offerIndex = offerVector?.value.indexOf(
-                    offer.slug || ""
-                  );
-                  const offerCount = offerVector?.count.at(offerIndex || 0);
+                  const offerIndex =
+                    offerVector !== undefined
+                      ? offerVector.value.indexOf(offer.slug || "")
+                      : 0;
+                  const offerCount =
+                    offerVector !== undefined
+                      ? offerVector.count.at(offerIndex)
+                      : 0;
                   return (
                     <li key={offer.slug}>
                       <label className="mr-2">
