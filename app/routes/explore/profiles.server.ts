@@ -15,6 +15,42 @@ export function getPaginationOptions(page: GetProfilesSchema["page"] = 1) {
   };
 }
 
+export async function getVisibilityFilteredProfilesCount(options: {
+  filter: NonNullable<GetProfilesSchema["filter"]>;
+}) {
+  const whereClauses = [];
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    const visibilityWhereStatement = {
+      profileVisibility: {
+        [`${typedFilterKey}s`]: false,
+      },
+    };
+    whereClauses.push(visibilityWhereStatement);
+
+    for (const slug of options.filter[typedFilterKey]) {
+      const filterWhereStatement = {
+        [`${typedFilterKey}s`]: {
+          some: {
+            [typedFilterKey]: {
+              slug,
+            },
+          },
+        },
+      };
+      whereClauses.push(filterWhereStatement);
+    }
+  }
+
+  const count = await prismaClient.profile.count({
+    where: {
+      AND: whereClauses,
+    },
+  });
+
+  return count;
+}
+
 export async function getAllProfiles(options: {
   pagination: ReturnType<typeof getPaginationOptions>;
   filter: GetProfilesSchema["filter"];

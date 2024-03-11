@@ -19,5 +19,5 @@
   },
   "more": "Weitere laden",
   "empty": "Für Deine Filterkriterien konnten leider keine Profile gefunden werden.",
-  "emptyOrFiltered": "Für Deine Filterkriterien konnten entweder keine Profile gefunden werden oder sind von der jeweiligen Person als nicht öffentlich angegeben. Logge dich ein um auch die nicht öffentlichen Angaben der Plattformnutzer:innen sehen zu können."
+  "notShown": "Profile können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar."
 }

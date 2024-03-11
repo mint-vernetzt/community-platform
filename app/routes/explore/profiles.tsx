@@ -29,6 +29,7 @@ import {
   getAllProfiles,
   getPaginationOptions,
   getProfileFilterVector,
+  getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
 // import styles from "../../../common/design/styles/styles.css";
 
@@ -86,6 +87,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const sessionUser = await getSessionUser(authClient);
   const isLoggedIn = sessionUser !== null;
 
+  let filteredByVisibilityCount;
+  if (!isLoggedIn && submission.value.filter !== undefined) {
+    filteredByVisibilityCount = await getVisibilityFilteredProfilesCount({
+      filter: submission.value.filter,
+    });
+  }
   const profiles = await getAllProfiles({
     pagination,
     filter: submission.value.filter,
@@ -181,6 +188,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     transformedSubmission = submission;
   }
 
+  console.log(profiles);
+  console.log(enhancedProfiles);
+  console.log(filteredByVisibilityCount);
+
   return json({
     isLoggedIn,
     profiles: enhancedProfiles,
@@ -192,6 +203,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
     submission: transformedSubmission,
     filterVector,
+    filteredByVisibilityCount,
   });
 };
 
@@ -403,7 +415,13 @@ export default function Index() {
       </section>
 
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-        {items.length > 0 ? (
+        {loaderData.filteredByVisibilityCount !== undefined &&
+          loaderData.filteredByVisibilityCount > 0 && (
+            <p className="text-center text-primary mb-8">
+              {loaderData.filteredByVisibilityCount} {t("notShown")}
+            </p>
+          )}
+        {items.length > 0 && (
           <>
             <CardContainer type="multi row">
               {items.map((profile) => {
@@ -460,11 +478,12 @@ export default function Index() {
               </div>
             )}
           </>
-        ) : (
-          <p className="text-center text-primary">
-            {loaderData.isLoggedIn ? t("empty") : t("emptyOrFiltered")}
-          </p>
         )}
+        {items.length === 0 &&
+          (loaderData.filteredByVisibilityCount === undefined ||
+            loaderData.filteredByVisibilityCount === 0) && (
+            <p className="text-center text-primary">{t("empty")}</p>
+          )}
       </section>
     </>
   );
