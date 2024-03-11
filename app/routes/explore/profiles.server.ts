@@ -6,7 +6,9 @@ export function getPaginationOptions(page: GetProfilesSchema["page"] = 1) {
   // TODO: Set back to 12
   const itemsPerPage = 4;
   const skip = itemsPerPage * (page - 1);
-  const take = itemsPerPage;
+  // const take = itemsPerPage;
+  // TODO: take without skip -> Alternative to fetcher
+  const take = itemsPerPage * page;
   return {
     page,
     itemsPerPage,
@@ -39,6 +41,37 @@ export async function getVisibilityFilteredProfilesCount(options: {
         },
       };
       whereClauses.push(filterWhereStatement);
+    }
+  }
+
+  const count = await prismaClient.profile.count({
+    where: {
+      AND: whereClauses,
+    },
+  });
+
+  return count;
+}
+// TODO: take without skip -> Alternative to fetcher
+export async function getProfilesCount(options: {
+  filter: GetProfilesSchema["filter"];
+}) {
+  const whereClauses = [];
+  if (options.filter !== undefined) {
+    for (const filterKey in options.filter) {
+      const typedFilterKey = filterKey as keyof typeof options.filter;
+      for (const slug of options.filter[typedFilterKey]) {
+        const filterWhereStatement = {
+          [`${typedFilterKey}s`]: {
+            some: {
+              [typedFilterKey]: {
+                slug,
+              },
+            },
+          },
+        };
+        whereClauses.push(filterWhereStatement);
+      }
     }
   }
 
@@ -159,7 +192,8 @@ export async function getAllProfiles(options: {
         : {
             firstName: "asc",
           },
-    skip: options.pagination.skip,
+    // TODO: take without skip -> Alternative to fetcher
+    // skip: options.pagination.skip,
     take: options.pagination.take,
   });
 

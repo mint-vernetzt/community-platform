@@ -8,6 +8,7 @@ import {
   Link,
   useFetcher,
   useLoaderData,
+  useNavigation,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
@@ -29,6 +30,7 @@ import {
   getAllProfiles,
   getPaginationOptions,
   getProfileFilterVector,
+  getProfilesCount,
   getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
 // import styles from "../../../common/design/styles/styles.css";
@@ -93,6 +95,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
       filter: submission.value.filter,
     });
   }
+  // TODO: take without skip -> Alternative to fetcher
+  const profilesCount = await getProfilesCount({
+    filter: submission.value.filter,
+  });
   const profiles = await getAllProfiles({
     pagination,
     filter: submission.value.filter,
@@ -188,68 +194,69 @@ export const loader = async (args: LoaderFunctionArgs) => {
     transformedSubmission = submission;
   }
 
-  console.log(profiles);
-  console.log(enhancedProfiles);
-  console.log(filteredByVisibilityCount);
-
   return json({
     isLoggedIn,
     profiles: enhancedProfiles,
     areas,
     offers,
-    pagination: {
-      page: pagination.page,
-      itemsPerPage: pagination.itemsPerPage,
-    },
+    // TODO: take without skip -> Alternative to fetcher
+    // pagination: {
+    //   page: pagination.page,
+    //   itemsPerPage: pagination.itemsPerPage,
+    // },
     submission: transformedSubmission,
     filterVector,
     filteredByVisibilityCount,
+    profilesCount,
   });
 };
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
-  const fetcher = useFetcher<typeof loader>();
+  // TODO: take without skip -> Alternative to fetcher
+  // const fetcher = useFetcher<typeof loader>();
   const [searchParams] = useSearchParams();
-  const [items, setItems] = React.useState(loaderData.profiles);
-  const [shouldFetch, setShouldFetch] = React.useState(() => {
-    if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
-      return false;
-    }
-    return true;
-  });
-  const [page, setPage] = React.useState(() => {
-    const pageParam = searchParams.get("page");
-    if (pageParam !== null) {
-      return parseInt(pageParam);
-    }
-    return 1;
-  });
+  const page = searchParams.get("page") || "1";
+  const navigation = useNavigation();
+  // const [items, setItems] = React.useState(loaderData.profiles);
+  // const [shouldFetch, setShouldFetch] = React.useState(() => {
+  //   if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
+  //     return false;
+  //   }
+  //   return true;
+  // });
+  // const [page, setPage] = React.useState(() => {
+  //   const pageParam = searchParams.get("page");
+  //   if (pageParam !== null) {
+  //     return parseInt(pageParam);
+  //   }
+  //   return 1;
+  // });
 
-  React.useEffect(() => {
-    if (fetcher.data !== undefined) {
-      setItems((profiles) => {
-        return fetcher.data !== undefined
-          ? [...profiles, ...fetcher.data.profiles]
-          : [...profiles];
-      });
-      setPage(fetcher.data.pagination.page);
-      if (fetcher.data.profiles.length < fetcher.data.pagination.itemsPerPage) {
-        setShouldFetch(false);
-      }
-    }
-  }, [fetcher.data]);
+  // React.useEffect(() => {
+  //   if (fetcher.data !== undefined) {
+  //     setItems((profiles) => {
+  //       return fetcher.data !== undefined
+  //         ? [...profiles, ...fetcher.data.profiles]
+  //         : [...profiles];
+  //     });
+  //     setPage(fetcher.data.pagination.page);
+  //     if (fetcher.data.profiles.length < fetcher.data.pagination.itemsPerPage) {
+  //       setShouldFetch(false);
+  //     }
+  //   }
+  // }, [fetcher.data]);
 
-  React.useEffect(() => {
-    setItems(loaderData.profiles);
+  // React.useEffect(() => {
+  //   setItems(loaderData.profiles);
 
-    if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
-      setShouldFetch(false);
-    } else {
-      setShouldFetch(true);
-    }
-    // setPage(1);
-  }, [loaderData.profiles, loaderData.pagination.itemsPerPage]);
+  //   if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
+  //     setShouldFetch(false);
+  //   } else {
+  //     setShouldFetch(true);
+  //   }
+  //   // setPage(1);
+  // }, [loaderData.profiles, loaderData.pagination.itemsPerPage]);
 
   const { t } = useTranslation(i18nNS);
 
@@ -266,7 +273,8 @@ export default function Index() {
 
   const submit = useSubmit();
   function handleChange(event: React.FormEvent<HTMLFormElement>) {
-    submit(event.currentTarget);
+    console.log(event.currentTarget);
+    submit(event.currentTarget, { preventScrollReset: true });
   }
 
   return (
@@ -278,11 +286,11 @@ export default function Index() {
 
       <section className="container mb-8">
         <Form
-          method="get"
-          onChange={handleChange}
-          // TODO: This does not work yet
-          preventScrollReset
           {...getFormProps(form)}
+          method="get"
+          // onClick={handleChange}
+          onChange={handleChange}
+          preventScrollReset
         >
           <input name="page" defaultValue="1" hidden />
           <div className="flex mb-8">
@@ -299,7 +307,7 @@ export default function Index() {
                   );
                   const offerCount = offerVector?.count.at(offerIndex || 0);
                   return (
-                    <li key={offer.id}>
+                    <li key={offer.slug}>
                       <label className="mr-2">
                         {offer.title} ({offerCount})
                       </label>
@@ -310,6 +318,9 @@ export default function Index() {
                         defaultChecked={selectedOffers.some((selectedOffer) => {
                           return selectedOffer.value === offer.slug;
                         })}
+                        disabled={
+                          offerCount === 0 || navigation.state === "loading"
+                        }
                       />
                     </li>
                   );
@@ -331,6 +342,7 @@ export default function Index() {
                           loaderData.submission.value.sortBy === sortValue ||
                           sortValues[0] === sortValue
                         }
+                        disabled={navigation.state === "loading"}
                       />
                     </li>
                   );
@@ -346,13 +358,23 @@ export default function Index() {
           <>
             <p className="font-bold mb-2">Ausgewählte Filter</p>
             <Form
+              id="current-filter"
               method="get"
+              // onClick={handleChange}
               onChange={handleChange}
               className="mb-2"
-              // TODO: This does not work yet
               preventScrollReset
-              {...getFormProps(form)}
             >
+              <input name="page" defaultValue="1" hidden />
+              <fieldset>
+                <input
+                  key="sortBy"
+                  type="hidden"
+                  name={fields.sortBy.name}
+                  // @ts-ignore TODO: fix type issue
+                  defaultValue={fields.sortBy.value || sortValues[0]}
+                />
+              </fieldset>
               {/* <Chip.Container> */}
               <ul>
                 {selectedOffers.map((selectedOffer, index) => {
@@ -370,6 +392,7 @@ export default function Index() {
                         type="checkbox"
                         defaultValue={selectedOffer.value}
                         defaultChecked={true}
+                        disabled={navigation.state === "loading"}
                       />
                     </li>
                   ) : null;
@@ -421,10 +444,14 @@ export default function Index() {
               {loaderData.filteredByVisibilityCount} {t("notShown")}
             </p>
           )}
-        {items.length > 0 && (
+        {/* TODO: take without skip -> Alternative to fetcher */}
+        {loaderData.profiles.length > 0 && (
+          // {items.length > 0 && (
           <>
             <CardContainer type="multi row">
-              {items.map((profile) => {
+              {/* TODO: take without skip -> Alternative to fetcher */}
+              {loaderData.profiles.map((profile) => {
+                // {items.map((profile) => {
                 return (
                   <ProfileCard
                     key={`profile-${profile.id}`}
@@ -434,9 +461,52 @@ export default function Index() {
                 );
               })}
             </CardContainer>
-            {shouldFetch && (
+            {/* TODO: take without skip -> Alternative to fetcher */}
+            {loaderData.profilesCount > loaderData.profiles.length && (
+              // {shouldFetch && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
-                <fetcher.Form method="get" id={form.id}>
+                <Form id="load-more" method="get" preventScrollReset replace>
+                  <input
+                    key="page"
+                    type="hidden"
+                    name="page"
+                    defaultValue={parseInt(page) + 1}
+                  />
+                  <fieldset>
+                    <ul>
+                      {selectedOffers.map((selectedOffer) => {
+                        return (
+                          <li key={selectedOffer.value}>
+                            <input
+                              type="hidden"
+                              name={filter.offer.name}
+                              defaultValue={selectedOffer.value}
+                            />
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </fieldset>
+                  <fieldset>
+                    <input
+                      key="sortBy"
+                      type="hidden"
+                      name={fields.sortBy.name}
+                      // @ts-ignore TODO: fix type issue
+                      defaultValue={fields.sortBy.value || sortValues[0]}
+                    />
+                  </fieldset>
+                  <Button
+                    size="large"
+                    variant="outline"
+                    loading={navigation.state === "loading"}
+                    disabled={navigation.state === "loading"}
+                  >
+                    {t("more")}
+                  </Button>
+                </Form>
+                {/* TODO: take without skip -> Alternative to fetcher */}
+                {/* <fetcher.Form method="get" id={form.id}>
                   <input
                     key="page"
                     type="hidden"
@@ -474,12 +544,14 @@ export default function Index() {
                   >
                     {t("more")}
                   </Button>
-                </fetcher.Form>
+                </fetcher.Form> */}
               </div>
             )}
           </>
         )}
-        {items.length === 0 &&
+        {/* TODO: take without skip -> Alternative to fetcher */}
+        {loaderData.profiles.length === 0 &&
+          // {items.length === 0 &&
           (loaderData.filteredByVisibilityCount === undefined ||
             loaderData.filteredByVisibilityCount === 0) && (
             <p className="text-center text-primary">{t("empty")}</p>
