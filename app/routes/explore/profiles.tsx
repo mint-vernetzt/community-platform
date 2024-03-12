@@ -5,13 +5,19 @@ import {
   useForm,
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
+import {
+  Button,
+  CardContainer,
+  Chip,
+  ProfileCard,
+} from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
   Link,
   useLoaderData,
+  useLocation,
   useNavigation,
   useSearchParams,
   useSubmit,
@@ -219,6 +225,9 @@ export default function Index() {
   const [searchParams] = useSearchParams();
   const page = searchParams.get("page") || "1";
   const navigation = useNavigation();
+  const location = useLocation();
+  const loadMoreSearchParams = new URLSearchParams(searchParams);
+  loadMoreSearchParams.set("page", `${parseInt(page) + 1}`);
   // const [items, setItems] = React.useState(loaderData.profiles);
   // const [shouldFetch, setShouldFetch] = React.useState(() => {
   //   if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
@@ -387,53 +396,68 @@ export default function Index() {
                   defaultValue={fields.sortBy.value || sortValues[0]}
                 />
               </fieldset>
-              {/* <Chip.Container> */}
-              <ul>
+              <Chip.Container>
+                {/* <ul> */}
                 {selectedOffers.map((selectedOffer, index) => {
                   const offerMatch = loaderData.offers.filter((offer) => {
                     return offer.slug === selectedOffer.value;
                   });
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    filter.offer.name,
+                    selectedOffer.value
+                  );
                   return offerMatch[0] !== undefined ? (
-                    <li key={`remove-${selectedOffer.value}`}>
-                      <label className="mr-2">{offerMatch[0].title}</label>
-                      {/* <button name={filter.offer.name} defaultValue={undefined}>
-                        X
-                      </button> */}
+                    // <li key={`remove-${selectedOffer.value}`}>
+                    //   <label className="mr-2">{offerMatch[0].title}</label>
+                    //   {/* <button name={filter.offer.name} defaultValue={undefined}>
+                    //     X
+                    //   </button> */}
+                    //   <input
+                    //     name={filter.offer.name}
+                    //     type="checkbox"
+                    //     defaultValue={selectedOffer.value}
+                    //     defaultChecked={true}
+                    //     disabled={navigation.state === "loading"}
+                    //   />
+                    // </li>
+                    <Chip key={selectedOffer.key}>
+                      {offerMatch[0].title}
+                      {/* TODO: This throws an error because the submission.status gets undefined,
+                              which is kind of a hustle because then the submission.value field is missing */}
+                      {/* <Chip.Delete>
+                      <button
+                        {...form.remove.getButtonProps({
+                          name: filter.offer.name,
+                          index,
+                        })}
+                      />
+                    </Chip.Delete> */}
+                      {/* Workarround try: New Form with the Chips and a checkbox input for each offer to delete it (defaultChecked: true) */}
+                      {/* Note: This still has an issue as the Chip.Delete Component tries to add children to the input element (svg icon) */}
+                      {/* <Chip.Delete>
                       <input
                         name={filter.offer.name}
                         type="checkbox"
                         defaultValue={selectedOffer.value}
                         defaultChecked={true}
-                        disabled={navigation.state === "loading"}
                       />
-                    </li>
+                    </Chip.Delete> */}
+                      <Chip.Delete>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
                   ) : null;
-                  // <Chip key={selectedOffer.key}>
-                  //   {offerMatch[0].title}
-                  //   {/* TODO: This throws an error because the submission.status gets undefined,
-                  //             which is kind of a hustle because then the submission.value field is missing */}
-                  //   {/* <Chip.Delete>
-                  //     <button
-                  //       {...form.remove.getButtonProps({
-                  //         name: filter.offer.name,
-                  //         index,
-                  //       })}
-                  //     />
-                  //   </Chip.Delete> */}
-                  //   {/* Workarround try: New Form with the Chips and a checkbox input for each offer to delete it (defaultChecked: true) */}
-                  //   {/* Note: This still has an issue as the Chip.Delete Component tries to add children to the input element (svg icon) */}
-                  //   <Chip.Delete>
-                  //     <input
-                  //       name={filter.offer.name}
-                  //       type="checkbox"
-                  //       defaultValue={selectedOffer.value}
-                  //       defaultChecked={true}
-                  //     />
-                  //   </Chip.Delete>
-                  // </Chip>
                 })}
-              </ul>
-              {/* </Chip.Container> */}
+                {/* </ul> */}
+              </Chip.Container>
             </Form>
             <Link
               to={`/explore/profiles${
@@ -478,7 +502,21 @@ export default function Index() {
             {loaderData.profilesCount > loaderData.profiles.length && (
               // {shouldFetch && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
-                <Form id="load-more" method="get" preventScrollReset replace>
+                <Link
+                  to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
+                  preventScrollReset
+                  replace
+                >
+                  <Button
+                    size="large"
+                    variant="outline"
+                    loading={navigation.state === "loading"}
+                    disabled={navigation.state === "loading"}
+                  >
+                    {t("more")}
+                  </Button>
+                </Link>
+                {/* <Form id="load-more" method="get" preventScrollReset replace>
                   <input
                     key="page"
                     type="hidden"
@@ -517,7 +555,7 @@ export default function Index() {
                   >
                     {t("more")}
                   </Button>
-                </Form>
+                </Form> */}
                 {/* TODO: take without skip -> Alternative to fetcher */}
                 {/* <fetcher.Form method="get" id={form.id}>
                   <input
