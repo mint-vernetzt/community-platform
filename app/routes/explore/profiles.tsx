@@ -1,4 +1,9 @@
-import { getFieldsetProps, getFormProps, useForm } from "@conform-to/react-v1";
+import {
+  getFieldsetProps,
+  getFormProps,
+  getInputProps,
+  useForm,
+} from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
@@ -309,13 +314,15 @@ export default function Index() {
                       : 0;
                   return (
                     <li key={offer.slug}>
-                      <label className="mr-2">
+                      <label htmlFor={filter.offer.id} className="mr-2">
                         {offer.title} ({offerCount})
                       </label>
                       <input
-                        name={filter.offer.name}
-                        type="checkbox"
-                        defaultValue={offer.slug || undefined} // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                        {...getInputProps(filter.offer, {
+                          type: "checkbox",
+                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                          value: offer.slug || undefined,
+                        })}
                         defaultChecked={selectedOffers.some((selectedOffer) => {
                           return selectedOffer.value === offer.slug;
                         })}
@@ -334,11 +341,14 @@ export default function Index() {
                 {sortValues.map((sortValue) => {
                   return (
                     <li key={sortValue}>
-                      <label className="mr-2">{sortValue}</label>
+                      <label htmlFor={fields.sortBy.id} className="mr-2">
+                        {sortValue}
+                      </label>
                       <input
-                        name={fields.sortBy.name}
-                        type="radio"
-                        defaultValue={sortValue}
+                        {...getInputProps(fields.sortBy, {
+                          type: "radio",
+                          value: sortValue,
+                        })}
                         defaultChecked={
                           loaderData.submission.value.sortBy === sortValue ||
                           sortValues[0] === sortValue
