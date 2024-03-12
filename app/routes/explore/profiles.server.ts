@@ -209,15 +209,17 @@ export async function getProfileFilterVector(options: {
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
+      const allFilterValues = await prismaClient[typedFilterKey].findMany({
+        select: {
+          slug: true,
+        },
+      });
       for (const slug of options.filter[typedFilterKey]) {
         // Validate slug because of queryRawUnsafe
-        const filterValue = await prismaClient[typedFilterKey].findFirst({
-          where: {
-            slug,
-          },
-        });
         invariantResponse(
-          filterValue !== null,
+          allFilterValues.some((value) => {
+            return value.slug === slug;
+          }),
           "Cannot filter by the specified slug.",
           { status: 400 }
         );
