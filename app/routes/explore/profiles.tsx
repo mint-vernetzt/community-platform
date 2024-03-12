@@ -368,6 +368,7 @@ export default function Index() {
         {selectedOffers.length > 0 && (
           <>
             <p className="font-bold mb-2">Ausgewählte Filter</p>
+            {/* TODO: Maybe we can use Link and cut out the searchParam filter.offer=${selectedOffer.value} */}
             <Form
               id="current-filter"
               method="get"
@@ -473,6 +474,7 @@ export default function Index() {
               })}
             </CardContainer>
             {/* TODO: take without skip -> Alternative to fetcher */}
+            {/* TODO: When we don't use fetcher we could use a Link here and set the searchParam page to page + 1 */}
             {loaderData.profilesCount > loaderData.profiles.length && (
               // {shouldFetch && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">

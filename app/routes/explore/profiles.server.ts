@@ -203,17 +203,38 @@ export async function getAllProfiles(options: {
 export async function getProfileFilterVector(options: {
   filter: GetProfilesSchema["filter"];
 }) {
-  // let whereClause = Prisma.empty;
   let whereClause = "";
   const whereStatements = [];
+  console.log(options.filter);
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
+      // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
       const allFilterValues = await prismaClient[typedFilterKey].findMany({
         select: {
           slug: true,
         },
       });
+      // const test = await prismaClient.offer.findMany({
+      //   select: {
+      //     slug: true,
+      //     OffersOnProfiles: {
+      //       select: {
+      //         offerId: true,
+      //       }
+      //     }
+      //   },
+      // });
+      // const test2 = await prismaClient.focus.findMany({
+      //   select: {
+      //     slug: true,
+      //     organizations: {
+      //       select: {
+      //         organizationId: true
+      //       }
+      //     }
+      //   },
+      // });
       for (const slug of options.filter[typedFilterKey]) {
         // Validate slug because of queryRawUnsafe
         invariantResponse(
@@ -224,9 +245,7 @@ export async function getProfileFilterVector(options: {
           { status: 400 }
         );
         const tuple = `${typedFilterKey}\\:${slug}`;
-        // const tuple = Prisma.sql`${typedFilterKey}\\:${slug}`;
         const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-        // const whereStatement = Prisma.sql`filter_vector @@ '${tuple}'::tsquery`;
         whereStatements.push(whereStatement);
       }
     }
@@ -234,7 +253,6 @@ export async function getProfileFilterVector(options: {
 
   if (whereStatements.length > 0) {
     whereClause = `WHERE ${whereStatements.join(" AND ")}`;
-    // whereClause = Prisma.join(whereStatements, " AND ", "WHERE ");
   }
 
   const filterVector: {
@@ -253,25 +271,6 @@ export async function getProfileFilterVector(options: {
   $$)
   GROUP BY attr;
   `);
-
-  // const sqlStatement = Prisma.sql`
-  // SELECT
-  //   split_part(word, ':', 1) AS attr,
-  //   array_agg(split_part(word, ':', 2)) AS value,
-  //   array_agg(ndoc) AS count
-  // FROM ts_stat($$
-  //   SELECT filter_vector
-  //   FROM profiles
-  //   ${whereClause}
-  // $$)
-  // GROUP BY attr;
-  // `;
-  // console.log(sqlStatement.inspect());
-  // const filterVector: {
-  //   attr: keyof NonNullable<typeof options.filter>;
-  //   value: string[];
-  //   count: number[];
-  // }[] = await prismaClient.$queryRaw`${sqlStatement}`;
 
   return filterVector;
 }
