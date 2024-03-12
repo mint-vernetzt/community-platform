@@ -35,14 +35,16 @@ import {
 } from "~/next-public-fields-filtering.server";
 import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
-import { getAreas } from "~/utils.server";
 import {
   getAllProfiles,
+  getAreasBySearchQuery,
+  getGlobalAndCountryAreas,
   getProfileFilterVector,
   getProfilesCount,
   getTakeParam,
   getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
+import { AreaType } from "@prisma/client";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -82,6 +84,7 @@ const getProfilesSchema = z.object({
       return sortValue;
     }),
   page: z.number().optional(),
+  search: z.string().optional(),
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -184,7 +187,24 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filter: submission.value.filter,
   });
 
-  const areas = await getAreas();
+  const globalAndCountryAreas = await getGlobalAndCountryAreas();
+  const stateAndDistrictAreas = await getAreasBySearchQuery(
+    submission.value.search
+  );
+  const groupedAreas = {
+    global: [] as Awaited<ReturnType<typeof getGlobalAndCountryAreas>>,
+    country: [] as Awaited<ReturnType<typeof getGlobalAndCountryAreas>>,
+    state: [] as Awaited<ReturnType<typeof getAreasBySearchQuery>>,
+    district: [] as Awaited<ReturnType<typeof getAreasBySearchQuery>>,
+  };
+  for (const area of globalAndCountryAreas) {
+    groupedAreas[area.type].push(area);
+  }
+  for (const area of stateAndDistrictAreas) {
+    groupedAreas[area.type].push(area);
+  }
+  console.log(groupedAreas);
+
   const offers = await getAllOffers();
 
   let transformedSubmission;
@@ -209,7 +229,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return json({
     isLoggedIn,
     profiles: enhancedProfiles,
-    areas,
+    areas: stateAndDistrictAreas,
     offers,
     submission: transformedSubmission,
     filterVector,

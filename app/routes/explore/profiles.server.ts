@@ -1,6 +1,7 @@
+import { type Area, type Prisma } from "@prisma/client";
+import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { type GetProfilesSchema } from "./profiles";
-import { invariantResponse } from "~/lib/utils/response";
 
 export function getTakeParam(page: GetProfilesSchema["page"] = 1) {
   const itemsPerPage = 12;
@@ -261,4 +262,48 @@ export async function getProfileFilterVector(options: {
   `);
 
   return filterVector;
+}
+
+export async function getAreasBySearchQuery(queryString?: string) {
+  if (queryString === undefined) {
+    return [];
+  }
+  const query = queryString.split(" ");
+  const whereQueries: {
+    [K in Area as string]: { contains: string; mode: Prisma.QueryMode };
+  }[] = [];
+  for (const word of query) {
+    whereQueries.push({ name: { contains: word, mode: "insensitive" } });
+  }
+  return await prismaClient.area.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      type: true,
+    },
+    where: {
+      OR: whereQueries,
+      type: {
+        notIn: ["global", "country"],
+      },
+    },
+    take: 10,
+  });
+}
+
+export async function getGlobalAndCountryAreas() {
+  return await prismaClient.area.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      type: true,
+    },
+    where: {
+      type: {
+        in: ["global", "country"],
+      },
+    },
+  });
 }
