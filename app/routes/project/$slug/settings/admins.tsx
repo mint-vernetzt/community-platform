@@ -21,12 +21,15 @@ import {
   useLoaderData,
   useLocation,
   useSearchParams,
-  useSubmit,
 } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
+import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { GravityType, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import { getToast, redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
@@ -34,10 +37,6 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { combineHeaders } from "~/utils.server";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/settings/admins"];
 export const handle = {
@@ -336,7 +335,7 @@ function Admins() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const submit = useSubmit();
+  const submit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
   const [searchForm, searchFields] = useForm({
@@ -414,7 +413,10 @@ function Admins() {
           <Form
             method="get"
             onChange={(event) => {
-              submit(event.currentTarget);
+              submit(event.currentTarget, {
+                debounceTimeout: 250,
+                preventScrollReset: true,
+              });
             }}
             {...searchForm.props}
           >
