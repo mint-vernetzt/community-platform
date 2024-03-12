@@ -2,19 +2,10 @@ import { prismaClient } from "~/prisma.server";
 import { type GetProfilesSchema } from "./profiles";
 import { invariantResponse } from "~/lib/utils/response";
 
-export function getPaginationOptions(page: GetProfilesSchema["page"] = 1) {
-  // TODO: Set back to 12
-  const itemsPerPage = 4;
-  const skip = itemsPerPage * (page - 1);
-  // const take = itemsPerPage;
-  // TODO: take without skip -> Alternative to fetcher
+export function getTakeParam(page: GetProfilesSchema["page"] = 1) {
+  const itemsPerPage = 12;
   const take = itemsPerPage * page;
-  return {
-    page,
-    itemsPerPage,
-    skip,
-    take,
-  };
+  return take;
 }
 
 export async function getVisibilityFilteredProfilesCount(options: {
@@ -52,7 +43,7 @@ export async function getVisibilityFilteredProfilesCount(options: {
 
   return count;
 }
-// TODO: take without skip -> Alternative to fetcher
+
 export async function getProfilesCount(options: {
   filter: GetProfilesSchema["filter"];
 }) {
@@ -85,9 +76,9 @@ export async function getProfilesCount(options: {
 }
 
 export async function getAllProfiles(options: {
-  pagination: ReturnType<typeof getPaginationOptions>;
   filter: GetProfilesSchema["filter"];
   sortBy: GetProfilesSchema["sortBy"];
+  take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
   const whereClauses = [];
@@ -192,9 +183,7 @@ export async function getAllProfiles(options: {
         : {
             firstName: "asc",
           },
-    // TODO: take without skip -> Alternative to fetcher
-    // skip: options.pagination.skip,
-    take: options.pagination.take,
+    take: options.take,
   });
 
   return profiles;
@@ -205,7 +194,6 @@ export async function getProfileFilterVector(options: {
 }) {
   let whereClause = "";
   const whereStatements = [];
-  console.log(options.filter);
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;

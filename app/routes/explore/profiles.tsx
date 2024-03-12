@@ -38,9 +38,9 @@ import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
   getAllProfiles,
-  getPaginationOptions,
   getProfileFilterVector,
   getProfilesCount,
+  getTakeParam,
   getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
 // import styles from "../../../common/design/styles/styles.css";
@@ -94,7 +94,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "Validation failed for get request",
     { status: 400 }
   );
-  const pagination = getPaginationOptions(submission.value.page);
+  const take = getTakeParam(submission.value.page);
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const isLoggedIn = sessionUser !== null;
@@ -105,14 +105,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
       filter: submission.value.filter,
     });
   }
-  // TODO: take without skip -> Alternative to fetcher
   const profilesCount = await getProfilesCount({
     filter: submission.value.filter,
   });
   const profiles = await getAllProfiles({
-    pagination,
     filter: submission.value.filter,
     sortBy: submission.value.sortBy,
+    take,
     isLoggedIn,
   });
 
@@ -198,7 +197,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
       },
     };
   } else {
-    transformedSubmission = submission;
+    transformedSubmission = {
+      ...submission,
+      value: {
+        ...submission.value,
+        sortBy: sortValues[0],
+      },
+    };
   }
 
   return json({
@@ -206,11 +211,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     profiles: enhancedProfiles,
     areas,
     offers,
-    // TODO: take without skip -> Alternative to fetcher
-    // pagination: {
-    //   page: pagination.page,
-    //   itemsPerPage: pagination.itemsPerPage,
-    // },
     submission: transformedSubmission,
     filterVector,
     filteredByVisibilityCount,
@@ -220,70 +220,28 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
-  // TODO: take without skip -> Alternative to fetcher
-  // const fetcher = useFetcher<typeof loader>();
   const [searchParams] = useSearchParams();
-  const page = searchParams.get("page") || "1";
   const navigation = useNavigation();
   const location = useLocation();
+  const submit = useSubmit();
+  const { t } = useTranslation(i18nNS);
+
+  const page = searchParams.get("page") || "1";
   const loadMoreSearchParams = new URLSearchParams(searchParams);
   loadMoreSearchParams.set("page", `${parseInt(page) + 1}`);
-  // const [items, setItems] = React.useState(loaderData.profiles);
-  // const [shouldFetch, setShouldFetch] = React.useState(() => {
-  //   if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
-  //     return false;
-  //   }
-  //   return true;
-  // });
-  // const [page, setPage] = React.useState(() => {
-  //   const pageParam = searchParams.get("page");
-  //   if (pageParam !== null) {
-  //     return parseInt(pageParam);
-  //   }
-  //   return 1;
-  // });
-
-  // React.useEffect(() => {
-  //   if (fetcher.data !== undefined) {
-  //     setItems((profiles) => {
-  //       return fetcher.data !== undefined
-  //         ? [...profiles, ...fetcher.data.profiles]
-  //         : [...profiles];
-  //     });
-  //     setPage(fetcher.data.pagination.page);
-  //     if (fetcher.data.profiles.length < fetcher.data.pagination.itemsPerPage) {
-  //       setShouldFetch(false);
-  //     }
-  //   }
-  // }, [fetcher.data]);
-
-  // React.useEffect(() => {
-  //   setItems(loaderData.profiles);
-
-  //   if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
-  //     setShouldFetch(false);
-  //   } else {
-  //     setShouldFetch(true);
-  //   }
-  //   // setPage(1);
-  // }, [loaderData.profiles, loaderData.pagination.itemsPerPage]);
-
-  const { t } = useTranslation(i18nNS);
 
   const [form, fields] = useForm<GetProfilesSchema>({
     lastResult: loaderData.submission,
     defaultValue: {
       filter: loaderData.submission.value.filter,
-      sortBy: loaderData.submission.value.sortBy || sortValues[0],
+      sortBy: loaderData.submission.value.sortBy,
     },
   });
 
   const filter = fields.filter.getFieldset();
   const selectedOffers = filter.offer.getFieldList();
 
-  const submit = useSubmit();
   function handleChange(event: React.FormEvent<HTMLFormElement>) {
-    console.log(event.currentTarget);
     submit(event.currentTarget, { preventScrollReset: true });
   }
 
@@ -298,8 +256,6 @@ export default function Index() {
         <Form
           {...getFormProps(form)}
           method="get"
-          // TODO: handleChange is sometimes not triggered
-          // onClick={handleChange}
           onChange={handleChange}
           preventScrollReset
         >
@@ -371,34 +327,17 @@ export default function Index() {
             </fieldset>
           </div>
           <noscript>
-            <button type="submit">Filter anwenden</button>
+            <Button>Filter anwenden</Button>
           </noscript>
         </Form>
+      </section>
+      <section className="container mb-8">
         {selectedOffers.length > 0 && (
           <>
-            <p className="font-bold mb-2">Ausgewählte Filter</p>
-            {/* TODO: Maybe we can use Link and cut out the searchParam filter.offer=${selectedOffer.value} */}
-            <Form
-              id="current-filter"
-              method="get"
-              // onClick={handleChange}
-              onChange={handleChange}
-              className="mb-2"
-              preventScrollReset
-            >
-              <input name="page" defaultValue="1" hidden />
-              <fieldset>
-                <input
-                  key="sortBy"
-                  type="hidden"
-                  name={fields.sortBy.name}
-                  // @ts-ignore TODO: fix type issue
-                  defaultValue={fields.sortBy.value || sortValues[0]}
-                />
-              </fieldset>
+            <div className="mb-2">
+              <p className="font-bold mb-2">Ausgewählte Filter</p>
               <Chip.Container>
-                {/* <ul> */}
-                {selectedOffers.map((selectedOffer, index) => {
+                {selectedOffers.map((selectedOffer) => {
                   const offerMatch = loaderData.offers.filter((offer) => {
                     return offer.slug === selectedOffer.value;
                   });
@@ -408,42 +347,9 @@ export default function Index() {
                     selectedOffer.value
                   );
                   return offerMatch[0] !== undefined ? (
-                    // <li key={`remove-${selectedOffer.value}`}>
-                    //   <label className="mr-2">{offerMatch[0].title}</label>
-                    //   {/* <button name={filter.offer.name} defaultValue={undefined}>
-                    //     X
-                    //   </button> */}
-                    //   <input
-                    //     name={filter.offer.name}
-                    //     type="checkbox"
-                    //     defaultValue={selectedOffer.value}
-                    //     defaultChecked={true}
-                    //     disabled={navigation.state === "loading"}
-                    //   />
-                    // </li>
                     <Chip key={selectedOffer.key}>
                       {offerMatch[0].title}
-                      {/* TODO: This throws an error because the submission.status gets undefined,
-                              which is kind of a hustle because then the submission.value field is missing */}
-                      {/* <Chip.Delete>
-                      <button
-                        {...form.remove.getButtonProps({
-                          name: filter.offer.name,
-                          index,
-                        })}
-                      />
-                    </Chip.Delete> */}
-                      {/* Workarround try: New Form with the Chips and a checkbox input for each offer to delete it (defaultChecked: true) */}
-                      {/* Note: This still has an issue as the Chip.Delete Component tries to add children to the input element (svg icon) */}
-                      {/* <Chip.Delete>
-                      <input
-                        name={filter.offer.name}
-                        type="checkbox"
-                        defaultValue={selectedOffer.value}
-                        defaultChecked={true}
-                      />
-                    </Chip.Delete> */}
-                      <Chip.Delete>
+                      <Chip.Delete disabled={navigation.state === "loading"}>
                         <Link
                           to={`${
                             location.pathname
@@ -456,9 +362,8 @@ export default function Index() {
                     </Chip>
                   ) : null;
                 })}
-                {/* </ul> */}
               </Chip.Container>
-            </Form>
+            </div>
             <Link
               to={`/explore/profiles${
                 loaderData.submission.value.sortBy !== undefined
@@ -467,7 +372,13 @@ export default function Index() {
               }`}
               preventScrollReset
             >
-              Alles zurücksetzen
+              <Button
+                variant="outline"
+                loading={navigation.state === "loading"}
+                disabled={navigation.state === "loading"}
+              >
+                Alles zurücksetzen
+              </Button>
             </Link>
           </>
         )}
@@ -480,14 +391,10 @@ export default function Index() {
               {loaderData.filteredByVisibilityCount} {t("notShown")}
             </p>
           )}
-        {/* TODO: take without skip -> Alternative to fetcher */}
         {loaderData.profiles.length > 0 && (
-          // {items.length > 0 && (
           <>
             <CardContainer type="multi row">
-              {/* TODO: take without skip -> Alternative to fetcher */}
               {loaderData.profiles.map((profile) => {
-                // {items.map((profile) => {
                 return (
                   <ProfileCard
                     key={`profile-${profile.id}`}
@@ -497,10 +404,7 @@ export default function Index() {
                 );
               })}
             </CardContainer>
-            {/* TODO: take without skip -> Alternative to fetcher */}
-            {/* TODO: When we don't use fetcher we could use a Link here and set the searchParam page to page + 1 */}
             {loaderData.profilesCount > loaderData.profiles.length && (
-              // {shouldFetch && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
                 <Link
                   to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
@@ -516,93 +420,11 @@ export default function Index() {
                     {t("more")}
                   </Button>
                 </Link>
-                {/* <Form id="load-more" method="get" preventScrollReset replace>
-                  <input
-                    key="page"
-                    type="hidden"
-                    name="page"
-                    defaultValue={parseInt(page) + 1}
-                  />
-                  <fieldset>
-                    <ul>
-                      {selectedOffers.map((selectedOffer) => {
-                        return (
-                          <li key={selectedOffer.value}>
-                            <input
-                              type="hidden"
-                              name={filter.offer.name}
-                              defaultValue={selectedOffer.value}
-                            />
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </fieldset>
-                  <fieldset>
-                    <input
-                      key="sortBy"
-                      type="hidden"
-                      name={fields.sortBy.name}
-                      // @ts-ignore TODO: fix type issue
-                      defaultValue={fields.sortBy.value || sortValues[0]}
-                    />
-                  </fieldset>
-                  <Button
-                    size="large"
-                    variant="outline"
-                    loading={navigation.state === "loading"}
-                    disabled={navigation.state === "loading"}
-                  >
-                    {t("more")}
-                  </Button>
-                </Form> */}
-                {/* TODO: take without skip -> Alternative to fetcher */}
-                {/* <fetcher.Form method="get" id={form.id}>
-                  <input
-                    key="page"
-                    type="hidden"
-                    name="page"
-                    defaultValue={page + 1}
-                  />
-                  <fieldset>
-                    <ul>
-                      {selectedOffers.map((selectedOffer) => {
-                        return (
-                          <li key={selectedOffer.value}>
-                            <input
-                              type="hidden"
-                              name={filter.offer.name}
-                              defaultValue={selectedOffer.value}
-                            />
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </fieldset>
-                  <fieldset>
-                    <input
-                      key="sortBy"
-                      type="hidden"
-                      name={fields.sortBy.name}
-                      // @ts-ignore TODO: fix type issue
-                      defaultValue={fields.sortBy.value || sortValues[0]}
-                    />
-                  </fieldset>
-                  <Button
-                    size="large"
-                    variant="outline"
-                    loading={fetcher.state === "loading"}
-                  >
-                    {t("more")}
-                  </Button>
-                </fetcher.Form> */}
               </div>
             )}
           </>
         )}
-        {/* TODO: take without skip -> Alternative to fetcher */}
         {loaderData.profiles.length === 0 &&
-          // {items.length === 0 &&
           (loaderData.filteredByVisibilityCount === undefined ||
             loaderData.filteredByVisibilityCount === 0) && (
             <p className="text-center text-primary">{t("empty")}</p>
