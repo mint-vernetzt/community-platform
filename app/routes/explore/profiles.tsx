@@ -23,7 +23,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-// import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
