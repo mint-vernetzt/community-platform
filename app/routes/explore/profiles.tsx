@@ -426,6 +426,7 @@ export default function Index() {
                   <Input.Label htmlFor={fields.search.id}>
                     Ort oder Gebiet eingeben
                   </Input.Label>
+                  <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
                   <Input.Controls>
                     <noscript>
                       <Button>Suchen</Button>
