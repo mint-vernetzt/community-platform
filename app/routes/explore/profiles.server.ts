@@ -22,17 +22,31 @@ export async function getVisibilityFilteredProfilesCount(options: {
     };
     whereClauses.push(visibilityWhereStatement);
 
-    for (const slug of options.filter[typedFilterKey]) {
+    if (typedFilterKey === "area" && options.filter.area !== undefined) {
       const filterWhereStatement = {
-        [`${typedFilterKey}s`]: {
+        areas: {
           some: {
-            [typedFilterKey]: {
-              slug,
+            area: {
+              slug: options.filter.area,
             },
           },
         },
       };
       whereClauses.push(filterWhereStatement);
+    }
+    if (typedFilterKey !== "area") {
+      for (const slug of options.filter[typedFilterKey]) {
+        const filterWhereStatement = {
+          [`${typedFilterKey}s`]: {
+            some: {
+              [typedFilterKey]: {
+                slug,
+              },
+            },
+          },
+        };
+        whereClauses.push(filterWhereStatement);
+      }
     }
   }
 
@@ -52,17 +66,31 @@ export async function getProfilesCount(options: {
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
-      for (const slug of options.filter[typedFilterKey]) {
+      if (typedFilterKey === "area" && options.filter.area !== undefined) {
         const filterWhereStatement = {
-          [`${typedFilterKey}s`]: {
+          areas: {
             some: {
-              [typedFilterKey]: {
-                slug,
+              area: {
+                slug: options.filter.area,
               },
             },
           },
         };
         whereClauses.push(filterWhereStatement);
+      }
+      if (typedFilterKey !== "area") {
+        for (const slug of options.filter[typedFilterKey]) {
+          const filterWhereStatement = {
+            [`${typedFilterKey}s`]: {
+              some: {
+                [typedFilterKey]: {
+                  slug,
+                },
+              },
+            },
+          };
+          whereClauses.push(filterWhereStatement);
+        }
       }
     }
   }
@@ -94,17 +122,31 @@ export async function getAllProfiles(options: {
         };
         whereClauses.push(visibilityWhereStatement);
       }
-      for (const slug of options.filter[typedFilterKey]) {
+      if (typedFilterKey === "area" && options.filter.area !== undefined) {
         const filterWhereStatement = {
-          [`${typedFilterKey}s`]: {
+          areas: {
             some: {
-              [typedFilterKey]: {
-                slug,
+              area: {
+                slug: options.filter.area,
               },
             },
           },
         };
         whereClauses.push(filterWhereStatement);
+      }
+      if (typedFilterKey !== "area") {
+        for (const slug of options.filter[typedFilterKey]) {
+          const filterWhereStatement = {
+            [`${typedFilterKey}s`]: {
+              some: {
+                [typedFilterKey]: {
+                  slug,
+                },
+              },
+            },
+          };
+          whereClauses.push(filterWhereStatement);
+        }
       }
     }
   }
@@ -198,44 +240,47 @@ export async function getProfileFilterVector(options: {
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
-      // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-      const allFilterValues = await prismaClient[typedFilterKey].findMany({
-        select: {
-          slug: true,
-        },
-      });
-      // const test = await prismaClient.offer.findMany({
-      //   select: {
-      //     slug: true,
-      //     OffersOnProfiles: {
-      //       select: {
-      //         offerId: true,
-      //       }
-      //     }
-      //   },
-      // });
-      // const test2 = await prismaClient.focus.findMany({
-      //   select: {
-      //     slug: true,
-      //     organizations: {
-      //       select: {
-      //         organizationId: true
-      //       }
-      //     }
-      //   },
-      // });
-      for (const slug of options.filter[typedFilterKey]) {
-        // Validate slug because of queryRawUnsafe
-        invariantResponse(
-          allFilterValues.some((value) => {
-            return value.slug === slug;
-          }),
-          "Cannot filter by the specified slug.",
-          { status: 400 }
-        );
-        const tuple = `${typedFilterKey}\\:${slug}`;
-        const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-        whereStatements.push(whereStatement);
+      // TODO: remove this when areas are added to ts-vector
+      if (typedFilterKey !== "area") {
+        // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
+        const allFilterValues = await prismaClient[typedFilterKey].findMany({
+          select: {
+            slug: true,
+          },
+        });
+        // const test = await prismaClient.offer.findMany({
+        //   select: {
+        //     slug: true,
+        //     OffersOnProfiles: {
+        //       select: {
+        //         offerId: true,
+        //       }
+        //     }
+        //   },
+        // });
+        // const test2 = await prismaClient.area.findMany({
+        //   select: {
+        //     slug: true,
+        //     AreasOnProfiles: {
+        //       select: {
+        //         areaId: true
+        //       }
+        //     }
+        //   },
+        // });
+        for (const slug of options.filter[typedFilterKey]) {
+          // Validate slug because of queryRawUnsafe
+          invariantResponse(
+            allFilterValues.some((value) => {
+              return value.slug === slug;
+            }),
+            "Cannot filter by the specified slug.",
+            { status: 400 }
+          );
+          const tuple = `${typedFilterKey}\\:${slug}`;
+          const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
+          whereStatements.push(whereStatement);
+        }
       }
     }
   }
@@ -265,7 +310,7 @@ export async function getProfileFilterVector(options: {
 }
 
 export async function getAreasBySearchQuery(queryString?: string) {
-  if (queryString === undefined) {
+  if (queryString === undefined || queryString.length < 3) {
     return [];
   }
   const query = queryString.split(" ");

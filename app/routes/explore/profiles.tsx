@@ -9,6 +9,7 @@ import {
   Button,
   CardContainer,
   Chip,
+  Input,
   ProfileCard,
 } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
@@ -22,7 +23,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import React from "react";
+// import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -44,7 +45,8 @@ import {
   getTakeParam,
   getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
-import { AreaType } from "@prisma/client";
+import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
+import React from "react";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -68,6 +70,7 @@ const getProfilesSchema = z.object({
   filter: z
     .object({
       offer: z.array(z.string()),
+      area: z.string().optional(),
     })
     .optional(),
   sortBy: z
@@ -203,7 +206,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   for (const area of stateAndDistrictAreas) {
     groupedAreas[area.type].push(area);
   }
-  console.log(groupedAreas);
 
   const offers = await getAllOffers();
 
@@ -229,7 +231,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return json({
     isLoggedIn,
     profiles: enhancedProfiles,
-    areas: stateAndDistrictAreas,
+    areas: groupedAreas,
     offers,
     submission: transformedSubmission,
     filterVector,
@@ -244,6 +246,7 @@ export default function Index() {
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
+  const debounceSubmit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
   const page = searchParams.get("page") || "1";
@@ -252,18 +255,22 @@ export default function Index() {
 
   const [form, fields] = useForm<GetProfilesSchema>({
     lastResult: loaderData.submission,
-    defaultValue: {
-      filter: loaderData.submission.value.filter,
-      sortBy: loaderData.submission.value.sortBy,
-    },
+    defaultValue: loaderData.submission.value,
   });
 
   const filter = fields.filter.getFieldset();
   const selectedOffers = filter.offer.getFieldList();
+  let selectedArea = loaderData.submission.value.filter?.area;
 
-  function handleChange(event: React.FormEvent<HTMLFormElement>) {
-    submit(event.currentTarget, { preventScrollReset: true });
+  let deleteAreaSearchParams;
+  if (selectedArea !== undefined) {
+    deleteAreaSearchParams = new URLSearchParams(searchParams);
+    deleteAreaSearchParams.delete(filter.area.name, selectedArea);
   }
+
+  const [searchQuery, setSearchQuery] = React.useState(
+    loaderData.submission.value.search || ""
+  );
 
   return (
     <>
@@ -276,74 +283,231 @@ export default function Index() {
         <Form
           {...getFormProps(form)}
           method="get"
-          onChange={handleChange}
+          onChange={(event) => {
+            submit(event.currentTarget, { preventScrollReset: true });
+          }}
           preventScrollReset
         >
           <input name="page" defaultValue="1" hidden />
           <div className="flex mb-8">
-            <fieldset {...getFieldsetProps(fields.filter)}>
-              <legend className="font-bold mb-2">Angebotene Kompetenzen</legend>
-              <ul>
-                {loaderData.offers.map((offer) => {
-                  const offerVector = loaderData.filterVector.find((vector) => {
-                    return vector.attr === "offer";
-                  });
-                  // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
-                  const offerIndex =
-                    offerVector !== undefined
-                      ? offerVector.value.indexOf(offer.slug || "")
-                      : 0;
-                  const offerCount =
-                    offerVector !== undefined
-                      ? offerVector.count.at(offerIndex)
-                      : 0;
+            <fieldset {...getFieldsetProps(fields.filter)} className="flex">
+              <div className="mr-4">
+                <legend className="font-bold mb-2">
+                  Angebotene Kompetenzen
+                </legend>
+                <ul>
+                  {loaderData.offers.map((offer) => {
+                    const offerVector = loaderData.filterVector.find(
+                      (vector) => {
+                        return vector.attr === "offer";
+                      }
+                    );
+                    // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
+                    const offerIndex =
+                      offerVector !== undefined
+                        ? offerVector.value.indexOf(offer.slug || "")
+                        : 0;
+                    const offerCount =
+                      offerVector !== undefined
+                        ? offerVector.count.at(offerIndex)
+                        : 0;
+                    return (
+                      <li key={offer.slug}>
+                        <label htmlFor={filter.offer.id} className="mr-2">
+                          {/* TODO: Use slug as locale identifier */}
+                          {offer.title} ({offerCount})
+                        </label>
+                        <input
+                          {...getInputProps(filter.offer, {
+                            type: "checkbox",
+                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                            value: offer.slug || undefined,
+                          })}
+                          defaultChecked={selectedOffers.some(
+                            (selectedOffer) => {
+                              return selectedOffer.value === offer.slug;
+                            }
+                          )}
+                          disabled={
+                            offerCount === 0 || navigation.state === "loading"
+                          }
+                        />
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+              <div className="mr-4">
+                <legend className="font-bold mb-2">Ort / Gebiet</legend>
+                {loaderData.areas.global.map((area) => {
                   return (
-                    <li key={offer.slug}>
-                      <label htmlFor={filter.offer.id} className="mr-2">
-                        {offer.title} ({offerCount})
+                    <div key={area.slug}>
+                      <label htmlFor={filter.area.id} className="mr-2">
+                        {/* TODO: Use slug as locale identifier */}
+                        {area.name}
                       </label>
                       <input
-                        {...getInputProps(filter.offer, {
-                          type: "checkbox",
+                        {...getInputProps(filter.area, {
+                          type: "radio",
                           // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: offer.slug || undefined,
+                          value: area.slug || undefined,
                         })}
-                        defaultChecked={selectedOffers.some((selectedOffer) => {
-                          return selectedOffer.value === offer.slug;
-                        })}
-                        disabled={
-                          offerCount === 0 || navigation.state === "loading"
-                        }
+                        defaultChecked={selectedArea === area.slug}
+                        disabled={navigation.state === "loading"}
                       />
-                    </li>
+                    </div>
                   );
                 })}
-              </ul>
+                {loaderData.areas.country.map((area) => {
+                  return (
+                    <div key={area.slug}>
+                      <label htmlFor={filter.area.id} className="mr-2">
+                        {/* TODO: Use slug as locale identifier */}
+                        {area.name}
+                      </label>
+                      <input
+                        {...getInputProps(filter.area, {
+                          type: "radio",
+                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                          value: area.slug || undefined,
+                        })}
+                        defaultChecked={selectedArea === area.slug}
+                        disabled={navigation.state === "loading"}
+                      />
+                    </div>
+                  );
+                })}
+                {selectedArea !== undefined &&
+                  loaderData.areas.global.some((area) => {
+                    return area.slug === selectedArea;
+                  }) === false &&
+                  loaderData.areas.country.some((area) => {
+                    return area.slug === selectedArea;
+                  }) === false &&
+                  loaderData.areas.state.some((area) => {
+                    return area.slug === selectedArea;
+                  }) === false &&
+                  loaderData.areas.district.some((area) => {
+                    return area.slug === selectedArea;
+                  }) === false && (
+                    // TODO: Should this be hidden?
+                    <>
+                      <label htmlFor={filter.area.id} className="mr-2">
+                        {/* TODO: Use slug (selectedArea) as locale identifier */}
+                        {selectedArea}
+                      </label>
+                      <input
+                        {...getInputProps(filter.area, {
+                          type: "radio",
+                          value: selectedArea,
+                        })}
+                        defaultChecked={true}
+                      />
+                    </>
+                  )}
+                <Input
+                  id={fields.search.id}
+                  name={fields.search.name}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => {
+                    setSearchQuery(event.currentTarget.value);
+                    event.stopPropagation();
+                    if (event.currentTarget.value.length >= 3) {
+                      debounceSubmit(event.currentTarget.form, {
+                        debounceTimeout: 250,
+                        preventScrollReset: true,
+                        replace: true,
+                      });
+                    }
+                  }}
+                  placeholder="Ort oder Gebiet eingeben"
+                >
+                  <Input.Label htmlFor={fields.search.id}>
+                    Ort oder Gebiet eingeben
+                  </Input.Label>
+                  <Input.Controls>
+                    <noscript>
+                      <Button>Suchen</Button>
+                    </noscript>
+                  </Input.Controls>
+                </Input>
+                {loaderData.areas.state.length > 0 && (
+                  <>
+                    <legend className="font-bold mt-2">
+                      Vorschläge nach Gebiet
+                    </legend>
+                    {loaderData.areas.state.map((area) => {
+                      return (
+                        <div key={area.slug}>
+                          <label htmlFor={filter.area.id} className="mr-2">
+                            {/* TODO: Use slug as locale identifier */}
+                            {area.name}
+                          </label>
+                          <input
+                            {...getInputProps(filter.area, {
+                              type: "radio",
+                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                              value: area.slug || undefined,
+                            })}
+                            defaultChecked={selectedArea === area.slug}
+                            disabled={navigation.state === "loading"}
+                          />
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+                {loaderData.areas.district.length > 0 && (
+                  <>
+                    <legend className="font-bold mt-2">
+                      Vorschläge nach Ort
+                    </legend>
+                    {loaderData.areas.district.map((area) => {
+                      return (
+                        <div key={area.slug}>
+                          <label htmlFor={filter.area.id} className="mr-2">
+                            {/* TODO: Use slug as locale identifier */}
+                            {area.name}
+                          </label>
+                          <input
+                            {...getInputProps(filter.area, {
+                              type: "radio",
+                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                              value: area.slug || undefined,
+                            })}
+                            defaultChecked={selectedArea === area.slug}
+                            disabled={navigation.state === "loading"}
+                          />
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </div>
             </fieldset>
             <fieldset {...getFieldsetProps(fields.sortBy)}>
               <legend className="font-bold mb-2">Sortierung</legend>
-              <ul>
-                {sortValues.map((sortValue) => {
-                  return (
-                    <li key={sortValue}>
-                      <label htmlFor={fields.sortBy.id} className="mr-2">
-                        {sortValue}
-                      </label>
-                      <input
-                        {...getInputProps(fields.sortBy, {
-                          type: "radio",
-                          value: sortValue,
-                        })}
-                        defaultChecked={
-                          loaderData.submission.value.sortBy === sortValue ||
-                          sortValues[0] === sortValue
-                        }
-                        disabled={navigation.state === "loading"}
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
+              {sortValues.map((sortValue) => {
+                return (
+                  <div key={sortValue}>
+                    <label htmlFor={fields.sortBy.id} className="mr-2">
+                      {/* TODO: Use sortValue as locale identifier */}
+                      {sortValue}
+                    </label>
+                    <input
+                      {...getInputProps(fields.sortBy, {
+                        type: "radio",
+                        value: sortValue,
+                      })}
+                      defaultChecked={
+                        loaderData.submission.value.sortBy === sortValue
+                      }
+                      disabled={navigation.state === "loading"}
+                    />
+                  </div>
+                );
+              })}
             </fieldset>
           </div>
           <noscript>
@@ -352,7 +516,9 @@ export default function Index() {
         </Form>
       </section>
       <section className="container mb-8">
-        {selectedOffers.length > 0 && (
+        {(selectedOffers.length > 0 ||
+          (loaderData.submission.value.filter !== undefined &&
+            loaderData.submission.value.filter.area !== undefined)) && (
           <>
             <div className="mb-2">
               <p className="font-bold mb-2">Ausgewählte Filter</p>
@@ -366,7 +532,9 @@ export default function Index() {
                     filter.offer.name,
                     selectedOffer.value
                   );
-                  return offerMatch[0] !== undefined ? (
+                  return offerMatch[0] !== undefined &&
+                    selectedOffer.value !== undefined ? (
+                    // TODO: Use slug as locale identifier
                     <Chip key={selectedOffer.key}>
                       {offerMatch[0].title}
                       <Chip.Delete disabled={navigation.state === "loading"}>
@@ -382,6 +550,23 @@ export default function Index() {
                     </Chip>
                   ) : null;
                 })}
+                {selectedArea !== undefined &&
+                  deleteAreaSearchParams !== undefined && (
+                    // TODO: Use slug as locale identifier
+                    <Chip key={selectedArea}>
+                      {selectedArea}
+                      <Chip.Delete disabled={navigation.state === "loading"}>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteAreaSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  )}
               </Chip.Container>
             </div>
             <Link
