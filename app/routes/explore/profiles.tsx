@@ -278,14 +278,14 @@ export default function Index() {
 
   return (
     <>
-      <section className="container mb-12 mt-5 md:mt-7 lg:mt-8 text-center">
-        <H1 className="mb-4 md:mb-2 lg:mb-3" like="h0">
+      <section className="mv-container mv-mb-12 mv-mt-5 md:mv-mt-7 lg:mv-mt-8 mv-text-center">
+        <H1 className="mv-mb-4 md:mv-mb-2 lg:mv-mb-3" like="h0">
           {t("headline")}
         </H1>
-        <p className="">{t("intro")}</p>
+        <p>{t("intro")}</p>
       </section>
 
-      <section className="container mb-12">
+      <section className="mv-container mv-mb-12">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -295,50 +295,70 @@ export default function Index() {
           preventScrollReset
         >
           <input name="page" defaultValue="1" hidden />
-          <div className="flex mb-8">
-            <fieldset {...getFieldsetProps(fields.filter)} className="flex">
-              <div className="mr-4">
-                <legend className="font-bold mb-2">{t("filter.offers")}</legend>
-                <ul>
-                  {loaderData.offers.map((offer) => {
-                    const offerVector = loaderData.filterVector.find(
-                      (vector) => {
-                        return vector.attr === "offer";
-                      }
-                    );
-                    // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
-                    const offerIndex =
-                      offerVector !== undefined
-                        ? offerVector.value.indexOf(offer.slug || "")
-                        : 0;
-                    const offerCount =
-                      offerVector !== undefined
-                        ? offerVector.count.at(offerIndex)
-                        : 0;
-                    return (
-                      <li key={offer.slug}>
-                        <label htmlFor={filter.offer.id} className="mr-2">
-                          {offer.title} ({offerCount})
-                        </label>
-                        <input
-                          {...getInputProps(filter.offer, {
-                            type: "checkbox",
-                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: offer.slug || undefined,
-                          })}
-                          defaultChecked={selectedOffers.some(
-                            (selectedOffer) => {
-                              return selectedOffer.value === offer.slug;
+          <div className="mv-flex mv-mb-8">
+            <fieldset {...getFieldsetProps(fields.filter)} className="mv-flex">
+              <div className="mv-mr-4">
+                <div className="mv-flex mv-min-h-10 mv-w-max mv-max-w-fit mv-py-2 mv-px-4 mv-items-center mv-gap-2 mv-rounded-lg mv-bg-gray-100">
+                  <legend>
+                    <label
+                      htmlFor="offer-filter"
+                      className="mv-appearance-none mv-text-gray-700 mv-font-bold"
+                    >
+                      {t("filter.offers")}
+                    </label>
+                  </legend>
+                  <input
+                    id="offer-filter"
+                    type="checkbox"
+                    onChange={(event) => {
+                      event.stopPropagation();
+                    }}
+                    // className="appearance-none"
+                  />
+                  {/* TODO: svg with absolute position */}
+                </div>
+                <div className="mv-p-2 mv-rounded-lg mv-shadow-2xl">
+                  <ul className="mv-w-full mv-overflow-y-auto mv-w-[300px] mv-max-h-[360px] mv-absolute mv-z-10">
+                    {loaderData.offers.map((offer) => {
+                      const offerVector = loaderData.filterVector.find(
+                        (vector) => {
+                          return vector.attr === "offer";
+                        }
+                      );
+                      // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
+                      const offerIndex =
+                        offerVector !== undefined
+                          ? offerVector.value.indexOf(offer.slug || "")
+                          : 0;
+                      const offerCount =
+                        offerVector !== undefined
+                          ? offerVector.count.at(offerIndex)
+                          : 0;
+                      return (
+                        <li key={offer.slug}>
+                          <label htmlFor={filter.offer.id} className="mr-2">
+                            {offer.title} ({offerCount})
+                          </label>
+                          <input
+                            {...getInputProps(filter.offer, {
+                              type: "checkbox",
+                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                              value: offer.slug || undefined,
+                            })}
+                            defaultChecked={selectedOffers.some(
+                              (selectedOffer) => {
+                                return selectedOffer.value === offer.slug;
+                              }
+                            )}
+                            disabled={
+                              offerCount === 0 || navigation.state === "loading"
                             }
-                          )}
-                          disabled={
-                            offerCount === 0 || navigation.state === "loading"
-                          }
-                        />
-                      </li>
-                    );
-                  })}
-                </ul>
+                          />
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               </div>
               <div className="mr-4">
                 <legend className="font-bold mb-2">{t("filter.areas")}</legend>
