@@ -2,13 +2,15 @@
   "headline": "Discover the community",
   "intro": "Discover profiles from diverse individuals within the STEM community here.",
   "filter": {
-    "activityAreas": "Field of activity",
-    "lookingFor": "I'm looking for",
-    "support": "I want to support with",
-    "reset": "Reset filter",
-    "sort": {
-      "label": "Sort by"
-    },
+    "offers": "Competencies offered",
+    "areas": "Location / Area",
+    "searchAreaPlaceholder": "Enter area or location",
+    "searchAreaHelper": "At least 3 letters.",
+    "searchAreaButton": "Search",
+    "stateLabel": "Suggestions by area",
+    "districtLabel": "Suggestions by location",
+    "apply": "Apply filter",
+    "reset": "Reset all",
     "sortBy": {
       "firstName-asc": "First name (A-Z)",
       "firstName-desc": "First name (Z-A)",
@@ -18,6 +20,7 @@
     }
   },
   "more": "Load more",
-  "empty": "Unfortunately, no profiles could be found for your filter criteria.",
-  "notShown": "profiles cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users."
+  "empty": "Unfortunately, no profiles could be found.",
+  "notShown": "profiles cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users.",
+  "profilesCountSuffix": "Profiles"
 }

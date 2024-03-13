@@ -278,12 +278,14 @@ export default function Index() {
 
   return (
     <>
-      <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">{t("headline")}</H1>
+      <section className="container mb-12 mt-5 md:mt-7 lg:mt-8 text-center">
+        <H1 className="mb-4 md:mb-2 lg:mb-3" like="h0">
+          {t("headline")}
+        </H1>
         <p className="">{t("intro")}</p>
       </section>
 
-      <section className="container mb-8">
+      <section className="container mb-12">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -296,9 +298,7 @@ export default function Index() {
           <div className="flex mb-8">
             <fieldset {...getFieldsetProps(fields.filter)} className="flex">
               <div className="mr-4">
-                <legend className="font-bold mb-2">
-                  Angebotene Kompetenzen
-                </legend>
+                <legend className="font-bold mb-2">{t("filter.offers")}</legend>
                 <ul>
                   {loaderData.offers.map((offer) => {
                     const offerVector = loaderData.filterVector.find(
@@ -341,7 +341,7 @@ export default function Index() {
                 </ul>
               </div>
               <div className="mr-4">
-                <legend className="font-bold mb-2">Ort / Gebiet</legend>
+                <legend className="font-bold mb-2">{t("filter.areas")}</legend>
                 {loaderData.areas.global.map((area) => {
                   return (
                     <div key={area.slug}>
@@ -426,22 +426,24 @@ export default function Index() {
                       });
                     }
                   }}
-                  placeholder="Ort oder Gebiet eingeben"
+                  placeholder={t("filter.searchAreaPlaceholder")}
                 >
-                  <Input.Label htmlFor={fields.search.id}>
-                    Ort oder Gebiet eingeben
+                  <Input.Label htmlFor={fields.search.id} hidden>
+                    {t("filter.searchAreaPlaceholder")}
                   </Input.Label>
-                  <Input.HelperText>Mindestens 3 Buchstaben.</Input.HelperText>
+                  <Input.HelperText>
+                    {t("filter.searchAreaHelper")}
+                  </Input.HelperText>
                   <Input.Controls>
                     <noscript>
-                      <Button>Suchen</Button>
+                      <Button>{t("filter.searchAreaButton")}</Button>
                     </noscript>
                   </Input.Controls>
                 </Input>
                 {loaderData.areas.state.length > 0 && (
                   <>
                     <legend className="font-bold mt-2">
-                      Vorschläge nach Gebiet
+                      {t("filter.stateLabel")}
                     </legend>
                     {loaderData.areas.state.map((area) => {
                       return (
@@ -468,7 +470,7 @@ export default function Index() {
                 {loaderData.areas.district.length > 0 && (
                   <>
                     <legend className="font-bold mt-2">
-                      Vorschläge nach Ort
+                      {t("filter.districtLabel")}
                     </legend>
                     {loaderData.areas.district.map((area) => {
                       return (
@@ -495,7 +497,6 @@ export default function Index() {
               </div>
             </fieldset>
             <fieldset {...getFieldsetProps(fields.sortBy)}>
-              <legend className="font-bold mb-2">Sortierung</legend>
               {sortValues.map((sortValue) => {
                 return (
                   <div key={sortValue}>
@@ -518,63 +519,60 @@ export default function Index() {
             </fieldset>
           </div>
           <noscript>
-            <Button>Filter anwenden</Button>
+            <Button>{t("filter.apply")}</Button>
           </noscript>
         </Form>
       </section>
-      <section className="container mb-8">
+      <section className="container mb-6">
         {(selectedOffers.length > 0 ||
           (loaderData.submission.value.filter !== undefined &&
             loaderData.submission.value.filter.area !== undefined)) && (
-          <>
-            <div className="mb-2">
-              <p className="font-bold mb-2">Ausgewählte Filter</p>
-              <Chip.Container>
-                {selectedOffers.map((selectedOffer) => {
-                  const offerMatch = loaderData.offers.filter((offer) => {
-                    return offer.slug === selectedOffer.value;
-                  });
-                  const deleteSearchParams = new URLSearchParams(searchParams);
-                  deleteSearchParams.delete(
-                    filter.offer.name,
-                    selectedOffer.value
-                  );
-                  return offerMatch[0] !== undefined &&
-                    selectedOffer.value !== undefined ? (
-                    <Chip key={selectedOffer.key}>
-                      {offerMatch[0].title}
-                      <Chip.Delete disabled={navigation.state === "loading"}>
-                        <Link
-                          to={`${
-                            location.pathname
-                          }?${deleteSearchParams.toString()}`}
-                          preventScrollReset
-                        >
-                          X
-                        </Link>
-                      </Chip.Delete>
-                    </Chip>
-                  ) : null;
-                })}
-                {loaderData.selectedArea.slug !== undefined &&
-                  loaderData.selectedArea.name !== undefined &&
-                  deleteAreaSearchParams !== undefined && (
-                    <Chip key={loaderData.selectedArea.slug}>
-                      {loaderData.selectedArea.name}
-                      <Chip.Delete disabled={navigation.state === "loading"}>
-                        <Link
-                          to={`${
-                            location.pathname
-                          }?${deleteAreaSearchParams.toString()}`}
-                          preventScrollReset
-                        >
-                          X
-                        </Link>
-                      </Chip.Delete>
-                    </Chip>
-                  )}
-              </Chip.Container>
-            </div>
+          <div className="flex items-center">
+            <Chip.Container>
+              {selectedOffers.map((selectedOffer) => {
+                const offerMatch = loaderData.offers.filter((offer) => {
+                  return offer.slug === selectedOffer.value;
+                });
+                const deleteSearchParams = new URLSearchParams(searchParams);
+                deleteSearchParams.delete(
+                  filter.offer.name,
+                  selectedOffer.value
+                );
+                return offerMatch[0] !== undefined &&
+                  selectedOffer.value !== undefined ? (
+                  <Chip key={selectedOffer.key} responsive>
+                    {offerMatch[0].title}
+                    <Chip.Delete disabled={navigation.state === "loading"}>
+                      <Link
+                        to={`${
+                          location.pathname
+                        }?${deleteSearchParams.toString()}`}
+                        preventScrollReset
+                      >
+                        X
+                      </Link>
+                    </Chip.Delete>
+                  </Chip>
+                ) : null;
+              })}
+              {loaderData.selectedArea.slug !== undefined &&
+                loaderData.selectedArea.name !== undefined &&
+                deleteAreaSearchParams !== undefined && (
+                  <Chip key={loaderData.selectedArea.slug} responsive>
+                    {loaderData.selectedArea.name}
+                    <Chip.Delete disabled={navigation.state === "loading"}>
+                      <Link
+                        to={`${
+                          location.pathname
+                        }?${deleteAreaSearchParams.toString()}`}
+                        preventScrollReset
+                      >
+                        X
+                      </Link>
+                    </Chip.Delete>
+                  </Chip>
+                )}
+            </Chip.Container>
             <Link
               to={`/explore/profiles${
                 loaderData.submission.value.sortBy !== undefined
@@ -582,26 +580,34 @@ export default function Index() {
                   : ""
               }`}
               preventScrollReset
+              className="ml-2"
             >
               <Button
                 variant="outline"
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
-                Alles zurücksetzen
+                {t("filter.reset")}
               </Button>
             </Link>
-          </>
+          </div>
         )}
       </section>
 
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         {loaderData.filteredByVisibilityCount !== undefined &&
-          loaderData.filteredByVisibilityCount > 0 && (
-            <p className="text-center text-primary mb-8">
-              {loaderData.filteredByVisibilityCount} {t("notShown")}
-            </p>
-          )}
+        loaderData.filteredByVisibilityCount > 0 ? (
+          <p className="text-center text-gray-700 mb-4">
+            {loaderData.filteredByVisibilityCount} {t("notShown")}
+          </p>
+        ) : loaderData.profilesCount > 0 ? (
+          <p className="text-center text-gray-700 mb-4">
+            <strong>{loaderData.profilesCount}</strong>{" "}
+            {t("profilesCountSuffix")}
+          </p>
+        ) : (
+          <p className="text-center text-gray-700 mb-4">{t("empty")}</p>
+        )}
         {loaderData.profiles.length > 0 && (
           <>
             <CardContainer type="multi row">
@@ -635,11 +641,6 @@ export default function Index() {
             )}
           </>
         )}
-        {loaderData.profiles.length === 0 &&
-          (loaderData.filteredByVisibilityCount === undefined ||
-            loaderData.filteredByVisibilityCount === 0) && (
-            <p className="text-center text-primary">{t("empty")}</p>
-          )}
       </section>
     </>
   );
