@@ -418,13 +418,11 @@ export default function Index() {
                   onChange={(event) => {
                     setSearchQuery(event.currentTarget.value);
                     event.stopPropagation();
-                    if (event.currentTarget.value.length >= 3) {
-                      debounceSubmit(event.currentTarget.form, {
-                        debounceTimeout: 250,
-                        preventScrollReset: true,
-                        replace: true,
-                      });
-                    }
+                    debounceSubmit(event.currentTarget.form, {
+                      debounceTimeout: 250,
+                      preventScrollReset: true,
+                      replace: true,
+                    });
                   }}
                   placeholder={t("filter.searchAreaPlaceholder")}
                 >
