@@ -310,16 +310,16 @@ export async function getProfileFilterVector(options: {
 }
 
 export async function getAreasBySearchQuery(queryString?: string) {
-  if (queryString === undefined || queryString.length < 3) {
-    return [];
-  }
-  const query = queryString.split(" ");
   const whereQueries: {
     [K in Area as string]: { contains: string; mode: Prisma.QueryMode };
   }[] = [];
-  for (const word of query) {
-    whereQueries.push({ name: { contains: word, mode: "insensitive" } });
+  if (queryString !== undefined && queryString.length >= 3) {
+    const query = queryString.split(" ");
+    for (const word of query) {
+      whereQueries.push({ name: { contains: word, mode: "insensitive" } });
+    }
   }
+
   return await prismaClient.area.findMany({
     select: {
       id: true,
@@ -328,27 +328,15 @@ export async function getAreasBySearchQuery(queryString?: string) {
       type: true,
     },
     where: {
-      OR: whereQueries,
-      type: {
-        notIn: ["global", "country"],
-      },
+      OR: [
+        ...whereQueries,
+        {
+          type: {
+            in: ["global", "country"],
+          },
+        },
+      ],
     },
     take: 10,
-  });
-}
-
-export async function getGlobalAndCountryAreas() {
-  return await prismaClient.area.findMany({
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      type: true,
-    },
-    where: {
-      type: {
-        in: ["global", "country"],
-      },
-    },
   });
 }

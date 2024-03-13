@@ -10,11 +10,11 @@
       "label": "Sort by"
     },
     "sortBy": {
-      "firstNameAsc": "First name (A-Z)",
-      "firstNameDesc": "First name (Z-A)",
-      "lastNameAsc": "Last name (A-Z)",
-      "lastNameDesc": "Last name (Z-A)",
-      "newest": "Newest first"
+      "firstName-asc": "First name (A-Z)",
+      "firstName-desc": "First name (Z-A)",
+      "lastName-asc": "Last name (A-Z)",
+      "lastName-desc": "Last name (Z-A)",
+      "createdAt-desc": "Newest first"
     }
   },
   "more": "Load more",

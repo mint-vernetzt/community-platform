@@ -23,7 +23,9 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
+import React from "react";
 import { useTranslation } from "react-i18next";
+import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
@@ -38,14 +40,11 @@ import { getPublicURL } from "~/storage.server";
 import {
   getAllProfiles,
   getAreasBySearchQuery,
-  getGlobalAndCountryAreas,
   getProfileFilterVector,
   getProfilesCount,
   getTakeParam,
   getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
-import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
-import React from "react";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -189,20 +188,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filter: submission.value.filter,
   });
 
-  const globalAndCountryAreas = await getGlobalAndCountryAreas();
-  const stateAndDistrictAreas = await getAreasBySearchQuery(
-    submission.value.search
-  );
+  const areas = await getAreasBySearchQuery(submission.value.search);
   const groupedAreas = {
-    global: [] as Awaited<ReturnType<typeof getGlobalAndCountryAreas>>,
-    country: [] as Awaited<ReturnType<typeof getGlobalAndCountryAreas>>,
+    global: [] as Awaited<ReturnType<typeof getAreasBySearchQuery>>,
+    country: [] as Awaited<ReturnType<typeof getAreasBySearchQuery>>,
     state: [] as Awaited<ReturnType<typeof getAreasBySearchQuery>>,
     district: [] as Awaited<ReturnType<typeof getAreasBySearchQuery>>,
   };
-  for (const area of globalAndCountryAreas) {
-    groupedAreas[area.type].push(area);
-  }
-  for (const area of stateAndDistrictAreas) {
+  for (const area of areas) {
     groupedAreas[area.type].push(area);
   }
 
@@ -492,8 +485,7 @@ export default function Index() {
                 return (
                   <div key={sortValue}>
                     <label htmlFor={fields.sortBy.id} className="mr-2">
-                      {/* TODO: Use sortValue as locale identifier */}
-                      {sortValue}
+                      {t(`filter.sortBy.${sortValue}`)}
                     </label>
                     <input
                       {...getInputProps(fields.sortBy, {

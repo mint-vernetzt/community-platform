@@ -10,11 +10,11 @@
       "label": "Sortieren nach"
     },
     "sortBy": {
-      "firstNameAsc": "Vorname (A-Z)",
-      "firstNameDesc": "Vorname (Z-A)",
-      "lastNameAsc": "Nachname (A-Z)",
-      "lastNameDesc": "Nachname (Z-A)",
-      "newest": "Neueste zuerst"
+      "firstName-asc": "Vorname (A-Z)",
+      "firstName-desc": "Vorname (Z-A)",
+      "lastName-asc": "Nachname (A-Z)",
+      "lastName-desc": "Nachname (Z-A)",
+      "createdAt-desc": "Neueste zuerst"
     }
   },
   "more": "Weitere laden",
