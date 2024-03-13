@@ -39,6 +39,7 @@ import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import {
   getAllProfiles,
+  getAreaNameBySlug,
   getAreasBySearchQuery,
   getProfileFilterVector,
   getProfilesCount,
@@ -198,6 +199,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   for (const area of areas) {
     groupedAreas[area.type].push(area);
   }
+  const selectedAreaSlug = submission.value.filter?.area;
+  let selectedAreaName;
+  if (selectedAreaSlug !== undefined) {
+    selectedAreaName = await getAreaNameBySlug(selectedAreaSlug);
+  }
 
   const offers = await getAllOffers();
 
@@ -224,6 +230,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     isLoggedIn,
     profiles: enhancedProfiles,
     areas: groupedAreas,
+    selectedArea: {
+      slug: selectedAreaSlug,
+      name: selectedAreaName,
+    },
     offers,
     submission: transformedSubmission,
     filterVector,
@@ -252,12 +262,14 @@ export default function Index() {
 
   const filter = fields.filter.getFieldset();
   const selectedOffers = filter.offer.getFieldList();
-  let selectedArea = loaderData.submission.value.filter?.area;
 
   let deleteAreaSearchParams;
-  if (selectedArea !== undefined) {
+  if (loaderData.selectedArea.slug !== undefined) {
     deleteAreaSearchParams = new URLSearchParams(searchParams);
-    deleteAreaSearchParams.delete(filter.area.name, selectedArea);
+    deleteAreaSearchParams.delete(
+      filter.area.name,
+      loaderData.selectedArea.slug
+    );
   }
 
   const [searchQuery, setSearchQuery] = React.useState(
@@ -306,7 +318,6 @@ export default function Index() {
                     return (
                       <li key={offer.slug}>
                         <label htmlFor={filter.offer.id} className="mr-2">
-                          {/* TODO: Use slug as locale identifier */}
                           {offer.title} ({offerCount})
                         </label>
                         <input
@@ -335,7 +346,6 @@ export default function Index() {
                   return (
                     <div key={area.slug}>
                       <label htmlFor={filter.area.id} className="mr-2">
-                        {/* TODO: Use slug as locale identifier */}
                         {area.name}
                       </label>
                       <input
@@ -344,7 +354,9 @@ export default function Index() {
                           // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                           value: area.slug || undefined,
                         })}
-                        defaultChecked={selectedArea === area.slug}
+                        defaultChecked={
+                          loaderData.selectedArea.slug === area.slug
+                        }
                         disabled={navigation.state === "loading"}
                       />
                     </div>
@@ -354,7 +366,6 @@ export default function Index() {
                   return (
                     <div key={area.slug}>
                       <label htmlFor={filter.area.id} className="mr-2">
-                        {/* TODO: Use slug as locale identifier */}
                         {area.name}
                       </label>
                       <input
@@ -363,35 +374,37 @@ export default function Index() {
                           // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                           value: area.slug || undefined,
                         })}
-                        defaultChecked={selectedArea === area.slug}
+                        defaultChecked={
+                          loaderData.selectedArea.slug === area.slug
+                        }
                         disabled={navigation.state === "loading"}
                       />
                     </div>
                   );
                 })}
-                {selectedArea !== undefined &&
+                {loaderData.selectedArea.slug !== undefined &&
+                  loaderData.selectedArea.name !== undefined &&
                   loaderData.areas.global.some((area) => {
-                    return area.slug === selectedArea;
+                    return area.slug === loaderData.selectedArea.slug;
                   }) === false &&
                   loaderData.areas.country.some((area) => {
-                    return area.slug === selectedArea;
+                    return area.slug === loaderData.selectedArea.slug;
                   }) === false &&
                   loaderData.areas.state.some((area) => {
-                    return area.slug === selectedArea;
+                    return area.slug === loaderData.selectedArea.slug;
                   }) === false &&
                   loaderData.areas.district.some((area) => {
-                    return area.slug === selectedArea;
+                    return area.slug === loaderData.selectedArea.slug;
                   }) === false && (
                     // TODO: Should this be hidden?
                     <>
                       <label htmlFor={filter.area.id} className="mr-2">
-                        {/* TODO: Use slug (selectedArea) as locale identifier */}
-                        {selectedArea}
+                        {loaderData.selectedArea.name}
                       </label>
                       <input
                         {...getInputProps(filter.area, {
                           type: "radio",
-                          value: selectedArea,
+                          value: loaderData.selectedArea.slug,
                         })}
                         defaultChecked={true}
                       />
@@ -434,7 +447,6 @@ export default function Index() {
                       return (
                         <div key={area.slug}>
                           <label htmlFor={filter.area.id} className="mr-2">
-                            {/* TODO: Use slug as locale identifier */}
                             {area.name}
                           </label>
                           <input
@@ -443,7 +455,9 @@ export default function Index() {
                               // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                               value: area.slug || undefined,
                             })}
-                            defaultChecked={selectedArea === area.slug}
+                            defaultChecked={
+                              loaderData.selectedArea.slug === area.slug
+                            }
                             disabled={navigation.state === "loading"}
                           />
                         </div>
@@ -460,7 +474,6 @@ export default function Index() {
                       return (
                         <div key={area.slug}>
                           <label htmlFor={filter.area.id} className="mr-2">
-                            {/* TODO: Use slug as locale identifier */}
                             {area.name}
                           </label>
                           <input
@@ -469,7 +482,9 @@ export default function Index() {
                               // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                               value: area.slug || undefined,
                             })}
-                            defaultChecked={selectedArea === area.slug}
+                            defaultChecked={
+                              loaderData.selectedArea.slug === area.slug
+                            }
                             disabled={navigation.state === "loading"}
                           />
                         </div>
@@ -526,7 +541,6 @@ export default function Index() {
                   );
                   return offerMatch[0] !== undefined &&
                     selectedOffer.value !== undefined ? (
-                    // TODO: Use slug as locale identifier
                     <Chip key={selectedOffer.key}>
                       {offerMatch[0].title}
                       <Chip.Delete disabled={navigation.state === "loading"}>
@@ -542,11 +556,11 @@ export default function Index() {
                     </Chip>
                   ) : null;
                 })}
-                {selectedArea !== undefined &&
+                {loaderData.selectedArea.slug !== undefined &&
+                  loaderData.selectedArea.name !== undefined &&
                   deleteAreaSearchParams !== undefined && (
-                    // TODO: Use slug as locale identifier
-                    <Chip key={selectedArea}>
-                      {selectedArea}
+                    <Chip key={loaderData.selectedArea.slug}>
+                      {loaderData.selectedArea.name}
                       <Chip.Delete disabled={navigation.state === "loading"}>
                         <Link
                           to={`${

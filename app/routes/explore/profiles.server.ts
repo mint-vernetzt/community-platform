@@ -340,3 +340,19 @@ export async function getAreasBySearchQuery(queryString?: string) {
     take: 10,
   });
 }
+
+export async function getAreaNameBySlug(slug: string) {
+  const area = await prismaClient.area.findFirst({
+    select: {
+      id: true,
+      name: true,
+    },
+    where: {
+      slug,
+    },
+  });
+  if (area === null) {
+    return undefined;
+  }
+  return area.name;
+}
