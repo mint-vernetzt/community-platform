@@ -298,67 +298,49 @@ export default function Index() {
           <div className="mv-flex mv-mb-8">
             <fieldset {...getFieldsetProps(fields.filter)} className="mv-flex">
               <div className="mv-mr-4">
-                <div className="mv-flex mv-min-h-10 mv-w-max mv-max-w-fit mv-py-2 mv-px-4 mv-items-center mv-gap-2 mv-rounded-lg mv-bg-gray-100">
-                  <legend>
-                    <label
-                      htmlFor="offer-filter"
-                      className="mv-appearance-none mv-text-gray-700 mv-font-bold"
-                    >
-                      {t("filter.offers")}
-                    </label>
-                  </legend>
-                  <input
-                    id="offer-filter"
-                    type="checkbox"
-                    onChange={(event) => {
-                      event.stopPropagation();
-                    }}
-                    // className="appearance-none"
-                  />
-                  {/* TODO: svg with absolute position */}
-                </div>
-                <div className="mv-p-2 mv-rounded-lg mv-shadow-2xl">
-                  <ul className="mv-w-full mv-overflow-y-auto mv-w-[300px] mv-max-h-[360px] mv-absolute mv-z-10">
-                    {loaderData.offers.map((offer) => {
-                      const offerVector = loaderData.filterVector.find(
-                        (vector) => {
-                          return vector.attr === "offer";
-                        }
-                      );
-                      // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
-                      const offerIndex =
-                        offerVector !== undefined
-                          ? offerVector.value.indexOf(offer.slug || "")
-                          : 0;
-                      const offerCount =
-                        offerVector !== undefined
-                          ? offerVector.count.at(offerIndex)
-                          : 0;
-                      return (
-                        <li key={offer.slug}>
-                          <label htmlFor={filter.offer.id} className="mr-2">
-                            {offer.title} ({offerCount})
-                          </label>
-                          <input
-                            {...getInputProps(filter.offer, {
-                              type: "checkbox",
-                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                              value: offer.slug || undefined,
-                            })}
-                            defaultChecked={selectedOffers.some(
-                              (selectedOffer) => {
-                                return selectedOffer.value === offer.slug;
-                              }
-                            )}
-                            disabled={
-                              offerCount === 0 || navigation.state === "loading"
-                            }
-                          />
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
+                <legend className="mv-font-bold mb-2">
+                  {t("filter.offers")}
+                </legend>
+                <ul>
+                  {loaderData.offers.map((offer) => {
+                    const offerVector = loaderData.filterVector.find(
+                      (vector) => {
+                        return vector.attr === "offer";
+                      }
+                    );
+                    // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
+                    const offerIndex =
+                      offerVector !== undefined
+                        ? offerVector.value.indexOf(offer.slug || "")
+                        : 0;
+                    const offerCount =
+                      offerVector !== undefined
+                        ? offerVector.count.at(offerIndex)
+                        : 0;
+                    const isChecked = selectedOffers.some((selectedOffer) => {
+                      return selectedOffer.value === offer.slug;
+                    });
+                    return (
+                      <li key={offer.slug}>
+                        <label htmlFor={filter.offer.id} className="mr-2">
+                          {offer.title} ({offerCount})
+                        </label>
+                        <input
+                          {...getInputProps(filter.offer, {
+                            type: "checkbox",
+                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                            value: offer.slug || undefined,
+                          })}
+                          defaultChecked={isChecked}
+                          disabled={
+                            (offerCount === 0 && !isChecked) ||
+                            navigation.state === "loading"
+                          }
+                        />
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
               <div className="mr-4">
                 <legend className="font-bold mb-2">{t("filter.areas")}</legend>
