@@ -41,11 +41,13 @@ import {
   getAllProfiles,
   getAreaNameBySlug,
   getAreasBySearchQuery,
+  getFilterCountForSlug,
   getProfileFilterVector,
   getProfilesCount,
   getTakeParam,
   getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
+import { type ArrayElement } from "~/lib/utils/types";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -190,22 +192,84 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const areas = await getAreasBySearchQuery(submission.value.search);
-  const groupedAreas = {
-    global: [] as Awaited<ReturnType<typeof getAreasBySearchQuery>>,
-    country: [] as Awaited<ReturnType<typeof getAreasBySearchQuery>>,
-    state: [] as Awaited<ReturnType<typeof getAreasBySearchQuery>>,
-    district: [] as Awaited<ReturnType<typeof getAreasBySearchQuery>>,
+  type EnhancedAreas = Array<
+    ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
+      vectorCount: ReturnType<typeof getFilterCountForSlug>;
+      isChecked: boolean;
+    }
+  >;
+  const enhancedAreas = {
+    global: [] as EnhancedAreas,
+    country: [] as EnhancedAreas,
+    state: [] as EnhancedAreas,
+    district: [] as EnhancedAreas,
   };
   for (const area of areas) {
-    groupedAreas[area.type].push(area);
+    const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
+    let isChecked;
+    // TODO: Remove '|| area.slug === null' when slug isn't optional anymore (after migration)
+    if (submission.value.filter === undefined || area.slug === null) {
+      isChecked = false;
+    } else {
+      isChecked = submission.value.filter.area === area.slug;
+    }
+    const enhancedArea = {
+      ...area,
+      vectorCount,
+      isChecked,
+    };
+    enhancedAreas[area.type].push(enhancedArea);
   }
-  const selectedAreaSlug = submission.value.filter?.area;
-  let selectedAreaName;
-  if (selectedAreaSlug !== undefined) {
-    selectedAreaName = await getAreaNameBySlug(selectedAreaSlug);
+  let selectedArea;
+  if (
+    submission.value.filter !== undefined &&
+    submission.value.filter.area !== undefined
+  ) {
+    const selectedAreaSlug = submission.value.filter.area;
+    const vectorCount = getFilterCountForSlug(
+      selectedAreaSlug,
+      filterVector,
+      "area"
+    );
+    const isInSearchResultsList = areas.some((area) => {
+      return area.slug === selectedAreaSlug;
+    });
+    selectedArea = {
+      slug: selectedAreaSlug,
+      name: await getAreaNameBySlug(selectedAreaSlug),
+      vectorCount,
+      isInSearchResultsList,
+    };
   }
 
   const offers = await getAllOffers();
+  const enhancedOffers = offers.map((offer) => {
+    const vectorCount = getFilterCountForSlug(
+      offer.slug,
+      filterVector,
+      "offer"
+    );
+    let isChecked;
+    // TODO: Remove '|| offer.slug === null' when slug isn't optional anymore (after migration)
+    if (submission.value.filter === undefined || offer.slug === null) {
+      isChecked = false;
+    } else {
+      isChecked = submission.value.filter.offer.includes(offer.slug);
+    }
+    return { ...offer, vectorCount, isChecked };
+  });
+  let selectedOffers: Array<{ slug: string; title: string | null }> = [];
+  if (submission.value.filter !== undefined) {
+    selectedOffers = submission.value.filter.offer.map((slug) => {
+      const offerMatch = offers.find((offer) => {
+        return offer.slug === slug;
+      });
+      return {
+        slug,
+        title: offerMatch?.title || null,
+      };
+    });
+  }
 
   let transformedSubmission;
   if (submission.value.sortBy !== undefined) {
@@ -229,14 +293,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return json({
     isLoggedIn,
     profiles: enhancedProfiles,
-    areas: groupedAreas,
-    selectedArea: {
-      slug: selectedAreaSlug,
-      name: selectedAreaName,
-    },
-    offers,
+    areas: enhancedAreas,
+    selectedArea,
+    offers: enhancedOffers,
+    selectedOffers,
     submission: transformedSubmission,
-    filterVector,
     filteredByVisibilityCount,
     profilesCount,
   });
@@ -261,10 +322,10 @@ export default function Index() {
   });
 
   const filter = fields.filter.getFieldset();
-  const selectedOffers = filter.offer.getFieldList();
+  // const selectedOffers = filter.offer.getFieldList();
 
   let deleteAreaSearchParams;
-  if (loaderData.selectedArea.slug !== undefined) {
+  if (loaderData.selectedArea !== undefined) {
     deleteAreaSearchParams = new URLSearchParams(searchParams);
     deleteAreaSearchParams.delete(
       filter.area.name,
@@ -303,27 +364,10 @@ export default function Index() {
                 </legend>
                 <ul>
                   {loaderData.offers.map((offer) => {
-                    const offerVector = loaderData.filterVector.find(
-                      (vector) => {
-                        return vector.attr === "offer";
-                      }
-                    );
-                    // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
-                    const offerIndex =
-                      offerVector !== undefined
-                        ? offerVector.value.indexOf(offer.slug || "")
-                        : 0;
-                    const offerCount =
-                      offerVector !== undefined
-                        ? offerVector.count.at(offerIndex)
-                        : 0;
-                    const isChecked = selectedOffers.some((selectedOffer) => {
-                      return selectedOffer.value === offer.slug;
-                    });
                     return (
                       <li key={offer.slug}>
                         <label htmlFor={filter.offer.id} className="mr-2">
-                          {offer.title} ({offerCount})
+                          {offer.title} ({offer.vectorCount || ""})
                         </label>
                         <input
                           {...getInputProps(filter.offer, {
@@ -331,9 +375,9 @@ export default function Index() {
                             // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                             value: offer.slug || undefined,
                           })}
-                          defaultChecked={isChecked}
+                          defaultChecked={offer.isChecked}
                           disabled={
-                            (offerCount === 0 && !isChecked) ||
+                            (offer.vectorCount === 0 && !offer.isChecked) ||
                             navigation.state === "loading"
                           }
                         />
@@ -348,7 +392,7 @@ export default function Index() {
                   return (
                     <div key={area.slug}>
                       <label htmlFor={filter.area.id} className="mr-2">
-                        {area.name}
+                        {area.name} ({area.vectorCount || ""})
                       </label>
                       <input
                         {...getInputProps(filter.area, {
@@ -356,10 +400,11 @@ export default function Index() {
                           // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                           value: area.slug || undefined,
                         })}
-                        defaultChecked={
-                          loaderData.selectedArea.slug === area.slug
+                        defaultChecked={area.isChecked}
+                        disabled={
+                          (area.vectorCount === 0 && !area.isChecked) ||
+                          navigation.state === "loading"
                         }
-                        disabled={navigation.state === "loading"}
                       />
                     </div>
                   );
@@ -368,7 +413,7 @@ export default function Index() {
                   return (
                     <div key={area.slug}>
                       <label htmlFor={filter.area.id} className="mr-2">
-                        {area.name}
+                        {area.name} ({area.vectorCount || ""})
                       </label>
                       <input
                         {...getInputProps(filter.area, {
@@ -376,32 +421,23 @@ export default function Index() {
                           // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                           value: area.slug || undefined,
                         })}
-                        defaultChecked={
-                          loaderData.selectedArea.slug === area.slug
+                        defaultChecked={area.isChecked}
+                        disabled={
+                          (area.vectorCount === 0 && !area.isChecked) ||
+                          navigation.state === "loading"
                         }
-                        disabled={navigation.state === "loading"}
                       />
                     </div>
                   );
                 })}
-                {loaderData.selectedArea.slug !== undefined &&
+                {loaderData.selectedArea !== undefined &&
                   loaderData.selectedArea.name !== undefined &&
-                  loaderData.areas.global.some((area) => {
-                    return area.slug === loaderData.selectedArea.slug;
-                  }) === false &&
-                  loaderData.areas.country.some((area) => {
-                    return area.slug === loaderData.selectedArea.slug;
-                  }) === false &&
-                  loaderData.areas.state.some((area) => {
-                    return area.slug === loaderData.selectedArea.slug;
-                  }) === false &&
-                  loaderData.areas.district.some((area) => {
-                    return area.slug === loaderData.selectedArea.slug;
-                  }) === false && (
+                  loaderData.selectedArea.isInSearchResultsList === false && (
                     // TODO: Should this be hidden?
                     <>
                       <label htmlFor={filter.area.id} className="mr-2">
-                        {loaderData.selectedArea.name}
+                        {loaderData.selectedArea.name} (
+                        {loaderData.selectedArea.vectorCount || ""})
                       </label>
                       <input
                         {...getInputProps(filter.area, {
@@ -449,7 +485,7 @@ export default function Index() {
                       return (
                         <div key={area.slug}>
                           <label htmlFor={filter.area.id} className="mr-2">
-                            {area.name}
+                            {area.name} ({area.vectorCount || ""})
                           </label>
                           <input
                             {...getInputProps(filter.area, {
@@ -457,10 +493,11 @@ export default function Index() {
                               // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                               value: area.slug || undefined,
                             })}
-                            defaultChecked={
-                              loaderData.selectedArea.slug === area.slug
+                            defaultChecked={area.isChecked}
+                            disabled={
+                              (area.vectorCount === 0 && !area.isChecked) ||
+                              navigation.state === "loading"
                             }
-                            disabled={navigation.state === "loading"}
                           />
                         </div>
                       );
@@ -476,7 +513,7 @@ export default function Index() {
                       return (
                         <div key={area.slug}>
                           <label htmlFor={filter.area.id} className="mr-2">
-                            {area.name}
+                            {area.name} ({area.vectorCount || ""})
                           </label>
                           <input
                             {...getInputProps(filter.area, {
@@ -484,10 +521,11 @@ export default function Index() {
                               // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                               value: area.slug || undefined,
                             })}
-                            defaultChecked={
-                              loaderData.selectedArea.slug === area.slug
+                            defaultChecked={area.isChecked}
+                            disabled={
+                              (area.vectorCount === 0 && !area.isChecked) ||
+                              navigation.state === "loading"
                             }
-                            disabled={navigation.state === "loading"}
                           />
                         </div>
                       );
@@ -524,24 +562,20 @@ export default function Index() {
         </Form>
       </section>
       <section className="container mb-6">
-        {(selectedOffers.length > 0 ||
-          (loaderData.submission.value.filter !== undefined &&
-            loaderData.submission.value.filter.area !== undefined)) && (
+        {(loaderData.selectedOffers.length > 0 ||
+          (loaderData.selectedArea !== undefined &&
+            loaderData.selectedArea.name !== undefined)) && (
           <div className="flex items-center">
             <Chip.Container>
-              {selectedOffers.map((selectedOffer) => {
-                const offerMatch = loaderData.offers.filter((offer) => {
-                  return offer.slug === selectedOffer.value;
-                });
+              {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
                   filter.offer.name,
-                  selectedOffer.value
+                  selectedOffer.slug
                 );
-                return offerMatch[0] !== undefined &&
-                  selectedOffer.value !== undefined ? (
-                  <Chip key={selectedOffer.key} responsive>
-                    {offerMatch[0].title}
+                return selectedOffer.title !== null ? (
+                  <Chip key={selectedOffer.slug} responsive>
+                    {selectedOffer.title}
                     <Chip.Delete disabled={navigation.state === "loading"}>
                       <Link
                         to={`${
@@ -555,21 +589,22 @@ export default function Index() {
                   </Chip>
                 ) : null;
               })}
-              {loaderData.selectedArea.slug !== undefined &&
-                loaderData.selectedArea.name !== undefined &&
-                deleteAreaSearchParams !== undefined && (
+              {loaderData.selectedArea !== undefined &&
+                loaderData.selectedArea.name !== undefined && (
                   <Chip key={loaderData.selectedArea.slug} responsive>
                     {loaderData.selectedArea.name}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteAreaSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
+                    {deleteAreaSearchParams !== undefined && (
+                      <Chip.Delete disabled={navigation.state === "loading"}>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteAreaSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    )}
                   </Chip>
                 )}
             </Chip.Container>

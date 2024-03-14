@@ -2,6 +2,7 @@ import { type Area, type Prisma } from "@prisma/client";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { type GetProfilesSchema } from "./profiles";
+import { ArrayElement } from "~/lib/utils/types";
 
 export function getTakeParam(page: GetProfilesSchema["page"] = 1) {
   const itemsPerPage = 12;
@@ -241,36 +242,40 @@ export async function getProfileFilterVector(options: {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
       // TODO: remove this when areas are added to ts-vector
+      // if (typedFilterKey !== "area") {
+      // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
+      // @ts-ignore
+      const allFilterValues = await prismaClient[typedFilterKey].findMany({
+        select: {
+          slug: true,
+        },
+      });
+      // const test = await prismaClient.offer.findMany({
+      //   select: {
+      //     slug: true,
+      //     OffersOnProfiles: {
+      //       select: {
+      //         offerId: true,
+      //       }
+      //     }
+      //   },
+      // });
+      // const test2 = await prismaClient.area.findMany({
+      //   select: {
+      //     slug: true,
+      //     AreasOnProfiles: {
+      //       select: {
+      //         areaId: true
+      //       }
+      //     }
+      //   },
+      // });
       if (typedFilterKey !== "area") {
-        // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-        const allFilterValues = await prismaClient[typedFilterKey].findMany({
-          select: {
-            slug: true,
-          },
-        });
-        // const test = await prismaClient.offer.findMany({
-        //   select: {
-        //     slug: true,
-        //     OffersOnProfiles: {
-        //       select: {
-        //         offerId: true,
-        //       }
-        //     }
-        //   },
-        // });
-        // const test2 = await prismaClient.area.findMany({
-        //   select: {
-        //     slug: true,
-        //     AreasOnProfiles: {
-        //       select: {
-        //         areaId: true
-        //       }
-        //     }
-        //   },
-        // });
         for (const slug of options.filter[typedFilterKey]) {
           // Validate slug because of queryRawUnsafe
           invariantResponse(
+            // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
+            // @ts-ignore
             allFilterValues.some((value) => {
               return value.slug === slug;
             }),
@@ -281,6 +286,21 @@ export async function getProfileFilterVector(options: {
           const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
           whereStatements.push(whereStatement);
         }
+      } else {
+        const slug = options.filter[typedFilterKey];
+        // Validate slug because of queryRawUnsafe
+        invariantResponse(
+          // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
+          // @ts-ignore
+          allFilterValues.some((value) => {
+            return value.slug === slug;
+          }),
+          "Cannot filter by the specified slug.",
+          { status: 400 }
+        );
+        const tuple = `${typedFilterKey}\\:${slug}`;
+        const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
+        whereStatements.push(whereStatement);
       }
     }
   }
@@ -358,4 +378,31 @@ export async function getAreaNameBySlug(slug: string) {
     return undefined;
   }
   return area.name;
+}
+
+export function getFilterCountForSlug(
+  // TODO: Remove '| null' when slug isn't optional anymore (after migration)
+  slug: string | null,
+  filterVector: Awaited<ReturnType<typeof getProfileFilterVector>>,
+  filterKey: ArrayElement<
+    Awaited<ReturnType<typeof getProfileFilterVector>>
+  >["attr"]
+) {
+  const filterKeyVector = filterVector.find((vector) => {
+    return vector.attr === filterKey;
+  });
+  // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
+  const valueIndex =
+    filterKeyVector !== undefined
+      ? filterKeyVector.value.indexOf(slug || "")
+      : null;
+  if (valueIndex === null) {
+    return null;
+  }
+  const offerCount =
+    filterKeyVector !== undefined
+      ? filterKeyVector.count.at(valueIndex) || null
+      : null;
+
+  return offerCount;
 }
