@@ -1,8 +1,9 @@
 import { type Area, type Prisma } from "@prisma/client";
+import { json } from "@remix-run/server-runtime";
 import { invariantResponse } from "~/lib/utils/response";
+import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import { type GetProfilesSchema } from "./profiles";
-import { ArrayElement } from "~/lib/utils/types";
 
 export function getTakeParam(page: GetProfilesSchema["page"] = 1) {
   const itemsPerPage = 12;
@@ -241,53 +242,53 @@ export async function getProfileFilterVector(options: {
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
-      // TODO: remove this when areas are added to ts-vector
-      // if (typedFilterKey !== "area") {
       // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-      // @ts-ignore
-      const allFilterValues = await prismaClient[typedFilterKey].findMany({
+      /* Example:
+      const test = await prismaClient.offer.findMany({
         select: {
           slug: true,
+          OffersOnProfiles: {
+            select: {
+              offerId: true,
+            },
+          },
         },
       });
-      // const test = await prismaClient.offer.findMany({
-      //   select: {
-      //     slug: true,
-      //     OffersOnProfiles: {
-      //       select: {
-      //         offerId: true,
-      //       }
-      //     }
-      //   },
-      // });
-      // const test2 = await prismaClient.area.findMany({
-      //   select: {
-      //     slug: true,
-      //     AreasOnProfiles: {
-      //       select: {
-      //         areaId: true
-      //       }
-      //     }
-      //   },
-      // });
-      if (typedFilterKey !== "area") {
-        for (const slug of options.filter[typedFilterKey]) {
-          // Validate slug because of queryRawUnsafe
-          invariantResponse(
-            // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-            // @ts-ignore
-            allFilterValues.some((value) => {
-              return value.slug === slug;
-            }),
-            "Cannot filter by the specified slug.",
-            { status: 400 }
-          );
-          const tuple = `${typedFilterKey}\\:${slug}`;
-          const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-          whereStatements.push(whereStatement);
-        }
+      const test2 = await prismaClient.area.findMany({
+        select: {
+          slug: true,
+          AreasOnProfiles: {
+            select: {
+              areaId: true,
+            },
+          },
+        },
+      });
+       */
+      // Further reading:
+      // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
+      // https://github.com/prisma/prisma/issues/2505
+
+      // I worked arround with an assertion. But if any table except areas remove their slug, this will break and typescript will not warn us.
+      const fakeTypedFilterKey = filterKey as "area";
+      let allFilterValues;
+      try {
+        allFilterValues = await prismaClient[fakeTypedFilterKey].findMany({
+          select: {
+            slug: true,
+          },
+        });
+      } catch (error: any) {
+        throw json({ message: "Server error" }, { status: 500 });
+      }
+
+      let filterValues;
+      if (typedFilterKey === "area") {
+        filterValues = [options.filter[typedFilterKey]];
       } else {
-        const slug = options.filter[typedFilterKey];
+        filterValues = options.filter[typedFilterKey];
+      }
+      for (const slug of filterValues) {
         // Validate slug because of queryRawUnsafe
         invariantResponse(
           // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
