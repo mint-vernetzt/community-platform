@@ -77,6 +77,7 @@ export default {
       DEFAULT: "0 2px 16px 0 rgba(0, 0, 0, 0.17)",
       md: "0 2px 16px 0 rgba(0, 0, 0, 0.37)",
       lg: "0 8px 24px -4px rgba(0, 0, 0, 0.2)",
+      xl: "0px 24px 48px -12px rgba(0, 0, 0, 0.24)",
     },
     keyframes: {
       "fade-out": {

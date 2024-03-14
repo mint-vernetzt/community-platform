@@ -12,7 +12,10 @@ import {
   CardStatus,
 } from "./Card";
 import { useTranslation } from "react-i18next";
-import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
+import {
+  getDateDuration,
+  getTimeDuration,
+} from "../../../../../app/lib/utils/time";
 
 export type EventCardProps = {
   match?: number;

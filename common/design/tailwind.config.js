@@ -68,6 +68,13 @@ module.exports = {
           "2xl": "1536px",
         },
       },
+      boxShadow: {
+        ...defaultTheme.boxShadow,
+        DEFAULT: "0 2px 16px 0 rgba(0, 0, 0, 0.17)",
+        md: "0 2px 16px 0 rgba(0, 0, 0, 0.37)",
+        lg: "0 8px 24px -4px rgba(0, 0, 0, 0.2)",
+        xl: "0px 24px 48px -12px rgba(0, 0, 0, 0.24)",
+      },
       backgroundImage: {
         "select-arrow":
           "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='21' fill='none' viewBox='0 0 20 21'%3E%3Cpath stroke='%23262D38' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.4' d='m5 7.5 5 5.5 5-5.5'/%3E%3C/svg%3E\")",
