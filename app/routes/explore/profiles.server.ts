@@ -337,7 +337,10 @@ export async function getAreasBySearchQuery(queryString?: string) {
         },
       ],
     },
-    take: 10,
+    take: 12,
+    orderBy: {
+      slug: "asc",
+    },
   });
 }
 

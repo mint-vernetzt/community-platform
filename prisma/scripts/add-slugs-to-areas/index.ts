@@ -24,11 +24,21 @@ async function main() {
   const areaSlugs: String[] = [];
 
   for (const area of areas) {
-    const slug = generateValidSlug(`${area.name}`, {
-      hashFunction: (slug) => {
-        return `${slug}-${area.type}`;
-      },
-    });
+    let slug;
+    if (area.type === "global" || area.type === "country") {
+      slug = generateValidSlug(`${area.name}`, {
+        hashFunction: (slug) => {
+          // Adding underscore to enable ordering those types on top via orderBy: { slug: "asc" }
+          return `_${slug}-${area.type}`;
+        },
+      });
+    } else {
+      slug = generateValidSlug(`${area.name}`, {
+        hashFunction: (slug) => {
+          return `${slug}-${area.type}`;
+        },
+      });
+    }
     const update = prismaClient.area.update({
       where: { id: area.id },
       data: {
