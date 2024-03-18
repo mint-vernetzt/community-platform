@@ -337,6 +337,9 @@ export default function Index() {
     loaderData.submission.value.search || ""
   );
 
+  console.log(loaderData.filteredByVisibilityCount);
+  console.log(loaderData.profiles);
+
   return (
     <>
       <section className="mv-container mv-mb-12 mv-mt-5 md:mv-mt-7 lg:mv-mt-8 mv-text-center">

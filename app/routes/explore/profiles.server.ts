@@ -15,6 +15,7 @@ export async function getVisibilityFilteredProfilesCount(options: {
   filter: NonNullable<GetProfilesSchema["filter"]>;
 }) {
   const whereClauses = [];
+  const visibilityWhereClauses = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const visibilityWhereStatement = {
@@ -22,7 +23,7 @@ export async function getVisibilityFilteredProfilesCount(options: {
         [`${typedFilterKey}s`]: false,
       },
     };
-    whereClauses.push(visibilityWhereStatement);
+    visibilityWhereClauses.push(visibilityWhereStatement);
 
     if (typedFilterKey === "area" && options.filter.area !== undefined) {
       const filterWhereStatement = {
@@ -51,12 +52,15 @@ export async function getVisibilityFilteredProfilesCount(options: {
       }
     }
   }
+  whereClauses.push({ OR: [...visibilityWhereClauses] });
 
   const count = await prismaClient.profile.count({
     where: {
       AND: whereClauses,
     },
   });
+
+  console.log(count);
 
   return count;
 }
@@ -68,31 +72,23 @@ export async function getProfilesCount(options: {
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
-      if (typedFilterKey === "area" && options.filter.area !== undefined) {
+      let filterValues;
+      if (typedFilterKey === "area") {
+        filterValues = [options.filter[typedFilterKey]];
+      } else {
+        filterValues = options.filter[typedFilterKey];
+      }
+      for (const slug of filterValues) {
         const filterWhereStatement = {
-          areas: {
+          [`${typedFilterKey}s`]: {
             some: {
-              area: {
-                slug: options.filter.area,
+              [typedFilterKey]: {
+                slug,
               },
             },
           },
         };
         whereClauses.push(filterWhereStatement);
-      }
-      if (typedFilterKey !== "area") {
-        for (const slug of options.filter[typedFilterKey]) {
-          const filterWhereStatement = {
-            [`${typedFilterKey}s`]: {
-              some: {
-                [typedFilterKey]: {
-                  slug,
-                },
-              },
-            },
-          };
-          whereClauses.push(filterWhereStatement);
-        }
       }
     }
   }
@@ -124,31 +120,23 @@ export async function getAllProfiles(options: {
         };
         whereClauses.push(visibilityWhereStatement);
       }
-      if (typedFilterKey === "area" && options.filter.area !== undefined) {
+      let filterValues;
+      if (typedFilterKey === "area") {
+        filterValues = [options.filter[typedFilterKey]];
+      } else {
+        filterValues = options.filter[typedFilterKey];
+      }
+      for (const slug of filterValues) {
         const filterWhereStatement = {
-          areas: {
+          [`${typedFilterKey}s`]: {
             some: {
-              area: {
-                slug: options.filter.area,
+              [typedFilterKey]: {
+                slug,
               },
             },
           },
         };
         whereClauses.push(filterWhereStatement);
-      }
-      if (typedFilterKey !== "area") {
-        for (const slug of options.filter[typedFilterKey]) {
-          const filterWhereStatement = {
-            [`${typedFilterKey}s`]: {
-              some: {
-                [typedFilterKey]: {
-                  slug,
-                },
-              },
-            },
-          };
-          whereClauses.push(filterWhereStatement);
-        }
       }
     }
   }
