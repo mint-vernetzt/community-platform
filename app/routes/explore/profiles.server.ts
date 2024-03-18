@@ -60,8 +60,6 @@ export async function getVisibilityFilteredProfilesCount(options: {
     },
   });
 
-  console.log(count);
-
   return count;
 }
 
