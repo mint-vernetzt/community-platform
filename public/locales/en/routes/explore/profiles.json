@@ -2,6 +2,14 @@
   "headline": "Discover the community",
   "intro": "Discover profiles from diverse individuals within the STEM community here.",
   "filter": {
+
+    "activityAreas": "Field of activity",
+    "lookingFor": "I'm looking for",
+    "support": "I want to support with",
+    "sort": {
+      "label": "Sort by"
+    },
+
     "offers": "Competencies offered",
     "areas": "Location / Area",
     "searchAreaPlaceholder": "Enter area or location",

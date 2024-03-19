@@ -302,19 +302,19 @@ export default function Index() {
                 className="select w-full select-bordered"
               >
                 <option key="firstNameAsc" value="firstNameAsc">
-                  {t("filter.sortBy.firstNameAsc")}
+                  {t("filter.sortBy.firstName-asc")}
                 </option>
                 <option key="firstNameDesc" value="firstNameDesc">
-                  {t("filter.sortBy.firstNameDesc")}
+                  {t("filter.sortBy.firstName-desc")}
                 </option>
                 <option key="lastNameAsc" value="lastNameAsc">
-                  {t("filter.sortBy.lastNameAsc")}
+                  {t("filter.sortBy.lastName-asc")}
                 </option>
                 <option key="lastNameDesc" value="lastNameDesc">
-                  {t("filter.sortBy.lastNameDesc")}
+                  {t("filter.sortBy.lastName-desc")}
                 </option>
                 <option key="newest" value="newest">
-                  {t("filter.sortBy.newest")}
+                  {t("filter.sortBy.createdAt-desc")}
                 </option>
               </select>
             </div>

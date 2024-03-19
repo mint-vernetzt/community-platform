@@ -2,7 +2,15 @@
   "headline": "Entdecke die Community",
   "intro": "Hier findest du die Profile von Akteur:innen der MINT-Community.",
   "filter": {
+
+    "activityAreas": "Aktivitätsgebiet",
+    "lookingFor": "Ich suche",
+    "support": "Ich möchte unterstützen mit",
     "offers": "Angebotene Kompetenzen",
+    "sort": {
+      "label": "Sortieren nach"
+    },
+
     "areas": "Ort / Gebiet",
     "searchAreaPlaceholder": "Ort oder Gebiet eingeben",
     "searchAreaHelper": "Mindestens 3 Buchstaben.",
