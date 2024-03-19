@@ -35,7 +35,14 @@ async function main() {
     },
   });
 
-  fs.writeFile("profiles.json", JSON.stringify(profiles, null, 2));
+  let csv = "id,email,firstName,lastName,academicTitle\n";
+  for (const profile of profiles) {
+    csv += `${profile.id},${profile.email},${profile.firstName},${
+      profile.lastName
+    },${profile.academicTitle ?? ""}\n`;
+  }
+
+  fs.writeFile("profiles.csv", csv, "utf8");
 }
 
 main()
