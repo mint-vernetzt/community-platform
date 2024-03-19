@@ -371,25 +371,25 @@ export function getFilterCountForSlug(
   // TODO: Remove '| null' when slug isn't optional anymore (after migration)
   slug: string | null,
   filterVector: Awaited<ReturnType<typeof getProfileFilterVector>>,
-  filterKey: ArrayElement<
+  attribute: ArrayElement<
     Awaited<ReturnType<typeof getProfileFilterVector>>
   >["attr"]
 ) {
   const filterKeyVector = filterVector.find((vector) => {
-    return vector.attr === filterKey;
+    return vector.attr === attribute;
   });
-  // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
-  const valueIndex =
-    filterKeyVector !== undefined
-      ? filterKeyVector.value.indexOf(slug || "")
-      : null;
-  if (valueIndex === null) {
-    return null;
+
+  if (typeof filterKeyVector === "undefined") {
+    return 0;
   }
-  const offerCount =
-    filterKeyVector !== undefined
-      ? filterKeyVector.count.at(valueIndex) || null
-      : null;
+
+  // TODO: Remove '|| ""' when slug isn't optional anymore (after migration)
+  const valueIndex = filterKeyVector.value.indexOf(slug || "");
+  if (valueIndex === -1) {
+    return 0;
+  }
+
+  const offerCount = filterKeyVector.count[valueIndex];
 
   return offerCount;
 }

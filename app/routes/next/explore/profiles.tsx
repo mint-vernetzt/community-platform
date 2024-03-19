@@ -199,8 +199,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filter: submission.value.filter,
   });
 
-  console.log({ filterVector });
-
   const areas = await getAreasBySearchQuery(submission.value.search);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
@@ -377,11 +375,7 @@ export default function Index() {
                     return (
                       <li key={offer.slug}>
                         <label htmlFor={filter.offer.id} className="mr-2">
-                          {offer.title} (
-                          {offer.vectorCount !== null && offer.vectorCount > 0
-                            ? offer.vectorCount
-                            : "0"}
-                          )
+                          {offer.title} ({offer.vectorCount})
                         </label>
                         <input
                           {...getInputProps(filter.offer, {
@@ -391,9 +385,7 @@ export default function Index() {
                           })}
                           defaultChecked={offer.isChecked}
                           disabled={
-                            ((offer.vectorCount === null ||
-                              offer.vectorCount === 0) &&
-                              !offer.isChecked) ||
+                            (offer.vectorCount === 0 && !offer.isChecked) ||
                             navigation.state === "loading"
                           }
                         />
@@ -408,11 +400,7 @@ export default function Index() {
                   return (
                     <div key={area.slug}>
                       <label htmlFor={filter.area.id} className="mr-2">
-                        {area.name} (
-                        {area.vectorCount !== null && area.vectorCount > 0
-                          ? area.vectorCount
-                          : "0"}
-                        )
+                        {area.name} ({area.vectorCount})
                       </label>
                       <input
                         {...getInputProps(filter.area, {
@@ -422,9 +410,7 @@ export default function Index() {
                         })}
                         defaultChecked={area.isChecked}
                         disabled={
-                          ((area.vectorCount === null ||
-                            area.vectorCount === 0) &&
-                            !area.isChecked) ||
+                          (area.vectorCount === 0 && !area.isChecked) ||
                           navigation.state === "loading"
                         }
                       />
@@ -435,7 +421,7 @@ export default function Index() {
                   return (
                     <div key={area.slug}>
                       <label htmlFor={filter.area.id} className="mr-2">
-                        {area.name} ({area.vectorCount || ""})
+                        {area.name} ({area.vectorCount})
                       </label>
                       <input
                         {...getInputProps(filter.area, {
@@ -459,7 +445,7 @@ export default function Index() {
                     <>
                       <label htmlFor={filter.area.id} className="mr-2">
                         {loaderData.selectedArea.name} (
-                        {loaderData.selectedArea.vectorCount || ""})
+                        {loaderData.selectedArea.vectorCount})
                       </label>
                       <input
                         {...getInputProps(filter.area, {
@@ -507,7 +493,7 @@ export default function Index() {
                       return (
                         <div key={area.slug}>
                           <label htmlFor={filter.area.id} className="mr-2">
-                            {area.name} ({area.vectorCount || ""})
+                            {area.name} ({area.vectorCount})
                           </label>
                           <input
                             {...getInputProps(filter.area, {
@@ -535,7 +521,7 @@ export default function Index() {
                       return (
                         <div key={area.slug}>
                           <label htmlFor={filter.area.id} className="mr-2">
-                            {area.name} ({area.vectorCount || ""})
+                            {area.name} ({area.vectorCount})
                           </label>
                           <input
                             {...getInputProps(filter.area, {
