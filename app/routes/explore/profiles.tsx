@@ -1,6 +1,6 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -29,6 +29,7 @@ import {
   getPaginationValues,
   getSortValue,
 } from "./utils.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -41,6 +42,12 @@ export const handle = {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
+
+  const abilities = await getFeatureAbilities(authClient, ["filter"]);
+
+  if (abilities.filter.hasAccess) {
+    return redirect("/next/explore/profiles");
+  }
 
   const sessionUser = await getSessionUser(authClient);
 

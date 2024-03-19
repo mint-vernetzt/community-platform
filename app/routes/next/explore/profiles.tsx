@@ -13,7 +13,7 @@ import {
   ProfileCard,
 } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -48,6 +48,7 @@ import {
   getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
 import { type ArrayElement } from "~/lib/utils/types";
+import { getFeatureAbilities } from "~/lib/utils/application";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -103,6 +104,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
   const take = getTakeParam(submission.value.page);
   const { authClient } = createAuthClient(request);
+
+  const abilities = await getFeatureAbilities(authClient, ["filter"]);
+
+  if (abilities.filter.hasAccess === false) {
+    return redirect("/explore/profiles");
+  }
+
   const sessionUser = await getSessionUser(authClient);
   const isLoggedIn = sessionUser !== null;
 

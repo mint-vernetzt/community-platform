@@ -4,7 +4,7 @@ import {
   OrganizationCard,
 } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   useFetcher,
@@ -30,6 +30,7 @@ import {
   getSortValue,
 } from "./utils.server";
 import { useTranslation } from "react-i18next";
+import { getFeatureAbilities } from "~/lib/utils/application";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -42,6 +43,14 @@ export const handle = {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
+
+  const abilities = await getFeatureAbilities(authClient, ["filter"]);
+
+  console.log(abilities);
+
+  if (abilities.filter.hasAccess === false) {
+    return redirect("/explore/organizations");
+  }
 
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
   const { sortBy } = getSortValue(request);

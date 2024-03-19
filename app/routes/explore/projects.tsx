@@ -1,6 +1,6 @@
 import { Button, CardContainer, ProjectCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   useFetcher,
@@ -23,6 +23,7 @@ import {
   getSortValue,
 } from "./utils.server";
 import { useTranslation } from "react-i18next";
+import { getFeatureAbilities } from "~/lib/utils/application";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -39,6 +40,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { sortBy } = getSortValue(request);
 
   const { authClient } = createAuthClient(request);
+
+  const abilities = await getFeatureAbilities(authClient, ["filter"]);
+
+  if (abilities.filter.hasAccess) {
+    return redirect("/next/explore/projects");
+  }
+
   const sessionUser = await getSessionUser(authClient);
   const projects = await getAllProjects({ skip, take, sortBy });
 

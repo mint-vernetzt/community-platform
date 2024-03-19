@@ -1,6 +1,6 @@
 import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import React from "react";
@@ -14,6 +14,7 @@ import {
 import { prismaClient } from "~/prisma.server";
 import { useTranslation } from "react-i18next";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/explore/events"];
 export const handle = {
@@ -25,6 +26,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
 
   const { authClient } = createAuthClient(request);
+
+  const abilities = await getFeatureAbilities(authClient, ["filter"]);
+
+  if (abilities.filter.hasAccess) {
+    return redirect("/next/explore/events");
+  }
 
   const sessionUser = await getSessionUser(authClient);
 
