@@ -72,7 +72,7 @@ const getProfilesSchema = z.object({
   filter: z
     .object({
       offer: z.array(z.string()),
-      area: z.string().optional(),
+      area: z.array(z.string()),
     })
     .optional(),
   sortBy: z
@@ -219,7 +219,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     if (submission.value.filter === undefined || area.slug === null) {
       isChecked = false;
     } else {
-      isChecked = submission.value.filter.area === area.slug;
+      isChecked = submission.value.filter.area.includes(area.slug);
     }
     const enhancedArea = {
       ...area,
@@ -228,27 +228,51 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
-  let selectedArea;
-  if (
-    submission.value.filter !== undefined &&
-    submission.value.filter.area !== undefined
-  ) {
-    const selectedAreaSlug = submission.value.filter.area;
-    const vectorCount = getFilterCountForSlug(
-      selectedAreaSlug,
-      filterVector,
-      "area"
+
+  let selectedAreas: Array<{
+    slug: string;
+    name: string | null;
+    vectorCount: number;
+    isInSearchResultsList: boolean;
+  }> = [];
+  if (submission.value.filter !== undefined) {
+    selectedAreas = await Promise.all(
+      submission.value.filter.area.map(async (slug) => {
+        const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
+        const isInSearchResultsList = areas.some((area) => {
+          return area.slug === slug;
+        });
+        return {
+          slug,
+          name: (await getAreaNameBySlug(slug)) || null,
+          vectorCount,
+          isInSearchResultsList,
+        };
+      })
     );
-    const isInSearchResultsList = areas.some((area) => {
-      return area.slug === selectedAreaSlug;
-    });
-    selectedArea = {
-      slug: selectedAreaSlug,
-      name: await getAreaNameBySlug(selectedAreaSlug),
-      vectorCount,
-      isInSearchResultsList,
-    };
   }
+
+  // let selectedArea;
+  // if (
+  //   submission.value.filter !== undefined &&
+  //   submission.value.filter.area !== undefined
+  // ) {
+  //   const selectedAreaSlug = submission.value.filter.area;
+  //   const vectorCount = getFilterCountForSlug(
+  //     selectedAreaSlug,
+  //     filterVector,
+  //     "area"
+  //   );
+  //   const isInSearchResultsList = areas.some((area) => {
+  //     return area.slug === selectedAreaSlug;
+  //   });
+  //   selectedArea = {
+  //     slug: selectedAreaSlug,
+  //     name: await getAreaNameBySlug(selectedAreaSlug),
+  //     vectorCount,
+  //     isInSearchResultsList,
+  //   };
+  // }
 
   const offers = await getAllOffers();
   const enhancedOffers = offers.map((offer) => {
@@ -302,7 +326,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     isLoggedIn,
     profiles: enhancedProfiles,
     areas: enhancedAreas,
-    selectedArea,
+    selectedAreas,
     offers: enhancedOffers,
     selectedOffers,
     submission: transformedSubmission,
@@ -330,16 +354,6 @@ export default function Index() {
   });
 
   const filter = fields.filter.getFieldset();
-  // const selectedOffers = filter.offer.getFieldList();
-
-  let deleteAreaSearchParams;
-  if (loaderData.selectedArea !== undefined) {
-    deleteAreaSearchParams = new URLSearchParams(searchParams);
-    deleteAreaSearchParams.delete(
-      filter.area.name,
-      loaderData.selectedArea.slug
-    );
-  }
 
   const [searchQuery, setSearchQuery] = React.useState(
     loaderData.submission.value.search || ""
@@ -404,7 +418,7 @@ export default function Index() {
                       </label>
                       <input
                         {...getInputProps(filter.area, {
-                          type: "radio",
+                          type: "checkbox",
                           // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                           value: area.slug || undefined,
                         })}
@@ -425,7 +439,7 @@ export default function Index() {
                       </label>
                       <input
                         {...getInputProps(filter.area, {
-                          type: "radio",
+                          type: "checkbox",
                           // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                           value: area.slug || undefined,
                         })}
@@ -438,24 +452,24 @@ export default function Index() {
                     </div>
                   );
                 })}
-                {loaderData.selectedArea !== undefined &&
-                  loaderData.selectedArea.name !== undefined &&
-                  loaderData.selectedArea.isInSearchResultsList === false && (
-                    // TODO: Should this be hidden?
-                    <>
-                      <label htmlFor={filter.area.id} className="mr-2">
-                        {loaderData.selectedArea.name} (
-                        {loaderData.selectedArea.vectorCount})
-                      </label>
-                      <input
-                        {...getInputProps(filter.area, {
-                          type: "radio",
-                          value: loaderData.selectedArea.slug,
-                        })}
-                        defaultChecked={true}
-                      />
-                    </>
-                  )}
+                {loaderData.selectedAreas.length > 0 &&
+                  loaderData.selectedAreas.map((selectedArea) => {
+                    return selectedArea.name !== null &&
+                      selectedArea.isInSearchResultsList === false ? (
+                      <>
+                        <label htmlFor={filter.area.id} className="mr-2">
+                          {selectedArea.name} ({selectedArea.vectorCount})
+                        </label>
+                        <input
+                          {...getInputProps(filter.area, {
+                            type: "checkbox",
+                            value: selectedArea.slug,
+                          })}
+                          defaultChecked={true}
+                        />
+                      </>
+                    ) : null;
+                  })}
                 <Input
                   id={fields.search.id}
                   name={fields.search.name}
@@ -497,7 +511,7 @@ export default function Index() {
                           </label>
                           <input
                             {...getInputProps(filter.area, {
-                              type: "radio",
+                              type: "checkbox",
                               // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                               value: area.slug || undefined,
                             })}
@@ -525,7 +539,7 @@ export default function Index() {
                           </label>
                           <input
                             {...getInputProps(filter.area, {
-                              type: "radio",
+                              type: "checkbox",
                               // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                               value: area.slug || undefined,
                             })}
@@ -571,8 +585,7 @@ export default function Index() {
       </section>
       <section className="container mb-6">
         {(loaderData.selectedOffers.length > 0 ||
-          (loaderData.selectedArea !== undefined &&
-            loaderData.selectedArea.name !== undefined)) && (
+          loaderData.selectedAreas.length > 0) && (
           <div className="flex items-center">
             <Chip.Container>
               {loaderData.selectedOffers.map((selectedOffer) => {
@@ -597,24 +610,25 @@ export default function Index() {
                   </Chip>
                 ) : null;
               })}
-              {loaderData.selectedArea !== undefined &&
-                loaderData.selectedArea.name !== undefined && (
-                  <Chip key={loaderData.selectedArea.slug} responsive>
-                    {loaderData.selectedArea.name}
-                    {deleteAreaSearchParams !== undefined && (
-                      <Chip.Delete disabled={navigation.state === "loading"}>
-                        <Link
-                          to={`${
-                            location.pathname
-                          }?${deleteAreaSearchParams.toString()}`}
-                          preventScrollReset
-                        >
-                          X
-                        </Link>
-                      </Chip.Delete>
-                    )}
+              {loaderData.selectedAreas.map((selectedArea) => {
+                const deleteSearchParams = new URLSearchParams(searchParams);
+                deleteSearchParams.delete(filter.offer.name, selectedArea.slug);
+                return selectedArea.name !== null ? (
+                  <Chip key={selectedArea.slug} responsive>
+                    {selectedArea.name}
+                    <Chip.Delete disabled={navigation.state === "loading"}>
+                      <Link
+                        to={`${
+                          location.pathname
+                        }?${deleteSearchParams.toString()}`}
+                        preventScrollReset
+                      >
+                        X
+                      </Link>
+                    </Chip.Delete>
                   </Chip>
-                )}
+                ) : null;
+              })}
             </Chip.Container>
             <Link
               to={`/explore/profiles${

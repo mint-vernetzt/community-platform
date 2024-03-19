@@ -25,31 +25,17 @@ export async function getVisibilityFilteredProfilesCount(options: {
     };
     visibilityWhereClauses.push(visibilityWhereStatement);
 
-    if (typedFilterKey === "area" && options.filter.area !== undefined) {
+    for (const slug of options.filter[typedFilterKey]) {
       const filterWhereStatement = {
-        areas: {
+        [`${typedFilterKey}s`]: {
           some: {
-            area: {
-              slug: options.filter.area,
+            [typedFilterKey]: {
+              slug,
             },
           },
         },
       };
       whereClauses.push(filterWhereStatement);
-    }
-    if (typedFilterKey !== "area") {
-      for (const slug of options.filter[typedFilterKey]) {
-        const filterWhereStatement = {
-          [`${typedFilterKey}s`]: {
-            some: {
-              [typedFilterKey]: {
-                slug,
-              },
-            },
-          },
-        };
-        whereClauses.push(filterWhereStatement);
-      }
     }
   }
   whereClauses.push({ OR: [...visibilityWhereClauses] });
@@ -70,13 +56,7 @@ export async function getProfilesCount(options: {
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
-      let filterValues;
-      if (typedFilterKey === "area") {
-        filterValues = [options.filter[typedFilterKey]];
-      } else {
-        filterValues = options.filter[typedFilterKey];
-      }
-      for (const slug of filterValues) {
+      for (const slug of options.filter[typedFilterKey]) {
         const filterWhereStatement = {
           [`${typedFilterKey}s`]: {
             some: {
@@ -118,13 +98,7 @@ export async function getAllProfiles(options: {
         };
         whereClauses.push(visibilityWhereStatement);
       }
-      let filterValues;
-      if (typedFilterKey === "area") {
-        filterValues = [options.filter[typedFilterKey]];
-      } else {
-        filterValues = options.filter[typedFilterKey];
-      }
-      for (const slug of filterValues) {
+      for (const slug of options.filter[typedFilterKey]) {
         const filterWhereStatement = {
           [`${typedFilterKey}s`]: {
             some: {
@@ -268,13 +242,7 @@ export async function getProfileFilterVector(options: {
         throw json({ message: "Server error" }, { status: 500 });
       }
 
-      let filterValues;
-      if (typedFilterKey === "area") {
-        filterValues = [options.filter[typedFilterKey]];
-      } else {
-        filterValues = options.filter[typedFilterKey];
-      }
-      for (const slug of filterValues) {
+      for (const slug of options.filter[typedFilterKey]) {
         // Validate slug because of queryRawUnsafe
         invariantResponse(
           // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
