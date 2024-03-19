@@ -228,7 +228,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
-
   let selectedAreas: Array<{
     slug: string;
     name: string | null;
@@ -251,28 +250,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       })
     );
   }
-
-  // let selectedArea;
-  // if (
-  //   submission.value.filter !== undefined &&
-  //   submission.value.filter.area !== undefined
-  // ) {
-  //   const selectedAreaSlug = submission.value.filter.area;
-  //   const vectorCount = getFilterCountForSlug(
-  //     selectedAreaSlug,
-  //     filterVector,
-  //     "area"
-  //   );
-  //   const isInSearchResultsList = areas.some((area) => {
-  //     return area.slug === selectedAreaSlug;
-  //   });
-  //   selectedArea = {
-  //     slug: selectedAreaSlug,
-  //     name: await getAreaNameBySlug(selectedAreaSlug),
-  //     vectorCount,
-  //     isInSearchResultsList,
-  //   };
-  // }
 
   const offers = await getAllOffers();
   const enhancedOffers = offers.map((offer) => {
