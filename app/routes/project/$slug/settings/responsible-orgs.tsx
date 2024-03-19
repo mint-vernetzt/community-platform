@@ -19,10 +19,10 @@ import {
   useLoaderData,
   useLocation,
   useSearchParams,
-  useSubmit,
 } from "@remix-run/react";
 import { type User } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
+import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { GravityType, getImageURL } from "~/images.server";
@@ -400,7 +400,7 @@ function ResponsibleOrgs() {
     useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const submit = useSubmit();
+  const submit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
   const [searchForm, fields] = useForm({
@@ -500,7 +500,10 @@ function ResponsibleOrgs() {
           <Form
             method="get"
             onChange={(event) => {
-              submit(event.currentTarget);
+              submit(event.currentTarget, {
+                debounceTimeout: 250,
+                preventScrollReset: true,
+              });
             }}
             {...searchForm.props}
           >

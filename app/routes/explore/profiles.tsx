@@ -1,6 +1,6 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -29,6 +29,7 @@ import {
   getPaginationValues,
   getSortValue,
 } from "./utils.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -41,6 +42,12 @@ export const handle = {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
+
+  const abilities = await getFeatureAbilities(authClient, ["filter"]);
+
+  if (abilities.filter.hasAccess) {
+    return redirect("/next/explore/profiles");
+  }
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -302,19 +309,19 @@ export default function Index() {
                 className="select w-full select-bordered"
               >
                 <option key="firstNameAsc" value="firstNameAsc">
-                  {t("filter.sortBy.firstNameAsc")}
+                  {t("filter.sortBy.firstName-asc")}
                 </option>
                 <option key="firstNameDesc" value="firstNameDesc">
-                  {t("filter.sortBy.firstNameDesc")}
+                  {t("filter.sortBy.firstName-desc")}
                 </option>
                 <option key="lastNameAsc" value="lastNameAsc">
-                  {t("filter.sortBy.lastNameAsc")}
+                  {t("filter.sortBy.lastName-asc")}
                 </option>
                 <option key="lastNameDesc" value="lastNameDesc">
-                  {t("filter.sortBy.lastNameDesc")}
+                  {t("filter.sortBy.lastName-desc")}
                 </option>
                 <option key="newest" value="newest">
-                  {t("filter.sortBy.newest")}
+                  {t("filter.sortBy.createdAt-desc")}
                 </option>
               </select>
             </div>

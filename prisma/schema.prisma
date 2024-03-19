@@ -56,7 +56,7 @@ model Profile {
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
-  @@index([filterVector])
+  @@index([filterVector], type: Gin)
   @@map("profiles")
 }
 
@@ -189,7 +189,7 @@ model Organization {
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
-  @@index([filterVector])
+  @@index([filterVector], type: Gin)
   @@map("organizations")
 }
 
@@ -350,7 +350,7 @@ model Event {
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
-  @@index([filterVector])
+  @@index([filterVector], type: Gin)
   @@map("events")
 }
 
@@ -828,7 +828,7 @@ model Project {
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
-  @@index([filterVector])
+  @@index([filterVector], type: Gin)
   @@map("projects")
 }
 

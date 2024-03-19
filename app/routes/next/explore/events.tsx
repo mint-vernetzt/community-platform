@@ -29,8 +29,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const abilities = await getFeatureAbilities(authClient, ["filter"]);
 
-  if (abilities.filter.hasAccess) {
-    return redirect("/next/explore/events");
+  if (abilities.filter.hasAccess === false) {
+    return redirect("/explore/events");
   }
 
   const sessionUser = await getSessionUser(authClient);

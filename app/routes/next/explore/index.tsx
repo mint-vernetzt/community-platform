@@ -8,9 +8,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const abilities = await getFeatureAbilities(authClient, ["filter"]);
 
-  if (abilities.filter.hasAccess) {
-    return redirect("/next/explore/profiles");
+  if (abilities.filter.hasAccess === false) {
+    return redirect("/explore/profiles");
   }
 
-  return redirect("/explore/profiles");
+  return redirect("/next/explore/profiles");
 };

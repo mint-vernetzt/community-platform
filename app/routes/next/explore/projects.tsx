@@ -43,8 +43,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const abilities = await getFeatureAbilities(authClient, ["filter"]);
 
-  if (abilities.filter.hasAccess) {
-    return redirect("/next/explore/projects");
+  if (abilities.filter.hasAccess === false) {
+    return redirect("/explore/projects");
   }
 
   const sessionUser = await getSessionUser(authClient);

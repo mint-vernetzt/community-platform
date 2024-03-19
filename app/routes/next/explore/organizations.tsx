@@ -46,8 +46,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const abilities = await getFeatureAbilities(authClient, ["filter"]);
 
-  if (abilities.filter.hasAccess) {
-    return redirect("/next/explore/organizations");
+  console.log(abilities);
+
+  if (abilities.filter.hasAccess === false) {
+    return redirect("/explore/organizations");
   }
 
   const { skip, take, page, itemsPerPage } = getPaginationValues(request);
