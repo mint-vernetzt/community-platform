@@ -244,8 +244,6 @@ export async function getProfileFilterVector(options: {
       for (const slug of options.filter[typedFilterKey]) {
         // Validate slug because of queryRawUnsafe
         invariantResponse(
-          // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-          // @ts-ignore
           allFilterValues.some((value) => {
             return value.slug === slug;
           }),
