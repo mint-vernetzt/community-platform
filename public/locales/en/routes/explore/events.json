@@ -1,6 +1,25 @@
 {
-  "title": "Discover events",
+  "title": "Discover Events",
   "intro": "Find current events of the STEM community.",
-  "empty": "Unfortunately, no profiles could be found for your filter criteria.",
-  "more": "Load more"
+  "filter": {
+    "types": "Event type",
+    "focuses": "Main emphasis",
+    "areas": "Location / Area",
+    "searchAreaPlaceholder": "Enter area or location",
+    "searchAreaHelper": "At least 3 letters.",
+    "searchAreaButton": "Search",
+    "stateLabel": "Suggestions by area",
+    "districtLabel": "Suggestions by location",
+    "apply": "Apply filter",
+    "reset": "Reset all",
+    "sortBy": {
+      "name-asc": "Name (A-Z)",
+      "name-desc": "Name (Z-A)",
+      "createdAt-desc": "Newest first"
+    }
+  },
+  "organizationsCountSuffix": "Events",
+  "more": "Load more",
+  "empty": "Unfortunately, no events could be found.",
+  "notShown": "events cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users."
 }
