@@ -35,12 +35,10 @@ import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
-import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import {
+  getAllOffers,
   getAllProfiles,
-  getAreaNameBySlug,
-  getAreasBySearchQuery,
   getFilterCountForSlug,
   getProfileFilterVector,
   getProfilesCount,
@@ -49,6 +47,7 @@ import {
 } from "./profiles.server";
 import { type ArrayElement } from "~/lib/utils/types";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -106,7 +105,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, ["filter"]);
-
   if (abilities.filter.hasAccess === false) {
     return redirect("/explore/profiles");
   }
@@ -433,7 +431,7 @@ export default function Index() {
                   loaderData.selectedAreas.map((selectedArea) => {
                     return selectedArea.name !== null &&
                       selectedArea.isInSearchResultsList === false ? (
-                      <>
+                      <div key={selectedArea.slug}>
                         <label htmlFor={filter.area.id} className="mr-2">
                           {selectedArea.name} ({selectedArea.vectorCount})
                         </label>
@@ -444,7 +442,7 @@ export default function Index() {
                           })}
                           defaultChecked={true}
                         />
-                      </>
+                      </div>
                     ) : null;
                   })}
                 <Input
@@ -589,7 +587,7 @@ export default function Index() {
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.offer.name, selectedArea.slug);
+                deleteSearchParams.delete(filter.area.name, selectedArea.slug);
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} responsive>
                     {selectedArea.name}

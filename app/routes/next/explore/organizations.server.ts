@@ -2,33 +2,35 @@ import { json } from "@remix-run/server-runtime";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
-import { type GetProfilesSchema } from "./profiles";
+import { type GetOrganizationsSchema } from "./organizations";
 
-export function getTakeParam(page: GetProfilesSchema["page"] = 1) {
+export function getTakeParam(page: GetOrganizationsSchema["page"] = 1) {
   const itemsPerPage = 12;
   const take = itemsPerPage * page;
   return take;
 }
 
-export async function getVisibilityFilteredProfilesCount(options: {
-  filter: NonNullable<GetProfilesSchema["filter"]>;
+export async function getVisibilityFilteredOrganizationsCount(options: {
+  filter: NonNullable<GetOrganizationsSchema["filter"]>;
 }) {
   const whereClauses = [];
   const visibilityWhereClauses = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const visibilityWhereStatement = {
-      profileVisibility: {
-        [`${typedFilterKey}s`]: false,
+      organizationVisibility: {
+        [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: false,
       },
     };
     visibilityWhereClauses.push(visibilityWhereStatement);
 
     for (const slug of options.filter[typedFilterKey]) {
       const filterWhereStatement = {
-        [`${typedFilterKey}s`]: {
+        [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
           some: {
-            [typedFilterKey]: {
+            [`${
+              typedFilterKey === "type" ? "organizationType" : typedFilterKey
+            }`]: {
               slug,
             },
           },
@@ -39,7 +41,7 @@ export async function getVisibilityFilteredProfilesCount(options: {
   }
   whereClauses.push({ OR: [...visibilityWhereClauses] });
 
-  const count = await prismaClient.profile.count({
+  const count = await prismaClient.organization.count({
     where: {
       AND: whereClauses,
     },
@@ -48,8 +50,8 @@ export async function getVisibilityFilteredProfilesCount(options: {
   return count;
 }
 
-export async function getProfilesCount(options: {
-  filter: GetProfilesSchema["filter"];
+export async function getOrganizationsCount(options: {
+  filter: GetOrganizationsSchema["filter"];
 }) {
   const whereClauses = [];
   if (options.filter !== undefined) {
@@ -57,9 +59,11 @@ export async function getProfilesCount(options: {
       const typedFilterKey = filterKey as keyof typeof options.filter;
       for (const slug of options.filter[typedFilterKey]) {
         const filterWhereStatement = {
-          [`${typedFilterKey}s`]: {
+          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
             some: {
-              [typedFilterKey]: {
+              [`${
+                typedFilterKey === "type" ? "organizationType" : typedFilterKey
+              }`]: {
                 slug,
               },
             },
@@ -70,7 +74,7 @@ export async function getProfilesCount(options: {
     }
   }
 
-  const count = await prismaClient.profile.count({
+  const count = await prismaClient.organization.count({
     where: {
       AND: whereClauses,
     },
@@ -79,9 +83,9 @@ export async function getProfilesCount(options: {
   return count;
 }
 
-export async function getAllProfiles(options: {
-  filter: GetProfilesSchema["filter"];
-  sortBy: GetProfilesSchema["sortBy"];
+export async function getAllOrganizations(options: {
+  filter: GetOrganizationsSchema["filter"];
+  sortBy: GetOrganizationsSchema["sortBy"];
   take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
@@ -91,17 +95,20 @@ export async function getAllProfiles(options: {
       const typedFilterKey = filterKey as keyof typeof options.filter;
       if (options.isLoggedIn === false) {
         const visibilityWhereStatement = {
-          profileVisibility: {
-            [`${typedFilterKey}s`]: true,
+          organizationVisibility: {
+            [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]:
+              true,
           },
         };
         whereClauses.push(visibilityWhereStatement);
       }
       for (const slug of options.filter[typedFilterKey]) {
         const filterWhereStatement = {
-          [`${typedFilterKey}s`]: {
+          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
             some: {
-              [typedFilterKey]: {
+              [`${
+                typedFilterKey === "type" ? "organizationType" : typedFilterKey
+              }`]: {
                 slug,
               },
             },
@@ -112,32 +119,28 @@ export async function getAllProfiles(options: {
     }
   }
 
-  const profiles = await prismaClient.profile.findMany({
+  const organizations = await prismaClient.organization.findMany({
     select: {
       id: true,
-      academicTitle: true,
-      username: true,
-      firstName: true,
-      lastName: true,
-      position: true,
-      avatar: true,
+      slug: true,
+      name: true,
+      bio: true,
+      logo: true,
       background: true,
-      memberOf: {
+      types: {
         select: {
-          organization: {
+          organizationType: {
             select: {
-              id: true,
-              name: true,
-              slug: true,
-              logo: true,
-              organizationVisibility: {
-                select: {
-                  id: true,
-                  name: true,
-                  slug: true,
-                  logo: true,
-                },
-              },
+              title: true,
+            },
+          },
+        },
+      },
+      focuses: {
+        select: {
+          focus: {
+            select: {
+              title: true,
             },
           },
         },
@@ -151,28 +154,40 @@ export async function getAllProfiles(options: {
           },
         },
       },
-      offers: {
+      teamMembers: {
         select: {
-          offer: {
+          profile: {
             select: {
-              title: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+              username: true,
+              id: true,
+              profileVisibility: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                  username: true,
+                  id: true,
+                },
+              },
             },
           },
         },
       },
-      profileVisibility: {
+      organizationVisibility: {
         select: {
           id: true,
-          academicTitle: true,
-          username: true,
-          firstName: true,
-          lastName: true,
-          position: true,
-          avatar: true,
+          slug: true,
+          name: true,
+          bio: true,
+          logo: true,
           background: true,
-          memberOf: true,
+          types: true,
+          focuses: true,
           areas: true,
-          offers: true,
+          teamMembers: true,
         },
       },
     },
@@ -185,16 +200,16 @@ export async function getAllProfiles(options: {
             [options.sortBy.value]: options.sortBy.direction,
           }
         : {
-            firstName: "asc",
+            name: "asc",
           },
     take: options.take,
   });
 
-  return profiles;
+  return organizations;
 }
 
-export async function getProfileFilterVector(options: {
-  filter: GetProfilesSchema["filter"];
+export async function getOrganizationFilterVector(options: {
+  filter: GetOrganizationsSchema["filter"];
 }) {
   let whereClause = "";
   const whereStatements = [];
@@ -203,36 +218,40 @@ export async function getProfileFilterVector(options: {
       const typedFilterKey = filterKey as keyof typeof options.filter;
       // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
       /* Example:
-      const test = await prismaClient.offer.findMany({
-        select: {
-          slug: true,
-          OffersOnProfiles: {
-            select: {
-              offerId: true,
+        const test = await prismaClient.organizationType.findMany({
+          select: {
+            slug: true,
+            organizations: {
+              select: {
+                organizationId: true,
+              },
             },
           },
-        },
-      });
-      const test2 = await prismaClient.area.findMany({
-        select: {
-          slug: true,
-          AreasOnProfiles: {
-            select: {
-              areaId: true,
+        });
+        const test2 = await prismaClient.area.findMany({
+          select: {
+            slug: true,
+            AreasOnOrganizations: {
+              select: {
+                areaId: true,
+              },
             },
           },
-        },
-      });
-       */
+        });
+        */
       // Further reading:
       // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
       // https://github.com/prisma/prisma/issues/2505
 
-      // I worked arround with an assertion. But if any table except areas remove their slug, this will break and typescript will not warn us.
-      const fakeTypedFilterKey = filterKey as "area";
+      // I worked arround with an assertion. But if any table except organizationTypes remove their slug, this will break and typescript will not warn us.
+      const fakeTypedFilterKey = filterKey as "organizationType";
       let allFilterValues;
       try {
-        allFilterValues = await prismaClient[fakeTypedFilterKey].findMany({
+        allFilterValues = await prismaClient[
+          `${
+            typedFilterKey === "type" ? "organizationType" : fakeTypedFilterKey
+          }`
+        ].findMany({
           select: {
             slug: true,
           },
@@ -268,17 +287,17 @@ export async function getProfileFilterVector(options: {
     value: string[];
     count: number[];
   }[] = await prismaClient.$queryRawUnsafe(`
-  SELECT
-    split_part(word, ':', 1) AS attr,
-    array_agg(split_part(word, ':', 2)) AS value,
-    array_agg(ndoc) AS count
-  FROM ts_stat($$
-    SELECT filter_vector
-    FROM profiles
-    ${whereClause}
-  $$)
-  GROUP BY attr;
-  `);
+    SELECT
+      split_part(word, ':', 1) AS attr,
+      array_agg(split_part(word, ':', 2)) AS value,
+      array_agg(ndoc) AS count
+    FROM ts_stat($$
+      SELECT filter_vector
+      FROM organizations
+      ${whereClause}
+    $$)
+    GROUP BY attr;
+    `);
 
   return filterVector;
 }
@@ -286,9 +305,9 @@ export async function getProfileFilterVector(options: {
 export function getFilterCountForSlug(
   // TODO: Remove '| null' when slug isn't optional anymore (after migration)
   slug: string | null,
-  filterVector: Awaited<ReturnType<typeof getProfileFilterVector>>,
+  filterVector: Awaited<ReturnType<typeof getOrganizationFilterVector>>,
   attribute: ArrayElement<
-    Awaited<ReturnType<typeof getProfileFilterVector>>
+    Awaited<ReturnType<typeof getOrganizationFilterVector>>
   >["attr"]
 ) {
   const filterKeyVector = filterVector.find((vector) => {
@@ -310,8 +329,21 @@ export function getFilterCountForSlug(
   return filterCount;
 }
 
-export async function getAllOffers() {
-  return await prismaClient.offer.findMany({
+export async function getAllOrganizationTypes() {
+  return await prismaClient.organizationType.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+    },
+  });
+}
+
+export async function getAllFocuses() {
+  return await prismaClient.focus.findMany({
     orderBy: {
       title: "asc",
     },
