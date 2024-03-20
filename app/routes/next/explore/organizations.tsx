@@ -20,17 +20,32 @@ import { prismaClient } from "~/prisma.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { getAreas } from "~/utils.server";
 import {
-  getAllOrganizations,
+  getAreaNameBySlug,
+  getAreasBySearchQuery,
   getPaginationValues,
   getSortValue,
 } from "./utils.server";
 import { useTranslation } from "react-i18next";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { z } from "zod";
+import { parseWithZod } from "@conform-to/zod-v1";
+import { invariantResponse } from "~/lib/utils/response";
+import {
+  getAllFocuses,
+  getAllOrganizationTypes,
+  getAllOrganizations,
+  getFilterCountForSlug,
+  getOrganizationFilterVector,
+  getOrganizationsCount,
+  getTakeParam,
+  getVisibilityFilteredOrganizationsCount,
+} from "./organizations.server";
+import { ArrayElement } from "~/lib/utils/types";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -40,70 +55,94 @@ export const handle = {
   i18n: i18nNS,
 };
 
+const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
+
+export type GetOrganizationsSchema = z.infer<typeof getOrganizationsSchema>;
+
+const getOrganizationsSchema = z.object({
+  filter: z
+    .object({
+      type: z.array(z.string()),
+      focus: z.array(z.string()),
+      area: z.array(z.string()),
+    })
+    .optional(),
+  sortBy: z
+    .enum(sortValues)
+    .optional()
+    .transform((sortValue) => {
+      if (sortValue !== undefined) {
+        const splittedValue = sortValue.split("-");
+        return {
+          value: splittedValue[0],
+          direction: splittedValue[1],
+        };
+      }
+      return sortValue;
+    }),
+  page: z.number().optional(),
+  search: z.string().optional(),
+});
+
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const submission = parseWithZod(searchParams, {
+    schema: getOrganizationsSchema,
+  });
+  invariantResponse(
+    submission.status === "success",
+    "Validation failed for get request",
+    { status: 400 }
+  );
+  const take = getTakeParam(submission.value.page);
   const { authClient } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, ["filter"]);
-
-  console.log(abilities);
-
   if (abilities.filter.hasAccess === false) {
     return redirect("/explore/organizations");
   }
 
-  const { skip, take, page, itemsPerPage } = getPaginationValues(request);
-  const { sortBy } = getSortValue(request);
-
   const sessionUser = await getSessionUser(authClient);
-
   const isLoggedIn = sessionUser !== null;
 
-  const areas = await getAreas();
-  const offers = await getAllOffers();
-
-  const rawOrganizations = await getAllOrganizations({
-    skip: skip,
-    take: take,
-    sortBy,
+  let filteredByVisibilityCount;
+  if (!isLoggedIn && submission.value.filter !== undefined) {
+    filteredByVisibilityCount = await getVisibilityFilteredOrganizationsCount({
+      filter: submission.value.filter,
+    });
+  }
+  const organizationsCount = await getOrganizationsCount({
+    filter: submission.value.filter,
+  });
+  const organizations = await getAllOrganizations({
+    filter: submission.value.filter,
+    sortBy: submission.value.sortBy,
+    take,
+    isLoggedIn,
   });
 
   const enhancedOrganizations = [];
-
-  for (const organization of rawOrganizations) {
+  for (const organization of organizations) {
     let enhancedOrganization = {
       ...organization,
-      teamMembers: await prismaClient.profile.findMany({
-        where: {
-          memberOf: {
-            some: {
-              organizationId: organization.id,
-            },
-          },
-        },
-        select: {
-          firstName: true,
-          lastName: true,
-          avatar: true,
-          username: true,
-          id: true,
-        },
-      }),
     };
 
-    if (sessionUser === null) {
+    if (!isLoggedIn) {
       // Filter organization
-      enhancedOrganization = await filterOrganizationByVisibility<
-        typeof enhancedOrganization
-      >(enhancedOrganization);
+      enhancedOrganization =
+        filterOrganizationByVisibility<typeof enhancedOrganization>(
+          enhancedOrganization
+        );
       // Filter team members
-      enhancedOrganization.teamMembers = await Promise.all(
-        enhancedOrganization.teamMembers.map(async (profile) => {
-          const filteredProfile = await filterProfileByVisibility<
-            typeof profile
-          >(profile);
-          return { ...filteredProfile };
-        })
+      enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
+        (relation) => {
+          const filteredProfile = filterProfileByVisibility<
+            typeof relation.profile
+          >(relation.profile);
+          return { ...relation, profile: { ...filteredProfile } };
+        }
       );
     }
 
@@ -132,27 +171,162 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
 
     enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
-      (profile) => {
-        let avatar = profile.avatar;
+      (relation) => {
+        let avatar = relation.profile.avatar;
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
           avatar = getImageURL(publicURL, {
             resize: { type: "fit", width: 64, height: 64 },
           });
         }
-        return { ...profile, avatar };
+        return { ...relation, profile: { ...relation.profile, avatar } };
       }
     );
 
     enhancedOrganizations.push(enhancedOrganization);
   }
 
+  const filterVector = await getOrganizationFilterVector({
+    filter: submission.value.filter,
+  });
+
+  const areas = await getAreasBySearchQuery(submission.value.search);
+  type EnhancedAreas = Array<
+    ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
+      vectorCount: ReturnType<typeof getFilterCountForSlug>;
+      isChecked: boolean;
+    }
+  >;
+  const enhancedAreas = {
+    global: [] as EnhancedAreas,
+    country: [] as EnhancedAreas,
+    state: [] as EnhancedAreas,
+    district: [] as EnhancedAreas,
+  };
+  for (const area of areas) {
+    const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
+    let isChecked;
+    // TODO: Remove '|| area.slug === null' when slug isn't optional anymore (after migration)
+    if (submission.value.filter === undefined || area.slug === null) {
+      isChecked = false;
+    } else {
+      isChecked = submission.value.filter.area.includes(area.slug);
+    }
+    const enhancedArea = {
+      ...area,
+      vectorCount,
+      isChecked,
+    };
+    enhancedAreas[area.type].push(enhancedArea);
+  }
+  let selectedAreas: Array<{
+    slug: string;
+    name: string | null;
+    vectorCount: number;
+    isInSearchResultsList: boolean;
+  }> = [];
+  if (submission.value.filter !== undefined) {
+    selectedAreas = await Promise.all(
+      submission.value.filter.area.map(async (slug) => {
+        const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
+        const isInSearchResultsList = areas.some((area) => {
+          return area.slug === slug;
+        });
+        return {
+          slug,
+          name: (await getAreaNameBySlug(slug)) || null,
+          vectorCount,
+          isInSearchResultsList,
+        };
+      })
+    );
+  }
+
+  const types = await getAllOrganizationTypes();
+  const enhancedTypes = types.map((type) => {
+    const vectorCount = getFilterCountForSlug(type.slug, filterVector, "type");
+    let isChecked;
+    // TODO: Remove '|| offer.slug === null' when slug isn't optional anymore (after migration)
+    if (submission.value.filter === undefined || type.slug === null) {
+      isChecked = false;
+    } else {
+      isChecked = submission.value.filter.type.includes(type.slug);
+    }
+    return { ...type, vectorCount, isChecked };
+  });
+  let selectedTypes: Array<{ slug: string; title: string | null }> = [];
+  if (submission.value.filter !== undefined) {
+    selectedTypes = submission.value.filter.type.map((slug) => {
+      const typeMatch = types.find((type) => {
+        return type.slug === slug;
+      });
+      return {
+        slug,
+        title: typeMatch?.title || null,
+      };
+    });
+  }
+
+  const focuses = await getAllFocuses();
+  const enhancedFocuses = focuses.map((focus) => {
+    const vectorCount = getFilterCountForSlug(
+      focus.slug,
+      filterVector,
+      "focus"
+    );
+    let isChecked;
+    // TODO: Remove '|| offer.slug === null' when slug isn't optional anymore (after migration)
+    if (submission.value.filter === undefined || focus.slug === null) {
+      isChecked = false;
+    } else {
+      isChecked = submission.value.filter.focus.includes(focus.slug);
+    }
+    return { ...focus, vectorCount, isChecked };
+  });
+  let selectedFocuses: Array<{ slug: string; title: string | null }> = [];
+  if (submission.value.filter !== undefined) {
+    selectedFocuses = submission.value.filter.focus.map((slug) => {
+      const focusMatch = focuses.find((focus) => {
+        return focus.slug === slug;
+      });
+      return {
+        slug,
+        title: focusMatch?.title || null,
+      };
+    });
+  }
+
+  let transformedSubmission;
+  if (submission.value.sortBy !== undefined) {
+    transformedSubmission = {
+      ...submission,
+      value: {
+        ...submission.value,
+        sortBy: `${submission.value.sortBy.value}-${submission.value.sortBy.direction}`,
+      },
+    };
+  } else {
+    transformedSubmission = {
+      ...submission,
+      value: {
+        ...submission.value,
+        sortBy: sortValues[0],
+      },
+    };
+  }
+
   return json({
     isLoggedIn,
     organizations: enhancedOrganizations,
-    areas,
-    offers,
-    pagination: { page, itemsPerPage },
+    areas: enhancedAreas,
+    selectedAreas,
+    focuses: enhancedFocuses,
+    selectedFocuses,
+    types: enhancedTypes,
+    selectedTypes,
+    submission: transformedSubmission,
+    filteredByVisibilityCount,
+    organizationsCount,
   });
 };
 

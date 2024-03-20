@@ -35,12 +35,10 @@ import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
-import { getAllOffers } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import {
+  getAllOffers,
   getAllProfiles,
-  getAreaNameBySlug,
-  getAreasBySearchQuery,
   getFilterCountForSlug,
   getProfileFilterVector,
   getProfilesCount,
@@ -49,6 +47,7 @@ import {
 } from "./profiles.server";
 import { type ArrayElement } from "~/lib/utils/types";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -106,7 +105,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, ["filter"]);
-
   if (abilities.filter.hasAccess === false) {
     return redirect("/explore/profiles");
   }
