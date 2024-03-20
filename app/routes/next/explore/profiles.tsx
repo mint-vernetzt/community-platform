@@ -431,7 +431,7 @@ export default function Index() {
                   loaderData.selectedAreas.map((selectedArea) => {
                     return selectedArea.name !== null &&
                       selectedArea.isInSearchResultsList === false ? (
-                      <>
+                      <div key={selectedArea.slug}>
                         <label htmlFor={filter.area.id} className="mr-2">
                           {selectedArea.name} ({selectedArea.vectorCount})
                         </label>
@@ -442,7 +442,7 @@ export default function Index() {
                           })}
                           defaultChecked={true}
                         />
-                      </>
+                      </div>
                     ) : null;
                   })}
                 <Input
@@ -587,7 +587,7 @@ export default function Index() {
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.offer.name, selectedArea.slug);
+                deleteSearchParams.delete(filter.area.name, selectedArea.slug);
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} responsive>
                     {selectedArea.name}
