@@ -606,7 +606,7 @@ export default function ExploreProfiles() {
               })}
             </Chip.Container>
             <Link
-              to={`/explore/profiles${
+              to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
                   ? `?sortBy=${loaderData.submission.value.sortBy}`
                   : ""

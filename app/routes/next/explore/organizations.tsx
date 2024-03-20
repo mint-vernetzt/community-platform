@@ -693,7 +693,7 @@ export default function ExploreOrganizations() {
               })}
             </Chip.Container>
             <Link
-              to={`/explore/profiles${
+              to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
                   ? `?sortBy=${loaderData.submission.value.sortBy}`
                   : ""
