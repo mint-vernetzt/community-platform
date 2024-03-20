@@ -5,7 +5,7 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import { type GetEventsSchema } from "./events";
 
-export function getTakeParam(page: GetEventsSchema["page"] = 1) {
+export function getTakeParam(page: GetEventsSchema["page"]) {
   const itemsPerPage = 12;
   const take = itemsPerPage * page;
   return take;
@@ -55,7 +55,7 @@ function getWhereStatementFromPeriodOfTime(
     const currentYear = now.getFullYear();
     const firstDayOfNextMonth = new Date(currentYear, currentMonth + 1, 1);
     firstDayOfNextMonth.setHours(0, 0, 0, 0);
-    if (periodOfTime === "nextMonth") {
+    if (periodOfTime === "thisMonth") {
       return {
         startTime: {
           gte: now,
@@ -135,30 +135,27 @@ export async function getEventsCount(options: {
   filter: GetEventsSchema["filter"];
 }) {
   const whereClauses = [];
-  if (options.filter !== undefined) {
-    for (const filterKey in options.filter) {
-      const typedFilterKey = filterKey as keyof typeof options.filter;
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
 
-      if (typedFilterKey === "periodOfTime") {
-        const filterValue = options.filter[typedFilterKey];
-        const filterWhereStatement =
-          getWhereStatementFromPeriodOfTime(filterValue);
-        whereClauses.push(filterWhereStatement);
-      } else {
-        const filterValues = options.filter[typedFilterKey];
-        for (const slug of filterValues) {
-          const filterWhereStatement = {
-            [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-              some: {
-                [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]:
-                  {
-                    slug,
-                  },
+    if (typedFilterKey === "periodOfTime") {
+      const filterValue = options.filter[typedFilterKey];
+      const filterWhereStatement =
+        getWhereStatementFromPeriodOfTime(filterValue);
+      whereClauses.push(filterWhereStatement);
+    } else {
+      const filterValues = options.filter[typedFilterKey];
+      for (const slug of filterValues) {
+        const filterWhereStatement = {
+          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
+            some: {
+              [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]: {
+                slug,
               },
             },
-          };
-          whereClauses.push(filterWhereStatement);
-        }
+          },
+        };
+        whereClauses.push(filterWhereStatement);
       }
     }
   }
@@ -179,43 +176,40 @@ export async function getAllEvents(options: {
   isLoggedIn: boolean;
 }) {
   const whereClauses = [];
-  if (options.filter !== undefined) {
-    for (const filterKey in options.filter) {
-      const typedFilterKey = filterKey as keyof typeof options.filter;
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
 
-      if (options.isLoggedIn === false) {
-        const visibilityWhereStatement = {
-          eventVisibility: {
-            [`${
-              typedFilterKey === "periodOfTime"
-                ? "startTime"
-                : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
-            }`]: true,
-          },
-        };
-        whereClauses.push(visibilityWhereStatement);
-      }
+    if (options.isLoggedIn === false) {
+      const visibilityWhereStatement = {
+        eventVisibility: {
+          [`${
+            typedFilterKey === "periodOfTime"
+              ? "startTime"
+              : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
+          }`]: true,
+        },
+      };
+      whereClauses.push(visibilityWhereStatement);
+    }
 
-      if (typedFilterKey === "periodOfTime") {
-        const filterValue = options.filter[typedFilterKey];
-        const filterWhereStatement =
-          getWhereStatementFromPeriodOfTime(filterValue);
-        whereClauses.push(filterWhereStatement);
-      } else {
-        const filterValues = options.filter[typedFilterKey];
-        for (const slug of filterValues) {
-          const filterWhereStatement = {
-            [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-              some: {
-                [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]:
-                  {
-                    slug,
-                  },
+    if (typedFilterKey === "periodOfTime") {
+      const filterValue = options.filter[typedFilterKey];
+      const filterWhereStatement =
+        getWhereStatementFromPeriodOfTime(filterValue);
+      whereClauses.push(filterWhereStatement);
+    } else {
+      const filterValues = options.filter[typedFilterKey];
+      for (const slug of filterValues) {
+        const filterWhereStatement = {
+          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
+            some: {
+              [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]: {
+                slug,
               },
             },
-          };
-          whereClauses.push(filterWhereStatement);
-        }
+          },
+        };
+        whereClauses.push(filterWhereStatement);
       }
     }
   }
@@ -295,12 +289,13 @@ export async function getAllEvents(options: {
       AND: [...whereClauses, { published: true }],
     },
     orderBy:
-      options.sortBy !== undefined
+      options.filter.periodOfTime === "past" &&
+      options.sortBy.value === "startTime"
         ? {
-            [options.sortBy.value]: options.sortBy.direction,
+            [options.sortBy.value]: "desc",
           }
         : {
-            name: "asc",
+            [options.sortBy.value]: options.sortBy.direction,
           },
     take: options.take,
   });
@@ -398,11 +393,16 @@ export async function getEventFilterVector(options: {
 }) {
   let whereClause = "";
   const whereStatements = [];
-  if (options.filter !== undefined) {
-    for (const filterKey in options.filter) {
-      const typedFilterKey = filterKey as keyof typeof options.filter;
-      // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-      /* Example:
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+
+    // TODO: Remove this when above TODO is done
+    if (typedFilterKey === "periodOfTime") {
+      continue;
+    }
+
+    // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
+    /* Example:
           const test = await prismaClient.eventType.findMany({
             select: {
               slug: true,
@@ -424,38 +424,37 @@ export async function getEventFilterVector(options: {
             },
           });
           */
-      // Further reading:
-      // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
-      // https://github.com/prisma/prisma/issues/2505
+    // Further reading:
+    // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
+    // https://github.com/prisma/prisma/issues/2505
 
-      // I worked arround with an assertion. But if any table except eventTypes remove their slug, this will break and typescript will not warn us.
-      const fakeTypedFilterKey = filterKey as "eventType";
-      let allFilterValues;
-      try {
-        allFilterValues = await prismaClient[
-          `${typedFilterKey === "type" ? "eventType" : fakeTypedFilterKey}`
-        ].findMany({
-          select: {
-            slug: true,
-          },
-        });
-      } catch (error: any) {
-        throw json({ message: "Server error" }, { status: 500 });
-      }
+    // I worked arround with an assertion. But if any table except eventTypes remove their slug, this will break and typescript will not warn us.
+    const fakeTypedFilterKey = filterKey as "eventType";
+    let allFilterValues;
+    try {
+      allFilterValues = await prismaClient[
+        `${typedFilterKey === "type" ? "eventType" : fakeTypedFilterKey}`
+      ].findMany({
+        select: {
+          slug: true,
+        },
+      });
+    } catch (error: any) {
+      throw json({ message: "Server error" }, { status: 500 });
+    }
 
-      for (const slug of options.filter[typedFilterKey]) {
-        // Validate slug because of queryRawUnsafe
-        invariantResponse(
-          allFilterValues.some((value) => {
-            return value.slug === slug;
-          }),
-          "Cannot filter by the specified slug.",
-          { status: 400 }
-        );
-        const tuple = `${typedFilterKey}\\:${slug}`;
-        const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-        whereStatements.push(whereStatement);
-      }
+    for (const slug of options.filter[typedFilterKey]) {
+      // Validate slug because of queryRawUnsafe
+      invariantResponse(
+        allFilterValues.some((value) => {
+          return value.slug === slug;
+        }),
+        "Cannot filter by the specified slug.",
+        { status: 400 }
+      );
+      const tuple = `${typedFilterKey}\\:${slug}`;
+      const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
+      whereStatements.push(whereStatement);
     }
   }
 

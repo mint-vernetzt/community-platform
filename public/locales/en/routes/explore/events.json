@@ -4,6 +4,16 @@
   "filter": {
     "types": "Event type",
     "focuses": "Main emphasis",
+    "targetGroups": "Target groups",
+    "periodOfTime": {
+      "label": "Period of time",
+      "now": "Until now",
+      "thisWeek": "This week",
+      "nextWeek": "Next week",
+      "thisMonth": "This month",
+      "nextMonth": "Next month",
+      "past": "Past events"
+    },
     "areas": "Location / Area",
     "searchAreaPlaceholder": "Enter area or location",
     "searchAreaHelper": "At least 3 letters.",
@@ -13,9 +23,9 @@
     "apply": "Apply filter",
     "reset": "Reset all",
     "sortBy": {
+      "startTime-asc": "Date",
       "name-asc": "Name (A-Z)",
-      "name-desc": "Name (Z-A)",
-      "createdAt-desc": "Newest first"
+      "name-desc": "Name (Z-A)"
     }
   },
   "organizationsCountSuffix": "Events",

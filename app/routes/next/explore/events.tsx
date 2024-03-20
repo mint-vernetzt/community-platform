@@ -59,7 +59,7 @@ export const handle = {
   i18n: i18nNS,
 };
 
-const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
+const sortValues = ["startTime-asc", "name-asc", "name-desc"] as const;
 export const periodOfTimeValues = [
   "now",
   "thisWeek",
@@ -77,10 +77,30 @@ const getEventsSchema = z.object({
       type: z.array(z.string()),
       focus: z.array(z.string()),
       eventTargetGroup: z.array(z.string()),
-      periodOfTime: z.enum(periodOfTimeValues).optional(),
+      periodOfTime: z
+        .enum(periodOfTimeValues)
+        .optional()
+        .transform((periodOfTime) => {
+          if (periodOfTime === undefined) {
+            return periodOfTimeValues[0];
+          }
+          return periodOfTime;
+        }),
       area: z.array(z.string()),
     })
-    .optional(),
+    .optional()
+    .transform((filter) => {
+      if (filter === undefined) {
+        return {
+          type: [],
+          focus: [],
+          eventTargetGroup: [],
+          periodOfTime: periodOfTimeValues[0],
+          area: [],
+        };
+      }
+      return filter;
+    }),
   sortBy: z
     .enum(sortValues)
     .optional()
@@ -92,10 +112,29 @@ const getEventsSchema = z.object({
           direction: splittedValue[1],
         };
       }
-      return sortValue;
+      return {
+        value: sortValues[0].split("-")[0],
+        direction: sortValues[0].split("-")[1],
+      };
     }),
-  page: z.number().optional(),
-  search: z.string().optional(),
+  page: z
+    .number()
+    .optional()
+    .transform((value) => {
+      if (value === undefined) {
+        return 1;
+      }
+      return value;
+    }),
+  search: z
+    .string()
+    .optional()
+    .transform((searchQuery) => {
+      if (searchQuery === undefined) {
+        return "";
+      }
+      return searchQuery;
+    }),
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -122,7 +161,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const isLoggedIn = sessionUser !== null;
 
   let filteredByVisibilityCount;
-  if (!isLoggedIn && submission.value.filter !== undefined) {
+  if (!isLoggedIn) {
     filteredByVisibilityCount = await getVisibilityFilteredEventsCount({
       filter: submission.value.filter,
     });
@@ -238,28 +277,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
-  let selectedAreas: Array<{
-    slug: string;
-    name: string | null;
-    vectorCount: number;
-    isInSearchResultsList: boolean;
-  }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedAreas = await Promise.all(
-      submission.value.filter.area.map(async (slug) => {
-        const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
-        const isInSearchResultsList = areas.some((area) => {
-          return area.slug === slug;
-        });
-        return {
-          slug,
-          name: (await getAreaNameBySlug(slug)) || null,
-          vectorCount,
-          isInSearchResultsList,
-        };
-      })
-    );
-  }
+  const selectedAreas = await Promise.all(
+    submission.value.filter.area.map(async (slug) => {
+      const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
+      const isInSearchResultsList = areas.some((area) => {
+        return area.slug === slug;
+      });
+      return {
+        slug,
+        name: (await getAreaNameBySlug(slug)) || null,
+        vectorCount,
+        isInSearchResultsList,
+      };
+    })
+  );
 
   const types = await getAllEventTypes();
   const enhancedTypes = types.map((type) => {
@@ -273,18 +304,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
     return { ...type, vectorCount, isChecked };
   });
-  let selectedTypes: Array<{ slug: string; title: string | null }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedTypes = submission.value.filter.type.map((slug) => {
-      const typeMatch = types.find((type) => {
-        return type.slug === slug;
-      });
-      return {
-        slug,
-        title: typeMatch?.title || null,
-      };
+  const selectedTypes = submission.value.filter.type.map((slug) => {
+    const typeMatch = types.find((type) => {
+      return type.slug === slug;
     });
-  }
+    return {
+      slug,
+      title: typeMatch?.title || null,
+    };
+  });
 
   const focuses = await getAllFocuses();
   const enhancedFocuses = focuses.map((focus) => {
@@ -302,18 +330,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
     return { ...focus, vectorCount, isChecked };
   });
-  let selectedFocuses: Array<{ slug: string; title: string | null }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedFocuses = submission.value.filter.focus.map((slug) => {
-      const focusMatch = focuses.find((focus) => {
-        return focus.slug === slug;
-      });
-      return {
-        slug,
-        title: focusMatch?.title || null,
-      };
+  const selectedFocuses = submission.value.filter.focus.map((slug) => {
+    const focusMatch = focuses.find((focus) => {
+      return focus.slug === slug;
     });
-  }
+    return {
+      slug,
+      title: focusMatch?.title || null,
+    };
+  });
 
   const targetGroups = await getAllEventTargetGroups();
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
@@ -333,39 +358,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
     return { ...targetGroup, vectorCount, isChecked };
   });
-  let selectedTargetGroups: Array<{ slug: string; title: string | null }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedTargetGroups = submission.value.filter.eventTargetGroup.map(
-      (slug) => {
-        const targetGroupMatch = targetGroups.find((targetGroup) => {
-          return targetGroup.slug === slug;
-        });
-        return {
-          slug,
-          title: targetGroupMatch?.title || null,
-        };
-      }
-    );
-  }
-
-  let transformedSubmission;
-  if (submission.value.sortBy !== undefined) {
-    transformedSubmission = {
-      ...submission,
-      value: {
-        ...submission.value,
-        sortBy: `${submission.value.sortBy.value}-${submission.value.sortBy.direction}`,
-      },
-    };
-  } else {
-    transformedSubmission = {
-      ...submission,
-      value: {
-        ...submission.value,
-        sortBy: sortValues[0],
-      },
-    };
-  }
+  const selectedTargetGroups = submission.value.filter.eventTargetGroup.map(
+    (slug) => {
+      const targetGroupMatch = targetGroups.find((targetGroup) => {
+        return targetGroup.slug === slug;
+      });
+      return {
+        slug,
+        title: targetGroupMatch?.title || null,
+      };
+    }
+  );
 
   return json({
     isLoggedIn,
@@ -378,7 +381,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     selectedTargetGroups,
     types: enhancedTypes,
     selectedTypes,
-    submission: transformedSubmission,
+    submission,
     filteredByVisibilityCount,
     eventsCount,
   });
@@ -393,10 +396,6 @@ export default function ExploreOrganizations() {
   const debounceSubmit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
-  const page = searchParams.get("page") || "1";
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${parseInt(page) + 1}`);
-
   const [form, fields] = useForm<GetEventsSchema>({
     lastResult: loaderData.submission,
     defaultValue: loaderData.submission.value,
@@ -404,8 +403,12 @@ export default function ExploreOrganizations() {
 
   const filter = fields.filter.getFieldset();
 
+  const page = loaderData.submission.value.page;
+  const loadMoreSearchParams = new URLSearchParams(searchParams);
+  loadMoreSearchParams.set("page", `${page + 1}`);
+
   const [searchQuery, setSearchQuery] = React.useState(
-    loaderData.submission.value.search || ""
+    loaderData.submission.value.search
   );
 
   // TODO: Remove this and add new <Image> Component to <EventCard>
@@ -517,9 +520,36 @@ export default function ExploreOrganizations() {
                   })}
                 </ul>
               </div>
-
-              {/* TODO: Add timeframe filter */}
-
+              <div className="mr-4">
+                <legend className="font-bold mb-2">
+                  {t("filter.periodOfTime.label")}
+                </legend>
+                {periodOfTimeValues.map((periodOfTimeValue) => {
+                  const submissionFilter = loaderData.submission.value.filter;
+                  return (
+                    <div key={periodOfTimeValue}>
+                      <label htmlFor={filter.periodOfTime.id} className="mr-2">
+                        {t(`filter.periodOfTime.${periodOfTimeValue}`)}
+                      </label>
+                      <input
+                        {...getInputProps(filter.periodOfTime, {
+                          type: "radio",
+                          value: periodOfTimeValue,
+                        })}
+                        defaultChecked={
+                          submissionFilter !== undefined
+                            ? submissionFilter.periodOfTime !== undefined
+                              ? submissionFilter.periodOfTime ===
+                                periodOfTimeValue
+                              : periodOfTimeValues[0] === periodOfTimeValue
+                            : periodOfTimeValues[0] === periodOfTimeValue
+                        }
+                        disabled={navigation.state === "loading"}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
               <div className="mr-4">
                 <legend className="font-bold mb-2">{t("filter.areas")}</legend>
                 {loaderData.areas.global.map((area) => {
@@ -670,6 +700,7 @@ export default function ExploreOrganizations() {
             </fieldset>
             <fieldset {...getFieldsetProps(fields.sortBy)}>
               {sortValues.map((sortValue) => {
+                const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
                 return (
                   <div key={sortValue}>
                     <label htmlFor={fields.sortBy.id} className="mr-2">
@@ -680,9 +711,7 @@ export default function ExploreOrganizations() {
                         type: "radio",
                         value: sortValue,
                       })}
-                      defaultChecked={
-                        loaderData.submission.value.sortBy === sortValue
-                      }
+                      defaultChecked={submissionSortValue === sortValue}
                       disabled={navigation.state === "loading"}
                     />
                   </div>

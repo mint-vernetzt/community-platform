@@ -5,6 +5,15 @@
     "types": "Veranstaltungsart",
     "focuses": "Schwerpunkte",
     "targetGroups": "Zielgruppe",
+    "periodOfTime": {
+      "label": "Zeitraum",
+      "now": "Ab Heute",
+      "thisWeek": "Diese Woche",
+      "nextWeek": "Nächste Woche",
+      "thisMonth": "Diesen Monat",
+      "nextMonth": "Nächsten Monat",
+      "past": "Vergangene Veranstaltungen"
+    },
     "areas": "Ort / Gebiet",
     "searchAreaPlaceholder": "Ort oder Gebiet eingeben",
     "searchAreaHelper": "Mindestens 3 Buchstaben.",
@@ -14,9 +23,9 @@
     "apply": "Filter anwenden",
     "reset": "Alles zurücksetzen",
     "sortBy": {
+      "startTime-asc": "Datum",
       "name-asc": "Name (A-Z)",
-      "name-desc": "Name (Z-A)",
-      "createdAt-desc": "Neueste zuerst"
+      "name-desc": "Name (Z-A)"
     }
   },
   "eventsCountSuffix": "Veranstaltungen",
