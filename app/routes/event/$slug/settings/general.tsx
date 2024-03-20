@@ -816,7 +816,7 @@ function General() {
 
           <div className="mb-4">
             <SelectAdd
-              name="targetGroups"
+              name="eventTargetGroups"
               label={t("form.targetGroups.label")}
               placeholder={t("form.targetGroups.placeholder")}
               entries={selectedEventTargetGroups.map((targetGroup) => ({
