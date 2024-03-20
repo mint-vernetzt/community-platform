@@ -186,7 +186,7 @@ export async function getAllEvents(options: {
       },
     },
     where: {
-      AND: whereClauses,
+      AND: [...whereClauses, { published: true }],
     },
     orderBy:
       options.sortBy !== undefined
@@ -368,7 +368,9 @@ export async function getEventFilterVector(options: {
       FROM ts_stat($$
         SELECT filter_vector
         FROM events
-        ${whereClause}
+        ${whereClause} ${
+    whereClause.length > 0 ? "AND published = true" : "WHERE published = true"
+  }
       $$)
       GROUP BY attr;
       `);
