@@ -349,7 +349,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
-export default function Index() {
+export default function ExploreOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
