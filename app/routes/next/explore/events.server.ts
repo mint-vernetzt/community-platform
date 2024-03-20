@@ -11,6 +11,75 @@ export function getTakeParam(page: GetEventsSchema["page"] = 1) {
   return take;
 }
 
+// TODO: Make this function return eiter prisma or raw sql
+function getWhereStatementFromPeriodOfTime(
+  periodOfTime: NonNullable<GetEventsSchema["filter"]>["periodOfTime"]
+) {
+  const now = new Date();
+  if (periodOfTime === "past") {
+    return {
+      startTime: {
+        lte: now,
+      },
+    };
+  }
+  if (periodOfTime === "thisWeek" || periodOfTime === "nextWeek") {
+    const currentDay = now.getDay();
+    const daysUntilMonday = (8 - currentDay) % 7;
+    const nextMonday = new Date(
+      now.getTime() + daysUntilMonday * 24 * 60 * 60 * 1000
+    );
+    nextMonday.setHours(0, 0, 0, 0);
+    if (periodOfTime === "thisWeek") {
+      return {
+        startTime: {
+          gte: now,
+          lte: nextMonday,
+        },
+      };
+    } else {
+      const daysUntilSecondMonday = daysUntilMonday + 7;
+      const secondMonday = new Date(
+        now.getTime() + daysUntilSecondMonday * 24 * 60 * 60 * 1000
+      );
+      return {
+        startTime: {
+          gte: nextMonday,
+          lte: secondMonday,
+        },
+      };
+    }
+  }
+  if (periodOfTime === "thisMonth" || periodOfTime === "nextMonth") {
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const firstDayOfNextMonth = new Date(currentYear, currentMonth + 1, 1);
+    firstDayOfNextMonth.setHours(0, 0, 0, 0);
+    if (periodOfTime === "nextMonth") {
+      return {
+        startTime: {
+          gte: now,
+          lte: firstDayOfNextMonth,
+        },
+      };
+    } else {
+      const firstDayOfSecondMonth = new Date(currentYear, currentMonth + 2, 1);
+      firstDayOfNextMonth.setHours(0, 0, 0, 0);
+      return {
+        startTime: {
+          gte: firstDayOfNextMonth,
+          lte: firstDayOfSecondMonth,
+        },
+      };
+    }
+  }
+  return {
+    startTime: {
+      gte: now,
+    },
+  };
+}
+
 export async function getVisibilityFilteredEventsCount(options: {
   filter: NonNullable<GetEventsSchema["filter"]>;
 }) {
@@ -18,24 +87,37 @@ export async function getVisibilityFilteredEventsCount(options: {
   const visibilityWhereClauses = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
+
     const visibilityWhereStatement = {
       eventVisibility: {
-        [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: false,
+        [`${
+          typedFilterKey === "periodOfTime"
+            ? "startTime"
+            : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
+        }`]: true,
       },
     };
     visibilityWhereClauses.push(visibilityWhereStatement);
 
-    for (const slug of options.filter[typedFilterKey]) {
-      const filterWhereStatement = {
-        [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-          some: {
-            [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]: {
-              slug,
+    if (typedFilterKey === "periodOfTime") {
+      const filterValue = options.filter[typedFilterKey];
+      const filterWhereStatement =
+        getWhereStatementFromPeriodOfTime(filterValue);
+      whereClauses.push(filterWhereStatement);
+    } else {
+      const filterValues = options.filter[typedFilterKey];
+      for (const slug of filterValues) {
+        const filterWhereStatement = {
+          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
+            some: {
+              [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]: {
+                slug,
+              },
             },
           },
-        },
-      };
-      whereClauses.push(filterWhereStatement);
+        };
+        whereClauses.push(filterWhereStatement);
+      }
     }
   }
   whereClauses.push({ OR: [...visibilityWhereClauses] });
@@ -56,17 +138,27 @@ export async function getEventsCount(options: {
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
-      for (const slug of options.filter[typedFilterKey]) {
-        const filterWhereStatement = {
-          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-            some: {
-              [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]: {
-                slug,
+
+      if (typedFilterKey === "periodOfTime") {
+        const filterValue = options.filter[typedFilterKey];
+        const filterWhereStatement =
+          getWhereStatementFromPeriodOfTime(filterValue);
+        whereClauses.push(filterWhereStatement);
+      } else {
+        const filterValues = options.filter[typedFilterKey];
+        for (const slug of filterValues) {
+          const filterWhereStatement = {
+            [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
+              some: {
+                [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]:
+                  {
+                    slug,
+                  },
               },
             },
-          },
-        };
-        whereClauses.push(filterWhereStatement);
+          };
+          whereClauses.push(filterWhereStatement);
+        }
       }
     }
   }
@@ -90,26 +182,40 @@ export async function getAllEvents(options: {
   if (options.filter !== undefined) {
     for (const filterKey in options.filter) {
       const typedFilterKey = filterKey as keyof typeof options.filter;
+
       if (options.isLoggedIn === false) {
         const visibilityWhereStatement = {
           eventVisibility: {
-            [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]:
-              true,
+            [`${
+              typedFilterKey === "periodOfTime"
+                ? "startTime"
+                : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
+            }`]: true,
           },
         };
         whereClauses.push(visibilityWhereStatement);
       }
-      for (const slug of options.filter[typedFilterKey]) {
-        const filterWhereStatement = {
-          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-            some: {
-              [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]: {
-                slug,
+
+      if (typedFilterKey === "periodOfTime") {
+        const filterValue = options.filter[typedFilterKey];
+        const filterWhereStatement =
+          getWhereStatementFromPeriodOfTime(filterValue);
+        whereClauses.push(filterWhereStatement);
+      } else {
+        const filterValues = options.filter[typedFilterKey];
+        for (const slug of filterValues) {
+          const filterWhereStatement = {
+            [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
+              some: {
+                [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]:
+                  {
+                    slug,
+                  },
               },
             },
-          },
-        };
-        whereClauses.push(filterWhereStatement);
+          };
+          whereClauses.push(filterWhereStatement);
+        }
       }
     }
   }
@@ -286,6 +392,7 @@ export async function enhanceEventsWithParticipationStatus(
   }
 }
 
+// TODO: Where statement in raw sql for periodOfTime
 export async function getEventFilterVector(options: {
   filter: GetEventsSchema["filter"];
 }) {

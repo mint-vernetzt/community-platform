@@ -60,6 +60,14 @@ export const handle = {
 };
 
 const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
+export const periodOfTimeValues = [
+  "now",
+  "thisWeek",
+  "nextWeek",
+  "thisMonth",
+  "nextMonth",
+  "past",
+] as const;
 
 export type GetEventsSchema = z.infer<typeof getEventsSchema>;
 
@@ -69,6 +77,7 @@ const getEventsSchema = z.object({
       type: z.array(z.string()),
       focus: z.array(z.string()),
       eventTargetGroup: z.array(z.string()),
+      periodOfTime: z.enum(periodOfTimeValues).optional(),
       area: z.array(z.string()),
     })
     .optional(),
