@@ -243,11 +243,15 @@ export async function getOrganizationFilterVector(options: {
       // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
       // https://github.com/prisma/prisma/issues/2505
 
-      // I worked arround with an assertion. But if any table except areas remove their slug, this will break and typescript will not warn us.
-      const fakeTypedFilterKey = filterKey as "area";
+      // I worked arround with an assertion. But if any table except organizationTypes remove their slug, this will break and typescript will not warn us.
+      const fakeTypedFilterKey = filterKey as "organizationType";
       let allFilterValues;
       try {
-        allFilterValues = await prismaClient[fakeTypedFilterKey].findMany({
+        allFilterValues = await prismaClient[
+          `${
+            typedFilterKey === "type" ? "organizationType" : fakeTypedFilterKey
+          }`
+        ].findMany({
           select: {
             slug: true,
           },

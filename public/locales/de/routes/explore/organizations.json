@@ -5,12 +5,26 @@
     "sort": {
       "label": "Sortieren nach"
     },
+
+    
+    "types": "Organisationsform",
+    "focuses": "Arbeitsschwerpunkte",
+    "areas": "Ort / Gebiet",
+    "searchAreaPlaceholder": "Ort oder Gebiet eingeben",
+    "searchAreaHelper": "Mindestens 3 Buchstaben.",
+    "searchAreaButton": "Suchen",
+    "stateLabel": "Vorschläge nach Gebiet",
+    "districtLabel": "Vorschläge nach Ort",
+    "apply": "Filter anwenden",
+    "reset": "Alles zurücksetzen",
     "sortBy": {
-      "nameAsc": "Name (A-Z)",
-      "nameDesc": "Name (Z-A)",
-      "newest": "Neueste zuerst"
+      "name-asc": "Name (A-Z)",
+      "name-desc": "Name (Z-A)",
+      "createdAt-desc": "Neueste zuerst"
     }
   },
-  "empty": "Für Deine Filterkriterien konnten leider keine Profile gefunden werden.",
+  "organizationsCountSuffix": "Organisationen",
+  "empty": "Es konnten leider keine Organisationen gefunden werden.",
+  "notShown": "Organisationen können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
   "more": "Weitere laden"
 }
