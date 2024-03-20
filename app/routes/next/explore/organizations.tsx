@@ -69,7 +69,17 @@ const getOrganizationsSchema = z.object({
       focus: z.array(z.string()),
       area: z.array(z.string()),
     })
-    .optional(),
+    .optional()
+    .transform((filter) => {
+      if (filter === undefined) {
+        return {
+          type: [],
+          focus: [],
+          area: [],
+        };
+      }
+      return filter;
+    }),
   sortBy: z
     .enum(sortValues)
     .optional()
@@ -81,10 +91,29 @@ const getOrganizationsSchema = z.object({
           direction: splittedValue[1],
         };
       }
-      return sortValue;
+      return {
+        value: sortValues[0].split("-")[0],
+        direction: sortValues[0].split("-")[1],
+      };
     }),
-  page: z.number().optional(),
-  search: z.string().optional(),
+  page: z
+    .number()
+    .optional()
+    .transform((page) => {
+      if (page === undefined) {
+        return 1;
+      }
+      return page;
+    }),
+  search: z
+    .string()
+    .optional()
+    .transform((searchQuery) => {
+      if (searchQuery === undefined) {
+        return "";
+      }
+      return searchQuery;
+    }),
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -111,7 +140,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const isLoggedIn = sessionUser !== null;
 
   let filteredByVisibilityCount;
-  if (!isLoggedIn && submission.value.filter !== undefined) {
+  if (!isLoggedIn) {
     filteredByVisibilityCount = await getVisibilityFilteredOrganizationsCount({
       filter: submission.value.filter,
     });
@@ -238,28 +267,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
-  let selectedAreas: Array<{
-    slug: string;
-    name: string | null;
-    vectorCount: number;
-    isInSearchResultsList: boolean;
-  }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedAreas = await Promise.all(
-      submission.value.filter.area.map(async (slug) => {
-        const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
-        const isInSearchResultsList = areas.some((area) => {
-          return area.slug === slug;
-        });
-        return {
-          slug,
-          name: (await getAreaNameBySlug(slug)) || null,
-          vectorCount,
-          isInSearchResultsList,
-        };
-      })
-    );
-  }
+  const selectedAreas = await Promise.all(
+    submission.value.filter.area.map(async (slug) => {
+      const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
+      const isInSearchResultsList = areas.some((area) => {
+        return area.slug === slug;
+      });
+      return {
+        slug,
+        name: (await getAreaNameBySlug(slug)) || null,
+        vectorCount,
+        isInSearchResultsList,
+      };
+    })
+  );
 
   const types = await getAllOrganizationTypes();
   const enhancedTypes = types.map((type) => {
@@ -273,18 +294,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
     return { ...type, vectorCount, isChecked };
   });
-  let selectedTypes: Array<{ slug: string; title: string | null }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedTypes = submission.value.filter.type.map((slug) => {
-      const typeMatch = types.find((type) => {
-        return type.slug === slug;
-      });
-      return {
-        slug,
-        title: typeMatch?.title || null,
-      };
+  const selectedTypes = submission.value.filter.type.map((slug) => {
+    const typeMatch = types.find((type) => {
+      return type.slug === slug;
     });
-  }
+    return {
+      slug,
+      title: typeMatch?.title || null,
+    };
+  });
 
   const focuses = await getAllFocuses();
   const enhancedFocuses = focuses.map((focus) => {
@@ -302,37 +320,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
     return { ...focus, vectorCount, isChecked };
   });
-  let selectedFocuses: Array<{ slug: string; title: string | null }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedFocuses = submission.value.filter.focus.map((slug) => {
-      const focusMatch = focuses.find((focus) => {
-        return focus.slug === slug;
-      });
-      return {
-        slug,
-        title: focusMatch?.title || null,
-      };
+  const selectedFocuses = submission.value.filter.focus.map((slug) => {
+    const focusMatch = focuses.find((focus) => {
+      return focus.slug === slug;
     });
-  }
-
-  let transformedSubmission;
-  if (submission.value.sortBy !== undefined) {
-    transformedSubmission = {
-      ...submission,
-      value: {
-        ...submission.value,
-        sortBy: `${submission.value.sortBy.value}-${submission.value.sortBy.direction}`,
-      },
+    return {
+      slug,
+      title: focusMatch?.title || null,
     };
-  } else {
-    transformedSubmission = {
-      ...submission,
-      value: {
-        ...submission.value,
-        sortBy: sortValues[0],
-      },
-    };
-  }
+  });
 
   return json({
     isLoggedIn,
@@ -343,7 +339,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     selectedFocuses,
     types: enhancedTypes,
     selectedTypes,
-    submission: transformedSubmission,
+    submission,
     filteredByVisibilityCount,
     organizationsCount,
   });
@@ -358,10 +354,6 @@ export default function ExploreOrganizations() {
   const debounceSubmit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
-  const page = searchParams.get("page") || "1";
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${parseInt(page) + 1}`);
-
   const [form, fields] = useForm<GetOrganizationsSchema>({
     lastResult: loaderData.submission,
     defaultValue: loaderData.submission.value,
@@ -369,8 +361,11 @@ export default function ExploreOrganizations() {
 
   const filter = fields.filter.getFieldset();
 
+  const loadMoreSearchParams = new URLSearchParams(searchParams);
+  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+
   const [searchQuery, setSearchQuery] = React.useState(
-    loaderData.submission.value.search || ""
+    loaderData.submission.value.search
   );
 
   return (
@@ -600,6 +595,7 @@ export default function ExploreOrganizations() {
             </fieldset>
             <fieldset {...getFieldsetProps(fields.sortBy)}>
               {sortValues.map((sortValue) => {
+                const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
                 return (
                   <div key={sortValue}>
                     <label htmlFor={fields.sortBy.id} className="mr-2">
@@ -610,9 +606,7 @@ export default function ExploreOrganizations() {
                         type: "radio",
                         value: sortValue,
                       })}
-                      defaultChecked={
-                        loaderData.submission.value.sortBy === sortValue
-                      }
+                      defaultChecked={submissionSortValue === sortValue}
                       disabled={navigation.state === "loading"}
                     />
                   </div>

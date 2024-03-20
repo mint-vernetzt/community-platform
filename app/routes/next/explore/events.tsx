@@ -120,11 +120,11 @@ const getEventsSchema = z.object({
   page: z
     .number()
     .optional()
-    .transform((value) => {
-      if (value === undefined) {
+    .transform((page) => {
+      if (page === undefined) {
         return 1;
       }
-      return value;
+      return page;
     }),
   search: z
     .string()

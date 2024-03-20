@@ -4,14 +4,14 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import { type GetProfilesSchema } from "./profiles";
 
-export function getTakeParam(page: GetProfilesSchema["page"] = 1) {
+export function getTakeParam(page: GetProfilesSchema["page"]) {
   const itemsPerPage = 12;
   const take = itemsPerPage * page;
   return take;
 }
 
 export async function getVisibilityFilteredProfilesCount(options: {
-  filter: NonNullable<GetProfilesSchema["filter"]>;
+  filter: GetProfilesSchema["filter"];
 }) {
   const whereClauses = [];
   const visibilityWhereClauses = [];
@@ -52,21 +52,19 @@ export async function getProfilesCount(options: {
   filter: GetProfilesSchema["filter"];
 }) {
   const whereClauses = [];
-  if (options.filter !== undefined) {
-    for (const filterKey in options.filter) {
-      const typedFilterKey = filterKey as keyof typeof options.filter;
-      for (const slug of options.filter[typedFilterKey]) {
-        const filterWhereStatement = {
-          [`${typedFilterKey}s`]: {
-            some: {
-              [typedFilterKey]: {
-                slug,
-              },
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    for (const slug of options.filter[typedFilterKey]) {
+      const filterWhereStatement = {
+        [`${typedFilterKey}s`]: {
+          some: {
+            [typedFilterKey]: {
+              slug,
             },
           },
-        };
-        whereClauses.push(filterWhereStatement);
-      }
+        },
+      };
+      whereClauses.push(filterWhereStatement);
     }
   }
 
@@ -86,29 +84,27 @@ export async function getAllProfiles(options: {
   isLoggedIn: boolean;
 }) {
   const whereClauses = [];
-  if (options.filter !== undefined) {
-    for (const filterKey in options.filter) {
-      const typedFilterKey = filterKey as keyof typeof options.filter;
-      if (options.isLoggedIn === false) {
-        const visibilityWhereStatement = {
-          profileVisibility: {
-            [`${typedFilterKey}s`]: true,
-          },
-        };
-        whereClauses.push(visibilityWhereStatement);
-      }
-      for (const slug of options.filter[typedFilterKey]) {
-        const filterWhereStatement = {
-          [`${typedFilterKey}s`]: {
-            some: {
-              [typedFilterKey]: {
-                slug,
-              },
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    if (options.isLoggedIn === false) {
+      const visibilityWhereStatement = {
+        profileVisibility: {
+          [`${typedFilterKey}s`]: true,
+        },
+      };
+      whereClauses.push(visibilityWhereStatement);
+    }
+    for (const slug of options.filter[typedFilterKey]) {
+      const filterWhereStatement = {
+        [`${typedFilterKey}s`]: {
+          some: {
+            [typedFilterKey]: {
+              slug,
             },
           },
-        };
-        whereClauses.push(filterWhereStatement);
-      }
+        },
+      };
+      whereClauses.push(filterWhereStatement);
     }
   }
 
@@ -179,14 +175,9 @@ export async function getAllProfiles(options: {
     where: {
       AND: whereClauses,
     },
-    orderBy:
-      options.sortBy !== undefined
-        ? {
-            [options.sortBy.value]: options.sortBy.direction,
-          }
-        : {
-            firstName: "asc",
-          },
+    orderBy: {
+      [options.sortBy.value]: options.sortBy.direction,
+    },
     take: options.take,
   });
 
@@ -198,11 +189,10 @@ export async function getProfileFilterVector(options: {
 }) {
   let whereClause = "";
   const whereStatements = [];
-  if (options.filter !== undefined) {
-    for (const filterKey in options.filter) {
-      const typedFilterKey = filterKey as keyof typeof options.filter;
-      // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-      /* Example:
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
+    /* Example:
       const test = await prismaClient.offer.findMany({
         select: {
           slug: true,
@@ -224,36 +214,35 @@ export async function getProfileFilterVector(options: {
         },
       });
        */
-      // Further reading:
-      // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
-      // https://github.com/prisma/prisma/issues/2505
+    // Further reading:
+    // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
+    // https://github.com/prisma/prisma/issues/2505
 
-      // I worked arround with an assertion. But if any table except areas remove their slug, this will break and typescript will not warn us.
-      const fakeTypedFilterKey = filterKey as "area";
-      let allFilterValues;
-      try {
-        allFilterValues = await prismaClient[fakeTypedFilterKey].findMany({
-          select: {
-            slug: true,
-          },
-        });
-      } catch (error: any) {
-        throw json({ message: "Server error" }, { status: 500 });
-      }
+    // I worked arround with an assertion. But if any table except areas remove their slug, this will break and typescript will not warn us.
+    const fakeTypedFilterKey = filterKey as "area";
+    let allFilterValues;
+    try {
+      allFilterValues = await prismaClient[fakeTypedFilterKey].findMany({
+        select: {
+          slug: true,
+        },
+      });
+    } catch (error: any) {
+      throw json({ message: "Server error" }, { status: 500 });
+    }
 
-      for (const slug of options.filter[typedFilterKey]) {
-        // Validate slug because of queryRawUnsafe
-        invariantResponse(
-          allFilterValues.some((value) => {
-            return value.slug === slug;
-          }),
-          "Cannot filter by the specified slug.",
-          { status: 400 }
-        );
-        const tuple = `${typedFilterKey}\\:${slug}`;
-        const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-        whereStatements.push(whereStatement);
-      }
+    for (const slug of options.filter[typedFilterKey]) {
+      // Validate slug because of queryRawUnsafe
+      invariantResponse(
+        allFilterValues.some((value) => {
+          return value.slug === slug;
+        }),
+        "Cannot filter by the specified slug.",
+        { status: 400 }
+      );
+      const tuple = `${typedFilterKey}\\:${slug}`;
+      const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
+      whereStatements.push(whereStatement);
     }
   }
 
@@ -262,7 +251,7 @@ export async function getProfileFilterVector(options: {
   }
 
   const filterVector: {
-    attr: keyof NonNullable<typeof options.filter>;
+    attr: keyof typeof options.filter;
     value: string[];
     count: number[];
   }[] = await prismaClient.$queryRawUnsafe(`

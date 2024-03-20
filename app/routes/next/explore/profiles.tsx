@@ -73,7 +73,16 @@ const getProfilesSchema = z.object({
       offer: z.array(z.string()),
       area: z.array(z.string()),
     })
-    .optional(),
+    .optional()
+    .transform((filter) => {
+      if (filter === undefined) {
+        return {
+          offer: [],
+          area: [],
+        };
+      }
+      return filter;
+    }),
   sortBy: z
     .enum(sortValues)
     .optional()
@@ -85,10 +94,29 @@ const getProfilesSchema = z.object({
           direction: splittedValue[1],
         };
       }
-      return sortValue;
+      return {
+        value: sortValues[0].split("-")[0],
+        direction: sortValues[0].split("-")[1],
+      };
     }),
-  page: z.number().optional(),
-  search: z.string().optional(),
+  page: z
+    .number()
+    .optional()
+    .transform((page) => {
+      if (page === undefined) {
+        return 1;
+      }
+      return page;
+    }),
+  search: z
+    .string()
+    .optional()
+    .transform((searchQuery) => {
+      if (searchQuery === undefined) {
+        return "";
+      }
+      return searchQuery;
+    }),
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -113,7 +141,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const isLoggedIn = sessionUser !== null;
 
   let filteredByVisibilityCount;
-  if (!isLoggedIn && submission.value.filter !== undefined) {
+  if (!isLoggedIn) {
     filteredByVisibilityCount = await getVisibilityFilteredProfilesCount({
       filter: submission.value.filter,
     });
@@ -226,28 +254,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
-  let selectedAreas: Array<{
-    slug: string;
-    name: string | null;
-    vectorCount: number;
-    isInSearchResultsList: boolean;
-  }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedAreas = await Promise.all(
-      submission.value.filter.area.map(async (slug) => {
-        const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
-        const isInSearchResultsList = areas.some((area) => {
-          return area.slug === slug;
-        });
-        return {
-          slug,
-          name: (await getAreaNameBySlug(slug)) || null,
-          vectorCount,
-          isInSearchResultsList,
-        };
-      })
-    );
-  }
+  const selectedAreas = await Promise.all(
+    submission.value.filter.area.map(async (slug) => {
+      const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
+      const isInSearchResultsList = areas.some((area) => {
+        return area.slug === slug;
+      });
+      return {
+        slug,
+        name: (await getAreaNameBySlug(slug)) || null,
+        vectorCount,
+        isInSearchResultsList,
+      };
+    })
+  );
 
   const offers = await getAllOffers();
   const enhancedOffers = offers.map((offer) => {
@@ -265,37 +285,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
     return { ...offer, vectorCount, isChecked };
   });
-  let selectedOffers: Array<{ slug: string; title: string | null }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedOffers = submission.value.filter.offer.map((slug) => {
-      const offerMatch = offers.find((offer) => {
-        return offer.slug === slug;
-      });
-      return {
-        slug,
-        title: offerMatch?.title || null,
-      };
+  const selectedOffers = submission.value.filter.offer.map((slug) => {
+    const offerMatch = offers.find((offer) => {
+      return offer.slug === slug;
     });
-  }
-
-  let transformedSubmission;
-  if (submission.value.sortBy !== undefined) {
-    transformedSubmission = {
-      ...submission,
-      value: {
-        ...submission.value,
-        sortBy: `${submission.value.sortBy.value}-${submission.value.sortBy.direction}`,
-      },
+    return {
+      slug,
+      title: offerMatch?.title || null,
     };
-  } else {
-    transformedSubmission = {
-      ...submission,
-      value: {
-        ...submission.value,
-        sortBy: sortValues[0],
-      },
-    };
-  }
+  });
 
   return json({
     isLoggedIn,
@@ -304,7 +302,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     selectedAreas,
     offers: enhancedOffers,
     selectedOffers,
-    submission: transformedSubmission,
+    submission,
     filteredByVisibilityCount,
     profilesCount,
   });
@@ -319,10 +317,6 @@ export default function ExploreProfiles() {
   const debounceSubmit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
-  const page = searchParams.get("page") || "1";
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${parseInt(page) + 1}`);
-
   const [form, fields] = useForm<GetProfilesSchema>({
     lastResult: loaderData.submission,
     defaultValue: loaderData.submission.value,
@@ -330,8 +324,11 @@ export default function ExploreProfiles() {
 
   const filter = fields.filter.getFieldset();
 
+  const loadMoreSearchParams = new URLSearchParams(searchParams);
+  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+
   const [searchQuery, setSearchQuery] = React.useState(
-    loaderData.submission.value.search || ""
+    loaderData.submission.value.search
   );
 
   return (
@@ -533,6 +530,7 @@ export default function ExploreProfiles() {
             </fieldset>
             <fieldset {...getFieldsetProps(fields.sortBy)}>
               {sortValues.map((sortValue) => {
+                const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
                 return (
                   <div key={sortValue}>
                     <label htmlFor={fields.sortBy.id} className="mr-2">
@@ -543,9 +541,7 @@ export default function ExploreProfiles() {
                         type: "radio",
                         value: sortValue,
                       })}
-                      defaultChecked={
-                        loaderData.submission.value.sortBy === sortValue
-                      }
+                      defaultChecked={submissionSortValue === sortValue}
                       disabled={navigation.state === "loading"}
                     />
                   </div>

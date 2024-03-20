@@ -13,7 +13,7 @@ export function getTakeParam(page: GetEventsSchema["page"]) {
 
 // TODO: Make this function return eiter prisma or raw sql
 function getWhereStatementFromPeriodOfTime(
-  periodOfTime: NonNullable<GetEventsSchema["filter"]>["periodOfTime"]
+  periodOfTime: GetEventsSchema["filter"]["periodOfTime"]
 ) {
   const now = new Date();
   if (periodOfTime === "past") {
@@ -81,7 +81,7 @@ function getWhereStatementFromPeriodOfTime(
 }
 
 export async function getVisibilityFilteredEventsCount(options: {
-  filter: NonNullable<GetEventsSchema["filter"]>;
+  filter: GetEventsSchema["filter"];
 }) {
   const whereClauses = [];
   const visibilityWhereClauses = [];
@@ -463,7 +463,7 @@ export async function getEventFilterVector(options: {
   }
 
   const filterVector: {
-    attr: keyof NonNullable<typeof options.filter>;
+    attr: keyof typeof options.filter;
     value: string[];
     count: number[];
   }[] = await prismaClient.$queryRawUnsafe(`
