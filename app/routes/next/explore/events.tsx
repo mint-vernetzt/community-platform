@@ -154,7 +154,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const abilities = await getFeatureAbilities(authClient, ["filter"]);
   if (abilities.filter.hasAccess === false) {
-    return redirect("/explore/organizations");
+    return redirect("/explore/events");
   }
 
   const sessionUser = await getSessionUser(authClient);
