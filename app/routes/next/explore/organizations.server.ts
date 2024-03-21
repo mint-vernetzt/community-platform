@@ -321,6 +321,7 @@ export async function getAllOrganizationTypes() {
     select: {
       id: true,
       title: true,
+      description: true,
       slug: true,
     },
   });
@@ -334,6 +335,7 @@ export async function getAllFocuses() {
     select: {
       id: true,
       title: true,
+      description: true,
       slug: true,
     },
   });

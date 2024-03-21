@@ -519,6 +519,7 @@ export async function getAllEventTypes() {
     select: {
       id: true,
       title: true,
+      description: true,
       slug: true,
     },
   });
@@ -532,6 +533,7 @@ export async function getAllFocuses() {
     select: {
       id: true,
       title: true,
+      description: true,
       slug: true,
     },
   });
@@ -545,6 +547,7 @@ export async function getAllEventTargetGroups() {
     select: {
       id: true,
       title: true,
+      description: true,
       slug: true,
     },
   });

@@ -375,6 +375,9 @@ export default function ExploreProfiles() {
                             navigation.state === "loading"
                           }
                         />
+                        {offer.description !== null ? (
+                          <p className="mv-text-sm">{offer.description}</p>
+                        ) : null}
                       </li>
                     );
                   })}

@@ -412,6 +412,9 @@ export default function ExploreOrganizations() {
                             navigation.state === "loading"
                           }
                         />
+                        {type.description !== null ? (
+                          <p className="mv-text-sm">{type.description}</p>
+                        ) : null}
                       </li>
                     );
                   })}
@@ -440,6 +443,9 @@ export default function ExploreOrganizations() {
                             navigation.state === "loading"
                           }
                         />
+                        {focus.description !== null ? (
+                          <p className="mv-text-sm">{focus.description}</p>
+                        ) : null}
                       </li>
                     );
                   })}
