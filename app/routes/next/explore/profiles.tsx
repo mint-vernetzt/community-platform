@@ -164,13 +164,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
     if (!isLoggedIn) {
       // Filter profile
+      type EnhancedProfile = typeof enhancedProfile;
       enhancedProfile =
-        filterProfileByVisibility<typeof enhancedProfile>(enhancedProfile);
+        filterProfileByVisibility<EnhancedProfile>(enhancedProfile);
       // Filter organizations where profile belongs to
       enhancedProfile.memberOf = enhancedProfile.memberOf.map((relation) => {
-        const filteredOrganization = filterOrganizationByVisibility<
-          typeof relation.organization
-        >(relation.organization);
+        type OrganizationRelation = typeof relation.organization;
+        const filteredOrganization =
+          filterOrganizationByVisibility<OrganizationRelation>(
+            relation.organization
+          );
         return { ...relation, organization: { ...filteredOrganization } };
       });
     }
@@ -241,8 +244,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
     let isChecked;
-    // TODO: Remove '|| area.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || area.slug === null) {
+    // TODO: Remove 'area.slug === null' when slug isn't optional anymore (after migration)
+    if (area.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.area.includes(area.slug);
@@ -277,8 +280,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "offer"
     );
     let isChecked;
-    // TODO: Remove '|| offer.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || offer.slug === null) {
+    // TODO: Remove 'offer.slug === null' when slug isn't optional anymore (after migration)
+    if (offer.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.offer.includes(offer.slug);

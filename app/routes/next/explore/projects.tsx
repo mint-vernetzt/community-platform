@@ -1,29 +1,41 @@
-import { Button, CardContainer, ProjectCard } from "@mint-vernetzt/components";
+import { parseWithZod } from "@conform-to/zod-v1";
+import { Button, CardContainer } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
-  useFetcher,
   useLoaderData,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { GravityType, getImageURL } from "~/images.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import {
+  getAllDisciplines,
+  getAllFinancings,
+  getAllFormats,
+  getAllProjectTargetGroups,
   getAllProjects,
-  getPaginationValues,
-  getSortValue,
-} from "./utils.server";
-import { useTranslation } from "react-i18next";
-import { getFeatureAbilities } from "~/lib/utils/application";
+  getAllSpecialTargetGroups,
+  getFilterCountForSlug,
+  getProjectFilterVector,
+  getProjectsCount,
+  getTakeParam,
+  getVisibilityFilteredProjectsCount,
+} from "./projects.server";
+import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { ArrayElement } from "~/lib/utils/types";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -33,6 +45,835 @@ export const handle = {
   i18n: i18nNS,
 };
 
+const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
+
+export type GetProjectsSchema = z.infer<typeof getProjectsSchema>;
+
+const getProjectsSchema = z.object({
+  filter: z
+    .object({
+      discipline: z.array(z.string()),
+      projectTargetGroup: z.array(z.string()),
+      area: z.array(z.string()),
+      format: z.array(z.string()),
+      specialTargetGroup: z.array(z.string()),
+      financing: z.array(z.string()),
+    })
+    .optional()
+    .transform((filter) => {
+      if (filter === undefined) {
+        return {
+          discipline: [],
+          projectTargetGroup: [],
+          area: [],
+          format: [],
+          specialTargetGroup: [],
+          financing: [],
+        };
+      }
+      return filter;
+    }),
+  sortBy: z
+    .enum(sortValues)
+    .optional()
+    .transform((sortValue) => {
+      if (sortValue !== undefined) {
+        const splittedValue = sortValue.split("-");
+        return {
+          value: splittedValue[0],
+          direction: splittedValue[1],
+        };
+      }
+      return {
+        value: sortValues[0].split("-")[0],
+        direction: sortValues[0].split("-")[1],
+      };
+    }),
+  page: z
+    .number()
+    .optional()
+    .transform((page) => {
+      if (page === undefined) {
+        return 1;
+      }
+      return page;
+    }),
+  search: z
+    .string()
+    .optional()
+    .transform((searchQuery) => {
+      if (searchQuery === undefined) {
+        return "";
+      }
+      return searchQuery;
+    }),
+});
+
+export const loader = async (args: LoaderFunctionArgs) => {
+  const { request } = args;
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const submission = parseWithZod(searchParams, {
+    schema: getProjectsSchema,
+  });
+  invariantResponse(
+    submission.status === "success",
+    "Validation failed for get request",
+    { status: 400 }
+  );
+  const take = getTakeParam(submission.value.page);
+  const { authClient } = createAuthClient(request);
+
+  const abilities = await getFeatureAbilities(authClient, ["filter"]);
+  if (abilities.filter.hasAccess === false) {
+    return redirect("/explore/projects");
+  }
+
+  const sessionUser = await getSessionUser(authClient);
+  const isLoggedIn = sessionUser !== null;
+
+  let filteredByVisibilityCount;
+  if (!isLoggedIn) {
+    filteredByVisibilityCount = await getVisibilityFilteredProjectsCount({
+      filter: submission.value.filter,
+    });
+  }
+  const projectsCount = await getProjectsCount({
+    filter: submission.value.filter,
+  });
+  const projects = await getAllProjects({
+    filter: submission.value.filter,
+    sortBy: submission.value.sortBy,
+    take,
+    isLoggedIn,
+  });
+
+  const enhancedProjects = [];
+  for (const project of projects) {
+    let enhancedProject = {
+      ...project,
+    };
+
+    if (!isLoggedIn) {
+      // Filter project
+      type EnhancedProject = typeof enhancedProject;
+      enhancedProject =
+        filterProjectByVisibility<EnhancedProject>(enhancedProject);
+      // Filter responsible organizations of project
+      enhancedProject.responsibleOrganizations =
+        enhancedProject.responsibleOrganizations.map((relation) => {
+          type OrganizationRelation = typeof relation.organization;
+          const filteredOrganization =
+            filterOrganizationByVisibility<OrganizationRelation>(
+              relation.organization
+            );
+
+          return { ...relation, organization: filteredOrganization };
+        });
+    }
+
+    // Add images from image proxy
+    if (enhancedProject.background !== null) {
+      const publicURL = getPublicURL(authClient, enhancedProject.background);
+      if (publicURL) {
+        enhancedProject.background = getImageURL(publicURL, {
+          resize: { type: "fit", width: 400, height: 280 },
+        });
+      }
+    }
+
+    if (enhancedProject.logo !== null) {
+      const publicURL = getPublicURL(authClient, enhancedProject.logo);
+      if (publicURL) {
+        enhancedProject.logo = getImageURL(publicURL, {
+          resize: { type: "fit", width: 144, height: 144 },
+        });
+      }
+    }
+
+    enhancedProject.awards = enhancedProject.awards.map((relation) => {
+      let logo = relation.award.logo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: { type: "fit", width: 64, height: 64 },
+            gravity: GravityType.center,
+          });
+        }
+      }
+      return { ...relation, award: { ...relation.award, logo } };
+    });
+
+    enhancedProject.responsibleOrganizations =
+      enhancedProject.responsibleOrganizations.map((relation) => {
+        let logo = relation.organization.logo;
+        if (logo !== null) {
+          const publicURL = getPublicURL(authClient, logo);
+          if (publicURL) {
+            logo = getImageURL(publicURL, {
+              resize: { type: "fill", width: 64, height: 64 },
+              gravity: GravityType.center,
+            });
+          }
+        }
+        return {
+          ...relation,
+          organization: { ...relation.organization, logo },
+        };
+      });
+
+    // const transformedProject = {
+    //   ...enhancedProject,
+    //   teamMembers: enhancedProject.teamMembers.map((relation) => {
+    //     return relation.profile;
+    //   }),
+    //   types: enhancedProject.types.map((relation) => {
+    //     return relation.organizationType.title;
+    //   }),
+    //   focuses: enhancedProject.focuses.map((relation) => {
+    //     return relation.focus.title;
+    //   }),
+    //   areas: enhancedProject.areas.map((relation) => {
+    //     return relation.area.name;
+    //   }),
+    // };
+
+    enhancedProjects.push(enhancedProject);
+  }
+
+  const filterVector = await getProjectFilterVector({
+    filter: submission.value.filter,
+  });
+
+  const areas = await getAreasBySearchQuery(submission.value.search);
+  type EnhancedAreas = Array<
+    ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
+      vectorCount: ReturnType<typeof getFilterCountForSlug>;
+      isChecked: boolean;
+    }
+  >;
+  const enhancedAreas = {
+    global: [] as EnhancedAreas,
+    country: [] as EnhancedAreas,
+    state: [] as EnhancedAreas,
+    district: [] as EnhancedAreas,
+  };
+  for (const area of areas) {
+    const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
+    let isChecked;
+    // TODO: Remove 'area.slug === null' when slug isn't optional anymore (after migration)
+    if (area.slug === null) {
+      isChecked = false;
+    } else {
+      isChecked = submission.value.filter.area.includes(area.slug);
+    }
+    const enhancedArea = {
+      ...area,
+      vectorCount,
+      isChecked,
+    };
+    enhancedAreas[area.type].push(enhancedArea);
+  }
+  const selectedAreas = await Promise.all(
+    submission.value.filter.area.map(async (slug) => {
+      const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
+      const isInSearchResultsList = areas.some((area) => {
+        return area.slug === slug;
+      });
+      return {
+        slug,
+        name: (await getAreaNameBySlug(slug)) || null,
+        vectorCount,
+        isInSearchResultsList,
+      };
+    })
+  );
+
+  const disciplines = await getAllDisciplines();
+  const enhancedDisciplines = disciplines.map((discipline) => {
+    const vectorCount = getFilterCountForSlug(
+      discipline.slug,
+      filterVector,
+      "discipline"
+    );
+    let isChecked;
+    // TODO: Remove 'discipline.slug === null' when slug isn't optional anymore (after migration)
+    if (discipline.slug === null) {
+      isChecked = false;
+    } else {
+      isChecked = submission.value.filter.discipline.includes(discipline.slug);
+    }
+    return { ...discipline, vectorCount, isChecked };
+  });
+  const selectedDisciplines = submission.value.filter.discipline.map((slug) => {
+    const disciplineMatch = disciplines.find((discipline) => {
+      return discipline.slug === slug;
+    });
+    return {
+      slug,
+      title: disciplineMatch?.title || null,
+    };
+  });
+
+  const targetGroups = await getAllProjectTargetGroups();
+  const enhancedTargetGroups = targetGroups.map((targetGroup) => {
+    const vectorCount = getFilterCountForSlug(
+      targetGroup.slug,
+      filterVector,
+      "projectTargetGroup"
+    );
+    let isChecked;
+    // TODO: Remove 'targetGroup.slug === null' when slug isn't optional anymore (after migration)
+    if (targetGroup.slug === null) {
+      isChecked = false;
+    } else {
+      isChecked = submission.value.filter.projectTargetGroup.includes(
+        targetGroup.slug
+      );
+    }
+    return { ...targetGroup, vectorCount, isChecked };
+  });
+  const selectedTargetGroups = submission.value.filter.projectTargetGroup.map(
+    (slug) => {
+      const targetGroupMatch = targetGroups.find((targetGroup) => {
+        return targetGroup.slug === slug;
+      });
+      return {
+        slug,
+        title: targetGroupMatch?.title || null,
+      };
+    }
+  );
+
+  const formats = await getAllFormats();
+  const enhancedFormats = formats.map((format) => {
+    const vectorCount = getFilterCountForSlug(
+      format.slug,
+      filterVector,
+      "format"
+    );
+    let isChecked;
+    // TODO: Remove 'format.slug === null' when slug isn't optional anymore (after migration)
+    if (format.slug === null) {
+      isChecked = false;
+    } else {
+      isChecked = submission.value.filter.format.includes(format.slug);
+    }
+    return { ...format, vectorCount, isChecked };
+  });
+  const selectedFormats = submission.value.filter.format.map((slug) => {
+    const formatMatch = formats.find((format) => {
+      return format.slug === slug;
+    });
+    return {
+      slug,
+      title: formatMatch?.title || null,
+    };
+  });
+
+  const specialTargetGroups = await getAllSpecialTargetGroups();
+  const enhancedSpecialTargetGroups = specialTargetGroups.map(
+    (specialTargetGroup) => {
+      const vectorCount = getFilterCountForSlug(
+        specialTargetGroup.slug,
+        filterVector,
+        "specialTargetGroup"
+      );
+      let isChecked;
+      // TODO: Remove 'specialTargetGroup.slug === null' when slug isn't optional anymore (after migration)
+      if (specialTargetGroup.slug === null) {
+        isChecked = false;
+      } else {
+        isChecked = submission.value.filter.specialTargetGroup.includes(
+          specialTargetGroup.slug
+        );
+      }
+      return { ...specialTargetGroup, vectorCount, isChecked };
+    }
+  );
+  const selectedSpecialTargetGroups =
+    submission.value.filter.specialTargetGroup.map((slug) => {
+      const specialTargetGroupMatch = specialTargetGroups.find(
+        (specialTargetGroup) => {
+          return specialTargetGroup.slug === slug;
+        }
+      );
+      return {
+        slug,
+        title: specialTargetGroupMatch?.title || null,
+      };
+    });
+
+  const financings = await getAllFinancings();
+  const enhancedFinancings = financings.map((financing) => {
+    const vectorCount = getFilterCountForSlug(
+      financing.slug,
+      filterVector,
+      "financing"
+    );
+    let isChecked;
+    // TODO: Remove 'financing.slug === null' when slug isn't optional anymore (after migration)
+    if (financing.slug === null) {
+      isChecked = false;
+    } else {
+      isChecked = submission.value.filter.financing.includes(financing.slug);
+    }
+    return { ...financing, vectorCount, isChecked };
+  });
+  const selectedFinancings = submission.value.filter.financing.map((slug) => {
+    const financingMatch = financings.find((financing) => {
+      return financing.slug === slug;
+    });
+    return {
+      slug,
+      title: financingMatch?.title || null,
+    };
+  });
+
+  return json({
+    isLoggedIn,
+    projects: enhancedProjects,
+    disciplines: enhancedDisciplines,
+    selectedDisciplines,
+    targetGroups: enhancedTargetGroups,
+    selectedTargetGroups,
+    areas: enhancedAreas,
+    selectedAreas,
+    formats: enhancedFormats,
+    selectedFormats,
+    specialTargetGroups: enhancedSpecialTargetGroups,
+    selectedSpecialTargetGroups,
+    financings: enhancedFinancings,
+    selectedFinancings,
+    submission,
+    filteredByVisibilityCount,
+    projectsCount,
+  });
+};
+
+export default function ExploreOrganizations() {
+  const loaderData = useLoaderData<typeof loader>();
+  const [searchParams] = useSearchParams();
+  const navigation = useNavigation();
+  const location = useLocation();
+  const submit = useSubmit();
+  const debounceSubmit = useDebounceSubmit();
+  const { t } = useTranslation(i18nNS);
+
+  const [form, fields] = useForm<GetOrganizationsSchema>({
+    lastResult: loaderData.submission,
+    defaultValue: loaderData.submission.value,
+  });
+
+  const filter = fields.filter.getFieldset();
+
+  const loadMoreSearchParams = new URLSearchParams(searchParams);
+  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+
+  const [searchQuery, setSearchQuery] = React.useState(
+    loaderData.submission.value.search
+  );
+
+  return (
+    <>
+      <section className="mv-container mv-mb-12 mv-mt-5 md:mv-mt-7 lg:mv-mt-8 mv-text-center">
+        <H1 className="mv-mb-4 md:mv-mb-2 lg:mv-mb-3" like="h0">
+          {t("title")}
+        </H1>
+        <p>{t("intro")}</p>
+      </section>
+
+      <section className="mv-container mv-mb-12">
+        <Form
+          {...getFormProps(form)}
+          method="get"
+          onChange={(event) => {
+            submit(event.currentTarget, { preventScrollReset: true });
+          }}
+          preventScrollReset
+        >
+          <input name="page" defaultValue="1" hidden />
+          <div className="mv-flex mv-mb-8">
+            <fieldset {...getFieldsetProps(fields.filter)} className="mv-flex">
+              <div className="mv-mr-4">
+                <legend className="mv-font-bold mb-2">
+                  {t("filter.types")}
+                </legend>
+                <ul>
+                  {loaderData.types.map((type) => {
+                    return (
+                      <li key={type.slug}>
+                        <label htmlFor={filter.type.id} className="mr-2">
+                          {type.title} ({type.vectorCount})
+                        </label>
+                        <input
+                          {...getInputProps(filter.type, {
+                            type: "checkbox",
+                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                            value: type.slug || undefined,
+                          })}
+                          defaultChecked={type.isChecked}
+                          disabled={
+                            (type.vectorCount === 0 && !type.isChecked) ||
+                            navigation.state === "loading"
+                          }
+                        />
+                        {type.description !== null ? (
+                          <p className="mv-text-sm">{type.description}</p>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+              <div className="mv-mr-4">
+                <legend className="mv-font-bold mb-2">
+                  {t("filter.focuses")}
+                </legend>
+                <ul>
+                  {loaderData.focuses.map((focus) => {
+                    return (
+                      <li key={focus.slug}>
+                        <label htmlFor={filter.focus.id} className="mr-2">
+                          {focus.title} ({focus.vectorCount})
+                        </label>
+                        <input
+                          {...getInputProps(filter.focus, {
+                            type: "checkbox",
+                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                            value: focus.slug || undefined,
+                          })}
+                          defaultChecked={focus.isChecked}
+                          disabled={
+                            (focus.vectorCount === 0 && !focus.isChecked) ||
+                            navigation.state === "loading"
+                          }
+                        />
+                        {focus.description !== null ? (
+                          <p className="mv-text-sm">{focus.description}</p>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+              <div className="mr-4">
+                <legend className="font-bold mb-2">{t("filter.areas")}</legend>
+                {loaderData.areas.global.map((area) => {
+                  return (
+                    <div key={area.slug}>
+                      <label htmlFor={filter.area.id} className="mr-2">
+                        {area.name} ({area.vectorCount})
+                      </label>
+                      <input
+                        {...getInputProps(filter.area, {
+                          type: "checkbox",
+                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                          value: area.slug || undefined,
+                        })}
+                        defaultChecked={area.isChecked}
+                        disabled={
+                          (area.vectorCount === 0 && !area.isChecked) ||
+                          navigation.state === "loading"
+                        }
+                      />
+                    </div>
+                  );
+                })}
+                {loaderData.areas.country.map((area) => {
+                  return (
+                    <div key={area.slug}>
+                      <label htmlFor={filter.area.id} className="mr-2">
+                        {area.name} ({area.vectorCount})
+                      </label>
+                      <input
+                        {...getInputProps(filter.area, {
+                          type: "checkbox",
+                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                          value: area.slug || undefined,
+                        })}
+                        defaultChecked={area.isChecked}
+                        disabled={
+                          (area.vectorCount === 0 && !area.isChecked) ||
+                          navigation.state === "loading"
+                        }
+                      />
+                    </div>
+                  );
+                })}
+                {loaderData.selectedAreas.length > 0 &&
+                  loaderData.selectedAreas.map((selectedArea) => {
+                    return selectedArea.name !== null &&
+                      selectedArea.isInSearchResultsList === false ? (
+                      <div key={selectedArea.slug}>
+                        <label htmlFor={filter.area.id} className="mr-2">
+                          {selectedArea.name} ({selectedArea.vectorCount})
+                        </label>
+                        <input
+                          {...getInputProps(filter.area, {
+                            type: "checkbox",
+                            value: selectedArea.slug,
+                          })}
+                          defaultChecked={true}
+                        />
+                      </div>
+                    ) : null;
+                  })}
+                <Input
+                  id={fields.search.id}
+                  name={fields.search.name}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => {
+                    setSearchQuery(event.currentTarget.value);
+                    event.stopPropagation();
+                    debounceSubmit(event.currentTarget.form, {
+                      debounceTimeout: 250,
+                      preventScrollReset: true,
+                      replace: true,
+                    });
+                  }}
+                  placeholder={t("filter.searchAreaPlaceholder")}
+                >
+                  <Input.Label htmlFor={fields.search.id} hidden>
+                    {t("filter.searchAreaPlaceholder")}
+                  </Input.Label>
+                  <Input.HelperText>
+                    {t("filter.searchAreaHelper")}
+                  </Input.HelperText>
+                  <Input.Controls>
+                    <noscript>
+                      <Button>{t("filter.searchAreaButton")}</Button>
+                    </noscript>
+                  </Input.Controls>
+                </Input>
+                {loaderData.areas.state.length > 0 && (
+                  <>
+                    <legend className="font-bold mt-2">
+                      {t("filter.stateLabel")}
+                    </legend>
+                    {loaderData.areas.state.map((area) => {
+                      return (
+                        <div key={area.slug}>
+                          <label htmlFor={filter.area.id} className="mr-2">
+                            {area.name} ({area.vectorCount})
+                          </label>
+                          <input
+                            {...getInputProps(filter.area, {
+                              type: "checkbox",
+                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                              value: area.slug || undefined,
+                            })}
+                            defaultChecked={area.isChecked}
+                            disabled={
+                              (area.vectorCount === 0 && !area.isChecked) ||
+                              navigation.state === "loading"
+                            }
+                          />
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+                {loaderData.areas.district.length > 0 && (
+                  <>
+                    <legend className="font-bold mt-2">
+                      {t("filter.districtLabel")}
+                    </legend>
+                    {loaderData.areas.district.map((area) => {
+                      return (
+                        <div key={area.slug}>
+                          <label htmlFor={filter.area.id} className="mr-2">
+                            {area.name} ({area.vectorCount})
+                          </label>
+                          <input
+                            {...getInputProps(filter.area, {
+                              type: "checkbox",
+                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                              value: area.slug || undefined,
+                            })}
+                            defaultChecked={area.isChecked}
+                            disabled={
+                              (area.vectorCount === 0 && !area.isChecked) ||
+                              navigation.state === "loading"
+                            }
+                          />
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </div>
+            </fieldset>
+            <fieldset {...getFieldsetProps(fields.sortBy)}>
+              {sortValues.map((sortValue) => {
+                const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                return (
+                  <div key={sortValue}>
+                    <label htmlFor={fields.sortBy.id} className="mr-2">
+                      {t(`filter.sortBy.${sortValue}`)}
+                    </label>
+                    <input
+                      {...getInputProps(fields.sortBy, {
+                        type: "radio",
+                        value: sortValue,
+                      })}
+                      defaultChecked={submissionSortValue === sortValue}
+                      disabled={navigation.state === "loading"}
+                    />
+                  </div>
+                );
+              })}
+            </fieldset>
+          </div>
+          <noscript>
+            <Button>{t("filter.apply")}</Button>
+          </noscript>
+        </Form>
+      </section>
+      <section className="container mb-6">
+        {(loaderData.selectedTypes.length > 0 ||
+          loaderData.selectedFocuses.length > 0 ||
+          loaderData.selectedAreas.length > 0) && (
+          <div className="flex items-center">
+            <Chip.Container>
+              {loaderData.selectedTypes.map((selectedType) => {
+                const deleteSearchParams = new URLSearchParams(searchParams);
+                deleteSearchParams.delete(filter.type.name, selectedType.slug);
+                return selectedType.title !== null ? (
+                  <Chip key={selectedType.slug} responsive>
+                    {selectedType.title}
+                    <Chip.Delete disabled={navigation.state === "loading"}>
+                      <Link
+                        to={`${
+                          location.pathname
+                        }?${deleteSearchParams.toString()}`}
+                        preventScrollReset
+                      >
+                        X
+                      </Link>
+                    </Chip.Delete>
+                  </Chip>
+                ) : null;
+              })}
+              {loaderData.selectedFocuses.map((selectedFocus) => {
+                const deleteSearchParams = new URLSearchParams(searchParams);
+                deleteSearchParams.delete(
+                  filter.focus.name,
+                  selectedFocus.slug
+                );
+                return selectedFocus.title !== null ? (
+                  <Chip key={selectedFocus.slug} responsive>
+                    {selectedFocus.title}
+                    <Chip.Delete disabled={navigation.state === "loading"}>
+                      <Link
+                        to={`${
+                          location.pathname
+                        }?${deleteSearchParams.toString()}`}
+                        preventScrollReset
+                      >
+                        X
+                      </Link>
+                    </Chip.Delete>
+                  </Chip>
+                ) : null;
+              })}
+              {loaderData.selectedAreas.map((selectedArea) => {
+                const deleteSearchParams = new URLSearchParams(searchParams);
+                deleteSearchParams.delete(filter.area.name, selectedArea.slug);
+                return selectedArea.name !== null ? (
+                  <Chip key={selectedArea.slug} responsive>
+                    {selectedArea.name}
+                    <Chip.Delete disabled={navigation.state === "loading"}>
+                      <Link
+                        to={`${
+                          location.pathname
+                        }?${deleteSearchParams.toString()}`}
+                        preventScrollReset
+                      >
+                        X
+                      </Link>
+                    </Chip.Delete>
+                  </Chip>
+                ) : null;
+              })}
+            </Chip.Container>
+            <Link
+              to={`${location.pathname}${
+                loaderData.submission.value.sortBy !== undefined
+                  ? `?sortBy=${loaderData.submission.value.sortBy}`
+                  : ""
+              }`}
+              preventScrollReset
+              className="ml-2"
+            >
+              <Button
+                variant="outline"
+                loading={navigation.state === "loading"}
+                disabled={navigation.state === "loading"}
+              >
+                {t("filter.reset")}
+              </Button>
+            </Link>
+          </div>
+        )}
+      </section>
+
+      <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+        {loaderData.filteredByVisibilityCount !== undefined &&
+        loaderData.filteredByVisibilityCount > 0 ? (
+          <p className="text-center text-gray-700 mb-4">
+            {loaderData.filteredByVisibilityCount} {t("notShown")}
+          </p>
+        ) : loaderData.organizationsCount > 0 ? (
+          <p className="text-center text-gray-700 mb-4">
+            <strong>{loaderData.organizationsCount}</strong>{" "}
+            {t("organizationsCountSuffix")}
+          </p>
+        ) : (
+          <p className="text-center text-gray-700 mb-4">{t("empty")}</p>
+        )}
+        {loaderData.organizations.length > 0 && (
+          <>
+            <CardContainer type="multi row">
+              {loaderData.organizations.map((organization) => {
+                return (
+                  <OrganizationCard
+                    key={`organization-${organization.id}`}
+                    publicAccess={!loaderData.isLoggedIn}
+                    organization={organization}
+                  />
+                );
+              })}
+            </CardContainer>
+            {loaderData.organizationsCount >
+              loaderData.organizations.length && (
+              <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
+                <Link
+                  to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
+                  preventScrollReset
+                  replace
+                >
+                  <Button
+                    size="large"
+                    variant="outline"
+                    loading={navigation.state === "loading"}
+                    disabled={navigation.state === "loading"}
+                  >
+                    {t("more")}
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </>
+        )}
+      </section>
+    </>
+  );
+}
+
+/* OLD
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
     itemsPerPage: 8,
@@ -272,3 +1113,4 @@ function Projects() {
 }
 
 export default Projects;
+*/
