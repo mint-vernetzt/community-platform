@@ -610,7 +610,7 @@ export default function ExploreProfiles() {
             <Link
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy}`
+                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
                   : ""
               }`}
               preventScrollReset

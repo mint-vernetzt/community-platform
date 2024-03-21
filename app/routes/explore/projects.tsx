@@ -213,13 +213,13 @@ function Projects() {
                 className="select w-full select-bordered"
               >
                 <option key="nameAsc" value="nameAsc">
-                  {t("filter.sortBy.nameAsc")}
+                  {t("filter.sortBy.name-asc")}
                 </option>
                 <option key="nameDesc" value="nameDesc">
-                  {t("filter.sortBy.nameDesc")}
+                  {t("filter.sortBy.name-desc")}
                 </option>
                 <option key="newest" value="newest">
-                  {t("filter.sortBy.newest")}
+                  {t("filter.sortBy.createdAt-desc")}
                 </option>
               </select>
             </div>

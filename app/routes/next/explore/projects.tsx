@@ -1,21 +1,38 @@
+import {
+  getFieldsetProps,
+  getFormProps,
+  getInputProps,
+  useForm,
+} from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import { Button, CardContainer } from "@mint-vernetzt/components";
+import {
+  Button,
+  CardContainer,
+  Chip,
+  Input,
+  ProjectCard,
+} from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
+  Link,
   useLoaderData,
+  useLocation,
+  useNavigation,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { GravityType, getImageURL } from "~/images.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
+import { type ArrayElement } from "~/lib/utils/types";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
@@ -35,7 +52,6 @@ import {
   getVisibilityFilteredProjectsCount,
 } from "./projects.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { ArrayElement } from "~/lib/utils/types";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -432,7 +448,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   return json({
-    isLoggedIn,
     projects: enhancedProjects,
     disciplines: enhancedDisciplines,
     selectedDisciplines,
@@ -452,7 +467,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
-export default function ExploreOrganizations() {
+export default function ExploreProjects() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
@@ -461,7 +476,7 @@ export default function ExploreOrganizations() {
   const debounceSubmit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
-  const [form, fields] = useForm<GetOrganizationsSchema>({
+  const [form, fields] = useForm<GetProjectsSchema>({
     lastResult: loaderData.submission,
     defaultValue: loaderData.submission.value,
   });
@@ -498,29 +513,30 @@ export default function ExploreOrganizations() {
             <fieldset {...getFieldsetProps(fields.filter)} className="mv-flex">
               <div className="mv-mr-4">
                 <legend className="mv-font-bold mb-2">
-                  {t("filter.types")}
+                  {t("filter.disciplines")}
                 </legend>
                 <ul>
-                  {loaderData.types.map((type) => {
+                  {loaderData.disciplines.map((discipline) => {
                     return (
-                      <li key={type.slug}>
-                        <label htmlFor={filter.type.id} className="mr-2">
-                          {type.title} ({type.vectorCount})
+                      <li key={discipline.slug}>
+                        <label htmlFor={filter.discipline.id} className="mr-2">
+                          {discipline.title} ({discipline.vectorCount})
                         </label>
                         <input
-                          {...getInputProps(filter.type, {
+                          {...getInputProps(filter.discipline, {
                             type: "checkbox",
                             // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: type.slug || undefined,
+                            value: discipline.slug || undefined,
                           })}
-                          defaultChecked={type.isChecked}
+                          defaultChecked={discipline.isChecked}
                           disabled={
-                            (type.vectorCount === 0 && !type.isChecked) ||
+                            (discipline.vectorCount === 0 &&
+                              !discipline.isChecked) ||
                             navigation.state === "loading"
                           }
                         />
-                        {type.description !== null ? (
-                          <p className="mv-text-sm">{type.description}</p>
+                        {discipline.description !== null ? (
+                          <p className="mv-text-sm">{discipline.description}</p>
                         ) : null}
                       </li>
                     );
@@ -529,29 +545,35 @@ export default function ExploreOrganizations() {
               </div>
               <div className="mv-mr-4">
                 <legend className="mv-font-bold mb-2">
-                  {t("filter.focuses")}
+                  {t("filter.targetGroups")}
                 </legend>
                 <ul>
-                  {loaderData.focuses.map((focus) => {
+                  {loaderData.targetGroups.map((targetGroup) => {
                     return (
-                      <li key={focus.slug}>
-                        <label htmlFor={filter.focus.id} className="mr-2">
-                          {focus.title} ({focus.vectorCount})
+                      <li key={targetGroup.slug}>
+                        <label
+                          htmlFor={filter.projectTargetGroup.id}
+                          className="mr-2"
+                        >
+                          {targetGroup.title} ({targetGroup.vectorCount})
                         </label>
                         <input
-                          {...getInputProps(filter.focus, {
+                          {...getInputProps(filter.projectTargetGroup, {
                             type: "checkbox",
                             // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: focus.slug || undefined,
+                            value: targetGroup.slug || undefined,
                           })}
-                          defaultChecked={focus.isChecked}
+                          defaultChecked={targetGroup.isChecked}
                           disabled={
-                            (focus.vectorCount === 0 && !focus.isChecked) ||
+                            (targetGroup.vectorCount === 0 &&
+                              !targetGroup.isChecked) ||
                             navigation.state === "loading"
                           }
                         />
-                        {focus.description !== null ? (
-                          <p className="mv-text-sm">{focus.description}</p>
+                        {targetGroup.description !== null ? (
+                          <p className="mv-text-sm">
+                            {targetGroup.description}
+                          </p>
                         ) : null}
                       </li>
                     );
@@ -705,6 +727,107 @@ export default function ExploreOrganizations() {
                   </>
                 )}
               </div>
+              <div className="mv-mr-4">
+                <legend className="mv-font-bold mb-2">
+                  {t("filter.formats")}
+                </legend>
+                <ul>
+                  {loaderData.formats.map((format) => {
+                    return (
+                      <li key={format.slug}>
+                        <label htmlFor={filter.format.id} className="mr-2">
+                          {format.title} ({format.vectorCount})
+                        </label>
+                        <input
+                          {...getInputProps(filter.format, {
+                            type: "checkbox",
+                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                            value: format.slug || undefined,
+                          })}
+                          defaultChecked={format.isChecked}
+                          disabled={
+                            (format.vectorCount === 0 && !format.isChecked) ||
+                            navigation.state === "loading"
+                          }
+                        />
+                        {format.description !== null ? (
+                          <p className="mv-text-sm">{format.description}</p>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+              <div className="mv-mr-4">
+                <legend className="mv-font-bold mb-2">
+                  {t("filter.specialTargetGroups")}
+                </legend>
+                <ul>
+                  {loaderData.specialTargetGroups.map((specialTargetGroup) => {
+                    return (
+                      <li key={specialTargetGroup.slug}>
+                        <label
+                          htmlFor={filter.specialTargetGroup.id}
+                          className="mr-2"
+                        >
+                          {specialTargetGroup.title} (
+                          {specialTargetGroup.vectorCount})
+                        </label>
+                        <input
+                          {...getInputProps(filter.specialTargetGroup, {
+                            type: "checkbox",
+                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                            value: specialTargetGroup.slug || undefined,
+                          })}
+                          defaultChecked={specialTargetGroup.isChecked}
+                          disabled={
+                            (specialTargetGroup.vectorCount === 0 &&
+                              !specialTargetGroup.isChecked) ||
+                            navigation.state === "loading"
+                          }
+                        />
+                        {specialTargetGroup.description !== null ? (
+                          <p className="mv-text-sm">
+                            {specialTargetGroup.description}
+                          </p>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+              <div className="mv-mr-4">
+                <legend className="mv-font-bold mb-2">
+                  {t("filter.financings")}
+                </legend>
+                <ul>
+                  {loaderData.financings.map((financing) => {
+                    return (
+                      <li key={financing.slug}>
+                        <label htmlFor={filter.financing.id} className="mr-2">
+                          {financing.title} ({financing.vectorCount})
+                        </label>
+                        <input
+                          {...getInputProps(filter.financing, {
+                            type: "checkbox",
+                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                            value: financing.slug || undefined,
+                          })}
+                          defaultChecked={financing.isChecked}
+                          disabled={
+                            (financing.vectorCount === 0 &&
+                              !financing.isChecked) ||
+                            navigation.state === "loading"
+                          }
+                        />
+                        {financing.description !== null ? (
+                          <p className="mv-text-sm">{financing.description}</p>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </fieldset>
             <fieldset {...getFieldsetProps(fields.sortBy)}>
               {sortValues.map((sortValue) => {
@@ -733,17 +856,23 @@ export default function ExploreOrganizations() {
         </Form>
       </section>
       <section className="container mb-6">
-        {(loaderData.selectedTypes.length > 0 ||
-          loaderData.selectedFocuses.length > 0 ||
-          loaderData.selectedAreas.length > 0) && (
+        {(loaderData.selectedDisciplines.length > 0 ||
+          loaderData.selectedTargetGroups.length > 0 ||
+          loaderData.selectedAreas.length > 0 ||
+          loaderData.selectedFormats.length > 0 ||
+          loaderData.selectedSpecialTargetGroups.length > 0 ||
+          loaderData.selectedFinancings.length > 0) && (
           <div className="flex items-center">
             <Chip.Container>
-              {loaderData.selectedTypes.map((selectedType) => {
+              {loaderData.selectedDisciplines.map((selectedDiscipline) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.type.name, selectedType.slug);
-                return selectedType.title !== null ? (
-                  <Chip key={selectedType.slug} responsive>
-                    {selectedType.title}
+                deleteSearchParams.delete(
+                  filter.discipline.name,
+                  selectedDiscipline.slug
+                );
+                return selectedDiscipline.title !== null ? (
+                  <Chip key={selectedDiscipline.slug} responsive>
+                    {selectedDiscipline.title}
                     <Chip.Delete disabled={navigation.state === "loading"}>
                       <Link
                         to={`${
@@ -757,15 +886,15 @@ export default function ExploreOrganizations() {
                   </Chip>
                 ) : null;
               })}
-              {loaderData.selectedFocuses.map((selectedFocus) => {
+              {loaderData.selectedTargetGroups.map((selectedTargetGroup) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
-                  filter.focus.name,
-                  selectedFocus.slug
+                  filter.projectTargetGroup.name,
+                  selectedTargetGroup.slug
                 );
-                return selectedFocus.title !== null ? (
-                  <Chip key={selectedFocus.slug} responsive>
-                    {selectedFocus.title}
+                return selectedTargetGroup.title !== null ? (
+                  <Chip key={selectedTargetGroup.slug} responsive>
+                    {selectedTargetGroup.title}
                     <Chip.Delete disabled={navigation.state === "loading"}>
                       <Link
                         to={`${
@@ -798,11 +927,79 @@ export default function ExploreOrganizations() {
                   </Chip>
                 ) : null;
               })}
+              {loaderData.selectedFormats.map((selectedFormat) => {
+                const deleteSearchParams = new URLSearchParams(searchParams);
+                deleteSearchParams.delete(
+                  filter.format.name,
+                  selectedFormat.slug
+                );
+                return selectedFormat.title !== null ? (
+                  <Chip key={selectedFormat.slug} responsive>
+                    {selectedFormat.title}
+                    <Chip.Delete disabled={navigation.state === "loading"}>
+                      <Link
+                        to={`${
+                          location.pathname
+                        }?${deleteSearchParams.toString()}`}
+                        preventScrollReset
+                      >
+                        X
+                      </Link>
+                    </Chip.Delete>
+                  </Chip>
+                ) : null;
+              })}
+              {loaderData.selectedSpecialTargetGroups.map(
+                (selectedSpecialTargetGroup) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    filter.specialTargetGroup.name,
+                    selectedSpecialTargetGroup.slug
+                  );
+                  return selectedSpecialTargetGroup.title !== null ? (
+                    <Chip key={selectedSpecialTargetGroup.slug} responsive>
+                      {selectedSpecialTargetGroup.title}
+                      <Chip.Delete disabled={navigation.state === "loading"}>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  ) : null;
+                }
+              )}
+              {loaderData.selectedFinancings.map((selectedFinancing) => {
+                const deleteSearchParams = new URLSearchParams(searchParams);
+                deleteSearchParams.delete(
+                  filter.financing.name,
+                  selectedFinancing.slug
+                );
+                return selectedFinancing.title !== null ? (
+                  <Chip key={selectedFinancing.slug} responsive>
+                    {selectedFinancing.title}
+                    <Chip.Delete disabled={navigation.state === "loading"}>
+                      <Link
+                        to={`${
+                          location.pathname
+                        }?${deleteSearchParams.toString()}`}
+                        preventScrollReset
+                      >
+                        X
+                      </Link>
+                    </Chip.Delete>
+                  </Chip>
+                ) : null;
+              })}
             </Chip.Container>
             <Link
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy}`
+                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
                   : ""
               }`}
               preventScrollReset
@@ -826,29 +1023,27 @@ export default function ExploreOrganizations() {
           <p className="text-center text-gray-700 mb-4">
             {loaderData.filteredByVisibilityCount} {t("notShown")}
           </p>
-        ) : loaderData.organizationsCount > 0 ? (
+        ) : loaderData.projectsCount > 0 ? (
           <p className="text-center text-gray-700 mb-4">
-            <strong>{loaderData.organizationsCount}</strong>{" "}
-            {t("organizationsCountSuffix")}
+            <strong>{loaderData.projectsCount}</strong>{" "}
+            {t("projectsCountSuffix")}
           </p>
         ) : (
           <p className="text-center text-gray-700 mb-4">{t("empty")}</p>
         )}
-        {loaderData.organizations.length > 0 && (
+        {loaderData.projects.length > 0 && (
           <>
             <CardContainer type="multi row">
-              {loaderData.organizations.map((organization) => {
+              {loaderData.projects.map((project) => {
                 return (
-                  <OrganizationCard
-                    key={`organization-${organization.id}`}
-                    publicAccess={!loaderData.isLoggedIn}
-                    organization={organization}
+                  <ProjectCard
+                    key={`project-${project.id}`}
+                    project={project}
                   />
                 );
               })}
             </CardContainer>
-            {loaderData.organizationsCount >
-              loaderData.organizations.length && (
+            {loaderData.projectsCount > loaderData.projects.length && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
                 <Link
                   to={`${location.pathname}?${loadMoreSearchParams.toString()}`}

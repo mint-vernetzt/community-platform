@@ -5,11 +5,29 @@
     "sort": {
       "label": "Sortieren nach"
     },
+
+    
+    "disciplines": "MINT-Disziplin",
+    "targetGroups": "Zielgruppe",
+    "areas": "Ort / Gebiet",
+    "searchAreaPlaceholder": "Ort oder Gebiet eingeben",
+    "searchAreaHelper": "Mindestens 3 Buchstaben.",
+    "searchAreaButton": "Suchen",
+    "stateLabel": "Vorschläge nach Gebiet",
+    "districtLabel": "Vorschläge nach Ort",
+    "formats": "Projektformat",
+    "specialTargetGroups": "Spezifische Zielgruppe",
+    "financings": "Finanzierung",
+    "apply": "Filter anwenden",
+    "reset": "Alles zurücksetzen",
     "sortBy": {
-      "nameAsc": "Name (A-Z)",
-      "nameDesc": "Name (Z-A)",
-      "newest": "Neueste zuerst"
+      "name-asc": "Name (A-Z)",
+      "name-desc": "Name (Z-A)",
+      "createdAt-desc": "Neueste zuerst"
     }
   },
+  "projectsCountSuffix": "Projekte",
+  "empty": "Es konnten leider keine Projekte gefunden werden.",
+  "notShown": "Projekte können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
   "more": "Weitere laden"
 }

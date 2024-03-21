@@ -3,13 +3,31 @@
   "intro": "Here you can take a look at various projects within the STEM community.",
   "filter": {
     "sort": {
-      "label": "Sortieren nach"
+      "label": "Sort by"
     },
+
+    
+    "disciplines": "STEM discipline",
+    "targetGroups": "Target group",
+    "areas": "Location / Area",
+    "searchAreaPlaceholder": "Enter area or location",
+    "searchAreaHelper": "At least 3 letters.",
+    "searchAreaButton": "Search",
+    "stateLabel": "Suggestions by area",
+    "districtLabel": "Suggestions by location",
+    "formats": "Project format",
+    "specialTargetGroups": "Specific target group",
+    "financings": "Financing",
+    "apply": "Apply filter",
+    "reset": "Reset all",
     "sortBy": {
-      "nameAsc": "Name (A-Z)",
-      "nameDesc": "Name (Z-A)",
-      "newest": "Newest first"
+      "name-asc": "Name (A-Z)",
+      "name-desc": "Name (Z-A)",
+      "createdAt-desc": "Newest first"
     }
   },
-  "more": "Load more"
+  "projectsCountSuffix": "Projects",
+  "more": "Load more",
+  "empty": "Unfortunately, no projects could be found.",
+  "notShown": "projects cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users."
 }
