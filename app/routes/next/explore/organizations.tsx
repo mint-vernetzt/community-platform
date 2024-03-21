@@ -163,16 +163,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
     if (!isLoggedIn) {
       // Filter organization
+      type EnhancedOrganization = typeof enhancedOrganization;
       enhancedOrganization =
-        filterOrganizationByVisibility<typeof enhancedOrganization>(
+        filterOrganizationByVisibility<EnhancedOrganization>(
           enhancedOrganization
         );
       // Filter team members
       enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
         (relation) => {
-          const filteredProfile = filterProfileByVisibility<
-            typeof relation.profile
-          >(relation.profile);
+          type ProfileRelation = typeof relation.profile;
+          const filteredProfile = filterProfileByVisibility<ProfileRelation>(
+            relation.profile
+          );
           return { ...relation, profile: { ...filteredProfile } };
         }
       );
@@ -254,8 +256,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
     let isChecked;
-    // TODO: Remove '|| area.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || area.slug === null) {
+    // TODO: Remove 'area.slug === null' when slug isn't optional anymore (after migration)
+    if (area.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.area.includes(area.slug);
@@ -286,8 +288,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const enhancedTypes = types.map((type) => {
     const vectorCount = getFilterCountForSlug(type.slug, filterVector, "type");
     let isChecked;
-    // TODO: Remove '|| offer.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || type.slug === null) {
+    // TODO: Remove 'type.slug === null' when slug isn't optional anymore (after migration)
+    if (type.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.type.includes(type.slug);
@@ -312,8 +314,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "focus"
     );
     let isChecked;
-    // TODO: Remove '|| offer.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || focus.slug === null) {
+    // TODO: Remove 'focus.slug === null' when slug isn't optional anymore (after migration)
+    if (focus.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.focus.includes(focus.slug);
@@ -695,7 +697,7 @@ export default function ExploreOrganizations() {
             <Link
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy}`
+                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
                   : ""
               }`}
               preventScrollReset

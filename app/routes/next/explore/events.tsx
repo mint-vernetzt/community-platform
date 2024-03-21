@@ -154,7 +154,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const abilities = await getFeatureAbilities(authClient, ["filter"]);
   if (abilities.filter.hasAccess === false) {
-    return redirect("/explore/organizations");
+    return redirect("/explore/events");
   }
 
   const sessionUser = await getSessionUser(authClient);
@@ -185,14 +185,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     // Filtering by visbility settings
     if (sessionUser === null) {
       // Filter event
-      enhancedEvent =
-        filterEventByVisibility<typeof enhancedEvent>(enhancedEvent);
+      type EnhancedEvent = typeof enhancedEvent;
+      enhancedEvent = filterEventByVisibility<EnhancedEvent>(enhancedEvent);
       // Filter responsible Organizations
       enhancedEvent.responsibleOrganizations =
         enhancedEvent.responsibleOrganizations.map((relation) => {
-          const filteredOrganization = filterOrganizationByVisibility<
-            typeof relation.organization
-          >(relation.organization);
+          type OrganizationRelation = typeof relation.organization;
+          const filteredOrganization =
+            filterOrganizationByVisibility<OrganizationRelation>(
+              relation.organization
+            );
           return { ...relation, organization: filteredOrganization };
         });
     }
@@ -264,8 +266,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
     let isChecked;
-    // TODO: Remove '|| area.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || area.slug === null) {
+    // TODO: Remove 'area.slug === null' when slug isn't optional anymore (after migration)
+    if (area.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.area.includes(area.slug);
@@ -296,8 +298,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const enhancedTypes = types.map((type) => {
     const vectorCount = getFilterCountForSlug(type.slug, filterVector, "type");
     let isChecked;
-    // TODO: Remove '|| offer.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || type.slug === null) {
+    // TODO: Remove 'type.slug === null' when slug isn't optional anymore (after migration)
+    if (type.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.type.includes(type.slug);
@@ -322,8 +324,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "focus"
     );
     let isChecked;
-    // TODO: Remove '|| offer.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || focus.slug === null) {
+    // TODO: Remove 'focus.slug === null' when slug isn't optional anymore (after migration)
+    if (focus.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.focus.includes(focus.slug);
@@ -348,8 +350,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "eventTargetGroup"
     );
     let isChecked;
-    // TODO: Remove '|| offer.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || targetGroup.slug === null) {
+    // TODO: Remove 'targetGroup.slug === null' when slug isn't optional anymore (after migration)
+    if (targetGroup.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.eventTargetGroup.includes(
@@ -829,7 +831,7 @@ export default function ExploreOrganizations() {
             <Link
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy}`
+                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
                   : ""
               }`}
               preventScrollReset

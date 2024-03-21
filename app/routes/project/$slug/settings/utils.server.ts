@@ -48,6 +48,15 @@ export async function updateFilterVectorOfProject(projectId: string) {
           },
         },
       },
+      additionalDisciplines: {
+        select: {
+          additionalDiscipline: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
       projectTargetGroups: {
         select: {
           projectTargetGroup: {
@@ -84,27 +93,27 @@ export async function updateFilterVectorOfProject(projectId: string) {
           },
         },
       },
-      // areas: {
-      //   select: {
-      //     area: {
-      //       select: {
-      //         slug: true,
-      //       },
-      //     },
-      //   },
-      // },
+      areas: {
+        select: {
+          area: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
     },
   });
 
   if (project !== null) {
     if (
       project.disciplines.length === 0 &&
+      project.additionalDisciplines.length === 0 &&
       project.projectTargetGroups.length === 0 &&
       project.formats.length === 0 &&
       project.specialTargetGroups.length === 0 &&
-      project.financings.length === 0
-      // project.financings.length === 0 &&
-      // project.areas.length === 0
+      project.financings.length === 0 &&
+      project.areas.length === 0
     ) {
       await prismaClient.$queryRawUnsafe(
         `update projects set filter_vector = NULL where id = '${project.id}'`
@@ -112,6 +121,10 @@ export async function updateFilterVectorOfProject(projectId: string) {
     } else {
       const disciplineVectors = project.disciplines.map(
         (relation) => `discipline:${relation.discipline.slug}`
+      );
+      const additionalDisciplineVectors = project.additionalDisciplines.map(
+        (relation) =>
+          `additionalDiscipline:${relation.additionalDiscipline.slug}`
       );
       const targetGroupVectors = project.projectTargetGroups.map(
         (relation) => `projectTargetGroup:${relation.projectTargetGroup.slug}`
@@ -125,16 +138,17 @@ export async function updateFilterVectorOfProject(projectId: string) {
       const financingVectors = project.financings.map(
         (relation) => `financing:${relation.financing.slug}`
       );
-      // const areaVectors = project.areas.map(
-      //   (relation) => `area:${relation.area.slug}`
-      // );
+      const areaVectors = project.areas.map(
+        (relation) => `area:${relation.area.slug}`
+      );
       const vectors = [
         ...disciplineVectors,
+        ...additionalDisciplineVectors,
         ...targetGroupVectors,
         ...formatVectors,
         ...specialTargetGroupVectors,
         ...financingVectors,
-        // ...areaVectors,
+        ...areaVectors,
       ];
       const vectorString = `{"${vectors.join(`","`)}"}`;
       const query = `update projects set filter_vector = array_to_tsvector('${vectorString}') where id = '${project.id}'`;
