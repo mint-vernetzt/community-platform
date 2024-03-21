@@ -48,6 +48,15 @@ export async function updateFilterVectorOfProject(projectId: string) {
           },
         },
       },
+      additionalDisciplines: {
+        select: {
+          additionalDiscipline: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
       projectTargetGroups: {
         select: {
           projectTargetGroup: {
@@ -99,6 +108,7 @@ export async function updateFilterVectorOfProject(projectId: string) {
   if (project !== null) {
     if (
       project.disciplines.length === 0 &&
+      project.additionalDisciplines.length === 0 &&
       project.projectTargetGroups.length === 0 &&
       project.formats.length === 0 &&
       project.specialTargetGroups.length === 0 &&
@@ -111,6 +121,10 @@ export async function updateFilterVectorOfProject(projectId: string) {
     } else {
       const disciplineVectors = project.disciplines.map(
         (relation) => `discipline:${relation.discipline.slug}`
+      );
+      const additionalDisciplineVectors = project.additionalDisciplines.map(
+        (relation) =>
+          `additionalDiscipline:${relation.additionalDiscipline.slug}`
       );
       const targetGroupVectors = project.projectTargetGroups.map(
         (relation) => `projectTargetGroup:${relation.projectTargetGroup.slug}`
@@ -129,6 +143,7 @@ export async function updateFilterVectorOfProject(projectId: string) {
       );
       const vectors = [
         ...disciplineVectors,
+        ...additionalDisciplineVectors,
         ...targetGroupVectors,
         ...formatVectors,
         ...specialTargetGroupVectors,
