@@ -24,7 +24,8 @@ export async function getVisibilityFilteredOrganizationsCount(options: {
     };
     visibilityWhereClauses.push(visibilityWhereStatement);
 
-    for (const slug of options.filter[typedFilterKey]) {
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
           some: {
@@ -56,7 +57,8 @@ export async function getOrganizationsCount(options: {
   const whereClauses = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
-    for (const slug of options.filter[typedFilterKey]) {
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
           some: {
@@ -98,7 +100,8 @@ export async function getAllOrganizations(options: {
       };
       whereClauses.push(visibilityWhereStatement);
     }
-    for (const slug of options.filter[typedFilterKey]) {
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
           some: {
@@ -234,9 +237,9 @@ export async function getOrganizationFilterVector(options: {
 
     // I worked arround with an assertion. But if any table except organizationTypes remove their slug, this will break and typescript will not warn us.
     const fakeTypedFilterKey = filterKey as "organizationType";
-    let allFilterValues;
+    let allPossibleFilterValues;
     try {
-      allFilterValues = await prismaClient[
+      allPossibleFilterValues = await prismaClient[
         `${typedFilterKey === "type" ? "organizationType" : fakeTypedFilterKey}`
       ].findMany({
         select: {
@@ -247,10 +250,11 @@ export async function getOrganizationFilterVector(options: {
       throw json({ message: "Server error" }, { status: 500 });
     }
 
-    for (const slug of options.filter[typedFilterKey]) {
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
       // Validate slug because of queryRawUnsafe
       invariantResponse(
-        allFilterValues.some((value) => {
+        allPossibleFilterValues.some((value) => {
           return value.slug === slug;
         }),
         "Cannot filter by the specified slug.",

@@ -24,7 +24,8 @@ export async function getVisibilityFilteredProfilesCount(options: {
     };
     visibilityWhereClauses.push(visibilityWhereStatement);
 
-    for (const slug of options.filter[typedFilterKey]) {
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}s`]: {
           some: {
@@ -54,7 +55,8 @@ export async function getProfilesCount(options: {
   const whereClauses = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
-    for (const slug of options.filter[typedFilterKey]) {
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}s`]: {
           some: {
@@ -94,7 +96,8 @@ export async function getAllProfiles(options: {
       };
       whereClauses.push(visibilityWhereStatement);
     }
-    for (const slug of options.filter[typedFilterKey]) {
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}s`]: {
           some: {
@@ -220,21 +223,24 @@ export async function getProfileFilterVector(options: {
 
     // I worked arround with an assertion. But if any table except areas remove their slug, this will break and typescript will not warn us.
     const fakeTypedFilterKey = filterKey as "area";
-    let allFilterValues;
+    let allPossibleFilterValues;
     try {
-      allFilterValues = await prismaClient[fakeTypedFilterKey].findMany({
-        select: {
-          slug: true,
-        },
-      });
+      allPossibleFilterValues = await prismaClient[fakeTypedFilterKey].findMany(
+        {
+          select: {
+            slug: true,
+          },
+        }
+      );
     } catch (error: any) {
       throw json({ message: "Server error" }, { status: 500 });
     }
 
-    for (const slug of options.filter[typedFilterKey]) {
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
       // Validate slug because of queryRawUnsafe
       invariantResponse(
-        allFilterValues.some((value) => {
+        allPossibleFilterValues.some((value) => {
           return value.slug === slug;
         }),
         "Cannot filter by the specified slug.",

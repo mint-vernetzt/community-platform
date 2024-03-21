@@ -11,17 +11,29 @@ export function getTakeParam(page: GetEventsSchema["page"]) {
   return take;
 }
 
-// TODO: Make this function return eiter prisma or raw sql
+function dateToPostgresTimestamp(date: Date) {
+  const dateString = date.toDateString();
+  const dateArray = dateString.split(" ");
+  const timeString = date.toTimeString();
+  const timeArray = timeString.split(" ");
+  dateArray.splice(3, 0, timeArray[0]);
+  const postgresTimestamp = dateArray.join(" ");
+  return `'${postgresTimestamp}'`;
+}
+
 function getWhereStatementFromPeriodOfTime(
-  periodOfTime: GetEventsSchema["filter"]["periodOfTime"]
+  periodOfTime: GetEventsSchema["filter"]["periodOfTime"],
+  sqlType: "prisma" | "raw" = "prisma"
 ) {
   const now = new Date();
   if (periodOfTime === "past") {
-    return {
-      startTime: {
-        lte: now,
-      },
-    };
+    return sqlType === "prisma"
+      ? {
+          startTime: {
+            lte: now,
+          },
+        }
+      : `start_time <= ${dateToPostgresTimestamp(now)}`;
   }
   if (periodOfTime === "thisWeek" || periodOfTime === "nextWeek") {
     const currentDay = now.getDay();
@@ -31,23 +43,31 @@ function getWhereStatementFromPeriodOfTime(
     );
     nextMonday.setHours(0, 0, 0, 0);
     if (periodOfTime === "thisWeek") {
-      return {
-        startTime: {
-          gte: now,
-          lte: nextMonday,
-        },
-      };
+      return sqlType === "prisma"
+        ? {
+            startTime: {
+              gte: now,
+              lte: nextMonday,
+            },
+          }
+        : `start_time >= ${dateToPostgresTimestamp(
+            now
+          )} AND start_time <= ${dateToPostgresTimestamp(nextMonday)}`;
     } else {
       const daysUntilSecondMonday = daysUntilMonday + 7;
       const secondMonday = new Date(
         now.getTime() + daysUntilSecondMonday * 24 * 60 * 60 * 1000
       );
-      return {
-        startTime: {
-          gte: nextMonday,
-          lte: secondMonday,
-        },
-      };
+      return sqlType === "prisma"
+        ? {
+            startTime: {
+              gte: nextMonday,
+              lte: secondMonday,
+            },
+          }
+        : `start_time >= ${dateToPostgresTimestamp(
+            nextMonday
+          )} AND start_time <= ${dateToPostgresTimestamp(secondMonday)}`;
     }
   }
   if (periodOfTime === "thisMonth" || periodOfTime === "nextMonth") {
@@ -56,28 +76,40 @@ function getWhereStatementFromPeriodOfTime(
     const firstDayOfNextMonth = new Date(currentYear, currentMonth + 1, 1);
     firstDayOfNextMonth.setHours(0, 0, 0, 0);
     if (periodOfTime === "thisMonth") {
-      return {
-        startTime: {
-          gte: now,
-          lte: firstDayOfNextMonth,
-        },
-      };
+      return sqlType === "prisma"
+        ? {
+            startTime: {
+              gte: now,
+              lte: firstDayOfNextMonth,
+            },
+          }
+        : `start_time >= ${dateToPostgresTimestamp(
+            now
+          )} AND start_time <= ${dateToPostgresTimestamp(firstDayOfNextMonth)}`;
     } else {
       const firstDayOfSecondMonth = new Date(currentYear, currentMonth + 2, 1);
       firstDayOfNextMonth.setHours(0, 0, 0, 0);
-      return {
-        startTime: {
-          gte: firstDayOfNextMonth,
-          lte: firstDayOfSecondMonth,
-        },
-      };
+      return sqlType === "prisma"
+        ? {
+            startTime: {
+              gte: firstDayOfNextMonth,
+              lte: firstDayOfSecondMonth,
+            },
+          }
+        : `start_time >= ${dateToPostgresTimestamp(
+            firstDayOfNextMonth
+          )} AND start_time <= ${dateToPostgresTimestamp(
+            firstDayOfSecondMonth
+          )}`;
     }
   }
-  return {
-    startTime: {
-      gte: now,
-    },
-  };
+  return sqlType === "prisma"
+    ? {
+        startTime: {
+          gte: now,
+        },
+      }
+    : `start_time >= ${dateToPostgresTimestamp(now)}`;
 }
 
 export async function getVisibilityFilteredEventsCount(options: {
@@ -103,6 +135,12 @@ export async function getVisibilityFilteredEventsCount(options: {
       const filterValue = options.filter[typedFilterKey];
       const filterWhereStatement =
         getWhereStatementFromPeriodOfTime(filterValue);
+      // I had to do this because typescript can't resolve the correct return type of getWhereStatementFromPeriodOfTime()
+      invariantResponse(
+        typeof filterWhereStatement !== "string",
+        "Please provide prisma sql syntax",
+        { status: 500 }
+      );
       whereClauses.push(filterWhereStatement);
     } else {
       const filterValues = options.filter[typedFilterKey];
@@ -124,7 +162,7 @@ export async function getVisibilityFilteredEventsCount(options: {
 
   const count = await prismaClient.event.count({
     where: {
-      AND: whereClauses,
+      AND: [...whereClauses, { published: true }],
     },
   });
 
@@ -142,6 +180,12 @@ export async function getEventsCount(options: {
       const filterValue = options.filter[typedFilterKey];
       const filterWhereStatement =
         getWhereStatementFromPeriodOfTime(filterValue);
+      // I had to do this because typescript can't resolve the correct return type of getWhereStatementFromPeriodOfTime()
+      invariantResponse(
+        typeof filterWhereStatement !== "string",
+        "Please provide prisma sql syntax",
+        { status: 500 }
+      );
       whereClauses.push(filterWhereStatement);
     } else {
       const filterValues = options.filter[typedFilterKey];
@@ -162,7 +206,7 @@ export async function getEventsCount(options: {
 
   const count = await prismaClient.event.count({
     where: {
-      AND: whereClauses,
+      AND: [...whereClauses, { published: true }],
     },
   });
 
@@ -196,6 +240,12 @@ export async function getAllEvents(options: {
       const filterValue = options.filter[typedFilterKey];
       const filterWhereStatement =
         getWhereStatementFromPeriodOfTime(filterValue);
+      // I had to do this because typescript can't resolve the correct return type of getWhereStatementFromPeriodOfTime()
+      invariantResponse(
+        typeof filterWhereStatement !== "string",
+        "Please provide prisma sql syntax",
+        { status: 500 }
+      );
       whereClauses.push(filterWhereStatement);
     } else {
       const filterValues = options.filter[typedFilterKey];
@@ -391,18 +441,26 @@ export async function enhanceEventsWithParticipationStatus(
 export async function getEventFilterVector(options: {
   filter: GetEventsSchema["filter"];
 }) {
-  let whereClause = "";
-  const whereStatements = [];
+  const whereStatements = ["published = true"];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
 
-    // TODO: Remove this when above TODO is done
     if (typedFilterKey === "periodOfTime") {
-      continue;
-    }
-
-    // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-    /* Example:
+      const filterValue = options.filter[typedFilterKey];
+      const filterWhereStatement = getWhereStatementFromPeriodOfTime(
+        filterValue,
+        "raw"
+      );
+      // I had to do this because typescript can't resolve the correct return type of getWhereStatementFromPeriodOfTime()
+      invariantResponse(
+        typeof filterWhereStatement === "string",
+        "Please provide raw sql syntax",
+        { status: 500 }
+      );
+      whereStatements.push(filterWhereStatement);
+    } else {
+      // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
+      /* Example:
           const test = await prismaClient.eventType.findMany({
             select: {
               slug: true,
@@ -424,43 +482,41 @@ export async function getEventFilterVector(options: {
             },
           });
           */
-    // Further reading:
-    // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
-    // https://github.com/prisma/prisma/issues/2505
+      // Further reading:
+      // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
+      // https://github.com/prisma/prisma/issues/2505
 
-    // I worked arround with an assertion. But if any table except eventTypes remove their slug, this will break and typescript will not warn us.
-    const fakeTypedFilterKey = filterKey as "eventType";
-    let allFilterValues;
-    try {
-      allFilterValues = await prismaClient[
-        `${typedFilterKey === "type" ? "eventType" : fakeTypedFilterKey}`
-      ].findMany({
-        select: {
-          slug: true,
-        },
-      });
-    } catch (error: any) {
-      throw json({ message: "Server error" }, { status: 500 });
-    }
-
-    for (const slug of options.filter[typedFilterKey]) {
-      // Validate slug because of queryRawUnsafe
-      invariantResponse(
-        allFilterValues.some((value) => {
-          return value.slug === slug;
-        }),
-        "Cannot filter by the specified slug.",
-        { status: 400 }
-      );
-      const tuple = `${typedFilterKey}\\:${slug}`;
-      const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-      whereStatements.push(whereStatement);
+      // I worked arround with an assertion. But if any table except eventTypes remove their slug, this will break and typescript will not warn us.
+      const fakeTypedFilterKey = filterKey as "eventType";
+      let allPossibleFilterValues;
+      try {
+        allPossibleFilterValues = await prismaClient[
+          `${typedFilterKey === "type" ? "eventType" : fakeTypedFilterKey}`
+        ].findMany({
+          select: {
+            slug: true,
+          },
+        });
+      } catch (error: any) {
+        throw json({ message: "Server error" }, { status: 500 });
+      }
+      const filterValues = options.filter[typedFilterKey];
+      for (const slug of filterValues) {
+        // Validate slug because of queryRawUnsafe
+        invariantResponse(
+          allPossibleFilterValues.some((value) => {
+            return value.slug === slug;
+          }),
+          "Cannot filter by the specified slug.",
+          { status: 400 }
+        );
+        const tuple = `${typedFilterKey}\\:${slug}`;
+        const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
+        whereStatements.push(whereStatement);
+      }
     }
   }
-
-  if (whereStatements.length > 0) {
-    whereClause = `WHERE ${whereStatements.join(" AND ")}`;
-  }
+  const whereClause = `WHERE ${whereStatements.join(" AND ")}`;
 
   const filterVector: {
     attr: keyof typeof options.filter;
@@ -474,9 +530,7 @@ export async function getEventFilterVector(options: {
       FROM ts_stat($$
         SELECT filter_vector
         FROM events
-        ${whereClause} ${
-    whereClause.length > 0 ? "AND published = true" : "WHERE published = true"
-  }
+        ${whereClause}
       $$)
       GROUP BY attr;
       `);
