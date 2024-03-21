@@ -39,6 +39,7 @@ import {
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import {
+  getAllAdditionalDisciplines,
   getAllDisciplines,
   getAllFinancings,
   getAllFormats,
@@ -69,6 +70,7 @@ const getProjectsSchema = z.object({
   filter: z
     .object({
       discipline: z.array(z.string()),
+      additionalDiscipline: z.array(z.string()),
       projectTargetGroup: z.array(z.string()),
       area: z.array(z.string()),
       format: z.array(z.string()),
@@ -80,6 +82,7 @@ const getProjectsSchema = z.object({
       if (filter === undefined) {
         return {
           discipline: [],
+          additionalDiscipline: [],
           projectTargetGroup: [],
           area: [],
           format: [],
@@ -239,22 +242,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
         };
       });
 
-    // const transformedProject = {
-    //   ...enhancedProject,
-    //   teamMembers: enhancedProject.teamMembers.map((relation) => {
-    //     return relation.profile;
-    //   }),
-    //   types: enhancedProject.types.map((relation) => {
-    //     return relation.organizationType.title;
-    //   }),
-    //   focuses: enhancedProject.focuses.map((relation) => {
-    //     return relation.focus.title;
-    //   }),
-    //   areas: enhancedProject.areas.map((relation) => {
-    //     return relation.area.name;
-    //   }),
-    // };
-
     enhancedProjects.push(enhancedProject);
   }
 
@@ -331,6 +318,39 @@ export const loader = async (args: LoaderFunctionArgs) => {
       title: disciplineMatch?.title || null,
     };
   });
+
+  const additionalDisciplines = await getAllAdditionalDisciplines();
+  const enhancedAdditionalDisciplines = additionalDisciplines.map(
+    (additionalDiscipline) => {
+      const vectorCount = getFilterCountForSlug(
+        additionalDiscipline.slug,
+        filterVector,
+        "additionalDiscipline"
+      );
+      let isChecked;
+      // TODO: Remove 'discipline.slug === null' when slug isn't optional anymore (after migration)
+      if (additionalDiscipline.slug === null) {
+        isChecked = false;
+      } else {
+        isChecked = submission.value.filter.additionalDiscipline.includes(
+          additionalDiscipline.slug
+        );
+      }
+      return { ...additionalDiscipline, vectorCount, isChecked };
+    }
+  );
+  const selectedAdditionalDisciplines =
+    submission.value.filter.additionalDiscipline.map((slug) => {
+      const additionalDisciplineMatch = additionalDisciplines.find(
+        (additionalDiscipline) => {
+          return additionalDiscipline.slug === slug;
+        }
+      );
+      return {
+        slug,
+        title: additionalDisciplineMatch?.title || null,
+      };
+    });
 
   const targetGroups = await getAllProjectTargetGroups();
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
@@ -451,6 +471,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     projects: enhancedProjects,
     disciplines: enhancedDisciplines,
     selectedDisciplines,
+    additionalDisciplines: enhancedAdditionalDisciplines,
+    selectedAdditionalDisciplines,
     targetGroups: enhancedTargetGroups,
     selectedTargetGroups,
     areas: enhancedAreas,
@@ -541,6 +563,42 @@ export default function ExploreProjects() {
                       </li>
                     );
                   })}
+                  <p className="font-bold">
+                    {t("filter.additionalDisciplines")}
+                  </p>
+                  {loaderData.additionalDisciplines.map(
+                    (additionalDiscipline) => {
+                      return (
+                        <li key={additionalDiscipline.slug}>
+                          <label
+                            htmlFor={filter.additionalDiscipline.id}
+                            className="mr-2"
+                          >
+                            {additionalDiscipline.title} (
+                            {additionalDiscipline.vectorCount})
+                          </label>
+                          <input
+                            {...getInputProps(filter.additionalDiscipline, {
+                              type: "checkbox",
+                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                              value: additionalDiscipline.slug || undefined,
+                            })}
+                            defaultChecked={additionalDiscipline.isChecked}
+                            disabled={
+                              (additionalDiscipline.vectorCount === 0 &&
+                                !additionalDiscipline.isChecked) ||
+                              navigation.state === "loading"
+                            }
+                          />
+                          {additionalDiscipline.description !== null ? (
+                            <p className="mv-text-sm">
+                              {additionalDiscipline.description}
+                            </p>
+                          ) : null}
+                        </li>
+                      );
+                    }
+                  )}
                 </ul>
               </div>
               <div className="mv-mr-4">
@@ -857,6 +915,7 @@ export default function ExploreProjects() {
       </section>
       <section className="container mb-6">
         {(loaderData.selectedDisciplines.length > 0 ||
+          loaderData.selectedAdditionalDisciplines.length > 0 ||
           loaderData.selectedTargetGroups.length > 0 ||
           loaderData.selectedAreas.length > 0 ||
           loaderData.selectedFormats.length > 0 ||
@@ -886,6 +945,30 @@ export default function ExploreProjects() {
                   </Chip>
                 ) : null;
               })}
+              {loaderData.selectedAdditionalDisciplines.map(
+                (selectedAdditionalDiscipline) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    filter.additionalDiscipline.name,
+                    selectedAdditionalDiscipline.slug
+                  );
+                  return selectedAdditionalDiscipline.title !== null ? (
+                    <Chip key={selectedAdditionalDiscipline.slug} responsive>
+                      {selectedAdditionalDiscipline.title}
+                      <Chip.Delete disabled={navigation.state === "loading"}>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  ) : null;
+                }
+              )}
               {loaderData.selectedTargetGroups.map((selectedTargetGroup) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(

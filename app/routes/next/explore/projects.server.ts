@@ -309,6 +309,20 @@ export async function getAllDisciplines() {
   });
 }
 
+export async function getAllAdditionalDisciplines() {
+  return await prismaClient.additionalDiscipline.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      slug: true,
+    },
+  });
+}
+
 export async function getAllProjectTargetGroups() {
   return await prismaClient.projectTargetGroup.findMany({
     orderBy: {
