@@ -126,7 +126,7 @@ export async function getVisibilityFilteredEventsCount(options: {
           typedFilterKey === "periodOfTime"
             ? "startTime"
             : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
-        }`]: true,
+        }`]: false,
       },
     };
     visibilityWhereClauses.push(visibilityWhereStatement);
