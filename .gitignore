@@ -37,3 +37,6 @@ app/lib/no-cache/seed.ts
 # Vitest
 /test-results/
 /coverage
+
+# exports
+*.csv
