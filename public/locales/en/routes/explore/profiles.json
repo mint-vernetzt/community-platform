@@ -20,6 +20,7 @@
     "apply": "Apply filter",
     "reset": "Reset all",
     "sortBy": {
+      "label": "Sort by",
       "firstName-asc": "First name (A-Z)",
       "firstName-desc": "First name (Z-A)",
       "lastName-asc": "Last name (A-Z)",
