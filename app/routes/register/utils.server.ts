@@ -10,8 +10,9 @@ export async function createProfile(user: User) {
     typeof user.user_metadata.username === "string" &&
     typeof user.user_metadata.firstName === "string" &&
     typeof user.user_metadata.lastName === "string" &&
-    (typeof user.user_metadata.academicTitle === "string" ||
-      user.user_metadata.academicTitle === null) &&
+    // This caused an error on prod and stage. On stage and prod academicTitle is undefined if not set.
+    // (typeof user.user_metadata.academicTitle === "string" ||
+    //   user.user_metadata.academicTitle === null) &&
     typeof user.user_metadata.termsAccepted === "boolean"
   ) {
     const initialProfile = {
@@ -20,7 +21,7 @@ export async function createProfile(user: User) {
       username: user.user_metadata.username,
       firstName: user.user_metadata.firstName,
       lastName: user.user_metadata.lastName,
-      academicTitle: user.user_metadata.academicTitle,
+      academicTitle: user.user_metadata.academicTitle || null, // Set to null if not set
       termsAccepted: user.user_metadata.termsAccepted,
     };
     // Creates the profile and its corrsponding profileVisibility with default values defined in prisma.schema
