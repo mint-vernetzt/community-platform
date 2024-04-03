@@ -48,6 +48,7 @@ import {
 import { type ArrayElement } from "~/lib/utils/types";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { Dropdown, FormControl } from "./__components";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -355,202 +356,219 @@ export default function Index() {
           <input name="page" defaultValue="1" hidden />
           <div className="mv-flex mv-mb-8">
             <fieldset {...getFieldsetProps(fields.filter)} className="mv-flex">
-              <div className="mv-mr-4">
-                <legend className="mv-font-bold mb-2">
-                  {t("filter.offers")}
-                </legend>
-                <ul>
+              <Dropdown>
+                <Dropdown.Label>{t("filter.offers")}</Dropdown.Label>
+                <Dropdown.List>
                   {loaderData.offers.map((offer) => {
                     return (
-                      <li key={offer.slug}>
-                        <label htmlFor={filter.offer.id} className="mr-2">
-                          {offer.title} ({offer.vectorCount})
-                        </label>
-                        <input
-                          {...getInputProps(filter.offer, {
-                            type: "checkbox",
-                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: offer.slug || undefined,
-                          })}
-                          defaultChecked={offer.isChecked}
-                          disabled={
-                            (offer.vectorCount === 0 && !offer.isChecked) ||
-                            navigation.state === "loading"
-                          }
-                        />
-                      </li>
+                      <FormControl
+                        {...getInputProps(filter.offer, {
+                          type: "checkbox",
+                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                          value: offer.slug || undefined,
+                        })}
+                        key={offer.slug}
+                        defaultChecked={offer.isChecked}
+                        disabled={
+                          (offer.vectorCount === 0 && !offer.isChecked) ||
+                          navigation.state === "loading"
+                        }
+                      >
+                        <FormControl.Label>{offer.title}</FormControl.Label>
+                        <FormControl.Counter>
+                          {offer.vectorCount}
+                        </FormControl.Counter>
+                      </FormControl>
                     );
                   })}
-                </ul>
-              </div>
-              <div className="mr-4">
-                <legend className="font-bold mb-2">{t("filter.areas")}</legend>
-                {loaderData.areas.global.map((area) => {
-                  return (
-                    <div key={area.slug}>
-                      <label htmlFor={filter.area.id} className="mr-2">
-                        {area.name} ({area.vectorCount})
-                      </label>
-                      <input
+                </Dropdown.List>
+              </Dropdown>
+              <Dropdown>
+                <Dropdown.Label>{t("filter.areas")}</Dropdown.Label>
+                <Dropdown.List>
+                  {loaderData.areas.global.map((area) => {
+                    return (
+                      <FormControl
                         {...getInputProps(filter.area, {
                           type: "checkbox",
                           // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                           value: area.slug || undefined,
                         })}
+                        key={area.slug}
                         defaultChecked={area.isChecked}
                         disabled={
                           (area.vectorCount === 0 && !area.isChecked) ||
                           navigation.state === "loading"
                         }
-                      />
-                    </div>
-                  );
-                })}
-                {loaderData.areas.country.map((area) => {
-                  return (
-                    <div key={area.slug}>
-                      <label htmlFor={filter.area.id} className="mr-2">
-                        {area.name} ({area.vectorCount})
-                      </label>
-                      <input
+                      >
+                        <FormControl.Label>{area.name}</FormControl.Label>
+                        <FormControl.Counter>
+                          {area.vectorCount}
+                        </FormControl.Counter>
+                      </FormControl>
+                    );
+                  })}
+                  {loaderData.areas.country.map((area) => {
+                    return (
+                      <FormControl
                         {...getInputProps(filter.area, {
                           type: "checkbox",
                           // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
                           value: area.slug || undefined,
                         })}
+                        key={area.slug}
                         defaultChecked={area.isChecked}
                         disabled={
                           (area.vectorCount === 0 && !area.isChecked) ||
                           navigation.state === "loading"
                         }
-                      />
-                    </div>
-                  );
-                })}
-                {loaderData.selectedAreas.length > 0 &&
-                  loaderData.selectedAreas.map((selectedArea) => {
-                    return selectedArea.name !== null &&
-                      selectedArea.isInSearchResultsList === false ? (
-                      <div key={selectedArea.slug}>
-                        <label htmlFor={filter.area.id} className="mr-2">
-                          {selectedArea.name} ({selectedArea.vectorCount})
-                        </label>
-                        <input
+                      >
+                        <FormControl.Label>{area.name}</FormControl.Label>
+                        <FormControl.Counter>
+                          {area.vectorCount}
+                        </FormControl.Counter>
+                      </FormControl>
+                    );
+                  })}
+                  {loaderData.selectedAreas.length > 0 &&
+                    loaderData.selectedAreas.map((selectedArea) => {
+                      return selectedArea.name !== null &&
+                        selectedArea.isInSearchResultsList === false ? (
+                        <FormControl
                           {...getInputProps(filter.area, {
                             type: "checkbox",
                             value: selectedArea.slug,
                           })}
-                          defaultChecked={true}
-                        />
-                      </div>
-                    ) : null;
-                  })}
-                <Input
-                  id={fields.search.id}
-                  name={fields.search.name}
-                  type="text"
-                  value={searchQuery}
-                  onChange={(event) => {
-                    setSearchQuery(event.currentTarget.value);
-                    event.stopPropagation();
-                    debounceSubmit(event.currentTarget.form, {
-                      debounceTimeout: 250,
-                      preventScrollReset: true,
-                      replace: true,
-                    });
-                  }}
-                  placeholder={t("filter.searchAreaPlaceholder")}
-                >
-                  <Input.Label htmlFor={fields.search.id} hidden>
-                    {t("filter.searchAreaPlaceholder")}
-                  </Input.Label>
-                  <Input.HelperText>
-                    {t("filter.searchAreaHelper")}
-                  </Input.HelperText>
-                  <Input.Controls>
-                    <noscript>
-                      <Button>{t("filter.searchAreaButton")}</Button>
-                    </noscript>
-                  </Input.Controls>
-                </Input>
-                {loaderData.areas.state.length > 0 && (
-                  <>
-                    <legend className="font-bold mt-2">
-                      {t("filter.stateLabel")}
-                    </legend>
-                    {loaderData.areas.state.map((area) => {
+                          key={selectedArea.slug}
+                          defaultChecked
+                        >
+                          <FormControl.Label>
+                            {selectedArea.name}
+                          </FormControl.Label>
+                          <FormControl.Counter>
+                            {selectedArea.vectorCount}
+                          </FormControl.Counter>
+                        </FormControl>
+                      ) : null;
+                    })}
+                  <div className="mv-ml-4 mv-mr-2 mv-my-2">
+                    <Input
+                      id={fields.search.id}
+                      name={fields.search.name}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(event) => {
+                        setSearchQuery(event.currentTarget.value);
+                        event.stopPropagation();
+                        debounceSubmit(event.currentTarget.form, {
+                          debounceTimeout: 250,
+                          preventScrollReset: true,
+                          replace: true,
+                        });
+                      }}
+                      placeholder={t("filter.searchAreaPlaceholder")}
+                    >
+                      <Input.Label htmlFor={fields.search.id} hidden>
+                        {t("filter.searchAreaPlaceholder")}
+                      </Input.Label>
+                      <Input.HelperText>
+                        {t("filter.searchAreaHelper")}
+                      </Input.HelperText>
+                      <Input.Controls>
+                        <noscript>
+                          <Button>{t("filter.searchAreaButton")}</Button>
+                        </noscript>
+                      </Input.Controls>
+                    </Input>
+                  </div>
+                  {loaderData.areas.state.length > 0 && (
+                    <Dropdown.Legend>{t("filter.stateLabel")}</Dropdown.Legend>
+                  )}
+                  {loaderData.areas.state.length > 0 &&
+                    loaderData.areas.state.map((area) => {
                       return (
-                        <div key={area.slug}>
-                          <label htmlFor={filter.area.id} className="mr-2">
-                            {area.name} ({area.vectorCount})
-                          </label>
-                          <input
-                            {...getInputProps(filter.area, {
-                              type: "checkbox",
-                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                              value: area.slug || undefined,
-                            })}
-                            defaultChecked={area.isChecked}
-                            disabled={
-                              (area.vectorCount === 0 && !area.isChecked) ||
-                              navigation.state === "loading"
-                            }
-                          />
-                        </div>
+                        <FormControl
+                          {...getInputProps(filter.area, {
+                            type: "checkbox",
+                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                            value: area.slug || undefined,
+                          })}
+                          key={area.slug}
+                          defaultChecked={area.isChecked}
+                          disabled={
+                            (area.vectorCount === 0 && !area.isChecked) ||
+                            navigation.state === "loading"
+                          }
+                        >
+                          <FormControl.Label>{area.name}</FormControl.Label>
+                          <FormControl.Counter>
+                            {area.vectorCount}
+                          </FormControl.Counter>
+                        </FormControl>
                       );
                     })}
-                  </>
-                )}
-                {loaderData.areas.district.length > 0 && (
-                  <>
-                    <legend className="font-bold mt-2">
+                  {loaderData.areas.state.length > 0 &&
+                    loaderData.areas.district.length > 0 && (
+                      <Dropdown.Divider />
+                    )}
+                  {loaderData.areas.district.length > 0 && (
+                    <Dropdown.Legend>
                       {t("filter.districtLabel")}
-                    </legend>
-                    {loaderData.areas.district.map((area) => {
+                    </Dropdown.Legend>
+                  )}
+                  {loaderData.areas.district.length > 0 &&
+                    loaderData.areas.district.map((area) => {
                       return (
-                        <div key={area.slug}>
-                          <label htmlFor={filter.area.id} className="mr-2">
-                            {area.name} ({area.vectorCount})
-                          </label>
-                          <input
-                            {...getInputProps(filter.area, {
-                              type: "checkbox",
-                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                              value: area.slug || undefined,
-                            })}
-                            defaultChecked={area.isChecked}
-                            disabled={
-                              (area.vectorCount === 0 && !area.isChecked) ||
-                              navigation.state === "loading"
-                            }
-                          />
-                        </div>
+                        <FormControl
+                          {...getInputProps(filter.area, {
+                            type: "checkbox",
+                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                            value: area.slug || undefined,
+                          })}
+                          key={area.slug}
+                          defaultChecked={area.isChecked}
+                          disabled={
+                            (area.vectorCount === 0 && !area.isChecked) ||
+                            navigation.state === "loading"
+                          }
+                        >
+                          <FormControl.Label>{area.name}</FormControl.Label>
+                          <FormControl.Counter>
+                            {area.vectorCount}
+                          </FormControl.Counter>
+                        </FormControl>
                       );
                     })}
-                  </>
-                )}
-              </div>
+                </Dropdown.List>
+              </Dropdown>
             </fieldset>
             <fieldset {...getFieldsetProps(fields.sortBy)}>
-              {sortValues.map((sortValue) => {
-                return (
-                  <div key={sortValue}>
-                    <label htmlFor={fields.sortBy.id} className="mr-2">
-                      {t(`filter.sortBy.${sortValue}`)}
-                    </label>
-                    <input
-                      {...getInputProps(fields.sortBy, {
-                        type: "radio",
-                        value: sortValue,
-                      })}
-                      defaultChecked={
-                        loaderData.submission.value.sortBy === sortValue
-                      }
-                      disabled={navigation.state === "loading"}
-                    />
-                  </div>
-                );
-              })}
+              <Dropdown>
+                <Dropdown.Label>
+                  {t(`filter.sortBy.${loaderData.submission.value.sortBy}`)}
+                </Dropdown.Label>
+                <Dropdown.List>
+                  {sortValues.map((sortValue) => {
+                    return (
+                      <FormControl
+                        {...getInputProps(fields.sortBy, {
+                          type: "radio",
+                          value: sortValue,
+                        })}
+                        key={sortValue}
+                        defaultChecked={
+                          loaderData.submission.value.sortBy === sortValue
+                        }
+                        disabled={navigation.state === "loading"}
+                      >
+                        <FormControl.Label>
+                          {t(`filter.sortBy.${sortValue}`)}
+                        </FormControl.Label>
+                      </FormControl>
+                    );
+                  })}
+                </Dropdown.List>
+              </Dropdown>
             </fieldset>
           </div>
           <noscript>

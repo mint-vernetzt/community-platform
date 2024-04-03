@@ -221,6 +221,18 @@ export function DropdownLabel(
   );
 }
 
+export function DropDownListLegend(props: React.PropsWithChildren) {
+  return (
+    <legend className="mt-2 mx-4 mv-text-neutral-700 mv-text-sm mv-font-semibold">
+      {props.children}
+    </legend>
+  );
+}
+
+export function DropdownListDivider() {
+  return <hr className="mv-mx-4 my-2 mv-border-t mv-border-gray-200" />;
+}
+
 export const DropdownList = React.forwardRef<
   HTMLDivElement,
   React.PropsWithChildren & { orientation?: "left" | "right" }
@@ -237,11 +249,16 @@ export const DropdownList = React.forwardRef<
     <div ref={ref} className={classes}>
       <ul>
         {React.Children.map(props.children, (child) => {
-          return (
-            <li className="hover:mv-bg-gray-100 focus-within:mv-bg-gray-100">
-              {child}
-            </li>
+          console.log(child);
+          const classes = classNames(
+            React.isValidElement(child) &&
+              child.type !== DropdownListDivider &&
+              child.type !== DropDownListLegend &&
+              child.type !== "div" &&
+              "hover:mv-bg-gray-100 focus-within:mv-bg-gray-100"
           );
+
+          return <li className={classes}>{child}</li>;
         })}
       </ul>
     </div>
@@ -291,3 +308,5 @@ export function Dropdown(
 
 Dropdown.Label = DropdownLabel;
 Dropdown.List = DropdownList;
+Dropdown.Divider = DropdownListDivider;
+Dropdown.Legend = DropDownListLegend;
