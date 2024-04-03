@@ -354,8 +354,12 @@ export default function Index() {
           preventScrollReset
         >
           <input name="page" defaultValue="1" hidden />
-          <div className="mv-flex mv-mb-8">
-            <fieldset {...getFieldsetProps(fields.filter)} className="mv-flex">
+          <div className="mv-my-4 mv-flex mv-justify-between">
+            {/* <div className="mv-flex mv-mb-8"> */}
+            <fieldset
+              {...getFieldsetProps(fields.filter)}
+              className="mv-flex mv-flex-wrap mv-gap-4"
+            >
               <Dropdown>
                 <Dropdown.Label>{t("filter.offers")}</Dropdown.Label>
                 <Dropdown.List>
