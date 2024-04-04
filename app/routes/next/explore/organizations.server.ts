@@ -4,14 +4,14 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import { type GetOrganizationsSchema } from "./organizations";
 
-export function getTakeParam(page: GetOrganizationsSchema["page"] = 1) {
+export function getTakeParam(page: GetOrganizationsSchema["page"]) {
   const itemsPerPage = 12;
   const take = itemsPerPage * page;
   return take;
 }
 
 export async function getVisibilityFilteredOrganizationsCount(options: {
-  filter: NonNullable<GetOrganizationsSchema["filter"]>;
+  filter: GetOrganizationsSchema["filter"];
 }) {
   const whereClauses = [];
   const visibilityWhereClauses = [];
@@ -24,7 +24,8 @@ export async function getVisibilityFilteredOrganizationsCount(options: {
     };
     visibilityWhereClauses.push(visibilityWhereStatement);
 
-    for (const slug of options.filter[typedFilterKey]) {
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
           some: {
@@ -54,23 +55,22 @@ export async function getOrganizationsCount(options: {
   filter: GetOrganizationsSchema["filter"];
 }) {
   const whereClauses = [];
-  if (options.filter !== undefined) {
-    for (const filterKey in options.filter) {
-      const typedFilterKey = filterKey as keyof typeof options.filter;
-      for (const slug of options.filter[typedFilterKey]) {
-        const filterWhereStatement = {
-          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-            some: {
-              [`${
-                typedFilterKey === "type" ? "organizationType" : typedFilterKey
-              }`]: {
-                slug,
-              },
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
+      const filterWhereStatement = {
+        [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
+          some: {
+            [`${
+              typedFilterKey === "type" ? "organizationType" : typedFilterKey
+            }`]: {
+              slug,
             },
           },
-        };
-        whereClauses.push(filterWhereStatement);
-      }
+        },
+      };
+      whereClauses.push(filterWhereStatement);
     }
   }
 
@@ -90,32 +90,30 @@ export async function getAllOrganizations(options: {
   isLoggedIn: boolean;
 }) {
   const whereClauses = [];
-  if (options.filter !== undefined) {
-    for (const filterKey in options.filter) {
-      const typedFilterKey = filterKey as keyof typeof options.filter;
-      if (options.isLoggedIn === false) {
-        const visibilityWhereStatement = {
-          organizationVisibility: {
-            [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]:
-              true,
-          },
-        };
-        whereClauses.push(visibilityWhereStatement);
-      }
-      for (const slug of options.filter[typedFilterKey]) {
-        const filterWhereStatement = {
-          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-            some: {
-              [`${
-                typedFilterKey === "type" ? "organizationType" : typedFilterKey
-              }`]: {
-                slug,
-              },
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    if (options.isLoggedIn === false) {
+      const visibilityWhereStatement = {
+        organizationVisibility: {
+          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: true,
+        },
+      };
+      whereClauses.push(visibilityWhereStatement);
+    }
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
+      const filterWhereStatement = {
+        [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
+          some: {
+            [`${
+              typedFilterKey === "type" ? "organizationType" : typedFilterKey
+            }`]: {
+              slug,
             },
           },
-        };
-        whereClauses.push(filterWhereStatement);
-      }
+        },
+      };
+      whereClauses.push(filterWhereStatement);
     }
   }
 
@@ -194,14 +192,9 @@ export async function getAllOrganizations(options: {
     where: {
       AND: whereClauses,
     },
-    orderBy:
-      options.sortBy !== undefined
-        ? {
-            [options.sortBy.value]: options.sortBy.direction,
-          }
-        : {
-            name: "asc",
-          },
+    orderBy: {
+      [options.sortBy.value]: options.sortBy.direction,
+    },
     take: options.take,
   });
 
@@ -213,11 +206,10 @@ export async function getOrganizationFilterVector(options: {
 }) {
   let whereClause = "";
   const whereStatements = [];
-  if (options.filter !== undefined) {
-    for (const filterKey in options.filter) {
-      const typedFilterKey = filterKey as keyof typeof options.filter;
-      // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-      /* Example:
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
+    /* Example:
         const test = await prismaClient.organizationType.findMany({
           select: {
             slug: true,
@@ -239,42 +231,38 @@ export async function getOrganizationFilterVector(options: {
           },
         });
         */
-      // Further reading:
-      // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
-      // https://github.com/prisma/prisma/issues/2505
+    // Further reading:
+    // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
+    // https://github.com/prisma/prisma/issues/2505
 
-      // I worked arround with an assertion. But if any table except organizationTypes remove their slug, this will break and typescript will not warn us.
-      const fakeTypedFilterKey = filterKey as "organizationType";
-      let allFilterValues;
-      try {
-        allFilterValues = await prismaClient[
-          `${
-            typedFilterKey === "type" ? "organizationType" : fakeTypedFilterKey
-          }`
-        ].findMany({
-          select: {
-            slug: true,
-          },
-        });
-      } catch (error: any) {
-        throw json({ message: "Server error" }, { status: 500 });
-      }
+    // I worked arround with an assertion. But if any table except organizationTypes remove their slug, this will break and typescript will not warn us.
+    const fakeTypedFilterKey = filterKey as "organizationType";
+    let allPossibleFilterValues;
+    try {
+      allPossibleFilterValues = await prismaClient[
+        `${typedFilterKey === "type" ? "organizationType" : fakeTypedFilterKey}`
+      ].findMany({
+        select: {
+          slug: true,
+        },
+      });
+    } catch (error: any) {
+      throw json({ message: "Server error" }, { status: 500 });
+    }
 
-      for (const slug of options.filter[typedFilterKey]) {
-        // Validate slug because of queryRawUnsafe
-        invariantResponse(
-          // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-          // @ts-ignore
-          allFilterValues.some((value) => {
-            return value.slug === slug;
-          }),
-          "Cannot filter by the specified slug.",
-          { status: 400 }
-        );
-        const tuple = `${typedFilterKey}\\:${slug}`;
-        const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-        whereStatements.push(whereStatement);
-      }
+    const filterValues = options.filter[typedFilterKey];
+    for (const slug of filterValues) {
+      // Validate slug because of queryRawUnsafe
+      invariantResponse(
+        allPossibleFilterValues.some((value) => {
+          return value.slug === slug;
+        }),
+        "Cannot filter by the specified slug.",
+        { status: 400 }
+      );
+      const tuple = `${typedFilterKey}\\:${slug}`;
+      const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
+      whereStatements.push(whereStatement);
     }
   }
 
@@ -283,7 +271,7 @@ export async function getOrganizationFilterVector(options: {
   }
 
   const filterVector: {
-    attr: keyof NonNullable<typeof options.filter>;
+    attr: keyof typeof options.filter;
     value: string[];
     count: number[];
   }[] = await prismaClient.$queryRawUnsafe(`
@@ -337,6 +325,7 @@ export async function getAllOrganizationTypes() {
     select: {
       id: true,
       title: true,
+      description: true,
       slug: true,
     },
   });
@@ -350,6 +339,7 @@ export async function getAllFocuses() {
     select: {
       id: true,
       title: true,
+      description: true,
       slug: true,
     },
   });

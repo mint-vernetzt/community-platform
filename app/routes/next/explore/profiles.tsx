@@ -74,7 +74,16 @@ const getProfilesSchema = z.object({
       offer: z.array(z.string()),
       area: z.array(z.string()),
     })
-    .optional(),
+    .optional()
+    .transform((filter) => {
+      if (filter === undefined) {
+        return {
+          offer: [],
+          area: [],
+        };
+      }
+      return filter;
+    }),
   sortBy: z
     .enum(sortValues)
     .optional()
@@ -86,10 +95,29 @@ const getProfilesSchema = z.object({
           direction: splittedValue[1],
         };
       }
-      return sortValue;
+      return {
+        value: sortValues[0].split("-")[0],
+        direction: sortValues[0].split("-")[1],
+      };
     }),
-  page: z.number().optional(),
-  search: z.string().optional(),
+  page: z
+    .number()
+    .optional()
+    .transform((page) => {
+      if (page === undefined) {
+        return 1;
+      }
+      return page;
+    }),
+  search: z
+    .string()
+    .optional()
+    .transform((searchQuery) => {
+      if (searchQuery === undefined) {
+        return "";
+      }
+      return searchQuery;
+    }),
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -114,7 +142,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const isLoggedIn = sessionUser !== null;
 
   let filteredByVisibilityCount;
-  if (!isLoggedIn && submission.value.filter !== undefined) {
+  if (!isLoggedIn) {
     filteredByVisibilityCount = await getVisibilityFilteredProfilesCount({
       filter: submission.value.filter,
     });
@@ -137,13 +165,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
     if (!isLoggedIn) {
       // Filter profile
+      type EnhancedProfile = typeof enhancedProfile;
       enhancedProfile =
-        filterProfileByVisibility<typeof enhancedProfile>(enhancedProfile);
+        filterProfileByVisibility<EnhancedProfile>(enhancedProfile);
       // Filter organizations where profile belongs to
       enhancedProfile.memberOf = enhancedProfile.memberOf.map((relation) => {
-        const filteredOrganization = filterOrganizationByVisibility<
-          typeof relation.organization
-        >(relation.organization);
+        type OrganizationRelation = typeof relation.organization;
+        const filteredOrganization =
+          filterOrganizationByVisibility<OrganizationRelation>(
+            relation.organization
+          );
         return { ...relation, organization: { ...filteredOrganization } };
       });
     }
@@ -214,8 +245,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
     let isChecked;
-    // TODO: Remove '|| area.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || area.slug === null) {
+    // TODO: Remove 'area.slug === null' when slug isn't optional anymore (after migration)
+    if (area.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.area.includes(area.slug);
@@ -227,28 +258,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
-  let selectedAreas: Array<{
-    slug: string;
-    name: string | null;
-    vectorCount: number;
-    isInSearchResultsList: boolean;
-  }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedAreas = await Promise.all(
-      submission.value.filter.area.map(async (slug) => {
-        const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
-        const isInSearchResultsList = areas.some((area) => {
-          return area.slug === slug;
-        });
-        return {
-          slug,
-          name: (await getAreaNameBySlug(slug)) || null,
-          vectorCount,
-          isInSearchResultsList,
-        };
-      })
-    );
-  }
+  const selectedAreas = await Promise.all(
+    submission.value.filter.area.map(async (slug) => {
+      const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
+      const isInSearchResultsList = areas.some((area) => {
+        return area.slug === slug;
+      });
+      return {
+        slug,
+        name: (await getAreaNameBySlug(slug)) || null,
+        vectorCount,
+        isInSearchResultsList,
+      };
+    })
+  );
 
   const offers = await getAllOffers();
   const enhancedOffers = offers.map((offer) => {
@@ -258,45 +281,23 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "offer"
     );
     let isChecked;
-    // TODO: Remove '|| offer.slug === null' when slug isn't optional anymore (after migration)
-    if (submission.value.filter === undefined || offer.slug === null) {
+    // TODO: Remove 'offer.slug === null' when slug isn't optional anymore (after migration)
+    if (offer.slug === null) {
       isChecked = false;
     } else {
       isChecked = submission.value.filter.offer.includes(offer.slug);
     }
     return { ...offer, vectorCount, isChecked };
   });
-  let selectedOffers: Array<{ slug: string; title: string | null }> = [];
-  if (submission.value.filter !== undefined) {
-    selectedOffers = submission.value.filter.offer.map((slug) => {
-      const offerMatch = offers.find((offer) => {
-        return offer.slug === slug;
-      });
-      return {
-        slug,
-        title: offerMatch?.title || null,
-      };
+  const selectedOffers = submission.value.filter.offer.map((slug) => {
+    const offerMatch = offers.find((offer) => {
+      return offer.slug === slug;
     });
-  }
-
-  let transformedSubmission;
-  if (submission.value.sortBy !== undefined) {
-    transformedSubmission = {
-      ...submission,
-      value: {
-        ...submission.value,
-        sortBy: `${submission.value.sortBy.value}-${submission.value.sortBy.direction}`,
-      },
+    return {
+      slug,
+      title: offerMatch?.title || null,
     };
-  } else {
-    transformedSubmission = {
-      ...submission,
-      value: {
-        ...submission.value,
-        sortBy: sortValues[0],
-      },
-    };
-  }
+  });
 
   return json({
     isLoggedIn,
@@ -305,7 +306,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     selectedAreas,
     offers: enhancedOffers,
     selectedOffers,
-    submission: transformedSubmission,
+    submission,
     filteredByVisibilityCount,
     profilesCount,
   });
@@ -313,7 +314,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 // TODO: sortBy list links, deaktivierte checkboxen grau
 
-export default function Index() {
+export default function ExploreProfiles() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
@@ -322,10 +323,6 @@ export default function Index() {
   const debounceSubmit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
-  const page = searchParams.get("page") || "1";
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${parseInt(page) + 1}`);
-
   const [form, fields] = useForm<GetProfilesSchema>({
     lastResult: loaderData.submission,
     defaultValue: loaderData.submission.value,
@@ -333,8 +330,11 @@ export default function Index() {
 
   const filter = fields.filter.getFieldset();
 
+  const loadMoreSearchParams = new URLSearchParams(searchParams);
+  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+
   const [searchQuery, setSearchQuery] = React.useState(
-    loaderData.submission.value.search || ""
+    loaderData.submission.value.search
   );
 
   return (
@@ -380,7 +380,12 @@ export default function Index() {
                           navigation.state === "loading"
                         }
                       >
-                        <FormControl.Label>{offer.title}</FormControl.Label>
+                        <FormControl.Label>
+                          {offer.title}
+                          {offer.description !== null ? (
+                            <p className="mv-text-sm">{offer.description}</p>
+                          ) : null}
+                        </FormControl.Label>
                         <FormControl.Counter>
                           {offer.vectorCount}
                         </FormControl.Counter>
@@ -555,6 +560,7 @@ export default function Index() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {sortValues.map((sortValue) => {
+                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
                     return (
                       <FormControl
                         {...getInputProps(fields.sortBy, {
@@ -562,9 +568,7 @@ export default function Index() {
                           value: sortValue,
                         })}
                         key={sortValue}
-                        defaultChecked={
-                          loaderData.submission.value.sortBy === sortValue
-                        }
+                        defaultChecked={submissionSortValue === sortValue}
                         disabled={navigation.state === "loading"}
                       >
                         <FormControl.Label>
@@ -630,9 +634,9 @@ export default function Index() {
               })}
             </Chip.Container>
             <Link
-              to={`/explore/profiles${
+              to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy}`
+                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
                   : ""
               }`}
               preventScrollReset

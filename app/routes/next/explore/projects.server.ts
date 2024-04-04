@@ -2,23 +2,23 @@ import { json } from "@remix-run/server-runtime";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
-import { type GetProfilesSchema } from "./profiles";
+import { type GetProjectsSchema } from "./projects";
 
-export function getTakeParam(page: GetProfilesSchema["page"]) {
+export function getTakeParam(page: GetProjectsSchema["page"]) {
   const itemsPerPage = 12;
   const take = itemsPerPage * page;
   return take;
 }
 
-export async function getVisibilityFilteredProfilesCount(options: {
-  filter: GetProfilesSchema["filter"];
+export async function getVisibilityFilteredProjectsCount(options: {
+  filter: GetProjectsSchema["filter"];
 }) {
   const whereClauses = [];
   const visibilityWhereClauses = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const visibilityWhereStatement = {
-      profileVisibility: {
+      projectVisibility: {
         [`${typedFilterKey}s`]: false,
       },
     };
@@ -40,17 +40,17 @@ export async function getVisibilityFilteredProfilesCount(options: {
   }
   whereClauses.push({ OR: [...visibilityWhereClauses] });
 
-  const count = await prismaClient.profile.count({
+  const count = await prismaClient.project.count({
     where: {
-      AND: whereClauses,
+      AND: [...whereClauses, { published: true }],
     },
   });
 
   return count;
 }
 
-export async function getProfilesCount(options: {
-  filter: GetProfilesSchema["filter"];
+export async function getProjectsCount(options: {
+  filter: GetProjectsSchema["filter"];
 }) {
   const whereClauses = [];
   for (const filterKey in options.filter) {
@@ -70,18 +70,18 @@ export async function getProfilesCount(options: {
     }
   }
 
-  const count = await prismaClient.profile.count({
+  const count = await prismaClient.project.count({
     where: {
-      AND: whereClauses,
+      AND: [...whereClauses, { published: true }],
     },
   });
 
   return count;
 }
 
-export async function getAllProfiles(options: {
-  filter: GetProfilesSchema["filter"];
-  sortBy: GetProfilesSchema["sortBy"];
+export async function getAllProjects(options: {
+  filter: GetProjectsSchema["filter"];
+  sortBy: GetProjectsSchema["sortBy"];
   take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
@@ -90,7 +90,7 @@ export async function getAllProfiles(options: {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     if (options.isLoggedIn === false) {
       const visibilityWhereStatement = {
-        profileVisibility: {
+        projectVisibility: {
           [`${typedFilterKey}s`]: true,
         },
       };
@@ -111,17 +111,29 @@ export async function getAllProfiles(options: {
     }
   }
 
-  const profiles = await prismaClient.profile.findMany({
+  const projects = await prismaClient.project.findMany({
     select: {
       id: true,
-      academicTitle: true,
-      username: true,
-      firstName: true,
-      lastName: true,
-      position: true,
-      avatar: true,
+      slug: true,
+      name: true,
+      logo: true,
       background: true,
-      memberOf: {
+      excerpt: true,
+      subline: true,
+      awards: {
+        select: {
+          award: {
+            select: {
+              id: true,
+              title: true,
+              shortTitle: true,
+              date: true,
+              logo: true,
+            },
+          },
+        },
+      },
+      responsibleOrganizations: {
         select: {
           organization: {
             select: {
@@ -141,42 +153,22 @@ export async function getAllProfiles(options: {
           },
         },
       },
-      areas: {
-        select: {
-          area: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-      offers: {
-        select: {
-          offer: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
-      profileVisibility: {
+      projectVisibility: {
         select: {
           id: true,
-          academicTitle: true,
-          username: true,
-          firstName: true,
-          lastName: true,
-          position: true,
-          avatar: true,
+          slug: true,
+          name: true,
+          logo: true,
           background: true,
-          memberOf: true,
-          areas: true,
-          offers: true,
+          excerpt: true,
+          subline: true,
+          awards: true,
+          responsibleOrganizations: true,
         },
       },
     },
     where: {
-      AND: whereClauses,
+      AND: [...whereClauses, { published: true }],
     },
     orderBy: {
       [options.sortBy.value]: options.sortBy.direction,
@@ -184,44 +176,44 @@ export async function getAllProfiles(options: {
     take: options.take,
   });
 
-  return profiles;
+  return projects;
 }
 
-export async function getProfileFilterVector(options: {
-  filter: GetProfilesSchema["filter"];
+export async function getProjectFilterVector(options: {
+  filter: GetProjectsSchema["filter"];
 }) {
   let whereClause = "";
-  const whereStatements = [];
+  const whereStatements = ["published = true"];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
     /* Example:
-      const test = await prismaClient.offer.findMany({
-        select: {
-          slug: true,
-          OffersOnProfiles: {
-            select: {
-              offerId: true,
-            },
+    const test = await prismaClient.projectTargetGroup.findMany({
+      select: {
+        slug: true,
+        projects: {
+          select: {
+            projectId: true,
           },
         },
-      });
-      const test2 = await prismaClient.area.findMany({
-        select: {
-          slug: true,
-          AreasOnProfiles: {
-            select: {
-              areaId: true,
-            },
+      },
+    });
+    const test2 = await prismaClient.area.findMany({
+      select: {
+        slug: true,
+        AreasOnProjects: {
+          select: {
+            areaId: true,
           },
         },
-      });
-       */
+      },
+    });
+    */
     // Further reading:
     // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
     // https://github.com/prisma/prisma/issues/2505
 
-    // I worked arround with an assertion. But if any table except areas remove their slug, this will break and typescript will not warn us.
+    // I worked arround with an assertion. But if any table except area remove their slug, this will break and typescript will not warn us.
     const fakeTypedFilterKey = filterKey as "area";
     let allPossibleFilterValues;
     try {
@@ -261,17 +253,17 @@ export async function getProfileFilterVector(options: {
     value: string[];
     count: number[];
   }[] = await prismaClient.$queryRawUnsafe(`
-  SELECT
-    split_part(word, ':', 1) AS attr,
-    array_agg(split_part(word, ':', 2)) AS value,
-    array_agg(ndoc) AS count
-  FROM ts_stat($$
-    SELECT filter_vector
-    FROM profiles
-    ${whereClause}
-  $$)
-  GROUP BY attr;
-  `);
+    SELECT
+      split_part(word, ':', 1) AS attr,
+      array_agg(split_part(word, ':', 2)) AS value,
+      array_agg(ndoc) AS count
+    FROM ts_stat($$
+      SELECT filter_vector
+      FROM projects
+      ${whereClause}
+    $$)
+    GROUP BY attr;
+    `);
 
   return filterVector;
 }
@@ -279,9 +271,9 @@ export async function getProfileFilterVector(options: {
 export function getFilterCountForSlug(
   // TODO: Remove '| null' when slug isn't optional anymore (after migration)
   slug: string | null,
-  filterVector: Awaited<ReturnType<typeof getProfileFilterVector>>,
+  filterVector: Awaited<ReturnType<typeof getProjectFilterVector>>,
   attribute: ArrayElement<
-    Awaited<ReturnType<typeof getProfileFilterVector>>
+    Awaited<ReturnType<typeof getProjectFilterVector>>
   >["attr"]
 ) {
   const filterKeyVector = filterVector.find((vector) => {
@@ -303,8 +295,78 @@ export function getFilterCountForSlug(
   return filterCount;
 }
 
-export async function getAllOffers() {
-  return await prismaClient.offer.findMany({
+export async function getAllDisciplines() {
+  return await prismaClient.discipline.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      slug: true,
+    },
+  });
+}
+
+export async function getAllAdditionalDisciplines() {
+  return await prismaClient.additionalDiscipline.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      slug: true,
+    },
+  });
+}
+
+export async function getAllProjectTargetGroups() {
+  return await prismaClient.projectTargetGroup.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      slug: true,
+    },
+  });
+}
+
+export async function getAllFormats() {
+  return await prismaClient.format.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      slug: true,
+    },
+  });
+}
+
+export async function getAllSpecialTargetGroups() {
+  return await prismaClient.specialTargetGroup.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      slug: true,
+    },
+  });
+}
+
+export async function getAllFinancings() {
+  return await prismaClient.financing.findMany({
     orderBy: {
       title: "asc",
     },
