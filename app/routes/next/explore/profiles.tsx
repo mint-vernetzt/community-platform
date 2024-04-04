@@ -311,6 +311,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
+// TODO: sortBy list links, deaktivierte checkboxen grau
+
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
