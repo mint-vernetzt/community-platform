@@ -28,7 +28,7 @@ import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { H1 } from "~/components/Heading/Heading";
+import { H1, H2 } from "~/components/Heading/Heading";
 import { GravityType, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import {
@@ -49,6 +49,7 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { Dropdown, FormControl } from "./__components";
+import classNames from "classnames";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -118,6 +119,7 @@ const getProfilesSchema = z.object({
       }
       return searchQuery;
     }),
+  showFilters: z.boolean().optional(),
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -337,6 +339,13 @@ export default function ExploreProfiles() {
     loaderData.submission.value.search
   );
 
+  const filterClasses = classNames(
+    "mv-fixed lg:mv-relative mv-z-20 mv-bg-white mv-w-full mv-h-dvh lg:mv-h-fit mv-left-0 mv-bottom-0 mv-justify-between mv-flex mv-flex-col lg:mv-flex-row",
+    loaderData.submission.value.showFilters === true
+      ? "mv-flex"
+      : "mv-hidden lg:mv-flex"
+  );
+
   return (
     <>
       <section className="mv-container mv-mb-12 mv-mt-5 md:mv-mt-7 lg:mv-mt-8 mv-text-center">
@@ -346,7 +355,7 @@ export default function ExploreProfiles() {
         <p>{t("intro")}</p>
       </section>
 
-      <section className="mv-container mv-mb-12">
+      <section className="mv-container mv-mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -356,8 +365,83 @@ export default function ExploreProfiles() {
           preventScrollReset
         >
           <input name="page" defaultValue="1" hidden />
-          <div className="mv-my-4 mv-flex mv-justify-between">
-            {/* <div className="mv-flex mv-mb-8"> */}
+          <div className="lg:mv-hidden mv-text-center">
+            <label
+              className="mv-inline-flex mv-items-center mv-text-white mv-font-semibold mv-whitespace-nowrap mv-px-6 mv-py-2.5 mv-border mv-rounded-lg mv-border-primary-500 mv-gap-2 mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-cursor-pointer"
+              aria-label={t("filter.showFiltersLabel")}
+            >
+              {t("filter.showFiltersLabel")}
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M13.125 6.75C13.125 5.57639 14.0764 4.625 15.25 4.625C16.4236 4.625 17.375 5.57639 17.375 6.75C17.375 7.92361 16.4236 8.875 15.25 8.875C14.0764 8.875 13.125 7.9236 13.125 6.75Z"
+                  stroke="currentColor"
+                  strokeWidth="1.25"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M13 6.75L2 6.75"
+                  stroke="currentColor"
+                  strokeWidth="1.25"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M6.875 13.25C6.875 14.4236 5.9236 15.375 4.75 15.375C3.5764 15.375 2.625 14.4236 2.625 13.25C2.625 12.0764 3.57639 11.125 4.75 11.125C5.9236 11.125 6.875 12.0764 6.875 13.25Z"
+                  stroke="currentColor"
+                  strokeWidth="1.25"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M7 13.25L18 13.25"
+                  stroke="currentColor"
+                  strokeWidth="1.25"
+                  strokeLinecap="round"
+                />
+              </svg>
+
+              <input
+                {...getInputProps(fields.showFilters, {
+                  type: "checkbox",
+                  value: loaderData.submission.value.showFilters === true,
+                })}
+                className="mv-hidden"
+              />
+            </label>
+          </div>
+          {/* <div className="mv-my-4 mv-flex mv-justify-between"> */}
+          <div className={filterClasses}>
+            <div className="mv-flex mv-justify-between mv-items-center mv-px-4 mv-pt-8 mv-pb-4 mv-shadow-lg lg:mv-hidden">
+              <h2 className="mv-w-full mv-mb-0 mv-text-center mv-text-gray-700 mv-text-base">
+                {t("filter.title")}
+              </h2>
+              <Link
+                className="lg:mv-hidden"
+                to={`./${location.search
+                  .replace("showFilters=on", "")
+                  .replace("&&", "&")
+                  .replace("?&", "?")}`}
+                preventScrollReset
+                aria-label="Close filters"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="33"
+                  height="33"
+                  viewBox="0 0 33 33"
+                  fill="none"
+                >
+                  <path
+                    d="M9.58226 9.58226C9.67806 9.48623 9.79186 9.41003 9.91715 9.35804C10.0424 9.30606 10.1767 9.2793 10.3124 9.2793C10.448 9.2793 10.5823 9.30606 10.7076 9.35804C10.8329 9.41003 10.9467 9.48623 11.0425 9.58226L16.4999 15.0417L21.9573 9.58226C22.0531 9.48638 22.167 9.41033 22.2922 9.35844C22.4175 9.30654 22.5518 9.27984 22.6874 9.27984C22.823 9.27984 22.9573 9.30654 23.0825 9.35844C23.2078 9.41033 23.3216 9.48638 23.4175 9.58226C23.5134 9.67815 23.5895 9.79197 23.6413 9.91725C23.6932 10.0425 23.7199 10.1768 23.7199 10.3124C23.7199 10.448 23.6932 10.5823 23.6413 10.7075C23.5895 10.8328 23.5134 10.9466 23.4175 11.0425L17.9581 16.4999L23.4175 21.9573C23.5134 22.0531 23.5895 22.167 23.6413 22.2922C23.6932 22.4175 23.7199 22.5518 23.7199 22.6874C23.7199 22.823 23.6932 22.9573 23.6413 23.0825C23.5895 23.2078 23.5134 23.3216 23.4175 23.4175C23.3216 23.5134 23.2078 23.5895 23.0825 23.6413C22.9573 23.6932 22.823 23.7199 22.6874 23.7199C22.5518 23.7199 22.4175 23.6932 22.2922 23.6413C22.167 23.5895 22.0531 23.5134 21.9573 23.4175L16.4999 17.9581L11.0425 23.4175C10.9466 23.5134 10.8328 23.5895 10.7075 23.6413C10.5823 23.6932 10.448 23.7199 10.3124 23.7199C10.1768 23.7199 10.0425 23.6932 9.91725 23.6413C9.79197 23.5895 9.67815 23.5134 9.58226 23.4175C9.48638 23.3216 9.41033 23.2078 9.35844 23.0825C9.30654 22.9573 9.27984 22.823 9.27984 22.6874C9.27984 22.5518 9.30654 22.4175 9.35844 22.2922C9.41033 22.167 9.48638 22.0531 9.58226 21.9573L15.0417 16.4999L9.58226 11.0425C9.48623 10.9467 9.41003 10.8329 9.35804 10.7076C9.30606 10.5823 9.2793 10.448 9.2793 10.3124C9.2793 10.1767 9.30606 10.0424 9.35804 9.91715C9.41003 9.79186 9.48623 9.67806 9.58226 9.58226Z"
+                    fill="#3C4658"
+                  />
+                </svg>
+              </Link>
+            </div>
             <fieldset
               {...getFieldsetProps(fields.filter)}
               className="mv-flex mv-flex-wrap mv-gap-4"
@@ -554,9 +638,11 @@ export default function ExploreProfiles() {
               </Dropdown>
             </fieldset>
             <fieldset {...getFieldsetProps(fields.sortBy)}>
-              <Dropdown>
+              <Dropdown orientation="right">
                 <Dropdown.Label>
-                  {t(`filter.sortBy.${loaderData.submission.value.sortBy}`)}
+                  {t(
+                    `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                  )}
                 </Dropdown.Label>
                 <Dropdown.List>
                   {sortValues.map((sortValue) => {
@@ -586,10 +672,13 @@ export default function ExploreProfiles() {
           </noscript>
         </Form>
       </section>
+      <div className="mv-container mv-mb-4">
+        <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+      </div>
       <section className="container mb-6">
         {(loaderData.selectedOffers.length > 0 ||
           loaderData.selectedAreas.length > 0) && (
-          <div className="flex items-center">
+          <div className="mv-flex mv-items-center">
             <Chip.Container>
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);

@@ -249,7 +249,6 @@ export const DropdownList = React.forwardRef<
     <div ref={ref} className={classes}>
       <ul>
         {React.Children.map(props.children, (child) => {
-          console.log(child);
           const classes = classNames(
             React.isValidElement(child) &&
               child.type !== DropdownListDivider &&

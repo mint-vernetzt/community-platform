@@ -2,6 +2,8 @@
   "headline": "Entdecke die Community",
   "intro": "Hier findest du die Profile von Akteur:innen der MINT-Community.",
   "filter": {
+    "title": "Filter",
+    "showFiltersLabel": "Profile filtern",
 
     "activityAreas": "Aktivitätsgebiet",
     "lookingFor": "Ich suche",
