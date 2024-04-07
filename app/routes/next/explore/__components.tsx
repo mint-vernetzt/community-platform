@@ -195,7 +195,7 @@ export function DropdownLabel(
   return (
     <label
       ref={ref}
-      className="mv-peer mv-group mv-min-w-content mv-flex mv-items-center mv-gap-3 mv-cursor-pointer mv-px-4 mv-py-2.5 mv-rounded-lg mv-border mv-border-gray-100 mv-font-semibold mv-text-gray-700 hover:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-bg-gray-100 mv-transition"
+      className="mv-peer mv-group mv-w-full lg:mv-w-fit lg:mv-min-w-content mv-inline-flex lg:mv-flex mv-justify-between mv-items-center mv-gap-3 mv-cursor-pointer mv-p-6 lg:mv-px-4 lg:mv-py-2.5 lg:mv-rounded-lg lg:mv-border lg:mv-border-gray-100 mv-font-semibold mv-text-gray-700 hover:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-bg-gray-100 mv-transition"
     >
       <span>{props.children}</span>
       <input
@@ -209,7 +209,7 @@ export function DropdownLabel(
         width="20"
         height="20"
         viewBox="0 0 20 20"
-        className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90"
+        className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90 mv-shrink-0"
       >
         <path
           fill="currentColor"
@@ -240,7 +240,7 @@ export const DropdownList = React.forwardRef<
   const orientation = props.orientation || "left";
 
   const classes = classNames(
-    "mv-w-72 mv-min-h-fit mv-max-h-64 mv-overflow-scroll mv-absolute mv-top-[calc(100%+0.5rem)] mv-py-2 mv-rounded-lg mv-shadow-xl mv-hidden peer-has-[:checked]:mv-block peer-has-[:checked]:mv-z-10 mv-bg-white",
+    "lg:mv-w-72 lg:mv-min-h-fit lg:mv-max-h-64 mv-overflow-scroll lg:mv-absolute lg:mv-top-[calc(100%+0.5rem)] mv-py-2 lg:mv-rounded-lg lg:mv-shadow-xl mv-hidden peer-has-[:checked]:mv-block peer-has-[:checked]:mv-z-10 mv-bg-white",
     orientation === "left" && "mv-left-0",
     orientation === "right" && "mv-right-0"
   );
@@ -295,12 +295,16 @@ export function Dropdown(
         })
       : null;
 
-  const classes = classNames(props.className, "mv-relative mv-group/dropdown");
+  const classes = classNames(
+    props.className,
+    "mv-relative mv-group/dropdown mv-w-full lg:mv-w-fit"
+  );
 
   return (
     <div className={classes}>
       {labelClone}
       {listClone}
+      <hr className="lg:mv-hidden mv-border-b mv-border-gray-200" />
     </div>
   );
 }

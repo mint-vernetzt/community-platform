@@ -340,7 +340,7 @@ export default function ExploreProfiles() {
   );
 
   const filterClasses = classNames(
-    "mv-fixed lg:mv-relative mv-z-20 mv-bg-white mv-w-full mv-h-dvh lg:mv-h-fit mv-left-0 mv-bottom-0 mv-justify-between mv-flex mv-flex-col lg:mv-flex-row",
+    "mv-fixed mv-overflow-scroll lg:mv-overflow-visible lg:mv-relative mv-z-20 mv-bg-white mv-w-full mv-h-dvh lg:mv-h-fit mv-left-0 mv-bottom-0 lg:mv-justify-between mv-flex mv-flex-col lg:mv-flex-row",
     loaderData.submission.value.showFilters === true
       ? "mv-flex"
       : "mv-hidden lg:mv-flex"
@@ -367,7 +367,7 @@ export default function ExploreProfiles() {
           <input name="page" defaultValue="1" hidden />
           <div className="lg:mv-hidden mv-text-center">
             <label
-              className="mv-inline-flex mv-items-center mv-text-white mv-font-semibold mv-whitespace-nowrap mv-px-6 mv-py-2.5 mv-border mv-rounded-lg mv-border-primary-500 mv-gap-2 mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-cursor-pointer"
+              className="mv-inline-flex mv-items-center mv-font-semibold mv-whitespace-nowrap mv-px-6 mv-py-2.5 mv-border mv-rounded-lg mv-border-primary-500 mv-gap-2 mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-cursor-pointer"
               aria-label={t("filter.showFiltersLabel")}
             >
               {t("filter.showFiltersLabel")}
@@ -442,145 +442,67 @@ export default function ExploreProfiles() {
                 </svg>
               </Link>
             </div>
-            <fieldset
-              {...getFieldsetProps(fields.filter)}
-              className="mv-flex mv-flex-wrap mv-gap-4"
-            >
-              <Dropdown>
-                <Dropdown.Label>{t("filter.offers")}</Dropdown.Label>
-                <Dropdown.List>
-                  {loaderData.offers.map((offer) => {
-                    return (
-                      <FormControl
-                        {...getInputProps(filter.offer, {
-                          type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: offer.slug || undefined,
-                        })}
-                        key={offer.slug}
-                        defaultChecked={offer.isChecked}
-                        disabled={
-                          (offer.vectorCount === 0 && !offer.isChecked) ||
-                          navigation.state === "loading"
-                        }
-                      >
-                        <FormControl.Label>
-                          {offer.title}
-                          {offer.description !== null ? (
-                            <p className="mv-text-sm">{offer.description}</p>
-                          ) : null}
-                        </FormControl.Label>
-                        <FormControl.Counter>
-                          {offer.vectorCount}
-                        </FormControl.Counter>
-                      </FormControl>
-                    );
-                  })}
-                </Dropdown.List>
-              </Dropdown>
-              <Dropdown>
-                <Dropdown.Label>{t("filter.areas")}</Dropdown.Label>
-                <Dropdown.List>
-                  {loaderData.areas.global.map((area) => {
-                    return (
-                      <FormControl
-                        {...getInputProps(filter.area, {
-                          type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: area.slug || undefined,
-                        })}
-                        key={area.slug}
-                        defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
-                      >
-                        <FormControl.Label>{area.name}</FormControl.Label>
-                        <FormControl.Counter>
-                          {area.vectorCount}
-                        </FormControl.Counter>
-                      </FormControl>
-                    );
-                  })}
-                  {loaderData.areas.country.map((area) => {
-                    return (
-                      <FormControl
-                        {...getInputProps(filter.area, {
-                          type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: area.slug || undefined,
-                        })}
-                        key={area.slug}
-                        defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
-                      >
-                        <FormControl.Label>{area.name}</FormControl.Label>
-                        <FormControl.Counter>
-                          {area.vectorCount}
-                        </FormControl.Counter>
-                      </FormControl>
-                    );
-                  })}
-                  {loaderData.selectedAreas.length > 0 &&
-                    loaderData.selectedAreas.map((selectedArea) => {
-                      return selectedArea.name !== null &&
-                        selectedArea.isInSearchResultsList === false ? (
+            <div className="mv-flex mv-flex-col-reverse mv-grow mv-px-4">
+              <fieldset
+                {...getFieldsetProps(fields.filter)}
+                className="mv-flex mv-flex-wrap lg:mv-gap-4"
+              >
+                <Dropdown>
+                  <Dropdown.Label>
+                    {t("filter.offers")}
+                    <span className="mv-font-normal">
+                      <br />
+                      {loaderData.selectedOffers
+                        .map((offer) => {
+                          return offer.title;
+                        })
+                        .join(", ")}
+                    </span>
+                  </Dropdown.Label>
+                  <Dropdown.List>
+                    {loaderData.offers.map((offer) => {
+                      return (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(filter.offer, {
                             type: "checkbox",
-                            value: selectedArea.slug,
+                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                            value: offer.slug || undefined,
                           })}
-                          key={selectedArea.slug}
-                          defaultChecked
+                          key={offer.slug}
+                          defaultChecked={offer.isChecked}
+                          disabled={
+                            (offer.vectorCount === 0 && !offer.isChecked) ||
+                            navigation.state === "loading"
+                          }
                         >
                           <FormControl.Label>
-                            {selectedArea.name}
+                            {offer.title}
+                            {offer.description !== null ? (
+                              <p className="mv-text-sm">{offer.description}</p>
+                            ) : null}
                           </FormControl.Label>
                           <FormControl.Counter>
-                            {selectedArea.vectorCount}
+                            {offer.vectorCount}
                           </FormControl.Counter>
                         </FormControl>
-                      ) : null;
+                      );
                     })}
-                  <div className="mv-ml-4 mv-mr-2 mv-my-2">
-                    <Input
-                      id={fields.search.id}
-                      name={fields.search.name}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(event) => {
-                        setSearchQuery(event.currentTarget.value);
-                        event.stopPropagation();
-                        debounceSubmit(event.currentTarget.form, {
-                          debounceTimeout: 250,
-                          preventScrollReset: true,
-                          replace: true,
-                        });
-                      }}
-                      placeholder={t("filter.searchAreaPlaceholder")}
-                    >
-                      <Input.Label htmlFor={fields.search.id} hidden>
-                        {t("filter.searchAreaPlaceholder")}
-                      </Input.Label>
-                      <Input.HelperText>
-                        {t("filter.searchAreaHelper")}
-                      </Input.HelperText>
-                      <Input.Controls>
-                        <noscript>
-                          <Button>{t("filter.searchAreaButton")}</Button>
-                        </noscript>
-                      </Input.Controls>
-                    </Input>
-                  </div>
-                  {loaderData.areas.state.length > 0 && (
-                    <Dropdown.Legend>{t("filter.stateLabel")}</Dropdown.Legend>
-                  )}
-                  {loaderData.areas.state.length > 0 &&
-                    loaderData.areas.state.map((area) => {
+                  </Dropdown.List>
+                </Dropdown>
+                <Dropdown>
+                  <Dropdown.Label>
+                    {t("filter.areas")}
+                    <span className="mv-font-normal">
+                      <br />
+                      {loaderData.selectedAreas
+                        .map((area) => {
+                          return area.name;
+                        })
+                        .join(", ")}
+                    </span>
+                  </Dropdown.Label>
+                  <Dropdown.List>
+                    {loaderData.areas.global.map((area) => {
                       return (
                         <FormControl
                           {...getInputProps(filter.area, {
@@ -602,17 +524,7 @@ export default function ExploreProfiles() {
                         </FormControl>
                       );
                     })}
-                  {loaderData.areas.state.length > 0 &&
-                    loaderData.areas.district.length > 0 && (
-                      <Dropdown.Divider />
-                    )}
-                  {loaderData.areas.district.length > 0 && (
-                    <Dropdown.Legend>
-                      {t("filter.districtLabel")}
-                    </Dropdown.Legend>
-                  )}
-                  {loaderData.areas.district.length > 0 &&
-                    loaderData.areas.district.map((area) => {
+                    {loaderData.areas.country.map((area) => {
                       return (
                         <FormControl
                           {...getInputProps(filter.area, {
@@ -634,38 +546,189 @@ export default function ExploreProfiles() {
                         </FormControl>
                       );
                     })}
-                </Dropdown.List>
-              </Dropdown>
-            </fieldset>
-            <fieldset {...getFieldsetProps(fields.sortBy)}>
-              <Dropdown orientation="right">
-                <Dropdown.Label>
-                  {t(
-                    `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
-                  )}
-                </Dropdown.Label>
-                <Dropdown.List>
-                  {sortValues.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
-                    return (
-                      <FormControl
-                        {...getInputProps(fields.sortBy, {
-                          type: "radio",
-                          value: sortValue,
-                        })}
-                        key={sortValue}
-                        defaultChecked={submissionSortValue === sortValue}
-                        disabled={navigation.state === "loading"}
+                    {loaderData.selectedAreas.length > 0 &&
+                      loaderData.selectedAreas.map((selectedArea) => {
+                        return selectedArea.name !== null &&
+                          selectedArea.isInSearchResultsList === false ? (
+                          <FormControl
+                            {...getInputProps(filter.area, {
+                              type: "checkbox",
+                              value: selectedArea.slug,
+                            })}
+                            key={selectedArea.slug}
+                            defaultChecked
+                          >
+                            <FormControl.Label>
+                              {selectedArea.name}
+                            </FormControl.Label>
+                            <FormControl.Counter>
+                              {selectedArea.vectorCount}
+                            </FormControl.Counter>
+                          </FormControl>
+                        ) : null;
+                      })}
+                    <div className="mv-ml-4 mv-mr-2 mv-my-2">
+                      <Input
+                        id={fields.search.id}
+                        name={fields.search.name}
+                        type="text"
+                        value={searchQuery}
+                        onChange={(event) => {
+                          setSearchQuery(event.currentTarget.value);
+                          event.stopPropagation();
+                          debounceSubmit(event.currentTarget.form, {
+                            debounceTimeout: 250,
+                            preventScrollReset: true,
+                            replace: true,
+                          });
+                        }}
+                        placeholder={t("filter.searchAreaPlaceholder")}
                       >
-                        <FormControl.Label>
-                          {t(`filter.sortBy.${sortValue}`)}
-                        </FormControl.Label>
-                      </FormControl>
-                    );
+                        <Input.Label htmlFor={fields.search.id} hidden>
+                          {t("filter.searchAreaPlaceholder")}
+                        </Input.Label>
+                        <Input.HelperText>
+                          {t("filter.searchAreaHelper")}
+                        </Input.HelperText>
+                        <Input.Controls>
+                          <noscript>
+                            <Button>{t("filter.searchAreaButton")}</Button>
+                          </noscript>
+                        </Input.Controls>
+                      </Input>
+                    </div>
+                    {loaderData.areas.state.length > 0 && (
+                      <Dropdown.Legend>
+                        {t("filter.stateLabel")}
+                      </Dropdown.Legend>
+                    )}
+                    {loaderData.areas.state.length > 0 &&
+                      loaderData.areas.state.map((area) => {
+                        return (
+                          <FormControl
+                            {...getInputProps(filter.area, {
+                              type: "checkbox",
+                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                              value: area.slug || undefined,
+                            })}
+                            key={area.slug}
+                            defaultChecked={area.isChecked}
+                            disabled={
+                              (area.vectorCount === 0 && !area.isChecked) ||
+                              navigation.state === "loading"
+                            }
+                          >
+                            <FormControl.Label>{area.name}</FormControl.Label>
+                            <FormControl.Counter>
+                              {area.vectorCount}
+                            </FormControl.Counter>
+                          </FormControl>
+                        );
+                      })}
+                    {loaderData.areas.state.length > 0 &&
+                      loaderData.areas.district.length > 0 && (
+                        <Dropdown.Divider />
+                      )}
+                    {loaderData.areas.district.length > 0 && (
+                      <Dropdown.Legend>
+                        {t("filter.districtLabel")}
+                      </Dropdown.Legend>
+                    )}
+                    {loaderData.areas.district.length > 0 &&
+                      loaderData.areas.district.map((area) => {
+                        return (
+                          <FormControl
+                            {...getInputProps(filter.area, {
+                              type: "checkbox",
+                              // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
+                              value: area.slug || undefined,
+                            })}
+                            key={area.slug}
+                            defaultChecked={area.isChecked}
+                            disabled={
+                              (area.vectorCount === 0 && !area.isChecked) ||
+                              navigation.state === "loading"
+                            }
+                          >
+                            <FormControl.Label>{area.name}</FormControl.Label>
+                            <FormControl.Counter>
+                              {area.vectorCount}
+                            </FormControl.Counter>
+                          </FormControl>
+                        );
+                      })}
+                  </Dropdown.List>
+                </Dropdown>
+              </fieldset>
+              <fieldset {...getFieldsetProps(fields.sortBy)}>
+                <Dropdown orientation="right">
+                  <Dropdown.Label>
+                    {t("filter.sortBy.label")}
+                    <span className="mv-font-normal">
+                      <br />
+                      {t(
+                        `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                      )}
+                    </span>
+                  </Dropdown.Label>
+                  <Dropdown.List>
+                    {sortValues.map((sortValue) => {
+                      const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                      return (
+                        <FormControl
+                          {...getInputProps(fields.sortBy, {
+                            type: "radio",
+                            value: sortValue,
+                          })}
+                          key={sortValue}
+                          defaultChecked={submissionSortValue === sortValue}
+                          disabled={navigation.state === "loading"}
+                        >
+                          <FormControl.Label>
+                            {t(`filter.sortBy.${sortValue}`)}
+                          </FormControl.Label>
+                        </FormControl>
+                      );
+                    })}
+                  </Dropdown.List>
+                </Dropdown>
+              </fieldset>
+            </div>
+            <div className="mv-p-5 mv-flex mv-justify-between mv-gap-2 mv-border-t mv-border-gray lg:mv-hidden">
+              <Link
+                className="mv-grow"
+                to={`${location.pathname}${
+                  loaderData.submission.value.sortBy !== undefined
+                    ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                    : ""
+                }`}
+                preventScrollReset
+              >
+                <Button
+                  variant="outline"
+                  size="large"
+                  loading={navigation.state === "loading"}
+                  disabled={navigation.state === "loading"}
+                  fullSize
+                >
+                  {t("filter.reset")}
+                </Button>
+              </Link>
+              <Link
+                className="mv-grow"
+                to={`./${location.search
+                  .replace("showFilters=on", "")
+                  .replace("&&", "&")
+                  .replace("?&", "?")}`}
+                preventScrollReset
+              >
+                <Button fullSize size="large">
+                  {t("showNumberOfProfiles", {
+                    count: loaderData.profilesCount,
                   })}
-                </Dropdown.List>
-              </Dropdown>
-            </fieldset>
+                </Button>
+              </Link>
+            </div>
           </div>
           <noscript>
             <Button>{t("filter.apply")}</Button>

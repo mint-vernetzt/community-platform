@@ -22,7 +22,7 @@
     "apply": "Apply filter",
     "reset": "Reset all",
     "sortBy": {
-      "label": "Sort by",
+      "label": "Sorting",
       "firstName-asc": "First name (A-Z)",
       "firstName-desc": "First name (Z-A)",
       "lastName-asc": "Last name (A-Z)",
@@ -33,5 +33,7 @@
   "more": "Load more",
   "empty": "Unfortunately, no profiles could be found.",
   "notShown": "profiles cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users.",
-  "profilesCountSuffix": "Profiles"
+  "profilesCountSuffix": "Profiles",
+  "showNumberOfProfiles_one": "Show {{count}} profile",
+  "showNumberOfProfiles_other": "Show {{count}} profiles"
 }
