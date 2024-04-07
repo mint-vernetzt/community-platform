@@ -3,16 +3,19 @@ import React from "react";
 
 export type ChipColor = "primary" | "secondary";
 
+export type ChipSize = "small" | "medium";
+
 export type ChipProps = {
   children?: React.ReactNode;
   color?: ChipColor;
+  size?: ChipSize;
   interactive?: boolean;
   disabled?: boolean;
   responsive?: boolean;
 };
 
 function Chip(props: ChipProps) {
-  const { color = "primary" } = props;
+  const { color = "primary", size = "small" } = props;
 
   const disabled =
     typeof props.disabled !== "undefined" && props.disabled !== false;
@@ -34,8 +37,10 @@ function Chip(props: ChipProps) {
     disabled && "mv-bg-white mv-text-gray-300 mv-border-gray-300",
     !disabled && interactive && "mv-cursor-pointer",
     "mv-flex mv-gap-2 mv-items-center",
-    "mv-text-xs mv-py-1.5 mv-px-3 mv-border mv-rounded-lg mv-font-semibold mv-w-fit mv-max-w-full mv-h-fit mv-text-left mv-text-ellipsis mv-whitespace-nowrap mv-overflow-hidden",
-    props.responsive && "md:mv-px-4 md:mv-py-2 md:mv-text-base"
+    "mv-border mv-rounded-lg mv-font-semibold mv-w-fit mv-max-w-full mv-h-fit mv-text-left mv-text-ellipsis mv-whitespace-nowrap mv-overflow-hidden mv-shrink-0",
+    props.responsive && "md:mv-px-4 md:mv-py-2 md:mv-text-base",
+    size === "small" && "mv-text-xs mv-py-1.5 mv-px-3",
+    size === "medium" && "mv-text-base mv-py-2 mv-px-4"
   );
   const children = React.Children.toArray(props.children);
 

@@ -741,8 +741,9 @@ export default function ExploreProfiles() {
       <section className="container mb-6">
         {(loaderData.selectedOffers.length > 0 ||
           loaderData.selectedAreas.length > 0) && (
-          <div className="mv-flex mv-items-center">
-            <Chip.Container>
+          <div className="mv-flex mv-flex-col">
+            {/* <Chip.Container> */}
+            <div className="mv-overflow-scroll mv-flex mv-flex-nowrap mv-w-full mv-gap-2 mv-pb-4">
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
@@ -750,7 +751,7 @@ export default function ExploreProfiles() {
                   selectedOffer.slug
                 );
                 return selectedOffer.title !== null ? (
-                  <Chip key={selectedOffer.slug} responsive>
+                  <Chip key={selectedOffer.slug} size="medium">
                     {selectedOffer.title}
                     <Chip.Delete disabled={navigation.state === "loading"}>
                       <Link
@@ -769,7 +770,7 @@ export default function ExploreProfiles() {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.area.name, selectedArea.slug);
                 return selectedArea.name !== null ? (
-                  <Chip key={selectedArea.slug} responsive>
+                  <Chip key={selectedArea.slug} size="medium">
                     {selectedArea.name}
                     <Chip.Delete disabled={navigation.state === "loading"}>
                       <Link
@@ -784,7 +785,8 @@ export default function ExploreProfiles() {
                   </Chip>
                 ) : null;
               })}
-            </Chip.Container>
+            </div>
+            {/* </Chip.Container> */}
             <Link
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
@@ -792,7 +794,6 @@ export default function ExploreProfiles() {
                   : ""
               }`}
               preventScrollReset
-              className="ml-2"
             >
               <Button
                 variant="outline"
@@ -809,13 +810,13 @@ export default function ExploreProfiles() {
       <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
         {loaderData.filteredByVisibilityCount !== undefined &&
         loaderData.filteredByVisibilityCount > 0 ? (
-          <p className="text-center text-gray-700 mb-4">
-            {loaderData.filteredByVisibilityCount} {t("notShown")}
+          <p className="text-center text-gray-700 mb-4 mv-mx-4 md:mv-mx-0">
+            {t("notShown", { count: loaderData.filteredByVisibilityCount })}
           </p>
         ) : loaderData.profilesCount > 0 ? (
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.profilesCount}</strong>{" "}
-            {t("profilesCountSuffix")}
+            {t("profilesCountSuffix", { count: loaderData.profilesCount })}
           </p>
         ) : (
           <p className="text-center text-gray-700 mb-4">{t("empty")}</p>
