@@ -150,8 +150,13 @@ export function FormControl(
     return React.isValidElement(child) && child.type === FormControlCounter;
   });
 
+  const classes = classNames(
+    "mv-group mv-px-4 mv-py-2.5 mv-flex mv-justify-between mv-items-center mv-cursor-pointer mv-gap-1 mv-transition",
+    props.disabled && "mv-text-gray-400 mv-cursor-not-allowed"
+  );
+
   return (
-    <label className="mv-group mv-px-4 mv-flex mv-py-2.5 mv-justify-between mv-items-center mv-cursor-pointer mv-gap-1 mv-transition">
+    <label className={classes}>
       {label}
       {counter}
       {props.type === "checkbox" && <Checkbox {...otherProps} />}

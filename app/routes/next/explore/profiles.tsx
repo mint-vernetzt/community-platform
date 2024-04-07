@@ -442,7 +442,7 @@ export default function ExploreProfiles() {
                 </svg>
               </Link>
             </div>
-            <div className="mv-flex mv-flex-col-reverse mv-grow mv-px-4">
+            <div className="mv-flex mv-flex-col-reverse lg:mv-flex-row mv-grow mv-px-4 lg:mv-px-0 lg:mv-justify-between">
               <fieldset
                 {...getFieldsetProps(fields.filter)}
                 className="mv-flex mv-flex-wrap lg:mv-gap-4"
@@ -450,7 +450,7 @@ export default function ExploreProfiles() {
                 <Dropdown>
                   <Dropdown.Label>
                     {t("filter.offers")}
-                    <span className="mv-font-normal">
+                    <span className="mv-font-normal lg:mv-hidden">
                       <br />
                       {loaderData.selectedOffers
                         .map((offer) => {
@@ -492,7 +492,7 @@ export default function ExploreProfiles() {
                 <Dropdown>
                   <Dropdown.Label>
                     {t("filter.areas")}
-                    <span className="mv-font-normal">
+                    <span className="mv-font-normal lg:mv-hidden">
                       <br />
                       {loaderData.selectedAreas
                         .map((area) => {
@@ -663,9 +663,11 @@ export default function ExploreProfiles() {
               <fieldset {...getFieldsetProps(fields.sortBy)}>
                 <Dropdown orientation="right">
                   <Dropdown.Label>
-                    {t("filter.sortBy.label")}
-                    <span className="mv-font-normal">
+                    <span className="lg:mv-hidden">
+                      {t("filter.sortBy.label")}
                       <br />
+                    </span>
+                    <span className="mv-font-normal lg:mv-font-semibold">
                       {t(
                         `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
                       )}
@@ -743,7 +745,7 @@ export default function ExploreProfiles() {
           loaderData.selectedAreas.length > 0) && (
           <div className="mv-flex mv-flex-col">
             {/* <Chip.Container> */}
-            <div className="mv-overflow-scroll mv-flex mv-flex-nowrap mv-w-full mv-gap-2 mv-pb-4">
+            <div className="mv-overflow-scroll lg:mv-overflow-auto mv-flex mv-flex-nowrap lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
