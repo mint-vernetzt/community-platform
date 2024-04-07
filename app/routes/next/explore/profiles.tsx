@@ -696,7 +696,7 @@ export default function ExploreProfiles() {
                 </Dropdown>
               </fieldset>
             </div>
-            <div className="mv-p-5 mv-flex mv-justify-between mv-gap-2 mv-border-t mv-border-gray lg:mv-hidden">
+            <div className="mv-p-5 mv-max-h-full mv-flex mv-flex-col md:mv-flex-row mv-justify-between mv-gap-2 mv-border-t mv-border-gray lg:mv-hidden">
               <Link
                 className="mv-grow"
                 to={`${location.pathname}${
