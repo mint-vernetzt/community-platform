@@ -8,11 +8,11 @@
     "activityAreas": "Field of activity",
     "lookingFor": "I'm looking for",
     "support": "I want to support with",
+    "offers": "Competencies offered",
     "sort": {
       "label": "Sort by"
     },
 
-    "offers": "Competencies offered",
     "areas": "Location / Area",
     "searchAreaPlaceholder": "Enter area or location",
     "searchAreaHelper": "At least 3 letters.",
@@ -32,8 +32,10 @@
   },
   "more": "Load more",
   "empty": "Unfortunately, no profiles could be found.",
-  "notShown": "profiles cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users.",
-  "profilesCountSuffix": "Profiles",
-  "showNumberOfProfiles_one": "Show {{count}} profile",
-  "showNumberOfProfiles_other": "Show {{count}} profiles"
+  "notShown_one": "{{count}} profile cannot be viewed because it has marked the specified filter criteria as private information. Private information is only visible to logged in users.",
+  "notShown_other": "{{count}} profiles cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users.",
+  "itemsCountSuffix_one": "Profile",
+  "itemsCountSuffix_other": "profiles",
+  "showNumberOfItems_one": "Show {{count}} profile",
+  "showNumberOfItems_other": "Show {{count}} profiles"
 }

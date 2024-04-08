@@ -632,7 +632,7 @@ export default function ExploreProfiles() {
               {t("filter.reset")}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {t("showNumberOfProfiles", {
+              {t("showNumberOfItems", {
                 count: loaderData.profilesCount,
               })}
             </Filters.ApplyButton>
@@ -723,7 +723,7 @@ export default function ExploreProfiles() {
         ) : loaderData.profilesCount > 0 ? (
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.profilesCount}</strong>{" "}
-            {t("profilesCountSuffix", { count: loaderData.profilesCount })}
+            {t("itemsCountSuffix", { count: loaderData.profilesCount })}
           </p>
         ) : (
           <p className="text-center text-gray-700 mb-4">{t("empty")}</p>

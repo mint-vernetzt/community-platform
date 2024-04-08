@@ -34,8 +34,8 @@
   "empty": "Es konnten leider keine Profile gefunden werden.",
   "notShown_one": "{{count}} Profil kann nicht angezeigt werden, da es die angegebenen Filterkriterien als private Information gekennzeichnet hat. Private Informationen sind nur für angemeldete Personen sichtbar.",
   "notShown_other": "{{count}} Profile können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
-  "profilesCountSuffix_one": "Profil",
-  "profilesCountSuffix_other": "Profile",
-  "showNumberOfProfiles_one": "{{count}} Profil anzeigen",
-  "showNumberOfProfiles_other": "{{count}} Profile anzeigen"
+  "itemsCountSuffix_one": "Profil",
+  "itemsCountSuffix_other": "Profile",
+  "showNumberOfItems_one": "{{count}} Profil anzeigen",
+  "showNumberOfItems_other": "{{count}} Profile anzeigen"
 }
