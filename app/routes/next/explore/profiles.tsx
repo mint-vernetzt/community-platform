@@ -442,7 +442,7 @@ export default function ExploreProfiles() {
                 </svg>
               </Link>
             </div>
-            <div className="mv-flex mv-flex-col-reverse lg:mv-flex-row mv-grow mv-px-4 lg:mv-px-0 lg:mv-justify-between">
+            <div className="mv-flex mv-flex-col-reverse mv-grow lg:mv-flex-row lg:mv-justify-between">
               <fieldset
                 {...getFieldsetProps(fields.filter)}
                 className="mv-flex mv-flex-wrap lg:mv-gap-4"
