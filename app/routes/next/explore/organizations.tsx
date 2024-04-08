@@ -386,7 +386,7 @@ export default function ExploreOrganizations() {
         <p>{t("intro")}</p>
       </section>
 
-      <section className="mv-container mv-mb-12">
+      <section className="mv-container mv-mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -698,17 +698,21 @@ export default function ExploreOrganizations() {
           </noscript>
         </Form>
       </section>
+      <div className="mv-container mv-mb-4">
+        <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+      </div>
       <section className="container mb-6">
         {(loaderData.selectedTypes.length > 0 ||
           loaderData.selectedFocuses.length > 0 ||
           loaderData.selectedAreas.length > 0) && (
-          <div className="flex items-center">
-            <Chip.Container>
+          <div className="mv-flex mv-flex-col">
+            {/* <Chip.Container> */}
+            <div className="mv-overflow-scroll lg:mv-overflow-auto mv-flex mv-flex-nowrap lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
               {loaderData.selectedTypes.map((selectedType) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.type.name, selectedType.slug);
                 return selectedType.title !== null ? (
-                  <Chip key={selectedType.slug} responsive>
+                  <Chip key={selectedType.slug} size="medium">
                     {selectedType.title}
                     <Chip.Delete disabled={navigation.state === "loading"}>
                       <Link
@@ -730,7 +734,7 @@ export default function ExploreOrganizations() {
                   selectedFocus.slug
                 );
                 return selectedFocus.title !== null ? (
-                  <Chip key={selectedFocus.slug} responsive>
+                  <Chip key={selectedFocus.slug} size="medium">
                     {selectedFocus.title}
                     <Chip.Delete disabled={navigation.state === "loading"}>
                       <Link
@@ -749,7 +753,7 @@ export default function ExploreOrganizations() {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.area.name, selectedArea.slug);
                 return selectedArea.name !== null ? (
-                  <Chip key={selectedArea.slug} responsive>
+                  <Chip key={selectedArea.slug} size="medium">
                     {selectedArea.name}
                     <Chip.Delete disabled={navigation.state === "loading"}>
                       <Link
@@ -764,7 +768,7 @@ export default function ExploreOrganizations() {
                   </Chip>
                 ) : null;
               })}
-            </Chip.Container>
+            </div>
             <Link
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
@@ -772,7 +776,6 @@ export default function ExploreOrganizations() {
                   : ""
               }`}
               preventScrollReset
-              className="ml-2"
             >
               <Button
                 variant="outline"
