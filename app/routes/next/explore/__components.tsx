@@ -318,3 +318,50 @@ Dropdown.Label = DropdownLabel;
 Dropdown.List = DropdownList;
 Dropdown.Divider = DropdownListDivider;
 Dropdown.Legend = DropDownListLegend;
+
+export function ShowFiltersButton(
+  props: InputHTMLAttributes<HTMLInputElement>
+) {
+  const { children, ...otherProps } = props;
+  return (
+    <div className="lg:mv-hidden mv-text-center">
+      <label className="mv-inline-flex mv-items-center mv-font-semibold mv-whitespace-nowrap mv-px-6 mv-py-2.5 mv-border mv-rounded-lg mv-border-primary-500 mv-gap-2 mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-cursor-pointer">
+        {children}
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M13.125 6.75C13.125 5.57639 14.0764 4.625 15.25 4.625C16.4236 4.625 17.375 5.57639 17.375 6.75C17.375 7.92361 16.4236 8.875 15.25 8.875C14.0764 8.875 13.125 7.9236 13.125 6.75Z"
+            stroke="currentColor"
+            strokeWidth="1.25"
+            strokeLinecap="round"
+          />
+          <path
+            d="M13 6.75L2 6.75"
+            stroke="currentColor"
+            strokeWidth="1.25"
+            strokeLinecap="round"
+          />
+          <path
+            d="M6.875 13.25C6.875 14.4236 5.9236 15.375 4.75 15.375C3.5764 15.375 2.625 14.4236 2.625 13.25C2.625 12.0764 3.57639 11.125 4.75 11.125C5.9236 11.125 6.875 12.0764 6.875 13.25Z"
+            stroke="currentColor"
+            strokeWidth="1.25"
+            strokeLinecap="round"
+          />
+          <path
+            d="M7 13.25L18 13.25"
+            stroke="currentColor"
+            strokeWidth="1.25"
+            strokeLinecap="round"
+          />
+        </svg>
+
+        <input {...otherProps} className="mv-hidden" />
+      </label>
+    </div>
+  );
+}

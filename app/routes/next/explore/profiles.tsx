@@ -48,7 +48,7 @@ import {
 import { type ArrayElement } from "~/lib/utils/types";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { Dropdown, FormControl } from "./__components";
+import { Dropdown, FormControl, ShowFiltersButton } from "./__components";
 import classNames from "classnames";
 // import styles from "../../../common/design/styles/styles.css";
 
@@ -365,54 +365,14 @@ export default function ExploreProfiles() {
           preventScrollReset
         >
           <input name="page" defaultValue="1" hidden />
-          <div className="lg:mv-hidden mv-text-center">
-            <label
-              className="mv-inline-flex mv-items-center mv-font-semibold mv-whitespace-nowrap mv-px-6 mv-py-2.5 mv-border mv-rounded-lg mv-border-primary-500 mv-gap-2 mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-cursor-pointer"
-              aria-label={t("filter.showFiltersLabel")}
-            >
-              {t("filter.showFiltersLabel")}
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M13.125 6.75C13.125 5.57639 14.0764 4.625 15.25 4.625C16.4236 4.625 17.375 5.57639 17.375 6.75C17.375 7.92361 16.4236 8.875 15.25 8.875C14.0764 8.875 13.125 7.9236 13.125 6.75Z"
-                  stroke="currentColor"
-                  strokeWidth="1.25"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M13 6.75L2 6.75"
-                  stroke="currentColor"
-                  strokeWidth="1.25"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M6.875 13.25C6.875 14.4236 5.9236 15.375 4.75 15.375C3.5764 15.375 2.625 14.4236 2.625 13.25C2.625 12.0764 3.57639 11.125 4.75 11.125C5.9236 11.125 6.875 12.0764 6.875 13.25Z"
-                  stroke="currentColor"
-                  strokeWidth="1.25"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M7 13.25L18 13.25"
-                  stroke="currentColor"
-                  strokeWidth="1.25"
-                  strokeLinecap="round"
-                />
-              </svg>
-
-              <input
-                {...getInputProps(fields.showFilters, {
-                  type: "checkbox",
-                  value: loaderData.submission.value.showFilters === true,
-                })}
-                className="mv-hidden"
-              />
-            </label>
-          </div>
+          <ShowFiltersButton
+            {...getInputProps(fields.showFilters, {
+              type: "checkbox",
+              value: loaderData.submission.value.showFilters === true,
+            })}
+          >
+            {t("filter.showFiltersLabel")}
+          </ShowFiltersButton>
           {/* <div className="mv-my-4 mv-flex mv-justify-between"> */}
           <div className={filterClasses}>
             <div className="mv-flex mv-justify-between mv-items-center mv-px-4 mv-pt-8 mv-pb-4 mv-shadow-lg lg:mv-hidden">
