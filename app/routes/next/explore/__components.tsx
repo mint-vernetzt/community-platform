@@ -245,7 +245,7 @@ export const DropdownList = React.forwardRef<
   const orientation = props.orientation || "left";
 
   const classes = classNames(
-    "lg:mv-w-72 lg:mv-min-h-fit lg:mv-max-h-64 mv-overflow-scroll lg:mv-absolute lg:mv-top-[calc(100%+0.5rem)] mv-py-2 lg:mv-rounded-lg lg:mv-shadow-xl mv-hidden peer-has-[:checked]:mv-block peer-has-[:checked]:mv-z-10 mv-bg-white",
+    "lg:mv-w-72 lg:mv-h-fit lg:mv-max-h-64 mv-overflow-scroll lg:mv-absolute lg:mv-top-[calc(100%+0.5rem)] mv-py-2 lg:mv-rounded-lg lg:mv-shadow-xl mv-hidden peer-has-[:checked]:mv-block peer-has-[:checked]:mv-z-10 mv-bg-white",
     orientation === "left" && "mv-left-0",
     orientation === "right" && "mv-right-0"
   );
