@@ -1,3 +1,5 @@
+import { Button } from "@mint-vernetzt/components";
+import { Link, useLocation, useNavigation } from "@remix-run/react";
 import classNames from "classnames";
 import React, { InputHTMLAttributes } from "react";
 
@@ -365,3 +367,136 @@ export function ShowFiltersButton(
     </div>
   );
 }
+
+export function FiltersTitle(props: React.PropsWithChildren) {
+  return <>{props.children}</>;
+}
+
+export function FiltersFieldset(
+  props: React.PropsWithChildren &
+    React.FieldsetHTMLAttributes<HTMLFieldSetElement>
+) {
+  // const className="mv-flex mv-flex-wrap lg:mv-gap-4";
+  return <fieldset {...props} />;
+}
+
+export function FiltersResetButton(
+  props: { to: string } & React.PropsWithChildren
+) {
+  const navigation = useNavigation();
+
+  return (
+    <Link className="mv-grow" to={props.to} preventScrollReset>
+      <Button
+        variant="outline"
+        size="large"
+        loading={navigation.state === "loading"}
+        disabled={navigation.state === "loading"}
+        fullSize
+      >
+        {props.children}
+      </Button>
+    </Link>
+  );
+}
+
+export function FiltersApplyButton(props: React.PropsWithChildren) {
+  const location = useLocation();
+
+  return (
+    <Link
+      className="mv-grow"
+      to={`./${location.search
+        .replace("showFilters=on", "")
+        .replace("&&", "&")
+        .replace("?&", "?")}`}
+      preventScrollReset
+    >
+      <Button fullSize size="large">
+        {props.children}
+      </Button>
+    </Link>
+  );
+}
+
+export type FiltersProps = {
+  showFilters?: boolean;
+} & React.PropsWithChildren;
+
+export function Filters(props: FiltersProps) {
+  const { showFilters = false } = props;
+
+  const location = useLocation();
+
+  const filterClasses = classNames(
+    "mv-fixed mv-overflow-scroll lg:mv-overflow-visible lg:mv-relative mv-z-20 mv-bg-white mv-w-full mv-h-dvh lg:mv-h-fit mv-left-0 mv-bottom-0 lg:mv-justify-between mv-flex mv-flex-col lg:mv-flex-row",
+    showFilters === true ? "mv-flex" : "mv-hidden lg:mv-flex"
+  );
+
+  const children = React.Children.toArray(props.children);
+
+  const title = children.find((child) => {
+    return React.isValidElement(child) && child.type === FiltersTitle;
+  });
+
+  const resetButton = children.find((child) => {
+    return React.isValidElement(child) && child.type === FiltersResetButton;
+  });
+
+  const applyButton = children.find((child) => {
+    return React.isValidElement(child) && child.type === FiltersApplyButton;
+  });
+
+  const fieldSets = children.filter((child) => {
+    return React.isValidElement(child) && child.type === FiltersFieldset;
+  });
+
+  return (
+    <>
+      <div className={filterClasses}>
+        <div className="mv-flex mv-justify-between mv-items-center mv-px-4 mv-pt-8 mv-pb-4 mv-shadow-lg lg:mv-hidden">
+          <h2 className="mv-mb-0 -mv-mr-[33px] mv-w-full lg:mv-hidden mv-text-center mv-text-gray-700 mv-text-base">
+            {title}
+          </h2>
+          <Link
+            className="lg:mv-hidden"
+            to={`./${location.search
+              .replace("showFilters=on", "")
+              .replace("&&", "&")
+              .replace("?&", "?")}`}
+            preventScrollReset
+            aria-label="Close filters"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="33"
+              height="33"
+              viewBox="0 0 33 33"
+              fill="none"
+            >
+              <path
+                d="M9.58226 9.58226C9.67806 9.48623 9.79186 9.41003 9.91715 9.35804C10.0424 9.30606 10.1767 9.2793 10.3124 9.2793C10.448 9.2793 10.5823 9.30606 10.7076 9.35804C10.8329 9.41003 10.9467 9.48623 11.0425 9.58226L16.4999 15.0417L21.9573 9.58226C22.0531 9.48638 22.167 9.41033 22.2922 9.35844C22.4175 9.30654 22.5518 9.27984 22.6874 9.27984C22.823 9.27984 22.9573 9.30654 23.0825 9.35844C23.2078 9.41033 23.3216 9.48638 23.4175 9.58226C23.5134 9.67815 23.5895 9.79197 23.6413 9.91725C23.6932 10.0425 23.7199 10.1768 23.7199 10.3124C23.7199 10.448 23.6932 10.5823 23.6413 10.7075C23.5895 10.8328 23.5134 10.9466 23.4175 11.0425L17.9581 16.4999L23.4175 21.9573C23.5134 22.0531 23.5895 22.167 23.6413 22.2922C23.6932 22.4175 23.7199 22.5518 23.7199 22.6874C23.7199 22.823 23.6932 22.9573 23.6413 23.0825C23.5895 23.2078 23.5134 23.3216 23.4175 23.4175C23.3216 23.5134 23.2078 23.5895 23.0825 23.6413C22.9573 23.6932 22.823 23.7199 22.6874 23.7199C22.5518 23.7199 22.4175 23.6932 22.2922 23.6413C22.167 23.5895 22.0531 23.5134 21.9573 23.4175L16.4999 17.9581L11.0425 23.4175C10.9466 23.5134 10.8328 23.5895 10.7075 23.6413C10.5823 23.6932 10.448 23.7199 10.3124 23.7199C10.1768 23.7199 10.0425 23.6932 9.91725 23.6413C9.79197 23.5895 9.67815 23.5134 9.58226 23.4175C9.48638 23.3216 9.41033 23.2078 9.35844 23.0825C9.30654 22.9573 9.27984 22.823 9.27984 22.6874C9.27984 22.5518 9.30654 22.4175 9.35844 22.2922C9.41033 22.167 9.48638 22.0531 9.58226 21.9573L15.0417 16.4999L9.58226 11.0425C9.48623 10.9467 9.41003 10.8329 9.35804 10.7076C9.30606 10.5823 9.2793 10.448 9.2793 10.3124C9.2793 10.1767 9.30606 10.0424 9.35804 9.91715C9.41003 9.79186 9.48623 9.67806 9.58226 9.58226Z"
+                fill="#3C4658"
+              />
+            </svg>
+          </Link>
+        </div>
+        <div className="mv-flex mv-flex-col-reverse mv-grow lg:mv-flex-row lg:mv-justify-between">
+          {fieldSets}
+        </div>
+        <div className="mv-p-5 mv-max-h-full mv-flex mv-flex-col md:mv-flex-row mv-justify-between mv-gap-2 mv-border-t mv-border-gray lg:mv-hidden">
+          {resetButton}
+          {applyButton}
+        </div>
+      </div>
+      {/* <noscript>
+        <Button>{t("filter.apply")}</Button>
+      </noscript> */}
+    </>
+  );
+}
+
+Filters.Title = FiltersTitle;
+Filters.Fieldset = FiltersFieldset;
+Filters.ResetButton = FiltersResetButton;
+Filters.ApplyButton = FiltersApplyButton;
