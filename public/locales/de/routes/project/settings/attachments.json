@@ -1,11 +1,11 @@
 {
   "validation": {
     "document": {
-      "size": "Die Datei darf nicht größer als 5MB sein.",
+      "size": "Die Datei darf nicht größer als 6MB sein.",
       "type": "Die Datei muss ein PDF oder ein JPEG sein."
     },
     "image": {
-      "size": "Die Datei darf nicht größer als 5MB sein.",
+      "size": "Die Datei darf nicht größer als 6MB sein.",
       "type": "Die Datei muss ein PNG oder ein JPEG sein."
     }
   },
@@ -21,7 +21,7 @@
     "description": "Füge Materialien wie Flyer, Bilder, Checklisten zu Deinem Projekt hinzu oder entferne sie.",
     "document": {
       "upload": "Dokumente hochladen",
-      "type": "Mögliche Dateiformate: PDF, jpg. Maximal 5MB.",
+      "type": "Mögliche Dateiformate: PDF, jpg. Maximal 6MB.",
       "select": "Datei auswählen",
       "action": "Datei hochladen",
       "selection": {
@@ -36,7 +36,7 @@
     },
     "image": {
       "upload": "Bildmaterial hochladen",
-      "requirements": "Mögliche Dateiformate: jpg, png. Maximal 5MB.",
+      "requirements": "Mögliche Dateiformate: jpg, png. Maximal 6MB.",
       "select": "Datei auswählen",
       "action": "Datei hochladen",
       "selection": {
