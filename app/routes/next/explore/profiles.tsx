@@ -373,7 +373,7 @@ export default function ExploreProfiles() {
             <Filters.Title>{t("filter.title")}</Filters.Title>
 
             <Filters.Fieldset
-              // className="mv-flex mv-flex-wrap lg:mv-gap-4"
+              className="mv-flex mv-flex-wrap lg:mv-gap-4"
               {...getFieldsetProps(fields.filter)}
             >
               <Dropdown>
