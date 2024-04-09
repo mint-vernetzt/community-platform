@@ -372,12 +372,65 @@ export function FiltersTitle(props: React.PropsWithChildren) {
   return <>{props.children}</>;
 }
 
+function ShowMoreButton(props: { showMore: string; showLess: string }) {
+  const [checked, setChecked] = React.useState(false);
+
+  return (
+    <label className="mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
+      {/* Mobile */}
+      {/* <label className="mv-peer mv-hidden mv-text-blue-500 mv-px-4 mv-py-2.5 mv-rounded-lg mv-border mv-border-transparent hover:mv-underline"> */}
+      <input
+        type="checkbox"
+        className="mv-peer mv-h-0 mv-w-0 mv-opacity-0"
+        onChange={(event) => {
+          event.stopPropagation();
+          setChecked(!checked);
+        }}
+        checked={checked}
+      />
+      <span className="peer-[:checked]:mv-hidden">{props.showMore}</span>
+      <span className="mv-hidden peer-[:checked]:mv-inline">
+        {props.showLess}
+      </span>
+    </label>
+  );
+}
+
 export function FiltersFieldset(
-  props: React.PropsWithChildren &
+  props: { showMore?: string; showLess?: string } & React.PropsWithChildren &
     React.FieldsetHTMLAttributes<HTMLFieldSetElement>
 ) {
-  // const className="mv-flex mv-flex-wrap lg:mv-gap-4";
-  return <fieldset {...props} />;
+  const {
+    children,
+    className,
+    showMore = "Show more",
+    showLess = "Show less",
+    ...otherProps
+  } = props;
+
+  const childrenArray = React.Children.toArray(children);
+  if (childrenArray.length < 4) {
+    return <fieldset {...props} />;
+  }
+
+  const firstChildren = childrenArray.slice(0, 3);
+  const restChildren = childrenArray.slice(3);
+
+  const classes = classNames(className, "mv-flex mv-flex-col");
+
+  return (
+    <fieldset {...otherProps} className={classes}>
+      <div className="lg:mv-flex mv-peer mv-gap-4 mv-items-center">
+        {firstChildren}
+        <span className="mv-hidden lg:mv-block">
+          <ShowMoreButton showMore={showMore} showLess={showLess} />
+        </span>
+      </div>
+      <div className="lg:mv-hidden lg:peer-has-[:checked]:mv-flex mv-gap-4">
+        {restChildren}
+      </div>
+    </fieldset>
+  );
 }
 
 export function FiltersResetButton(
