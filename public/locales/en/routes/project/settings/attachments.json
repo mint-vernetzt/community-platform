@@ -1,11 +1,11 @@
 {
   "validation": {
     "document": {
-      "size": "The file exceeds the maximum size of 5MB.",
+      "size": "The file exceeds the maximum size of 6MB.",
       "type": "The file is not of type PDF or JPEG."
     },
     "image": {
-      "size": "The file exceeds the maximum size of 5MB.",
+      "size": "The file exceeds the maximum size of 6MB.",
       "type": "The file is not of type PDF or JPEG."
     }
   },
@@ -21,7 +21,7 @@
     "description": "Add or remove materials such as flyers, images or checklists from your project.",
     "document": {
       "upload": "Upload document",
-      "type": "File types: PDF, jpg. Max 5MB.",
+      "type": "File types: PDF, jpg. Max 6MB.",
       "select": "Choose file",
       "action": "Upload file",
       "selection": {
@@ -36,7 +36,7 @@
     },
     "image": {
       "upload": "Upload image",
-      "requirements": "File types: jpg, png. Max 5MB.",
+      "requirements": "File types: jpg, png. Max 6MB.",
       "select": "Choose file",
       "action": "Upload file",
       "selection": {
