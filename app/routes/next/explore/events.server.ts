@@ -33,7 +33,7 @@ function getWhereStatementFromPeriodOfTime(
             lte: now,
           },
         }
-      : `start_time <= ${dateToPostgresTimestamp(now)}`;
+      : `end_time <= ${dateToPostgresTimestamp(now)}`;
   }
   if (periodOfTime === "thisWeek" || periodOfTime === "nextWeek") {
     const currentDay = now.getDay();
