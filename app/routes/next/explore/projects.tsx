@@ -592,12 +592,12 @@ export default function ExploreProjects() {
                       >
                         <FormControl.Label>
                           {discipline.title}
-                          {discipline.description !== null ? (
-                            <p className="mv-text-sm">
-                              {discipline.description}
-                            </p>
-                          ) : null}
                         </FormControl.Label>
+                        {discipline.description !== null && (
+                          <FormControl.Info id={discipline.slug}>
+                            {discipline.description}
+                          </FormControl.Info>
+                        )}
                         <FormControl.Counter>
                           {discipline.vectorCount}
                         </FormControl.Counter>
@@ -627,12 +627,12 @@ export default function ExploreProjects() {
                         >
                           <FormControl.Label>
                             {additionalDiscipline.title}
-                            {additionalDiscipline.description !== null ? (
-                              <p className="mv-text-sm">
-                                {additionalDiscipline.description}
-                              </p>
-                            ) : null}
                           </FormControl.Label>
+                          {additionalDiscipline.description !== null && (
+                            <FormControl.Info id={additionalDiscipline.slug}>
+                              {additionalDiscipline.description}
+                            </FormControl.Info>
+                          )}
                           <FormControl.Counter>
                             {additionalDiscipline.vectorCount}
                           </FormControl.Counter>
@@ -673,12 +673,12 @@ export default function ExploreProjects() {
                       >
                         <FormControl.Label>
                           {targetGroup.title}
-                          {targetGroup.description !== null ? (
-                            <p className="mv-text-sm">
-                              {targetGroup.description}
-                            </p>
-                          ) : null}
                         </FormControl.Label>
+                        {targetGroup.description !== null && (
+                          <FormControl.Info id={targetGroup.slug}>
+                            {targetGroup.description}
+                          </FormControl.Info>
+                        )}
                         <FormControl.Counter>
                           {targetGroup.vectorCount}
                         </FormControl.Counter>
@@ -883,12 +883,12 @@ export default function ExploreProjects() {
                           navigation.state === "loading"
                         }
                       >
-                        <FormControl.Label>
-                          {format.title}
-                          {format.description !== null ? (
-                            <p className="mv-text-sm">{format.description}</p>
-                          ) : null}
-                        </FormControl.Label>
+                        <FormControl.Label>{format.title}</FormControl.Label>
+                        {format.description !== null && (
+                          <FormControl.Info id={format.slug}>
+                            {format.description}
+                          </FormControl.Info>
+                        )}
                         <FormControl.Counter>
                           {format.vectorCount}
                         </FormControl.Counter>
@@ -928,12 +928,12 @@ export default function ExploreProjects() {
                       >
                         <FormControl.Label>
                           {targetGroup.title}
-                          {targetGroup.description !== null ? (
-                            <p className="mv-text-sm">
-                              {targetGroup.description}
-                            </p>
-                          ) : null}
                         </FormControl.Label>
+                        {targetGroup.description !== null && (
+                          <FormControl.Info id={targetGroup.slug}>
+                            {targetGroup.description}
+                          </FormControl.Info>
+                        )}
                         <FormControl.Counter>
                           {targetGroup.vectorCount}
                         </FormControl.Counter>
@@ -971,14 +971,12 @@ export default function ExploreProjects() {
                           navigation.state === "loading"
                         }
                       >
-                        <FormControl.Label>
-                          {financing.title}
-                          {financing.description !== null ? (
-                            <p className="mv-text-sm">
-                              {financing.description}
-                            </p>
-                          ) : null}
-                        </FormControl.Label>
+                        <FormControl.Label>{financing.title}</FormControl.Label>
+                        {financing.description !== null && (
+                          <FormControl.Info id={financing.slug}>
+                            {financing.description}
+                          </FormControl.Info>
+                        )}
                         <FormControl.Counter>
                           {financing.vectorCount}
                         </FormControl.Counter>

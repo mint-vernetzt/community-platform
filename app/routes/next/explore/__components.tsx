@@ -130,11 +130,37 @@ function Radio(props: InputHTMLAttributes<HTMLInputElement>) {
 }
 
 export function FormControlLabelInfo(props: React.PropsWithChildren) {
-  return <span className="mv-text-sm">{props.children}</span>;
+  return (
+    <span className="mv-text-sm mv-hidden peer-has-[:checked]">
+      {props.children}
+    </span>
+  );
 }
 
 export function FormControlLabel(props: React.PropsWithChildren) {
   return <>{props.children}</>;
+}
+
+export function FromControlInfo(
+  props: { id: string } & React.PropsWithChildren
+) {
+  const { children, ...otherProps } = props;
+
+  return (
+    <>
+      <input
+        {...otherProps}
+        type="checkbox"
+        className="mv-peer mv-h-0 mv-w-0 mv-opacity-0 mv-hidden"
+        onChange={(event) => {
+          event.stopPropagation();
+        }}
+      />
+      <span className="mv-px-4 mv-hidden peer-[:checked]:mv-block mv-text-sm mv-whitespace-normal">
+        {props.children}
+      </span>
+    </>
+  );
 }
 
 export function FormControlCounter(props: React.PropsWithChildren) {
@@ -156,23 +182,70 @@ export function FormControl(
     return React.isValidElement(child) && child.type === FormControlCounter;
   });
 
+  const info = childrenArray.find((child) => {
+    return React.isValidElement(child) && child.type === FromControlInfo;
+  }) as React.ReactElement | undefined;
+
   const classes = classNames(
     "mv-group mv-px-4 mv-py-2.5 mv-flex mv-justify-between mv-items-center mv-cursor-pointer mv-gap-1 mv-transition",
     props.disabled && "mv-text-gray-400 mv-cursor-not-allowed"
   );
 
   return (
-    <label className={classes}>
-      {label}
-      {counter}
-      {props.type === "checkbox" && <Checkbox {...otherProps} />}
-      {props.type === "radio" && <Radio {...otherProps} />}
-    </label>
+    <>
+      <label className={classes}>
+        <span className="mv-whitespace-normal">{label}</span>
+        {typeof info !== "undefined" && (
+          <label
+            htmlFor={info.props.id}
+            className="mv-h-[20px] hover:mv-text-primary focus:mv-text-primary"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="mv-rounded-full mv-border mv-border-neutral-50"
+            >
+              <rect
+                x="0.5"
+                y="0.5"
+                width="19"
+                height="19"
+                rx="9.5"
+                stroke="currentColor"
+              />
+              <rect
+                x="9"
+                y="8"
+                width="2"
+                height="7"
+                rx="1"
+                fill="currentColor"
+              />
+              <rect
+                x="9"
+                y="5"
+                width="2"
+                height="2"
+                rx="1"
+                fill="currentColor"
+              />
+            </svg>
+          </label>
+        )}
+        {counter}
+        {props.type === "checkbox" && <Checkbox {...otherProps} />}
+        {props.type === "radio" && <Radio {...otherProps} />}
+      </label>
+      <span className={props.disabled ? "mv-text-gray-400" : ""}>{info}</span>
+    </>
   );
 }
 
 FormControl.Label = FormControlLabel;
-FormControl.LabelInfo = FormControlLabelInfo;
+FormControl.Info = FromControlInfo;
 FormControl.Counter = FormControlCounter;
 
 export function DropdownLabel(
@@ -246,7 +319,11 @@ export function DropdownListDivider() {
 }
 
 export function DropdownListCategory(props: React.PropsWithChildren) {
-  return <p className="mv-mx-4 my-2 mv-uppercase">{props.children}</p>;
+  return (
+    <p className="mv-mx-4 my-2 mv-uppercase mv-whitespace-normal">
+      {props.children}
+    </p>
+  );
 }
 
 export const DropdownList = React.forwardRef<
@@ -391,7 +468,7 @@ function ShowMoreButton(props: { showMore: string; showLess: string }) {
     <label className="mv-hidden lg:mv-block mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
       <input
         type="checkbox"
-        className="mv-peer mv-h-0 mv-w-0 mv-opacity-0 show-more"
+        className="mv-peer mv-h-0 mv-w-0 mv-opacity-0"
         onChange={(event) => {
           event.stopPropagation();
           setChecked(!checked);
@@ -432,7 +509,7 @@ export function FiltersFieldset(
     <fieldset {...otherProps} className={classes}>
       {firstChildren}
       <ShowMoreButton showMore={showMore} showLess={showLess} />
-      <div className="lg:mv-hidden lg:peer-has-[:checked]:mv-flex mv-gap-4">
+      <div className="lg:mv-hidden lg:peer-has-[:checked]:mv-flex mv-gap-4 lg:mv-w-full">
         {restChildren}
       </div>
     </fieldset>
