@@ -2,7 +2,7 @@ import { Button, Image } from "@mint-vernetzt/components";
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -10,6 +10,8 @@ import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import { MaterialList } from "../settings/__components";
+import { deriveProjectMode } from "../../utils.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 const i18nNS = ["routes/project/detail/attachments"];
 export const handle = {
@@ -23,6 +25,9 @@ export async function loader(args: LoaderFunctionArgs) {
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const slug = getParamValueOrThrow(params, "slug");
+  const mode = await deriveProjectMode(sessionUser, slug);
 
   invariantResponse(
     params.slug !== undefined,
@@ -84,7 +89,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return { ...relation, image: { ...relation.image, thumbnail } };
   });
 
-  return json({ project });
+  return json({ project, mode });
 }
 
 function Attachments() {
@@ -100,6 +105,9 @@ function Attachments() {
         <h2 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
           {t("content.documents.title")}
         </h2>
+        {loaderData.mode === "anon" ? (
+          <p>{t("content.documents.anonHint")}</p>
+        ) : null}
         {loaderData.project.documents.length > 0 ? (
           <>
             <MaterialList>
@@ -126,29 +134,33 @@ function Attachments() {
                         {relation.document.description}
                       </MaterialList.Item.Paragraph>
                     )}
-                    <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 lg:mv-gap-4 mv-ml-auto">
-                      <Link
-                        to={`./download?type=document&id=${relation.document.id}`}
-                        reloadDocument
-                      >
-                        <MaterialList.Item.Controls.Download />
-                      </Link>
-                    </div>
+                    {loaderData.mode !== "anon" ? (
+                      <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 lg:mv-gap-4 mv-ml-auto">
+                        <Link
+                          to={`./download?type=document&id=${relation.document.id}`}
+                          reloadDocument
+                        >
+                          <MaterialList.Item.Controls.Download />
+                        </Link>
+                      </div>
+                    ) : null}
                   </MaterialList.Item>
                 );
               })}
             </MaterialList>
-            <div className="mv-w-full md:mv-max-w-fit">
-              {/* TODO: Button as wrapper for Link (better relative path) */}
-              <Button
-                as="a"
-                href={`./attachments/download?type=documents`}
-                variant="outline"
-                fullSize
-              >
-                {t("content.documents.downloadAll")}
-              </Button>
-            </div>
+            {loaderData.mode !== "anon" ? (
+              <div className="mv-w-full md:mv-max-w-fit">
+                {/* TODO: Button as wrapper for Link (better relative path) */}
+                <Button
+                  as="a"
+                  href={`./attachments/download?type=documents`}
+                  variant="outline"
+                  fullSize
+                >
+                  {t("content.documents.downloadAll")}
+                </Button>
+              </div>
+            ) : null}
           </>
         ) : (
           <p>{t("content.documents.empty")}</p>
