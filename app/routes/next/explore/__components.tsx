@@ -315,7 +315,7 @@ export function Dropdown(
 
   const classes = classNames(
     props.className,
-    "mv-relative mv-group/dropdown mv-w-full lg:mv-w-fit"
+    "mv-relative mv-group/dropdown mv-w-full lg:mv-w-fit lg:mv-whitespace-nowrap"
   );
 
   return (
@@ -388,12 +388,10 @@ function ShowMoreButton(props: { showMore: string; showLess: string }) {
   const [checked, setChecked] = React.useState(false);
 
   return (
-    <label className="mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
-      {/* Mobile */}
-      {/* <label className="mv-peer mv-hidden mv-text-blue-500 mv-px-4 mv-py-2.5 mv-rounded-lg mv-border mv-border-transparent hover:mv-underline"> */}
+    <label className="mv-hidden lg:mv-block mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
       <input
         type="checkbox"
-        className="mv-peer mv-h-0 mv-w-0 mv-opacity-0"
+        className="mv-peer mv-h-0 mv-w-0 mv-opacity-0 show-more"
         onChange={(event) => {
           event.stopPropagation();
           setChecked(!checked);
@@ -428,16 +426,12 @@ export function FiltersFieldset(
   const firstChildren = childrenArray.slice(0, 3);
   const restChildren = childrenArray.slice(3);
 
-  const classes = classNames(className, "mv-flex mv-flex-col");
+  const classes = classNames(className, "mv-flex mv-flex-col lg:mv-flex-row");
 
   return (
     <fieldset {...otherProps} className={classes}>
-      <div className="lg:mv-flex mv-peer mv-gap-4 mv-items-center">
-        {firstChildren}
-        <span className="mv-hidden lg:mv-block">
-          <ShowMoreButton showMore={showMore} showLess={showLess} />
-        </span>
-      </div>
+      {firstChildren}
+      <ShowMoreButton showMore={showMore} showLess={showLess} />
       <div className="lg:mv-hidden lg:peer-has-[:checked]:mv-flex mv-gap-4">
         {restChildren}
       </div>
