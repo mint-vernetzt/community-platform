@@ -30,6 +30,12 @@
     "description": null
   },
   {
+    "id": "c9908b11-dccb-4968-b3de-6cac87a54a96",
+    "title": "Private Fördermittel (Soziallotterien)",
+    "slug": "private_funding_social_lottery",
+    "description": null
+  },
+  {
     "id": "fe14646b-10ff-4dac-94aa-fc96dd7a6150",
     "title": "Selbstfinanzierung",
     "slug": "self_funding",

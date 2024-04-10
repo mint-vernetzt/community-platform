@@ -60,6 +60,18 @@
     "description": null
   },
   {
+    "id": "899eec59-b124-4c98-b12d-4c85ccc3096d",
+    "title": "Diversität",
+    "slug": "diversity",
+    "description": null
+  },
+  {
+    "id": "43d88442-0c2b-46c9-a3b8-d946ced0b09a",
+    "title": "Inklusion",
+    "slug": "inclusion",
+    "description": null
+  },
+  {
     "id": "d5fb8226-3e54-4015-b882-ede9df5ae8c2",
     "title": "Ländlicher Raum",
     "slug": "rural_area",

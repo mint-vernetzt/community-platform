@@ -80,8 +80,8 @@
       "label": "Sponsored by"
     },
     "focuses": {
-      "label": "STEM focus areas",
-      "placeholder": "Add your STEM focus areas."
+      "label": "Focus areas",
+      "placeholder": "Add your focus areas."
     },
     "quote": {
       "label": "Quote"
