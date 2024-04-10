@@ -2,6 +2,8 @@
   "headline": "Entdecke die Community",
   "intro": "Hier findest du die Profile von Akteur:innen der MINT-Community.",
   "filter": {
+    "title": "Filter",
+    "showFiltersLabel": "Profile filtern",
 
     "activityAreas": "Aktivitätsgebiet",
     "lookingFor": "Ich suche",
@@ -20,6 +22,7 @@
     "apply": "Filter anwenden",
     "reset": "Alles zurücksetzen",
     "sortBy": {
+      "label": "Sortierung",
       "firstName-asc": "Vorname (A-Z)",
       "firstName-desc": "Vorname (Z-A)",
       "lastName-asc": "Nachname (A-Z)",
@@ -29,6 +32,10 @@
   },
   "more": "Weitere laden",
   "empty": "Es konnten leider keine Profile gefunden werden.",
-  "notShown": "Profile können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
-  "profilesCountSuffix": "Profile"
+  "notShown_one": "{{count}} Profil kann nicht angezeigt werden, da es die angegebenen Filterkriterien als private Information gekennzeichnet hat. Private Informationen sind nur für angemeldete Personen sichtbar.",
+  "notShown_other": "{{count}} Profile können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
+  "itemsCountSuffix_one": "Profil",
+  "itemsCountSuffix_other": "Profile",
+  "showNumberOfItems_one": "{{count}} Profil anzeigen",
+  "showNumberOfItems_other": "{{count}} Profile anzeigen"
 }

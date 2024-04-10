@@ -2,6 +2,13 @@
   "title": "Discover Events",
   "intro": "Find current events of the STEM community.",
   "filter": {
+
+    "title": "Filter",
+    "showFiltersLabel": "Filter events",
+
+    "showMore": "Show more",
+    "showLess": "Show less",
+
     "types": "Event type",
     "focuses": "Main emphasis",
     "targetGroups": "Target groups",
@@ -23,13 +30,21 @@
     "apply": "Apply filter",
     "reset": "Reset all",
     "sortBy": {
+      "label": "Sorting",
       "startTime-asc": "Date",
       "name-asc": "Name (A-Z)",
       "name-desc": "Name (Z-A)"
     }
   },
-  "organizationsCountSuffix": "Events",
+
   "more": "Load more",
   "empty": "Unfortunately, no events could be found.",
-  "notShown": "events cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users."
+
+  "notShown_one": "{{count}} event cannot be viewed because it has marked the specified filter criteria as private information. Private information is only visible to logged in users.",
+  "notShown_other": "{{count}} events cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users.",
+
+  "itemsCountSuffix_one": "Event",
+  "itemsCountSuffix_other": "Events",
+  "showNumberOfItems_one": "Show {{count}} event",
+  "showNumberOfItems_other": "Show {{count}} events"
 }

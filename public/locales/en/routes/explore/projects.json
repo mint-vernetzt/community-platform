@@ -2,13 +2,20 @@
   "title": "Find inspiring projects",
   "intro": "Here you can take a look at various projects within the STEM community.",
   "filter": {
+
+    "title": "Filter",
+    "showFiltersLabel": "Filter projects",
+
+    "showMore": "Show more",
+    "showLess": "Show less",
+
     "sort": {
       "label": "Sort by"
     },
 
     
     "disciplines": "STEM discipline",
-    "additionalDisciplines": "STEM IN CONNECTION WITH OTHER DISCIPLINES",
+    "additionalDisciplines": "STEM in connection with other disciplines",
     "targetGroups": "Target group",
     "areas": "Location / Area",
     "searchAreaPlaceholder": "Enter area or location",
@@ -22,13 +29,20 @@
     "apply": "Apply filter",
     "reset": "Reset all",
     "sortBy": {
+      "label": "Sorting",
       "name-asc": "Name (A-Z)",
       "name-desc": "Name (Z-A)",
       "createdAt-desc": "Newest first"
     }
   },
-  "projectsCountSuffix": "Projects",
   "more": "Load more",
   "empty": "Unfortunately, no projects could be found.",
-  "notShown": "projects cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users."
+
+  "notShown_one": "{{count}} project cannot be viewed because it has marked the specified filter criteria as private information. Private information is only visible to logged in users.",
+  "notShown_other": "{{count}} projects cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users.",
+
+  "itemsCountSuffix_one": "Project",
+  "itemsCountSuffix_other": "Projects",
+  "showNumberOfItems_one": "Show {{count}} project",
+  "showNumberOfItems_other": "Show {{count}} projects"
 }

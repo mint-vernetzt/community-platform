@@ -576,9 +576,13 @@ export default function App() {
 
   const [searchParams] = useSearchParams();
   const modal = searchParams.get("modal");
+  const showFilters = searchParams.get("showFilters");
 
   const bodyClasses = classNames(
-    modal !== null && modal !== "false" && "overflow-hidden"
+    modal !== null && modal !== "false" && "overflow-hidden",
+    showFilters !== null &&
+      showFilters !== "false" &&
+      "overflow-hidden lg:overflow-auto"
   );
 
   const { i18n } = useTranslation();
