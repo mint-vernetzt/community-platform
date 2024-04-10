@@ -411,7 +411,17 @@ export default function ExploreOrganizations() {
               className="mv-flex mv-flex-wrap lg:mv-gap-4"
             >
               <Dropdown>
-                <Dropdown.Label>{t("filter.types")}</Dropdown.Label>
+                <Dropdown.Label>
+                  {t("filter.types")}
+                  <span className="mv-font-normal lg:mv-hidden">
+                    <br />
+                    {loaderData.selectedTypes
+                      .map((type) => {
+                        return type.title;
+                      })
+                      .join(", ")}
+                  </span>
+                </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.types.map((type) => {
                     return (
@@ -443,7 +453,17 @@ export default function ExploreOrganizations() {
                 </Dropdown.List>
               </Dropdown>
               <Dropdown>
-                <Dropdown.Label>{t("filter.focuses")}</Dropdown.Label>
+                <Dropdown.Label>
+                  {t("filter.focuses")}
+                  <span className="mv-font-normal lg:mv-hidden">
+                    <br />
+                    {loaderData.selectedFocuses
+                      .map((focus) => {
+                        return focus.title;
+                      })
+                      .join(", ")}
+                  </span>
+                </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.focuses.map((focus) => {
                     return (

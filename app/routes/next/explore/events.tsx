@@ -459,7 +459,17 @@ export default function ExploreOrganizations() {
               showLess={t("filter.showLess")}
             >
               <Dropdown>
-                <Dropdown.Label>{t("filter.types")}</Dropdown.Label>
+                <Dropdown.Label>
+                  {t("filter.types")}
+                  <span className="mv-font-normal lg:mv-hidden">
+                    <br />
+                    {loaderData.selectedTypes
+                      .map((type) => {
+                        return type.title;
+                      })
+                      .join(", ")}
+                  </span>
+                </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.types.map((type) => {
                     return (
@@ -491,7 +501,17 @@ export default function ExploreOrganizations() {
                 </Dropdown.List>
               </Dropdown>
               <Dropdown>
-                <Dropdown.Label>{t("filter.focuses")}</Dropdown.Label>
+                <Dropdown.Label>
+                  {t("filter.focuses")}
+                  <span className="mv-font-normal lg:mv-hidden">
+                    <br />
+                    {loaderData.selectedFocuses
+                      .map((focus) => {
+                        return focus.title;
+                      })
+                      .join(", ")}
+                  </span>
+                </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.focuses.map((focus) => {
                     return (
@@ -523,7 +543,17 @@ export default function ExploreOrganizations() {
                 </Dropdown.List>
               </Dropdown>
               <Dropdown>
-                <Dropdown.Label>{t("filter.targetGroups")}</Dropdown.Label>
+                <Dropdown.Label>
+                  {t("filter.targetGroups")}
+                  <span className="mv-font-normal lg:mv-hidden">
+                    <br />
+                    {loaderData.selectedTargetGroups
+                      .map((targetGroup) => {
+                        return targetGroup.title;
+                      })
+                      .join(", ")}
+                  </span>
+                </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.targetGroups.map((targetGroup) => {
                     return (
@@ -559,7 +589,15 @@ export default function ExploreOrganizations() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.periodOfTime.label")}
+                  <span className="lg:mv-hidden">
+                    {t("filter.periodOfTime.label")}
+                    <br />
+                  </span>
+                  <span className="mv-font-normal lg:mv-font-semibold">
+                    {t(
+                      `filter.periodOfTime.${loaderData.submission.value.filter.periodOfTime}`
+                    )}
+                  </span>
                 </Dropdown.Label>
                 <Dropdown.List>
                   {periodOfTimeValues.map((periodOfTimeValue) => {

@@ -129,6 +129,10 @@ function Radio(props: InputHTMLAttributes<HTMLInputElement>) {
   );
 }
 
+export function FormControlLabelInfo(props: React.PropsWithChildren) {
+  return <span className="mv-text-sm">{props.children}</span>;
+}
+
 export function FormControlLabel(props: React.PropsWithChildren) {
   return <>{props.children}</>;
 }
@@ -168,6 +172,7 @@ export function FormControl(
 }
 
 FormControl.Label = FormControlLabel;
+FormControl.LabelInfo = FormControlLabelInfo;
 FormControl.Counter = FormControlCounter;
 
 export function DropdownLabel(
@@ -240,6 +245,10 @@ export function DropdownListDivider() {
   return <hr className="mv-mx-4 my-2 mv-border-t mv-border-gray-200" />;
 }
 
+export function DropdownListCategory(props: React.PropsWithChildren) {
+  return <p className="mv-mx-4 my-2 mv-uppercase">{props.children}</p>;
+}
+
 export const DropdownList = React.forwardRef<
   HTMLDivElement,
   React.PropsWithChildren & { orientation?: "left" | "right" }
@@ -260,7 +269,9 @@ export const DropdownList = React.forwardRef<
             React.isValidElement(child) &&
               child.type !== DropdownListDivider &&
               child.type !== DropDownListLegend &&
+              child.type !== DropdownListCategory &&
               child.type !== "div" &&
+              child.type !== "p" &&
               "hover:mv-bg-gray-100 focus-within:mv-bg-gray-100"
           );
 
@@ -320,6 +331,7 @@ Dropdown.Label = DropdownLabel;
 Dropdown.List = DropdownList;
 Dropdown.Divider = DropdownListDivider;
 Dropdown.Legend = DropDownListLegend;
+Dropdown.Category = DropdownListCategory;
 
 export function ShowFiltersButton(
   props: InputHTMLAttributes<HTMLInputElement>
