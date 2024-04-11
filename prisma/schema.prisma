@@ -543,7 +543,7 @@ model District {
 model Area {
   id                   String                 @id @default(uuid())
   name                 String
-  slug                 String?
+  slug                 String                 @unique
   type                 AreaType
   stateId              String?
   state                State?                 @relation(fields: [stateId], references: [agsPrefix])
@@ -557,7 +557,7 @@ model Area {
 
 model Offer {
   id                 String               @id @default(uuid())
-  slug               String?
+  slug               String               @unique
   title              String               @unique
   description        String?
   OffersOnProfiles   OffersOnProfiles[]
@@ -568,7 +568,7 @@ model Offer {
 
 model OrganizationType {
   id            String                             @id @default(uuid())
-  slug          String?
+  slug          String                             @unique
   title         String                             @unique
   description   String?
   organizations OrganizationTypesOnOrganizations[]
@@ -578,7 +578,7 @@ model OrganizationType {
 
 model Focus {
   id            String                   @id @default(uuid())
-  slug          String?
+  slug          String                   @unique
   title         String                   @unique
   description   String?
   events        FocusOfEvent[]
@@ -678,7 +678,7 @@ model SpecialTargetGroup {
 
 model Format {
   id          String            @id @default(uuid())
-  slug        String?
+  slug        String            @unique
   title       String            @unique
   description String?
   projects    FormatOfProject[]
@@ -688,7 +688,7 @@ model Format {
 
 model Financing {
   id          String               @id @default(uuid())
-  slug        String?
+  slug        String               @unique
   title       String               @unique
   description String?
   projects    FinancingOfProject[]
