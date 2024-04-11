@@ -7,7 +7,7 @@ import { updateFilterVectorOfProject } from "~/routes/project/$slug/settings/uti
 async function main() {
   // profiles
 
-  const profileBulk = [];
+  // const profileBulk = [];
   const profiles = await prismaClient.profile.findMany({
     select: {
       id: true,
@@ -16,15 +16,16 @@ async function main() {
 
   console.log(`Creating filter vectors of ${profiles.length} profiles.`);
 
-  for (const profile of profiles) {
-    profileBulk.push(updateFilterVectorOfProfile(profile.id));
+  for await (const profile of profiles) {
+    console.log(`Creating filter vector of profile ${profile.id}.`);
+    await updateFilterVectorOfProfile(profile.id);
   }
 
-  await Promise.all(profileBulk);
+  // await Promise.all(profileBulk);
 
   // organizations
 
-  const organizationBulk = [];
+  // const organizationBulk = [];
   const organizations = await prismaClient.organization.findMany({
     select: {
       id: true,
@@ -35,15 +36,16 @@ async function main() {
     `Creating filter vectors of ${organizations.length} organizations.`
   );
 
-  for (const organization of organizations) {
-    organizationBulk.push(updateFilterVectorOfOrganization(organization.id));
+  for await (const organization of organizations) {
+    console.log(`Creating filter vector of organization ${organization.id}.`);
+    await updateFilterVectorOfOrganization(organization.id);
   }
 
-  await Promise.all(organizationBulk);
+  // await Promise.all(organizationBulk);
 
   // events
 
-  const eventBulk = [];
+  // const eventBulk = [];
   const events = await prismaClient.event.findMany({
     select: {
       id: true,
@@ -52,15 +54,16 @@ async function main() {
 
   console.log(`Creating filter vectors of ${events.length} events.`);
 
-  for (const event of events) {
-    eventBulk.push(updateFilterVectorOfEvent(event.id));
+  for await (const event of events) {
+    console.log(`Creating filter vector of event ${event.id}.`);
+    await updateFilterVectorOfEvent(event.id);
   }
 
-  await Promise.all(eventBulk);
+  // await Promise.all(eventBulk);
 
   // projects
 
-  const projectBulk = [];
+  // const projectBulk = [];
   const projects = await prismaClient.project.findMany({
     select: {
       id: true,
@@ -69,11 +72,12 @@ async function main() {
 
   console.log(`Creating filter vectors of ${projects.length} projects.`);
 
-  for (const project of projects) {
-    projectBulk.push(updateFilterVectorOfProject(project.id));
+  for await (const project of projects) {
+    console.log(`Creating filter vector of project ${project.id}.`);
+    await updateFilterVectorOfProject(project.id);
   }
 
-  await Promise.all(projectBulk);
+  // await Promise.all(projectBulk);
 }
 
 main()
