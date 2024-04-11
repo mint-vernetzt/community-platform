@@ -32,7 +32,7 @@
   {
     "id": "5675b2cb-2e2e-47ae-ba40-4290b71aab43",
     "slug": "contact_with_universities",
-    "title": "Kontakt zu Universitäten/Hochschulen",
+    "title": "Kontakt zu Universitäten / Hochschulen",
     "description": null
   },
   {
@@ -92,7 +92,7 @@
   {
     "id": "c3faccfd-3e3e-4297-aa45-efb44ef58d93",
     "slug": "support_in_the_field_of_public_relations_and_press",
-    "title": "Unterstützung im Bereich Öffentlichkeitsarbeit/Presse",
+    "title": "Unterstützung im Bereich Öffentlichkeitsarbeit / Presse",
     "description": null
   },
   {
@@ -110,13 +110,13 @@
   {
     "id": "9d6a6e74-ede3-4b50-9821-05c338490253",
     "slug": "support_in_the_field_of_target_group_addressing_and_participant_acquisition",
-    "title": "Unterstützung im Bereich Zielgruppenansprache/Teilnehmenden-Akquise",
+    "title": "Unterstützung im Bereich Zielgruppenansprache / Teilnehmenden-Akquise",
     "description": null
   },
   {
     "id": "208af4fc-159c-41f6-8600-f53b6b444951",
     "slug": "support_in_the_field_of_effect_orientation_and_quality_development",
-    "title": "Unterstützung im Bereich Wirkungsorientierung/Qualitätsentwicklung",
+    "title": "Unterstützung im Bereich Wirkungsorientierung / Qualitätsentwicklung",
     "description": null
   }
 ]

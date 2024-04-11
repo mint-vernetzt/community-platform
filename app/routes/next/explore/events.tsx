@@ -272,13 +272,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
-    let isChecked;
-    // TODO: Remove 'area.slug === null' when slug isn't optional anymore (after migration)
-    if (area.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.area.includes(area.slug);
-    }
+    const isChecked = submission.value.filter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
@@ -304,13 +298,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const types = await getAllEventTypes();
   const enhancedTypes = types.map((type) => {
     const vectorCount = getFilterCountForSlug(type.slug, filterVector, "type");
-    let isChecked;
-    // TODO: Remove 'type.slug === null' when slug isn't optional anymore (after migration)
-    if (type.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.type.includes(type.slug);
-    }
+    const isChecked = submission.value.filter.type.includes(type.slug);
     return { ...type, vectorCount, isChecked };
   });
   const selectedTypes = submission.value.filter.type.map((slug) => {
@@ -330,13 +318,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       filterVector,
       "focus"
     );
-    let isChecked;
-    // TODO: Remove 'focus.slug === null' when slug isn't optional anymore (after migration)
-    if (focus.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.focus.includes(focus.slug);
-    }
+    const isChecked = submission.value.filter.focus.includes(focus.slug);
     return { ...focus, vectorCount, isChecked };
   });
   const selectedFocuses = submission.value.filter.focus.map((slug) => {
@@ -356,15 +338,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       filterVector,
       "eventTargetGroup"
     );
-    let isChecked;
-    // TODO: Remove 'targetGroup.slug === null' when slug isn't optional anymore (after migration)
-    if (targetGroup.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.eventTargetGroup.includes(
-        targetGroup.slug
-      );
-    }
+    const isChecked = submission.value.filter.eventTargetGroup.includes(
+      targetGroup.slug
+    );
     return { ...targetGroup, vectorCount, isChecked };
   });
   const selectedTargetGroups = submission.value.filter.eventTargetGroup.map(
@@ -476,8 +452,7 @@ export default function ExploreOrganizations() {
                       <FormControl
                         {...getInputProps(filter.type, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: type.slug || undefined,
+                          value: type.slug,
                         })}
                         key={type.slug}
                         defaultChecked={type.isChecked}
@@ -518,8 +493,7 @@ export default function ExploreOrganizations() {
                       <FormControl
                         {...getInputProps(filter.focus, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: focus.slug || undefined,
+                          value: focus.slug,
                         })}
                         key={focus.slug}
                         defaultChecked={focus.isChecked}
@@ -560,8 +534,7 @@ export default function ExploreOrganizations() {
                       <FormControl
                         {...getInputProps(filter.eventTargetGroup, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: targetGroup.slug || undefined,
+                          value: targetGroup.slug,
                         })}
                         key={targetGroup.slug}
                         defaultChecked={targetGroup.isChecked}
@@ -645,8 +618,7 @@ export default function ExploreOrganizations() {
                       <FormControl
                         {...getInputProps(filter.area, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: area.slug || undefined,
+                          value: area.slug,
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
@@ -667,8 +639,7 @@ export default function ExploreOrganizations() {
                       <FormControl
                         {...getInputProps(filter.area, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: area.slug || undefined,
+                          value: area.slug,
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
@@ -744,8 +715,7 @@ export default function ExploreOrganizations() {
                         <FormControl
                           {...getInputProps(filter.area, {
                             type: "checkbox",
-                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: area.slug || undefined,
+                            value: area.slug,
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
@@ -776,8 +746,7 @@ export default function ExploreOrganizations() {
                         <FormControl
                           {...getInputProps(filter.area, {
                             type: "checkbox",
-                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: area.slug || undefined,
+                            value: area.slug,
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
@@ -858,12 +827,9 @@ export default function ExploreOrganizations() {
         {(loaderData.selectedTypes.length > 0 ||
           loaderData.selectedFocuses.length > 0 ||
           loaderData.selectedTargetGroups.length > 0 ||
-          // TODO: Add selected timeframe filters
           loaderData.selectedAreas.length > 0) && (
           <div className="mv-flex mv-flex-col">
-            {/* <Chip.Container> */}
             <div className="mv-overflow-scroll lg:mv-overflow-auto mv-flex mv-flex-nowrap lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
-              {/* <Chip.Container> */}
               {loaderData.selectedTypes.map((selectedType) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.type.name, selectedType.slug);
@@ -946,7 +912,6 @@ export default function ExploreOrganizations() {
                   </Chip>
                 ) : null;
               })}
-              {/* </Chip.Container> */}
             </div>
             <Link
               to={`${location.pathname}${
@@ -1009,8 +974,7 @@ export default function ExploreOrganizations() {
                       participationUntil,
                       responsibleOrganizations:
                         event.responsibleOrganizations.map(
-                          // TODO: fix any type
-                          (item: any) => item.organization
+                          (item) => item.organization
                         ),
                     }}
                   />

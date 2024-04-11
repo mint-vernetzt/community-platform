@@ -28,14 +28,22 @@ import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { H1, H2 } from "~/components/Heading/Heading";
+import { H1 } from "~/components/Heading/Heading";
 import { GravityType, getImageURL } from "~/images.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
+import { type ArrayElement } from "~/lib/utils/types";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import {
+  Dropdown,
+  Filters,
+  FormControl,
+  ShowFiltersButton,
+} from "./__components";
 import {
   getAllOffers,
   getAllProfiles,
@@ -45,16 +53,7 @@ import {
   getTakeParam,
   getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
-import { type ArrayElement } from "~/lib/utils/types";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import {
-  Dropdown,
-  Filters,
-  FormControl,
-  ShowFiltersButton,
-} from "./__components";
-import classNames from "classnames";
 // import styles from "../../../common/design/styles/styles.css";
 
 const i18nNS = ["routes/explore/profiles"];
@@ -251,13 +250,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
-    let isChecked;
-    // TODO: Remove 'area.slug === null' when slug isn't optional anymore (after migration)
-    if (area.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.area.includes(area.slug);
-    }
+    const isChecked = submission.value.filter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
@@ -287,13 +280,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       filterVector,
       "offer"
     );
-    let isChecked;
-    // TODO: Remove 'offer.slug === null' when slug isn't optional anymore (after migration)
-    if (offer.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.offer.includes(offer.slug);
-    }
+    const isChecked = submission.value.filter.offer.includes(offer.slug);
     return { ...offer, vectorCount, isChecked };
   });
   const selectedOffers = submission.value.filter.offer.map((slug) => {
@@ -394,8 +381,7 @@ export default function ExploreProfiles() {
                       <FormControl
                         {...getInputProps(filter.offer, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: offer.slug || undefined,
+                          value: offer.slug,
                         })}
                         key={offer.slug}
                         defaultChecked={offer.isChecked}
@@ -436,8 +422,7 @@ export default function ExploreProfiles() {
                       <FormControl
                         {...getInputProps(filter.area, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: area.slug || undefined,
+                          value: area.slug,
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
@@ -458,8 +443,7 @@ export default function ExploreProfiles() {
                       <FormControl
                         {...getInputProps(filter.area, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: area.slug || undefined,
+                          value: area.slug,
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
@@ -535,8 +519,7 @@ export default function ExploreProfiles() {
                         <FormControl
                           {...getInputProps(filter.area, {
                             type: "checkbox",
-                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: area.slug || undefined,
+                            value: area.slug,
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
@@ -567,8 +550,7 @@ export default function ExploreProfiles() {
                         <FormControl
                           {...getInputProps(filter.area, {
                             type: "checkbox",
-                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: area.slug || undefined,
+                            value: area.slug,
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
@@ -649,7 +631,6 @@ export default function ExploreProfiles() {
         {(loaderData.selectedOffers.length > 0 ||
           loaderData.selectedAreas.length > 0) && (
           <div className="mv-flex mv-flex-col">
-            {/* <Chip.Container> */}
             <div className="mv-overflow-scroll lg:mv-overflow-auto mv-flex mv-flex-nowrap lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
@@ -693,7 +674,6 @@ export default function ExploreProfiles() {
                 ) : null;
               })}
             </div>
-            {/* </Chip.Container> */}
             <Link
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined

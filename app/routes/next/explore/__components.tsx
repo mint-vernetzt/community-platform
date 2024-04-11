@@ -1,7 +1,7 @@
 import { Button } from "@mint-vernetzt/components";
 import { Link, useLocation, useNavigation } from "@remix-run/react";
 import classNames from "classnames";
-import React, { InputHTMLAttributes } from "react";
+import React, { type InputHTMLAttributes } from "react";
 
 function Checkbox(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
@@ -275,7 +275,7 @@ export function DropdownLabel(
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, []);
+  }, [props.listRef]);
 
   return (
     <label
@@ -333,7 +333,7 @@ export const DropdownList = React.forwardRef<
   const orientation = props.orientation || "left";
 
   const classes = classNames(
-    "lg:mv-w-72 lg:mv-h-fit lg:mv-max-h-72 mv-overflow-scroll lg:mv-absolute lg:mv-top-[calc(100%+0.5rem)] mv-py-2 lg:mv-rounded-lg lg:mv-shadow-xl mv-hidden peer-has-[:checked]:mv-block peer-has-[:checked]:mv-z-10 mv-bg-white",
+    "lg:mv-w-72 lg:mv-h-fit lg:mv-max-h-72 mv-overflow-auto lg:mv-absolute lg:mv-top-[calc(100%+0.5rem)] mv-py-2 lg:mv-rounded-lg lg:mv-shadow-xl mv-hidden peer-has-[:checked]:mv-block peer-has-[:checked]:mv-z-10 mv-bg-white",
     orientation === "left" && "mv-left-0",
     orientation === "right" && "mv-right-0"
   );
@@ -465,7 +465,7 @@ function ShowMoreButton(props: { showMore: string; showLess: string }) {
   const [checked, setChecked] = React.useState(false);
 
   return (
-    <label className="mv-hidden lg:mv-block mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
+    <label className="mv-hidden lg:mv-block mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-12 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
       <input
         type="checkbox"
         className="mv-peer mv-h-0 mv-w-0 mv-opacity-0"
