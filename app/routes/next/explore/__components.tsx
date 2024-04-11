@@ -1,7 +1,7 @@
 import { Button } from "@mint-vernetzt/components";
 import { Link, useLocation, useNavigation } from "@remix-run/react";
 import classNames from "classnames";
-import React, { InputHTMLAttributes } from "react";
+import React, { type InputHTMLAttributes } from "react";
 
 function Checkbox(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
@@ -275,7 +275,7 @@ export function DropdownLabel(
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, []);
+  }, [props.listRef]);
 
   return (
     <label

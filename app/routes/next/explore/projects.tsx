@@ -271,13 +271,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
-    let isChecked;
-    // TODO: Remove 'area.slug === null' when slug isn't optional anymore (after migration)
-    if (area.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.area.includes(area.slug);
-    }
+    const isChecked = submission.value.filter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
@@ -307,13 +301,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       filterVector,
       "discipline"
     );
-    let isChecked;
-    // TODO: Remove 'discipline.slug === null' when slug isn't optional anymore (after migration)
-    if (discipline.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.discipline.includes(discipline.slug);
-    }
+    const isChecked = submission.value.filter.discipline.includes(
+      discipline.slug
+    );
     return { ...discipline, vectorCount, isChecked };
   });
   const selectedDisciplines = submission.value.filter.discipline.map((slug) => {
@@ -334,15 +324,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
         filterVector,
         "additionalDiscipline"
       );
-      let isChecked;
-      // TODO: Remove 'discipline.slug === null' when slug isn't optional anymore (after migration)
-      if (additionalDiscipline.slug === null) {
-        isChecked = false;
-      } else {
-        isChecked = submission.value.filter.additionalDiscipline.includes(
-          additionalDiscipline.slug
-        );
-      }
+      const isChecked = submission.value.filter.additionalDiscipline.includes(
+        additionalDiscipline.slug
+      );
       return { ...additionalDiscipline, vectorCount, isChecked };
     }
   );
@@ -366,15 +350,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       filterVector,
       "projectTargetGroup"
     );
-    let isChecked;
-    // TODO: Remove 'targetGroup.slug === null' when slug isn't optional anymore (after migration)
-    if (targetGroup.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.projectTargetGroup.includes(
-        targetGroup.slug
-      );
-    }
+    const isChecked = submission.value.filter.projectTargetGroup.includes(
+      targetGroup.slug
+    );
     return { ...targetGroup, vectorCount, isChecked };
   });
   const selectedTargetGroups = submission.value.filter.projectTargetGroup.map(
@@ -396,13 +374,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       filterVector,
       "format"
     );
-    let isChecked;
-    // TODO: Remove 'format.slug === null' when slug isn't optional anymore (after migration)
-    if (format.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.format.includes(format.slug);
-    }
+    const isChecked = submission.value.filter.format.includes(format.slug);
     return { ...format, vectorCount, isChecked };
   });
   const selectedFormats = submission.value.filter.format.map((slug) => {
@@ -423,15 +395,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
         filterVector,
         "specialTargetGroup"
       );
-      let isChecked;
-      // TODO: Remove 'specialTargetGroup.slug === null' when slug isn't optional anymore (after migration)
-      if (specialTargetGroup.slug === null) {
-        isChecked = false;
-      } else {
-        isChecked = submission.value.filter.specialTargetGroup.includes(
-          specialTargetGroup.slug
-        );
-      }
+      const isChecked = submission.value.filter.specialTargetGroup.includes(
+        specialTargetGroup.slug
+      );
       return { ...specialTargetGroup, vectorCount, isChecked };
     }
   );
@@ -455,13 +421,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       filterVector,
       "financing"
     );
-    let isChecked;
-    // TODO: Remove 'financing.slug === null' when slug isn't optional anymore (after migration)
-    if (financing.slug === null) {
-      isChecked = false;
-    } else {
-      isChecked = submission.value.filter.financing.includes(financing.slug);
-    }
+    const isChecked = submission.value.filter.financing.includes(
+      financing.slug
+    );
     return { ...financing, vectorCount, isChecked };
   });
   const selectedFinancings = submission.value.filter.financing.map((slug) => {
@@ -579,8 +541,7 @@ export default function ExploreProjects() {
                       <FormControl
                         {...getInputProps(filter.discipline, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: discipline.slug || undefined,
+                          value: discipline.slug,
                         })}
                         key={discipline.slug}
                         defaultChecked={discipline.isChecked}
@@ -614,8 +575,7 @@ export default function ExploreProjects() {
                         <FormControl
                           {...getInputProps(filter.discipline, {
                             type: "checkbox",
-                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: additionalDiscipline.slug || undefined,
+                            value: additionalDiscipline.slug,
                           })}
                           key={additionalDiscipline.slug}
                           defaultChecked={additionalDiscipline.isChecked}
@@ -660,8 +620,7 @@ export default function ExploreProjects() {
                       <FormControl
                         {...getInputProps(filter.projectTargetGroup, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: targetGroup.slug || undefined,
+                          value: targetGroup.slug,
                         })}
                         key={targetGroup.slug}
                         defaultChecked={targetGroup.isChecked}
@@ -705,8 +664,7 @@ export default function ExploreProjects() {
                       <FormControl
                         {...getInputProps(filter.area, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: area.slug || undefined,
+                          value: area.slug,
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
@@ -727,8 +685,7 @@ export default function ExploreProjects() {
                       <FormControl
                         {...getInputProps(filter.area, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: area.slug || undefined,
+                          value: area.slug,
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
@@ -804,8 +761,7 @@ export default function ExploreProjects() {
                         <FormControl
                           {...getInputProps(filter.area, {
                             type: "checkbox",
-                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: area.slug || undefined,
+                            value: area.slug,
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
@@ -836,8 +792,7 @@ export default function ExploreProjects() {
                         <FormControl
                           {...getInputProps(filter.area, {
                             type: "checkbox",
-                            // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                            value: area.slug || undefined,
+                            value: area.slug,
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
@@ -873,8 +828,7 @@ export default function ExploreProjects() {
                       <FormControl
                         {...getInputProps(filter.format, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: format.slug || undefined,
+                          value: format.slug,
                         })}
                         key={format.slug}
                         defaultChecked={format.isChecked}
@@ -915,8 +869,7 @@ export default function ExploreProjects() {
                       <FormControl
                         {...getInputProps(filter.specialTargetGroup, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: targetGroup.slug || undefined,
+                          value: targetGroup.slug,
                         })}
                         key={targetGroup.slug}
                         defaultChecked={targetGroup.isChecked}
@@ -960,8 +913,7 @@ export default function ExploreProjects() {
                       <FormControl
                         {...getInputProps(filter.financing, {
                           type: "checkbox",
-                          // TODO: Remove undefined when migration is fully applied and slug cannot be null anymore
-                          value: financing.slug || undefined,
+                          value: financing.slug,
                         })}
                         key={financing.slug}
                         defaultChecked={financing.isChecked}
@@ -1054,7 +1006,6 @@ export default function ExploreProjects() {
           loaderData.selectedFinancings.length > 0) && (
           <div className="mv-flex mv-flex-col">
             <div className="mv-overflow-scroll lg:mv-overflow-auto mv-flex mv-flex-nowrap lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
-              {/* <Chip.Container> */}
               {loaderData.selectedDisciplines.map((selectedDiscipline) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
@@ -1282,245 +1233,3 @@ export default function ExploreProjects() {
     </>
   );
 }
-
-/* OLD
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { skip, take, page, itemsPerPage } = getPaginationValues(request, {
-    itemsPerPage: 8,
-  });
-  const { sortBy } = getSortValue(request);
-
-  const { authClient } = createAuthClient(request);
-
-  const abilities = await getFeatureAbilities(authClient, ["filter"]);
-
-  if (abilities.filter.hasAccess === false) {
-    return redirect("/explore/projects");
-  }
-
-  const sessionUser = await getSessionUser(authClient);
-  const projects = await getAllProjects({ skip, take, sortBy });
-
-  const enhancedProjects = [];
-
-  for (const project of projects) {
-    let enhancedProject = {
-      ...project,
-    };
-
-    if (sessionUser === null) {
-      // Filter project
-      type EnhancedProject = typeof enhancedProject;
-      enhancedProject =
-        filterProjectByVisibility<EnhancedProject>(enhancedProject);
-      // Filter responsible organizations of project
-      enhancedProject.responsibleOrganizations =
-        enhancedProject.responsibleOrganizations.map((relation) => {
-          type OrganizationRelation = typeof relation.organization;
-          const filteredOrganization =
-            filterOrganizationByVisibility<OrganizationRelation>(
-              relation.organization
-            );
-
-          return { ...relation, organization: filteredOrganization };
-        });
-    }
-
-    // Add images from image proxy
-    if (enhancedProject.background !== null) {
-      const publicURL = getPublicURL(authClient, enhancedProject.background);
-      if (publicURL) {
-        enhancedProject.background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 400, height: 280 },
-        });
-      }
-    }
-
-    if (enhancedProject.logo !== null) {
-      const publicURL = getPublicURL(authClient, enhancedProject.logo);
-      if (publicURL) {
-        enhancedProject.logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 144, height: 144 },
-        });
-      }
-    }
-
-    enhancedProject.awards = enhancedProject.awards.map((relation) => {
-      let logo = relation.award.logo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
-        }
-      }
-      return { ...relation, award: { ...relation.award, logo } };
-    });
-
-    enhancedProject.responsibleOrganizations =
-      enhancedProject.responsibleOrganizations.map((relation) => {
-        let logo = relation.organization.logo;
-        if (logo !== null) {
-          const publicURL = getPublicURL(authClient, logo);
-          if (publicURL) {
-            logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
-          }
-        }
-        return {
-          ...relation,
-          organization: { ...relation.organization, logo },
-        };
-      });
-
-    enhancedProjects.push(enhancedProject);
-  }
-
-  return json({
-    projects: enhancedProjects,
-    pagination: {
-      page,
-      itemsPerPage,
-    },
-  });
-};
-
-function Projects() {
-  const loaderData = useLoaderData<typeof loader>();
-
-  const fetcher = useFetcher<typeof loader>();
-  const [searchParams] = useSearchParams();
-  const sortBy = searchParams.get("sortBy");
-  const [items, setItems] = React.useState(loaderData.projects);
-  const [shouldFetch, setShouldFetch] = React.useState(() => {
-    if (loaderData.projects.length < loaderData.pagination.itemsPerPage) {
-      return false;
-    }
-    return true;
-  });
-  const [page, setPage] = React.useState(() => {
-    const pageParam = searchParams.get("page");
-    if (pageParam !== null) {
-      return parseInt(pageParam);
-    }
-    return 1;
-  });
-
-  React.useEffect(() => {
-    if (fetcher.data !== undefined) {
-      setItems((projects) => {
-        return fetcher.data !== undefined
-          ? [...projects, ...fetcher.data.projects]
-          : [...projects];
-      });
-      setPage(fetcher.data.pagination.page);
-      if (fetcher.data.projects.length < fetcher.data.pagination.itemsPerPage) {
-        setShouldFetch(false);
-      }
-    }
-  }, [fetcher.data]);
-
-  React.useEffect(() => {
-    setItems(loaderData.projects);
-
-    if (loaderData.projects.length < loaderData.pagination.itemsPerPage) {
-      setShouldFetch(false);
-    } else {
-      setShouldFetch(true);
-    }
-    setPage(1);
-  }, [loaderData.projects, loaderData.pagination.itemsPerPage]);
-
-  const submit = useSubmit();
-  function handleChange(event: React.FormEvent<HTMLFormElement>) {
-    submit(event.currentTarget);
-  }
-
-  const { t } = useTranslation(i18nNS);
-
-  return (
-    <>
-      <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-        <H1 like="h0">{t("title")}</H1>
-        <p className="">{t("intro")}</p>
-      </section>
-
-      <section className="container mb-8">
-        <Form method="get" onChange={handleChange}>
-          <input hidden name="page" value={1} readOnly />
-          <div className="flex flex-wrap -mx-4">
-            <div className="form-control px-4 pb-4 flex-initial w-full md:w-1/4">
-              <label className="block font-semibold mb-2">
-                {t("filter.sort.label")}
-              </label>
-              <select
-                id="sortBy"
-                name="sortBy"
-                defaultValue={sortBy || "nameAsc"}
-                className="select w-full select-bordered"
-              >
-                <option key="nameAsc" value="nameAsc">
-                  {t("filter.sortBy.nameAsc")}
-                </option>
-                <option key="nameDesc" value="nameDesc">
-                  {t("filter.sortBy.nameDesc")}
-                </option>
-                <option key="newest" value="newest">
-                  {t("filter.sortBy.newest")}
-                </option>
-              </select>
-            </div>
-          </div>
-          <div className="flex justify-end items-end">
-            <noscript>
-              <button
-                id="noScriptSubmitButton"
-                type="submit"
-                className="btn btn-primary mr-2"
-              >
-                Sortierung anwenden
-              </button>
-            </noscript>
-          </div>
-        </Form>
-      </section>
-
-      <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-        <CardContainer type="multi row">
-          {items.map((project) => {
-            return (
-              <ProjectCard key={`project-${project.id}`} project={project} />
-            );
-          })}
-        </CardContainer>
-      </section>
-      {shouldFetch && (
-        <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
-          <fetcher.Form method="get">
-            <input
-              key="sortBy"
-              type="hidden"
-              name="sortBy"
-              value={sortBy || "nameAsc"}
-            />
-            <input key="page" type="hidden" name="page" value={page + 1} />
-            <Button
-              size="large"
-              variant="outline"
-              loading={fetcher.state === "loading"}
-            >
-              {t("more")}
-            </Button>
-          </fetcher.Form>
-        </div>
-      )}
-    </>
-  );
-}
-
-export default Projects;
-*/
