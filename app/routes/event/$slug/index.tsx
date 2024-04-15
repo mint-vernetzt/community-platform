@@ -177,6 +177,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // Hiding conference link when session user is not participating (participant, speaker, teamMember) or when its not known yet
   if (
     !canUserAccessConferenceLink(
+      // TODO: Fix type issue
       eventWithParticipationStatus,
       isParticipant,
       isSpeaker,

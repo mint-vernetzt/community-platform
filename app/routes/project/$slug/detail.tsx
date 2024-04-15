@@ -119,7 +119,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       });
     }
     blurredBackground = getImageURL(publicURL, {
-      resize: { type: "fill", width: 149, height: 48 },
+      resize: { type: "fill", width: 31, height: 10 },
       blur: 5,
     });
   }
@@ -129,11 +129,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const publicURL = getPublicURL(authClient, project.logo);
     if (publicURL) {
       logo = getImageURL(publicURL, {
-        resize: { type: "fill", width: 248, height: 248 },
+        resize: { type: "fill", width: 244, height: 244 },
       });
     }
     blurredLogo = getImageURL(publicURL, {
-      resize: { type: "fill", width: 25, height: 25 },
+      resize: { type: "fill", width: 61, height: 61 },
       blur: 5,
     });
   }

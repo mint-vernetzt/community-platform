@@ -8,7 +8,7 @@ import {
 } from "~/routes/event/$slug/utils.server";
 import type { ArrayElement } from "../utils/types";
 
-const eventRelations = Prisma.validator<Prisma.EventArgs>()({
+const eventRelations = Prisma.validator<Prisma.EventDefaultArgs>()({
   select: {
     participants: true,
     speakers: true,

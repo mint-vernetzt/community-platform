@@ -1,14 +1,14 @@
 import type { Profile } from "@prisma/client";
 import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import { GravityType, getImageURL } from "~/images.server";
-import { prismaClient } from "~/prisma.server";
+import { getImageURL } from "~/images.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
   filterProfileByVisibility,
   filterProjectByVisibility,
 } from "~/next-public-fields-filtering.server";
+import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveMode, triggerEntityScore, type Mode } from "~/utils.server";
 import { type ProfileQuery } from "./index.server";
@@ -220,7 +220,7 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
     const publicURL = getPublicURL(authClient, profile.background);
     if (publicURL !== null) {
       background = getImageURL(publicURL, {
-        resize: { type: "fit", width: 1488, height: 480 },
+        resize: { type: "fill", width: 1488, height: 480 },
       });
     }
   }
@@ -230,8 +230,7 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
-          gravity: GravityType.center,
+          resize: { type: "fill", width: 64, height: 64 },
         });
       }
     }
@@ -244,8 +243,7 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
         const publicURL = getPublicURL(authClient, projectLogo);
         if (publicURL !== null) {
           projectLogo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
+            resize: { type: "fill", width: 64, height: 64 },
           });
         }
       }
@@ -255,8 +253,7 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
           const publicURL = getPublicURL(authClient, awardLogo);
           if (publicURL !== null) {
             awardLogo = getImageURL(publicURL, {
-              resize: { type: "fit", width: 64, height: 64 },
-              gravity: GravityType.center,
+              resize: { type: "fill", width: 64, height: 64 },
             });
           }
         }
@@ -282,7 +279,7 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
           resize: { type: "fill", width: 144, height: 96 },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 18, height: 12 },
+          resize: { type: "fill", width: 9, height: 6 },
           blur: 5,
         });
       }
@@ -303,7 +300,7 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
           resize: { type: "fill", width: 144, height: 96 },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 18, height: 12 },
+          resize: { type: "fill", width: 9, height: 6 },
           blur: 5,
         });
       }
@@ -324,7 +321,7 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
           resize: { type: "fill", width: 144, height: 96 },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 18, height: 12 },
+          resize: { type: "fill", width: 9, height: 6 },
           blur: 5,
         });
       }
@@ -345,7 +342,7 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
           resize: { type: "fill", width: 144, height: 96 },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 18, height: 12 },
+          resize: { type: "fill", width: 9, height: 6 },
           blur: 5,
         });
       }
@@ -366,7 +363,7 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
           resize: { type: "fill", width: 144, height: 96 },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 18, height: 12 },
+          resize: { type: "fill", width: 9, height: 6 },
           blur: 5,
         });
       }

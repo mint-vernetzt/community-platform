@@ -12,7 +12,7 @@ import { useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { GravityType, getImageURL } from "~/images.server";
+import { getImageURL } from "~/images.server";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css";
@@ -70,7 +70,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         avatarImage = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: GravityType.center,
         });
       }
     }
@@ -80,7 +79,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
-          resize: { type: "fit", width: 473, height: 160 },
+          resize: { type: "fill", width: 348, height: 160 },
         });
       }
     }
@@ -95,8 +94,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           );
           if (publicURL !== null) {
             logoImage = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
+              resize: { type: "fill", width: 36, height: 36 },
             });
           }
         }
@@ -141,7 +139,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         logoImage = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: GravityType.center,
         });
       }
     }
@@ -151,7 +148,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
-          resize: { type: "fit", width: 473, height: 160 },
+          resize: { type: "fill", width: 348, height: 160 },
         });
       }
     }
@@ -163,8 +160,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           const publicURL = getPublicURL(authClient, relation.profile.avatar);
           if (publicURL !== null) {
             avatar = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
+              resize: { type: "fill", width: 36, height: 36 },
             });
           }
         }

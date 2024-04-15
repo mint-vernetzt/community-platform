@@ -185,7 +185,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 144 },
+          resize: { type: "fill", width: 38, height: 38 },
         });
       }
     }
@@ -198,7 +198,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 144, height: 144 },
+            resize: { type: "fill", width: 38, height: 38 },
           });
         }
       }

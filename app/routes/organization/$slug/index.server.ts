@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { GravityType, getImageURL } from "~/images.server";
+import { getImageURL } from "~/images.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
@@ -410,7 +410,7 @@ export function addImgUrls(
     const publicURL = getPublicURL(authClient, organization.logo);
     if (publicURL) {
       logo = getImageURL(publicURL, {
-        resize: { type: "fit", width: 144, height: 144 },
+        resize: { type: "fill", width: 144, height: 144 },
       });
     }
   }
@@ -419,7 +419,7 @@ export function addImgUrls(
     const publicURL = getPublicURL(authClient, organization.background);
     if (publicURL) {
       background = getImageURL(publicURL, {
-        resize: { type: "fit", width: 1488, height: 480 },
+        resize: { type: "fill", width: 1488, height: 480 },
       });
     }
   }
@@ -430,7 +430,7 @@ export function addImgUrls(
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
+          resize: { type: "fill", width: 64, height: 64 },
         });
       }
     }
@@ -443,7 +443,7 @@ export function addImgUrls(
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
+          resize: { type: "fill", width: 64, height: 64 },
         });
       }
     }
@@ -460,7 +460,6 @@ export function addImgUrls(
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
           resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
         });
       }
     }
@@ -474,8 +473,7 @@ export function addImgUrls(
         const publicURL = getPublicURL(authClient, projectLogo);
         if (publicURL !== null) {
           projectLogo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
+            resize: { type: "fill", width: 64, height: 64 },
           });
         }
       }
@@ -485,8 +483,7 @@ export function addImgUrls(
           const publicURL = getPublicURL(authClient, awardLogo);
           if (publicURL !== null) {
             awardLogo = getImageURL(publicURL, {
-              resize: { type: "fit", width: 64, height: 64 },
-              gravity: GravityType.center,
+              resize: { type: "fill", width: 64, height: 64 },
             });
           }
         }
@@ -514,7 +511,7 @@ export function addImgUrls(
           });
         }
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 18, height: 12 },
+          resize: { type: "fill", width: 9, height: 6 },
           blur: 5,
         });
       }
