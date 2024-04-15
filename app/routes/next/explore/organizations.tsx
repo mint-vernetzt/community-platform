@@ -192,7 +192,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedOrganization.logo);
       if (publicURL !== null) {
         enhancedOrganization.logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
+          resize: { type: "fill", width: 272, height: 272 },
           gravity: GravityType.center,
         });
       }
@@ -205,7 +205,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       );
       if (publicURL !== null) {
         enhancedOrganization.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
+          resize: { type: "fill", width: 696, height: 320 },
           gravity: GravityType.center,
         });
       }
@@ -217,7 +217,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
           avatar = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
+            resize: { type: "fill", width: 72, height: 72 },
           });
         }
         return { ...relation, profile: { ...relation.profile, avatar } };

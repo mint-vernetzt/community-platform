@@ -212,11 +212,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedEvent.background);
       if (publicURL) {
         enhancedEvent.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 594, height: 396 },
+          resize: { type: "fill", width: 696, height: 320 },
         });
       }
       blurredBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 18, height: 12 },
+        resize: { type: "fill", width: 87, height: 40 },
         blur: 5,
       });
     } else {
@@ -231,7 +231,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
+              resize: { type: "fill", width: 72, height: 72 },
               gravity: GravityType.center,
             });
           }

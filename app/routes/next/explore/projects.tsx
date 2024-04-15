@@ -203,7 +203,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedProject.background);
       if (publicURL) {
         enhancedProject.background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 400, height: 280 },
+          resize: { type: "fill", width: 696, height: 320 },
         });
       }
     }
@@ -212,7 +212,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedProject.logo);
       if (publicURL) {
         enhancedProject.logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 144, height: 144 },
+          resize: { type: "fill", width: 272, height: 272 },
         });
       }
     }
@@ -223,7 +223,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
+            resize: { type: "fill", width: 72, height: 72 },
             gravity: GravityType.center,
           });
         }
@@ -238,7 +238,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
+              resize: { type: "fill", width: 72, height: 72 },
               gravity: GravityType.center,
             });
           }
