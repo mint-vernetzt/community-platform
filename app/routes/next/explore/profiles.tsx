@@ -29,7 +29,7 @@ import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { GravityType, getImageURL } from "~/images.server";
+import { getImageURL } from "~/images.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
@@ -190,8 +190,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
       if (publicURL !== null) {
         enhancedProfile.avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 272, height: 272 },
-          gravity: GravityType.center,
+          resize: { type: "fill", width: 136, height: 136 },
         });
       }
     }
@@ -199,8 +198,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedProfile.background);
       if (publicURL !== null) {
         enhancedProfile.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 696, height: 320 },
-          gravity: GravityType.center,
+          resize: { type: "fill", width: 348, height: 160 },
         });
       }
     }
@@ -209,7 +207,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 72, height: 72 },
+          resize: { type: "fill", width: 36, height: 36 },
         });
       }
       return { ...relation, organization: { ...relation.organization, logo } };
