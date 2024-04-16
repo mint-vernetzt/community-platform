@@ -571,7 +571,7 @@ export default function ExploreProjects() {
                     (additionalDiscipline) => {
                       return (
                         <FormControl
-                          {...getInputProps(filter.discipline, {
+                          {...getInputProps(filter.additionalDiscipline, {
                             type: "checkbox",
                             value: additionalDiscipline.slug,
                           })}
