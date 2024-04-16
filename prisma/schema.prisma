@@ -11,48 +11,53 @@ datasource db {
 }
 
 model Profile {
-  id                        String                      @id @default(uuid())
-  username                  String                      @unique
-  email                     String
-  phone                     String?
-  website                   String?
-  avatar                    String?
-  background                String? // legacy
-  backgroundImage           Image?                      @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
-  backgroundImageId         String?                     @map("background_image_id")
-  facebook                  String?
-  linkedin                  String?
-  twitter                   String?
-  xing                      String?
-  bio                       String?
-  skills                    String[]
-  interests                 String[]
-  academicTitle             String?                     @map("academic_title")
-  createdAt                 DateTime                    @default(now()) @map("created_at")
-  firstName                 String                      @map("first_name")
-  lastName                  String                      @map("last_name")
-  publicFields              String[]                    @map("public_fields") // legacy
-  termsAccepted             Boolean                     @map("terms_accepted")
-  termsAcceptedAt           DateTime                    @default(now()) @map("terms_accepted_at")
-  updatedAt                 DateTime                    @default(now()) @map("updated_at")
-  position                  String?
-  instagram                 String?
-  youtube                   String?
-  score                     Int                         @default(0)
-  areas                     AreasOnProfiles[]
-  memberOf                  MemberOfOrganization[]
-  offers                    OffersOnProfiles[]
-  participatedEvents        ParticipantOfEvent[]
-  seekings                  SeekingsOnProfiles[]
-  contributedEvents         SpeakerOfEvent[]
-  teamMemberOfEvents        TeamMemberOfEvent[]
-  teamMemberOfProjects      TeamMemberOfProject[]
-  waitingForEvents          WaitingParticipantOfEvent[]
-  profileVisibility         ProfileVisibility?
-  administeredEvents        AdminOfEvent[]
-  administeredOrganizations AdminOfOrganization[]
-  administeredProjects      AdminOfProject[]
-  notificationSettings      NotificationSettings?
+  id                              String                           @id @default(uuid())
+  username                        String                           @unique
+  email                           String
+  phone                           String?
+  website                         String?
+  avatar                          String?
+  background                      String? // legacy
+  backgroundImage                 Image?                           @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId               String?                          @map("background_image_id")
+  facebook                        String?
+  linkedin                        String?
+  twitter                         String?
+  xing                            String?
+  bio                             String?
+  skills                          String[]
+  interests                       String[]
+  academicTitle                   String?                          @map("academic_title")
+  createdAt                       DateTime                         @default(now()) @map("created_at")
+  firstName                       String                           @map("first_name")
+  lastName                        String                           @map("last_name")
+  publicFields                    String[]                         @map("public_fields") // legacy
+  termsAccepted                   Boolean                          @map("terms_accepted")
+  termsAcceptedAt                 DateTime                         @default(now()) @map("terms_accepted_at")
+  updatedAt                       DateTime                         @default(now()) @map("updated_at")
+  position                        String?
+  instagram                       String?
+  youtube                         String?
+  score                           Int                              @default(0)
+  areas                           AreasOnProfiles[]
+  memberOf                        MemberOfOrganization[]
+  offers                          OffersOnProfiles[]
+  participatedEvents              ParticipantOfEvent[]
+  seekings                        SeekingsOnProfiles[]
+  contributedEvents               SpeakerOfEvent[]
+  teamMemberOfEvents              TeamMemberOfEvent[]
+  teamMemberOfProjects            TeamMemberOfProject[]
+  waitingForEvents                WaitingParticipantOfEvent[]
+  profileVisibility               ProfileVisibility?
+  administeredEvents              AdminOfEvent[]
+  administeredOrganizations       AdminOfOrganization[]
+  administeredProjects            AdminOfProject[]
+  notificationSettings            NotificationSettings?
+  profileAbuseReportRequests      ProfileAbuseReportRequest[]      @relation("reporter_of_profile_abuse_report")
+  organizationAbuseReportRequests OrganizationAbuseReportRequest[] @relation("reporter_of_organization_abuse_report")
+  eventAbuseReportRequests        EventAbuseReportRequest[]        @relation("reporter_of_event_abuse_report")
+  projectAbuseReportRequests      ProjectAbuseReportRequest[]      @relation("reporter_of_project_abuse_report")
+  abuseReports                    ProfileAbuseReportRequest[]      @relation("profile_of_profile_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -61,48 +66,53 @@ model Profile {
 }
 
 model ProfileVisibility {
-  id                        String  @id @default(uuid())
-  username                  Boolean @default(true)
-  email                     Boolean @default(false)
-  phone                     Boolean @default(false)
-  website                   Boolean @default(false)
-  avatar                    Boolean @default(true)
-  background                Boolean @default(true) // legacy
-  backgroundImage           Boolean @default(true) @map("background_image")
-  backgroundImageId         Boolean @default(true) @map("background_image_id")
-  facebook                  Boolean @default(false)
-  linkedin                  Boolean @default(false)
-  twitter                   Boolean @default(false)
-  xing                      Boolean @default(false)
-  bio                       Boolean @default(false)
-  skills                    Boolean @default(false)
-  interests                 Boolean @default(false)
-  academicTitle             Boolean @default(true) @map("academic_title")
-  createdAt                 Boolean @default(true) @map("created_at")
-  firstName                 Boolean @default(true) @map("first_name")
-  lastName                  Boolean @default(true) @map("last_name")
-  termsAccepted             Boolean @default(true) @map("terms_accepted")
-  termsAcceptedAt           Boolean @default(true) @map("terms_accepted_at")
-  updatedAt                 Boolean @default(true) @map("updated_at")
-  position                  Boolean @default(false)
-  instagram                 Boolean @default(false)
-  youtube                   Boolean @default(false)
-  score                     Boolean @default(true)
-  areas                     Boolean @default(true)
-  memberOf                  Boolean @default(true)
-  offers                    Boolean @default(false)
-  participatedEvents        Boolean @default(false)
-  seekings                  Boolean @default(false)
-  contributedEvents         Boolean @default(true)
-  teamMemberOfEvents        Boolean @default(true)
-  teamMemberOfProjects      Boolean @default(true)
-  waitingForEvents          Boolean @default(false)
-  profile                   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId                 String  @unique
-  administeredOrganizations Boolean @default(false)
-  administeredEvents        Boolean @default(false)
-  administeredProjects      Boolean @default(false)
-  notificationSettings      Boolean @default(false) @map("notfication_settings")
+  id                              String  @id @default(uuid())
+  username                        Boolean @default(true)
+  email                           Boolean @default(false)
+  phone                           Boolean @default(false)
+  website                         Boolean @default(false)
+  avatar                          Boolean @default(true)
+  background                      Boolean @default(true) // legacy
+  backgroundImage                 Boolean @default(true) @map("background_image")
+  backgroundImageId               Boolean @default(true) @map("background_image_id")
+  facebook                        Boolean @default(false)
+  linkedin                        Boolean @default(false)
+  twitter                         Boolean @default(false)
+  xing                            Boolean @default(false)
+  bio                             Boolean @default(false)
+  skills                          Boolean @default(false)
+  interests                       Boolean @default(false)
+  academicTitle                   Boolean @default(true) @map("academic_title")
+  createdAt                       Boolean @default(true) @map("created_at")
+  firstName                       Boolean @default(true) @map("first_name")
+  lastName                        Boolean @default(true) @map("last_name")
+  termsAccepted                   Boolean @default(true) @map("terms_accepted")
+  termsAcceptedAt                 Boolean @default(true) @map("terms_accepted_at")
+  updatedAt                       Boolean @default(true) @map("updated_at")
+  position                        Boolean @default(false)
+  instagram                       Boolean @default(false)
+  youtube                         Boolean @default(false)
+  score                           Boolean @default(true)
+  areas                           Boolean @default(true)
+  memberOf                        Boolean @default(true)
+  offers                          Boolean @default(false)
+  participatedEvents              Boolean @default(false)
+  seekings                        Boolean @default(false)
+  contributedEvents               Boolean @default(true)
+  teamMemberOfEvents              Boolean @default(true)
+  teamMemberOfProjects            Boolean @default(true)
+  waitingForEvents                Boolean @default(false)
+  profile                         Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId                       String  @unique
+  administeredOrganizations       Boolean @default(false)
+  administeredEvents              Boolean @default(false)
+  administeredProjects            Boolean @default(false)
+  notificationSettings            Boolean @default(false) @map("notfication_settings")
+  profileAbuseReportRequests      Boolean @default(false)
+  organizationAbuseReportRequests Boolean @default(false)
+  eventAbuseReportRequests        Boolean @default(false)
+  projectAbuseReportRequests      Boolean @default(false)
+  abuseReports                    Boolean @default(false)
 
   @@map("profile_visibilities")
 }
@@ -114,6 +124,15 @@ model NotificationSettings {
   profileId String  @unique
 
   @@map("notification_settings")
+}
+
+model ProfileAbuseReportRequest {
+  id         String  @id @default(uuid())
+  report     String
+  reporter   Profile @relation("reporter_of_profile_abuse_report", fields: [reporterId], references: [id])
+  reporterId String
+  profile    Profile @relation("profile_of_profile_abuse_report", fields: [profileId], references: [id])
+  profileId  String
 }
 
 model AreasOnProfiles {
@@ -186,6 +205,7 @@ model Organization {
   responsibleForProject  ResponsibleOrganizationOfProject[]
   organizationVisibility OrganizationVisibility?
   admins                 AdminOfOrganization[]
+  abuseReports           OrganizationAbuseReportRequest[]   @relation("organization_of_organization_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -231,10 +251,20 @@ model OrganizationVisibility {
   types                  Boolean      @default(true)
   responsibleForEvents   Boolean      @default(true)
   responsibleForProject  Boolean      @default(true)
+  abuseReports           Boolean      @default(false)
   organization           Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId         String       @unique
 
   @@map("organization_visibilities")
+}
+
+model OrganizationAbuseReportRequest {
+  id             String       @id @default(uuid())
+  report         String
+  reporter       Profile      @relation("reporter_of_organization_abuse_report", fields: [reporterId], references: [id])
+  reporterId     String
+  organization   Organization @relation("organization_of_organization_abuse_report", fields: [organizationId], references: [id])
+  organizationId String
 }
 
 model OrganizationTypesOnOrganizations {
@@ -347,6 +377,7 @@ model Event {
   waitingList              WaitingParticipantOfEvent[]
   eventVisibility          EventVisibility?
   admins                   AdminOfEvent[]
+  abuseReports             EventAbuseReportRequest[]        @relation("event_of_event_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -399,10 +430,20 @@ model EventVisibility {
   teamMembers              Boolean @default(true)
   admins                   Boolean @default(false)
   waitingList              Boolean @default(false)
+  abuseReports             Boolean @default(false)
   event                    Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId                  String  @unique
 
   @@map("event_visibilities")
+}
+
+model EventAbuseReportRequest {
+  id         String  @id @default(uuid())
+  report     String
+  reporter   Profile @relation("reporter_of_event_abuse_report", fields: [reporterId], references: [id])
+  reporterId String
+  event      Event   @relation("event_of_event_abuse_report", fields: [eventId], references: [id])
+  eventId    String
 }
 
 model ResponsibleOrganizationOfEvent {
@@ -825,6 +866,7 @@ model Project {
   areas                        AreasOnProjects[]
   documents                    DocumentOfProject[]
   images                       ImageOfProject[]
+  abuseReports                 ProjectAbuseReportRequest[]        @relation("project_of_project_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -899,10 +941,20 @@ model ProjectVisibility {
   documents                    Boolean @default(true)
   images                       Boolean @default(true)
   admins                       Boolean @default(false)
+  abuseReports                 Boolean @default(false)
   project                      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId                    String  @unique
 
   @@map("project_visibilities")
+}
+
+model ProjectAbuseReportRequest {
+  id         String  @id @default(uuid())
+  report     String
+  reporter   Profile @relation("reporter_of_project_abuse_report", fields: [reporterId], references: [id])
+  reporterId String
+  project    Project @relation("project_of_project_abuse_report", fields: [projectId], references: [id])
+  projectId  String
 }
 
 model Discipline {
