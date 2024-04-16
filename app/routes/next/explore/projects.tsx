@@ -29,7 +29,7 @@ import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { GravityType, getImageURL } from "~/images.server";
+import { getImageURL } from "~/images.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
@@ -38,6 +38,12 @@ import {
   filterProjectByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import {
+  Dropdown,
+  Filters,
+  FormControl,
+  ShowFiltersButton,
+} from "./__components";
 import {
   getAllAdditionalDisciplines,
   getAllDisciplines,
@@ -53,12 +59,6 @@ import {
   getVisibilityFilteredProjectsCount,
 } from "./projects.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import {
-  Dropdown,
-  Filters,
-  FormControl,
-  ShowFiltersButton,
-} from "./__components";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -203,7 +203,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedProject.background);
       if (publicURL) {
         enhancedProject.background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 400, height: 280 },
+          resize: { type: "fill", width: 348, height: 160 },
         });
       }
     }
@@ -212,7 +212,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedProject.logo);
       if (publicURL) {
         enhancedProject.logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 144, height: 144 },
+          resize: { type: "fill", width: 136, height: 136 },
         });
       }
     }
@@ -223,8 +223,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
+            resize: { type: "fill", width: 36, height: 36 },
           });
         }
       }
@@ -238,8 +237,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
+              resize: { type: "fill", width: 36, height: 36 },
             });
           }
         }

@@ -29,7 +29,7 @@ import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { GravityType, getImageURL } from "~/images.server";
+import { getImageURL } from "~/images.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
@@ -38,6 +38,12 @@ import {
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import {
+  Dropdown,
+  Filters,
+  FormControl,
+  ShowFiltersButton,
+} from "./__components";
 import {
   getAllFocuses,
   getAllOrganizationTypes,
@@ -49,12 +55,6 @@ import {
   getVisibilityFilteredOrganizationsCount,
 } from "./organizations.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import {
-  Dropdown,
-  Filters,
-  FormControl,
-  ShowFiltersButton,
-} from "./__components";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -193,7 +193,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (publicURL !== null) {
         enhancedOrganization.logo = getImageURL(publicURL, {
           resize: { type: "fill", width: 136, height: 136 },
-          gravity: GravityType.center,
         });
       }
     }
@@ -205,8 +204,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       );
       if (publicURL !== null) {
         enhancedOrganization.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
-          gravity: GravityType.center,
+          resize: { type: "fill", width: 348, height: 160 },
         });
       }
     }
@@ -217,7 +215,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
           avatar = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
+            resize: { type: "fill", width: 36, height: 36 },
           });
         }
         return { ...relation, profile: { ...relation.profile, avatar } };

@@ -74,13 +74,9 @@ export function getImageURL(
   const imgOptions: { [key: string]: string } = {};
 
   // create resize part of the url
+  const { type, width, height, enlarge = true } = resize || {};
   if (typeof resize !== "undefined") {
-    imgOptions.rs = [
-      resize.type,
-      resize.width,
-      resize.height,
-      resize.enlarge ? 1 : 0,
-    ].join(":");
+    imgOptions.rs = [type, width, height, enlarge ? 1 : 0].join(":");
   }
 
   imgOptions.g = gravity;

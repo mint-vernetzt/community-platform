@@ -718,10 +718,10 @@ export function addImgUrls(
     const publicURL = getPublicURL(authClient, event.background);
     if (publicURL) {
       background = getImageURL(publicURL, {
-        resize: { type: "fill", width: 720, height: 480, enlarge: true },
+        resize: { type: "fit", width: 1488, height: 480 },
       });
       blurredBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 72, height: 48 },
+        resize: { type: "fill", width: 31, height: 10 },
         blur: 5,
       });
     }
@@ -733,8 +733,7 @@ export function addImgUrls(
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+          resize: { type: "fill", width: 42, height: 42 },
         });
       }
     }
@@ -747,7 +746,7 @@ export function addImgUrls(
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
+          resize: { type: "fill", width: 42, height: 42 },
           gravity: GravityType.center,
         });
       }
@@ -761,7 +760,7 @@ export function addImgUrls(
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
+          resize: { type: "fill", width: 42, height: 42 },
           gravity: GravityType.center,
         });
       }
@@ -780,7 +779,7 @@ export function addImgUrls(
         });
       }
       blurredBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 18, height: 12 },
+        resize: { type: "fill", width: 9, height: 6 },
         blur: 5,
       });
     }
@@ -798,7 +797,7 @@ export function addImgUrls(
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 144, height: 144 },
+            resize: { type: "fill", width: 42, height: 42 },
           });
         }
       }

@@ -31,7 +31,7 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { GravityType, getImageURL } from "~/images.server";
+import { getImageURL } from "~/images.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
@@ -40,6 +40,12 @@ import {
   filterOrganizationByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import {
+  Dropdown,
+  Filters,
+  FormControl,
+  ShowFiltersButton,
+} from "./__components";
 import {
   enhanceEventsWithParticipationStatus,
   getAllEventTargetGroups,
@@ -53,12 +59,6 @@ import {
   getVisibilityFilteredEventsCount,
 } from "./events.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import {
-  Dropdown,
-  Filters,
-  FormControl,
-  ShowFiltersButton,
-} from "./__components";
 
 const i18nNS = ["routes/explore/events"];
 export const handle = {
@@ -212,11 +212,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedEvent.background);
       if (publicURL) {
         enhancedEvent.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 594, height: 396 },
+          resize: { type: "fill", width: 348, height: 160 },
         });
       }
       blurredBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 18, height: 12 },
+        resize: { type: "fill", width: 87, height: 40 },
         blur: 5,
       });
     } else {
@@ -231,8 +231,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
+              resize: { type: "fill", width: 36, height: 36 },
             });
           }
         }

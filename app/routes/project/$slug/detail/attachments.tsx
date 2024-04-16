@@ -84,7 +84,7 @@ export async function loader(args: LoaderFunctionArgs) {
   project.images = project.images.map((relation) => {
     const publicURL = getPublicURL(authClient, relation.image.path);
     const thumbnail = getImageURL(publicURL, {
-      resize: { type: "fill", width: 144 },
+      resize: { type: "fill", width: 144, height: 96 },
     });
     return { ...relation, image: { ...relation.image, thumbnail } };
   });
