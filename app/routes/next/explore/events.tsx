@@ -517,6 +517,46 @@ export default function ExploreOrganizations() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
+                  <span className="lg:mv-hidden">
+                    {t("filter.periodOfTime.label")}
+                    <br />
+                  </span>
+                  <span className="mv-font-normal lg:mv-font-semibold">
+                    {t(
+                      `filter.periodOfTime.${loaderData.submission.value.filter.periodOfTime}`
+                    )}
+                  </span>
+                </Dropdown.Label>
+                <Dropdown.List>
+                  {periodOfTimeValues.map((periodOfTimeValue) => {
+                    const submissionFilter = loaderData.submission.value.filter;
+                    return (
+                      <FormControl
+                        {...getInputProps(filter.periodOfTime, {
+                          type: "radio",
+                          value: periodOfTimeValue,
+                        })}
+                        key={periodOfTimeValue}
+                        defaultChecked={
+                          submissionFilter !== undefined
+                            ? submissionFilter.periodOfTime !== undefined
+                              ? submissionFilter.periodOfTime ===
+                                periodOfTimeValue
+                              : periodOfTimeValues[0] === periodOfTimeValue
+                            : periodOfTimeValues[0] === periodOfTimeValue
+                        }
+                        disabled={navigation.state === "loading"}
+                      >
+                        <FormControl.Label>
+                          {t(`filter.periodOfTime.${periodOfTimeValue}`)}
+                        </FormControl.Label>
+                      </FormControl>
+                    );
+                  })}
+                </Dropdown.List>
+              </Dropdown>
+              <Dropdown>
+                <Dropdown.Label>
                   {t("filter.targetGroups")}
                   <span className="mv-font-normal lg:mv-hidden">
                     <br />
@@ -559,46 +599,7 @@ export default function ExploreOrganizations() {
                   })}
                 </Dropdown.List>
               </Dropdown>
-              <Dropdown>
-                <Dropdown.Label>
-                  <span className="lg:mv-hidden">
-                    {t("filter.periodOfTime.label")}
-                    <br />
-                  </span>
-                  <span className="mv-font-normal lg:mv-font-semibold">
-                    {t(
-                      `filter.periodOfTime.${loaderData.submission.value.filter.periodOfTime}`
-                    )}
-                  </span>
-                </Dropdown.Label>
-                <Dropdown.List>
-                  {periodOfTimeValues.map((periodOfTimeValue) => {
-                    const submissionFilter = loaderData.submission.value.filter;
-                    return (
-                      <FormControl
-                        {...getInputProps(filter.periodOfTime, {
-                          type: "radio",
-                          value: periodOfTimeValue,
-                        })}
-                        key={periodOfTimeValue}
-                        defaultChecked={
-                          submissionFilter !== undefined
-                            ? submissionFilter.periodOfTime !== undefined
-                              ? submissionFilter.periodOfTime ===
-                                periodOfTimeValue
-                              : periodOfTimeValues[0] === periodOfTimeValue
-                            : periodOfTimeValues[0] === periodOfTimeValue
-                        }
-                        disabled={navigation.state === "loading"}
-                      >
-                        <FormControl.Label>
-                          {t(`filter.periodOfTime.${periodOfTimeValue}`)}
-                        </FormControl.Label>
-                      </FormControl>
-                    );
-                  })}
-                </Dropdown.List>
-              </Dropdown>
+
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.areas")}
