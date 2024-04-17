@@ -125,6 +125,8 @@ export async function getVisibilityFilteredEventsCount(options: {
         [`${
           typedFilterKey === "periodOfTime"
             ? "startTime"
+            : typedFilterKey === "stage"
+            ? "stage"
             : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
         }`]: false,
       },
@@ -142,13 +144,23 @@ export async function getVisibilityFilteredEventsCount(options: {
         { status: 500 }
       );
       whereClauses.push(filterWhereStatement);
+    } else if (typedFilterKey === "stage") {
+      const filterValue = options.filter[typedFilterKey];
+      if (typeof filterValue === "string" && filterValue !== "all") {
+        const filterWhereStatement = {
+          stage: {
+            slug: filterValue,
+          },
+        };
+        whereClauses.push(filterWhereStatement);
+      }
     } else {
       const filterValues = options.filter[typedFilterKey];
       for (const slug of filterValues) {
         const filterWhereStatement = {
           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
             some: {
-              [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]: {
+              [typedFilterKey]: {
                 slug,
               },
             },
@@ -187,13 +199,23 @@ export async function getEventsCount(options: {
         { status: 500 }
       );
       whereClauses.push(filterWhereStatement);
+    } else if (typedFilterKey === "stage") {
+      const filterValue = options.filter[typedFilterKey];
+      if (typeof filterValue === "string" && filterValue !== "all") {
+        const filterWhereStatement = {
+          stage: {
+            slug: filterValue,
+          },
+        };
+        whereClauses.push(filterWhereStatement);
+      }
     } else {
       const filterValues = options.filter[typedFilterKey];
       for (const slug of filterValues) {
         const filterWhereStatement = {
           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
             some: {
-              [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]: {
+              [typedFilterKey]: {
                 slug,
               },
             },
@@ -229,6 +251,8 @@ export async function getAllEvents(options: {
           [`${
             typedFilterKey === "periodOfTime"
               ? "startTime"
+              : typedFilterKey === "stage"
+              ? "stage"
               : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
           }`]: true,
         },
@@ -247,13 +271,23 @@ export async function getAllEvents(options: {
         { status: 500 }
       );
       whereClauses.push(filterWhereStatement);
+    } else if (typedFilterKey === "stage") {
+      const filterValue = options.filter[typedFilterKey];
+      if (typeof filterValue === "string" && filterValue !== "all") {
+        const filterWhereStatement = {
+          stage: {
+            slug: filterValue,
+          },
+        };
+        whereClauses.push(filterWhereStatement);
+      }
     } else {
       const filterValues = options.filter[typedFilterKey];
       for (const slug of filterValues) {
         const filterWhereStatement = {
           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
             some: {
-              [`${typedFilterKey === "type" ? "eventType" : typedFilterKey}`]: {
+              [typedFilterKey]: {
                 slug,
               },
             },
@@ -458,6 +492,8 @@ export async function getEventFilterVector(options: {
         { status: 500 }
       );
       whereStatements.push(filterWhereStatement);
+    } else if (typedFilterKey === "stage") {
+      // TODO: ???
     } else {
       // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
       /* Example:
@@ -491,7 +527,7 @@ export async function getEventFilterVector(options: {
       let allPossibleFilterValues;
       try {
         allPossibleFilterValues = await prismaClient[
-          `${typedFilterKey === "type" ? "eventType" : fakeTypedFilterKey}`
+          fakeTypedFilterKey
         ].findMany({
           select: {
             slug: true,
@@ -567,6 +603,20 @@ export function getFilterCountForSlug(
 
 export async function getAllEventTypes() {
   return await prismaClient.eventType.findMany({
+    orderBy: {
+      title: "asc",
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      slug: true,
+    },
+  });
+}
+
+export async function getAllStages() {
+  return await prismaClient.stage.findMany({
     orderBy: {
       title: "asc",
     },

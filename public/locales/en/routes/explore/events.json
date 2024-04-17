@@ -34,6 +34,13 @@
       "startTime-asc": "Next first",
       "name-asc": "Name (A-Z)",
       "name-desc": "Name (Z-A)"
+    },
+    "stage": {
+      "label": "Event Type",
+      "hybrid": "Hybrid event",
+      "online": "Online event",
+      "on-site": "On-site event",
+      "all": "All event types"
     }
   },
 
