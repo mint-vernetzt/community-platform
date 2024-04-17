@@ -31,7 +31,7 @@
     "reset": "Reset all",
     "sortBy": {
       "label": "Sorting",
-      "startTime-asc": "Date",
+      "startTime-asc": "Next first",
       "name-asc": "Name (A-Z)",
       "name-desc": "Name (Z-A)"
     }
