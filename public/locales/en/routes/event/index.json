@@ -4,6 +4,7 @@
     "notPublished": "Event not published"
   },
   "content": {
+    "report": "Report event",
     "clock": "{{date}}, {{time}} o'clock",
     "backgroundImage": "Current background image",
     "borderOfImage": "Frame of the background image",

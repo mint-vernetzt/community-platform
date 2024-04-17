@@ -49,6 +49,7 @@ declare global {
       SENTRY_DSN: string;
       SENTRY_ORGANIZATION_NAME: string;
       SENTRY_PROJECT_NAME: string;
+      ABUSE_REPORT_URL: string;
     }
   }
 }
@@ -162,6 +163,10 @@ if (process.env.SENTRY_ORGANIZATION_NAME === undefined) {
 
 if (process.env.SENTRY_PROJECT_NAME === undefined) {
   throw new Error("'SENTRY_PROJECT_NAME' is required");
+}
+
+if (process.env.ABUSE_REPORT_URL === undefined) {
+  throw new Error("'ABUSE_REPORT_URL' is required");
 }
 
 export function handleError(

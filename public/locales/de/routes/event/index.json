@@ -4,6 +4,7 @@
     "notPublished": "Event not published"
   },
   "content": {
+    "report": "Veranstaltung melden",
     "clock": "{{date}}, {{time}} Uhr",
     "backgroundImage": "Aktuelles Hintergrundbild",
     "borderOfImage": "Rahmen des Hintergrundbildes",

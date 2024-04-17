@@ -1,6 +1,10 @@
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useLoaderData, useNavigate } from "@remix-run/react";
+import { Form, Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { type TFunction } from "i18next";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -8,7 +12,11 @@ import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { createAuthClient, getSessionUser } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { RichText } from "~/components/Richtext/RichText";
@@ -20,7 +28,10 @@ import {
 } from "~/lib/event/utils";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import {
+  checkFeatureAbilitiesOrThrow,
+  getFeatureAbilities,
+} from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
@@ -47,6 +58,7 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
+import { createAbuseReportRequest } from "~/reporting.server";
 
 export function links() {
   return [
@@ -69,7 +81,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
-  const abilities = await getFeatureAbilities(authClient, "events");
+  const abilities = await getFeatureAbilities(authClient, [
+    "events",
+    "abuse_report",
+  ]);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/event/index"]);
 
@@ -209,7 +224,28 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
-function getForm(loaderData: {
+export const action = async (args: ActionFunctionArgs) => {
+  const { request, params } = args;
+  const { authClient } = createAuthClient(request);
+  const slug = getParamValueOrThrow(params, "slug");
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
+
+  createAbuseReportRequest({
+    entity: {
+      type: "event",
+      slug: slug,
+    },
+    reporter: {
+      email: sessionUser.email || sessionUser.id,
+    },
+    reasons: ["Some test reason", "Another test reason"],
+  });
+
+  return null;
+};
+
+function getCallToActionForm(loaderData: {
   userId?: string;
   isParticipant: boolean;
   isOnWaitingList: boolean;
@@ -311,7 +347,7 @@ function Index() {
 
   const laysInThePast = now > endTime;
 
-  const Form = getForm(loaderData);
+  const CallToActionForm = getCallToActionForm(loaderData);
 
   const duration = getDuration(startTime, endTime, i18n.language);
 
@@ -342,6 +378,12 @@ function Index() {
   return (
     <>
       <section className="container md:mt-2">
+        {loaderData.abilities.abuse_report.hasAccess &&
+        loaderData.mode !== "anon" ? (
+          <Form method="post">
+            <button type="submit">{t("content.report")}</button>
+          </Form>
+        ) : null}
         <div className="font-semi text-neutral-500 flex flex-wrap items-center mb-4">
           {loaderData.event.parentEvent !== null ? (
             <>
@@ -519,10 +561,13 @@ function Index() {
                               }}
                               components={[
                                 <Link
+                                  key={loaderData.event.parentEvent.slug}
                                   className="underline hover:no-underline"
                                   to={`/event/${loaderData.event.parentEvent.slug}`}
                                   reloadDocument
-                                />,
+                                >
+                                  {t("content.event.context")}
+                                </Link>,
                               ]}
                             />
                           </p>
@@ -541,7 +586,7 @@ function Index() {
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               loaderData.event.canceled === false ? (
-                                <>{Form}</>
+                                <>{CallToActionForm}</>
                               ) : null}
                             </>
                           </div>
@@ -560,9 +605,12 @@ function Index() {
                               ns={["routes/event/index"]}
                               components={[
                                 <a
+                                  key="to-child-events"
                                   href="#child-events"
                                   className="underline hover:no-underline"
-                                />,
+                                >
+                                  {t("content.event.select")}
+                                </a>,
                               ]}
                             />
                           </p>
@@ -581,7 +629,7 @@ function Index() {
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               loaderData.event.canceled === false ? (
-                                <>{Form}</>
+                                <>{CallToActionForm}</>
                               ) : null}
                             </>
                           </div>
@@ -602,7 +650,7 @@ function Index() {
                         ) : null}
                         {loaderData.mode !== "anon" &&
                         loaderData.event.canceled === false ? (
-                          <>{Form}</>
+                          <>{CallToActionForm}</>
                         ) : null}
                       </>
                     </div>
