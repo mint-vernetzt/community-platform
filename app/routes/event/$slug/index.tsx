@@ -59,6 +59,8 @@ import {
   getIsTeamMember,
 } from "./utils.server";
 import { createAbuseReportRequest } from "~/reporting.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { redirectWithAlert } from "~/alert.server";
 
 export function links() {
   return [
@@ -230,19 +232,37 @@ export const action = async (args: ActionFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
+  const reporter = await prismaClient.profile.findUnique({
+    select: {
+      id: true,
+      email: true,
+    },
+    where: {
+      id: sessionUser.id,
+    },
+  });
+  invariantResponse(reporter !== null, "Profile of session user not found.", {
+    status: 404,
+  });
 
-  createAbuseReportRequest({
+  const { error } = await createAbuseReportRequest({
     entity: {
       type: "event",
       slug: slug,
     },
-    reporter: {
-      email: sessionUser.email || sessionUser.id,
-    },
+    reporter,
     reasons: ["Some test reason", "Another test reason"],
   });
-
-  return null;
+  if (error !== null) {
+    return redirectWithAlert(
+      ".",
+      { message: "The abuse report could not be sent.", level: "negative" },
+      { status: 500 }
+    );
+  }
+  return redirectWithAlert(".", {
+    message: "The abuse report was successfully submitted.",
+  });
 };
 
 function getCallToActionForm(loaderData: {
@@ -379,7 +399,7 @@ function Index() {
     <>
       <section className="container md:mt-2">
         {loaderData.abilities.abuse_report.hasAccess &&
-        loaderData.mode !== "anon" ? (
+        loaderData.mode === "authenticated" ? (
           <Form method="post">
             <button type="submit">{t("content.report")}</button>
           </Form>
