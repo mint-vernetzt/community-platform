@@ -51,6 +51,7 @@ import {
   getAllEventTargetGroups,
   getAllEvents,
   getAllFocuses,
+  getAllStages,
   getEventFilterVector,
   getEventsCount,
   getFilterCountForSlug,
@@ -73,22 +74,13 @@ export const periodOfTimeValues = [
   "nextMonth",
   "past",
 ] as const;
-const stageValues = ["all", "hybrid", "online", "on-site"] as const;
 
 export type GetEventsSchema = z.infer<typeof getEventsSchema>;
 
 const getEventsSchema = z.object({
   filter: z
     .object({
-      stage: z
-        .enum(stageValues)
-        .optional()
-        .transform((stage) => {
-          if (typeof stage === "undefined") {
-            return stageValues[0];
-          }
-          return stage;
-        }),
+      stage: z.string(),
       focus: z.array(z.string()),
       eventTargetGroup: z.array(z.string()),
       periodOfTime: z
@@ -106,7 +98,7 @@ const getEventsSchema = z.object({
     .transform((filter) => {
       if (filter === undefined) {
         return {
-          stage: stageValues[0],
+          stage: "all",
           focus: [],
           eventTargetGroup: [],
           periodOfTime: periodOfTimeValues[0],
@@ -346,6 +338,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
+  const stagesFromDB = await getAllStages();
+  const stages = (
+    [
+      {
+        id: "0",
+        slug: "all",
+        title: "All",
+        description: null,
+      },
+    ] as typeof stagesFromDB
+  ).concat(stagesFromDB);
+  const enhancedStages = stages.map((stage) => {
+    const isChecked = submission.value.filter.stage === stage.slug;
+    return { ...stage, isChecked };
+  });
+
   return json({
     isLoggedIn,
     events: enhancedEventsWithParticipationStatus,
@@ -354,6 +362,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     focuses: enhancedFocuses,
     selectedFocuses,
     targetGroups: enhancedTargetGroups,
+    stages: enhancedStages,
     selectedTargetGroups,
     submission,
     filteredByVisibilityCount,
@@ -436,21 +445,19 @@ export default function ExploreOrganizations() {
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {stageValues.map((stage) => {
+                  {loaderData.stages.map((stage) => {
                     return (
                       <FormControl
                         {...getInputProps(filter.stage, {
                           type: "radio",
-                          value: stage,
+                          value: stage.slug,
                         })}
-                        key={stage}
-                        defaultChecked={
-                          loaderData.submission.value.filter.stage === stage
-                        }
+                        key={stage.slug}
+                        defaultChecked={stage.isChecked}
                         disabled={navigation.state === "loading"}
                       >
                         <FormControl.Label>
-                          {t(`filter.stage.${stage}`)}
+                          {t(`filter.stage.${stage.slug}`)}
                         </FormControl.Label>
                       </FormControl>
                     );
