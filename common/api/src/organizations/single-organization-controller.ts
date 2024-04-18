@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Request as ExpressRequest } from "express";
-
 import {
   Controller,
   Get,
@@ -12,11 +11,11 @@ import {
   Tags,
   type ValidateError,
 } from "tsoa";
-import { getPublicURL } from "../storage.server";
-import { getImageURL, GravityType } from "../images.server";
+import { getImageURL } from "../images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { prismaClient } from "../prisma";
 import { filterOrganizationByVisibility } from "../public-fields-filtering.server";
+import { getPublicURL } from "../storage.server";
 import { getBaseURL } from "../utils";
 
 @Route("organization")
@@ -118,18 +117,13 @@ export class OrganizationController extends Controller {
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
-          publicLogo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
+          publicLogo = getImageURL(publicURL);
         }
       }
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL !== null) {
-          publicBackground = getImageURL(publicURL, {
-            resize: { type: "fill", width: 1488, height: 480, enlarge: true },
-          });
+          publicBackground = getImageURL(publicURL);
         }
       }
     }

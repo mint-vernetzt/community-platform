@@ -1,11 +1,11 @@
-import { type Request } from "express";
-import { prismaClient } from "../prisma";
 import { createClient } from "@supabase/supabase-js";
-import { getPublicURL } from "../storage.server";
-import { getImageURL, GravityType } from "../images.server";
-import { getBaseURL } from "../utils";
+import { type Request } from "express";
+import { getImageURL } from "../images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
+import { prismaClient } from "../prisma";
 import { filterProfileByVisibility } from "../public-fields-filtering.server";
+import { getPublicURL } from "../storage.server";
+import { getBaseURL } from "../utils";
 
 type Profiles = Awaited<ReturnType<typeof getProfiles>>;
 
@@ -79,18 +79,13 @@ async function getProfiles(request: Request, skip: number, take: number) {
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
           if (publicURL !== null) {
-            publicAvatar = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
-            });
+            publicAvatar = getImageURL(publicURL);
           }
         }
         if (background !== null) {
           const publicURL = getPublicURL(authClient, background);
           if (publicURL !== null) {
-            publicBackground = getImageURL(publicURL, {
-              resize: { type: "fill", width: 1488, height: 480, enlarge: true },
-            });
+            publicBackground = getImageURL(publicURL);
           }
         }
       }
