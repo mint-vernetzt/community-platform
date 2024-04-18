@@ -58,7 +58,7 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
-import { createAbuseReportRequest } from "~/reporting.server";
+import { createAbuseReportRequest } from "~/abuse-reporting.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { redirectWithAlert } from "~/alert.server";
 
@@ -214,6 +214,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
+  let alreadyAbuseReported;
+  if (sessionUser !== null) {
+    const abuseReport = await prismaClient.eventAbuseReportRequest.findFirst({
+      select: {
+        id: true,
+      },
+      where: {
+        eventId: eventWithParticipationStatus.id,
+        reporterId: sessionUser.id,
+      },
+    });
+    alreadyAbuseReported = abuseReport !== null;
+  }
+
   return json({
     mode,
     event: eventWithParticipationStatus,
@@ -223,6 +237,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     isSpeaker,
     isTeamMember,
     abilities,
+    alreadyAbuseReported,
   });
 };
 
@@ -232,6 +247,29 @@ export const action = async (args: ActionFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(
+    mode === "authenticated",
+    "Anon users and admins of this event cannot send a report",
+    { status: 403 }
+  );
+  const abuseReport = await prismaClient.eventAbuseReportRequest.findFirst({
+    select: {
+      id: true,
+    },
+    where: {
+      event: {
+        slug,
+      },
+      reporterId: sessionUser.id,
+    },
+  });
+  invariantResponse(
+    abuseReport === null,
+    "You already have sent a report for this event",
+    { status: 401 }
+  );
+
   const reporter = await prismaClient.profile.findUnique({
     select: {
       id: true,
@@ -401,7 +439,8 @@ function Index() {
     <>
       <section className="container md:mt-2">
         {loaderData.abilities.abuse_report.hasAccess &&
-        loaderData.mode === "authenticated" ? (
+        loaderData.mode === "authenticated" &&
+        loaderData.alreadyAbuseReported === false ? (
           <Form method="post">
             <button type="submit">{t("content.report")}</button>
           </Form>

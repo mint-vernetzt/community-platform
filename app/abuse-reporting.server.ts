@@ -1,7 +1,7 @@
 import { invariantResponse } from "./lib/utils/response";
 import { prismaClient } from "./prisma.server";
 
-export async function createAbuseReportRequest(report: {
+export async function createAbuseReportRequest(abuseReport: {
   entity: {
     type: "profile" | "organization" | "event" | "project";
     slug: string;
@@ -14,8 +14,8 @@ export async function createAbuseReportRequest(report: {
 }) {
   const reportJSON = JSON.stringify({
     report: {
-      ...report,
-      reporter: { email: report.reporter.email },
+      ...abuseReport,
+      reporter: { email: abuseReport.reporter.email },
     },
     origin: process.env.COMMUNITY_BASE_URL,
   });
@@ -31,13 +31,13 @@ export async function createAbuseReportRequest(report: {
   if (response.status === 200) {
     let data;
     // These if cases are necessary to avoid union type issue of prisma. prismaClient[report.entity.type].findUnique(...) is not working without type issues.
-    if (report.entity.type === "profile") {
+    if (abuseReport.entity.type === "profile") {
       const reportedProfile = await prismaClient.profile.findUnique({
         select: {
           id: true,
         },
         where: {
-          username: report.entity.slug,
+          username: abuseReport.entity.slug,
         },
       });
       invariantResponse(
@@ -64,17 +64,17 @@ export async function createAbuseReportRequest(report: {
           },
         },
         where: {
-          id: report.reporter.id,
+          id: abuseReport.reporter.id,
         },
       });
     }
-    if (report.entity.type === "organization") {
+    if (abuseReport.entity.type === "organization") {
       const reportedOrganization = await prismaClient.organization.findUnique({
         select: {
           id: true,
         },
         where: {
-          slug: report.entity.slug,
+          slug: abuseReport.entity.slug,
         },
       });
       invariantResponse(
@@ -101,17 +101,17 @@ export async function createAbuseReportRequest(report: {
           },
         },
         where: {
-          id: report.reporter.id,
+          id: abuseReport.reporter.id,
         },
       });
     }
-    if (report.entity.type === "event") {
+    if (abuseReport.entity.type === "event") {
       const reportedEvent = await prismaClient.event.findUnique({
         select: {
           id: true,
         },
         where: {
-          slug: report.entity.slug,
+          slug: abuseReport.entity.slug,
         },
       });
       invariantResponse(reportedEvent !== null, "Reported event not found", {
@@ -136,17 +136,17 @@ export async function createAbuseReportRequest(report: {
           },
         },
         where: {
-          id: report.reporter.id,
+          id: abuseReport.reporter.id,
         },
       });
     }
-    if (report.entity.type === "project") {
+    if (abuseReport.entity.type === "project") {
       const reportedProject = await prismaClient.project.findUnique({
         select: {
           id: true,
         },
         where: {
-          slug: report.entity.slug,
+          slug: abuseReport.entity.slug,
         },
       });
       invariantResponse(
@@ -173,7 +173,7 @@ export async function createAbuseReportRequest(report: {
           },
         },
         where: {
-          id: report.reporter.id,
+          id: abuseReport.reporter.id,
         },
       });
     }
