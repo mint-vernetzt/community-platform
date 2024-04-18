@@ -493,7 +493,12 @@ export async function getEventFilterVector(options: {
       );
       whereStatements.push(filterWhereStatement);
     } else if (typedFilterKey === "stage") {
-      // TODO: ???
+      const filterValue = options.filter[typedFilterKey];
+      if (typeof filterValue === "string" && filterValue !== "all") {
+        const tuple = `${typedFilterKey}\\:${filterValue}`;
+        const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
+        whereStatements.push(whereStatement);
+      }
     } else {
       // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
       /* Example:
