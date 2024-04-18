@@ -883,7 +883,6 @@ export default function ExploreOrganizations() {
                   : ""
               }`}
               preventScrollReset
-              className="ml-2"
             >
               <Button
                 variant="outline"

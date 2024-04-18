@@ -1167,7 +1167,6 @@ export default function ExploreProjects() {
                   : ""
               }`}
               preventScrollReset
-              className="ml-2"
             >
               <Button
                 variant="outline"
