@@ -254,6 +254,7 @@ export const action = async (args: ActionFunctionArgs) => {
     reasons: ["Some test reason", "Another test reason"],
   });
   if (error !== null) {
+    // TODO: Send mails to all people that need to be involved when a event report request was submitted
     return redirectWithAlert(
       ".",
       { message: "The abuse report could not be sent.", level: "negative" },
