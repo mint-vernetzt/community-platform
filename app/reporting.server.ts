@@ -13,8 +13,11 @@ export async function createAbuseReportRequest(report: {
   reasons: string[];
 }) {
   const reportJSON = JSON.stringify({
-    ...report,
-    reporter: { email: report.reporter.email },
+    report: {
+      ...report,
+      reporter: { email: report.reporter.email },
+    },
+    origin: process.env.COMMUNITY_BASE_URL,
   });
   const response = await fetch(process.env.ABUSE_REPORT_URL, {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -23,7 +26,6 @@ export async function createAbuseReportRequest(report: {
     headers: {
       "Content-Type": "application/json",
     },
-    referrerPolicy: "origin", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     body: reportJSON, // body data type must match "Content-Type" header
   });
   if (response.status === 200) {
