@@ -292,7 +292,8 @@ export const action = async (args: ActionFunctionArgs) => {
     reasons: ["Some test reason", "Another test reason"],
   });
   if (error !== null) {
-    // TODO: Send mails to all people that need to be involved when a event report request was submitted
+    // TODO: Send mail to support (Text self defined)
+    // TODO: Send mail to reporter (Text needs to be defined)
     // TODO: Add i18n to alert messages
     return redirectWithAlert(
       ".",
