@@ -1,7 +1,7 @@
 import { Button } from "@mint-vernetzt/components";
 import { Link, useLocation, useNavigation } from "@remix-run/react";
 import classNames from "classnames";
-import React, { type InputHTMLAttributes } from "react";
+import React, { type FormEvent, type InputHTMLAttributes } from "react";
 
 function Checkbox(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
@@ -254,7 +254,8 @@ export function DropdownLabel(
   const [checked, setChecked] = React.useState(false);
   const ref = React.useRef<HTMLLabelElement>(null);
 
-  const handleChange = () => {
+  const handleChange = (event: FormEvent<HTMLInputElement>) => {
+    event.stopPropagation();
     setChecked(!checked);
   };
 
@@ -451,7 +452,13 @@ export function ShowFiltersButton(
           />
         </svg>
 
-        <input {...otherProps} className="mv-hidden" />
+        <input
+          {...otherProps}
+          onChange={(event) => {
+            event.stopPropagation();
+          }}
+          className="mv-hidden"
+        />
       </label>
     </div>
   );

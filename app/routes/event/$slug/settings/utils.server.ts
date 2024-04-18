@@ -339,15 +339,6 @@ export async function updateFilterVectorOfEvent(eventId: string) {
     select: {
       id: true,
       slug: true,
-      types: {
-        select: {
-          eventType: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
       focuses: {
         select: {
           focus: {
@@ -375,23 +366,25 @@ export async function updateFilterVectorOfEvent(eventId: string) {
           },
         },
       },
+      stage: {
+        select: {
+          slug: true,
+        },
+      },
     },
   });
 
   if (event !== null) {
     if (
-      event.types.length === 0 &&
       event.focuses.length === 0 &&
       event.eventTargetGroups.length === 0 &&
-      event.areas.length === 0
+      event.areas.length === 0 &&
+      event.stage === null
     ) {
       await prismaClient.$queryRawUnsafe(
         `update events set filter_vector = NULL where id = '${event.id}'`
       );
     } else {
-      const typeVectors = event.types.map(
-        (relation) => `type:${relation.eventType.slug}`
-      );
       const focusVectors = event.focuses.map(
         (relation) => `focus:${relation.focus.slug}`
       );
@@ -402,11 +395,10 @@ export async function updateFilterVectorOfEvent(eventId: string) {
         (relation) => `area:${relation.area.slug}`
       );
       const vectors = [
-        ...typeVectors,
         ...focusVectors,
         ...targetGroupVectors,
         ...areaVectors,
-      ];
+      ].concat(event.stage ? [`stage:${event.stage.slug}`] : []);
       const vectorString = `{"${vectors.join(`","`)}"}`;
       const query = `update events set filter_vector = array_to_tsvector('${vectorString}') where id = '${event.id}'`;
 

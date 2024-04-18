@@ -49,9 +49,9 @@ import {
 import {
   enhanceEventsWithParticipationStatus,
   getAllEventTargetGroups,
-  getAllEventTypes,
   getAllEvents,
   getAllFocuses,
+  getAllStages,
   getEventFilterVector,
   getEventsCount,
   getFilterCountForSlug,
@@ -80,7 +80,7 @@ export type GetEventsSchema = z.infer<typeof getEventsSchema>;
 const getEventsSchema = z.object({
   filter: z
     .object({
-      type: z.array(z.string()),
+      stage: z.string(),
       focus: z.array(z.string()),
       eventTargetGroup: z.array(z.string()),
       periodOfTime: z
@@ -98,7 +98,7 @@ const getEventsSchema = z.object({
     .transform((filter) => {
       if (filter === undefined) {
         return {
-          type: [],
+          stage: "all",
           focus: [],
           eventTargetGroup: [],
           periodOfTime: periodOfTimeValues[0],
@@ -294,22 +294,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     })
   );
 
-  const types = await getAllEventTypes();
-  const enhancedTypes = types.map((type) => {
-    const vectorCount = getFilterCountForSlug(type.slug, filterVector, "type");
-    const isChecked = submission.value.filter.type.includes(type.slug);
-    return { ...type, vectorCount, isChecked };
-  });
-  const selectedTypes = submission.value.filter.type.map((slug) => {
-    const typeMatch = types.find((type) => {
-      return type.slug === slug;
-    });
-    return {
-      slug,
-      title: typeMatch?.title || null,
-    };
-  });
-
   const focuses = await getAllFocuses();
   const enhancedFocuses = focuses.map((focus) => {
     const vectorCount = getFilterCountForSlug(
@@ -354,6 +338,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
+  const stagesFromDB = await getAllStages();
+  const stages = (
+    [
+      {
+        id: "0",
+        slug: "all",
+        title: "All",
+        description: null,
+      },
+    ] as typeof stagesFromDB
+  ).concat(stagesFromDB);
+  const enhancedStages = stages.map((stage) => {
+    const isChecked = submission.value.filter.stage === stage.slug;
+    return { ...stage, isChecked };
+  });
+
   return json({
     isLoggedIn,
     events: enhancedEventsWithParticipationStatus,
@@ -362,9 +362,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     focuses: enhancedFocuses,
     selectedFocuses,
     targetGroups: enhancedTargetGroups,
+    stages: enhancedStages,
     selectedTargetGroups,
-    types: enhancedTypes,
-    selectedTypes,
     submission,
     filteredByVisibilityCount,
     eventsCount,
@@ -435,40 +434,31 @@ export default function ExploreOrganizations() {
             >
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.types")}
-                  <span className="mv-font-normal lg:mv-hidden">
+                  <span className="lg:mv-hidden">
+                    {t("filter.stage.label")}
                     <br />
-                    {loaderData.selectedTypes
-                      .map((type) => {
-                        return type.title;
-                      })
-                      .join(", ")}
+                  </span>
+                  <span className="mv-font-normal lg:mv-font-semibold">
+                    {t(
+                      `filter.stage.${loaderData.submission.value.filter.stage}`
+                    )}
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {loaderData.types.map((type) => {
+                  {loaderData.stages.map((stage) => {
                     return (
                       <FormControl
-                        {...getInputProps(filter.type, {
-                          type: "checkbox",
-                          value: type.slug,
+                        {...getInputProps(filter.stage, {
+                          type: "radio",
+                          value: stage.slug,
                         })}
-                        key={type.slug}
-                        defaultChecked={type.isChecked}
-                        disabled={
-                          (type.vectorCount === 0 && !type.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        key={stage.slug}
+                        defaultChecked={stage.isChecked}
+                        disabled={navigation.state === "loading"}
                       >
                         <FormControl.Label>
-                          {type.title}
-                          {type.description !== null ? (
-                            <p className="mv-text-sm">{type.description}</p>
-                          ) : null}
+                          {t(`filter.stage.${stage.slug}`)}
                         </FormControl.Label>
-                        <FormControl.Counter>
-                          {type.vectorCount}
-                        </FormControl.Counter>
                       </FormControl>
                     );
                   })}
@@ -510,6 +500,46 @@ export default function ExploreOrganizations() {
                         <FormControl.Counter>
                           {focus.vectorCount}
                         </FormControl.Counter>
+                      </FormControl>
+                    );
+                  })}
+                </Dropdown.List>
+              </Dropdown>
+              <Dropdown>
+                <Dropdown.Label>
+                  <span className="lg:mv-hidden">
+                    {t("filter.periodOfTime.label")}
+                    <br />
+                  </span>
+                  <span className="mv-font-normal lg:mv-font-semibold">
+                    {t(
+                      `filter.periodOfTime.${loaderData.submission.value.filter.periodOfTime}`
+                    )}
+                  </span>
+                </Dropdown.Label>
+                <Dropdown.List>
+                  {periodOfTimeValues.map((periodOfTimeValue) => {
+                    const submissionFilter = loaderData.submission.value.filter;
+                    return (
+                      <FormControl
+                        {...getInputProps(filter.periodOfTime, {
+                          type: "radio",
+                          value: periodOfTimeValue,
+                        })}
+                        key={periodOfTimeValue}
+                        defaultChecked={
+                          submissionFilter !== undefined
+                            ? submissionFilter.periodOfTime !== undefined
+                              ? submissionFilter.periodOfTime ===
+                                periodOfTimeValue
+                              : periodOfTimeValues[0] === periodOfTimeValue
+                            : periodOfTimeValues[0] === periodOfTimeValue
+                        }
+                        disabled={navigation.state === "loading"}
+                      >
+                        <FormControl.Label>
+                          {t(`filter.periodOfTime.${periodOfTimeValue}`)}
+                        </FormControl.Label>
                       </FormControl>
                     );
                   })}
@@ -559,46 +589,7 @@ export default function ExploreOrganizations() {
                   })}
                 </Dropdown.List>
               </Dropdown>
-              <Dropdown>
-                <Dropdown.Label>
-                  <span className="lg:mv-hidden">
-                    {t("filter.periodOfTime.label")}
-                    <br />
-                  </span>
-                  <span className="mv-font-normal lg:mv-font-semibold">
-                    {t(
-                      `filter.periodOfTime.${loaderData.submission.value.filter.periodOfTime}`
-                    )}
-                  </span>
-                </Dropdown.Label>
-                <Dropdown.List>
-                  {periodOfTimeValues.map((periodOfTimeValue) => {
-                    const submissionFilter = loaderData.submission.value.filter;
-                    return (
-                      <FormControl
-                        {...getInputProps(filter.periodOfTime, {
-                          type: "radio",
-                          value: periodOfTimeValue,
-                        })}
-                        key={periodOfTimeValue}
-                        defaultChecked={
-                          submissionFilter !== undefined
-                            ? submissionFilter.periodOfTime !== undefined
-                              ? submissionFilter.periodOfTime ===
-                                periodOfTimeValue
-                              : periodOfTimeValues[0] === periodOfTimeValue
-                            : periodOfTimeValues[0] === periodOfTimeValue
-                        }
-                        disabled={navigation.state === "loading"}
-                      >
-                        <FormControl.Label>
-                          {t(`filter.periodOfTime.${periodOfTimeValue}`)}
-                        </FormControl.Label>
-                      </FormControl>
-                    );
-                  })}
-                </Dropdown.List>
-              </Dropdown>
+
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.areas")}
@@ -823,31 +814,11 @@ export default function ExploreOrganizations() {
         <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
       </div>
       <section className="container mb-6">
-        {(loaderData.selectedTypes.length > 0 ||
-          loaderData.selectedFocuses.length > 0 ||
+        {(loaderData.selectedFocuses.length > 0 ||
           loaderData.selectedTargetGroups.length > 0 ||
           loaderData.selectedAreas.length > 0) && (
           <div className="mv-flex mv-flex-col">
             <div className="mv-overflow-scroll lg:mv-overflow-auto mv-flex mv-flex-nowrap lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
-              {loaderData.selectedTypes.map((selectedType) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.type.name, selectedType.slug);
-                return selectedType.title !== null ? (
-                  <Chip key={selectedType.slug} responsive>
-                    {selectedType.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
               {loaderData.selectedFocuses.map((selectedFocus) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
@@ -919,7 +890,6 @@ export default function ExploreOrganizations() {
                   : ""
               }`}
               preventScrollReset
-              className="ml-2"
             >
               <Button
                 variant="outline"
