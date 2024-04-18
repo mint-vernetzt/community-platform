@@ -452,13 +452,7 @@ export function ShowFiltersButton(
           />
         </svg>
 
-        <input
-          {...otherProps}
-          onChange={(event) => {
-            event.stopPropagation();
-          }}
-          className="mv-hidden"
-        />
+        <input {...otherProps} className="mv-hidden" />
       </label>
     </div>
   );
