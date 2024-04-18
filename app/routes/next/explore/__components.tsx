@@ -156,7 +156,7 @@ export function FromControlInfo(
           event.stopPropagation();
         }}
       />
-      <span className="mv-px-4 mv-hidden peer-[:checked]:mv-block mv-text-sm mv-whitespace-normal">
+      <span className="mv-px-4 mv-pb-2.5 mv-hidden peer-[:checked]:mv-block mv-text-sm mv-whitespace-normal">
         {props.children}
       </span>
     </>
