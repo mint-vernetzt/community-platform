@@ -11,11 +11,11 @@ import {
   Tags,
   type ValidateError,
 } from "tsoa";
-import { getPublicURL } from "../storage.server";
-import { getImageURL, GravityType } from "../images.server";
+import { getImageURL } from "../images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
 import { prismaClient } from "../prisma";
 import { filterProfileByVisibility } from "../public-fields-filtering.server";
+import { getPublicURL } from "../storage.server";
 import { getBaseURL } from "../utils";
 
 @Route("profile")
@@ -124,18 +124,13 @@ export class ProfileController extends Controller {
       if (avatar !== null) {
         const publicURL = getPublicURL(authClient, avatar);
         if (publicURL !== null) {
-          publicAvatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
-          });
+          publicAvatar = getImageURL(publicURL);
         }
       }
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL !== null) {
-          publicBackground = getImageURL(publicURL, {
-            resize: { type: "fill", width: 1488, height: 480, enlarge: true },
-          });
+          publicBackground = getImageURL(publicURL);
         }
       }
     }

@@ -75,6 +75,7 @@ export class EventController extends Controller {
         venueCity: true,
         venueZipCode: true,
         canceled: true,
+        parentEventId: true,
         areas: {
           select: {
             area: {
@@ -159,9 +160,7 @@ export class EventController extends Controller {
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL !== null) {
-          publicBackground = getImageURL(publicURL, {
-            resize: { type: "fill", width: 1488, height: 480, enlarge: true },
-          });
+          publicBackground = getImageURL(publicURL);
         }
       }
     }

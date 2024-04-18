@@ -5,7 +5,7 @@ import { decorate } from "../lib/matomoUrlDecorator";
 import { getBaseURL } from "../../src/utils";
 import { filterEventByVisibility } from "../public-fields-filtering.server";
 import { getPublicURL } from "../storage.server";
-import { getImageURL, GravityType } from "../images.server";
+import { getImageURL } from "../images.server";
 
 type Events = Awaited<ReturnType<typeof getEvents>>;
 
@@ -29,6 +29,7 @@ async function getEvents(request: Request, skip: number, take: number) {
       venueCity: true,
       venueZipCode: true,
       canceled: true,
+      parentEventId: true,
       areas: {
         select: {
           area: {
@@ -135,9 +136,7 @@ async function getEvents(request: Request, skip: number, take: number) {
         if (background !== null) {
           const publicURL = getPublicURL(authClient, background);
           if (publicURL !== null) {
-            publicBackground = getImageURL(publicURL, {
-              resize: { type: "fill", width: 1488, height: 480, enlarge: true },
-            });
+            publicBackground = getImageURL(publicURL);
           }
         }
       }
@@ -157,10 +156,7 @@ async function getEvents(request: Request, skip: number, take: number) {
             if (logo !== null) {
               const publicURL = getPublicURL(authClient, logo);
               if (publicURL !== null) {
-                publicLogo = getImageURL(publicURL, {
-                  resize: { type: "fill", width: 64, height: 64 },
-                  gravity: GravityType.center,
-                });
+                publicLogo = getImageURL(publicURL);
               }
             }
           }
