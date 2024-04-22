@@ -7,7 +7,9 @@ function UnderConstruction() {
         Entschuldige, die MINTvernetzt Community-Plattform ist aktuell nicht
         erreichbar.
       </H1>
-      <p>Wir arbeiten gerade daran. Bitte versuche es später nochmal</p>
+      <p>
+        Wir arbeiten gerade an der Plattform. Bitte versuche es später nochmal.
+      </p>
       <p>
         Bei Fragen melde Dich bei{" "}
         <a
