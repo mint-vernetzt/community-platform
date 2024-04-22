@@ -19,7 +19,6 @@ export async function createAbuseReportRequest(abuseReport: {
     },
     origin: process.env.COMMUNITY_BASE_URL,
   });
-  // TODO: Write test and mock with MSW
   const response = await fetch(process.env.ABUSE_REPORT_URL, {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     mode: "same-origin", // no-cors, *cors, same-origin
@@ -27,6 +26,7 @@ export async function createAbuseReportRequest(abuseReport: {
     headers: {
       "Content-Type": "application/json",
       // TODO: Authorization header
+      Authorization: "TODO",
     },
     body: reportJSON, // body data type must match "Content-Type" header
   });
