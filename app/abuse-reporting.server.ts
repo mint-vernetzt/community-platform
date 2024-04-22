@@ -26,6 +26,7 @@ export async function createAbuseReportRequest(abuseReport: {
     cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
     headers: {
       "Content-Type": "application/json",
+      // TODO: Authorization header
     },
     body: reportJSON, // body data type must match "Content-Type" header
   });
