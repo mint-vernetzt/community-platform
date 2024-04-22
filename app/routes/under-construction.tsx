@@ -19,7 +19,7 @@ function UnderConstruction() {
           support@mint-vernetzt.de
         </a>
       </p>
-      <p>Vielen Dank für dein Verständnis.</p>
+      <p>Vielen Dank für Dein Verständnis.</p>
     </div>
   );
 }
