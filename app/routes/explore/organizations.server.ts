@@ -17,6 +17,10 @@ export async function getVisibilityFilteredOrganizationsCount(options: {
   const visibilityWhereClauses = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterValues = options.filter[typedFilterKey];
+    if (filterValues.length === 0) {
+      continue;
+    }
     const visibilityWhereStatement = {
       organizationVisibility: {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: false,
@@ -24,7 +28,6 @@ export async function getVisibilityFilteredOrganizationsCount(options: {
     };
     visibilityWhereClauses.push(visibilityWhereStatement);
 
-    const filterValues = options.filter[typedFilterKey];
     for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
@@ -39,6 +42,9 @@ export async function getVisibilityFilteredOrganizationsCount(options: {
       };
       whereClauses.push(filterWhereStatement);
     }
+  }
+  if (visibilityWhereClauses.length === 0) {
+    return 0;
   }
   whereClauses.push({ OR: [...visibilityWhereClauses] });
 
@@ -92,6 +98,10 @@ export async function getAllOrganizations(options: {
   const whereClauses = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterValues = options.filter[typedFilterKey];
+    if (filterValues.length === 0) {
+      continue;
+    }
     if (options.isLoggedIn === false) {
       const visibilityWhereStatement = {
         organizationVisibility: {
@@ -100,7 +110,6 @@ export async function getAllOrganizations(options: {
       };
       whereClauses.push(visibilityWhereStatement);
     }
-    const filterValues = options.filter[typedFilterKey];
     for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
@@ -208,6 +217,10 @@ export async function getOrganizationFilterVector(options: {
   const whereStatements = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterValues = options.filter[typedFilterKey];
+    if (filterValues.length === 0) {
+      continue;
+    }
     // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
     /* Example:
         const test = await prismaClient.organizationType.findMany({
@@ -250,7 +263,6 @@ export async function getOrganizationFilterVector(options: {
       throw json({ message: "Server error" }, { status: 500 });
     }
 
-    const filterValues = options.filter[typedFilterKey];
     for (const slug of filterValues) {
       // Validate slug because of queryRawUnsafe
       invariantResponse(

@@ -119,20 +119,6 @@ export async function getVisibilityFilteredEventsCount(options: {
   const visibilityWhereClauses = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
-
-    const visibilityWhereStatement = {
-      eventVisibility: {
-        [`${
-          typedFilterKey === "periodOfTime"
-            ? "startTime"
-            : typedFilterKey === "stage"
-            ? "stage"
-            : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
-        }`]: false,
-      },
-    };
-    visibilityWhereClauses.push(visibilityWhereStatement);
-
     if (typedFilterKey === "periodOfTime") {
       const filterValue = options.filter[typedFilterKey];
       const filterWhereStatement =
@@ -156,6 +142,9 @@ export async function getVisibilityFilteredEventsCount(options: {
       }
     } else {
       const filterValues = options.filter[typedFilterKey];
+      if (filterValues.length === 0) {
+        continue;
+      }
       for (const slug of filterValues) {
         const filterWhereStatement = {
           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
@@ -169,6 +158,22 @@ export async function getVisibilityFilteredEventsCount(options: {
         whereClauses.push(filterWhereStatement);
       }
     }
+
+    const visibilityWhereStatement = {
+      eventVisibility: {
+        [`${
+          typedFilterKey === "periodOfTime"
+            ? "startTime"
+            : typedFilterKey === "stage"
+            ? "stage"
+            : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
+        }`]: false,
+      },
+    };
+    visibilityWhereClauses.push(visibilityWhereStatement);
+  }
+  if (visibilityWhereClauses.length === 0) {
+    return 0;
   }
   whereClauses.push({ OR: [...visibilityWhereClauses] });
 
@@ -244,22 +249,6 @@ export async function getAllEvents(options: {
   const whereClauses = [];
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
-
-    if (options.isLoggedIn === false) {
-      const visibilityWhereStatement = {
-        eventVisibility: {
-          [`${
-            typedFilterKey === "periodOfTime"
-              ? "startTime"
-              : typedFilterKey === "stage"
-              ? "stage"
-              : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
-          }`]: true,
-        },
-      };
-      whereClauses.push(visibilityWhereStatement);
-    }
-
     if (typedFilterKey === "periodOfTime") {
       const filterValue = options.filter[typedFilterKey];
       const filterWhereStatement =
@@ -283,6 +272,9 @@ export async function getAllEvents(options: {
       }
     } else {
       const filterValues = options.filter[typedFilterKey];
+      if (filterValues.length === 0) {
+        continue;
+      }
       for (const slug of filterValues) {
         const filterWhereStatement = {
           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
@@ -295,6 +287,21 @@ export async function getAllEvents(options: {
         };
         whereClauses.push(filterWhereStatement);
       }
+    }
+
+    if (options.isLoggedIn === false) {
+      const visibilityWhereStatement = {
+        eventVisibility: {
+          [`${
+            typedFilterKey === "periodOfTime"
+              ? "startTime"
+              : typedFilterKey === "stage"
+              ? "stage"
+              : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
+          }`]: true,
+        },
+      };
+      whereClauses.push(visibilityWhereStatement);
     }
   }
 
