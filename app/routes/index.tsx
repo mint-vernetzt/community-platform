@@ -50,6 +50,10 @@ function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
 }
 
 export const loader = async (args: LoaderFunctionArgs) => {
+  if (process.env.UNDER_CONSTRUCTION === "true") {
+    return redirect("/under-construction");
+  }
+
   const { request } = args;
 
   const { authClient } = createAuthClient(request);

@@ -36,8 +36,13 @@ if (process.env.NODE_ENV === "production") {
 }
 
 try {
-  await prismaClient.$connect();
-  console.log("prismaClient.$connect success");
+  console.log(process.env.UNDER_CONSTRUCTION);
+  if (process.env.UNDER_CONSTRUCTION === "true") {
+    console.log("prismaClient.$connect skipped due to UNDER_CONTRUCTION=true");
+  } else {
+    await prismaClient.$connect();
+    console.log("prismaClient.$connect success");
+  }
 } catch (error) {
   console.error("on prismaClient $connect", error);
   throw error;

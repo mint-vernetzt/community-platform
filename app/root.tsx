@@ -54,6 +54,10 @@ export const meta: MetaFunction = () => {
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderFunctionArgs) => {
+  if (process.env.UNDER_CONSTRUCTION === "true") {
+    return json({ underConstruction: true });
+  }
+
   const { request } = args;
   const locale = detectLanguage(request);
 
@@ -541,7 +545,49 @@ export default function App() {
     alert,
     locale,
     env,
+    underConstruction,
   } = useLoaderData<typeof loader>();
+
+  if (underConstruction === true) {
+    return (
+      <html data-theme="light">
+        <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width,initial-scale=1" />
+          <Meta />
+          <Links />
+          {/* {typeof matomoSiteId !== "undefined" && matomoSiteId !== "" ? (
+        <script
+          async
+          dangerouslySetInnerHTML={{
+            __html: `
+              var _paq = window._paq = window._paq || [];
+              _paq.push(['enableLinkTracking']);
+              (function() {
+                var u="${matomoUrl}";
+                _paq.push(['setTrackerUrl', u+'matomo.php']);
+                _paq.push(['setSiteId', '${matomoSiteId}']);
+                var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+                g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+              })();
+            `,
+          }}
+        />
+      ) : null} */}
+        </head>
+
+        <body>
+          <div>
+            <Outlet />
+          </div>
+
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </body>
+      </html>
+    );
+  }
 
   React.useEffect(() => {
     initializeSentry({ baseUrl: env.baseUrl, dsn: env.sentryDsn });
