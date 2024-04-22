@@ -13,7 +13,7 @@ import {
   OrganizationCard,
 } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -30,7 +30,6 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import { getImageURL } from "~/images.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import {
