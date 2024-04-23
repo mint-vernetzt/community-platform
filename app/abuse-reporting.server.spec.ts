@@ -1,22 +1,21 @@
 /**
  * @vitest-environment jsdom
  */
-import { beforeAll, expect, test, vi } from "vitest";
-import { createAbuseReportRequest } from "./abuse-reporting.server";
-import { abuseReportTestUrl } from "./lib/utils/tests";
-import { prismaClient } from "~/__mocks__/prisma.server";
 import {
-  type EventAbuseReportRequest,
   type Event,
+  type EventAbuseReportRequest,
   type Profile,
 } from "@prisma/client";
-import { server } from "./../tests/mocks";
-import { http } from "msw";
+import { beforeAll, expect, test, vi } from "vitest";
+import { prismaClient } from "~/__mocks__/prisma.server";
+import { createAbuseReportRequest } from "./abuse-reporting.server";
+import { abuseReportTestUrl, testURL } from "./lib/utils/tests";
 
 vi.mock("~/prisma.server");
 
 beforeAll(() => {
   process.env.ABUSE_REPORT_URL = abuseReportTestUrl;
+  process.env.COMMUNITY_BASE_URL = testURL;
 });
 
 test("Send valid abuse report request", async () => {
@@ -41,6 +40,7 @@ test("Send valid abuse report request", async () => {
       },
     ],
   } as Profile & { eventAbuseReportRequests: EventAbuseReportRequest[] });
+
   const { data, error } = await createAbuseReportRequest({
     entity: {
       slug: "some-slug",
@@ -74,19 +74,14 @@ test("Send valid abuse report request", async () => {
   });
 });
 
-test("Handle error response from report tool", async () => {
-  server.use(
-    http.post(abuseReportTestUrl, async () => {
-      return new Response("error", { status: 403 });
-    })
-  );
+test("Send invalid report", async () => {
   const { data, error } = await createAbuseReportRequest({
     entity: {
       slug: "some-slug",
       type: "event",
     },
     reporter: {
-      email: "some@reporter.com",
+      email: "<not-an-email>",
       id: "some-reporter-id",
     },
     reasons: ["Reason 1", "Reason 2"],
@@ -94,5 +89,5 @@ test("Handle error response from report tool", async () => {
 
   expect(data).toBe(null);
   expect(error?.message).toEqual("Unsuccesful fetch");
-  expect(error?.response.status).toEqual(403);
+  expect(error?.response.status).toEqual(400);
 });
