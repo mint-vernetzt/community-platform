@@ -1,93 +1,65 @@
 /**
  * @vitest-environment jsdom
  */
-import {
-  type Event,
-  type EventAbuseReportRequest,
-  type Profile,
-} from "@prisma/client";
+import { type Profile } from "@prisma/client";
 import { beforeAll, expect, test, vi } from "vitest";
 import { prismaClient } from "~/__mocks__/prisma.server";
-import { createAbuseReportRequest } from "./abuse-reporting.server";
-import { abuseReportTestUrl, testURL } from "./lib/utils/tests";
+import { createProfileAbuseReport } from "./abuse-reporting.server";
+import { testURL } from "./lib/utils/tests";
 
 vi.mock("~/prisma.server");
 
 beforeAll(() => {
-  process.env.ABUSE_REPORT_URL = abuseReportTestUrl;
   process.env.COMMUNITY_BASE_URL = testURL;
+  process.env.SYSTEM_MAIL_SENDER = "some@sender.org";
+  process.env.SUPPORT_MAIL = "some@support.org";
+  // process.env.MAILER_HOST = "8.8.8.8";
+  // process.env.MAILER_PORT = "1234";
+  // process.env.MAILER_USER = "some-mailer-user";
+  // process.env.MAILER_PASS = "some-mailer-pass";
 });
 
-test("Send valid abuse report request", async () => {
-  prismaClient.event.findUnique.mockResolvedValue({
-    id: "some-reported-event-id",
-  } as Event);
-  prismaClient.profile.update.mockResolvedValue({
-    id: "some-reporter-id",
+// TODO: Test reporter profile not found
+
+// TODO: Test email could not be sent (mailer returns error)
+
+test("Create profile abuse report", async () => {
+  prismaClient.profile.findUnique.mockResolvedValue({
     username: "some-reporter-username",
-    eventAbuseReportRequests: [
-      {
-        id: "some-report-id",
-        report: "report as JSON string",
-        reporterId: "some-reporter-id",
-        eventId: "some-reported-event-id",
-      },
-      {
-        id: "another-report-id",
-        report: "another report as JSON string",
-        reporterId: "some-reporter-id",
-        eventId: "another-reported-event-id",
-      },
-    ],
-  } as Profile & { eventAbuseReportRequests: EventAbuseReportRequest[] });
+    email: "reporter@mail.org",
+  } as Profile);
 
-  const { data, error } = await createAbuseReportRequest({
-    entity: {
-      slug: "some-slug",
-      type: "event",
-    },
-    reporter: {
-      email: "some@reporter.com",
-      id: "some-reporter-id",
-    },
-    reasons: ["Reason 1", "Reason 2"],
+  await createProfileAbuseReport({
+    reporterId: "some-reporter-id",
+    username: "some-reported-profile-username",
+    reasons: ["Some reason", "Another reason"],
   });
 
-  expect(error).toBe(null);
-  expect(data).toStrictEqual({
-    id: "some-reporter-id",
-    username: "some-reporter-username",
-    eventAbuseReportRequests: [
-      {
-        id: "some-report-id",
-        report: "report as JSON string",
-        reporterId: "some-reporter-id",
-        eventId: "some-reported-event-id",
+  expect(prismaClient.profile.update).toHaveBeenCalledWith({
+    data: {
+      abuseReports: {
+        create: {
+          title:
+            'Profile "some-reporter-username" reported profile "some-reported-profile-username"',
+          reporterId: "some-reporter-id",
+          reasons: {
+            createMany: {
+              data: [
+                {
+                  description: "Some reason",
+                },
+                {
+                  description: "Another reason",
+                },
+              ],
+            },
+          },
+        },
       },
-      {
-        id: "another-report-id",
-        report: "another report as JSON string",
-        reporterId: "some-reporter-id",
-        eventId: "another-reported-event-id",
-      },
-    ],
-  });
-});
-
-test("Send invalid report", async () => {
-  const { data, error } = await createAbuseReportRequest({
-    entity: {
-      slug: "some-slug",
-      type: "event",
     },
-    reporter: {
-      email: "<not-an-email>",
-      id: "some-reporter-id",
+    where: {
+      username: "some-reported-profile-username",
     },
-    reasons: ["Reason 1", "Reason 2"],
   });
-
-  expect(data).toBe(null);
-  expect(error?.message).toEqual("Unsuccesful fetch");
-  expect(error?.response.status).toEqual(400);
+  // TODO: Mock mailer
 });
