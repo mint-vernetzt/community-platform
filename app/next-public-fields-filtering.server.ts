@@ -17,10 +17,10 @@ export type ProfileWithRelations = Profile & {
   administeredOrganizations: any;
   administeredProjects: any;
   backgroundImage: any;
-  profileAbuseReportRequests: any;
-  organizationAbuseReportRequests: any;
-  eventAbuseReportRequests: any;
-  projectAbuseReportRequests: any;
+  profileAbuseReport: any;
+  organizationAbuseReport: any;
+  eventAbuseReport: any;
+  projectAbuseReport: any;
   abuseReports: any;
   _count: any;
 };
@@ -57,10 +57,10 @@ export function filterProfileByVisibility<
         key === "administeredEvents" ||
         key === "administeredOrganizations" ||
         key === "administeredProjects" ||
-        key === "profileAbuseReportRequests" ||
-        key === "organizationAbuseReportRequests" ||
-        key === "eventAbuseReportRequests" ||
-        key === "projectAbuseReportRequests" ||
+        key === "profileAbuseReport" ||
+        key === "organizationAbuseReport" ||
+        key === "eventAbuseReport" ||
+        key === "projectAbuseReport" ||
         key === "abuseReports" ||
         key === "waitingForEvents"
       ) {

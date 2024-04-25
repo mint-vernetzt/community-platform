@@ -19,20 +19,13 @@ type ProfileWithRelations = Profile & {
   administeredOrganizations: any;
   administeredProjects: any;
   backgroundImage: any;
+  profileAbuseReport: any;
+  organizationAbuseReport: any;
+  eventAbuseReport: any;
+  projectAbuseReport: any;
+  abuseReports: any;
   _count: any;
 };
-
-export async function filterListOfProfilesByVisibility<
-  T extends EntitySubset<ProfileWithRelations, T>
->(profiles: T[]) {
-  const filteredProfileList: T[] = await Promise.all(
-    profiles.map(async (profile) => {
-      const filteredProfile: T = await filterProfileByVisibility<T>(profile);
-      return filteredProfile;
-    })
-  );
-  return filteredProfileList;
-}
 
 export async function filterProfileByVisibility<
   T extends EntitySubset<ProfileWithRelations, T>
@@ -83,6 +76,11 @@ export async function filterProfileByVisibility<
         key === "administeredEvents" ||
         key === "administeredOrganizations" ||
         key === "administeredProjects" ||
+        key === "profileAbuseReport" ||
+        key === "organizationAbuseReport" ||
+        key === "eventAbuseReport" ||
+        key === "projectAbuseReport" ||
+        key === "abuseReports" ||
         key === "waitingForEvents"
       ) {
         filteredFields[key] =
@@ -155,20 +153,8 @@ type OrganizationWithRelations = Organization & {
   organizationVisibility: any;
   admins: any;
   backgroundImage: any;
+  abuseReports: any;
 };
-export async function filterListOfOrganizationsByVisibility<
-  T extends EntitySubset<OrganizationWithRelations, T>
->(organizations: T[]) {
-  const filteredOrganizationList: T[] = await Promise.all(
-    organizations.map(async (organization) => {
-      const filteredOrganization: T = await filterOrganizationByVisibility<T>(
-        organization
-      );
-      return filteredOrganization;
-    })
-  );
-  return filteredOrganizationList;
-}
 
 export async function filterOrganizationByVisibility<
   T extends EntitySubset<OrganizationWithRelations, T>
@@ -214,6 +200,7 @@ export async function filterOrganizationByVisibility<
         key === "types" ||
         key === "responsibleForEvents" ||
         key === "admins" ||
+        key === "abuseReports" ||
         key === "responsibleForProject"
       ) {
         filteredFields[key] =
@@ -289,20 +276,9 @@ type EventWithRelations = Event & {
   eventVisibility: any;
   admins: any;
   backgroundImage: any;
+  abuseReports: any;
   _count: any;
 };
-
-export async function filterListOfEventsByVisibility<
-  T extends EntitySubset<EventWithRelations, T>
->(events: T[]) {
-  const filteredEventList: T[] = await Promise.all(
-    events.map(async (event) => {
-      const filteredEvent: T = await filterEventByVisibility<T>(event);
-      return filteredEvent;
-    })
-  );
-  return filteredEventList;
-}
 
 export async function filterEventByVisibility<
   T extends EntitySubset<EventWithRelations, T>
@@ -349,6 +325,7 @@ export async function filterEventByVisibility<
         key === "eventTargetGroups" ||
         key === "teamMembers" ||
         key === "admins" ||
+        key === "abuseReports" ||
         key === "waitingList"
       ) {
         filteredFields[key] = eventVisibility[key] === true ? event[key] : [];
@@ -423,20 +400,9 @@ type ProjectWithRelations = Project & {
   images: any;
   documents: any;
   backgroundImage: any;
+  abuseReports: any;
   _count: any;
 };
-
-export async function filterListOfProjectsByVisibility<
-  T extends EntitySubset<ProjectWithRelations, T>
->(projects: T[]) {
-  const filteredProjectList: T[] = await Promise.all(
-    projects.map(async (project) => {
-      const filteredProject: T = await filterProjectByVisibility<T>(project);
-      return filteredProject;
-    })
-  );
-  return filteredProjectList;
-}
 
 export async function filterProjectByVisibility<
   T extends EntitySubset<ProjectWithRelations, T>
@@ -484,6 +450,7 @@ export async function filterProjectByVisibility<
         key === "documents" ||
         key === "furtherFormats" ||
         key === "admins" ||
+        key === "abuseReports" ||
         key === "teamMembers"
       ) {
         filteredFields[key] =
