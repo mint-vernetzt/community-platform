@@ -1,191 +1,146 @@
 import { invariantResponse } from "./lib/utils/response";
 import { prismaClient } from "./prisma.server";
 
-export async function createAbuseReportRequest(abuseReport: {
-  entity: {
-    type: "profile" | "organization" | "event" | "project";
-    slug: string;
-  };
-  reporter: {
-    id: string;
-    email: string;
-  };
+export async function createProfileAbuseReport(options: {
+  reporterId: string;
+  username: string;
   reasons: string[];
 }) {
-  const reportJSON = JSON.stringify({
-    report: {
-      ...abuseReport,
-      reporter: { email: abuseReport.reporter.email },
+  const reporter = await getReporter(options.reporterId);
+  await prismaClient.profile.update({
+    data: {
+      abuseReports: {
+        create: {
+          title: `Profile "${reporter.username}" reported profile "${options.username}"`,
+          reporterId: options.reporterId,
+          reasons: {
+            createMany: {
+              data: options.reasons.map((reason) => {
+                return {
+                  description: reason,
+                };
+              }),
+            },
+          },
+        },
+      },
     },
-    origin: process.env.COMMUNITY_BASE_URL,
+    where: {
+      username: options.username,
+    },
   });
-  const response = await fetch(process.env.ABUSE_REPORT_URL, {
-    method: "POST", // *GET, POST, PUT, DELETE, etc.
-    mode: "same-origin", // no-cors, *cors, same-origin
-    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-    headers: {
-      "Content-Type": "application/json",
-      // TODO: Authorization header
-      Authorization: "TODO",
+}
+
+export async function createOrganizationAbuseReport(options: {
+  reporterId: string;
+  slug: string;
+  reasons: string[];
+}) {
+  const reporter = await getReporter(options.reporterId);
+  await prismaClient.organization.update({
+    data: {
+      abuseReports: {
+        create: {
+          title: `Profile "${reporter.username}" reported organization "${options.slug}"`,
+          reporterId: options.reporterId,
+          reasons: {
+            createMany: {
+              data: options.reasons.map((reason) => {
+                return {
+                  description: reason,
+                };
+              }),
+            },
+          },
+        },
+      },
     },
-    body: reportJSON, // body data type must match "Content-Type" header
+    where: {
+      slug: options.slug,
+    },
   });
-  if (response.status === 200) {
-    let data;
-    // These if cases are necessary to avoid union type issue of prisma. prismaClient[report.entity.type].findUnique(...) is not working without type issues.
-    if (abuseReport.entity.type === "profile") {
-      const reportedProfile = await prismaClient.profile.findUnique({
-        select: {
-          id: true,
-        },
-        where: {
-          username: abuseReport.entity.slug,
-        },
-      });
-      invariantResponse(
-        reportedProfile !== null,
-        "Reported profile not found",
-        { status: 404 }
-      );
-      data = await prismaClient.profile.update({
-        select: {
-          id: true,
-          username: true,
-          profileAbuseReportRequests: {
-            where: {
-              report: reportJSON,
+}
+
+export async function createEventAbuseReport(options: {
+  reporterId: string;
+  slug: string;
+  reasons: string[];
+}) {
+  const reporter = await getReporter(options.reporterId);
+  await prismaClient.event.update({
+    data: {
+      abuseReports: {
+        create: {
+          title: `Profile "${reporter.username}" reported event "${options.slug}"`,
+          reporterId: options.reporterId,
+          reasons: {
+            createMany: {
+              data: options.reasons.map((reason) => {
+                return {
+                  description: reason,
+                };
+              }),
             },
           },
         },
-        data: {
-          profileAbuseReportRequests: {
-            create: {
-              report: reportJSON,
-              profileId: reportedProfile.id,
-            },
-          },
-        },
-        where: {
-          id: abuseReport.reporter.id,
-        },
-      });
-    }
-    if (abuseReport.entity.type === "organization") {
-      const reportedOrganization = await prismaClient.organization.findUnique({
-        select: {
-          id: true,
-        },
-        where: {
-          slug: abuseReport.entity.slug,
-        },
-      });
-      invariantResponse(
-        reportedOrganization !== null,
-        "Reported organization not found",
-        { status: 404 }
-      );
-      data = await prismaClient.profile.update({
-        select: {
-          id: true,
-          username: true,
-          organizationAbuseReportRequests: {
-            where: {
-              report: reportJSON,
-            },
-          },
-        },
-        data: {
-          organizationAbuseReportRequests: {
-            create: {
-              report: reportJSON,
-              organizationId: reportedOrganization.id,
-            },
-          },
-        },
-        where: {
-          id: abuseReport.reporter.id,
-        },
-      });
-    }
-    if (abuseReport.entity.type === "event") {
-      const reportedEvent = await prismaClient.event.findUnique({
-        select: {
-          id: true,
-        },
-        where: {
-          slug: abuseReport.entity.slug,
-        },
-      });
-      invariantResponse(reportedEvent !== null, "Reported event not found", {
-        status: 404,
-      });
-      data = await prismaClient.profile.update({
-        select: {
-          id: true,
-          username: true,
-          eventAbuseReportRequests: {
-            where: {
-              report: reportJSON,
-            },
-          },
-        },
-        data: {
-          eventAbuseReportRequests: {
-            create: {
-              report: reportJSON,
-              eventId: reportedEvent.id,
-            },
-          },
-        },
-        where: {
-          id: abuseReport.reporter.id,
-        },
-      });
-    }
-    if (abuseReport.entity.type === "project") {
-      const reportedProject = await prismaClient.project.findUnique({
-        select: {
-          id: true,
-        },
-        where: {
-          slug: abuseReport.entity.slug,
-        },
-      });
-      invariantResponse(
-        reportedProject !== null,
-        "Reported project not found",
-        { status: 404 }
-      );
-      data = await prismaClient.profile.update({
-        select: {
-          id: true,
-          username: true,
-          projectAbuseReportRequests: {
-            where: {
-              report: reportJSON,
-            },
-          },
-        },
-        data: {
-          projectAbuseReportRequests: {
-            create: {
-              report: reportJSON,
-              projectId: reportedProject.id,
-            },
-          },
-        },
-        where: {
-          id: abuseReport.reporter.id,
-        },
-      });
-    }
-    return { error: null, data };
-  }
-  return {
-    error: {
-      message: "Unsuccesful fetch",
-      response,
+      },
     },
-    data: null,
-  };
+    where: {
+      slug: options.slug,
+    },
+  });
+}
+
+export async function createProjectAbuseReport(options: {
+  reporterId: string;
+  slug: string;
+  reasons: string[];
+}) {
+  const reporter = await getReporter(options.reporterId);
+  await prismaClient.project.update({
+    data: {
+      abuseReports: {
+        create: {
+          title: `Profile "${reporter.username}" reported project "${options.slug}"`,
+          reporterId: options.reporterId,
+          reasons: {
+            createMany: {
+              data: options.reasons.map((reason) => {
+                return {
+                  description: reason,
+                };
+              }),
+            },
+          },
+        },
+      },
+    },
+    where: {
+      slug: options.slug,
+    },
+  });
+}
+
+async function getReporter(reporterId: string) {
+  const reporter = await prismaClient.profile.findUnique({
+    select: {
+      username: true,
+    },
+    where: {
+      id: reporterId,
+    },
+  });
+  invariantResponse(reporter !== null, "Reporter profile not found", {
+    status: 404,
+  });
+  return reporter;
+}
+
+async function sendNewReportMailToSupport(params: any) {
+  // TODO: Send mail to support
+  // Include:
+  // Title
+  // Reasons
+  // Link to reporter profile
+  // Link to reported entity
 }

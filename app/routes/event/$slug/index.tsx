@@ -58,7 +58,7 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
-import { createAbuseReportRequest } from "~/abuse-reporting.server";
+import { createEventAbuseReport } from "~/abuse-reporting.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { redirectWithAlert } from "~/alert.server";
 
@@ -214,18 +214,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
+  // TODO: Is this what we want?
   let alreadyAbuseReported;
   if (sessionUser !== null) {
-    const abuseReport = await prismaClient.eventAbuseReportRequest.findFirst({
+    const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
       select: {
         id: true,
       },
       where: {
         eventId: eventWithParticipationStatus.id,
+        status: "open",
         reporterId: sessionUser.id,
       },
     });
-    alreadyAbuseReported = abuseReport !== null;
+    alreadyAbuseReported = openAbuseReport !== null;
   }
 
   return json({
@@ -253,7 +255,8 @@ export const action = async (args: ActionFunctionArgs) => {
     "Anon users and admins of this event cannot send a report",
     { status: 403 }
   );
-  const abuseReport = await prismaClient.eventAbuseReportRequest.findFirst({
+  // TODO: Is this what we want?
+  const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
     select: {
       id: true,
     },
@@ -261,46 +264,23 @@ export const action = async (args: ActionFunctionArgs) => {
       event: {
         slug,
       },
+      status: "open",
       reporterId: sessionUser.id,
     },
   });
   invariantResponse(
-    abuseReport === null,
+    openAbuseReport === null,
     "You already have sent a report for this event",
     { status: 401 }
   );
 
-  const reporter = await prismaClient.profile.findUnique({
-    select: {
-      id: true,
-      email: true,
-    },
-    where: {
-      id: sessionUser.id,
-    },
-  });
-  invariantResponse(reporter !== null, "Profile of session user not found.", {
-    status: 404,
-  });
-
-  const { error } = await createAbuseReportRequest({
-    entity: {
-      type: "event",
-      slug: slug,
-    },
-    reporter,
+  await createEventAbuseReport({
+    reporterId: sessionUser.id,
+    slug: slug,
     reasons: ["Some test reason", "Another test reason"],
   });
-  if (error !== null) {
-    // TODO: Send mail to support (Text self defined)
-    // TODO: Send mail to reporter (Text needs to be defined)
-    // TODO: Add i18n to alert messages
-    return redirectWithAlert(
-      ".",
-      { message: "The abuse report could not be sent.", level: "negative" },
-      { status: 500 }
-    );
-  }
+
+  // TODO: Add i18n to alert messages
   return redirectWithAlert(".", {
     message: "The abuse report was successfully submitted.",
   });
