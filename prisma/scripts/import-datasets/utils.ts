@@ -1,6 +1,7 @@
 import type {
   AdditionalDiscipline,
   Discipline,
+  EventAbuseReportReasonSuggestion,
   EventTargetGroup,
   EventType,
   ExperienceLevel,
@@ -30,6 +31,7 @@ export type GenericEntry =
   | AdditionalDiscipline
   | Format
   | Financing
+  | EventAbuseReportReasonSuggestion
   | ExperienceLevel;
 
 export type TableName =
@@ -47,6 +49,7 @@ export type TableName =
   | "additionalDiscipline"
   | "format"
   | "financing"
+  | "eventAbuseReportReasonSuggestion"
   | "stage";
 
 type Lookup = {
