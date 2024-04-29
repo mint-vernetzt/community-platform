@@ -5,8 +5,6 @@ import {
 
 export const testURL = "https://test.com";
 
-export const abuseReportTestUrl = "http://localhost:3000/create-abuse-report";
-
 export function createRequestWithFormData(keyValuePairs: {
   [key: string]: string | string[];
 }) {
