@@ -58,7 +58,10 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
-import { createEventAbuseReport } from "~/abuse-reporting.server";
+import {
+  createEventAbuseReport,
+  sendNewReportMailToSupport,
+} from "~/abuse-reporting.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { redirectWithAlert } from "~/alert.server";
 
@@ -274,11 +277,12 @@ export const action = async (args: ActionFunctionArgs) => {
     { status: 401 }
   );
 
-  await createEventAbuseReport({
+  const report = await createEventAbuseReport({
     reporterId: sessionUser.id,
     slug: slug,
     reasons: ["Some test reason", "Another test reason"],
   });
+  await sendNewReportMailToSupport(report);
 
   // TODO: Add i18n to alert messages
   return redirectWithAlert(".", {

@@ -33,7 +33,8 @@ export async function createProfileAbuseReport(options: {
       username: options.username,
     },
   });
-  await sendNewReportMailToSupport({
+
+  return {
     title,
     entityUrl: `${process.env.COMMUNITY_BASE_URL}/profile/${options.username}`,
     reporter: {
@@ -41,7 +42,7 @@ export async function createProfileAbuseReport(options: {
       url: `${process.env.COMMUNITY_BASE_URL}/profile/${reporter.username}`,
     },
     reasons: options.reasons,
-  });
+  };
 }
 
 export async function createOrganizationAbuseReport(options: {
@@ -73,7 +74,7 @@ export async function createOrganizationAbuseReport(options: {
       slug: options.slug,
     },
   });
-  await sendNewReportMailToSupport({
+  return {
     title,
     entityUrl: `${process.env.COMMUNITY_BASE_URL}/organization/${options.slug}`,
     reporter: {
@@ -81,7 +82,7 @@ export async function createOrganizationAbuseReport(options: {
       url: `${process.env.COMMUNITY_BASE_URL}/profile/${reporter.username}`,
     },
     reasons: options.reasons,
-  });
+  };
 }
 
 export async function createEventAbuseReport(options: {
@@ -113,7 +114,7 @@ export async function createEventAbuseReport(options: {
       slug: options.slug,
     },
   });
-  await sendNewReportMailToSupport({
+  return {
     title,
     entityUrl: `${process.env.COMMUNITY_BASE_URL}/event/${options.slug}`,
     reporter: {
@@ -121,7 +122,7 @@ export async function createEventAbuseReport(options: {
       url: `${process.env.COMMUNITY_BASE_URL}/profile/${reporter.username}`,
     },
     reasons: options.reasons,
-  });
+  };
 }
 
 export async function createProjectAbuseReport(options: {
@@ -153,7 +154,7 @@ export async function createProjectAbuseReport(options: {
       slug: options.slug,
     },
   });
-  await sendNewReportMailToSupport({
+  return {
     title,
     entityUrl: `${process.env.COMMUNITY_BASE_URL}/project/${options.slug}`,
     reporter: {
@@ -161,7 +162,7 @@ export async function createProjectAbuseReport(options: {
       url: `${process.env.COMMUNITY_BASE_URL}/profile/${reporter.username}`,
     },
     reasons: options.reasons,
-  });
+  };
 }
 
 async function getReporter(reporterId: string) {
@@ -180,7 +181,7 @@ async function getReporter(reporterId: string) {
   return reporter;
 }
 
-async function sendNewReportMailToSupport(report: {
+export async function sendNewReportMailToSupport(report: {
   title: string;
   reporter: {
     url: string;
