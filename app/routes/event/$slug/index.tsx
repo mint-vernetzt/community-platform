@@ -258,6 +258,9 @@ export const action = async (args: ActionFunctionArgs) => {
     "Anon users and admins of this event cannot send a report",
     { status: 403 }
   );
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/index"]);
+
   // TODO: Is this what we want?
   const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
     select: {
@@ -284,9 +287,8 @@ export const action = async (args: ActionFunctionArgs) => {
   });
   await sendNewReportMailToSupport(report);
 
-  // TODO: Add i18n to alert messages
   return redirectWithAlert(".", {
-    message: "The abuse report was successfully submitted.",
+    message: t("success.abuseReport"),
   });
 };
 
