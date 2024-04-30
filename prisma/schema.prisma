@@ -156,6 +156,7 @@ model ProfileAbuseReportReason {
 
 model ProfileAbuseReportReasonSuggestion {
   id          String @id @default(uuid())
+  slug        String @unique
   description String
 
   @@map("profile_abuse_report_reason_suggestions")
@@ -325,6 +326,7 @@ model OrganizationAbuseReportReason {
 
 model OrganizationAbuseReportReasonSuggestion {
   id          String @id @default(uuid())
+  slug        String @unique
   description String
 
   @@map("organization_abuse_report_reason_suggestions")
@@ -541,6 +543,7 @@ model EventAbuseReportReason {
 
 model EventAbuseReportReasonSuggestion {
   id          String @id @default(uuid())
+  slug        String @unique
   description String
 
   @@map("event_abuse_report_reason_suggestions")
@@ -1089,6 +1092,7 @@ model ProjectAbuseReportReason {
 
 model ProjectAbuseReportReasonSuggestion {
   id          String @id @default(uuid())
+  slug        String @unique
   description String
 
   @@map("project_abuse_report_reason_suggestions")
