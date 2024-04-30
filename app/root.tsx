@@ -44,6 +44,7 @@ import { combineHeaders } from "./utils.server";
 import { H1, H2 } from "./components/Heading/Heading";
 import { initializeSentry } from "./sentry.client";
 import { useChangeLanguage } from "remix-i18next";
+import { Modal } from "./routes/__components";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -63,6 +64,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "events",
     "projects",
     "dashboard",
+    "abuse_report",
   ]);
 
   const user = await getSessionUser(authClient);
@@ -685,7 +687,7 @@ export default function App() {
           )}
           <Footer isSettings={isProjectSettings} />
         </div>
-
+        {abilities.abuse_report.hasAccess && <Modal.Root />}
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

@@ -1,6 +1,10 @@
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useLoaderData, useNavigate } from "@remix-run/react";
+import { Link, useLoaderData, useNavigate, Form } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { type TFunction } from "i18next";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -47,6 +51,9 @@ import {
   getIsSpeaker,
   getIsTeamMember,
 } from "./utils.server";
+import { z } from "zod";
+import { parseWithZod } from "@conform-to/zod-v1";
+import { Modal as NextModal } from "~/routes/__components";
 
 export function links() {
   return [
@@ -65,11 +72,23 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
+const abuseReportSchema = z.object({
+  intent: z.enum(["submit-abuse-report"]),
+  reasons: z.array(z.string()),
+  otherReason: z.string().optional(),
+});
+
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
-  const abilities = await getFeatureAbilities(authClient, "events");
+  const abilities = await getFeatureAbilities(authClient, [
+    "events",
+    "abuse_report",
+  ]);
+
+  console.log("abilities", abilities);
+
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/event/index"]);
 
@@ -209,6 +228,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
+export async function action(args: ActionFunctionArgs) {
+  const { request } = args;
+  const formData = await request.formData();
+  const submission = await parseWithZod(formData, {
+    schema: abuseReportSchema,
+  });
+  if (submission.status !== "success") {
+    return json(submission.reply());
+  }
+
+  // TODO: Implement abuse report handling
+
+  return redirect(request.url);
+}
+
 function getForm(loaderData: {
   userId?: string;
   isParticipant: boolean;
@@ -311,7 +345,7 @@ function Index() {
 
   const laysInThePast = now > endTime;
 
-  const Form = getForm(loaderData);
+  const ParticipationForm = getForm(loaderData);
 
   const duration = getDuration(startTime, endTime, i18n.language);
 
@@ -394,6 +428,54 @@ function Index() {
           )}
         </div>
       </section>
+      {loaderData.abilities.abuse_report.hasAccess && (
+        <section className="container mt-6">
+          <Form method="get">
+            <input hidden name="modal" defaultValue="true" />
+            <button type="submit">Melden</button>
+          </Form>
+          <NextModal searchParam="modal">
+            <NextModal.Title>Modal title</NextModal.Title>
+            <NextModal.Section>
+              Um Deiner Meldung nachgehen zu können, benötigen wir den Grund,
+              warum Du dieses Event melden möchtest.
+            </NextModal.Section>
+            <NextModal.Section>
+              <Form method="post" className="mv-flex mv-flex-col mv-gap-4">
+                <input hidden name="intent" value="submit-abuse-report" />
+                <label>
+                  Es handelt sich um eine Werbeveranstaltung.
+                  <input type="checkbox" name="reason" value="commercial" />
+                </label>
+                <label>
+                  Es werden unpassende Bilder gezeigt.
+                  <input
+                    type="checkbox"
+                    name="reason"
+                    value="inappropriate-images"
+                  />
+                </label>
+                <label>
+                  Es enthält diskriminierende Inhalte.
+                  <input
+                    type="checkbox"
+                    name="reason"
+                    value="discriminatory-content"
+                  />
+                </label>
+                <label>
+                  Anderer Grund
+                  <input type="text" name="other-reason" />
+                </label>
+                <button className="mv-bg-blue-500" type="submit">
+                  Melden
+                </button>
+              </Form>
+            </NextModal.Section>
+            <NextModal.CloseButton>Abbrechen</NextModal.CloseButton>
+          </NextModal>
+        </section>
+      )}
       <section className="container mt-6">
         <div className="md:rounded-3xl overflow-hidden w-full relative">
           <div className="hidden md:block">
@@ -541,7 +623,7 @@ function Index() {
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               loaderData.event.canceled === false ? (
-                                <>{Form}</>
+                                <>{ParticipationForm}</>
                               ) : null}
                             </>
                           </div>
@@ -581,7 +663,7 @@ function Index() {
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               loaderData.event.canceled === false ? (
-                                <>{Form}</>
+                                <>{ParticipationForm}</>
                               ) : null}
                             </>
                           </div>
@@ -602,7 +684,7 @@ function Index() {
                         ) : null}
                         {loaderData.mode !== "anon" &&
                         loaderData.event.canceled === false ? (
-                          <>{Form}</>
+                          <>{ParticipationForm}</>
                         ) : null}
                       </>
                     </div>
