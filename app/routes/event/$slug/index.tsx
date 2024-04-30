@@ -4,7 +4,7 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useLoaderData, useNavigate, Form } from "@remix-run/react";
+import { Form, Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { type TFunction } from "i18next";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -12,7 +12,11 @@ import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { createAuthClient, getSessionUser } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import Modal from "~/components/Modal/Modal";
 import { RichText } from "~/components/Richtext/RichText";
@@ -24,7 +28,10 @@ import {
 } from "~/lib/event/utils";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import {
+  checkFeatureAbilitiesOrThrow,
+  getFeatureAbilities,
+} from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
@@ -54,6 +61,12 @@ import {
 import { z } from "zod";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Modal as NextModal } from "~/routes/__components";
+import {
+  createEventAbuseReport,
+  sendNewReportMailToSupport,
+} from "~/abuse-reporting.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { redirectWithAlert } from "~/alert.server";
 
 export function links() {
   return [
@@ -86,9 +99,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "events",
     "abuse_report",
   ]);
-
-  console.log("abilities", abilities);
-
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/event/index"]);
 
@@ -216,6 +226,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
+  let alreadyAbuseReported;
+  if (sessionUser !== null) {
+    const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
+      select: {
+        id: true,
+      },
+      where: {
+        eventId: eventWithParticipationStatus.id,
+        status: "open",
+        reporterId: sessionUser.id,
+      },
+    });
+    alreadyAbuseReported = openAbuseReport !== null;
+  }
+
   return json({
     mode,
     event: eventWithParticipationStatus,
@@ -225,25 +250,56 @@ export const loader = async (args: LoaderFunctionArgs) => {
     isSpeaker,
     isTeamMember,
     abilities,
+    alreadyAbuseReported,
   });
 };
 
-export async function action(args: ActionFunctionArgs) {
-  const { request } = args;
-  const formData = await request.formData();
-  const submission = await parseWithZod(formData, {
-    schema: abuseReportSchema,
+export const action = async (args: ActionFunctionArgs) => {
+  const { request, params } = args;
+  const { authClient } = createAuthClient(request);
+  const slug = getParamValueOrThrow(params, "slug");
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
+  const mode = await deriveEventMode(sessionUser, slug);
+  invariantResponse(
+    mode === "authenticated",
+    "Anon users and admins of this event cannot send a report",
+    { status: 403 }
+  );
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/index"]);
+
+  const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
+    select: {
+      id: true,
+    },
+    where: {
+      event: {
+        slug,
+      },
+      status: "open",
+      reporterId: sessionUser.id,
+    },
   });
-  if (submission.status !== "success") {
-    return json(submission.reply());
-  }
+  invariantResponse(
+    openAbuseReport === null,
+    "You already have sent a report for this event",
+    { status: 401 }
+  );
 
-  // TODO: Implement abuse report handling
+  const report = await createEventAbuseReport({
+    reporterId: sessionUser.id,
+    slug: slug,
+    reasons: ["Some test reason", "Another test reason"],
+  });
+  await sendNewReportMailToSupport(report);
 
-  return redirect(request.url);
-}
+  return redirectWithAlert(".", {
+    message: t("success.abuseReport"),
+  });
+};
 
-function getForm(loaderData: {
+function getCallToActionForm(loaderData: {
   userId?: string;
   isParticipant: boolean;
   isOnWaitingList: boolean;
@@ -345,7 +401,7 @@ function Index() {
 
   const laysInThePast = now > endTime;
 
-  const ParticipationForm = getForm(loaderData);
+  const CallToActionForm = getCallToActionForm(loaderData);
 
   const duration = getDuration(startTime, endTime, i18n.language);
 
@@ -376,6 +432,13 @@ function Index() {
   return (
     <>
       <section className="container md:mt-2">
+        {loaderData.abilities.abuse_report.hasAccess &&
+        loaderData.mode === "authenticated" &&
+        loaderData.alreadyAbuseReported === false ? (
+          <Form method="post">
+            <button type="submit">{t("content.report")}</button>
+          </Form>
+        ) : null}
         <div className="font-semi text-neutral-500 flex flex-wrap items-center mb-4">
           {loaderData.event.parentEvent !== null ? (
             <>
@@ -601,10 +664,13 @@ function Index() {
                               }}
                               components={[
                                 <Link
+                                  key={loaderData.event.parentEvent.slug}
                                   className="underline hover:no-underline"
                                   to={`/event/${loaderData.event.parentEvent.slug}`}
                                   reloadDocument
-                                />,
+                                >
+                                  {t("content.event.context")}
+                                </Link>,
                               ]}
                             />
                           </p>
@@ -623,7 +689,7 @@ function Index() {
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               loaderData.event.canceled === false ? (
-                                <>{ParticipationForm}</>
+                                <>{CallToActionForm}</>
                               ) : null}
                             </>
                           </div>
@@ -642,9 +708,12 @@ function Index() {
                               ns={["routes/event/index"]}
                               components={[
                                 <a
+                                  key="to-child-events"
                                   href="#child-events"
                                   className="underline hover:no-underline"
-                                />,
+                                >
+                                  {t("content.event.select")}
+                                </a>,
                               ]}
                             />
                           </p>
@@ -663,7 +732,7 @@ function Index() {
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               loaderData.event.canceled === false ? (
-                                <>{ParticipationForm}</>
+                                <>{CallToActionForm}</>
                               ) : null}
                             </>
                           </div>
@@ -684,7 +753,7 @@ function Index() {
                         ) : null}
                         {loaderData.mode !== "anon" &&
                         loaderData.event.canceled === false ? (
-                          <>{ParticipationForm}</>
+                          <>{CallToActionForm}</>
                         ) : null}
                       </>
                     </div>

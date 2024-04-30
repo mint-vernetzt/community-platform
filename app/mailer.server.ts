@@ -71,11 +71,22 @@ type WelcomeContent = {
   email: string;
 };
 
+type AbuseReportSupportContent = {
+  reporter: {
+    url: string;
+    email: string;
+  };
+  entityUrl: string;
+  reasons: string[];
+};
+
 type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
   | "mail-templates/welcome/html.hbs"
   | "mail-templates/welcome/text.hbs"
+  | "mail-templates/abuse-report-support/html.hbs"
+  | "mail-templates/abuse-report-support/text.hbs"
   | "mail-templates/move-to-participants/html.hbs"
   | "mail-templates/move-to-participants/text.hbs";
 
@@ -91,6 +102,10 @@ type TemplateContent<TemplatePath> = TemplatePath extends
       | "mail-templates/welcome/html.hbs"
       | "mail-templates/welcome/text.hbs"
   ? WelcomeContent
+  : TemplatePath extends
+      | "mail-templates/abuse-report-support/html.hbs"
+      | "mail-templates/abuse-report-support/text.hbs"
+  ? AbuseReportSupportContent
   : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
