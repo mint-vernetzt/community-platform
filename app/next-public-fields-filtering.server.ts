@@ -17,6 +17,11 @@ export type ProfileWithRelations = Profile & {
   administeredOrganizations: any;
   administeredProjects: any;
   backgroundImage: any;
+  profileAbuseReport: any;
+  organizationAbuseReport: any;
+  eventAbuseReport: any;
+  projectAbuseReport: any;
+  abuseReports: any;
   _count: any;
 };
 
@@ -52,6 +57,11 @@ export function filterProfileByVisibility<
         key === "administeredEvents" ||
         key === "administeredOrganizations" ||
         key === "administeredProjects" ||
+        key === "profileAbuseReport" ||
+        key === "organizationAbuseReport" ||
+        key === "eventAbuseReport" ||
+        key === "projectAbuseReport" ||
+        key === "abuseReports" ||
         key === "waitingForEvents"
       ) {
         filteredFields[key] =
@@ -124,6 +134,7 @@ type OrganizationWithRelations = Organization & {
   organizationVisibility: any;
   admins: any;
   backgroundImage: any;
+  abuseReports: any;
 };
 
 export function filterOrganizationByVisibility<
@@ -151,6 +162,7 @@ export function filterOrganizationByVisibility<
         key === "types" ||
         key === "responsibleForEvents" ||
         key === "admins" ||
+        key === "abuseReports" ||
         key === "responsibleForProject"
       ) {
         filteredFields[key] =
@@ -232,6 +244,7 @@ type EventWithRelations = Event & {
   eventVisibility: any;
   admins: any;
   backgroundImage: any;
+  abuseReports: any;
   _count: any;
 };
 
@@ -262,6 +275,7 @@ export function filterEventByVisibility<
         key === "eventTargetGroups" ||
         key === "teamMembers" ||
         key === "admins" ||
+        key === "abuseReports" ||
         key === "waitingList"
       ) {
         filteredFields[key] =
@@ -339,6 +353,7 @@ type ProjectWithRelations = Project & {
   images: any;
   documents: any;
   backgroundImage: any;
+  abuseReports: any;
   _count: any;
 };
 
@@ -371,6 +386,7 @@ export function filterProjectByVisibility<
         key === "documents" ||
         key === "furtherFormats" ||
         key === "admins" ||
+        key === "abuseReports" ||
         key === "teamMembers"
       ) {
         filteredFields[key] =

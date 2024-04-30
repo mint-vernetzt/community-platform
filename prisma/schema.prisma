@@ -53,6 +53,11 @@ model Profile {
   administeredOrganizations AdminOfOrganization[]
   administeredProjects      AdminOfProject[]
   notificationSettings      NotificationSettings?
+  profileAbuseReport        ProfileAbuseReport[]        @relation("reporter_of_profile_abuse_report")
+  organizationAbuseReport   OrganizationAbuseReport[]   @relation("reporter_of_organization_abuse_report")
+  eventAbuseReport          EventAbuseReport[]          @relation("reporter_of_event_abuse_report")
+  projectAbuseReport        ProjectAbuseReport[]        @relation("reporter_of_project_abuse_report")
+  abuseReports              ProfileAbuseReport[]        @relation("profile_of_profile_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -103,6 +108,11 @@ model ProfileVisibility {
   administeredEvents        Boolean @default(false)
   administeredProjects      Boolean @default(false)
   notificationSettings      Boolean @default(false) @map("notfication_settings")
+  profileAbuseReport        Boolean @default(false)
+  organizationAbuseReport   Boolean @default(false)
+  eventAbuseReport          Boolean @default(false)
+  projectAbuseReport        Boolean @default(false)
+  abuseReports              Boolean @default(false)
 
   @@map("profile_visibilities")
 }
@@ -114,6 +124,53 @@ model NotificationSettings {
   profileId String  @unique
 
   @@map("notification_settings")
+}
+
+model ProfileAbuseReport {
+  id         String                       @id @default(uuid())
+  title      String // ${reporter.username} reported profile ${profile.username}  
+  status     AbuseReportStatus            @default(open)
+  createdAt  DateTime                     @default(now()) @map("created_at")
+  updatedAt  DateTime                     @updatedAt @map("updated_at")
+  reporter   Profile                      @relation("reporter_of_profile_abuse_report", fields: [reporterId], references: [id])
+  reporterId String                       @map("reporter_id")
+  profile    Profile                      @relation("profile_of_profile_abuse_report", fields: [profileId], references: [id])
+  profileId  String                       @map("profile_id")
+  reasons    ProfileAbuseReportReason[]
+  revisions  ProfileAbuseReportRevision[]
+
+  @@map("profile_abuse_reports")
+}
+
+model ProfileAbuseReportReason {
+  id                   String             @id @default(uuid())
+  description          String
+  status               AbuseReportStatus  @default(open)
+  profileAbuseReport   ProfileAbuseReport @relation(fields: [profileAbuseReportId], references: [id])
+  profileAbuseReportId String             @map("profile_abuse_report_id")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  @@map("profile_abuse_report_reasons")
+}
+
+model ProfileAbuseReportReasonSuggestion {
+  id          String @id @default(uuid())
+  slug        String @unique
+  description String
+
+  @@map("profile_abuse_report_reason_suggestions")
+}
+
+model ProfileAbuseReportRevision {
+  id                   String             @id @default(uuid())
+  revisor              String
+  log                  String
+  createdAt            DateTime           @default(now()) @map("created_at")
+  profileAbuseReport   ProfileAbuseReport @relation(fields: [profileAbuseReportId], references: [id])
+  profileAbuseReportId String
+
+  @@map("profile_abuse_report_revisions")
 }
 
 model AreasOnProfiles {
@@ -186,6 +243,7 @@ model Organization {
   responsibleForProject  ResponsibleOrganizationOfProject[]
   organizationVisibility OrganizationVisibility?
   admins                 AdminOfOrganization[]
+  abuseReports           OrganizationAbuseReport[]          @relation("organization_of_organization_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -231,10 +289,58 @@ model OrganizationVisibility {
   types                  Boolean      @default(true)
   responsibleForEvents   Boolean      @default(true)
   responsibleForProject  Boolean      @default(true)
+  abuseReports           Boolean      @default(false)
   organization           Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId         String       @unique
 
   @@map("organization_visibilities")
+}
+
+model OrganizationAbuseReport {
+  id             String                            @id @default(uuid())
+  title          String
+  status         AbuseReportStatus                 @default(open)
+  createdAt      DateTime                          @default(now()) @map("created_at")
+  updatedAt      DateTime                          @updatedAt @map("updated_at")
+  reporter       Profile                           @relation("reporter_of_organization_abuse_report", fields: [reporterId], references: [id])
+  reporterId     String                            @map("reporter_id")
+  organization   Organization                      @relation("organization_of_organization_abuse_report", fields: [organizationId], references: [id])
+  organizationId String                            @map("organization_id")
+  reasons        OrganizationAbuseReportReason[]
+  revisions      OrganizationAbuseReportRevision[]
+
+  @@map("organization_abuse_reports")
+}
+
+model OrganizationAbuseReportReason {
+  id                        String                  @id @default(uuid())
+  description               String
+  status                    AbuseReportStatus       @default(open)
+  organizationAbuseReport   OrganizationAbuseReport @relation(fields: [organizationAbuseReportId], references: [id])
+  organizationAbuseReportId String                  @map("organization_abuse_report_id")
+  createdAt                 DateTime                @default(now()) @map("created_at")
+  updatedAt                 DateTime                @updatedAt @map("updated_at")
+
+  @@map("organization_abuse_report_reasons")
+}
+
+model OrganizationAbuseReportReasonSuggestion {
+  id          String @id @default(uuid())
+  slug        String @unique
+  description String
+
+  @@map("organization_abuse_report_reason_suggestions")
+}
+
+model OrganizationAbuseReportRevision {
+  id                        String                  @id @default(uuid())
+  revisor                   String
+  log                       String
+  createdAt                 DateTime                @default(now()) @map("created_at")
+  organizationAbuseReport   OrganizationAbuseReport @relation(fields: [organizationAbuseReportId], references: [id])
+  organizationAbuseReportId String
+
+  @@map("organization_abuse_report_revisions")
 }
 
 model OrganizationTypesOnOrganizations {
@@ -347,6 +453,7 @@ model Event {
   waitingList              WaitingParticipantOfEvent[]
   eventVisibility          EventVisibility?
   admins                   AdminOfEvent[]
+  abuseReports             EventAbuseReport[]               @relation("event_of_event_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -399,10 +506,58 @@ model EventVisibility {
   teamMembers              Boolean @default(true)
   admins                   Boolean @default(false)
   waitingList              Boolean @default(false)
+  abuseReports             Boolean @default(false)
   event                    Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId                  String  @unique
 
   @@map("event_visibilities")
+}
+
+model EventAbuseReport {
+  id         String                     @id @default(uuid())
+  title      String
+  status     AbuseReportStatus          @default(open)
+  createdAt  DateTime                   @default(now()) @map("created_at")
+  updatedAt  DateTime                   @updatedAt @map("updated_at")
+  reporter   Profile                    @relation("reporter_of_event_abuse_report", fields: [reporterId], references: [id])
+  reporterId String                     @map("reporter_id")
+  event      Event                      @relation("event_of_event_abuse_report", fields: [eventId], references: [id])
+  eventId    String                     @map("event_id")
+  reasons    EventAbuseReportReason[]
+  revisions  EventAbuseReportRevision[]
+
+  @@map("event_abuse_reports")
+}
+
+model EventAbuseReportReason {
+  id                 String            @id @default(uuid())
+  description        String
+  status             AbuseReportStatus @default(open)
+  eventAbuseReport   EventAbuseReport  @relation(fields: [eventAbuseReportId], references: [id])
+  eventAbuseReportId String            @map("event_abuse_report_id")
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  @@map("event_abuse_report_reasons")
+}
+
+model EventAbuseReportReasonSuggestion {
+  id          String @id @default(uuid())
+  slug        String @unique
+  description String
+
+  @@map("event_abuse_report_reason_suggestions")
+}
+
+model EventAbuseReportRevision {
+  id                 String           @id @default(uuid())
+  revisor            String
+  log                String
+  createdAt          DateTime         @default(now()) @map("created_at")
+  eventAbuseReport   EventAbuseReport @relation(fields: [eventAbuseReportId], references: [id])
+  eventAbuseReportId String
+
+  @@map("event_abuse_report_revisions")
 }
 
 model ResponsibleOrganizationOfEvent {
@@ -825,6 +980,7 @@ model Project {
   areas                        AreasOnProjects[]
   documents                    DocumentOfProject[]
   images                       ImageOfProject[]
+  abuseReports                 ProjectAbuseReport[]               @relation("project_of_project_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -899,10 +1055,58 @@ model ProjectVisibility {
   documents                    Boolean @default(true)
   images                       Boolean @default(true)
   admins                       Boolean @default(false)
+  abuseReports                 Boolean @default(false)
   project                      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId                    String  @unique
 
   @@map("project_visibilities")
+}
+
+model ProjectAbuseReport {
+  id         String                       @id @default(uuid())
+  title      String
+  status     AbuseReportStatus            @default(open)
+  createdAt  DateTime                     @default(now()) @map("created_at")
+  updatedAt  DateTime                     @updatedAt @map("updated_at")
+  reporter   Profile                      @relation("reporter_of_project_abuse_report", fields: [reporterId], references: [id])
+  reporterId String                       @map("reporter_id")
+  project    Project                      @relation("project_of_project_abuse_report", fields: [projectId], references: [id])
+  projectId  String                       @map("project_id")
+  reasons    ProjectAbuseReportReason[]
+  revisions  ProjectAbuseReportRevision[]
+
+  @@map("project_abuse_reports")
+}
+
+model ProjectAbuseReportReason {
+  id                   String             @id @default(uuid())
+  description          String
+  status               AbuseReportStatus  @default(open)
+  projectAbuseReport   ProjectAbuseReport @relation(fields: [projectAbuseReportId], references: [id])
+  projectAbuseReportId String             @map("project_abuse_report_id")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  @@map("project_abuse_report_reasons")
+}
+
+model ProjectAbuseReportReasonSuggestion {
+  id          String @id @default(uuid())
+  slug        String @unique
+  description String
+
+  @@map("project_abuse_report_reason_suggestions")
+}
+
+model ProjectAbuseReportRevision {
+  id                   String             @id @default(uuid())
+  revisor              String
+  log                  String
+  createdAt            DateTime           @default(now()) @map("created_at")
+  projectAbuseReport   ProjectAbuseReport @relation(fields: [projectAbuseReportId], references: [id])
+  projectAbuseReportId String
+
+  @@map("project_abuse_report_revisions")
 }
 
 model Discipline {
@@ -1104,4 +1308,12 @@ enum AreaType {
   district
 
   @@map("area_types")
+}
+
+enum AbuseReportStatus {
+  open
+  accepted
+  rejected
+
+  @@map("abuse_report_status")
 }

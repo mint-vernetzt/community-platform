@@ -49,6 +49,7 @@ declare global {
       SENTRY_DSN: string;
       SENTRY_ORGANIZATION_NAME: string;
       SENTRY_PROJECT_NAME: string;
+      SUPPORT_MAIL: string;
     }
   }
 }
@@ -162,6 +163,10 @@ if (process.env.SENTRY_ORGANIZATION_NAME === undefined) {
 
 if (process.env.SENTRY_PROJECT_NAME === undefined) {
   throw new Error("'SENTRY_PROJECT_NAME' is required");
+}
+
+if (process.env.SUPPORT_MAIL === undefined) {
+  throw new Error("'SUPPORT_MAIL' is required");
 }
 
 export function handleError(

@@ -14,6 +14,7 @@ import targetGroups from "./data/targetGroups_legacy.json";
 import eventTargetGroups from "./data/eventTargetGroups.json";
 import projectTargetGroups from "./data/projectTargetGroups.json";
 import specialTargetGroups from "./data/specialTargetGroups.json";
+import eventAbuseReportReasonSuggestions from "./data/eventAbuseReportReasonSuggestions.json";
 import type { GenericEntry, TableName } from "./utils";
 import { importDataset } from "./utils";
 
@@ -33,6 +34,10 @@ const staticDatasets: Array<{ tableName: TableName; data: GenericEntry[] }> = [
   { tableName: "additionalDiscipline", data: additionalDisciplines },
   { tableName: "format", data: formats },
   { tableName: "financing", data: financings },
+  {
+    tableName: "eventAbuseReportReasonSuggestion",
+    data: eventAbuseReportReasonSuggestions,
+  },
 ];
 
 Promise.all(

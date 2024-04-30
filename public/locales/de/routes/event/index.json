@@ -3,7 +3,11 @@
     "notFound": "Event not found",
     "notPublished": "Event not published"
   },
+  "success": {
+    "abuseReport": "Die Meldung ist erfolgreich bei uns eingegangen."
+  },
   "content": {
+    "report": "Veranstaltung melden",
     "clock": "{{date}}, {{time}} Uhr",
     "backgroundImage": "Aktuelles Hintergrundbild",
     "borderOfImage": "Rahmen des Hintergrundbildes",
