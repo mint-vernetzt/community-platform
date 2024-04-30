@@ -217,7 +217,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
-  // TODO: Is this what we want?
   let alreadyAbuseReported;
   if (sessionUser !== null) {
     const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
@@ -261,7 +260,6 @@ export const action = async (args: ActionFunctionArgs) => {
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/event/index"]);
 
-  // TODO: Is this what we want?
   const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
     select: {
       id: true,

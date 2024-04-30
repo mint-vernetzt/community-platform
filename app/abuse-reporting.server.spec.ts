@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { type Profile } from "@prisma/client";
-import { afterEach, beforeAll, expect, test, vi } from "vitest";
+import { beforeAll, expect, test, vi } from "vitest";
 import { prismaClient } from "~/__mocks__/prisma.server";
 import {
   createEventAbuseReport,
@@ -11,10 +11,9 @@ import {
   createProjectAbuseReport,
   sendNewReportMailToSupport,
 } from "./abuse-reporting.server";
-// import * as abuseReporting from "./abuse-reporting.server";
+import { mailerOptions } from "./lib/submissions/mailer/mailerOptions";
 import { testURL } from "./lib/utils/tests";
 import { getCompiledMailTemplate, mailer } from "./mailer.server";
-import { mailerOptions } from "./lib/submissions/mailer/mailerOptions";
 
 vi.mock("~/prisma.server");
 
@@ -23,12 +22,6 @@ beforeAll(() => {
   process.env.SYSTEM_MAIL_SENDER = "some@sender.org";
   process.env.SUPPORT_MAIL = "some@support.org";
 });
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
-
-// TODO: Test reporter profile not found
 
 test("Reporter profile not found", async () => {
   prismaClient.profile.findUnique.mockResolvedValue(null);
