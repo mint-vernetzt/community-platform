@@ -26,6 +26,7 @@ function Avatar(props: AvatarProps) {
       "mv-h-[44px] mv-w-[44px]": size === "lg",
       "mv-h-[40px] mv-w-[40px]": size === "md",
       "mv-h-[36px] mv-w-[36px]": size === "sm",
+      "mv-h-[24px] mv-w-[24px]": size === "xsm",
     },
     {
       "mv-text-[70px]": size === "xl" || textSize === "xl",
@@ -127,7 +128,7 @@ export function AvatarList(props: AvatarListProps) {
   );
 }
 
-export type AvatarSize = "sm" | "md" | "lg" | "xl" | "full";
+export type AvatarSize = "xsm" | "sm" | "md" | "lg" | "xl" | "full";
 
 export type TextSize = "sm" | "md" | "lg" | "xl";
 
