@@ -99,7 +99,9 @@ function Button(
 
   const element = React.createElement(as, {
     ...otherProps,
-    className: classes,
+    className: otherProps.className
+      ? `${classes} ${otherProps.className}`
+      : classes,
   });
 
   return element;
