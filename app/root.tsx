@@ -1,6 +1,7 @@
-import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import {
   Alert,
+  Avatar,
+  Button,
   CircleButton,
   Footer,
   Link as StyledLink,
@@ -20,30 +21,31 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
   useLoaderData,
   useLocation,
   useMatches,
-  useSearchParams,
   useRouteError,
-  isRouteErrorResponse,
+  useSearchParams,
 } from "@remix-run/react";
+import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useChangeLanguage } from "remix-i18next";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
+import { H1, H2 } from "./components/Heading/Heading";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { detectLanguage, getProfileByUserId } from "./root.server";
+import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders } from "./utils.server";
-import { H1, H2 } from "./components/Heading/Heading";
-import { initializeSentry } from "./sentry.client";
-import { useChangeLanguage } from "remix-i18next";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -63,11 +65,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "events",
     "projects",
     "dashboard",
+    "next_navbar",
   ]);
 
   const user = await getSessionUser(authClient);
 
   let sessionUserInfo;
+  let nextSessionUserInfo;
 
   if (user !== null) {
     // Refresh session to reset the cookie max age
@@ -92,6 +96,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
         name: getFullName(profile),
         avatar,
       };
+      nextSessionUserInfo = {
+        username: profile.username,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        avatar,
+      };
     } else {
       throw json({ message: "profile not found." }, { status: 404 });
     }
@@ -109,6 +119,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       sessionUserInfo,
+      nextSessionUserInfo,
       abilities,
       alert,
       locale,
@@ -164,6 +175,110 @@ function HeaderLogo() {
         {t("root.community")}
       </span>
     </div>
+  );
+}
+
+type NextNavBarProps = {
+  sessionUserInfo?: NextSessionUserInfo;
+  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
+};
+
+type NextSessionUserInfo = {
+  username: string;
+  firstName: string;
+  lastName: string;
+  avatar?: string;
+};
+
+function NextNavBar(props: NextNavBarProps) {
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("query");
+
+  const matches = useMatches();
+  let isSettings = false;
+  if (matches[1] !== undefined) {
+    isSettings = matches[1].id === "routes/project/$slug/settings";
+  }
+
+  const classes = classNames("shadow-md mb-8", isSettings && "hidden md:block");
+
+  const { t } = useTranslation(["meta"]);
+
+  return (
+    <header id="header" className={classes}>
+      <div className="mv-flex mv-items-center mv-mr-4 lg:mv-mr-8 mv-my-4">
+        <Link
+          to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
+          className={`lg:mv-w-72 mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 ${
+            props.sessionUserInfo !== undefined ? "mv-hidden lg:mv-block" : ""
+          }`}
+        >
+          <HeaderLogo />
+        </Link>
+        {props.sessionUserInfo !== undefined && (
+          <div
+            className={`${
+              props.sessionUserInfo !== undefined
+                ? "mv-mx-4 mv-block lg:mv-hidden"
+                : ""
+            }`}
+          >
+            <Avatar
+              size="sm"
+              firstName={props.sessionUserInfo.firstName}
+              lastName={props.sessionUserInfo.lastName}
+              avatar={props.sessionUserInfo.avatar}
+              to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
+            />
+          </div>
+        )}
+
+        <div className="mv-flex mv-gap-2 lg:mv-gap-4 mv-flex-grow mv-items-center">
+          <Form className="mv-flex-grow" method="get" action="/search">
+            <Search
+              placeholder={t("root.search.placeholder")}
+              name="query"
+              query={query}
+            />
+          </Form>
+          <label
+            id="navbarmenu-label"
+            className="mv-flex-shrink mv-block lg:mv-hidden"
+          >
+            Menü
+          </label>
+
+          {/* TODO: implement new avatar (see figma) */}
+          {props.sessionUserInfo !== undefined ? (
+            <div className="mv-flex-col mv-items-center mv-hidden lg:mv-flex">
+              <Avatar
+                size="xsm"
+                firstName={props.sessionUserInfo.firstName}
+                lastName={props.sessionUserInfo.lastName}
+                avatar={props.sessionUserInfo.avatar}
+                to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
+              />
+
+              <div className="mv-text-sm mv-font-semibold mv-text-primary mv-cursor-default">
+                {props.sessionUserInfo.firstName}{" "}
+                {props.sessionUserInfo.lastName}
+              </div>
+            </div>
+          ) : (
+            <div className="mv-flex mv-gap-4 mv-items-center mv-hidden lg:mv-block">
+              <Link to="/login" className="mv-mr-4">
+                <Button variant="ghost" className="mv-underline">
+                  {t("root.login")}
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button>{t("root.register")}</Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
   );
 }
 
@@ -492,6 +607,8 @@ export const ErrorBoundary = () => {
 
       <body>
         <div id="top" className="flex flex-col min-h-screen">
+          {/* TODO: Include NextNavBar */}
+          {/* <NextNavBar abilities={{}} /> */}
           <NavBar abilities={{}} />
           <section className="container my-8 md:mt-10 lg:mt-20 text-center">
             <H1 like="h0">{errorTitle}</H1>
@@ -537,6 +654,7 @@ export default function App() {
     matomoUrl,
     matomoSiteId,
     sessionUserInfo: currentUserInfo,
+    nextSessionUserInfo,
     abilities,
     alert,
     locale,
@@ -667,14 +785,33 @@ export default function App() {
 
       <body className={bodyClasses}>
         <div id="top" className="flex flex-col min-h-screen">
-          {isNonAppBaseRoute || isIndexRoute ? null : (
+          {abilities.next_navbar.hasAccess && isNonAppBaseRoute === false ? (
+            <NextNavBar
+              sessionUserInfo={nextSessionUserInfo}
+              abilities={abilities}
+            />
+          ) : null}
+
+          {isNonAppBaseRoute ||
+          isIndexRoute ||
+          abilities.next_navbar.hasAccess ? null : (
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
-          {isIndexRoute ? (
+          {isIndexRoute && abilities.next_navbar.hasAccess === false ? (
             <div className="z-10">
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
           ) : null}
+
+          {/* TODO: Navbar Menu */}
+          {/* <div className="mv-flex">
+            {abilities.next_navbar.hasAccess ? (
+              <div
+                id="navbarmenu"
+                className="mv-w-72 mv-min-w-72 mv-h-[900px] mv-bg-primary -mv-mt-8 mv-hidden md:mv-block"
+              ></div>
+            ) : null} */}
+          {/* <div className="mv-flex-grow"> */}
           {isNonAppBaseRoute ? (
             <>{main}</>
           ) : (
@@ -683,6 +820,8 @@ export default function App() {
               {scrollButton}
             </div>
           )}
+          {/* </div>
+          </div> */}
           <Footer isSettings={isProjectSettings} />
         </div>
 
