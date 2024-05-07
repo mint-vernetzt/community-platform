@@ -808,7 +808,8 @@ export default function App() {
           ) : null}
 
           {/* TODO: Navbar Menu */}
-          {/* <div className="mv-flex">
+          {/* <div className="@container"> */}
+          <div className="@container">
             {abilities.next_navbar.hasAccess ? (
               <div
                 id="navbarmenu"
@@ -817,17 +818,17 @@ export default function App() {
                 <div className="mv-m-4">Test content</div>
               </div>
             ) : null}
-            <div className="mv-flex-grow"> */}
-          {isNonAppBaseRoute ? (
-            <>{main}</>
-          ) : (
-            <div className="flex flex-nowrap">
-              {main}
-              {scrollButton}
+            <div className="mv-inline mv-w-full">
+              {isNonAppBaseRoute ? (
+                <>{main}</>
+              ) : (
+                <div className="flex flex-nowrap">
+                  {main}
+                  {scrollButton}
+                </div>
+              )}
             </div>
-          )}
-          {/* </div>
-          </div> */}
+          </div>
           <Footer isSettings={isProjectSettings} />
         </div>
 

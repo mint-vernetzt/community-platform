@@ -1,11 +1,12 @@
 import daisyui from "daisyui";
 import tailwindcssOpentype from "tailwindcss-opentype";
+import tailwindContainerQueries from "@tailwindcss/container-queries";
 import defaultTheme from "tailwindcss/defaultTheme";
 import { colors, fontSizes } from "./app/styles/theme";
 
 export default {
   content: ["./app/**/*.tsx"],
-  plugins: [daisyui, tailwindcssOpentype],
+  plugins: [daisyui, tailwindcssOpentype, tailwindContainerQueries],
   daisyui: {
     themes: [
       {
@@ -21,6 +22,13 @@ export default {
   },
   theme: {
     extend: {
+      containers: {
+        sm: "600px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
+      },
       colors: {
         ...colors,
       },
