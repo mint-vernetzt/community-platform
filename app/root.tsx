@@ -252,7 +252,7 @@ function NextNavBar(props: NextNavBarProps) {
           {props.sessionUserInfo !== undefined ? (
             <div className="mv-flex-col mv-items-center mv-hidden lg:mv-flex">
               <Avatar
-                size="xsm"
+                size="xs"
                 firstName={props.sessionUserInfo.firstName}
                 lastName={props.sessionUserInfo.lastName}
                 avatar={props.sessionUserInfo.avatar}
@@ -265,15 +265,19 @@ function NextNavBar(props: NextNavBarProps) {
               </div>
             </div>
           ) : (
-            <div className="mv-flex mv-gap-4 mv-items-center mv-hidden lg:mv-block">
-              <Link to="/login" className="mv-mr-4">
-                <Button variant="ghost" className="mv-underline">
-                  {t("root.login")}
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button>{t("root.register")}</Button>
-              </Link>
+            <div className="mv-gap-4 mv-items-center mv-hidden lg:mv-flex">
+              <div>
+                <Link to="/login">
+                  <Button variant="ghost">
+                    <span className="mv-underline">{t("root.login")}</span>
+                  </Button>
+                </Link>
+              </div>
+              <div>
+                <Link to="/register">
+                  <Button>{t("root.register")}</Button>
+                </Link>
+              </div>
             </div>
           )}
         </div>
@@ -808,10 +812,12 @@ export default function App() {
             {abilities.next_navbar.hasAccess ? (
               <div
                 id="navbarmenu"
-                className="mv-w-72 mv-min-w-72 mv-h-[900px] mv-bg-primary -mv-mt-8 mv-hidden md:mv-block"
-              ></div>
-            ) : null} */}
-          {/* <div className="mv-flex-grow"> */}
+                className="mv-w-72 mv-min-w-72 mv-h-screen mv-bg-yellow-300 -mv-mt-8 mv-hidden lg:mv-block mv-sticky mv-top-0"
+              >
+                <div className="mv-m-4">Test content</div>
+              </div>
+            ) : null}
+            <div className="mv-flex-grow"> */}
           {isNonAppBaseRoute ? (
             <>{main}</>
           ) : (
