@@ -178,6 +178,7 @@ function HeaderLogo() {
   );
 }
 
+// TODO: outsource in __components.tsx
 type NextNavBarProps = {
   sessionUserInfo?: NextSessionUserInfo;
   abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
@@ -809,7 +810,7 @@ export default function App() {
 
           {/* TODO: Navbar Menu */}
           {/* <div className="@container"> */}
-          <div className="@container">
+          <div className="mv-flex">
             {abilities.next_navbar.hasAccess ? (
               <div
                 id="navbarmenu"
@@ -818,7 +819,7 @@ export default function App() {
                 <div className="mv-m-4">Test content</div>
               </div>
             ) : null}
-            <div className="mv-inline mv-w-full">
+            <div className="mv-flex-grow mv-@container">
               {isNonAppBaseRoute ? (
                 <>{main}</>
               ) : (
