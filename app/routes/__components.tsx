@@ -1,3 +1,4 @@
+import { Button } from "@mint-vernetzt/components";
 import { Link, useSearchParams } from "@remix-run/react";
 import React from "react";
 
@@ -15,12 +16,12 @@ function CountUp(props: CountUpProps) {
 }
 
 function ModalSection(props: { children: React.ReactNode }) {
-  return <div>{props.children}</div>;
+  return <div className="mv-w-full mv-text-sm mv-gap-2">{props.children}</div>;
 }
 
 function ModalClose(props: { route: string }) {
   return (
-    <Link className="mv-text-primary" to={props.route}>
+    <Link id="modal-close-top" className="mv-text-primary" to={props.route}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="19"
@@ -38,22 +39,39 @@ function ModalClose(props: { route: string }) {
 }
 
 function ModalCloseButton(props: React.PropsWithChildren<{ route?: string }>) {
-  console.log("close button", props.route);
-
   if (typeof props.route === "undefined") {
     return <>{props.children}</>;
   }
 
   return (
-    <Link to={props.route} className="mv-text-primary">
+    <Link
+      id="modal-close-bottom"
+      to={props.route}
+      className="mv-btn mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-font-semibold mv-whitespace-nowrap mv-w-full mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border"
+    >
       {props.children}
     </Link>
   );
 }
 
+function ModalSubmitButton(
+  props: React.InputHTMLAttributes<HTMLButtonElement>
+) {
+  const { children, ...inputProps } = props;
+  return (
+    <button
+      {...inputProps}
+      type="submit"
+      className="mv-btn mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-font-semibold mv-whitespace-nowrap mv-w-full mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border"
+    >
+      {props.children}
+    </button>
+  );
+}
+
 function ModalTitle(props: { children: React.ReactNode }) {
   return (
-    <h2 className="mv-text-3xl mv-text-blue-500 mv-font-bold">
+    <h2 className="mv-text-3xl mv-text-primary mv-font-bold mv-m-0 mv-p-0">
       {props.children}
     </h2>
   );
@@ -88,6 +106,16 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
     }
   }, [props.searchParam, searchParams]);
 
+  React.useEffect(() => {
+    if (open) {
+      // const modalCloseTop = document.getElementById("modal-close-top");
+      // modalCloseTop?.focus();
+
+      const modal = document.getElementById("modal");
+      modal?.focus();
+    }
+  }, [open]);
+
   if (!open) {
     return null;
   }
@@ -99,9 +127,17 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
   const sections = children.filter((child) => {
     return React.isValidElement(child) && child.type === ModalSection;
   });
+  const submitButton = children.find((child) => {
+    return React.isValidElement(child) && child.type === ModalSubmitButton;
+  });
   const closeButton = children.find((child) => {
     return React.isValidElement(child) && child.type === ModalCloseButton;
   });
+
+  if (closeButton === null) {
+    throw new Error("Modal requires a close button");
+  }
+
   const closeButtonClone =
     typeof closeButton !== "undefined"
       ? React.cloneElement(closeButton as React.ReactElement, {
@@ -111,14 +147,21 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
 
   return createPortal(
     <div className="mv-transition mv-fixed mv-inset-0 mv-bg-black mv-bg-opacity-50 mv-backdrop-blur-sm mv-flex mv-items-center mv-justify-center">
-      <div className="mv-max-w-[31rem] mv-rounded-lg mv-bg-white mv-p-8 mv-flex mv-flex-col mv-gap-4">
-        <div className="mv-flex mv-justify-between mv-items-center mv-gap-4">
+      <div
+        id="modal"
+        tabIndex={-1}
+        className="mv-max-w-[31rem] mv-rounded-lg mv-bg-white mv-p-8 mv-flex mv-flex-col mv-gap-6"
+      >
+        <div className="mv-flex mv-justify-between mv-items-baseline mv-gap-4">
           {title}
           <ModalClose route={redirect ?? "."} />
         </div>
         {sections}
-        {closeButtonClone !== null && (
-          <ModalSection>{closeButtonClone}</ModalSection>
+        {(submitButton !== null || closeButtonClone !== null) && (
+          <ModalSection>
+            {submitButton !== null && submitButton}
+            {closeButtonClone !== null && closeButtonClone}
+          </ModalSection>
         )}
       </div>
     </div>,
@@ -134,5 +177,6 @@ Modal.Root = ModalRoot;
 Modal.Title = ModalTitle;
 Modal.Section = ModalSection;
 Modal.CloseButton = ModalCloseButton;
+Modal.SubmitButton = ModalSubmitButton;
 
 export { CountUp, Modal };

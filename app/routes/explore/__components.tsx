@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigation } from "@remix-run/react";
 import classNames from "classnames";
 import React, { type FormEvent, type InputHTMLAttributes } from "react";
 
-function Checkbox(props: InputHTMLAttributes<HTMLInputElement>) {
+export function Checkbox(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <>
       <input
@@ -47,7 +47,7 @@ function Checkbox(props: InputHTMLAttributes<HTMLInputElement>) {
   );
 }
 
-function Radio(props: InputHTMLAttributes<HTMLInputElement>) {
+export function Radio(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <>
       <input

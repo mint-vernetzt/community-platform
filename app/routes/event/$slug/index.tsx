@@ -1,10 +1,19 @@
+import { useForm } from "@conform-to/react-v1";
+import { parseWithZod } from "@conform-to/zod-v1";
+import { Input } from "@mint-vernetzt/components";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, Link, useLoaderData, useNavigate } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+} from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { type TFunction } from "i18next";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -12,6 +21,8 @@ import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { z } from "zod";
+import { redirectWithAlert } from "~/alert.server";
 import {
   createAuthClient,
   getSessionUser,
@@ -32,20 +43,19 @@ import {
   checkFeatureAbilitiesOrThrow,
   getFeatureAbilities,
 } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
+import { Modal as NextModal } from "~/routes/__components";
 import { deriveEventMode } from "../utils.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
 import {
-  type FullDepthProfilesQuery,
-  type ParticipantsQuery,
-  type SpeakersQuery,
   addImgUrls,
   enhanceChildEventsWithParticipationStatus,
   filterEvent,
@@ -57,16 +67,10 @@ import {
   getIsParticipant,
   getIsSpeaker,
   getIsTeamMember,
+  type FullDepthProfilesQuery,
+  type ParticipantsQuery,
+  type SpeakersQuery,
 } from "./utils.server";
-import { z } from "zod";
-import { parseWithZod } from "@conform-to/zod-v1";
-import { Modal as NextModal } from "~/routes/__components";
-import {
-  createEventAbuseReport,
-  sendNewReportMailToSupport,
-} from "~/abuse-reporting.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { redirectWithAlert } from "~/alert.server";
 
 export function links() {
   return [
@@ -90,6 +94,8 @@ const abuseReportSchema = z.object({
   reasons: z.array(z.string()),
   otherReason: z.string().optional(),
 });
+
+type AbuseReportSchema = z.infer<typeof abuseReportSchema>;
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -241,6 +247,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     alreadyAbuseReported = openAbuseReport !== null;
   }
 
+  const abuseReportReasons =
+    await prismaClient.eventAbuseReportReasonSuggestion.findMany({
+      select: {
+        slug: true,
+        description: true,
+      },
+    });
+
   return json({
     mode,
     event: eventWithParticipationStatus,
@@ -251,6 +265,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     isTeamMember,
     abilities,
     alreadyAbuseReported,
+    abuseReportReasons,
   });
 };
 
@@ -259,6 +274,29 @@ export const action = async (args: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/index"]);
+
+  const formData = await request.formData();
+  const submission = parseWithZod(formData, {
+    schema: abuseReportSchema.superRefine((data, ctx) => {
+      if (data.reasons.length === 0 && typeof data.otherReason !== "string") {
+        ctx.addIssue({
+          path: ["reasons"],
+          code: z.ZodIssueCode.custom,
+          message: t("abuseReport.noReasons"),
+        });
+        return;
+      }
+      return { ...data };
+    }),
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
   await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
   const mode = await deriveEventMode(sessionUser, slug);
   invariantResponse(
@@ -266,8 +304,6 @@ export const action = async (args: ActionFunctionArgs) => {
     "Anon users and admins of this event cannot send a report",
     { status: 403 }
   );
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/event/index"]);
 
   const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
     select: {
@@ -287,12 +323,31 @@ export const action = async (args: ActionFunctionArgs) => {
     { status: 401 }
   );
 
-  const report = await createEventAbuseReport({
-    reporterId: sessionUser.id,
-    slug: slug,
-    reasons: ["Some test reason", "Another test reason"],
-  });
-  await sendNewReportMailToSupport(report);
+  const suggestions =
+    await prismaClient.eventAbuseReportReasonSuggestion.findMany({
+      where: {
+        slug: {
+          in: submission.value.reasons,
+        },
+      },
+    });
+
+  let reasons: string[] = [];
+  for (const suggestion of suggestions) {
+    reasons.push(suggestion.description);
+  }
+  if (typeof submission.value.otherReason === "string") {
+    reasons.push(submission.value.otherReason);
+  }
+
+  console.log({ reporterId: sessionUser.id, slug: slug, reasons: reasons });
+  // const report = await createEventAbuseReport({
+
+  //   reporterId: sessionUser.id,
+  //   slug: slug,
+  //   reasons: reasons,
+  // });
+  // await sendNewReportMailToSupport(report);
 
   return redirectWithAlert(".", {
     message: t("success.abuseReport"),
@@ -369,6 +424,7 @@ function formatDateTime(date: Date, language: string, t: TFunction) {
 
 function Index() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
 
   const navigate = useNavigate();
 
@@ -427,18 +483,15 @@ function Index() {
     [background]
   );
 
+  const [abuseReportForm, abuseReportFields] = useForm({
+    lastResult: actionData,
+  });
+
   const isHydrated = useHydrated();
 
   return (
     <>
       <section className="container md:mt-2">
-        {loaderData.abilities.abuse_report.hasAccess &&
-        loaderData.mode === "authenticated" &&
-        loaderData.alreadyAbuseReported === false ? (
-          <Form method="post">
-            <button type="submit">{t("content.report")}</button>
-          </Form>
-        ) : null}
         <div className="font-semi text-neutral-500 flex flex-wrap items-center mb-4">
           {loaderData.event.parentEvent !== null ? (
             <>
@@ -490,55 +543,103 @@ function Index() {
             <div className="w-6 h-6"></div>
           )}
         </div>
+        {loaderData.abilities.abuse_report.hasAccess &&
+          loaderData.mode === "authenticated" &&
+          loaderData.alreadyAbuseReported === false && (
+            <Form method="get">
+              <input hidden name="modal" defaultValue="true" />
+              <button type="submit">{t("content.report")}</button>
+            </Form>
+          )}
       </section>
-      {loaderData.abilities.abuse_report.hasAccess && (
-        <section className="container mt-6">
-          <Form method="get">
-            <input hidden name="modal" defaultValue="true" />
-            <button type="submit">Melden</button>
-          </Form>
+      {loaderData.abilities.abuse_report.hasAccess &&
+        loaderData.mode === "authenticated" &&
+        loaderData.alreadyAbuseReported === false && (
           <NextModal searchParam="modal">
-            <NextModal.Title>Modal title</NextModal.Title>
+            <NextModal.Title>{t("abuseReport.title")}</NextModal.Title>
             <NextModal.Section>
-              Um Deiner Meldung nachgehen zu können, benötigen wir den Grund,
-              warum Du dieses Event melden möchtest.
+              {t("abuseReport.description")}
             </NextModal.Section>
             <NextModal.Section>
-              <Form method="post" className="mv-flex mv-flex-col mv-gap-4">
-                <input hidden name="intent" value="submit-abuse-report" />
-                <label>
-                  Es handelt sich um eine Werbeveranstaltung.
-                  <input type="checkbox" name="reason" value="commercial" />
-                </label>
-                <label>
-                  Es werden unpassende Bilder gezeigt.
-                  <input
-                    type="checkbox"
-                    name="reason"
-                    value="inappropriate-images"
-                  />
-                </label>
-                <label>
-                  Es enthält diskriminierende Inhalte.
-                  <input
-                    type="checkbox"
-                    name="reason"
-                    value="discriminatory-content"
-                  />
-                </label>
-                <label>
-                  Anderer Grund
-                  <input type="text" name="other-reason" />
-                </label>
-                <button className="mv-bg-blue-500" type="submit">
-                  Melden
-                </button>
+              <Form
+                id={abuseReportForm.id}
+                onSubmit={abuseReportForm.onSubmit}
+                method="post"
+              >
+                <input
+                  hidden
+                  name="intent"
+                  defaultValue="submit-abuse-report"
+                />
+                <div className="mv-flex mv-flex-col mv-gap-6">
+                  {loaderData.abuseReportReasons.map((reason) => {
+                    return (
+                      <label key={reason.slug} className="mv-flex mv-group">
+                        <input
+                          name={abuseReportFields.reasons.name}
+                          value={reason.slug}
+                          type="checkbox"
+                          className="mv-h-0 mv-w-0 mv-opacity-0"
+                          onChange={(event) => {
+                            event.stopPropagation();
+                          }}
+                        />
+                        <div className="mv-w-5 mv-h-5 mv-relative mv-mr-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            fill="none"
+                            viewBox="0 0 20 20"
+                            className="mv-block group-has-[:checked]:mv-hidden"
+                          >
+                            <path
+                              fill="currentColor"
+                              d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
+                            />
+                          </svg>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            fill="none"
+                            viewBox="0 0 20 20"
+                            className="mv-hidden group-has-[:checked]:mv-block"
+                          >
+                            <path
+                              fill="currentColor"
+                              d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
+                            />
+                            <path
+                              fill="currentColor"
+                              d="M13.712 6.212a.937.937 0 0 1 1.34 1.312l-4.991 6.238a.938.938 0 0 1-1.349.026L5.404 10.48A.938.938 0 0 1 6.73 9.154l2.617 2.617 4.34-5.53a.3.3 0 0 1 .025-.029Z"
+                            />
+                          </svg>
+                        </div>
+                        <span>{reason.description}</span>
+                      </label>
+                    );
+                  })}
+                  <Input
+                    name={abuseReportFields.otherReason.name}
+                    maxLength={250}
+                  >
+                    <Input.Label>{t("abuseReport.otherReason")}</Input.Label>
+                  </Input>
+                  {abuseReportFields.reasons.errors && (
+                    <span>{abuseReportFields.reasons.errors}</span>
+                  )}
+                </div>
               </Form>
             </NextModal.Section>
-            <NextModal.CloseButton>Abbrechen</NextModal.CloseButton>
+            <NextModal.SubmitButton form={abuseReportForm.id}>
+              {t("abuseReport.submit")}
+            </NextModal.SubmitButton>
+            <NextModal.CloseButton>
+              {t("abuseReport.abort")}
+            </NextModal.CloseButton>
           </NextModal>
-        </section>
-      )}
+        )}
       <section className="container mt-6">
         <div className="md:rounded-3xl overflow-hidden w-full relative">
           <div className="hidden md:block">
