@@ -71,6 +71,10 @@ import {
   type ParticipantsQuery,
   type SpeakersQuery,
 } from "./utils.server";
+import {
+  createEventAbuseReport,
+  sendNewReportMailToSupport,
+} from "~/abuse-reporting.server";
 
 export function links() {
   return [
@@ -340,14 +344,12 @@ export const action = async (args: ActionFunctionArgs) => {
     reasons.push(submission.value.otherReason);
   }
 
-  console.log({ reporterId: sessionUser.id, slug: slug, reasons: reasons });
-  // const report = await createEventAbuseReport({
-
-  //   reporterId: sessionUser.id,
-  //   slug: slug,
-  //   reasons: reasons,
-  // });
-  // await sendNewReportMailToSupport(report);
+  const report = await createEventAbuseReport({
+    reporterId: sessionUser.id,
+    slug: slug,
+    reasons: reasons,
+  });
+  await sendNewReportMailToSupport(report);
 
   return redirectWithAlert(".", {
     message: t("success.abuseReport"),
