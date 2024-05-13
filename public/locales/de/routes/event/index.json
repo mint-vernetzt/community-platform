@@ -4,7 +4,7 @@
     "notPublished": "Event not published"
   },
   "success": {
-    "abuseReport": "Die Meldung ist erfolgreich bei uns eingegangen."
+    "abuseReport": "Die Meldung der Veranstaltung wurde verschickt."
   },
   "content": {
     "report": "Veranstaltung melden",
@@ -61,5 +61,13 @@
       "eventContext": "Diese Veranstaltungen finden im Rahmen von \"{{name}}\" statt.",
       "team": "Team"
     }
+  },
+  "abuseReport": {
+      "title": "Warum möchstest du dieses Event melden?",
+      "description": "Um Deiner Meldung nachgehen zu  können, benötigen wir den Grund, warum Du dieses Event melden möchtest.",
+      "otherReason": "Anderer Grund",
+      "noReasons": "Bitte gib mindestens einen Grund an.",
+      "submit": "Event melden",
+      "abort": "Abbrechen"
   }
 }
