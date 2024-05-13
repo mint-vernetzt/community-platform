@@ -1,7 +1,5 @@
 import {
   Alert,
-  Avatar,
-  Button,
   CircleButton,
   Footer,
   Link as StyledLink,
@@ -46,6 +44,7 @@ import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders } from "./utils.server";
+import { NextNavBar } from "./routes/__components";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -142,7 +141,7 @@ export const handle = {
   ],
 };
 
-function HeaderLogo() {
+export function HeaderLogo() {
   const { t } = useTranslation(["meta"]);
   return (
     <div className="flex flex-row items-center">
@@ -175,115 +174,6 @@ function HeaderLogo() {
         {t("root.community")}
       </span>
     </div>
-  );
-}
-
-// TODO: outsource in __components.tsx
-type NextNavBarProps = {
-  sessionUserInfo?: NextSessionUserInfo;
-  abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
-};
-
-type NextSessionUserInfo = {
-  username: string;
-  firstName: string;
-  lastName: string;
-  avatar?: string;
-};
-
-function NextNavBar(props: NextNavBarProps) {
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get("query");
-
-  const matches = useMatches();
-  let isSettings = false;
-  if (matches[1] !== undefined) {
-    isSettings = matches[1].id === "routes/project/$slug/settings";
-  }
-
-  const classes = classNames("shadow-md mb-8", isSettings && "hidden md:block");
-
-  const { t } = useTranslation(["meta"]);
-
-  return (
-    <header id="header" className={classes}>
-      <div className="mv-flex mv-items-center mv-mr-4 lg:mv-mr-8 mv-my-4">
-        <Link
-          to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
-          className={`lg:mv-w-72 mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 ${
-            props.sessionUserInfo !== undefined ? "mv-hidden lg:mv-block" : ""
-          }`}
-        >
-          <HeaderLogo />
-        </Link>
-        {props.sessionUserInfo !== undefined && (
-          <div
-            className={`${
-              props.sessionUserInfo !== undefined
-                ? "mv-mx-4 mv-block lg:mv-hidden"
-                : ""
-            }`}
-          >
-            <Avatar
-              size="sm"
-              firstName={props.sessionUserInfo.firstName}
-              lastName={props.sessionUserInfo.lastName}
-              avatar={props.sessionUserInfo.avatar}
-              to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
-            />
-          </div>
-        )}
-
-        <div className="mv-flex mv-gap-2 lg:mv-gap-4 mv-flex-grow mv-items-center">
-          <Form className="mv-flex-grow" method="get" action="/search">
-            <Search
-              placeholder={t("root.search.placeholder")}
-              name="query"
-              query={query}
-            />
-          </Form>
-          <label
-            id="navbarmenu-label"
-            className="mv-flex-shrink mv-block lg:mv-hidden"
-          >
-            Menü
-          </label>
-
-          {/* TODO: implement new avatar (see figma) */}
-          {props.sessionUserInfo !== undefined ? (
-            <div className="mv-flex-col mv-items-center mv-hidden lg:mv-flex">
-              <Avatar
-                size="xs"
-                firstName={props.sessionUserInfo.firstName}
-                lastName={props.sessionUserInfo.lastName}
-                avatar={props.sessionUserInfo.avatar}
-                to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
-              />
-
-              <div className="mv-text-sm mv-font-semibold mv-text-primary mv-cursor-default">
-                {props.sessionUserInfo.firstName}{" "}
-                {props.sessionUserInfo.lastName}
-              </div>
-            </div>
-          ) : (
-            <div className="mv-gap-4 mv-items-center mv-hidden lg:mv-flex">
-              <div>
-                <Link to="/login">
-                  <Button variant="ghost">
-                    <span className="mv-underline">{t("root.login")}</span>
-                  </Button>
-                </Link>
-              </div>
-              <div>
-                <Link to="/register">
-                  <Button>{t("root.register")}</Button>
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </header>
   );
 }
 
