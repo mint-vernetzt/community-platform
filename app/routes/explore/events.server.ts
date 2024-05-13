@@ -37,7 +37,12 @@ function getWhereStatementFromPeriodOfTime(
   }
   if (periodOfTime === "thisWeek" || periodOfTime === "nextWeek") {
     const currentDay = now.getDay();
-    const daysUntilMonday = (8 - currentDay) % 7;
+    let daysUntilMonday = (8 - currentDay) % 7;
+
+    if (daysUntilMonday === 0) {
+      daysUntilMonday = 7;
+    }
+
     const nextMonday = new Date(
       now.getTime() + daysUntilMonday * 24 * 60 * 60 * 1000
     );
