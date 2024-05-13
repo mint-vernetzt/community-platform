@@ -44,7 +44,7 @@ import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders } from "./utils.server";
-import { NextNavBar } from "./routes/__components";
+import { NavBarMenu, NextNavBar } from "./routes/__components";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -558,7 +558,7 @@ export default function App() {
 
   React.useEffect(() => {
     initializeSentry({ baseUrl: env.baseUrl, dsn: env.sentryDsn });
-  }, []);
+  }, [env.baseUrl, env.sentryDsn]);
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
@@ -590,11 +590,15 @@ export default function App() {
   const [searchParams] = useSearchParams();
   const modal = searchParams.get("modal");
   const showFilters = searchParams.get("showFilters");
+  const navBarMenuIsOpen = searchParams.get("navbarmenu");
 
   const bodyClasses = classNames(
     modal !== null && modal !== "false" && "overflow-hidden",
     showFilters !== null &&
       showFilters !== "false" &&
+      "overflow-hidden lg:overflow-auto",
+    navBarMenuIsOpen !== null &&
+      navBarMenuIsOpen !== "false" &&
       "overflow-hidden lg:overflow-auto"
   );
 
@@ -699,15 +703,11 @@ export default function App() {
           ) : null}
 
           {/* TODO: Navbar Menu */}
-          {/* <div className="@container"> */}
           <div className="mv-flex">
             {abilities.next_navbar.hasAccess ? (
-              <div
-                id="navbarmenu"
-                className="mv-w-72 mv-min-w-72 mv-h-screen mv-bg-yellow-300 -mv-mt-8 mv-hidden lg:mv-block mv-sticky mv-top-0"
-              >
+              <NavBarMenu>
                 <div className="mv-m-4">Test content</div>
-              </div>
+              </NavBarMenu>
             ) : null}
             <div className="mv-flex-grow mv-@container">
               {isNonAppBaseRoute ? (

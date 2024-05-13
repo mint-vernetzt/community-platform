@@ -1,5 +1,6 @@
 import { Avatar, Button } from "@mint-vernetzt/components";
 import { Form, Link, useMatches, useSearchParams } from "@remix-run/react";
+import { type RemixLinkProps } from "@remix-run/react/dist/components";
 import classNames from "classnames";
 import React from "react";
 import { type CountUpProps, useCountUp } from "react-countup";
@@ -33,6 +34,7 @@ type NextSessionUserInfo = {
 function NextNavBar(props: NextNavBarProps) {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
+  const navBarMenuIsOpen = searchParams.get("navbarmenu");
 
   const matches = useMatches();
   let isSettings = false;
@@ -40,7 +42,13 @@ function NextNavBar(props: NextNavBarProps) {
     isSettings = matches[1].id === "routes/project/$slug/settings";
   }
 
-  const classes = classNames("shadow-md mb-8", isSettings && "hidden md:block");
+  const classes = classNames(
+    "shadow-md mb-8",
+    isSettings && "hidden md:block",
+    navBarMenuIsOpen !== null &&
+      navBarMenuIsOpen !== "false" &&
+      "hidden lg:block"
+  );
 
   const { t } = useTranslation(["meta"]);
 
@@ -82,12 +90,9 @@ function NextNavBar(props: NextNavBarProps) {
             />
           </Form>
           {/* TODO: Implement menu opener */}
-          <label
-            id="navbarmenu-label"
-            className="mv-flex-shrink mv-block lg:mv-hidden"
-          >
+          <NavBarMenu.Opener className="mv-flex-shrink mv-block lg:mv-hidden">
             Menü
-          </label>
+          </NavBarMenu.Opener>
 
           {props.sessionUserInfo !== undefined ? (
             <div className="mv-flex-col mv-items-center mv-hidden lg:mv-flex">
@@ -126,4 +131,44 @@ function NextNavBar(props: NextNavBarProps) {
   );
 }
 
-export { CountUp, NextNavBar };
+function NavBarMenu(props: React.PropsWithChildren) {
+  const [searchParams] = useSearchParams();
+  const isOpen = searchParams.get("navbarmenu");
+
+  return (
+    <div
+      id="navbarmenu"
+      className={`${
+        isOpen !== null && isOpen !== "false"
+          ? "mv-block mv-mr-20 lg:mv-mr-0"
+          : "mv-hidden lg:mv-block"
+      } mv-w-full mv-min-w-full lg:mv-w-72 lg:mv-min-w-72 mv-h-screen mv-bg-yellow-300 lg:-mv-mt-8 mv-sticky mv-top-0`}
+    >
+      {props.children}
+    </div>
+  );
+}
+
+function Opener(
+  props: React.PropsWithChildren & Pick<RemixLinkProps, "className">
+) {
+  const { children, className } = props;
+  const [searchParams] = useSearchParams();
+  if (!searchParams.has("navbarmenu")) {
+    searchParams.append("navbarmenu", "");
+  }
+
+  if (children === undefined || children === null) {
+    throw new Error("The NavBarMenu.Opener component must have children");
+  }
+
+  return (
+    <Link className={className} to={`?${searchParams.toString()}`}>
+      {children}
+    </Link>
+  );
+}
+
+NavBarMenu.Opener = Opener;
+
+export { CountUp, NextNavBar, NavBarMenu };
