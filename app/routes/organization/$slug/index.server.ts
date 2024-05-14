@@ -31,6 +31,8 @@ export async function getOrganizationBySlug(slug: string) {
       instagram: true,
       xing: true,
       twitter: true,
+      mastodon: true,
+      tiktok: true,
       street: true,
       streetNumber: true,
       zipCode: true,

@@ -41,6 +41,7 @@ import {
   splitEventsIntoFutureAndPast,
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
+import { Mastodon, TikTok } from "~/routes/project/$slug/detail/__components";
 
 const i18nNS = ["routes/organization/index"];
 export const handle = {
@@ -163,6 +164,8 @@ const ExternalServices: ExternalService[] = [
   "youtube",
   "instagram",
   "xing",
+  "mastodon",
+  "tiktok",
 ];
 
 function hasWebsiteOrSocialService(
@@ -394,6 +397,23 @@ export default function Index() {
                         typeof loaderData.organization[service] === "string" &&
                         loaderData.organization[service] !== ""
                       ) {
+                        if (service === "mastodon" || service === "tiktok") {
+                          return (
+                            <li key={service} className="flex-auto px-1 mb-2">
+                              <a
+                                href={
+                                  loaderData.organization[service] as string
+                                }
+                                target="__blank"
+                                rel="noopener noreferrer"
+                                className="mv-flex-1 mv-flex mv-bg-neutral-100 mv-items-center mv-justify-center mv-px-4 mv-py-2.5 mv-rounded-lg mv-text-neutral-700"
+                              >
+                                {service === "mastodon" && <Mastodon />}
+                                {service === "tiktok" && <TikTok />}
+                              </a>
+                            </li>
+                          );
+                        }
                         return (
                           <li key={service} className="flex-auto px-1 mb-2">
                             <ExternalServiceIcon
