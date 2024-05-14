@@ -684,7 +684,7 @@ export default function App() {
 
       <body className={bodyClasses}>
         <div id="top" className="flex flex-col min-h-screen">
-          {abilities.next_navbar.hasAccess && isNonAppBaseRoute === false ? (
+          {abilities.next_navbar.hasAccess ? (
             <NextNavBar
               sessionUserInfo={nextSessionUserInfo}
               abilities={abilities}
