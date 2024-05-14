@@ -152,7 +152,7 @@ export function HeaderLogo() {
         viewBox="0 0 56 56"
         aria-describedby="mint-title-header"
         role="img"
-        className="w-10 h-10 md:w-auto md:h-auto"
+        className="w-10 h-10 lg:w-auto lg:h-auto"
       >
         <title id="mint-title-header">{t("root.logo")}</title>
         <g fill="none">
@@ -170,7 +170,7 @@ export function HeaderLogo() {
           />
         </g>
       </svg>
-      <span className="hidden md:block font-bold text-primary ml-2">
+      <span className="hidden lg:block font-bold text-primary ml-2">
         {t("root.community")}
       </span>
     </div>
@@ -706,6 +706,7 @@ export default function App() {
           <div className="mv-flex">
             {abilities.next_navbar.hasAccess ? (
               <NavBarMenu>
+                <NavBarMenu.Closer />
                 <div className="mv-m-4">Test content</div>
               </NavBarMenu>
             ) : null}

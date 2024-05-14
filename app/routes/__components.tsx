@@ -1,9 +1,8 @@
 import { Avatar, Button } from "@mint-vernetzt/components";
 import { Form, Link, useMatches, useSearchParams } from "@remix-run/react";
-import { type RemixLinkProps } from "@remix-run/react/dist/components";
 import classNames from "classnames";
 import React from "react";
-import { type CountUpProps, useCountUp } from "react-countup";
+import { useCountUp, type CountUpProps } from "react-countup";
 import { useTranslation } from "react-i18next";
 import Search from "~/components/Search/Search";
 import { type getFeatureAbilities } from "~/lib/utils/application";
@@ -89,10 +88,11 @@ function NextNavBar(props: NextNavBarProps) {
               query={query}
             />
           </Form>
-          {/* TODO: Implement menu opener */}
-          <NavBarMenu.Opener className="mv-flex-shrink mv-block lg:mv-hidden">
-            Menü
-          </NavBarMenu.Opener>
+          {/* TODO: Implement menu opener icon */}
+          {/* Use a div to style the opener */}
+          <div className="mv-flex-shrink mv-block lg:mv-hidden">
+            <NavBarMenu.Opener />
+          </div>
 
           {props.sessionUserInfo !== undefined ? (
             <div className="mv-flex-col mv-items-center mv-hidden lg:mv-flex">
@@ -135,6 +135,15 @@ function NavBarMenu(props: React.PropsWithChildren) {
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get("navbarmenu");
 
+  const children = React.Children.toArray(props.children);
+  const closerIndex = children.findIndex((child) => {
+    return React.isValidElement(child) && child.type === NavBarMenu.Closer;
+  });
+  const closer = children.splice(closerIndex, 1);
+  if (closer === undefined) {
+    throw new Error("NavBarMenu must contain a Closer component");
+  }
+
   return (
     <div
       id="navbarmenu"
@@ -144,31 +153,38 @@ function NavBarMenu(props: React.PropsWithChildren) {
           : "mv-hidden lg:mv-block"
       } mv-w-full mv-min-w-full lg:mv-w-72 lg:mv-min-w-72 mv-h-screen mv-bg-yellow-300 lg:-mv-mt-8 mv-sticky mv-top-0`}
     >
-      {props.children}
+      <div className="lg:mv-hidden mv-flex mv-w-full mv-justify-end mv-items-center mv-h-[76px] mv-px-10 mv-bg-blue-300">
+        {closer}
+      </div>
+
+      {children}
     </div>
   );
 }
 
-function Opener(
-  props: React.PropsWithChildren & Pick<RemixLinkProps, "className">
-) {
-  const { children, className } = props;
+function Opener() {
   const [searchParams] = useSearchParams();
   if (!searchParams.has("navbarmenu")) {
     searchParams.append("navbarmenu", "");
   }
 
-  if (children === undefined || children === null) {
-    throw new Error("The NavBarMenu.Opener component must have children");
-  }
+  return (
+    // TODO: Implement menu opener icon
+    <Link to={`?${searchParams.toString()}`}>Menü</Link>
+  );
+}
+
+function Closer() {
+  const [searchParams] = useSearchParams();
+  searchParams.delete("navbarmenu");
 
   return (
-    <Link className={className} to={`?${searchParams.toString()}`}>
-      {children}
-    </Link>
+    // TODO: Implement menu closer icon
+    <Link to={`?${searchParams.toString()}`}>X</Link>
   );
 }
 
 NavBarMenu.Opener = Opener;
+NavBarMenu.Closer = Closer;
 
-export { CountUp, NextNavBar, NavBarMenu };
+export { CountUp, NavBarMenu, NextNavBar };
