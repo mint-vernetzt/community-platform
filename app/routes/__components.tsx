@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import Search from "~/components/Search/Search";
 import { type getFeatureAbilities } from "~/lib/utils/application";
 import { HeaderLogo } from "~/root";
+import { type Mode } from "~/utils.server";
 
 function CountUp(props: CountUpProps) {
   const ref = React.useRef(null);
@@ -42,18 +43,18 @@ function NextNavBar(props: NextNavBarProps) {
   }
 
   const classes = classNames(
-    "shadow-md mb-8",
-    isSettings && "hidden md:block",
+    "mv-shadow-md mv-mb-8 mv-sticky mv-top-0 mv-h-[76px] lg:mv-h-20 mv-z-10 mv-bg-white",
+    isSettings && "mv-hidden md:mv-block",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
-      "hidden lg:block"
+      "mv-hidden lg:mv-block"
   );
 
   const { t } = useTranslation(["meta"]);
 
   return (
     <header id="header" className={classes}>
-      <div className="mv-flex mv-items-center mv-mr-4 lg:mv-mr-8 mv-my-4">
+      <div className="mv-flex mv-h-full mv-items-center mv-mr-4 lg:mv-mr-8">
         <Link
           to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
           className={`lg:mv-w-72 mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 ${
@@ -131,7 +132,7 @@ function NextNavBar(props: NextNavBarProps) {
   );
 }
 
-function NavBarMenu(props: React.PropsWithChildren) {
+function NavBarMenu(props: React.PropsWithChildren & { mode: Mode }) {
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get("navbarmenu");
 
@@ -151,9 +152,15 @@ function NavBarMenu(props: React.PropsWithChildren) {
         isOpen !== null && isOpen !== "false"
           ? "mv-block mv-mr-20 lg:mv-mr-0"
           : "mv-hidden lg:mv-block"
-      } mv-w-full mv-min-w-full lg:mv-w-72 lg:mv-min-w-72 mv-h-screen mv-bg-yellow-300 lg:-mv-mt-8 mv-sticky mv-top-0`}
+      } mv-w-full mv-min-w-full lg:mv-w-72 lg:mv-min-w-72 mv-h-screen mv-absolute mv-sticky mv-top-0 lg:-mv-mt-28 mv-bg-yellow-300 mv-z-10`}
     >
-      <div className="lg:mv-hidden mv-flex mv-w-full mv-justify-end mv-items-center mv-h-[76px] mv-px-10 mv-bg-blue-300">
+      <Link
+        to={props.mode !== "anon" ? "/dashboard" : "/"}
+        className="lg:mv-py-2.5 lg:mv-w-full mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 mv-hidden lg:mv-block"
+      >
+        <HeaderLogo />
+      </Link>
+      <div className="lg:mv-hidden mv-flex mv-w-full mv-justify-end mv-items-center mv-h-[76px] mv-px-11 mv-bg-blue-300">
         {closer}
       </div>
 

@@ -3,6 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useActionData,
+  useLoaderData,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
@@ -23,6 +24,7 @@ import { Trans, useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/register/index"];
 export const handle = {
@@ -58,8 +60,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (sessionUser !== null) {
     return redirect("/dashboard");
   }
+  const abilities = await getFeatureAbilities(authClient, "next_navbar");
 
-  return null;
+  return { abilities };
 };
 
 const createMutation = (t: TFunction) => {
@@ -123,6 +126,7 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 export default function Register() {
+  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
@@ -145,24 +149,26 @@ export default function Register() {
     <>
       <PageBackground imagePath="/images/login_background_image.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
-        <div className="flex flex-row -mx-4 justify-end">
-          <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
-            <div>
-              <HeaderLogo />
-            </div>
-            <div className="ml-auto">
-              {t("content.question")}{" "}
-              <Link
-                to={`/login${
-                  loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                }`}
-                className="text-primary font-bold"
-              >
-                {t("content.login")}
-              </Link>
+        {loaderData.abilities.next_navbar.hasAccess === false ? (
+          <div className="flex flex-row -mx-4 justify-end">
+            <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
+              <div>
+                <HeaderLogo />
+              </div>
+              <div className="ml-auto">
+                {t("content.question")}{" "}
+                <Link
+                  to={`/login${
+                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                  }`}
+                  className="text-primary font-bold"
+                >
+                  {t("content.login")}
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
         <div className="flex flex-col md:flex-row -mx-4">
           <div className="basis-full md:basis-6/12 px-4"></div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">

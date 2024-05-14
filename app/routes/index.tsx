@@ -1,4 +1,4 @@
-import { Button, Roadmap } from "@mint-vernetzt/components";
+import { Button, Footer, Roadmap } from "@mint-vernetzt/components";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -61,7 +61,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/dashboard");
   }
 
-  const abilities = await getFeatureAbilities(authClient, ["keycloak"]);
+  const abilities = await getFeatureAbilities(authClient, [
+    "keycloak",
+    "next_navbar",
+  ]);
 
   const profileCount = await getProfileCount();
   const organizationCount = await getOrganizationCount();
@@ -544,6 +547,11 @@ export default function Index() {
           </div>
         </div>
       </section>
+      {loaderData.abilities.next_navbar.hasAccess ? (
+        // TODO: Remove isProjectSettings prop when feature access is removed.
+        // The Footer is then only displayed on the landing page and does not conflict the project settings menu anymore.
+        <Footer />
+      ) : null}
     </>
   );
 }

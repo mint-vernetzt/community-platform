@@ -1,11 +1,22 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useActionData, useSearchParams } from "@remix-run/react";
+import {
+  Link,
+  useActionData,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
 import {
   createAdminAuthClient,
   createAuthClient,
@@ -14,11 +25,6 @@ import {
 } from "../../auth.server";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { Trans, useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const i18nNS = ["routes/reset/index"];
 export const handle = {
@@ -50,7 +56,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/dashboard");
   }
 
-  return null;
+  const abilities = await getFeatureAbilities(authClient, "next_navbar");
+
+  return { abilities };
 };
 
 const createMutation = (t: TFunction) => {
@@ -121,6 +129,7 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 export default function Index() {
+  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
@@ -132,23 +141,25 @@ export default function Index() {
     <>
       <PageBackground imagePath="/images/login_background_image.jpg" />
       <div className="md:container md:mx-auto px-4 relative z-10">
-        <div className="flex flex-row -mx-4 justify-end">
-          <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
-            <div>
-              <HeaderLogo />
-            </div>
-            <div className="ml-auto">
-              <Link
-                to={`/login${
-                  loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                }`}
-                className="text-primary font-bold"
-              >
-                {t("login")}
-              </Link>
+        {loaderData.abilities.next_navbar.hasAccess === false ? (
+          <div className="flex flex-row -mx-4 justify-end">
+            <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
+              <div>
+                <HeaderLogo />
+              </div>
+              <div className="ml-auto">
+                <Link
+                  to={`/login${
+                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                  }`}
+                  className="text-primary font-bold"
+                >
+                  {t("login")}
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
         <div className="flex flex-col md:flex-row -mx-4">
           <div className="basis-full md:basis-6/12"></div>
           <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
@@ -158,11 +169,8 @@ export default function Index() {
             actionData.data !== undefined ? (
               <>
                 <p className="mb-4">
-                  <Trans
-                    ns={i18nNS}
-                    i18nKey="response.done"
-                    values={{ email: actionData.data.email }}
-                  ></Trans>
+                  {t("response.done.prefix")} {actionData.data.email}{" "}
+                  {t("response.done.suffix")}
                 </p>
                 <p className="mb-4">{t("response.notice")}</p>
               </>

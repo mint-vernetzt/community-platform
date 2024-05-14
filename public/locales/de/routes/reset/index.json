@@ -8,7 +8,10 @@
   },
   "response": {
     "headline": "Passwort zurücksetzen",
-    "done": "Eine E-Mail zum Zurücksetzen des Passworts wurde an <p>{email}</p> geschickt.",
+    "done": {
+      "prefix": "Eine E-Mail zum Zurücksetzen des Passworts wurde an",
+      "suffix": "geschickt."
+    },
     "notice": "Solltest Du Dich noch nicht unter dieser E-Mail-Adresse registriert haben, erhältst Du keine E-Mail zum Zurücksetzen des Passworts."
   },
   "form": {

@@ -43,7 +43,7 @@ import { detectLanguage, getProfileByUserId } from "./root.server";
 import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
-import { combineHeaders } from "./utils.server";
+import { combineHeaders, deriveMode } from "./utils.server";
 import { NavBarMenu, NextNavBar } from "./routes/__components";
 
 // import newStyles from "../common/design/styles/styles.css";
@@ -108,6 +108,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { alert, headers: alertHeaders } = await getAlert(request);
 
+  const mode = deriveMode(user);
+
   const env = {
     baseUrl: process.env.COMMUNITY_BASE_URL,
     sentryDsn: process.env.SENTRY_DSN,
@@ -123,6 +125,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       alert,
       locale,
       env,
+      mode,
     },
     { headers: combineHeaders(headers, alertHeaders) }
   );
@@ -554,6 +557,7 @@ export default function App() {
     alert,
     locale,
     env,
+    mode,
   } = useLoaderData<typeof loader>();
 
   React.useEffect(() => {
@@ -705,7 +709,7 @@ export default function App() {
           {/* TODO: Navbar Menu */}
           <div className="mv-flex">
             {abilities.next_navbar.hasAccess ? (
-              <NavBarMenu>
+              <NavBarMenu mode={mode}>
                 <NavBarMenu.Closer />
                 <div className="mv-m-4">Test content</div>
               </NavBarMenu>
@@ -721,7 +725,9 @@ export default function App() {
               )}
             </div>
           </div>
-          <Footer isSettings={isProjectSettings} />
+          {abilities.next_navbar.hasAccess === false ? (
+            <Footer isSettings={isProjectSettings} />
+          ) : null}
         </div>
 
         <ScrollRestoration />
