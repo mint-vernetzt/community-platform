@@ -11,60 +11,68 @@
         "description": "You can use the networking function to network with other actors or organizations and collect your contacts in lists."
       },
       "secondCard": {
-        "title": "Matching function",
-        "description": "Suitable projects, organizations and actors are suggested to you via an algorithm."
-      },
-      "thirdCard": {
         "title": "Interaction",
         "description": "You can react to existing content such as projects or posts via interactions (such as liking or commenting)."
       },
-      "fourthCard": {
+      "thirdCard": {
         "title": "Create own events",
         "description": "As a STEM actor, you can create your own events and manage the participants."
       },
-      "fifthCard": {
+      "fourthCard": {
         "title": "Add yourself to organizations",
         "description": "You can add yourself to an organization and no longer have to have a team member add you."
       },
-      "sixthCard": {
+      "fifthCard": {
         "title": "MINT-Campus connection",
         "description": "See who is creating courses, which courses are being taken by others and show which courses you have completed."
+      },
+      "sixthCard": {
+        "title": "STEM sharepic and image database",
+        "description": "The Sharepic Generator helps you quickly and easily create graphics for e.g. your social media posts. You can find STEM images in the image database (DAM)."
       }
     },
     "secondColumn": {
       "title": "In development",
       "firstCard": {
-        "title": "Filter function",
-        "description": "You can use the filter to search for specific criteria within the overview pages of profiles, organizations, events or projects."
-      },
-      "secondCard": {
         "title": "Dashboard",
         "description": "After logging in, you can use the dashboard to clearly see all the platform's functions at a glance and be informed about news."
+      },
+      "secondCard": {
+        "title": "Matching function",
+        "description": "Suitable projects, organizations and actors are suggested to you via an algorithm."
+      },
+      "thirdCard": {
+        "title": "Funding tool",
+        "description": "With the help of a crawler, STEM funding is compiled and displayed for you on the platform."
       }
     },
     "thirdColumn": {
       "title": "Already implemented",
       "firstCard": {
-        "title": "Language setting: English",
-        "description": "With the expanded language settings, we enable a larger group of actors to use the community platform well."
+        "title": "Filter function",
+        "description": "You can use the filter to search for specific criteria within the overview pages of profiles, organizations, events or projects."
       },
       "secondCard": {
-        "title": "Profile & organization profile",
-        "description": "You introduce yourself to the STEM community using your profile and by creating your organization with its team members."
+        "title": "Language setting: English",
+        "description": "With the expanded language settings, we enable a larger group of actors to use the community platform well."
       },
       "thirdCard": {
         "title": "Eventmanagement",
         "description": "Browse for suitable MINTvernetzt events, register and see who has also registered for the event."
       },
       "fourthCard": {
+        "title": "Profile & organization profile",
+        "description": "You introduce yourself to the STEM community using your profile and by creating your organization with its team members."
+      },
+      "fifthCard": {
         "title": "Search",
         "description": "You can use the search function to search for profiles, organizations, events, projects and keywords."
       },
-      "fifthCard": {
+      "sixthCard": {
         "title": "MINT-ID",
         "description": "In order to be able to easily switch between the two offers MINTvernetzt and MINT-Campus, there is the MINT-ID, with which you can use both platforms (single sign-in)."
       },
-      "sixthCard": {
+      "seventhCard": {
         "title": "Landing page",
         "description": "The landing page informs new members about the content and usage figures of the community platform."
       }

@@ -11,60 +11,68 @@
       "description": "Per Vernetzungsfunktion kannst Du Dich mit anderen Akteur:innen oder Organisationen vernetzen und Deine Kontakte in Listen zusammenstellen."
     },
     "secondCard": {
-      "title": "Matching-Funktion",
-      "description": "Über einen Algorithmus werden Dir passende Projekte, Organisationen und Akteur:innen vorgeschlagen."
-    },
-    "thirdCard": {
       "title": "Interaktion",
       "description": "Über Interaktionen (wie liken oder kommentieren) kannst Du auf bestehende Inhalte wie z.B. Projekte oder Beiträge reagieren."
     },
-    "fourthCard": {
+    "thirdCard": {
       "title": "Eigene Events anlegen",
       "description": "Du kannst als MINT-Akteur:in eigene Events anlegen und die Teilnehmenden verwalten."
     },
-    "fifthCard": {
+    "fourthCard": {
       "title": "Sich selbst zu Organisationen hinzufügen",
       "description": "Du kannst Dich selbst einer Organisation hinzufügen und musst Dich nicht mehr von einem Teammitglied hinzufügen lassen."
     },
-    "sixthCard": {
+    "fifthCard": {
       "title": "MINT-Campus Anbindung",
       "description": "Sieh wer Kurse erstellt, welche Kurse von anderen belegt werden und zeige, welche Kurse Du absolviert hast."
+    },
+    "sixthCard": {
+      "title": "MINT-Sharepic und -Bilddatenbank",
+      "description": "Der Sharepic Generator hilft Euch schnell und einfach Grafiken für z.B. Eure Social Media Posts zu erstellen. MINT-Bilder findet Ihr in der Bilddatenbank (DAM)."
     }
   },
   "secondColumn": {
     "title": "In der Entwicklung",
     "firstCard": {
-      "title": "Filter-Funktion",
-      "description": "Mit dem Filter kannst Du innerhalb der Übersichtseiten der Profile, Organisationen, Events oder Projekte nach bestimmten Kriterien durchsuchen."
-    },
-    "secondCard": {
       "title": "Dashboard",
       "description": "Über das Dashboard siehst du nach dem Einloggen übersichtlich alle Funktionen der Plattform auf einen Blick und wirst über Neuigkeiten informiert."
+    },
+    "secondCard": {
+      "title": "Matching-Funktion",
+      "description": "Über einen Algorithmus werden Dir passende Projekte, Organisationen und Akteur:innen vorgeschlagen."
+    },
+    "thirdCard": {
+      "title": "Förder-Tool",
+      "description": "Mit Hilfe eines Crawlers werden MINT-Förderungen zusammengetragen und für Euch in der Plattform ausgespielt."
     }
   },
   "thirdColumn": {
     "title": "Bereits umgesetzt",
     "firstCard": {
-      "title": "Spracheinstellung: Englisch",
-      "description": "Mit der erweiterten Spracheinstellung ermöglichen wir einem größeren Akteur:innen-Kreis die Community Plattform gut zu nutzen."
+      "title": "Filter-Funktion",
+      "description": "Mit dem Filter kannst Du innerhalb der Übersichtseiten der Profile, Organisationen, Events oder Projekte nach bestimmten Kriterien durchsuchen."
     },
     "secondCard": {
-      "title": "Profil & Organisationsprofil",
-      "description": "Du stellst Dich mithilfe Deines Profils der MINT-Community vor und legst Deine Organisation mit Teammitgliedern an."
+      "title": "Spracheinstellung: Englisch",
+      "description": "Mit der erweiterten Spracheinstellung ermöglichen wir einem größeren Akteur:innen-Kreis die Community Plattform gut zu nutzen."
     },
     "thirdCard": {
       "title": "Eventmanagement",
       "description": "Stöbere nach passenden MINTvernetzt-Events, melde Dich an und schau, wer sich auch für das Event angemeldet hat."
     },
     "fourthCard": {
+      "title": "Profil & Organisationsprofil",
+      "description": "Du stellst Dich mithilfe Deines Profils der MINT-Community vor und legst Deine Organisation mit Teammitgliedern an."
+    },
+    "fifthCard": {
       "title": "Suche",
       "description": "Über die Suchfunktion kannst Du nach Profilen, Organisationen, Events, Projekten und nach Stichwörtern suchen."
     },
-    "fifthCard": {
+    "sixthCard": {
       "title": "MINT-ID",
       "description": "Um bequem zwischen den beiden Angeboten MINTvernetzt und MINT-Campus wechseln zu können, gibt es die MINT-ID, mit der man beide Plattformen nutzen kann (Single-Sign-in)."
     },
-    "sixthCard": {
+    "seventhCard": {
       "title": "Startseite",
       "description": "Die Startseite informiert neue Mitglieder über Inhalte und Nutzungszahlen der Community-Plattform."
     }
