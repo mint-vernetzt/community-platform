@@ -31,7 +31,7 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { GravityType, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import {
@@ -206,11 +206,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedEvent.background);
       if (publicURL) {
         enhancedEvent.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 348, height: 160 },
+          resize: { type: "fill", width: 594, height: 396 },
         });
       }
       blurredBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 87, height: 40 },
+        resize: { type: "fill", width: 18, height: 12 },
         blur: 5,
       });
     } else {
@@ -225,7 +225,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 36, height: 36 },
+              resize: { type: "fill", width: 64, height: 64 },
+              gravity: GravityType.center,
             });
           }
         }
