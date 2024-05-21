@@ -712,6 +712,8 @@ export default function App() {
               <NavBarMenu mode={mode}>
                 <NavBarMenu.Closer />
                 <NavBarMenu.TopMenu />
+                <NavBarMenu.BottomMenu />
+                <NavBarMenu.Footer />
               </NavBarMenu>
             ) : null}
             <div className="mv-flex-grow mv-@container">

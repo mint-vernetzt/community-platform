@@ -147,27 +147,36 @@ function NavBarMenu(props: React.PropsWithChildren & { mode: Mode }) {
   const topMenu = children.find((child) => {
     return React.isValidElement(child) && child.type === NavBarMenu.TopMenu;
   });
+  const bottomMenu = children.find((child) => {
+    return React.isValidElement(child) && child.type === NavBarMenu.BottomMenu;
+  });
+  const footer = children.find((child) => {
+    return React.isValidElement(child) && child.type === NavBarMenu.Footer;
+  });
 
   return (
     <div
       id="navbarmenu"
       className={`${
         isOpen !== null && isOpen !== "false"
-          ? "mv-block mv-mr-20 lg:mv-mr-0"
-          : "mv-hidden lg:mv-block"
+          ? "mv-flex mv-flex-col mv-mr-20 lg:mv-mr-0"
+          : "mv-hidden lg:mv-flex lg:mv-flex-col"
       } mv-w-full mv-min-w-full lg:mv-w-[300px] lg:mv-min-w-[300px] mv-h-screen mv-sticky mv-top-0 lg:-mv-mt-28 mv-bg-white mv-z-10`}
     >
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
-        className="lg:mv-py-3 lg:mv-w-full mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 mv-hidden lg:mv-block"
+        className="lg:mv-py-3 lg:mv-w-full mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 mv-hidden lg:mv-block mv-flex-shrink"
       >
         <HeaderLogo />
       </Link>
-      <div className="lg:mv-hidden mv-flex mv-w-full mv-justify-end mv-items-center mv-h-[76px] mv-px-11">
+      <div className="lg:mv-hidden mv-flex mv-w-full mv-justify-end mv-items-center mv-h-[76px] mv-px-11 mv-flex-shrink">
         {closer}
       </div>
-
-      {topMenu}
+      <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2">
+        <div className="mv-flex-grow">{topMenu}</div>
+        <div className="mv-flex-shrink">{bottomMenu}</div>
+        <div className="mv-flex-shrink">{footer}</div>
+      </div>
     </div>
   );
 }
@@ -246,6 +255,50 @@ function TopMenu() {
   );
 }
 
+function BottomMenu() {
+  return (
+    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-gap-2 mv-pt-4 mv-px-6 mv-select-none">
+      {/* Item */}
+      <Link
+        to="/"
+        className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
+      >
+        <div>Icon</div>
+        <div>Bottom item</div>
+        <div>External</div>
+      </Link>
+      {/* Item */}
+      <Link
+        to="/"
+        className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
+      >
+        <div>Icon</div>
+        <div>Bottom item 2</div>
+        <div>External</div>
+      </Link>
+    </div>
+  );
+}
+
+function Footer() {
+  return (
+    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-[15px] mv-px-6 mv-select-none">
+      {/* Item */}
+      <div className="mv-flex mv-items-center mv-gap-4 mv-w-full mv-px-2 mv-py-4 mv-text-xs mv-border-t mv-border-gray-200">
+        <Link className="hover:mv-underline" to={"/"}>
+          Impressum
+        </Link>
+        <Link className="hover:mv-underline" to={"/"}>
+          Datenschutz
+        </Link>
+        <Link className="hover:mv-underline" to={"/"}>
+          AGB
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function Opener() {
   const [searchParams] = useSearchParams();
   if (!searchParams.has("navbarmenu")) {
@@ -271,5 +324,7 @@ function Closer() {
 NavBarMenu.Opener = Opener;
 NavBarMenu.Closer = Closer;
 NavBarMenu.TopMenu = TopMenu;
+NavBarMenu.BottomMenu = BottomMenu;
+NavBarMenu.Footer = Footer;
 
 export { CountUp, NavBarMenu, NextNavBar };
