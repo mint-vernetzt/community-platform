@@ -711,7 +711,7 @@ export default function App() {
             {abilities.next_navbar.hasAccess ? (
               <NavBarMenu mode={mode}>
                 <NavBarMenu.Closer />
-                <div className="mv-m-4">Test content</div>
+                <NavBarMenu.TopMenu />
               </NavBarMenu>
             ) : null}
             <div className="mv-flex-grow mv-@container">

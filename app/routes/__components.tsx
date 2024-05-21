@@ -43,7 +43,7 @@ function NextNavBar(props: NextNavBarProps) {
   }
 
   const classes = classNames(
-    "mv-shadow-md mv-mb-8 mv-sticky mv-top-0 mv-h-[76px] lg:mv-h-20 mv-z-10 mv-bg-white",
+    "mv-mb-8 mv-sticky mv-top-0 mv-h-[76px] lg:mv-h-20 mv-z-10 mv-bg-white",
     isSettings && "mv-hidden md:mv-block",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
@@ -57,7 +57,7 @@ function NextNavBar(props: NextNavBarProps) {
       <div className="mv-flex mv-h-full mv-items-center mv-mr-4 lg:mv-mr-8">
         <Link
           to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
-          className={`lg:mv-w-72 mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 ${
+          className={`lg:mv-w-[300px] mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 ${
             props.sessionUserInfo !== undefined ? "mv-hidden lg:mv-block" : ""
           }`}
         >
@@ -144,6 +144,9 @@ function NavBarMenu(props: React.PropsWithChildren & { mode: Mode }) {
   if (closer === undefined) {
     throw new Error("NavBarMenu must contain a Closer component");
   }
+  const topMenu = children.find((child) => {
+    return React.isValidElement(child) && child.type === NavBarMenu.TopMenu;
+  });
 
   return (
     <div
@@ -152,19 +155,93 @@ function NavBarMenu(props: React.PropsWithChildren & { mode: Mode }) {
         isOpen !== null && isOpen !== "false"
           ? "mv-block mv-mr-20 lg:mv-mr-0"
           : "mv-hidden lg:mv-block"
-      } mv-w-full mv-min-w-full lg:mv-w-72 lg:mv-min-w-72 mv-h-screen mv-absolute mv-sticky mv-top-0 lg:-mv-mt-28 mv-bg-yellow-300 mv-z-10`}
+      } mv-w-full mv-min-w-full lg:mv-w-[300px] lg:mv-min-w-[300px] mv-h-screen mv-sticky mv-top-0 lg:-mv-mt-28 mv-bg-white mv-z-10`}
     >
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
-        className="lg:mv-py-2.5 lg:mv-w-full mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 mv-hidden lg:mv-block"
+        className="lg:mv-py-3 lg:mv-w-full mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 mv-hidden lg:mv-block"
       >
         <HeaderLogo />
       </Link>
-      <div className="lg:mv-hidden mv-flex mv-w-full mv-justify-end mv-items-center mv-h-[76px] mv-px-11 mv-bg-blue-300">
+      <div className="lg:mv-hidden mv-flex mv-w-full mv-justify-end mv-items-center mv-h-[76px] mv-px-11">
         {closer}
       </div>
 
-      {children}
+      {topMenu}
+    </div>
+  );
+}
+
+function TopMenu() {
+  return (
+    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-gap-2 mv-pt-4 mv-px-6 mv-select-none">
+      {/* Topic */}
+      <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
+        <label
+          htmlFor="test-topic-1"
+          className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 mv-peer"
+        >
+          <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow">
+            <div>Icon</div>
+            <div className="mv-font-semibold">Test topic 1</div>
+          </div>
+          <input
+            id="test-topic-1"
+            name="test-topic-1"
+            className="mv-flex-shrink mv-cursor-pointer"
+            type="checkbox"
+          />
+        </label>
+
+        {/* Item */}
+        <Link
+          to="/"
+          className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
+        >
+          <div>Icon</div>
+          <div>Topic 1 item</div>
+          <div>External</div>
+        </Link>
+      </div>
+
+      {/* Topic */}
+      <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
+        <label
+          htmlFor="test-topic-2"
+          className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 mv-peer"
+        >
+          <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow">
+            <div>Icon</div>
+            <div className="mv-font-semibold">Test topic 2</div>
+          </div>
+          <input
+            id="test-topic-2"
+            name="test-topic-2"
+            className="mv-flex-shrink mv-cursor-pointer"
+            type="checkbox"
+          />
+        </label>
+
+        {/* Item */}
+        <Link
+          to="/"
+          className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
+        >
+          <div>Icon</div>
+          <div>Topic 2 item</div>
+          <div>External</div>
+        </Link>
+      </div>
+
+      {/* Item */}
+      <Link
+        to="/"
+        className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
+      >
+        <div>Icon</div>
+        <div>Single item</div>
+        <div>External</div>
+      </Link>
     </div>
   );
 }
@@ -193,5 +270,6 @@ function Closer() {
 
 NavBarMenu.Opener = Opener;
 NavBarMenu.Closer = Closer;
+NavBarMenu.TopMenu = TopMenu;
 
 export { CountUp, NavBarMenu, NextNavBar };
