@@ -172,6 +172,7 @@ function NavBarMenu(props: React.PropsWithChildren & { mode: Mode }) {
       <div className="lg:mv-hidden mv-flex mv-w-full mv-justify-end mv-items-center mv-h-[76px] mv-px-11 mv-flex-shrink">
         {closer}
       </div>
+      {/* TODO: Define gap between different sections here */}
       <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
         <div className="mv-flex-grow">{topMenu}</div>
         <div className="mv-flex-shrink">{bottomMenu}</div>
@@ -182,6 +183,8 @@ function NavBarMenu(props: React.PropsWithChildren & { mode: Mode }) {
 }
 
 function TopMenu() {
+  // TODO: uncheck all checkboxes when a topic is clicked
+  // TODO: Look at the gaps between the items and check the focus state
   return (
     <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-gap-2 mv-pt-4 mv-px-6 mv-select-none">
       {/* Topic */}
@@ -202,7 +205,7 @@ function TopMenu() {
           />
         </label>
 
-        {/* Item */}
+        {/* Sub Item TODO: No borders */}
         <Link
           to="/"
           className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
