@@ -38,6 +38,8 @@ model Profile {
   position                  String?
   instagram                 String?
   youtube                   String?
+  mastodon                  String?
+  tiktok                    String?
   score                     Int                         @default(0)
   areas                     AreasOnProfiles[]
   memberOf                  MemberOfOrganization[]
@@ -92,6 +94,8 @@ model ProfileVisibility {
   position                  Boolean @default(false)
   instagram                 Boolean @default(false)
   youtube                   Boolean @default(false)
+  mastodon                  Boolean @default(false)
+  tiktok                    Boolean @default(false)
   score                     Boolean @default(true)
   areas                     Boolean @default(true)
   memberOf                  Boolean @default(true)
@@ -232,6 +236,8 @@ model Organization {
   zipCode                String?                            @map("zip_code")
   instagram              String?
   youtube                String?
+  mastodon               String?
+  tiktok                 String?
   score                  Int                                @default(0)
   areas                  AreasOnOrganizations[]
   focuses                FocusesOnOrganizations[]
@@ -279,6 +285,8 @@ model OrganizationVisibility {
   zipCode                Boolean      @default(true) @map("zip_code")
   instagram              Boolean      @default(true)
   youtube                Boolean      @default(true)
+  mastodon               Boolean      @default(true)
+  tiktok                 Boolean      @default(true)
   score                  Boolean      @default(true)
   areas                  Boolean      @default(true)
   focuses                Boolean      @default(false)

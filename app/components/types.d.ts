@@ -15,6 +15,8 @@ export type ExternalService =
       | "instagram"
       | "xing"
       | "website"
+      | "mastodon"
+      | "tiktok"
     >
   | keyof Pick<
       Organization,
@@ -25,4 +27,6 @@ export type ExternalService =
       | "instagram"
       | "xing"
       | "website"
+      | "mastodon"
+      | "tiktok"
     >;

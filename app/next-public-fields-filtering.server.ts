@@ -105,7 +105,9 @@ export function filterProfileByVisibility<
         key === "backgroundImage" ||
         key === "backgroundImageId" ||
         key === "notificationSettings" ||
-        key === "youtube"
+        key === "youtube" ||
+        key === "mastodon" ||
+        key === "tiktok"
       ) {
         filteredFields[key] =
           profile.profileVisibility[key] === true ? profile[key] : null;
@@ -206,7 +208,9 @@ export function filterOrganizationByVisibility<
         key === "instagram" ||
         key === "backgroundImage" ||
         key === "backgroundImageId" ||
-        key === "youtube"
+        key === "youtube" ||
+        key === "mastodon" ||
+        key === "tiktok"
       ) {
         filteredFields[key] =
           organization.organizationVisibility[key] === true

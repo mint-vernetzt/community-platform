@@ -9,11 +9,13 @@ import {
   Link,
   useActionData,
   useLoaderData,
-  useParams,
   useNavigation,
+  useParams,
 } from "@remix-run/react";
+import { type TFunction } from "i18next";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
 import quillStyles from "react-quill/dist/quill.snow.css";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
@@ -23,6 +25,7 @@ import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import i18next from "~/i18next.server";
 import {
   createAreaOptionFromData,
   objectListOperationResolver,
@@ -40,6 +43,7 @@ import {
   validateForm,
   website,
 } from "~/lib/utils/yup";
+import { detectLanguage } from "~/root.server";
 import { getAllOffers } from "~/routes/utils.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -49,10 +53,6 @@ import {
   updateProfileById,
 } from "../utils.server";
 import { getProfileByUsername } from "./general.server";
-import { Trans, useTranslation } from "react-i18next";
-import i18next from "~/i18next.server";
-import { type TFunction } from "i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/profile/settings/general"];
 export const handle = {
@@ -81,6 +81,8 @@ const createProfileSchema = (t: TFunction) => {
     youtube: nullOrString(social("youtube")),
     instagram: nullOrString(social("instagram")),
     xing: nullOrString(social("xing")),
+    mastodon: nullOrString(social("mastodon")),
+    tiktok: nullOrString(social("tiktok")),
   });
 };
 
