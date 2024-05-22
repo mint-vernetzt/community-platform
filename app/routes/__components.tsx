@@ -183,7 +183,17 @@ function NavBarMenu(props: React.PropsWithChildren & { mode: Mode }) {
 }
 
 function TopMenu() {
-  // TODO: uncheck all checkboxes when a topic is clicked
+  // TODO: Make this generic when children are passed to the component
+  const input1Ref = React.useRef<HTMLInputElement>(null);
+  const input2Ref = React.useRef<HTMLInputElement>(null);
+  const inputRefs = [input1Ref, input2Ref];
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    for (const inputRef of inputRefs) {
+      if (inputRef.current !== null && inputRef.current !== event.target) {
+        inputRef.current.checked = false;
+      }
+    }
+  };
   // TODO: Look at the gaps between the items and check the focus state
   return (
     <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-gap-2 mv-pt-4 mv-px-6 mv-select-none">
@@ -191,27 +201,36 @@ function TopMenu() {
       <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
         <label
           htmlFor="test-topic-1"
-          className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 mv-peer"
+          className="mv-flex mv-flex-row-reverse mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 mv-peer"
         >
-          <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow">
-            <div>Icon</div>
-            <div className="mv-font-semibold">Test topic 1</div>
-          </div>
           <input
             id="test-topic-1"
             name="test-topic-1"
-            className="mv-flex-shrink mv-cursor-pointer"
+            className="mv-flex-shrink mv-cursor-pointer mv-peer"
             type="checkbox"
+            ref={input1Ref}
+            onChange={handleCheckboxChange}
           />
+          <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow peer-checked:mv-text-primary-500">
+            <div>Icon</div>
+            <div className="mv-font-semibold">Test topic 1</div>
+          </div>
         </label>
 
-        {/* Sub Item TODO: No borders */}
         <Link
           to="/"
-          className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
+          className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50"
         >
           <div>Icon</div>
-          <div>Topic 1 item</div>
+          <div>Topic 1 item 1</div>
+          <div>External</div>
+        </Link>
+        <Link
+          to="/"
+          className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50"
+        >
+          <div>Icon</div>
+          <div>Topic 1 item 2</div>
           <div>External</div>
         </Link>
       </div>
@@ -220,24 +239,26 @@ function TopMenu() {
       <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
         <label
           htmlFor="test-topic-2"
-          className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 mv-peer"
+          className="mv-flex mv-flex-row-reverse mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 mv-peer"
         >
-          <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow">
-            <div>Icon</div>
-            <div className="mv-font-semibold">Test topic 2</div>
-          </div>
           <input
             id="test-topic-2"
             name="test-topic-2"
-            className="mv-flex-shrink mv-cursor-pointer"
+            className="mv-flex-shrink mv-cursor-pointer mv-peer"
             type="checkbox"
+            ref={input2Ref}
+            onChange={handleCheckboxChange}
           />
+          <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow peer-checked:mv-text-primary-500">
+            <div>Icon</div>
+            <div className="mv-font-semibold">Test topic 2</div>
+          </div>
         </label>
 
         {/* Item */}
         <Link
           to="/"
-          className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
+          className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50"
         >
           <div>Icon</div>
           <div>Topic 2 item</div>
