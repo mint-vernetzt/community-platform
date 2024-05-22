@@ -3,6 +3,7 @@ import {
   Form,
   Link,
   NavLink,
+  useLocation,
   useMatches,
   useSearchParams,
 } from "@remix-run/react";
@@ -175,6 +176,71 @@ function NavBarMenu(props: { mode: Mode; username: string | undefined }) {
   );
 }
 
+function Topic(props: React.PropsWithChildren & { searchParamValue: string }) {
+  const children = React.Children.toArray(props.children);
+  const label = children.find(
+    (child) => React.isValidElement(child) && child.type === Label
+  );
+  if (label === undefined) {
+    throw new Error("Label for NavBarMenu.Topic is missing");
+  }
+  const topicItems = children.filter(
+    (child) => React.isValidElement(child) && child.type === TopicItem
+  );
+  if (topicItems.length === 0) {
+    throw new Error("Provide at least one TopicItem for NavBarMenu.Topic");
+  }
+
+  const [searchParams] = useSearchParams();
+  const openTopicId = searchParams.get("navbarmenu-topic");
+  const isOpen = openTopicId === props.searchParamValue;
+
+  return (
+    <div className="mv-w-full mv-flex mv-flex-col">
+      {label}
+      {isOpen ? topicItems : null}
+    </div>
+  );
+}
+
+function Label(props: React.PropsWithChildren & { searchParamValue: string }) {
+  const children = React.Children.toArray(props.children);
+
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const openTopicId = searchParams.get("navbarmenu-topic");
+  const isOpen = openTopicId === props.searchParamValue;
+
+  const extendedSearchParams = new URLSearchParams(searchParams.toString());
+  if (isOpen) {
+    extendedSearchParams.delete("navbarmenu-topic");
+  } else {
+    extendedSearchParams.set("navbarmenu-topic", props.searchParamValue);
+  }
+
+  return (
+    <Link
+      to={`${location.pathname}?${extendedSearchParams.toString()}`}
+      className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
+    >
+      <div
+        className={`mv-flex mv-items-center mv-gap-2 mv-flex-grow ${
+          isOpen ? "mv-text-primary-500" : ""
+        }`}
+      >
+        {children}
+      </div>
+      <div
+        className={`mv-flex-shrink mv-cursor-pointer ${
+          isOpen ? "mv-rotate-180" : ""
+        }`}
+      >
+        ^
+      </div>
+    </Link>
+  );
+}
+
 function TopMenu(props: { mode: Mode; username: string | undefined }) {
   const personalSpaceTopicRef = React.useRef<HTMLInputElement>(null);
   const resourcesTopicRef = React.useRef<HTMLInputElement>(null);
@@ -187,35 +253,25 @@ function TopMenu(props: { mode: Mode; username: string | undefined }) {
       }
     }
   };
+
   // TODO: Look at the gaps between the items and check the focus state
   // TODO: i18n and icons
   return (
     <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-4 mv-px-6 mv-select-none">
       {props.mode === "authenticated" && props.username !== undefined ? (
         <>
-          <Item to="/next/dashboard" icon="grid">
+          <Item to="/next/dashboard">
+            <Icon type="grid" />
             Überblick
           </Item>
 
           {/* Topic personalSpace */}
-          <div className="mv-w-full mv-flex mv-flex-col">
-            <label
-              htmlFor="personalSpace"
-              className="mv-flex mv-flex-row-reverse mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 mv-peer"
-            >
-              <input
-                id="personalSpace"
-                name="personalSpace"
-                className="mv-flex-shrink mv-cursor-pointer mv-peer"
-                type="checkbox"
-                ref={personalSpaceTopicRef}
-                onChange={handleCheckboxChange}
-              />
-              <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow peer-checked:mv-text-primary-500">
-                <Icon type="person-fill" />
-                <div className="mv-font-semibold">Mein MINT-Bereich</div>
-              </div>
-            </label>
+
+          <Topic searchParamValue="personalSpace">
+            <Label searchParamValue="personalSpace">
+              <Icon type="person-fill" />
+              <div className="mv-font-semibold">Mein MINT-Bereich</div>
+            </Label>
 
             <TopicItem to={`/next/profile/${props.username}`}>
               Mein Profil
@@ -240,7 +296,7 @@ function TopMenu(props: { mode: Mode; username: string | undefined }) {
             <TopicItem to={`/next/overview/bookmarks/${props.username}`}>
               Gemerkte Inhalte
             </TopicItem>
-          </div>
+          </Topic>
         </>
       ) : null}
 
@@ -264,6 +320,7 @@ function TopMenu(props: { mode: Mode; username: string | undefined }) {
           </div>
         </label>
 
+        {/* TODO: Outsource icon, external and newDeature to own components and pass as children */}
         <TopicItem
           to="https://mint-vernetzt.de"
           icon="sharepic"
@@ -348,7 +405,8 @@ function BottomMenu(props: { mode: Mode }) {
         <LocaleSwitch />
       </div>
 
-      <Item to="/next/help" icon="life-preserver_outline">
+      <Item to="/next/help">
+        <Icon type="life-preserver_outline" />
         Hilfe
       </Item>
 
@@ -402,16 +460,20 @@ function Footer() {
   );
 }
 
-function Item(props: React.PropsWithChildren & { to: string; icon: IconType }) {
+function Item(props: React.PropsWithChildren & { to: string }) {
   const children = React.Children.toArray(props.children);
   const label = children.find((child) => typeof child === "string");
   if (label === undefined || typeof label !== "string") {
     throw new Error("Label is missing");
   }
+  const icon = children.find(
+    (child) => React.isValidElement(child) && child.type === Icon
+  );
+  const [searchParams] = useSearchParams();
   return (
     <NavLink
       id={label}
-      to={props.to}
+      to={`${props.to}?${searchParams.toString()}`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
           "mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg";
@@ -421,7 +483,7 @@ function Item(props: React.PropsWithChildren & { to: string; icon: IconType }) {
         return `${baseClasses} hover:mv-bg-blue-50`;
       }}
     >
-      <Icon type={props.icon} />
+      {icon !== undefined ? icon : null}
       <div>{label}</div>
     </NavLink>
   );
@@ -440,12 +502,13 @@ function TopicItem(
   if (label === undefined || typeof label !== "string") {
     throw new Error("Label is missing");
   }
+  const [searchParams] = useSearchParams();
   return props.external ? (
     <Link
       id={label}
-      to={props.to}
+      to={`${props.to}?${searchParams.toString()}`}
       target="_blank"
-      className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50"
+      className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50"
     >
       {props.icon ? <Icon type={props.icon} /> : null}
       <div>{label}</div>
@@ -455,10 +518,10 @@ function TopicItem(
   ) : (
     <NavLink
       id={label}
-      to={props.to}
+      to={`${props.to}?${searchParams.toString()}`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
-          "peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4";
+          "mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4";
         if (isActive || isPending || isTransitioning) {
           return `${baseClasses} mv-bg-blue-50`;
         }
