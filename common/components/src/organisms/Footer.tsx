@@ -1,7 +1,7 @@
 import { Link } from "./../../index";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
-import { LocaleSwitch } from "./buttons/LocaleSwitch";
+import LocaleSwitch from "./buttons/LocaleSwitch";
 
 function Footer(props: { isSettings?: boolean }) {
   const classes = classNames(

@@ -1,5 +1,11 @@
-import { Avatar, Button } from "@mint-vernetzt/components";
-import { Form, Link, useMatches, useSearchParams } from "@remix-run/react";
+import { Avatar, Button, LocaleSwitch } from "@mint-vernetzt/components";
+import {
+  Form,
+  Link,
+  NavLink,
+  useMatches,
+  useSearchParams,
+} from "@remix-run/react";
 import classNames from "classnames";
 import React from "react";
 import { useCountUp, type CountUpProps } from "react-countup";
@@ -89,8 +95,7 @@ function NextNavBar(props: NextNavBarProps) {
               query={query}
             />
           </Form>
-          {/* TODO: Implement menu opener icon */}
-          {/* Use a div to style the opener */}
+
           <div className="mv-flex-shrink mv-block lg:mv-hidden">
             <NavBarMenu.Opener />
           </div>
@@ -132,27 +137,9 @@ function NextNavBar(props: NextNavBarProps) {
   );
 }
 
-function NavBarMenu(props: React.PropsWithChildren & { mode: Mode }) {
+function NavBarMenu(props: { mode: Mode; username: string | undefined }) {
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get("navbarmenu");
-
-  const children = React.Children.toArray(props.children);
-  const closerIndex = children.findIndex((child) => {
-    return React.isValidElement(child) && child.type === NavBarMenu.Closer;
-  });
-  const closer = children.splice(closerIndex, 1);
-  if (closer === undefined) {
-    throw new Error("NavBarMenu must contain a Closer component");
-  }
-  const topMenu = children.find((child) => {
-    return React.isValidElement(child) && child.type === NavBarMenu.TopMenu;
-  });
-  const bottomMenu = children.find((child) => {
-    return React.isValidElement(child) && child.type === NavBarMenu.BottomMenu;
-  });
-  const footer = children.find((child) => {
-    return React.isValidElement(child) && child.type === NavBarMenu.Footer;
-  });
 
   return (
     <div
@@ -170,23 +157,29 @@ function NavBarMenu(props: React.PropsWithChildren & { mode: Mode }) {
         <HeaderLogo />
       </Link>
       <div className="lg:mv-hidden mv-flex mv-w-full mv-justify-end mv-items-center mv-h-[76px] mv-px-11 mv-flex-shrink">
-        {closer}
+        <Closer />
       </div>
       {/* TODO: Define gap between different sections here */}
       <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
-        <div className="mv-flex-grow">{topMenu}</div>
-        <div className="mv-flex-shrink">{bottomMenu}</div>
-        <div className="mv-flex-shrink">{footer}</div>
+        <div className="mv-flex-grow">
+          <TopMenu mode={props.mode} username={props.username} />
+        </div>
+        <div className="mv-flex-shrink">
+          <BottomMenu mode={props.mode} />
+        </div>
+        <div className="mv-flex-shrink">
+          <Footer />
+        </div>
       </div>
     </div>
   );
 }
 
-function TopMenu() {
-  // TODO: Make this generic when children are passed to the component
-  const input1Ref = React.useRef<HTMLInputElement>(null);
-  const input2Ref = React.useRef<HTMLInputElement>(null);
-  const inputRefs = [input1Ref, input2Ref];
+function TopMenu(props: { mode: Mode; username: string | undefined }) {
+  const personalSpaceTopicRef = React.useRef<HTMLInputElement>(null);
+  const resourcesTopicRef = React.useRef<HTMLInputElement>(null);
+  const exploreTopicRef = React.useRef<HTMLInputElement>(null);
+  const inputRefs = [personalSpaceTopicRef, resourcesTopicRef, exploreTopicRef];
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     for (const inputRef of inputRefs) {
       if (inputRef.current !== null && inputRef.current !== event.target) {
@@ -195,111 +188,184 @@ function TopMenu() {
     }
   };
   // TODO: Look at the gaps between the items and check the focus state
+  // TODO: i18n and icons
   return (
-    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-gap-2 mv-pt-4 mv-px-6 mv-select-none">
-      {/* Topic */}
-      <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
+    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-4 mv-px-6 mv-select-none">
+      {props.mode === "authenticated" && props.username !== undefined ? (
+        <>
+          <Item to="/next/dashboard" icon="grid">
+            Überblick
+          </Item>
+
+          {/* Topic personalSpace */}
+          <div className="mv-w-full mv-flex mv-flex-col">
+            <label
+              htmlFor="personalSpace"
+              className="mv-flex mv-flex-row-reverse mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 mv-peer"
+            >
+              <input
+                id="personalSpace"
+                name="personalSpace"
+                className="mv-flex-shrink mv-cursor-pointer mv-peer"
+                type="checkbox"
+                ref={personalSpaceTopicRef}
+                onChange={handleCheckboxChange}
+              />
+              <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow peer-checked:mv-text-primary-500">
+                <Icon type="person-fill" />
+                <div className="mv-font-semibold">Mein MINT-Bereich</div>
+              </div>
+            </label>
+
+            <TopicItem to={`/next/profile/${props.username}`}>
+              Mein Profil
+            </TopicItem>
+
+            <TopicItem to={`/next/overview/organizations/${props.username}`}>
+              Meine Organisationen
+            </TopicItem>
+
+            <TopicItem to={`/next/overview/events/${props.username}`}>
+              Meine Events
+            </TopicItem>
+
+            <TopicItem to={`/next/overview/projects/${props.username}`}>
+              Meine Projekte
+            </TopicItem>
+
+            <TopicItem to={`/next/overview/networks/${props.username}`}>
+              Mein Netzwerk
+            </TopicItem>
+
+            <TopicItem to={`/next/overview/bookmarks/${props.username}`}>
+              Gemerkte Inhalte
+            </TopicItem>
+          </div>
+        </>
+      ) : null}
+
+      {/* Topic resources */}
+      <div className="mv-w-full mv-flex mv-flex-col">
         <label
-          htmlFor="test-topic-1"
+          htmlFor="resources"
           className="mv-flex mv-flex-row-reverse mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 mv-peer"
         >
           <input
-            id="test-topic-1"
-            name="test-topic-1"
+            id="resources"
+            name="resources"
             className="mv-flex-shrink mv-cursor-pointer mv-peer"
             type="checkbox"
-            ref={input1Ref}
+            ref={resourcesTopicRef}
             onChange={handleCheckboxChange}
           />
           <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow peer-checked:mv-text-primary-500">
-            <div>Icon</div>
-            <div className="mv-font-semibold">Test topic 1</div>
+            <Icon type="briefcase" />
+            <div className="mv-font-semibold">Ressourcen</div>
           </div>
         </label>
 
-        <Link
-          to="/"
-          className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50"
+        <TopicItem
+          to="https://mint-vernetzt.de"
+          icon="sharepic"
+          external
+          newFeature
         >
-          <div>Icon</div>
-          <div>Topic 1 item 1</div>
-          <div>External</div>
-        </Link>
-        <Link
-          to="/"
-          className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50"
+          MINT-Sharepic
+        </TopicItem>
+
+        <TopicItem
+          to="https://mint-vernetzt.de"
+          icon="imageArchive"
+          external
+          newFeature
         >
-          <div>Icon</div>
-          <div>Topic 1 item 2</div>
-          <div>External</div>
-        </Link>
+          MINT-Bildarchiv
+        </TopicItem>
+
+        <TopicItem to="https://mintcampus.org/" icon="mintCampus" external>
+          MINT-Campus
+        </TopicItem>
+
+        <TopicItem
+          to="https://mint-vernetzt.shinyapps.io/datalab/"
+          icon="mintVernetzt"
+          external
+        >
+          MINT-DataLab
+        </TopicItem>
+
+        <TopicItem to="https://mint-vernetzt.de" icon="mintVernetzt" external>
+          MINTvernetzt Webseite
+        </TopicItem>
+
+        <TopicItem
+          to="https://github.com/mint-vernetzt/community-platform"
+          icon="github"
+          external
+        >
+          MINTvernetzt GitHub
+        </TopicItem>
       </div>
 
-      {/* Topic */}
-      <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
+      {/* Topic explore */}
+      <div className="mv-w-full mv-flex mv-flex-col">
         <label
-          htmlFor="test-topic-2"
+          htmlFor="explore"
           className="mv-flex mv-flex-row-reverse mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 mv-peer"
         >
           <input
-            id="test-topic-2"
-            name="test-topic-2"
+            id="explore"
+            name="explore"
             className="mv-flex-shrink mv-cursor-pointer mv-peer"
             type="checkbox"
-            ref={input2Ref}
+            ref={exploreTopicRef}
             onChange={handleCheckboxChange}
           />
           <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow peer-checked:mv-text-primary-500">
-            <div>Icon</div>
-            <div className="mv-font-semibold">Test topic 2</div>
+            <Icon type="binoculars" />
+            <div className="mv-font-semibold">Entdecken</div>
           </div>
         </label>
 
-        {/* Item */}
-        <Link
-          to="/"
-          className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50"
-        >
-          <div>Icon</div>
-          <div>Topic 2 item</div>
-          <div>External</div>
-        </Link>
-      </div>
+        <TopicItem to="/explore/profiles">Personen</TopicItem>
 
-      {/* Item */}
-      <Link
-        to="/"
-        className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
-      >
-        <div>Icon</div>
-        <div>Single item</div>
-        <div>External</div>
-      </Link>
+        <TopicItem to="/explore/organizations">Organisationen</TopicItem>
+
+        <TopicItem to="/explore/projects">Projekte</TopicItem>
+
+        <TopicItem to="/explore/events">Events</TopicItem>
+
+        <TopicItem to="next/explore/subsidies">Förderungen</TopicItem>
+      </div>
     </div>
   );
 }
 
-function BottomMenu() {
+function BottomMenu(props: { mode: Mode }) {
   return (
-    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-gap-2 mv-pt-6 mv-px-6 mv-select-none">
-      {/* Item */}
-      <Link
-        to="/"
-        className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
-      >
-        <div>Icon</div>
-        <div>Bottom item</div>
-        <div>External</div>
-      </Link>
-      {/* Item */}
-      <Link
-        to="/"
-        className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
-      >
-        <div>Icon</div>
-        <div>Bottom item 2</div>
-        <div>External</div>
-      </Link>
+    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-6 mv-px-6 mv-select-none">
+      <div className="mv-pl-2 mv-py-4">
+        <LocaleSwitch />
+      </div>
+
+      <Item to="/next/help" icon="life-preserver_outline">
+        Hilfe
+      </Item>
+
+      {props.mode === "authenticated" ? (
+        <>
+          <Form id="logout-form" method="post" action="/logout" hidden />
+          <button
+            id="logout-button"
+            form="logout-form"
+            type="submit"
+            className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50"
+          >
+            <Icon type="door-closed" />
+            Ausloggen
+          </button>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -309,18 +375,119 @@ function Footer() {
     <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-[15px] mv-px-6 mv-select-none">
       {/* Item */}
       <div className="mv-flex mv-items-center mv-gap-4 mv-w-full mv-px-2 mv-py-4 mv-text-xs mv-border-t mv-border-gray-200">
-        <Link className="hover:mv-underline" to={"/"}>
+        <NavLink
+          className={({ isActive }) =>
+            isActive ? "mv-underline" : "hover:mv-underline"
+          }
+          to="/imprint"
+        >
           Impressum
-        </Link>
-        <Link className="hover:mv-underline" to={"/"}>
+        </NavLink>
+        <Link
+          className="hover:mv-underline"
+          target="_blank"
+          to="https://mint-vernetzt.de/privacy-policy-community-platform/"
+        >
           Datenschutz
         </Link>
-        <Link className="hover:mv-underline" to={"/"}>
+        <Link
+          className="hover:mv-underline"
+          target="_blank"
+          to="https://mint-vernetzt.de/terms-of-use-community-platform/"
+        >
           AGB
         </Link>
       </div>
     </div>
   );
+}
+
+function Item(props: React.PropsWithChildren & { to: string; icon: IconType }) {
+  const children = React.Children.toArray(props.children);
+  const label = children.find((child) => typeof child === "string");
+  if (label === undefined || typeof label !== "string") {
+    throw new Error("Label is missing");
+  }
+  return (
+    <NavLink
+      id={label}
+      to={props.to}
+      className={({ isActive, isPending, isTransitioning }) => {
+        const baseClasses =
+          "mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg";
+        if (isActive || isPending || isTransitioning) {
+          return `${baseClasses} mv-bg-blue-50`;
+        }
+        return `${baseClasses} hover:mv-bg-blue-50`;
+      }}
+    >
+      <Icon type={props.icon} />
+      <div>{label}</div>
+    </NavLink>
+  );
+}
+
+function TopicItem(
+  props: React.PropsWithChildren & {
+    to: string;
+    icon?: IconType;
+    external?: boolean;
+    newFeature?: boolean;
+  }
+) {
+  const children = React.Children.toArray(props.children);
+  const label = children.find((child) => typeof child === "string");
+  if (label === undefined || typeof label !== "string") {
+    throw new Error("Label is missing");
+  }
+  return props.external ? (
+    <Link
+      id={label}
+      to={props.to}
+      target="_blank"
+      className="peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50"
+    >
+      {props.icon ? <Icon type={props.icon} /> : null}
+      <div>{label}</div>
+      <div>Ext</div>
+      {props.newFeature ? <div>New</div> : null}
+    </Link>
+  ) : (
+    <NavLink
+      id={label}
+      to={props.to}
+      className={({ isActive, isPending, isTransitioning }) => {
+        const baseClasses =
+          "peer-has-[:checked]:mv-flex mv-hidden mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4";
+        if (isActive || isPending || isTransitioning) {
+          return `${baseClasses} mv-bg-blue-50`;
+        }
+        return `${baseClasses} hover:mv-bg-blue-50`;
+      }}
+    >
+      {props.icon ? <Icon type={props.icon} /> : null}
+      <div>{label}</div>
+      {props.newFeature ? <div>New</div> : null}
+    </NavLink>
+  );
+}
+
+type IconType =
+  | "grid"
+  | "person-fill"
+  | "briefcase"
+  | "binoculars"
+  | "life-preserver_outline"
+  | "door-closed"
+  | "sharepic"
+  | "imageArchive"
+  | "mintCampus"
+  | "mintVernetzt"
+  | "github";
+
+function Icon(props: { type: IconType }) {
+  // TODO: Implement icons
+  return <div>Icon</div>;
 }
 
 function Opener() {
@@ -346,9 +513,5 @@ function Closer() {
 }
 
 NavBarMenu.Opener = Opener;
-NavBarMenu.Closer = Closer;
-NavBarMenu.TopMenu = TopMenu;
-NavBarMenu.BottomMenu = BottomMenu;
-NavBarMenu.Footer = Footer;
 
 export { CountUp, NavBarMenu, NextNavBar };

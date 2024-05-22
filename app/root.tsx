@@ -709,12 +709,7 @@ export default function App() {
           {/* TODO: Navbar Menu */}
           <div className="mv-flex">
             {abilities.next_navbar.hasAccess ? (
-              <NavBarMenu mode={mode}>
-                <NavBarMenu.Closer />
-                <NavBarMenu.TopMenu />
-                <NavBarMenu.BottomMenu />
-                <NavBarMenu.Footer />
-              </NavBarMenu>
+              <NavBarMenu mode={mode} username={currentUserInfo?.username} />
             ) : null}
             <div className="mv-flex-grow mv-@container">
               {isNonAppBaseRoute ? (

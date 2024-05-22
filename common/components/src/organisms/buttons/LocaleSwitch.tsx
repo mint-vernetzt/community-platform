@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { TextButton } from "../../molecules";
 
-export function LocaleSwitch() {
+export default function LocaleSwitch() {
   const { i18n } = useTranslation();
   const languages = i18n.options.supportedLngs.filter(
     (l: string): boolean => l !== "cimode"
