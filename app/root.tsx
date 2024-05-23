@@ -1,5 +1,6 @@
 import {
   Alert,
+  Avatar,
   CircleButton,
   Footer,
   LocaleSwitch,
@@ -46,7 +47,12 @@ import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders, deriveMode } from "./utils.server";
-import { Icon, NavBarMenu, NextNavBar } from "./routes/__components";
+import {
+  Icon,
+  NavBarMenu,
+  NewFeatureBanner,
+  NextNavBar,
+} from "./routes/__components";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -596,7 +602,9 @@ export default function App() {
   const [searchParams] = useSearchParams();
   const modal = searchParams.get("modal");
   const showFilters = searchParams.get("showFilters");
-  const navBarMenuIsOpen = searchParams.get("navbarmenu");
+  const openNavBarMenuKey = "navbarmenu";
+  const openNavBarMenuTopicKey = "navbarmenu-topic";
+  const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
 
   const bodyClasses = classNames(
     modal !== null && modal !== "false" && "overflow-hidden",
@@ -694,6 +702,7 @@ export default function App() {
             <NextNavBar
               sessionUserInfo={nextSessionUserInfo}
               abilities={abilities}
+              openNavBarMenuKey={openNavBarMenuKey}
             />
           ) : null}
 
@@ -711,25 +720,28 @@ export default function App() {
           <div className="mv-flex">
             {abilities.next_navbar.hasAccess ? (
               // TODO: i18n
-              <NavBarMenu mode={mode} openSearchParamKey="navbarmenu">
-                <NavBarMenu.Closer openSearchParamKey="navbarmenu" />
+              <NavBarMenu mode={mode} openNavBarMenuKey={openNavBarMenuKey}>
+                <NavBarMenu.Closer openNavBarMenuKey={openNavBarMenuKey} />
                 <NavBarMenu.TopMenu>
                   {mode === "authenticated" && currentUserInfo !== undefined ? (
                     <>
-                      <NavBarMenu.Item to="/next/dashboard">
+                      <NavBarMenu.Item
+                        to="/next/dashboard"
+                        openNavBarMenuKey={openNavBarMenuKey}
+                      >
                         <Icon type="grid" />
-                        Überblick
+                        <div className="mv-font-semibold">Überblick</div>
                       </NavBarMenu.Item>
 
                       <NavBarMenu.Topic
-                        openSearchParamKey="navbarmenu-topic"
-                        openSearchParamValue="personalSpace"
+                        openNavBarMenuTopicKey={openNavBarMenuTopicKey}
+                        openNavBarMenuTopicValue="personalSpace"
                       >
                         <NavBarMenu.Label
-                          openSearchParamKey="navbarmenu-topic"
-                          openSearchParamValue="personalSpace"
+                          openNavBarMenuTopicKey={openNavBarMenuTopicKey}
+                          openNavBarMenuTopicValue="personalSpace"
                         >
-                          <Icon type="person-fill" />
+                          <Icon type="person" />
                           <div className="mv-font-semibold">
                             Mein MINT-Bereich
                           </div>
@@ -737,31 +749,37 @@ export default function App() {
 
                         <NavBarMenu.TopicItem
                           to={`/next/profile/${currentUserInfo.username}`}
+                          openNavBarMenuKey={openNavBarMenuKey}
                         >
                           Mein Profil
                         </NavBarMenu.TopicItem>
                         <NavBarMenu.TopicItem
                           to={`/next/overview/organizations/${currentUserInfo.username}`}
+                          openNavBarMenuKey={openNavBarMenuKey}
                         >
                           Meine Organisationen
                         </NavBarMenu.TopicItem>
                         <NavBarMenu.TopicItem
                           to={`/next/overview/events/${currentUserInfo.username}`}
+                          openNavBarMenuKey={openNavBarMenuKey}
                         >
                           Meine Events
                         </NavBarMenu.TopicItem>
                         <NavBarMenu.TopicItem
                           to={`/next/overview/projects/${currentUserInfo.username}`}
+                          openNavBarMenuKey={openNavBarMenuKey}
                         >
                           Meine Projekte
                         </NavBarMenu.TopicItem>
                         <NavBarMenu.TopicItem
                           to={`/next/overview/networks/${currentUserInfo.username}`}
+                          openNavBarMenuKey={openNavBarMenuKey}
                         >
                           Mein Netzwerk
                         </NavBarMenu.TopicItem>
                         <NavBarMenu.TopicItem
                           to={`/next/overview/bookmarks/${currentUserInfo.username}`}
+                          openNavBarMenuKey={openNavBarMenuKey}
                         >
                           Gemerkte Inhalte
                         </NavBarMenu.TopicItem>
@@ -770,12 +788,12 @@ export default function App() {
                   ) : null}
 
                   <NavBarMenu.Topic
-                    openSearchParamKey="navbarmenu-topic"
-                    openSearchParamValue="resources"
+                    openNavBarMenuTopicKey={openNavBarMenuTopicKey}
+                    openNavBarMenuTopicValue="resources"
                   >
                     <NavBarMenu.Label
-                      openSearchParamKey="navbarmenu-topic"
-                      openSearchParamValue="resources"
+                      openNavBarMenuTopicKey={openNavBarMenuTopicKey}
+                      openNavBarMenuTopicValue="resources"
                     >
                       <Icon type="briefcase" />
                       <div className="mv-font-semibold">Ressourcen</div>
@@ -784,60 +802,123 @@ export default function App() {
                     <NavBarMenu.TopicItem
                       // TODO: Link to MINT-Sharepic when its available
                       to="https://mint-vernetzt.de"
+                      openNavBarMenuKey={openNavBarMenuKey}
                     >
-                      {/* TODO: MINT-Sharepic avatar */}
+                      {/* TODO: Add logo to public/images and logo src to Avatar */}
+                      <Avatar name="MINT-Sharepic" size="xxs" textSize="xxs" />
                       MINT-Sharepic
+                      <Icon type="box-arrow-up-right" />
+                      <NewFeatureBanner />
                     </NavBarMenu.TopicItem>
                     <NavBarMenu.TopicItem
                       // TODO: Link to MINT-Bildarchiv when its available
                       to="https://mint-vernetzt.de"
+                      openNavBarMenuKey={openNavBarMenuKey}
                     >
-                      {/* TODO: MINT-Bildarchiv avatar */}
+                      {/* TODO: Add logo to public/images and logo src to Avatar */}
+                      <Avatar
+                        name="MINT-Bildarchiv"
+                        size="xxs"
+                        textSize="xxs"
+                      />
                       MINT-Bildarchiv
+                      <Icon type="box-arrow-up-right" />
+                      <NewFeatureBanner />
                     </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem to="https://mintcampus.org/">
-                      {/* TODO: MINT-Campus avatar  */}
+                    <NavBarMenu.TopicItem
+                      to="https://mintcampus.org/"
+                      openNavBarMenuKey={openNavBarMenuKey}
+                    >
+                      <Avatar
+                        name="MINT-Campus"
+                        size="xxs"
+                        textSize="xxs"
+                        logo={"/images/mint-campus-logo.png"}
+                      />
                       MINT-Campus
+                      <Icon type="box-arrow-up-right" />
                     </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem to="https://mint-vernetzt.shinyapps.io/datalab/">
-                      {/* TODO: MINTvernetzt avatar */}
+                    <NavBarMenu.TopicItem
+                      to="https://mint-vernetzt.shinyapps.io/datalab/"
+                      openNavBarMenuKey={openNavBarMenuKey}
+                    >
+                      <Avatar
+                        name="MINT-DataLab"
+                        size="xxs"
+                        textSize="xxs"
+                        logo={"/images/mint-vernetzt_shortlogo.png"}
+                      />
                       MINT-DataLab
+                      <Icon type="box-arrow-up-right" />
                     </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem to="https://mint-vernetzt.de">
-                      {/* TODO: MINTvernetzt avatar */}
+                    <NavBarMenu.TopicItem
+                      to="https://mint-vernetzt.de"
+                      openNavBarMenuKey={openNavBarMenuKey}
+                    >
+                      <Avatar
+                        name="MINTvernetzt Webseite"
+                        size="xxs"
+                        textSize="xxs"
+                        logo={"/images/mint-vernetzt_shortlogo.png"}
+                      />
                       MINTvernetzt Webseite
+                      <Icon type="box-arrow-up-right" />
                     </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem to="https://github.com/mint-vernetzt/community-platform">
-                      {/* TODO: GitHub avatar */}
+                    <NavBarMenu.TopicItem
+                      to="https://github.com/mint-vernetzt/community-platform"
+                      openNavBarMenuKey={openNavBarMenuKey}
+                    >
+                      <Avatar
+                        name="MINTvernetzt GitHub"
+                        size="xxs"
+                        textSize="xxs"
+                        logo={"/images/github-logo.svg"}
+                      />
                       MINTvernetzt GitHub
+                      <Icon type="box-arrow-up-right" />
                     </NavBarMenu.TopicItem>
                   </NavBarMenu.Topic>
 
                   <NavBarMenu.Topic
-                    openSearchParamKey="navbarmenu-topic"
-                    openSearchParamValue="explore"
+                    openNavBarMenuTopicKey={openNavBarMenuTopicKey}
+                    openNavBarMenuTopicValue="explore"
                   >
                     <NavBarMenu.Label
-                      openSearchParamKey="navbarmenu-topic"
-                      openSearchParamValue="explore"
+                      openNavBarMenuTopicKey={openNavBarMenuTopicKey}
+                      openNavBarMenuTopicValue="explore"
                     >
                       <Icon type="binoculars" />
                       <div className="mv-font-semibold">Entdecken</div>
                     </NavBarMenu.Label>
 
-                    <NavBarMenu.TopicItem to="/explore/profiles">
+                    <NavBarMenu.TopicItem
+                      to="/explore/profiles"
+                      openNavBarMenuKey={openNavBarMenuKey}
+                    >
                       Personen
                     </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem to="/explore/organizations">
+                    <NavBarMenu.TopicItem
+                      to="/explore/organizations"
+                      openNavBarMenuKey={openNavBarMenuKey}
+                    >
                       Organisationen
                     </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem to="/explore/projects">
+                    <NavBarMenu.TopicItem
+                      to="/explore/projects"
+                      openNavBarMenuKey={openNavBarMenuKey}
+                    >
                       Projekte
                     </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem to="/explore/events">
+                    <NavBarMenu.TopicItem
+                      to="/explore/events"
+                      openNavBarMenuKey={openNavBarMenuKey}
+                    >
                       Events
                     </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem to="next/explore/subsidies">
+                    <NavBarMenu.TopicItem
+                      to="next/explore/subsidies"
+                      openNavBarMenuKey={openNavBarMenuKey}
+                    >
                       Förderungen
                     </NavBarMenu.TopicItem>
                   </NavBarMenu.Topic>
@@ -849,15 +930,22 @@ export default function App() {
                     <LocaleSwitch />
                   </div>
 
-                  <NavBarMenu.Item to="/next/help">
-                    <Icon type="life-preserver_outline" />
-                    Hilfe
+                  <NavBarMenu.Item
+                    to="/next/help"
+                    openNavBarMenuKey={openNavBarMenuKey}
+                  >
+                    <Icon type="life-preserver" />
+                    <div className="mv-font-semibold">Hilfe</div>
                   </NavBarMenu.Item>
 
                   {mode === "authenticated" ? (
-                    <NavBarMenu.Item to="/logout" method="post">
+                    <NavBarMenu.Item
+                      to="/logout"
+                      method="post"
+                      openNavBarMenuKey={openNavBarMenuKey}
+                    >
                       <Icon type="door-closed" />
-                      Ausloggen
+                      <div className="mv-font-semibold">Ausloggen</div>
                     </NavBarMenu.Item>
                   ) : null}
                 </NavBarMenu.BottomMenu>
