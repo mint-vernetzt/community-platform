@@ -45,7 +45,6 @@ import { getFeatureAbilities } from "./lib/utils/application";
 import { detectLanguage, getProfileByUserId } from "./root.server";
 import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
-import styles from "./styles/legacy-styles.css";
 import { combineHeaders, deriveMode } from "./utils.server";
 import {
   Icon,
@@ -53,6 +52,10 @@ import {
   NewFeatureBanner,
   NextNavBar,
 } from "./routes/__components";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import { cssBundleHref } from "@remix-run/css-bundle";
+import "./styles/legacy-styles.css";
+import "overlayscrollbars/overlayscrollbars.css";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -60,7 +63,9 @@ export const meta: MetaFunction = () => {
   return [{ title: "MINTvernetzt Community Plattform" }];
 };
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -512,43 +517,45 @@ export const ErrorBoundary = () => {
       </head>
 
       <body>
-        <div id="top" className="flex flex-col min-h-screen">
-          {/* TODO: Include NextNavBar */}
-          {/* <NextNavBar abilities={{}} /> */}
-          <NavBar abilities={{}} />
-          <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-            <H1 like="h0">{errorTitle}</H1>
-            <H2 like="h1">Sorry, something went wrong!</H2>
-            <p>
-              Please capture a screenshot and send it over to{" "}
-              <StyledLink
-                as="a"
-                to="mailto:support@mint-vernetzt.de"
-                variant="primary"
-              >
-                support@mint-vernetzt.de
-              </StyledLink>
-              . We will do our best to help you with this issue.
-            </p>
-          </section>
-          {errorText !== undefined ? (
+        <OverlayScrollbarsComponent defer>
+          <div id="top" className="flex flex-col min-h-screen">
+            {/* TODO: Include NextNavBar */}
+            {/* <NextNavBar abilities={{}} /> */}
+            <NavBar abilities={{}} />
             <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-              <p>Error Text:</p>
-              {errorText}
+              <H1 like="h0">{errorTitle}</H1>
+              <H2 like="h1">Sorry, something went wrong!</H2>
+              <p>
+                Please capture a screenshot and send it over to{" "}
+                <StyledLink
+                  as="a"
+                  to="mailto:support@mint-vernetzt.de"
+                  variant="primary"
+                >
+                  support@mint-vernetzt.de
+                </StyledLink>
+                . We will do our best to help you with this issue.
+              </p>
             </section>
-          ) : null}
-          {errorData !== undefined ? (
-            <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-              <p>Error Data:</p>
-              {errorData}
-            </section>
-          ) : null}
-        </div>
-        <Footer />
+            {errorText !== undefined ? (
+              <section className="container my-8 md:mt-10 lg:mt-20 text-center">
+                <p>Error Text:</p>
+                {errorText}
+              </section>
+            ) : null}
+            {errorData !== undefined ? (
+              <section className="container my-8 md:mt-10 lg:mt-20 text-center">
+                <p>Error Data:</p>
+                {errorData}
+              </section>
+            ) : null}
+          </div>
+          <Footer />
 
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </OverlayScrollbarsComponent>
       </body>
     </html>
   );
@@ -607,13 +614,13 @@ export default function App() {
   const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
 
   const bodyClasses = classNames(
-    modal !== null && modal !== "false" && "overflow-hidden",
+    modal !== null && modal !== "false" && "mv-overflow-hidden",
     showFilters !== null &&
       showFilters !== "false" &&
-      "overflow-hidden lg:overflow-auto",
+      "mv-overflow-hidden lg:mv-overflow-auto",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
-      "overflow-hidden lg:overflow-auto"
+      "mv-overflow-hidden lg:mv-overflow-auto"
   );
 
   const { i18n } = useTranslation();
@@ -696,7 +703,17 @@ export default function App() {
         ) : null}
       </head>
 
-      <body className={bodyClasses}>
+      <OverlayScrollbarsComponent
+        element="body"
+        defer
+        options={{
+          paddingAbsolute: false,
+          scrollbars: { autoHide: "move" },
+          overflow: {},
+        }}
+        className={bodyClasses}
+      >
+        {/* <body className={bodyClasses}> */}
         <div id="top" className="flex flex-col min-h-screen">
           {abilities.next_navbar.hasAccess ? (
             <NextNavBar
@@ -995,7 +1012,8 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
-      </body>
+        {/* </body> */}
+      </OverlayScrollbarsComponent>
     </html>
   );
 }
