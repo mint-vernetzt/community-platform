@@ -2,6 +2,7 @@ import {
   Alert,
   CircleButton,
   Footer,
+  LocaleSwitch,
   Link as StyledLink,
 } from "@mint-vernetzt/components";
 import type {
@@ -13,6 +14,7 @@ import { json } from "@remix-run/node";
 import {
   Form,
   Link,
+  NavLink,
   Links,
   LiveReload,
   Meta,
@@ -44,7 +46,7 @@ import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/legacy-styles.css";
 import { combineHeaders, deriveMode } from "./utils.server";
-import { NavBarMenu, NextNavBar } from "./routes/__components";
+import { Icon, NavBarMenu, NextNavBar } from "./routes/__components";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -706,10 +708,185 @@ export default function App() {
             </div>
           ) : null}
 
-          {/* TODO: Navbar Menu */}
           <div className="mv-flex">
             {abilities.next_navbar.hasAccess ? (
-              <NavBarMenu mode={mode} username={currentUserInfo?.username} />
+              // TODO: i18n
+              <NavBarMenu mode={mode} openSearchParamKey="navbarmenu">
+                <NavBarMenu.Closer openSearchParamKey="navbarmenu" />
+                <NavBarMenu.TopMenu>
+                  {mode === "authenticated" && currentUserInfo !== undefined ? (
+                    <>
+                      <NavBarMenu.Item to="/next/dashboard">
+                        <Icon type="grid" />
+                        Überblick
+                      </NavBarMenu.Item>
+
+                      <NavBarMenu.Topic
+                        openSearchParamKey="navbarmenu-topic"
+                        openSearchParamValue="personalSpace"
+                      >
+                        <NavBarMenu.Label
+                          openSearchParamKey="navbarmenu-topic"
+                          openSearchParamValue="personalSpace"
+                        >
+                          <Icon type="person-fill" />
+                          <div className="mv-font-semibold">
+                            Mein MINT-Bereich
+                          </div>
+                        </NavBarMenu.Label>
+
+                        <NavBarMenu.TopicItem
+                          to={`/next/profile/${currentUserInfo.username}`}
+                        >
+                          Mein Profil
+                        </NavBarMenu.TopicItem>
+                        <NavBarMenu.TopicItem
+                          to={`/next/overview/organizations/${currentUserInfo.username}`}
+                        >
+                          Meine Organisationen
+                        </NavBarMenu.TopicItem>
+                        <NavBarMenu.TopicItem
+                          to={`/next/overview/events/${currentUserInfo.username}`}
+                        >
+                          Meine Events
+                        </NavBarMenu.TopicItem>
+                        <NavBarMenu.TopicItem
+                          to={`/next/overview/projects/${currentUserInfo.username}`}
+                        >
+                          Meine Projekte
+                        </NavBarMenu.TopicItem>
+                        <NavBarMenu.TopicItem
+                          to={`/next/overview/networks/${currentUserInfo.username}`}
+                        >
+                          Mein Netzwerk
+                        </NavBarMenu.TopicItem>
+                        <NavBarMenu.TopicItem
+                          to={`/next/overview/bookmarks/${currentUserInfo.username}`}
+                        >
+                          Gemerkte Inhalte
+                        </NavBarMenu.TopicItem>
+                      </NavBarMenu.Topic>
+                    </>
+                  ) : null}
+
+                  <NavBarMenu.Topic
+                    openSearchParamKey="navbarmenu-topic"
+                    openSearchParamValue="resources"
+                  >
+                    <NavBarMenu.Label
+                      openSearchParamKey="navbarmenu-topic"
+                      openSearchParamValue="resources"
+                    >
+                      <Icon type="briefcase" />
+                      <div className="mv-font-semibold">Ressourcen</div>
+                    </NavBarMenu.Label>
+
+                    <NavBarMenu.TopicItem
+                      // TODO: Link to MINT-Sharepic when its available
+                      to="https://mint-vernetzt.de"
+                    >
+                      {/* TODO: MINT-Sharepic avatar */}
+                      MINT-Sharepic
+                    </NavBarMenu.TopicItem>
+                    <NavBarMenu.TopicItem
+                      // TODO: Link to MINT-Bildarchiv when its available
+                      to="https://mint-vernetzt.de"
+                    >
+                      {/* TODO: MINT-Bildarchiv avatar */}
+                      MINT-Bildarchiv
+                    </NavBarMenu.TopicItem>
+                    <NavBarMenu.TopicItem to="https://mintcampus.org/">
+                      {/* TODO: MINT-Campus avatar  */}
+                      MINT-Campus
+                    </NavBarMenu.TopicItem>
+                    <NavBarMenu.TopicItem to="https://mint-vernetzt.shinyapps.io/datalab/">
+                      {/* TODO: MINTvernetzt avatar */}
+                      MINT-DataLab
+                    </NavBarMenu.TopicItem>
+                    <NavBarMenu.TopicItem to="https://mint-vernetzt.de">
+                      {/* TODO: MINTvernetzt avatar */}
+                      MINTvernetzt Webseite
+                    </NavBarMenu.TopicItem>
+                    <NavBarMenu.TopicItem to="https://github.com/mint-vernetzt/community-platform">
+                      {/* TODO: GitHub avatar */}
+                      MINTvernetzt GitHub
+                    </NavBarMenu.TopicItem>
+                  </NavBarMenu.Topic>
+
+                  <NavBarMenu.Topic
+                    openSearchParamKey="navbarmenu-topic"
+                    openSearchParamValue="explore"
+                  >
+                    <NavBarMenu.Label
+                      openSearchParamKey="navbarmenu-topic"
+                      openSearchParamValue="explore"
+                    >
+                      <Icon type="binoculars" />
+                      <div className="mv-font-semibold">Entdecken</div>
+                    </NavBarMenu.Label>
+
+                    <NavBarMenu.TopicItem to="/explore/profiles">
+                      Personen
+                    </NavBarMenu.TopicItem>
+                    <NavBarMenu.TopicItem to="/explore/organizations">
+                      Organisationen
+                    </NavBarMenu.TopicItem>
+                    <NavBarMenu.TopicItem to="/explore/projects">
+                      Projekte
+                    </NavBarMenu.TopicItem>
+                    <NavBarMenu.TopicItem to="/explore/events">
+                      Events
+                    </NavBarMenu.TopicItem>
+                    <NavBarMenu.TopicItem to="next/explore/subsidies">
+                      Förderungen
+                    </NavBarMenu.TopicItem>
+                  </NavBarMenu.Topic>
+                </NavBarMenu.TopMenu>
+
+                <NavBarMenu.BottomMenu>
+                  <div className="mv-pl-2 mv-py-4">
+                    {/* TODO: Text color of LocaleSwitch */}
+                    <LocaleSwitch />
+                  </div>
+
+                  <NavBarMenu.Item to="/next/help">
+                    <Icon type="life-preserver_outline" />
+                    Hilfe
+                  </NavBarMenu.Item>
+
+                  {mode === "authenticated" ? (
+                    <NavBarMenu.Item to="/logout" method="post">
+                      <Icon type="door-closed" />
+                      Ausloggen
+                    </NavBarMenu.Item>
+                  ) : null}
+                </NavBarMenu.BottomMenu>
+
+                <NavBarMenu.Footer>
+                  <NavLink
+                    className={({ isActive }) =>
+                      isActive ? "mv-underline" : "hover:mv-underline"
+                    }
+                    to="/imprint"
+                  >
+                    Impressum
+                  </NavLink>
+                  <Link
+                    className="hover:mv-underline"
+                    target="_blank"
+                    to="https://mint-vernetzt.de/privacy-policy-community-platform/"
+                  >
+                    Datenschutz
+                  </Link>
+                  <Link
+                    className="hover:mv-underline"
+                    target="_blank"
+                    to="https://mint-vernetzt.de/terms-of-use-community-platform/"
+                  >
+                    AGB
+                  </Link>
+                </NavBarMenu.Footer>
+              </NavBarMenu>
             ) : null}
             <div className="mv-flex-grow mv-@container">
               {isNonAppBaseRoute ? (
