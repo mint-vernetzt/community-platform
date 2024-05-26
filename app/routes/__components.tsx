@@ -1,4 +1,4 @@
-import { Avatar, Button } from "@mint-vernetzt/components";
+import { Avatar, Button, LocaleSwitch } from "@mint-vernetzt/components";
 import {
   Form,
   Link,
@@ -98,7 +98,7 @@ function NextNavBar(props: NextNavBarProps) {
           </Form>
 
           <div className="mv-flex-shrink mv-block lg:mv-hidden">
-            <NavBarMenu.Opener openNavBarMenuKey="navbarmenu" />
+            <Opener openNavBarMenuKey="navbarmenu" />
           </div>
 
           {props.sessionUserInfo !== undefined ? (
@@ -139,34 +139,13 @@ function NextNavBar(props: NextNavBarProps) {
 }
 
 function NavBarMenu(
-  props: React.PropsWithChildren & { mode: Mode; openNavBarMenuKey: string }
+  props: React.PropsWithChildren & {
+    mode: Mode;
+    openNavBarMenuKey: string;
+    openNavBarMenuTopicKey: string;
+    username?: string;
+  }
 ) {
-  const children = React.Children.toArray(props.children);
-  const closer = children.find(
-    (child) => React.isValidElement(child) && child.type === Closer
-  );
-  if (closer === undefined) {
-    throw new Error("Closer for NavBarMenu is missing");
-  }
-  const topMenu = children.find(
-    (child) => React.isValidElement(child) && child.type === TopMenu
-  );
-  if (topMenu === undefined) {
-    throw new Error("TopMenu for NavBarMenu is missing");
-  }
-  const bottomMenu = children.find(
-    (child) => React.isValidElement(child) && child.type === BottomMenu
-  );
-  if (bottomMenu === undefined) {
-    throw new Error("BottomMenu for NavBarMenu is missing");
-  }
-  const footer = children.find(
-    (child) => React.isValidElement(child) && child.type === Footer
-  );
-  if (footer === undefined) {
-    throw new Error("Footer for NavBarMenu is missing");
-  }
-
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get(props.openNavBarMenuKey);
 
@@ -206,12 +185,256 @@ function NavBarMenu(
         ) : (
           <div className="mv-flex-grow"> </div>
         )}
-        {closer}
+        <Closer openNavBarMenuKey={props.openNavBarMenuKey} />
       </div>
       <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
-        <div className="mv-flex-grow">{topMenu}</div>
-        <div className="mv-flex-shrink">{bottomMenu}</div>
-        <div className="mv-flex-shrink">{footer}</div>
+        <div className="mv-flex-grow">
+          <TopMenu>
+            {props.mode === "authenticated" && props.username !== undefined ? (
+              <>
+                <Item
+                  to="/next/dashboard"
+                  openNavBarMenuKey={props.openNavBarMenuKey}
+                >
+                  <Icon type="grid" />
+                  <div className="mv-font-semibold">Überblick</div>
+                </Item>
+
+                <Topic
+                  openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
+                  openNavBarMenuTopicValue="personalSpace"
+                >
+                  <Label
+                    openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
+                    openNavBarMenuTopicValue="personalSpace"
+                  >
+                    <Icon type="person" />
+                    <div className="mv-font-semibold">Mein MINT-Bereich</div>
+                  </Label>
+
+                  <TopicItem
+                    to={`/next/profile/${props.username}`}
+                    openNavBarMenuKey={props.openNavBarMenuKey}
+                  >
+                    Mein Profil
+                  </TopicItem>
+                  <TopicItem
+                    to={`/next/overview/organizations/${props.username}`}
+                    openNavBarMenuKey={props.openNavBarMenuKey}
+                  >
+                    Meine Organisationen
+                  </TopicItem>
+                  <TopicItem
+                    to={`/next/overview/events/${props.username}`}
+                    openNavBarMenuKey={props.openNavBarMenuKey}
+                  >
+                    Meine Events
+                  </TopicItem>
+                  <TopicItem
+                    to={`/next/overview/projects/${props.username}`}
+                    openNavBarMenuKey={props.openNavBarMenuKey}
+                  >
+                    Meine Projekte
+                  </TopicItem>
+                  <TopicItem
+                    to={`/next/overview/networks/${props.username}`}
+                    openNavBarMenuKey={props.openNavBarMenuKey}
+                  >
+                    Mein Netzwerk
+                  </TopicItem>
+                  <TopicItem
+                    to={`/next/overview/bookmarks/${props.username}`}
+                    openNavBarMenuKey={props.openNavBarMenuKey}
+                  >
+                    Gemerkte Inhalte
+                  </TopicItem>
+                </Topic>
+              </>
+            ) : null}
+
+            <Topic
+              openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
+              openNavBarMenuTopicValue="resources"
+            >
+              <Label
+                openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
+                openNavBarMenuTopicValue="resources"
+              >
+                <Icon type="briefcase" />
+                <div className="mv-font-semibold">Ressourcen</div>
+              </Label>
+
+              <TopicItem
+                // TODO: Link to MINT-Sharepic when its available
+                to="https://mint-vernetzt.de"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                {/* TODO: Add logo to public/images and logo src to Avatar */}
+                <Avatar name="MINT-Sharepic" size="xxs" textSize="xxs" />
+                MINT-Sharepic
+                <Icon type="box-arrow-up-right" />
+                <NewFeatureBanner />
+              </TopicItem>
+              <TopicItem
+                // TODO: Link to MINT-Bildarchiv when its available
+                to="https://mint-vernetzt.de"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                {/* TODO: Add logo to public/images and logo src to Avatar */}
+                <Avatar name="MINT-Bildarchiv" size="xxs" textSize="xxs" />
+                MINT-Bildarchiv
+                <Icon type="box-arrow-up-right" />
+                <NewFeatureBanner />
+              </TopicItem>
+              <TopicItem
+                to="https://mintcampus.org/"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                <Avatar
+                  name="MINT-Campus"
+                  size="xxs"
+                  textSize="xxs"
+                  logo={"/images/mint-campus-logo.png"}
+                />
+                MINT-Campus
+                <Icon type="box-arrow-up-right" />
+              </TopicItem>
+              <TopicItem
+                to="https://mint-vernetzt.shinyapps.io/datalab/"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                <Avatar
+                  name="MINT-DataLab"
+                  size="xxs"
+                  textSize="xxs"
+                  logo={"/images/mint-vernetzt_shortlogo.png"}
+                />
+                MINT-DataLab
+                <Icon type="box-arrow-up-right" />
+              </TopicItem>
+              <TopicItem
+                to="https://mint-vernetzt.de"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                <Avatar
+                  name="MINTvernetzt Webseite"
+                  size="xxs"
+                  textSize="xxs"
+                  logo={"/images/mint-vernetzt_shortlogo.png"}
+                />
+                MINTvernetzt Webseite
+                <Icon type="box-arrow-up-right" />
+              </TopicItem>
+              <TopicItem
+                to="https://github.com/mint-vernetzt/community-platform"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                <Avatar
+                  name="MINTvernetzt GitHub"
+                  size="xxs"
+                  textSize="xxs"
+                  logo={"/images/github-logo.svg"}
+                />
+                MINTvernetzt GitHub
+                <Icon type="box-arrow-up-right" />
+              </TopicItem>
+            </Topic>
+
+            <Topic
+              openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
+              openNavBarMenuTopicValue="explore"
+            >
+              <Label
+                openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
+                openNavBarMenuTopicValue="explore"
+              >
+                <Icon type="binoculars" />
+                <div className="mv-font-semibold">Entdecken</div>
+              </Label>
+
+              <TopicItem
+                to="/explore/profiles"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                Personen
+              </TopicItem>
+              <TopicItem
+                to="/explore/organizations"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                Organisationen
+              </TopicItem>
+              <TopicItem
+                to="/explore/projects"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                Projekte
+              </TopicItem>
+              <TopicItem
+                to="/explore/events"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                Events
+              </TopicItem>
+              <TopicItem
+                to="next/explore/subsidies"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                Förderungen
+              </TopicItem>
+            </Topic>
+          </TopMenu>
+        </div>
+        <div className="mv-flex-shrink">
+          <BottomMenu>
+            <div className="mv-pl-2 mv-py-4">
+              {/* TODO: Text color of LocaleSwitch */}
+              <LocaleSwitch />
+            </div>
+
+            <Item to="/next/help" openNavBarMenuKey={props.openNavBarMenuKey}>
+              <Icon type="life-preserver" />
+              <div className="mv-font-semibold">Hilfe</div>
+            </Item>
+
+            {props.mode === "authenticated" ? (
+              <Item
+                to="/logout"
+                method="post"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                <Icon type="door-closed" />
+                <div className="mv-font-semibold">Ausloggen</div>
+              </Item>
+            ) : null}
+          </BottomMenu>
+        </div>
+        <div className="mv-flex-shrink">
+          <Footer>
+            <NavLink
+              className={({ isActive }) =>
+                isActive ? "mv-underline" : "hover:mv-underline"
+              }
+              to="/imprint"
+            >
+              Impressum
+            </NavLink>
+            <Link
+              className="hover:mv-underline"
+              target="_blank"
+              to="https://mint-vernetzt.de/privacy-policy-community-platform/"
+            >
+              Datenschutz
+            </Link>
+            <Link
+              className="hover:mv-underline"
+              target="_blank"
+              to="https://mint-vernetzt.de/terms-of-use-community-platform/"
+            >
+              AGB
+            </Link>
+          </Footer>
+        </div>
       </div>
     </div>
   );
@@ -664,14 +887,4 @@ function NewFeatureBanner() {
   );
 }
 
-NavBarMenu.TopMenu = TopMenu;
-NavBarMenu.BottomMenu = BottomMenu;
-NavBarMenu.Footer = Footer;
-NavBarMenu.Item = Item;
-NavBarMenu.Topic = Topic;
-NavBarMenu.Label = Label;
-NavBarMenu.TopicItem = TopicItem;
-NavBarMenu.Opener = Opener;
-NavBarMenu.Closer = Closer;
-
-export { CountUp, NavBarMenu, NextNavBar, Icon, NewFeatureBanner };
+export { CountUp, NavBarMenu, NextNavBar };

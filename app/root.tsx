@@ -1,11 +1,10 @@
 import {
   Alert,
-  Avatar,
   CircleButton,
   Footer,
-  LocaleSwitch,
   Link as StyledLink,
 } from "@mint-vernetzt/components";
+import { cssBundleHref } from "@remix-run/css-bundle";
 import type {
   LinksFunction,
   LoaderFunctionArgs,
@@ -15,7 +14,6 @@ import { json } from "@remix-run/node";
 import {
   Form,
   Link,
-  NavLink,
   Links,
   LiveReload,
   Meta,
@@ -31,6 +29,8 @@ import {
 } from "@remix-run/react";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+import "overlayscrollbars/overlayscrollbars.css";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useChangeLanguage } from "remix-i18next";
@@ -43,19 +43,11 @@ import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { detectLanguage, getProfileByUserId } from "./root.server";
+import { NavBarMenu, NextNavBar } from "./routes/__components";
 import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
-import { combineHeaders, deriveMode } from "./utils.server";
-import {
-  Icon,
-  NavBarMenu,
-  NewFeatureBanner,
-  NextNavBar,
-} from "./routes/__components";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import { cssBundleHref } from "@remix-run/css-bundle";
 import "./styles/legacy-styles.css";
-import "overlayscrollbars/overlayscrollbars.css";
+import { combineHeaders, deriveMode } from "./utils.server";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -737,261 +729,12 @@ export default function App() {
           <div className="mv-flex">
             {abilities.next_navbar.hasAccess ? (
               // TODO: i18n
-              <NavBarMenu mode={mode} openNavBarMenuKey={openNavBarMenuKey}>
-                <NavBarMenu.Closer openNavBarMenuKey={openNavBarMenuKey} />
-                <NavBarMenu.TopMenu>
-                  {mode === "authenticated" && currentUserInfo !== undefined ? (
-                    <>
-                      <NavBarMenu.Item
-                        to="/next/dashboard"
-                        openNavBarMenuKey={openNavBarMenuKey}
-                      >
-                        <Icon type="grid" />
-                        <div className="mv-font-semibold">Überblick</div>
-                      </NavBarMenu.Item>
-
-                      <NavBarMenu.Topic
-                        openNavBarMenuTopicKey={openNavBarMenuTopicKey}
-                        openNavBarMenuTopicValue="personalSpace"
-                      >
-                        <NavBarMenu.Label
-                          openNavBarMenuTopicKey={openNavBarMenuTopicKey}
-                          openNavBarMenuTopicValue="personalSpace"
-                        >
-                          <Icon type="person" />
-                          <div className="mv-font-semibold">
-                            Mein MINT-Bereich
-                          </div>
-                        </NavBarMenu.Label>
-
-                        <NavBarMenu.TopicItem
-                          to={`/next/profile/${currentUserInfo.username}`}
-                          openNavBarMenuKey={openNavBarMenuKey}
-                        >
-                          Mein Profil
-                        </NavBarMenu.TopicItem>
-                        <NavBarMenu.TopicItem
-                          to={`/next/overview/organizations/${currentUserInfo.username}`}
-                          openNavBarMenuKey={openNavBarMenuKey}
-                        >
-                          Meine Organisationen
-                        </NavBarMenu.TopicItem>
-                        <NavBarMenu.TopicItem
-                          to={`/next/overview/events/${currentUserInfo.username}`}
-                          openNavBarMenuKey={openNavBarMenuKey}
-                        >
-                          Meine Events
-                        </NavBarMenu.TopicItem>
-                        <NavBarMenu.TopicItem
-                          to={`/next/overview/projects/${currentUserInfo.username}`}
-                          openNavBarMenuKey={openNavBarMenuKey}
-                        >
-                          Meine Projekte
-                        </NavBarMenu.TopicItem>
-                        <NavBarMenu.TopicItem
-                          to={`/next/overview/networks/${currentUserInfo.username}`}
-                          openNavBarMenuKey={openNavBarMenuKey}
-                        >
-                          Mein Netzwerk
-                        </NavBarMenu.TopicItem>
-                        <NavBarMenu.TopicItem
-                          to={`/next/overview/bookmarks/${currentUserInfo.username}`}
-                          openNavBarMenuKey={openNavBarMenuKey}
-                        >
-                          Gemerkte Inhalte
-                        </NavBarMenu.TopicItem>
-                      </NavBarMenu.Topic>
-                    </>
-                  ) : null}
-
-                  <NavBarMenu.Topic
-                    openNavBarMenuTopicKey={openNavBarMenuTopicKey}
-                    openNavBarMenuTopicValue="resources"
-                  >
-                    <NavBarMenu.Label
-                      openNavBarMenuTopicKey={openNavBarMenuTopicKey}
-                      openNavBarMenuTopicValue="resources"
-                    >
-                      <Icon type="briefcase" />
-                      <div className="mv-font-semibold">Ressourcen</div>
-                    </NavBarMenu.Label>
-
-                    <NavBarMenu.TopicItem
-                      // TODO: Link to MINT-Sharepic when its available
-                      to="https://mint-vernetzt.de"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      {/* TODO: Add logo to public/images and logo src to Avatar */}
-                      <Avatar name="MINT-Sharepic" size="xxs" textSize="xxs" />
-                      MINT-Sharepic
-                      <Icon type="box-arrow-up-right" />
-                      <NewFeatureBanner />
-                    </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem
-                      // TODO: Link to MINT-Bildarchiv when its available
-                      to="https://mint-vernetzt.de"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      {/* TODO: Add logo to public/images and logo src to Avatar */}
-                      <Avatar
-                        name="MINT-Bildarchiv"
-                        size="xxs"
-                        textSize="xxs"
-                      />
-                      MINT-Bildarchiv
-                      <Icon type="box-arrow-up-right" />
-                      <NewFeatureBanner />
-                    </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem
-                      to="https://mintcampus.org/"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      <Avatar
-                        name="MINT-Campus"
-                        size="xxs"
-                        textSize="xxs"
-                        logo={"/images/mint-campus-logo.png"}
-                      />
-                      MINT-Campus
-                      <Icon type="box-arrow-up-right" />
-                    </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem
-                      to="https://mint-vernetzt.shinyapps.io/datalab/"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      <Avatar
-                        name="MINT-DataLab"
-                        size="xxs"
-                        textSize="xxs"
-                        logo={"/images/mint-vernetzt_shortlogo.png"}
-                      />
-                      MINT-DataLab
-                      <Icon type="box-arrow-up-right" />
-                    </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem
-                      to="https://mint-vernetzt.de"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      <Avatar
-                        name="MINTvernetzt Webseite"
-                        size="xxs"
-                        textSize="xxs"
-                        logo={"/images/mint-vernetzt_shortlogo.png"}
-                      />
-                      MINTvernetzt Webseite
-                      <Icon type="box-arrow-up-right" />
-                    </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem
-                      to="https://github.com/mint-vernetzt/community-platform"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      <Avatar
-                        name="MINTvernetzt GitHub"
-                        size="xxs"
-                        textSize="xxs"
-                        logo={"/images/github-logo.svg"}
-                      />
-                      MINTvernetzt GitHub
-                      <Icon type="box-arrow-up-right" />
-                    </NavBarMenu.TopicItem>
-                  </NavBarMenu.Topic>
-
-                  <NavBarMenu.Topic
-                    openNavBarMenuTopicKey={openNavBarMenuTopicKey}
-                    openNavBarMenuTopicValue="explore"
-                  >
-                    <NavBarMenu.Label
-                      openNavBarMenuTopicKey={openNavBarMenuTopicKey}
-                      openNavBarMenuTopicValue="explore"
-                    >
-                      <Icon type="binoculars" />
-                      <div className="mv-font-semibold">Entdecken</div>
-                    </NavBarMenu.Label>
-
-                    <NavBarMenu.TopicItem
-                      to="/explore/profiles"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      Personen
-                    </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem
-                      to="/explore/organizations"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      Organisationen
-                    </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem
-                      to="/explore/projects"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      Projekte
-                    </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem
-                      to="/explore/events"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      Events
-                    </NavBarMenu.TopicItem>
-                    <NavBarMenu.TopicItem
-                      to="next/explore/subsidies"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      Förderungen
-                    </NavBarMenu.TopicItem>
-                  </NavBarMenu.Topic>
-                </NavBarMenu.TopMenu>
-
-                <NavBarMenu.BottomMenu>
-                  <div className="mv-pl-2 mv-py-4">
-                    {/* TODO: Text color of LocaleSwitch */}
-                    <LocaleSwitch />
-                  </div>
-
-                  <NavBarMenu.Item
-                    to="/next/help"
-                    openNavBarMenuKey={openNavBarMenuKey}
-                  >
-                    <Icon type="life-preserver" />
-                    <div className="mv-font-semibold">Hilfe</div>
-                  </NavBarMenu.Item>
-
-                  {mode === "authenticated" ? (
-                    <NavBarMenu.Item
-                      to="/logout"
-                      method="post"
-                      openNavBarMenuKey={openNavBarMenuKey}
-                    >
-                      <Icon type="door-closed" />
-                      <div className="mv-font-semibold">Ausloggen</div>
-                    </NavBarMenu.Item>
-                  ) : null}
-                </NavBarMenu.BottomMenu>
-
-                <NavBarMenu.Footer>
-                  <NavLink
-                    className={({ isActive }) =>
-                      isActive ? "mv-underline" : "hover:mv-underline"
-                    }
-                    to="/imprint"
-                  >
-                    Impressum
-                  </NavLink>
-                  <Link
-                    className="hover:mv-underline"
-                    target="_blank"
-                    to="https://mint-vernetzt.de/privacy-policy-community-platform/"
-                  >
-                    Datenschutz
-                  </Link>
-                  <Link
-                    className="hover:mv-underline"
-                    target="_blank"
-                    to="https://mint-vernetzt.de/terms-of-use-community-platform/"
-                  >
-                    AGB
-                  </Link>
-                </NavBarMenu.Footer>
-              </NavBarMenu>
+              <NavBarMenu
+                mode={mode}
+                openNavBarMenuKey={openNavBarMenuKey}
+                openNavBarMenuTopicKey={openNavBarMenuTopicKey}
+                username={currentUserInfo?.username}
+              />
             ) : null}
             <div className="mv-flex-grow mv-@container">
               {isNonAppBaseRoute ? (
