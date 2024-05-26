@@ -4,7 +4,6 @@ import {
   Footer,
   Link as StyledLink,
 } from "@mint-vernetzt/components";
-import { cssBundleHref } from "@remix-run/css-bundle";
 import type {
   LinksFunction,
   LoaderFunctionArgs,
@@ -29,8 +28,6 @@ import {
 } from "@remix-run/react";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import "overlayscrollbars/overlayscrollbars.css";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useChangeLanguage } from "remix-i18next";
@@ -46,7 +43,7 @@ import { detectLanguage, getProfileByUserId } from "./root.server";
 import { NavBarMenu, NextNavBar } from "./routes/__components";
 import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
-import "./styles/legacy-styles.css";
+import legacyStyles from "./styles/legacy-styles.css";
 import { combineHeaders, deriveMode } from "./utils.server";
 
 // import newStyles from "../common/design/styles/styles.css";
@@ -56,7 +53,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const links: LinksFunction = () => [
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+  { rel: "stylesheet", href: legacyStyles },
 ];
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -509,45 +506,43 @@ export const ErrorBoundary = () => {
       </head>
 
       <body>
-        <OverlayScrollbarsComponent defer>
-          <div id="top" className="flex flex-col min-h-screen">
-            {/* TODO: Include NextNavBar */}
-            {/* <NextNavBar abilities={{}} /> */}
-            <NavBar abilities={{}} />
+        <div id="top" className="flex flex-col min-h-screen">
+          {/* TODO: Include NextNavBar */}
+          {/* <NextNavBar abilities={{}} /> */}
+          <NavBar abilities={{}} />
+          <section className="container my-8 md:mt-10 lg:mt-20 text-center">
+            <H1 like="h0">{errorTitle}</H1>
+            <H2 like="h1">Sorry, something went wrong!</H2>
+            <p>
+              Please capture a screenshot and send it over to{" "}
+              <StyledLink
+                as="a"
+                to="mailto:support@mint-vernetzt.de"
+                variant="primary"
+              >
+                support@mint-vernetzt.de
+              </StyledLink>
+              . We will do our best to help you with this issue.
+            </p>
+          </section>
+          {errorText !== undefined ? (
             <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-              <H1 like="h0">{errorTitle}</H1>
-              <H2 like="h1">Sorry, something went wrong!</H2>
-              <p>
-                Please capture a screenshot and send it over to{" "}
-                <StyledLink
-                  as="a"
-                  to="mailto:support@mint-vernetzt.de"
-                  variant="primary"
-                >
-                  support@mint-vernetzt.de
-                </StyledLink>
-                . We will do our best to help you with this issue.
-              </p>
+              <p>Error Text:</p>
+              {errorText}
             </section>
-            {errorText !== undefined ? (
-              <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-                <p>Error Text:</p>
-                {errorText}
-              </section>
-            ) : null}
-            {errorData !== undefined ? (
-              <section className="container my-8 md:mt-10 lg:mt-20 text-center">
-                <p>Error Data:</p>
-                {errorData}
-              </section>
-            ) : null}
-          </div>
-          <Footer />
+          ) : null}
+          {errorData !== undefined ? (
+            <section className="container my-8 md:mt-10 lg:mt-20 text-center">
+              <p>Error Data:</p>
+              {errorData}
+            </section>
+          ) : null}
+        </div>
+        <Footer />
 
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
-        </OverlayScrollbarsComponent>
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
       </body>
     </html>
   );
@@ -695,17 +690,7 @@ export default function App() {
         ) : null}
       </head>
 
-      <OverlayScrollbarsComponent
-        element="body"
-        defer
-        options={{
-          paddingAbsolute: false,
-          scrollbars: { autoHide: "move" },
-          overflow: {},
-        }}
-        className={bodyClasses}
-      >
-        {/* <body className={bodyClasses}> */}
+      <body className={bodyClasses}>
         <div id="top" className="flex flex-col min-h-screen">
           {abilities.next_navbar.hasAccess ? (
             <NextNavBar
@@ -755,8 +740,7 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
-        {/* </body> */}
-      </OverlayScrollbarsComponent>
+      </body>
     </html>
   );
 }
