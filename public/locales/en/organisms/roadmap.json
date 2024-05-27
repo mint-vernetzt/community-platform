@@ -11,8 +11,8 @@
         "description": "You can use the networking function to network with other actors or organizations and collect your contacts in lists."
       },
       "secondCard": {
-        "title": "Interaction",
-        "description": "You can react to existing content such as projects or posts via interactions (such as liking or commenting)."
+        "title": "Matching function",
+        "description": "Suitable projects, organizations and actors are suggested to you via an algorithm."
       },
       "thirdCard": {
         "title": "Create own events",
@@ -23,10 +23,14 @@
         "description": "You can add yourself to an organization and no longer have to have a team member add you."
       },
       "fifthCard": {
+        "title": "Interaction",
+        "description": "You can react to existing content such as projects or posts via interactions (such as liking or commenting)."
+      },
+      "sixthCard": {
         "title": "MINT-Campus connection",
         "description": "See who is creating courses, which courses are being taken by others and show which courses you have completed."
       },
-      "sixthCard": {
+      "seventhCard": {
         "title": "STEM sharepic and image database",
         "description": "The Sharepic Generator helps you quickly and easily create graphics for e.g. your social media posts. You can find STEM images in the image database (DAM)."
       }
@@ -38,12 +42,12 @@
         "description": "After logging in, you can use the dashboard to clearly see all the platform's functions at a glance and be informed about news."
       },
       "secondCard": {
-        "title": "Matching function",
-        "description": "Suitable projects, organizations and actors are suggested to you via an algorithm."
-      },
-      "thirdCard": {
         "title": "Funding tool",
         "description": "With the help of a crawler, STEM funding is compiled and displayed for you on the platform."
+      },
+      "thirdCard": {
+        "title": "FAQ",
+        "description": "In this FAQ list, we collect frequently asked questions and answers about the community platform which provide you with further information about using the platform."
       }
     },
     "thirdColumn": {

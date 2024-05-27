@@ -11,8 +11,8 @@
       "description": "Per Vernetzungsfunktion kannst Du Dich mit anderen Akteur:innen oder Organisationen vernetzen und Deine Kontakte in Listen zusammenstellen."
     },
     "secondCard": {
-      "title": "Interaktion",
-      "description": "Über Interaktionen (wie liken oder kommentieren) kannst Du auf bestehende Inhalte wie z.B. Projekte oder Beiträge reagieren."
+      "title": "Matching-Funktion",
+      "description": "Über einen Algorithmus werden Dir passende Projekte, Organisationen und Akteur:innen vorgeschlagen."
     },
     "thirdCard": {
       "title": "Eigene Events anlegen",
@@ -23,10 +23,14 @@
       "description": "Du kannst Dich selbst einer Organisation hinzufügen und musst Dich nicht mehr von einem Teammitglied hinzufügen lassen."
     },
     "fifthCard": {
+      "title": "Interaktion",
+      "description": "Über Interaktionen (wie liken oder kommentieren) kannst Du auf bestehende Inhalte wie z.B. Projekte oder Beiträge reagieren."
+    },
+    "sixthCard": {
       "title": "MINT-Campus Anbindung",
       "description": "Sieh wer Kurse erstellt, welche Kurse von anderen belegt werden und zeige, welche Kurse Du absolviert hast."
     },
-    "sixthCard": {
+    "seventhCard": {
       "title": "MINT-Sharepic und -Bilddatenbank",
       "description": "Der Sharepic Generator hilft Euch schnell und einfach Grafiken für z.B. Eure Social Media Posts zu erstellen. MINT-Bilder findet Ihr in der Bilddatenbank (DAM)."
     }
@@ -38,12 +42,12 @@
       "description": "Über das Dashboard siehst du nach dem Einloggen übersichtlich alle Funktionen der Plattform auf einen Blick und wirst über Neuigkeiten informiert."
     },
     "secondCard": {
-      "title": "Matching-Funktion",
-      "description": "Über einen Algorithmus werden Dir passende Projekte, Organisationen und Akteur:innen vorgeschlagen."
-    },
-    "thirdCard": {
       "title": "Förder-Tool",
       "description": "Mit Hilfe eines Crawlers werden MINT-Förderungen zusammengetragen und für Euch in der Plattform ausgespielt."
+    },
+    "thirdCard": {
+      "title": "FAQ",
+      "description": "In dieser FAQ-Liste sammeln wir häufig gestellte Fragen und Antworten rund um die Community-Plattform, die Euch weiterführende Informationen zur Nutzung der Plattform bieten."
     }
   },
   "thirdColumn": {

@@ -109,6 +109,10 @@ function Roadmap() {
               title={t("firstColumn.sixthCard.title")}
               text={t("firstColumn.sixthCard.description")}
             />
+            <RoadmapCard
+              title={t("firstColumn.seventhCard.title")}
+              text={t("firstColumn.seventhCard.description")}
+            />
           </RoadmapColumn>
 
           <RoadmapColumn title={t("secondColumn.title")} id="2">
