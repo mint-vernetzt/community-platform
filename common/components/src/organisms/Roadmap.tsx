@@ -15,14 +15,14 @@ function RoadmapColumn(props: RoadmapColumnProps) {
       <h4 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary mv-font-bold">
         {props.title}
       </h4>
-      <div className="mv-bg-blue-50 mv-rounded-2xl mv-p-4 xl:mv-p-6 mv-flex mv-flex-col mv-group">
+      <div className="mv-bg-blue-50 mv-rounded-lg mv-p-4 xl:mv-p-6 mv-flex mv-flex-col mv-group">
         <input
           type="checkbox"
           id={`collapse-col-${props.id}`}
           className="mv-peer mv-order-2 mv-h-0 mv-w-0 mv-opacity-0"
         />
         <div
-          className={`mv-bg-blue-50 mv-rounded-2xl mv-grid mv-overflow-hidden mv-transition-all mv-grid-rows-[repeat(2,_1fr)_repeat(${countRoadmapCards},_0fr)] md:mv-grid-rows-[repeat(3,_1fr)_repeat(${countRoadmapCards},_0fr)] peer-checked:mv-grid-rows-${countRoadmapCards} mv-order-1`}
+          className={`mv-bg-blue-50 mv-rounded-lg mv-grid mv-overflow-hidden mv-transition-all mv-grid-rows-[repeat(2,_1fr)_repeat(${countRoadmapCards},_0fr)] md:mv-grid-rows-[repeat(3,_1fr)_repeat(${countRoadmapCards},_0fr)] peer-checked:mv-grid-rows-${countRoadmapCards} mv-order-1`}
         >
           {props.children}
         </div>
@@ -109,6 +109,10 @@ function Roadmap() {
               title={t("firstColumn.sixthCard.title")}
               text={t("firstColumn.sixthCard.description")}
             />
+            <RoadmapCard
+              title={t("firstColumn.seventhCard.title")}
+              text={t("firstColumn.seventhCard.description")}
+            />
           </RoadmapColumn>
 
           <RoadmapColumn title={t("secondColumn.title")} id="2">
@@ -119,6 +123,10 @@ function Roadmap() {
             <RoadmapCard
               title={t("secondColumn.secondCard.title")}
               text={t("secondColumn.secondCard.description")}
+            />
+            <RoadmapCard
+              title={t("secondColumn.thirdCard.title")}
+              text={t("secondColumn.thirdCard.description")}
             />
           </RoadmapColumn>
 
@@ -146,6 +154,10 @@ function Roadmap() {
             <RoadmapCard
               title={t("thirdColumn.sixthCard.title")}
               text={t("thirdColumn.sixthCard.description")}
+            />
+            <RoadmapCard
+              title={t("thirdColumn.seventhCard.title")}
+              text={t("thirdColumn.seventhCard.description")}
             />
           </RoadmapColumn>
         </div>
