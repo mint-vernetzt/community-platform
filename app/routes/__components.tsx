@@ -550,10 +550,21 @@ function Topic(
   const isOpen = openTopicId === props.openNavBarMenuTopicValue;
 
   return (
-    <div className="mv-w-full mv-flex mv-flex-col">
+    <label
+      htmlFor={props.openNavBarMenuTopicValue}
+      className="mv-w-full mv-flex mv-flex-col mv-group"
+    >
+      <input
+        id={props.openNavBarMenuTopicValue}
+        name="open-topic"
+        type="radio"
+        hidden
+      />
       {label}
-      <div className={`${isOpen ? "" : "mv-hidden"}`}>{topicItems}</div>
-    </div>
+      <div className="mv-hidden group-has-[:checked]:mv-block">
+        {topicItems}
+      </div>
+    </label>
   );
 }
 
@@ -580,26 +591,16 @@ function Label(
   }
 
   return (
-    <Link
-      to={`?${extendedSearchParams.toString()}`}
-      preventScrollReset
-      className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500"
-    >
-      <div
-        className={`mv-flex mv-items-center mv-gap-2 mv-flex-grow ${
-          isOpen ? "mv-text-primary-500" : ""
-        }`}
-      >
+    // <div onClick={() => setOpen(!open)}>
+    <div className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500">
+      <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow group-has-[:checked]:mv-text-primary-500">
         {children}
       </div>
-      <div
-        className={`mv-flex-shrink mv-cursor-pointer ${
-          isOpen ? "mv-rotate-90" : ""
-        }`}
-      >
+      <div className="mv-flex-shrink mv-cursor-pointer group-has-[:checked]:mv-rotate-90">
         <Icon type="chevron-right" />
       </div>
-    </Link>
+    </div>
+    // </div>
   );
 }
 
