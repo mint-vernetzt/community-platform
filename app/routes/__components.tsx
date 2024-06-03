@@ -539,7 +539,7 @@ function Topic(
   return (
     <div className="mv-w-full mv-flex mv-flex-col">
       {label}
-      {isOpen ? topicItems : null}
+      <div className={`${isOpen ? "" : "mv-hidden"}`}>{topicItems}</div>
     </div>
   );
 }
@@ -614,7 +614,7 @@ function TopicItem(
       to={`${props.to}?${extendedSearchParams.toString()}`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
-          "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4";
+          "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-8 mv-pr-2 mv-py-4";
         if (isActive || isPending || isTransitioning) {
           return `${baseClasses} mv-bg-blue-50 mv-text-primary-500`;
         }
