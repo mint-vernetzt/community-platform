@@ -569,6 +569,7 @@ function Label(
   return (
     <Link
       to={`?${extendedSearchParams.toString()}`}
+      preventScrollReset
       className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500"
     >
       <div
