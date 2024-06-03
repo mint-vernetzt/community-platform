@@ -195,6 +195,7 @@ function NavBarMenu(
                 <Item
                   to="/next/dashboard"
                   openNavBarMenuKey={props.openNavBarMenuKey}
+                  openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
                 >
                   <Icon type="grid" />
                   <div className="mv-font-semibold">Überblick</div>
@@ -392,7 +393,11 @@ function NavBarMenu(
               <LocaleSwitch />
             </div>
 
-            <Item to="/next/help" openNavBarMenuKey={props.openNavBarMenuKey}>
+            <Item
+              to="/next/help"
+              openNavBarMenuKey={props.openNavBarMenuKey}
+              openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
+            >
               <Icon type="life-preserver" />
               <div className="mv-font-semibold">Hilfe</div>
             </Item>
@@ -402,6 +407,7 @@ function NavBarMenu(
                 to="/logout"
                 method="post"
                 openNavBarMenuKey={props.openNavBarMenuKey}
+                openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
               >
                 <Icon type="door-closed" />
                 <div className="mv-font-semibold">Ausloggen</div>
@@ -476,6 +482,7 @@ function Item(
   props: React.PropsWithChildren & {
     to: string;
     openNavBarMenuKey: string;
+    openNavBarMenuTopicKey: string;
     method?: "get" | "post";
   }
 ) {
@@ -484,6 +491,7 @@ function Item(
   const [searchParams] = useSearchParams();
   const extendedSearchParams = new URLSearchParams(searchParams.toString());
   extendedSearchParams.delete(props.openNavBarMenuKey);
+  extendedSearchParams.delete(props.openNavBarMenuTopicKey);
   return props.method === "post" ? (
     <>
       <Form id={props.to} method="post" action={props.to} hidden />
