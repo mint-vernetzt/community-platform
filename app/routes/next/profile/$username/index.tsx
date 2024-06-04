@@ -1,5 +1,5 @@
 import { redirect, type LoaderFunctionArgs } from "@remix-run/server-runtime";
-import { createAuthClient, getSessionUser } from "~/auth.server";
+import { createAuthClient } from "~/auth.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 
@@ -7,10 +7,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-  if (sessionUser === null) {
-    return redirect("/");
-  }
   const abilities = await getFeatureAbilities(authClient, ["next"]);
   if (!abilities.next.hasAccess) {
     const username = getParamValueOrThrow(params, "username");

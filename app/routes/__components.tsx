@@ -68,7 +68,7 @@ function NextNavBar(props: NextNavBarProps) {
     <header id="header" className={classes}>
       <div className="mv-flex mv-h-full mv-items-center mv-mr-4 lg:mv-mr-8">
         <Link
-          to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
+          to={props.sessionUserInfo !== undefined ? "/next/dashboard" : "/"}
           className={`lg:mv-w-[300px] mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 ${
             props.sessionUserInfo !== undefined ? "mv-hidden lg:mv-block" : ""
           }`}
@@ -88,7 +88,11 @@ function NextNavBar(props: NextNavBarProps) {
               firstName={props.sessionUserInfo.firstName}
               lastName={props.sessionUserInfo.lastName}
               avatar={props.sessionUserInfo.avatar}
-              to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
+              to={
+                props.sessionUserInfo !== undefined
+                  ? `/next/profile/${props.sessionUserInfo.username}`
+                  : "/"
+              }
             />
           </div>
         )}
@@ -113,7 +117,11 @@ function NextNavBar(props: NextNavBarProps) {
                 firstName={props.sessionUserInfo.firstName}
                 lastName={props.sessionUserInfo.lastName}
                 avatar={props.sessionUserInfo.avatar}
-                to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
+                to={
+                  props.sessionUserInfo !== undefined
+                    ? `/next/profile/${props.sessionUserInfo.username}`
+                    : "/"
+                }
               />
 
               <div className="mv-text-sm mv-font-semibold mv-text-primary mv-cursor-default">
@@ -156,6 +164,8 @@ function NavBarMenu(
 
   const [activeTopicId, setActiveTopicId] = React.useState<string | null>(null);
 
+  const { t } = useTranslation(["meta"]);
+
   return (
     <div
       id="navbarmenu"
@@ -166,7 +176,7 @@ function NavBarMenu(
       } mv-w-full mv-min-w-full lg:mv-w-[300px] lg:mv-min-w-[300px] mv-h-screen mv-sticky mv-top-0 lg:-mv-mt-28 mv-bg-white mv-z-10`}
     >
       <Link
-        to={props.mode !== "anon" ? "/dashboard" : "/"}
+        to={props.mode !== "anon" ? "/next/dashboard" : "/"}
         className="lg:mv-py-3 lg:mv-w-full mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 mv-hidden lg:mv-block mv-flex-shrink"
       >
         <HeaderLogo />
@@ -177,15 +187,15 @@ function NavBarMenu(
           <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex lg:mv-hidden">
             <div>
               <Link to="/login">
-                <Button>Anmelden</Button>
+                <Button>{t("root.login")}</Button>
               </Link>
             </div>
             <div className="mv-hidden sm:mv-block mv-font-semibold mv-text-primary-500">
-              oder
+              {t("root.or")}
             </div>
             <div>
               <Link to="/register">
-                <Button variant="outline">Registrieren</Button>
+                <Button variant="outline">{t("root.register")}</Button>
               </Link>
             </div>
           </div>
@@ -205,7 +215,9 @@ function NavBarMenu(
                   setActiveTopicId={setActiveTopicId}
                 >
                   <Icon type="grid" />
-                  <div className="mv-font-semibold">Überblick</div>
+                  <div className="mv-font-semibold">
+                    {t("root.menu.overview")}
+                  </div>
                 </Item>
 
                 <Topic
@@ -215,44 +227,46 @@ function NavBarMenu(
                 >
                   <Label>
                     <Icon type="person" />
-                    <div className="mv-font-semibold">Mein MINT-Bereich</div>
+                    <div className="mv-font-semibold">
+                      {t("root.menu.personalSpace.label")}
+                    </div>
                   </Label>
 
                   <TopicItem
                     to={`/next/profile/${props.username}`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    Mein Profil
+                    {t("root.menu.personalSpace.profile")}
                   </TopicItem>
                   <TopicItem
                     to={`/next/overview/organizations/${props.username}`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    Meine Organisationen
+                    {t("root.menu.personalSpace.organizations")}
                   </TopicItem>
                   <TopicItem
                     to={`/next/overview/events/${props.username}`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    Meine Events
+                    {t("root.menu.personalSpace.events")}
                   </TopicItem>
                   <TopicItem
                     to={`/next/overview/projects/${props.username}`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    Meine Projekte
+                    {t("root.menu.personalSpace.projects")}
                   </TopicItem>
                   <TopicItem
                     to={`/next/overview/networks/${props.username}`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    Mein Netzwerk
+                    {t("root.menu.personalSpace.network")}
                   </TopicItem>
                   <TopicItem
                     to={`/next/overview/bookmarks/${props.username}`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    Gemerkte Inhalte
+                    {t("root.menu.personalSpace.bookmarks")}
                   </TopicItem>
                 </Topic>
               </>
@@ -265,7 +279,9 @@ function NavBarMenu(
             >
               <Label>
                 <Icon type="briefcase" />
-                <div className="mv-font-semibold">Ressourcen</div>
+                <div className="mv-font-semibold">
+                  {t("root.menu.ressources.label")}
+                </div>
               </Label>
 
               <TopicItem
@@ -273,7 +289,7 @@ function NavBarMenu(
                 to="https://mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                MINT-Sharepic
+                {t("root.menu.ressources.sharepic")}
                 <Icon type="box-arrow-up-right" />
                 <NewFeatureBanner />
               </TopicItem>
@@ -282,7 +298,7 @@ function NavBarMenu(
                 to="https://mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                MINT-Bildarchiv
+                {t("root.menu.ressources.imageArchive")}
                 <Icon type="box-arrow-up-right" />
                 <NewFeatureBanner />
               </TopicItem>
@@ -290,28 +306,28 @@ function NavBarMenu(
                 to="https://mintcampus.org/"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                MINT-Campus
+                {t("root.menu.ressources.campus")}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
               <TopicItem
                 to="https://mint-vernetzt.shinyapps.io/datalab/"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                MINT-DataLab
+                {t("root.menu.ressources.datalab")}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
               <TopicItem
                 to="https://mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                MINTvernetzt Webseite
+                {t("root.menu.ressources.website")}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
               <TopicItem
                 to="https://github.com/mint-vernetzt/community-platform"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                MINTvernetzt GitHub
+                {t("root.menu.ressources.github")}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
             </Topic>
@@ -323,38 +339,40 @@ function NavBarMenu(
             >
               <Label>
                 <Icon type="binoculars" />
-                <div className="mv-font-semibold">Entdecken</div>
+                <div className="mv-font-semibold">
+                  {t("root.menu.explore.label")}
+                </div>
               </Label>
 
               <TopicItem
                 to="/explore/profiles"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                Personen
+                {t("root.menu.explore.profiles")}
               </TopicItem>
               <TopicItem
                 to="/explore/organizations"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                Organisationen
+                {t("root.menu.explore.organizations")}
               </TopicItem>
               <TopicItem
                 to="/explore/projects"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                Projekte
+                {t("root.menu.explore.projects")}
               </TopicItem>
               <TopicItem
                 to="/explore/events"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                Events
+                {t("root.menu.explore.events")}
               </TopicItem>
               <TopicItem
-                to="next/explore/subsidies"
+                to="/next/explore/fundings"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                Förderungen
+                {t("root.menu.explore.fundings")}
               </TopicItem>
             </Topic>
           </TopMenu>
@@ -371,7 +389,16 @@ function NavBarMenu(
               setActiveTopicId={setActiveTopicId}
             >
               <Icon type="life-preserver" />
-              <div className="mv-font-semibold">Hilfe</div>
+              <div className="mv-font-semibold">{t("root.menu.help")}</div>
+            </Item>
+
+            <Item
+              to={`/next/profile/${props.username}/settings`}
+              openNavBarMenuKey={props.openNavBarMenuKey}
+              setActiveTopicId={setActiveTopicId}
+            >
+              <Icon type="gear" />
+              <div className="mv-font-semibold">{t("root.menu.settings")}</div>
             </Item>
 
             {props.mode === "authenticated" ? (
@@ -382,7 +409,7 @@ function NavBarMenu(
                 setActiveTopicId={setActiveTopicId}
               >
                 <Icon type="door-closed" />
-                <div className="mv-font-semibold">Ausloggen</div>
+                <div className="mv-font-semibold">{t("root.menu.logout")}</div>
               </Item>
             ) : null}
           </BottomMenu>
@@ -395,21 +422,21 @@ function NavBarMenu(
               }
               to="/imprint"
             >
-              Impressum
+              {t("root.menu.imprint")}
             </NavLink>
             <Link
               className="hover:mv-underline"
               target="_blank"
               to="https://mint-vernetzt.de/privacy-policy-community-platform/"
             >
-              Datenschutz
+              {t("root.menu.privacy")}
             </Link>
             <Link
               className="hover:mv-underline"
               target="_blank"
               to="https://mint-vernetzt.de/terms-of-use-community-platform/"
             >
-              AGB
+              {t("root.menu.terms")}
             </Link>
           </Footer>
         </div>
@@ -630,6 +657,7 @@ type IconType =
   | "briefcase"
   | "binoculars"
   | "life-preserver"
+  | "gear"
   | "door-closed"
   | "box-arrow-up-right";
 
@@ -806,6 +834,22 @@ function Icon(props: { type: IconType }) {
       </svg>
     );
   }
+  if (props.type === "gear") {
+    icon = (
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M9.40466 1.05039C8.99186 -0.350129 7.00814 -0.350128 6.59534 1.05039L6.49523 1.39003C6.23147 2.2849 5.20935 2.70827 4.39008 2.26201L4.07913 2.09264C2.79692 1.39422 1.39422 2.79693 2.09264 4.07913L2.26201 4.39008C2.70827 5.20935 2.2849 6.23147 1.39003 6.49523L1.05039 6.59534C-0.350129 7.00814 -0.350128 8.99186 1.05039 9.40466L1.39003 9.50477C2.2849 9.76853 2.70827 10.7906 2.26201 11.6099L2.09264 11.9209C1.39422 13.2031 2.79692 14.6058 4.07913 13.9074L4.39008 13.738C5.20935 13.2917 6.23147 13.7151 6.49523 14.61L6.59534 14.9496C7.00814 16.3501 8.99186 16.3501 9.40466 14.9496L9.50477 14.61C9.76853 13.7151 10.7906 13.2917 11.6099 13.738L11.9209 13.9074C13.2031 14.6058 14.6058 13.2031 13.9074 11.9209L13.738 11.6099C13.2917 10.7906 13.7151 9.76853 14.61 9.50477L14.9496 9.40466C16.3501 8.99186 16.3501 7.00814 14.9496 6.59534L14.61 6.49523C13.7151 6.23147 13.2917 5.20935 13.738 4.39008L13.9074 4.07913C14.6058 2.79692 13.2031 1.39422 11.9209 2.09264L11.6099 2.26201C10.7906 2.70827 9.76853 2.2849 9.50477 1.39003L9.40466 1.05039ZM8 10.9288C6.38246 10.9288 5.07119 9.61754 5.07119 8C5.07119 6.38246 6.38246 5.07119 8 5.07119C9.61754 5.07119 10.9288 6.38246 10.9288 8C10.9288 9.61754 9.61754 10.9288 8 10.9288Z"
+          fill="currentColor"
+        />
+      </svg>
+    );
+  }
   if (props.type === "door-closed") {
     icon = (
       <svg
@@ -852,9 +896,10 @@ function Icon(props: { type: IconType }) {
 }
 
 function NewFeatureBanner() {
+  const { t } = useTranslation(["meta"]);
   return (
     <div className="mv-absolute mv-right-2 mv-top-2 mv-w-[35px] mv-h-[18px] mv-rounded-[4px] mv-bg-success mv-text-center mv-text-xs mv-font-semibold mv-text-white">
-      Neu
+      {t("root.new")}
     </div>
   );
 }

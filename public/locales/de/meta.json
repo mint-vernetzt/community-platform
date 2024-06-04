@@ -17,11 +17,48 @@
     "myProjects": "Meine Projekte",
     "showProjects": "Projekte anzeigen",
     "createProject": "Projekt anlegen",
-    "logout": "Logout",
+    "new": "Neu",
+    "logout": "Ausloggen",
+    "or": "oder",
     "login": "Anmelden",
     "register": "Registrieren",
     "search": {
       "placeholder": "Suche (mind. 3 Buchstaben)"
+    },
+    "menu": {
+      "overview": "Überblick",
+      "personalSpace": {
+        "label": "Mein MINT-Bereich",
+        "profile": "Mein Profil",
+        "organizations": "Meine Organisationen",
+        "events": "Meine Veranstaltungen",
+        "projects": "Meine Projekte",
+        "network": "Mein Netzwerk",
+        "bookmarks": "Gemerkte Inhalte"
+      },
+      "ressources": {
+        "label": "Ressourcen",
+        "sharepic": "MINT-Sharepic",
+        "imageArchive": "MINT-Bildarchiv",
+        "campus": "MINT-Campus",
+        "datalab": "MINT-DataLab",
+        "website": "MINTvernetzt Webseite",
+        "github": "MINTvernetzt GitHub"
+      }, 
+      "explore": {
+        "label": "Entdecken",
+        "profiles": "Personen",
+        "organizations": "Organisationen",
+        "projects": "Projekte",
+        "events": "Events",
+        "fundings": "Förderungen"
+      },
+      "help": "Hilfe",
+      "settings": "Einstellungen",
+      "logout": "Ausloggen",
+      "imprint": "Impressum",
+      "privacy": "Datenschutz",
+      "terms": "AGB"
     }
   }
 }

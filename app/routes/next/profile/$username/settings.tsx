@@ -17,16 +17,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
   const abilities = await getFeatureAbilities(authClient, ["next"]);
   if (!abilities.next.hasAccess) {
-    const username = getParamValueOrThrow(params, "username");
     return redirect(`/profile/${username}`);
   }
   return null;
 };
 
-export default function EventsOverview() {
+export default function NextProfileSettings() {
   return (
     <div className="mv-w-full mv-text-center mv-pt-8 mv-text-xl mv-text-primary-500">
-      Next Events Overview
+      Next Profile Settings
     </div>
   );
 }

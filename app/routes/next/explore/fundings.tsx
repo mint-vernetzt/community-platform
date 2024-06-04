@@ -13,10 +13,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return null;
 };
 
-export default function ExploreSubsidies() {
+export default function ExploreFundings() {
   return (
     <div className="mv-w-full mv-text-center mv-pt-8 mv-text-xl mv-text-primary-500">
-      Next Explore Subsidies
+      Next Explore Fundings
     </div>
   );
 }
