@@ -597,7 +597,6 @@ export default function App() {
   const modal = searchParams.get("modal");
   const showFilters = searchParams.get("showFilters");
   const openNavBarMenuKey = "navbarmenu";
-  const openNavBarMenuTopicKey = "navbarmenu-topic";
   const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
 
   const bodyClasses = classNames(
@@ -713,11 +712,9 @@ export default function App() {
 
           <div className="mv-flex">
             {abilities.next_navbar.hasAccess ? (
-              // TODO: i18n
               <NavBarMenu
                 mode={mode}
                 openNavBarMenuKey={openNavBarMenuKey}
-                openNavBarMenuTopicKey={openNavBarMenuTopicKey}
                 username={currentUserInfo?.username}
               />
             ) : null}

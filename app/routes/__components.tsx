@@ -153,8 +153,6 @@ function NavBarMenu(
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get(props.openNavBarMenuKey);
 
-  // TODO: State for active topic id
-  // Pass the callback to the topic components
   const [activeTopicId, setActiveTopicId] = React.useState<string | null>(null);
 
   return (
@@ -520,10 +518,6 @@ function Topic(
     throw new Error("Provide at least one TopicItem for NavBarMenu.Topic");
   }
 
-  // TODO: Receive the activeTopicId state and the callback
-  // Uncheck the checkbox if the activeTopicId is not the current topic id
-  // set the activeTopicId to the current topic id if the checkbox is checked
-
   return (
     <label
       htmlFor={props.id}
@@ -642,6 +636,7 @@ type IconType =
 // TODO: fill of the icons should be transparent and hover/focus:primary-500. Currently they are filled with the text color thats black on unfocused and primary-500 on hover/focus
 function Icon(props: { type: IconType }) {
   let icon;
+  // TODO: Include new chevron-right icon from figma
   if (props.type === "chevron-right") {
     icon = (
       <svg
