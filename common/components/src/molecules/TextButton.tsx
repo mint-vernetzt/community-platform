@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import React from "react";
 
-export type TextButtonVariants = "primary" | "neutral";
+export type TextButtonVariants = "primary" | "neutral" | "dark";
 export type TextButtonSize = "small" | "medium" | "large";
 export type TextButtonWeight = "normal" | "thin";
 export type TextButtonType = "button" | "a";
@@ -83,6 +83,7 @@ function TextButton(
     "mv-flex mv-items-center mv-gap-1 hover:mv-underline active:mv-underline mv-underline-offset-4",
     variant === "primary" && "mv-text-primary",
     variant === "neutral" && "mv-text-neutral",
+    variant === "dark" && "mv-text-neutral-700",
     size === "small" && "mv-text-sm",
     size === "large" && "mv-text-2xl",
     weight === "thin" && "mv-font-thin",
