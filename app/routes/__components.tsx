@@ -147,12 +147,15 @@ function NavBarMenu(
   props: React.PropsWithChildren & {
     mode: Mode;
     openNavBarMenuKey: string;
-    openNavBarMenuTopicKey: string;
     username?: string;
   }
 ) {
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get(props.openNavBarMenuKey);
+
+  // TODO: State for active topic id
+  // Pass the callback to the topic components
+  const [activeTopicId, setActiveTopicId] = React.useState<string | null>(null);
 
   return (
     <div
@@ -200,20 +203,18 @@ function NavBarMenu(
                 <Item
                   to="/next/dashboard"
                   openNavBarMenuKey={props.openNavBarMenuKey}
-                  openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
+                  setActiveTopicId={setActiveTopicId}
                 >
                   <Icon type="grid" />
                   <div className="mv-font-semibold">Überblick</div>
                 </Item>
 
                 <Topic
-                  openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
-                  openNavBarMenuTopicValue="personalSpace"
+                  id="personalSpace"
+                  activeTopicId={activeTopicId}
+                  setActiveTopicId={setActiveTopicId}
                 >
-                  <Label
-                    openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
-                    openNavBarMenuTopicValue="personalSpace"
-                  >
+                  <Label>
                     <Icon type="person" />
                     <div className="mv-font-semibold">Mein MINT-Bereich</div>
                   </Label>
@@ -259,13 +260,11 @@ function NavBarMenu(
             ) : null}
 
             <Topic
-              openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
-              openNavBarMenuTopicValue="resources"
+              id="resources"
+              activeTopicId={activeTopicId}
+              setActiveTopicId={setActiveTopicId}
             >
-              <Label
-                openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
-                openNavBarMenuTopicValue="resources"
-              >
+              <Label>
                 <Icon type="briefcase" />
                 <div className="mv-font-semibold">Ressourcen</div>
               </Label>
@@ -275,8 +274,6 @@ function NavBarMenu(
                 to="https://mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {/* TODO: Add logo to public/images and logo src to Avatar */}
-                <Avatar name="MINT-Sharepic" size="xxs" textSize="xxs" />
                 MINT-Sharepic
                 <Icon type="box-arrow-up-right" />
                 <NewFeatureBanner />
@@ -286,8 +283,6 @@ function NavBarMenu(
                 to="https://mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {/* TODO: Add logo to public/images and logo src to Avatar */}
-                <Avatar name="MINT-Bildarchiv" size="xxs" textSize="xxs" />
                 MINT-Bildarchiv
                 <Icon type="box-arrow-up-right" />
                 <NewFeatureBanner />
@@ -296,12 +291,6 @@ function NavBarMenu(
                 to="https://mintcampus.org/"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                <Avatar
-                  name="MINT-Campus"
-                  size="xxs"
-                  textSize="xxs"
-                  logo={"/images/mint-campus-logo.png"}
-                />
                 MINT-Campus
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
@@ -309,12 +298,6 @@ function NavBarMenu(
                 to="https://mint-vernetzt.shinyapps.io/datalab/"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                <Avatar
-                  name="MINT-DataLab"
-                  size="xxs"
-                  textSize="xxs"
-                  logo={"/images/mint-vernetzt_shortlogo.png"}
-                />
                 MINT-DataLab
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
@@ -322,12 +305,6 @@ function NavBarMenu(
                 to="https://mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                <Avatar
-                  name="MINTvernetzt Webseite"
-                  size="xxs"
-                  textSize="xxs"
-                  logo={"/images/mint-vernetzt_shortlogo.png"}
-                />
                 MINTvernetzt Webseite
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
@@ -335,25 +312,17 @@ function NavBarMenu(
                 to="https://github.com/mint-vernetzt/community-platform"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                <Avatar
-                  name="MINTvernetzt GitHub"
-                  size="xxs"
-                  textSize="xxs"
-                  logo={"/images/github-logo.svg"}
-                />
                 MINTvernetzt GitHub
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
             </Topic>
 
             <Topic
-              openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
-              openNavBarMenuTopicValue="explore"
+              id="explore"
+              activeTopicId={activeTopicId}
+              setActiveTopicId={setActiveTopicId}
             >
-              <Label
-                openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
-                openNavBarMenuTopicValue="explore"
-              >
+              <Label>
                 <Icon type="binoculars" />
                 <div className="mv-font-semibold">Entdecken</div>
               </Label>
@@ -401,7 +370,7 @@ function NavBarMenu(
             <Item
               to="/next/help"
               openNavBarMenuKey={props.openNavBarMenuKey}
-              openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
+              setActiveTopicId={setActiveTopicId}
             >
               <Icon type="life-preserver" />
               <div className="mv-font-semibold">Hilfe</div>
@@ -412,7 +381,7 @@ function NavBarMenu(
                 to="/logout"
                 method="post"
                 openNavBarMenuKey={props.openNavBarMenuKey}
-                openNavBarMenuTopicKey={props.openNavBarMenuTopicKey}
+                setActiveTopicId={setActiveTopicId}
               >
                 <Icon type="door-closed" />
                 <div className="mv-font-semibold">Ausloggen</div>
@@ -487,7 +456,7 @@ function Item(
   props: React.PropsWithChildren & {
     to: string;
     openNavBarMenuKey: string;
-    openNavBarMenuTopicKey: string;
+    setActiveTopicId: (id: string | null) => void;
     method?: "get" | "post";
   }
 ) {
@@ -496,11 +465,13 @@ function Item(
   const [searchParams] = useSearchParams();
   const extendedSearchParams = new URLSearchParams(searchParams.toString());
   extendedSearchParams.delete(props.openNavBarMenuKey);
-  extendedSearchParams.delete(props.openNavBarMenuTopicKey);
   return props.method === "post" ? (
     <>
       <Form id={props.to} method="post" action={props.to} hidden />
       <button
+        onClick={() => {
+          props.setActiveTopicId(null);
+        }}
         form={props.to}
         type="submit"
         className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500"
@@ -510,6 +481,9 @@ function Item(
     </>
   ) : (
     <NavLink
+      onClick={() => {
+        props.setActiveTopicId(null);
+      }}
       to={`${props.to}?${extendedSearchParams.toString()}`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
@@ -527,8 +501,9 @@ function Item(
 
 function Topic(
   props: React.PropsWithChildren & {
-    openNavBarMenuTopicKey: string;
-    openNavBarMenuTopicValue: string;
+    id: string;
+    activeTopicId: string | null;
+    setActiveTopicId: (id: string | null) => void;
   }
 ) {
   const children = React.Children.toArray(props.children);
@@ -545,20 +520,28 @@ function Topic(
     throw new Error("Provide at least one TopicItem for NavBarMenu.Topic");
   }
 
-  const [searchParams] = useSearchParams();
-  const openTopicId = searchParams.get(props.openNavBarMenuTopicKey);
-  const isOpen = openTopicId === props.openNavBarMenuTopicValue;
+  // TODO: Receive the activeTopicId state and the callback
+  // Uncheck the checkbox if the activeTopicId is not the current topic id
+  // set the activeTopicId to the current topic id if the checkbox is checked
 
   return (
     <label
-      htmlFor={props.openNavBarMenuTopicValue}
+      htmlFor={props.id}
       className="mv-w-full mv-flex mv-flex-col mv-group"
     >
       <input
-        id={props.openNavBarMenuTopicValue}
+        id={props.id}
         name="open-topic"
-        type="radio"
+        type="checkbox"
         hidden
+        checked={props.activeTopicId === props.id}
+        onChange={() => {
+          if (props.activeTopicId === props.id) {
+            props.setActiveTopicId(null);
+          } else {
+            props.setActiveTopicId(props.id);
+          }
+        }}
       />
       {label}
       <div className="mv-hidden group-has-[:checked]:mv-block">
@@ -568,30 +551,10 @@ function Topic(
   );
 }
 
-function Label(
-  props: React.PropsWithChildren & {
-    openNavBarMenuTopicKey: string;
-    openNavBarMenuTopicValue: string;
-  }
-) {
+function Label(props: React.PropsWithChildren) {
   const children = React.Children.toArray(props.children);
 
-  const [searchParams] = useSearchParams();
-  const openTopicId = searchParams.get(props.openNavBarMenuTopicKey);
-  const isOpen = openTopicId === props.openNavBarMenuTopicValue;
-
-  const extendedSearchParams = new URLSearchParams(searchParams.toString());
-  if (isOpen) {
-    extendedSearchParams.delete(props.openNavBarMenuTopicKey);
-  } else {
-    extendedSearchParams.set(
-      props.openNavBarMenuTopicKey,
-      props.openNavBarMenuTopicValue
-    );
-  }
-
   return (
-    // <div onClick={() => setOpen(!open)}>
     <div className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500">
       <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow group-has-[:checked]:mv-text-primary-500">
         {children}
@@ -600,7 +563,6 @@ function Label(
         <Icon type="chevron-right" />
       </div>
     </div>
-    // </div>
   );
 }
 
