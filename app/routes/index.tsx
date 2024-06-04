@@ -476,7 +476,7 @@ export default function Index() {
 
       <Roadmap />
 
-      <section className="py-16 lg:mv-py-24 relative overflow-hidden lg:mv-min-h-[700px] bg-beige-100 -mb-8">
+      <section className="py-16 lg:mv-py-24 relative overflow-hidden lg:mv-min-h-[700px] bg-beige-100">
         <div className="absolute top-0 left-1/2 lg:mv-ml-[calc(992px/12*5)] 2xl:mv-ml-[calc(1488px/12*5)] hidden lg:mv-block">
           <svg xmlns="http://www.w3.org/2000/svg" width="730" height="724">
             <g fill="none" fillRule="evenodd">
