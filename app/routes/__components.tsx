@@ -908,7 +908,7 @@ function NextFooter() {
   const { t } = useTranslation(["organisms/footer"]);
 
   return (
-    <footer className="-mv-mb-8 mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
+    <footer className="-mv-mt-8 mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
       {/* CP logo and description */}
       <div className="mv-flex mv-gap-0 sm:mv-gap-18 mv-items-center">
         <div className="mv-w-48 mv-flex mv-flex-col mv-gap-3">
@@ -989,7 +989,7 @@ function NextFooter() {
         {/* Copyright */}
         <div className="mv-font-bold mv-text-xs">{t("meta.copyright")}</div>
         {/* SoMe icons */}
-        <ul className="mv-flex mv-items-center mv-gap-4 sm:mv-gap-6 mv-pr-16 sm:mv-pr-24">
+        <ul className="mv-flex mv-items-center mv-gap-6">
           <li>
             <MVLink
               as="a"

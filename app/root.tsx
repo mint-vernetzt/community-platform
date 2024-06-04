@@ -40,7 +40,7 @@ import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { detectLanguage, getProfileByUserId } from "./root.server";
-import { NavBarMenu, NextNavBar } from "./routes/__components";
+import { NavBarMenu, NextFooter, NextNavBar } from "./routes/__components";
 import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
 import legacyStyles from "./styles/legacy-styles.css";
@@ -722,10 +722,15 @@ export default function App() {
               {isNonAppBaseRoute ? (
                 <>{main}</>
               ) : (
-                <div className="flex flex-nowrap">
-                  {main}
-                  {scrollButton}
-                </div>
+                <>
+                  <div className="flex flex-nowrap">
+                    {main}
+                    {scrollButton}
+                  </div>
+                  {abilities.next_navbar.hasAccess && isIndexRoute ? (
+                    <NextFooter />
+                  ) : null}
+                </>
               )}
             </div>
           </div>

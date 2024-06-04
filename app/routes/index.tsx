@@ -21,7 +21,7 @@ import InputPassword from "~/components/FormElements/InputPassword/InputPassword
 import { H1, H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { CountUp, NextFooter } from "./__components";
+import { CountUp } from "./__components";
 import {
   getEventCount,
   getOrganizationCount,
@@ -61,10 +61,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/dashboard");
   }
 
-  const abilities = await getFeatureAbilities(authClient, [
-    "keycloak",
-    "next_navbar",
-  ]);
+  const abilities = await getFeatureAbilities(authClient, ["keycloak"]);
 
   const profileCount = await getProfileCount();
   const organizationCount = await getOrganizationCount();
@@ -547,7 +544,6 @@ export default function Index() {
           </div>
         </div>
       </section>
-      {loaderData.abilities.next_navbar.hasAccess ? <NextFooter /> : null}
     </>
   );
 }
