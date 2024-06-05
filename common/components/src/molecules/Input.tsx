@@ -196,7 +196,7 @@ function Input(props: InputProps) {
             }
           />
           {typeof icon !== "undefined" && (
-            <div className="mv-absolute mv-right-3 mv-top-2/3 mv--translate-y-1/2">
+            <div className="mv-absolute mv-right-3 mv-top-2/3 -mv-translate-y-1/2">
               {icon}
             </div>
           )}

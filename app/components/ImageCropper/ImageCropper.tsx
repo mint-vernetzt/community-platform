@@ -347,7 +347,7 @@ function ImageCropper(props: ImageCropperProps) {
         />
         {imgSrc && (
           <div className="flex items-center w-full mb-2">
-            <div className="flex-auto w-1/2 md:w-[calc(25%+1rem)] flex justify-end px-4 md:px2">
+            <div className="flex-auto w-1/2 @md:mv-w-[calc(25%+1rem)] flex justify-end px-4 @md:mv-px2">
               <button
                 id="scaleDown"
                 className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
@@ -366,7 +366,7 @@ function ImageCropper(props: ImageCropperProps) {
                 </svg>
               </button>
             </div>
-            <div className="w-[250px] py-2 hidden md:block md:w-[calc(50%-2rem)] md:px2">
+            <div className="w-[250px] py-2 hidden @md:mv-block @md:mv-w-[calc(50%-2rem)] @md:mv-px2">
               <Slider
                 min={0.1}
                 max={DEFAULT_SCALE * 2}
@@ -376,7 +376,7 @@ function ImageCropper(props: ImageCropperProps) {
                 onChange={(v) => setScale(v as number)}
               />
             </div>
-            <div className="flex-auto w-1/2 md:w-[calc(25%+1rem)] flex justify-start px-4 md:px2">
+            <div className="flex-auto w-1/2 @md:mv-w-[calc(25%+1rem)] flex justify-start px-4 @md:mv-px2">
               <button
                 id="scaleUp"
                 className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"

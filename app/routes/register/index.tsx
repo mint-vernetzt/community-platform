@@ -148,10 +148,10 @@ export default function Register() {
   return (
     <>
       <PageBackground imagePath="/images/login_background_image.jpg" />
-      <div className="md:container md:mx-auto px-4 relative z-10">
+      <div className="mv-container-custom relative z-10">
         {loaderData.abilities.next_navbar.hasAccess === false ? (
           <div className="flex flex-row -mx-4 justify-end">
-            <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
+            <div className="basis-full @md:mv-basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
               <div>
                 <HeaderLogo />
               </div>
@@ -169,9 +169,9 @@ export default function Register() {
             </div>
           </div>
         ) : null}
-        <div className="flex flex-col md:flex-row -mx-4">
-          <div className="basis-full md:basis-6/12 px-4"></div>
-          <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
+        <div className="flex flex-col @md:mv-flex-row -mx-4">
+          <div className="basis-full @md:mv-basis-6/12 px-4"></div>
+          <div className="basis-full @md:mv-basis-6/12 @xl:mv-basis-5/12 px-4">
             <h1 className="mb-4">{t("content.create")}</h1>
             {actionData !== undefined && actionData.success ? (
               <>
@@ -206,7 +206,7 @@ export default function Register() {
                   <>
                     <p className="mb-4">{t("form.intro")}</p>
                     <div className="flex flex-row -mx-4 mb-4">
-                      <div className="basis-full lg:basis-6/12 px-4 mb-4">
+                      <div className="basis-full @lg:mv-basis-6/12 px-4 mb-4">
                         <Field name="loginRedirect" />
                         <Field name="academicTitle" label="Titel">
                           {({ Errors }) => (
@@ -236,8 +236,8 @@ export default function Register() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col lg:flex-row -mx-4 mb-4">
-                      <div className="basis-full lg:basis-6/12 px-4 mb-4">
+                    <div className="flex flex-col @lg:mv-flex-row -mx-4 mb-4">
+                      <div className="basis-full @lg:mv-basis-6/12 px-4 mb-4">
                         <Field name="firstName" label="Vorname">
                           {({ Errors }) => (
                             <>
@@ -253,7 +253,7 @@ export default function Register() {
                           )}
                         </Field>
                       </div>
-                      <div className="basis-full lg:basis-6/12 px-4 mb-4">
+                      <div className="basis-full @lg:mv-basis-6/12 px-4 mb-4">
                         <Field name="lastName" label="Nachname">
                           {({ Errors }) => (
                             <>

@@ -218,7 +218,7 @@ function ProjectDetail() {
   return (
     <>
       {loaderData.username !== null && (
-        <section className="container mb-4">
+        <section className="mv-container-custom mb-4">
           <TextButton weight="thin" variant="neutral" arrowLeft>
             <Link
               to={`/profile/${loaderData.username}/#projects`}
@@ -229,7 +229,7 @@ function ProjectDetail() {
           </TextButton>
         </section>
       )}
-      <section className="md:container">
+      <section className="mv-container-custom">
         <Header>
           {mode === "admin" && project.published === false && (
             <Status>{t("content.draft")}</Status>
@@ -247,7 +247,7 @@ function ProjectDetail() {
           />
           {mode === "admin" && (
             <Controls>
-              {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton container */}
+              {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton mv-container-custom */}
               <CircleButton variant="outline">
                 <label
                   htmlFor="modal-background-upload"
@@ -293,7 +293,7 @@ function ProjectDetail() {
               {project.name}
             </H1>
             {project.subline !== null && (
-              <p className="mv-text-base md:mv-text-2xl">{project.subline}</p>
+              <p className="mv-text-base @md:mv-text-2xl">{project.subline}</p>
             )}
           </Header.Body>
           {mode === "admin" && (
@@ -373,10 +373,10 @@ function ProjectDetail() {
       )}
       <section
         id="tab-bar-container"
-        className="mv-mx-4 md:mv-mx-auto md:mv-container mv-overflow-hidden mv-pb-8"
+        className="mv-container-custom mv-overflow-hidden mv-pb-8"
       >
-        <div className="md:mv-flex xl:mv-justify-center">
-          <div className="mv-flex mv-flex-col mv-gap-8 xl:mv-w-2/3">
+        <div className="@md:mv-flex @xl:mv-justify-center">
+          <div className="mv-flex mv-flex-col mv-gap-8 @xl:mv-w-2/3">
             <TabBar>
               <TabBar.Item active={pathname.endsWith("/about")}>
                 <Link to="./about" preventScrollReset>

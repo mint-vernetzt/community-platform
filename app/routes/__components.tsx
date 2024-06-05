@@ -910,7 +910,7 @@ function NextFooter() {
   return (
     <footer className="-mv-mt-8 mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
       {/* CP logo and description */}
-      <div className="mv-flex mv-gap-0 sm:mv-gap-18 mv-items-center">
+      <div className="mv-flex mv-gap-0 @sm:mv-gap-18 mv-items-center">
         <div className="mv-w-48 mv-flex mv-flex-col mv-gap-3">
           <MVLink
             to="/"
@@ -924,7 +924,7 @@ function NextFooter() {
               viewBox="0 0 56 56"
               aria-describedby="mint-title-header"
               role="img"
-              className="mv-w-[42px] mv-h-[42px] md:mv-w-auto md:mv-h-auto"
+              className="mv-w-[42px] mv-h-[42px] @md:mv-w-auto @md:mv-h-auto"
             >
               <g fill="none">
                 <path
@@ -945,7 +945,7 @@ function NextFooter() {
               Community
             </span>
           </MVLink>
-          <p className="mv-text-sm mv-text-primary mv-font-semibold mv-hidden sm:mv-block">
+          <p className="mv-text-sm mv-text-primary mv-font-semibold mv-hidden @sm:mv-block">
             {t(
               "description",
               "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland."

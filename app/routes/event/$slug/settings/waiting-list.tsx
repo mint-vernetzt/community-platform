@@ -232,13 +232,13 @@ function Participants() {
           <div>{t("content.current.feedback")}</div>
         )}
       {loaderData.waitingList.length > 0 ? (
-        <div className="mb-4 mt-8 md:max-h-[630px] overflow-auto">
+        <div className="mb-4 mt-8 @md:mv-max-h-[630px] overflow-auto">
           {loaderData.waitingList.map((waitingParticipant) => {
             const initials = getInitials(waitingParticipant);
             return (
               <div
                 key={waitingParticipant.id}
-                className="w-full flex items-center flex-row flex-wrap sm:flex-nowrap border-b border-neutral-400 py-4 md:px-4"
+                className="w-full flex items-center flex-row flex-wrap @sm:mv-flex-nowrap border-b border-neutral-400 py-4 @md:mv-px-4"
               >
                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                   {waitingParticipant.avatar !== null &&
@@ -264,7 +264,7 @@ function Participants() {
                     </p>
                   ) : null}
                 </div>
-                <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
+                <div className="flex-100 @sm:mv-flex-auto @sm:mv-ml-auto flex items-center flex-row pt-4 @sm:mv-pt-0 justify-end">
                   <RemixFormsForm
                     schema={moveToParticipantsSchema}
                     fetcher={moveToParticipantsFetcher}
@@ -330,8 +330,8 @@ function Participants() {
           })}
         </div>
       ) : null}
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
-        <div className="container">
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 @md:mv-pb-0">
+        <div className="mv-container-custom">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}

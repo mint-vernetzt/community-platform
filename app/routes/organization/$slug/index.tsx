@@ -224,7 +224,7 @@ export default function Index() {
 
   return (
     <>
-      <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
+      <section className="hidden @md:mv-block mv-container-custom mt-8 @md:mv-mt-10 @lg:mv-mt-20">
         <div className="rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
           <div className="w-full h-full">
             {background ? (
@@ -266,11 +266,11 @@ export default function Index() {
           ) : null}
         </div>
       </section>
-      <div className="container relative pb-44">
-        <div className="flex flex-col lg:flex-row -mx-4">
-          <div className="flex-gridcol lg:w-5/12 px-4 pt-10 lg:pt-0">
-            <div className="sticky top-4">
-              <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44 ">
+      <div className="mv-container-custom relative pb-44">
+        <div className="flex flex-col @lg:mv-flex-row -mx-4">
+          <div className="flex-gridcol @lg:mv-w-5/12 px-4 pt-10 @lg:mv-pt-0">
+            <div className="sticky top-24">
+              <div className="px-4 py-8 @lg:mv-p-8 pb-15 @md:mv-pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative @lg:mv-ml-14 @lg:-mv-mt-44 ">
                 <div className="flex items-center flex-col">
                   <Avatar />
                   {loaderData.mode === "admin" ? (
@@ -467,7 +467,7 @@ export default function Index() {
               {/** TODO: Styling of quote section */}
               {typeof loaderData.organization.quote === "string" &&
               loaderData.organization.quote !== "" ? (
-                <div className="py-8 px-4 pb-15 md:pb-5 relative lg:ml-14">
+                <div className="py-8 px-4 pb-15 @md:mv-pb-5 relative @lg:mv-ml-14">
                   <div className="mb-0 text-[72px] leading-none">“</div>
                   <div className="mb-4">"{loaderData.organization.quote}"</div>
                   <div className="text-primary font-bold">
@@ -481,13 +481,13 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="flex-gridcol lg:w-7/12 px-4 pt-10 lg:pt-20">
+          <div className="flex-gridcol @lg:mv-w-7/12 px-4 pt-10 @lg:mv-pt-20">
             {loaderData.mode === "admin" ? (
-              <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
+              <div className="flex flex-col-reverse @lg:mv-flex-row flex-nowrap">
                 <div className="flex-auto pr-4 mb-6">
                   <h1 className="mb-0">{loaderData.organization.name}</h1>
                 </div>
-                <div className="flex-initial lg:pl-4 pt-3 mb-6">
+                <div className="flex-initial @lg:mv-pl-4 pt-3 mb-6">
                   <Link
                     className="btn btn-outline btn-primary"
                     to={`/organization/${loaderData.organization.slug}/settings`}
@@ -505,11 +505,11 @@ export default function Index() {
               />
             ) : null}
             {loaderData.organization.areas.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("content.activityAreas")}
                 </div>
-                <div className="lg:flex-auto">
+                <div className="@lg:mv-flex-auto">
                   {loaderData.organization.areas
                     .map((relation) => relation.area.name)
                     .join(" / ")}
@@ -517,8 +517,8 @@ export default function Index() {
               </div>
             ) : null}
             {loaderData.organization.focuses.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("content.focuses")}
                 </div>
 
@@ -530,8 +530,8 @@ export default function Index() {
               </div>
             ) : null}
             {loaderData.organization.supportedBy.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("content.supportedBy")}
                 </div>
 
@@ -581,7 +581,7 @@ export default function Index() {
                 <h3 id="team-members" className="mb-6 mt-14 font-bold">
                   {t("content.team")}
                 </h3>
-                <div className="flex flex-wrap -mx-3 lg:items-stretch">
+                <div className="flex flex-wrap -mx-3 @lg:mv-items-stretch">
                   {loaderData.organization.teamMembers.map((relation) => (
                     <ProfileCard
                       id={`profile-${relation.profile.username}`}
@@ -651,7 +651,7 @@ export default function Index() {
                               ) : null}
                             </div>
                             {relation.project.awards.length > 0 ? (
-                              <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
+                              <div className="@md:mv-pr-4 flex gap-4 -mt-4 flex-initial self-start">
                                 {relation.project.awards.map((relation) => {
                                   const date = utcToZonedTime(
                                     relation.award.date,
@@ -694,7 +694,7 @@ export default function Index() {
                                 })}
                               </div>
                             ) : null}
-                            <div className="hidden md:flex items-center flex-initial">
+                            <div className="hidden @md:mv-flex items-center flex-initial">
                               <button className="btn btn-primary">
                                 {t("content.toProject")}
                               </button>
@@ -738,7 +738,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${relation.event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -810,15 +810,15 @@ export default function Index() {
                                       </>
                                     ) : null}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {relation.event.name}
                                   </h4>
                                   {relation.event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-2">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-2">
                                       {relation.event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-2">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-2">
                                       {removeHtmlTags(
                                         relation.event.description ?? ""
                                       )}
@@ -910,7 +910,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${relation.event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -956,15 +956,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {relation.event.name}
                                   </h4>
                                   {relation.event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {relation.event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(
                                         relation.event.description ?? ""
                                       )}

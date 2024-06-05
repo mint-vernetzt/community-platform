@@ -164,7 +164,7 @@ function Create() {
 
   return (
     <>
-      <div className="container relative pt-20 pb-44">
+      <div className="mv-container-custom relative pt-20 pb-44">
         <div className="mv-flex mv-justify-center">
           <div className="mv-flex mv-flex-col mv-w-[480px] mv-gap-6 mv-p-8 mv-border mv-rounded-lg mv-border-gray-200">
             <div className="mv-flex mv-justify-between mv-items-center mv-gap-4">

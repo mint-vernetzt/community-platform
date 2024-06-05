@@ -8,7 +8,7 @@ export type BackButtonProps = {
 
 export function BackButton(props: PropsWithChildren<BackButtonProps>) {
   return (
-    <div className="md:mv-hidden">
+    <div className="@md:mv-hidden">
       <TextButton arrowLeft size="large">
         <Link to={props.to} prefetch="intent">
           {props.children}
@@ -78,7 +78,7 @@ export function MaterialListItemMeta(props: PropsWithChildren<unknown>) {
 
 export function MaterialListItemParagraph(props: PropsWithChildren<unknown>) {
   return (
-    <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-hidden md:mv-line-clamp-1">
+    <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-hidden @md:mv-line-clamp-1">
       {props.children}
     </p>
   );
@@ -219,11 +219,11 @@ export function MaterialListItem(props: PropsWithChildren<unknown>) {
   return (
     // <li className="mv-flex mv-flex-row mv-w-full mv-items-center mv-rounded-lg mv-bg-white	mv-border mv-border-neutral-100 mv-overflow-hidden mv-gap-4 hover:mv-bg-neutral-100">
     <li className="mv-flex mv-w-full mv-items-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-100 mv-gap-4 mv-overflow-hidden">
-      <div className="mv-shrink-0 mv-w-36 mv-aspect-[3/2] mv-self-stretch mv-bg-primary-100 mv-flex mv-justify-center mv-items-center mv-text-primary mv-hidden lg:mv-flex">
+      <div className="mv-shrink-0 mv-w-36 mv-aspect-[3/2] mv-self-stretch mv-bg-primary-100 mv-flex mv-justify-center mv-items-center mv-text-primary mv-hidden @lg:mv-flex">
         {typeof image !== "undefined" && image}
         {typeof pdfIcon !== "undefined" && pdfIcon}
       </div>
-      <div className="mv-ml-4 lg:mv-ml-0 mv-shrink-1 mv-flex mv-flex-col mv-py-4 mv-gap-2 mv-line-clamp-1">
+      <div className="mv-ml-4 @lg:mv-ml-0 mv-shrink-1 mv-flex mv-flex-col mv-py-4 mv-gap-2 mv-line-clamp-1">
         <h4 className="mv-font-bold mv-mb-0 mv-text-primary mv-text-base mv-truncate mv-overflow-hidden mv-block mv-whitespace-nowrap">
           {typeof title !== "undefined" && title}
           {typeof meta !== "undefined" && meta}

@@ -147,8 +147,8 @@ export default function Create() {
 
   return (
     <>
-      <section className="container md:mt-2">
-        <div className="font-semi text-neutral-600 flex items-center">
+      <section className="mv-container-custom md:mt-2">
+        <div className="font-semibold text-neutral-600 flex items-center">
           {/* TODO: get back route from loader */}
           <button onClick={() => navigate(-1)} className="flex items-center">
             <svg
@@ -168,7 +168,7 @@ export default function Create() {
           </button>
         </div>
       </section>
-      <div className="container relative pt-20 pb-44">
+      <div className="mv-container-custom relative pt-20 pb-44">
         <div className="flex -mx-4 justify-center">
           <div className="md:flex-1/2 px-4 pt-10 lg:pt-0">
             <h4 className="font-semibold">{t("content.headline")}</h4>

@@ -15,21 +15,21 @@ function RoadmapColumn(props: RoadmapColumnProps) {
       <h4 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary mv-font-bold">
         {props.title}
       </h4>
-      <div className="mv-bg-blue-50 mv-rounded-2xl mv-p-4 xl:mv-p-6 mv-flex mv-flex-col mv-group">
+      <div className="mv-bg-blue-50 mv-rounded-2xl mv-p-4 @xl:mv-p-6 mv-flex mv-flex-col mv-group">
         <input
           type="checkbox"
           id={`collapse-col-${props.id}`}
           className="mv-peer mv-order-2 mv-h-0 mv-w-0 mv-opacity-0"
         />
         <div
-          className={`mv-bg-blue-50 mv-rounded-2xl mv-grid mv-overflow-hidden mv-transition-all mv-grid-rows-[repeat(2,_1fr)_repeat(${countRoadmapCards},_0fr)] md:mv-grid-rows-[repeat(3,_1fr)_repeat(${countRoadmapCards},_0fr)] peer-checked:mv-grid-rows-${countRoadmapCards} mv-order-1`}
+          className={`mv-bg-blue-50 mv-rounded-2xl mv-grid mv-overflow-hidden mv-transition-all mv-grid-rows-[repeat(2,_1fr)_repeat(${countRoadmapCards},_0fr)] @md:mv-grid-rows-[repeat(3,_1fr)_repeat(${countRoadmapCards},_0fr)] peer-checked:mv-grid-rows-${countRoadmapCards} mv-order-1`}
         >
           {props.children}
         </div>
         {countRoadmapCards > 3 ? (
           <label
             htmlFor={`collapse-col-${props.id}`}
-            className="mv-order-3 mv-mt-4 lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer group"
+            className="mv-order-3 mv-mt-4 @lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer group"
           >
             <span className="show-more mv-absolute mv-inset-0 mv-text-center hover:mv-underline mv-decoration-inherit mv-decoration-auto">
               {t("controls.showMore")}
@@ -42,7 +42,7 @@ function RoadmapColumn(props: RoadmapColumnProps) {
           <>
             <label
               htmlFor={`collapse-col-${props.id}`}
-              className="mv-order-3 mv-mt-4 lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer group md:mv-hidden mv-underline mv-decoration-inherit mv-decoration-auto"
+              className="mv-order-3 mv-mt-4 @lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer group @md:mv-hidden mv-underline mv-decoration-inherit mv-decoration-auto"
             >
               <span className="show-more mv-absolute mv-inset-0 mv-text-center group-hover:mv-underline mv-decoration-inherit mv-decoration-auto">
                 {t("controls.showMore")}
@@ -51,10 +51,10 @@ function RoadmapColumn(props: RoadmapColumnProps) {
                 {t("controls.showLess")}
               </span>
             </label>
-            <div className="mv-hidden md:mv-block mv-mt-4 lg:mv-mt-6 mv-h-5 mv-order-3"></div>
+            <div className="mv-hidden @md:mv-block mv-mt-4 @lg:mv-mt-6 mv-h-5 mv-order-3"></div>
           </>
         ) : (
-          <div className="mv-hidden md:mv-block mv-mt-4 lg:mv-mt-6 mv-h-5 mv-order-3"></div>
+          <div className="mv-hidden @md:mv-block mv-mt-4 @lg:mv-mt-6 mv-h-5 mv-order-3"></div>
         )}
       </div>
     </div>
@@ -68,7 +68,7 @@ export type RoadmapCardProps = {
 
 function RoadmapCard(props: RoadmapCardProps) {
   return (
-    <div className="mv-card mv-bg-white mv-rounded-lg mv-text-primary mv-w-full mv-px-4 xl:mv-px-6">
+    <div className="mv-card mv-bg-white mv-rounded-lg mv-text-primary mv-w-full mv-px-4 @xl:mv-px-6">
       <h5 className="mv-font-bold mv-text-lg mv-mb-3">{props.title}</h5>
       <p>{props.text}</p>
     </div>
@@ -80,10 +80,10 @@ function Roadmap() {
   return (
     <section
       id="roadmap"
-      className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)] mv-py-16 lg:mv-py-24"
+      className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)] mv-py-16 @lg:mv-py-24"
     >
-      <div className="mv-container">
-        <div className="mv-grid mv-grid-cols-1 md:mv-grid-cols-2 xl:mv-grid-cols-3 mv-gap-y-8 md:mv-gap-y-12 md:mv-gap-x-4 xl:mv-gap-x-4">
+      <div className="mv-container-custom">
+        <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-y-8 @md:mv-gap-y-12 @md:mv-gap-x-4 @xl:mv-gap-x-4">
           <RoadmapColumn title={t("firstColumn.title")} id="1">
             <RoadmapCard
               title={t("firstColumn.firstCard.title")}

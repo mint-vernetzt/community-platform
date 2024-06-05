@@ -49,7 +49,7 @@ function List(props: React.PropsWithChildren<{ maxColumns?: number }>) {
 
   const listClasses = classNames(
     "mv-grid mv-grid-cols-1 mv-gap-2",
-    columns === 2 && "lg:mv-grid-cols-2 lg:mv-gap-4"
+    columns === 2 && "@lg:mv-grid-cols-2 @lg:mv-gap-4"
   );
 
   return <ul className={listClasses}>{props.children}</ul>;

@@ -243,7 +243,7 @@ function Events() {
                       className="flex"
                       to={`/event/${loaderData.parentEvent.slug}`}
                     >
-                      <div className="hidden xl:block w-40 shrink-0">
+                      <div className="hidden @xl:mv-block w-40 shrink-0">
                         <img
                           src={
                             loaderData.parentEvent.background ||
@@ -297,15 +297,15 @@ function Events() {
                             ""
                           )}
                         </p>
-                        <h4 className="font-bold text-base m-0 md:mv-line-clamp-1">
+                        <h4 className="font-bold text-base m-0 @md:mv-line-clamp-1">
                           {loaderData.parentEvent.name}
                         </h4>
                         {loaderData.parentEvent.subline !== null ? (
-                          <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
+                          <p className="hidden @md:mv-block text-xs mt-1 @md:mv-line-clamp-2">
                             {loaderData.parentEvent.subline}
                           </p>
                         ) : (
-                          <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
+                          <p className="hidden @md:mv-block text-xs mt-1 @md:mv-line-clamp-2">
                             {removeHtmlTags(
                               loaderData.parentEvent.description ?? ""
                             )}
@@ -337,7 +337,7 @@ function Events() {
           </RemixFormsForm>
         </div>
       ) : null}
-      <hr className="border-neutral-400 my-4 lg:my-8" />
+      <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
       <h4 className="mb-4 font-semibold">{t("content.related.headline")}</h4>
 
       <p className="mb-4">{t("content.related.intro")}</p>
@@ -434,7 +434,7 @@ function Events() {
                     return (
                       <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden">
                         <Link className="flex" to={`/event/${childEvent.slug}`}>
-                          <div className="hidden xl:block w-40 shrink-0">
+                          <div className="hidden @xl:mv-block w-40 shrink-0">
                             <img
                               src={
                                 childEvent.background ||
@@ -485,15 +485,15 @@ function Events() {
                                 ""
                               )}
                             </p>
-                            <h4 className="font-bold text-base m-0 md:mv-line-clamp-1">
+                            <h4 className="font-bold text-base m-0 @md:mv-line-clamp-1">
                               {childEvent.name}
                             </h4>
                             {childEvent.subline !== null ? (
-                              <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
+                              <p className="hidden @md:mv-block text-xs mt-1 @md:mv-line-clamp-2">
                                 {childEvent.subline}
                               </p>
                             ) : (
-                              <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
+                              <p className="hidden @md:mv-block text-xs mt-1 @md:mv-line-clamp-2">
                                 {removeHtmlTags(childEvent.description ?? "")}
                               </p>
                             )}
@@ -526,8 +526,8 @@ function Events() {
           </ul>
         </div>
       ) : null}
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
-        <div className="container">
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 @md:mv-pb-0">
+        <div className="mv-container-custom">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}

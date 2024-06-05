@@ -36,7 +36,7 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
               <Button variant="outline" onClick={handleClick}>
                 {t("cookieAction")}
               </Button>
-              <p className="mv-text-white mv-text-sm md:mv-text-base mv-text-center mv-px-4">
+              <p className="mv-text-white mv-text-sm @md:mv-text-base mv-text-center mv-px-4">
                 {t("cookieActionDescription")}
               </p>
             </>

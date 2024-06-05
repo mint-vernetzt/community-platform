@@ -115,9 +115,9 @@ function Documents() {
                     <p>{item.document.title || item.document.filename}</p>
                     <p>({Math.round(item.document.sizeInMB * 100) / 100} MB)</p>
                   </div>
-                  <div className="ml-auto flex-1/2 sm:flex">
+                  <div className="ml-auto flex-1/2 @sm:mv-flex">
                     <Link
-                      className="btn btn-outline-primary btn-small mt-2 mr-2 w-full sm:w-auto"
+                      className="btn btn-outline-primary btn-small mt-2 mr-2 w-full @sm:mv-w-auto"
                       to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
                       reloadDocument
                     >
@@ -125,7 +125,7 @@ function Documents() {
                     </Link>
                     <label
                       htmlFor={`modal-edit-document-${item.document.id}`}
-                      className="btn btn-outline-primary btn-small mt-2 mr-2 w-full sm:w-auto"
+                      className="btn btn-outline-primary btn-small mt-2 mr-2 w-full @sm:mv-w-auto"
                     >
                       {t("content.current.edit")}
                     </label>
@@ -222,7 +222,7 @@ function Documents() {
                           />
                           <button
                             type="submit"
-                            className="btn btn-outline-primary ml-auto btn-small mt-2 w-full sm:w-auto"
+                            className="btn btn-outline-primary ml-auto btn-small mt-2 w-full @sm:mv-w-auto"
                           >
                             {t("form.delete.label")}
                           </button>
@@ -283,8 +283,8 @@ function Documents() {
           </>
         )}
       </RemixFormsForm>
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
-        <div className="container">
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 @md:mv-pb-0">
+        <div className="mv-container-custom">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}

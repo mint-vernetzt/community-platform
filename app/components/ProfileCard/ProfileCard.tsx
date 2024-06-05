@@ -15,7 +15,7 @@ function ProfileCard(props: ProfileCardProps) {
     <div
       key={`profile-${props.id}`}
       data-testid="gridcell"
-      className="flex-100 lg:flex-1/2 px-3 mb-4"
+      className="flex-100 @lg:mv-flex-1/2 px-3 mb-4"
     >
       <Link
         to={props.link}

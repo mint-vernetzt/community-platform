@@ -142,8 +142,8 @@ export default function Index() {
   return (
     <>
       <section className="-mt-8 bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
-        <div className="py-16 lg:mv-py-20 relative overflow-hidden xl:mv-min-h-[calc(100vh-129px)] md:mv-flex md:mv-items-center">
-          <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden lg:mv-block">
+        <div className="py-16 @lg:mv-py-20 relative overflow-hidden @xl:mv-min-h-[calc(100vh-129px)] @md:mv-flex @md:mv-items-center">
+          <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden @lg:mv-block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="579"
@@ -157,7 +157,7 @@ export default function Index() {
             </svg>
           </div>
 
-          <div className="absolute top-[-80px] left-1/2 ml-[400px] hidden lg:mv-block">
+          <div className="absolute top-[-80px] left-1/2 ml-[400px] hidden @lg:mv-block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="945"
@@ -171,21 +171,21 @@ export default function Index() {
             </svg>
           </div>
 
-          <div className="mv-w-full mv-mx-auto mv-px-4 sm:mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] xl:mv-px-6 2xl:mv-max-w-[1536px] relative">
-            <div className="md:mv-grid md:mv-grid-cols-12 md:mv-gap-6 lg:mv-gap-8">
-              <div className="md:mv-col-start-1 md:mv-col-span-7 xl:mv-col-start-2 xl:mv-col-span-5 md:mv-flex md:mv-items-center">
+          <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative">
+            <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
+              <div className="@md:mv-col-start-1 @md:mv-col-span-7 @xl:mv-col-start-2 @xl:mv-col-span-5 @md:mv-flex @md:mv-items-center">
                 <div>
-                  <H1 className="text-center sm:mv-text-left leading-none">
+                  <H1 className="text-center @sm:mv-text-left leading-none">
                     {t("welcome")}
                   </H1>
-                  <p className="mt-8 mb-8 lg:mv-mb-0 text-primary">
+                  <p className="mt-8 mb-8 @lg:mv-mb-0 text-primary">
                     {t("intro")}
                   </p>
                 </div>
               </div>
 
-              <div className="md:mv-col-start-8 md:mv-col-span-5 lg:mv-col-start-9 lg:mv-col-span-4 xl:mv-col-start-8 xl:mv-col-span-4">
-                <div className="py-8 mv-bg-white sm:mv-mv-bg-neutral-50 sm:mv-rounded-3xl sm:mv-p-8 sm:mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+              <div className="@md:mv-col-start-8 @md:mv-col-span-5 @lg:mv-col-start-9 @lg:mv-col-span-4 @xl:mv-col-start-8 @xl:mv-col-span-4">
+                <div className="py-8 mv-bg-white @sm:mv-mv-bg-neutral-50 @sm:mv-rounded-3xl @sm:mv-p-8 @sm:mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
                   {loaderData.abilities.keycloak.hasAccess && (
                     <div className="text-center">
                       <Button
@@ -212,7 +212,7 @@ export default function Index() {
                       </a>
                       <div className="mt-4 mb-8">
                         <hr className="mx-5" />
-                        <span className="block -my-3 mx-auto w-fit px-4 text-primary mv-bg-white sm:mv-mv-bg-neutral-50 font-bold">
+                        <span className="block -my-3 mx-auto w-fit px-4 text-primary mv-bg-white @sm:mv-mv-bg-neutral-50 font-bold">
                           {t("login.or")}
                         </span>
                       </div>
@@ -350,7 +350,7 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="absolute left-1/2 bottom-8 hidden xl:mv-block">
+          <div className="absolute left-1/2 bottom-8 hidden @xl:mv-block">
             <a href="#intro">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -372,10 +372,10 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-16 lg:mv-py-24 relative" id="intro">
-        <div className="mv-w-full mv-mx-auto mv-px-4 sm:mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] xl:mv-px-6 2xl:mv-max-w-[1536px] relative">
-          <div className="md:mv-grid md:mv-grid-cols-12 md:mv-gap-6 lg:mv-gap-8">
-            <div className="md:mv-col-start-2 md:mv-col-span-10 xl:mv-col-start-3 xl:mv-col-span-8">
+      <section className="py-16 @lg:mv-py-24 relative" id="intro">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative">
+          <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
+            <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12">
                 {t("content.education.headline")}
               </H3>
@@ -404,14 +404,14 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-16 lg:mv-py-24 relative bg-primary text-white">
-        <div className="mv-w-full mv-mx-auto mv-px-4 sm:mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] xl:mv-px-6 2xl:mv-max-w-[1536px] relative">
-          <div className="md:mv-grid md:mv-grid-cols-12 md:mv-gap-6 lg:mv-gap-8">
-            <div className="md:mv-col-start-2 md:mv-col-span-10 xl:mv-col-start-3 xl:mv-col-span-8">
+      <section className="py-16 @lg:mv-py-24 relative bg-primary text-white">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative">
+          <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
+            <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12 text-white tracking-wider">
                 {t("content.growth.headline")}
               </H3>
-              <div className="md:mv-grid md:mv-grid-cols-4 md:mv-gap-6 lg:mv-gap-8">
+              <div className="@md:mv-grid @md:mv-grid-cols-4 @md:mv-gap-6 @lg:mv-gap-8">
                 <div className="text-center mb-8">
                   <p className="text-7xl leading-tight font-bold">
                     <CountUp
@@ -473,8 +473,8 @@ export default function Index() {
 
       <Roadmap />
 
-      <section className="py-16 lg:mv-py-24 relative overflow-hidden lg:mv-min-h-[700px] bg-beige-100">
-        <div className="absolute top-0 left-1/2 lg:mv-ml-[calc(992px/12*5)] 2xl:mv-ml-[calc(1488px/12*5)] hidden lg:mv-block">
+      <section className="py-16 @lg:mv-py-24 relative overflow-hidden @lg:mv-min-h-[700px] bg-beige-100">
+        <div className="absolute top-0 left-1/2 @lg:mv-ml-[calc(992px/12*5)] @2xl:mv-ml-[calc(1488px/12*5)] hidden @lg:mv-block">
           <svg xmlns="http://www.w3.org/2000/svg" width="730" height="724">
             <g fill="none" fillRule="evenodd">
               <path
@@ -490,9 +490,9 @@ export default function Index() {
             </g>
           </svg>
         </div>
-        <div className="mv-w-full mv-mx-auto mv-px-4 sm:mv-max-w-[600px] md:mv-max-w-[768px] lg:mv-max-w-[1024px] xl:mv-max-w-[1280px] xl:mv-px-6 2xl:mv-max-w-[1536px] relative">
-          <div className="md:mv-grid md:mv-grid-cols-12 md:mv-gap-6 lg:mv-gap-8">
-            <div className="md:mv-col-start-2 md:mv-col-span-10 xl:mv-col-start-3 xl:mv-col-span-8">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative">
+          <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
+            <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12 tracking-wider">
                 {t("content.more.headline")}
               </H3>

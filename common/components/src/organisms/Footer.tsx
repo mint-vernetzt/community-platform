@@ -15,7 +15,7 @@ function Footer(props: { isSettings?: boolean }) {
       <footer className="mv-relative mv-text-sm mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] mv-bg-white mv-block">
         <div className={`mv-flex mv-flex-col lg:mv-max-h-fit`}>
           <hr className="mv-hidden lg:mv-block lg:mv-order-2" />
-          <div className="lg:mv-order-3 mv-container lg:mv-py-6 lg:mv-flex ">
+          <div className="lg:mv-order-3 mv-container-custom lg:mv-py-6 lg:mv-flex ">
             <div className="mv-font-bold mv-hidden lg:mv-block lg:mv-w-3/12">
               {t("meta.copyright")}
             </div>
@@ -127,7 +127,7 @@ function Footer(props: { isSettings?: boolean }) {
             </div>
           </div>
 
-          <div className="lg:mv-order-1 mv-container lg:mv-pt-12 lg:mv-pb-8 lg:mv-flex">
+          <div className="lg:mv-order-1 mv-container-custom lg:mv-pt-12 lg:mv-pb-8 lg:mv-flex">
             <div className="mv-font-bold mv-hidden lg:mv-block">
               <div className="mv-w-48 md:mv-mr-16 xl:mv-mr-20">
                 <Link

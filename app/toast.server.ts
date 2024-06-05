@@ -59,13 +59,8 @@ export async function redirectWithToast(
   urlObject.searchParams.set("toast-trigger", toast.key || "");
   if (redirectOptions !== undefined) {
     const { scrollToToast = false } = redirectOptions;
-    if (scrollToToast && toast.id === undefined) {
-      console.warn(
-        "You selected the option scrollToToast without providing a toast id. Scrolling won't work."
-      );
-    }
-    if (scrollToToast && toast.id !== undefined) {
-      urlObject.hash = toast.id;
+    if (scrollToToast) {
+      urlObject.hash = "top";
     }
   }
 

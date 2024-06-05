@@ -140,10 +140,10 @@ export default function Index() {
       {({ Field, Button, Errors, register }) => (
         <>
           <PageBackground imagePath="/images/login_background_image.jpg" />
-          <div className="md:container md:mx-auto px-4 relative z-10">
+          <div className="mv-container-custom relative z-10">
             {loaderData.abilities.next_navbar.hasAccess === false ? (
               <div className="flex flex-row -mx-4 justify-end">
-                <div className="basis-full md:basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
+                <div className="basis-full @md:mv-basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
                   <div className="">
                     <HeaderLogo />
                   </div>
@@ -161,9 +161,9 @@ export default function Index() {
                 </div>
               </div>
             ) : null}
-            <div className="flex flex-col md:flex-row -mx-4">
-              <div className="basis-full md:basis-6/12 px-4"> </div>
-              <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
+            <div className="flex flex-col @md:mv-flex-row -mx-4">
+              <div className="basis-full @md:mv-basis-6/12 px-4"> </div>
+              <div className="basis-full @md:mv-basis-6/12 @xl:mv-basis-5/12 px-4">
                 <h1 className="mb-8">{t("content.headline")}</h1>
 
                 <Errors className="mv-p-3 mv-mb-3 mv-bg-error mv-text-white">

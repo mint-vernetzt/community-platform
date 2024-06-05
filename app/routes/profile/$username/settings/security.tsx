@@ -284,7 +284,7 @@ export default function Security() {
               </>
             )}
           </RemixFormsForm>
-          <hr className="border-neutral-400 my-10 lg:my-16" />
+          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
           <h4 className="mb-4 font-semibold">
             {t("section.changeEmail.headline")}

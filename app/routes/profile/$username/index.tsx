@@ -274,7 +274,7 @@ export default function Index() {
 
   return (
     <>
-      <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
+      <section className="hidden @md:mv-block mv-container-custom mt-8 @md:mv-mt-10 @lg:mv-mt-20">
         <div className="rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
           <div className="w-full h-full">
             {background !== null ? (
@@ -316,10 +316,10 @@ export default function Index() {
           ) : null}
         </div>
       </section>
-      <div className="container relative">
-        <div className="flex flex-col lg:flex-row -mx-4">
-          <div className="flex-gridcol lg:w-5/12 px-4 pt-10 lg:pt-0">
-            <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44 sticky top-4">
+      <div className="mv-container-custom relative">
+        <div className="flex flex-col @lg:mv-flex-row -mx-4">
+          <div className="flex-gridcol @lg:mv-w-5/12 px-4 pt-10 @lg:mv-pt-0">
+            <div className="px-4 py-8 @lg:mv-p-8 pb-15 @md:mv-pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative @lg:mv-ml-14 @lg:-mv-mt-44 sticky top-24">
               <div className="flex items-center flex-col">
                 <Avatar />
                 {loaderData.mode === "owner" ? (
@@ -469,8 +469,8 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="flex-gridcol lg:w-7/12 px-4 pt-10 lg:pt-20 overflow-hidden">
-            <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
+          <div className="flex-gridcol @lg:mv-w-7/12 px-4 pt-10 @lg:mv-pt-20 overflow-hidden">
+            <div className="flex flex-col-reverse @lg:mv-flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">
                   {t("profile.introduction", {
@@ -481,7 +481,7 @@ export default function Index() {
                 </h1>
               </div>
               {loaderData.mode === "owner" ? (
-                <div className="flex-initial lg:pl-4 pt-3 mb-6">
+                <div className="flex-initial @lg:mv-pl-4 pt-3 mb-6">
                   <Link
                     className="btn btn-outline btn-primary"
                     to={`/profile/${loaderData.data.username}/settings`}
@@ -498,11 +498,11 @@ export default function Index() {
               />
             ) : null}
             {loaderData.data.areas.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 mb-2 lg:mb-0 lg:leading-6">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 mb-2 @lg:mv-mb-0 @lg:mv-leading-6">
                   {t("profile.activityAreas")}
                 </div>
-                <div className="lg:flex-auto">
+                <div className="@lg:mv-flex-auto">
                   {loaderData.data.areas
                     .map((relation) => relation.area.name)
                     .join(" / ")}
@@ -510,8 +510,8 @@ export default function Index() {
               </div>
             ) : null}
             {loaderData.data.skills.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("profile.competences")}
                 </div>
 
@@ -522,8 +522,8 @@ export default function Index() {
             ) : null}
 
             {loaderData.data.interests.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("profile.interests")}
                 </div>
                 <div className="flex-auto">
@@ -532,8 +532,8 @@ export default function Index() {
               </div>
             ) : null}
             {loaderData.data.offers.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 my-2 @lg:mv-mb-0">
                   {t("profile.offer")}
                 </div>
                 <div className="flex-auto">
@@ -549,8 +549,8 @@ export default function Index() {
               </div>
             ) : null}
             {loaderData.data.seekings.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 my-2 lg:mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 my-2 @lg:mv-mb-0">
                   {t("profile.lookingFor")}
                 </div>
                 <div className="flex-auto">
@@ -674,7 +674,7 @@ export default function Index() {
                             </div>
 
                             {relation.project.awards.length > 0 ? (
-                              <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
+                              <div className="@md:mv-pr-4 flex gap-4 -mt-4 flex-initial self-start">
                                 {relation.project.awards.map((relation) => {
                                   const date = utcToZonedTime(
                                     relation.award.date,
@@ -718,7 +718,7 @@ export default function Index() {
                                 })}
                               </div>
                             ) : null}
-                            <div className="hidden md:flex items-center flex-initial">
+                            <div className="hidden @md:mv-flex items-center flex-initial">
                               <button className="btn btn-primary">
                                 {t("section.projects.to")}
                               </button>
@@ -781,7 +781,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -854,15 +854,15 @@ export default function Index() {
                                       </>
                                     ) : null}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -973,7 +973,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -1045,15 +1045,15 @@ export default function Index() {
                                       </>
                                     ) : null}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1150,7 +1150,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -1222,15 +1222,15 @@ export default function Index() {
                                       </>
                                     ) : null}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1321,7 +1321,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -1393,15 +1393,15 @@ export default function Index() {
                                       </>
                                     ) : null}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1497,7 +1497,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -1543,15 +1543,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1634,7 +1634,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -1680,15 +1680,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1756,7 +1756,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -1802,15 +1802,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1874,7 +1874,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -1920,15 +1920,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}

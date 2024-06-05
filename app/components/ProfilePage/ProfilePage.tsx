@@ -7,7 +7,7 @@ function ProfilePage(props: ProfilePageProps) {
   return (
     <>
       <header className="shadow-md mb-8">
-        <div className="container relative z-10">
+        <div className="mv-container-custom relative z-10">
           <div className="px-4 pt-3 pb-3 flex flex-row items-center">
             <div>
               <HeaderLogo />
@@ -37,18 +37,18 @@ function ProfilePage(props: ProfilePageProps) {
         </div>
       </header>
 
-      <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
-        <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 lg:h-120">
+      <section className="hidden @md:mv-block mv-container-custom mt-8 @md:mv-mt-10 @lg:mv-mt-20">
+        <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 @lg:mv-h-120">
           <div className="absolute bottom-6 right-6">
             <button className="btn btn-primary">Hintergrund ändern</button>
           </div>
         </div>
       </section>
 
-      <div className="container relative pb-44">
-        <div className="flex flex-col md:flex-row -mx-4">
-          <div className="md:flex-1/2 lg:flex-5/12 px-4 pt-10 lg:pt-0">
-            <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-64">
+      <div className="mv-container-custom relative pb-44">
+        <div className="flex flex-col @md:mv-flex-row -mx-4">
+          <div className="@md:mv-flex-1/2 @lg:mv-flex-5/12 px-4 pt-10 @lg:mv-pt-0">
+            <div className="px-4 py-8 @lg:mv-p-8 pb-15 @md:mv-pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative @lg:mv-ml-14 @lg:-mv-mt-64">
               <div className="flex items-center flex-col">
                 <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center rounded-md">
                   AS
@@ -144,13 +144,13 @@ function ProfilePage(props: ProfilePageProps) {
             </div>
           </div>
 
-          <div className="md:flex-1/2 lg:flex-7/12 px-4 pt-10 lg:pt-20">
-            <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
+          <div className="@md:mv-flex-1/2 @lg:mv-flex-7/12 px-4 pt-10 @lg:mv-pt-20">
+            <div className="flex flex-col-reverse @lg:mv-flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">Hi, ich bin Anna</h1>
               </div>
 
-              <div className="flex-initial lg:pl-4 pt-3 mb-6">
+              <div className="flex-initial @lg:mv-pl-4 pt-3 mb-6">
                 <button className="btn btn-outline btn-primary">
                   Profil bearbeiten
                 </button>
@@ -164,15 +164,15 @@ function ProfilePage(props: ProfilePageProps) {
               MINT-Bildung in Deutschland gemeinsam zu stärken.
             </p>
 
-            <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-              <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+            <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+              <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                 Aktivitätsgebiete
               </div>
-              <div className="lg:flex-auto">Düsseldorf / Bundesweit</div>
+              <div className="@lg:mv-flex-auto">Düsseldorf / Bundesweit</div>
             </div>
 
-            <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-              <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+            <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+              <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                 Kompetenzen
               </div>
               <div className="flex-auto">
@@ -180,8 +180,8 @@ function ProfilePage(props: ProfilePageProps) {
               </div>
             </div>
 
-            <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-              <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+            <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+              <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                 Interessen
               </div>
               <div className="flex-auto">
@@ -190,8 +190,8 @@ function ProfilePage(props: ProfilePageProps) {
               </div>
             </div>
 
-            <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-              <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+            <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+              <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                 Ich biete
               </div>
               <div className="flex-auto">
@@ -203,8 +203,8 @@ function ProfilePage(props: ProfilePageProps) {
               </div>
             </div>
 
-            <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-              <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+            <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+              <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                 Ich suche
               </div>
               <div className="flex-auto">
@@ -224,8 +224,8 @@ function ProfilePage(props: ProfilePageProps) {
               </div>
             </div>
 
-            <div className="flex mb-6 text-sm flex-wrap -m-3 flex-col lg:flex-row">
-              <div className="lg:flex-1/2 p-3">
+            <div className="flex mb-6 text-sm flex-wrap -m-3 flex-col @lg:mv-flex-row">
+              <div className="@lg:mv-flex-1/2 p-3">
                 <div className="flex p-4 rounded-lg border border-neutral-500">
                   <div className="mr-4">Logo</div>
                   <div>
@@ -235,7 +235,7 @@ function ProfilePage(props: ProfilePageProps) {
                 </div>
               </div>
 
-              <div className="lg:flex-1/2 p-3">
+              <div className="@lg:mv-flex-1/2 p-3">
                 <div className="flex p-4 rounded-lg border border-neutral-500">
                   <div className="mr-4">Logo</div>
                   <div>
@@ -245,7 +245,7 @@ function ProfilePage(props: ProfilePageProps) {
                 </div>
               </div>
 
-              <div className="lg:flex-1/2 p-3">
+              <div className="@lg:mv-flex-1/2 p-3">
                 <div className="flex p-4 rounded-lg border border-neutral-500">
                   <div className="mr-4">Logo</div>
                   <div>
@@ -255,7 +255,7 @@ function ProfilePage(props: ProfilePageProps) {
                 </div>
               </div>
 
-              <div className="lg:flex-1/2 p-3">
+              <div className="@lg:mv-flex-1/2 p-3">
                 <div className="flex p-4 rounded-lg border border-neutral-500">
                   <div className="mr-4">Logo</div>
                   <div>

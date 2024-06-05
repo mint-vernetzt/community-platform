@@ -415,9 +415,9 @@ function Attachments() {
     <Section>
       <Outlet />
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">{t("content.description")}</p>
-      <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+      <p className="mv-my-6 @md:mv-mt-0">{t("content.description")}</p>
+      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.document.upload")}
           </h2>
@@ -428,7 +428,7 @@ function Attachments() {
             encType="multipart/form-data"
             {...documentUploadForm.props}
           >
-            <div className="mv-flex mv-flex-col md:mv-flex-row mv-gap-2">
+            <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
               <input
                 hidden
                 {...documentUploadfields.filename}
@@ -497,7 +497,7 @@ function Attachments() {
             </div>
           </Form>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <>
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.document.current")}
@@ -537,7 +537,7 @@ function Attachments() {
                         <Form
                           method="post"
                           encType="multipart/form-data"
-                          className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 lg:mv-gap-4 mv-ml-auto"
+                          className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto"
                         >
                           <input
                             hidden
@@ -571,7 +571,7 @@ function Attachments() {
                     );
                   })}
                 </MaterialList>
-                <div className="mv-w-full md:mv-max-w-fit">
+                <div className="mv-w-full @md:mv-max-w-fit">
                   <Button
                     as="a"
                     href={`./download?type=documents`}
@@ -603,7 +603,7 @@ function Attachments() {
               )}
           </>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.image.upload")}
           </h2>
@@ -614,7 +614,7 @@ function Attachments() {
             encType="multipart/form-data"
             {...imageUploadForm.props}
           >
-            <div className="mv-flex mv-flex-col md:mv-flex-row mv-gap-2">
+            <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
               <input
                 hidden
                 {...imageUploadFields.filename}
@@ -683,7 +683,7 @@ function Attachments() {
             </div>
           </Form>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.image.current")}
           </h2>
@@ -724,7 +724,7 @@ function Attachments() {
                       <Form
                         method="post"
                         encType="multipart/form-data"
-                        className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 lg:mv-gap-4 mv-ml-auto"
+                        className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto"
                       >
                         <input
                           hidden
@@ -758,7 +758,7 @@ function Attachments() {
                   );
                 })}
               </MaterialList>
-              <div className="mv-w-full md:mv-max-w-fit">
+              <div className="mv-w-full @md:mv-max-w-fit">
                 {/* TODO: Button as wrapper for Link (better relative path) */}
                 <Button
                   as="a"

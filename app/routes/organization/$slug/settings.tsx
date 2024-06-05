@@ -39,10 +39,10 @@ function Settings() {
 
   return (
     <>
-      <div className="container relative">
-        <div className="flex flex-col lg:flex-row -mx-4 pt-10 lg:pt-0">
+      <div className="mv-container-custom relative">
+        <div className="flex flex-col @lg:mv-flex-row -mx-4 pt-10 @lg:mv-pt-0">
           <div className="basis-4/12 px-4">
-            <div className="px-4 py-8 lg:p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
+            <div className="px-4 py-8 @lg:mv-p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
               <h3 className="font-bold mb-7">{t("headline")}</h3>
               <menu>
                 <ul>
@@ -83,7 +83,7 @@ function Settings() {
                     </NavLink>
                   </li>
                 </ul>
-                <hr className="border-neutral-400 my-4 lg:my-8" />
+                <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
                 <div>
                   <NavLink
                     to="./delete"

@@ -337,15 +337,11 @@ export const action = async (args: ActionFunctionArgs) => {
       },
     });
 
-    return redirectWithToast(
-      request.url,
-      {
-        id: "add-organization-toast",
-        key: hash,
-        message: t("content.added", { name: organization.name }),
-      },
-      { scrollToToast: true }
-    );
+    return redirectWithToast(request.url, {
+      id: "add-organization-toast",
+      key: hash,
+      message: t("content.added", { name: organization.name }),
+    });
   } else if (action.startsWith("remove_")) {
     const slug = action.replace("remove_", "");
 
@@ -381,15 +377,11 @@ export const action = async (args: ActionFunctionArgs) => {
       },
     });
 
-    return redirectWithToast(
-      request.url,
-      {
-        id: "remove-organization-toast",
-        key: hash,
-        message: `${organization.name} entfernt.`,
-      },
-      { scrollToToast: true }
-    );
+    return redirectWithToast(request.url, {
+      id: "remove-organization-toast",
+      key: hash,
+      message: `${organization.name} entfernt.`,
+    });
   }
 
   return json({ success: false, action, organization: null });
@@ -413,8 +405,8 @@ function ResponsibleOrgs() {
   return (
     <Section>
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">{t("content.intro")}</p>
-      <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
+      <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
+      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         {toast !== null && toast.id === "remove-organization-toast" && (
           <div id={toast.id}>
             <Toast key={toast.key} level={toast.level}>
@@ -423,12 +415,12 @@ function ResponsibleOrgs() {
           </div>
         )}
         {project.responsibleOrganizations.length > 0 && (
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.current.headline")}
             </h2>
             <p>{t("content.current.intro")}</p>
-            <Form method="post">
+            <Form method="post" preventScrollReset>
               <List>
                 {project.responsibleOrganizations.map((relation) => {
                   return (
@@ -462,12 +454,12 @@ function ResponsibleOrgs() {
           </div>
         )}
         {ownOrganizations.length > 0 && (
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.add.headline")}
             </h2>
             <p>{t("content.add.intro")}</p>
-            <Form method="post">
+            <Form method="post" preventScrollReset>
               <List>
                 {ownOrganizations.map((relation) => {
                   return (
@@ -493,7 +485,7 @@ function ResponsibleOrgs() {
             </Form>
           </div>
         )}
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.other.headline")}
           </h2>
@@ -521,7 +513,7 @@ function ResponsibleOrgs() {
               )}
             </Input>
           </Form>
-          <Form method="post">
+          <Form method="post" preventScrollReset>
             <List>
               {searchResult.map((organization) => {
                 return (

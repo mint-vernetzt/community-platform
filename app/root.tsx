@@ -617,7 +617,7 @@ export default function App() {
       {typeof alert !== "undefined" &&
       isNonAppBaseRoute === false &&
       isIndexRoute === false ? (
-        <div className="container">
+        <div className="mv-container-custom">
           <Alert level={alert.level}>{alert.message}</Alert>
         </div>
       ) : null}
@@ -628,10 +628,10 @@ export default function App() {
   // Scroll to top button
   // Should this be a component?
   const scrollButton = (
-    <div className={`${isSettings ? "hidden md:block " : ""}w-0`}>
+    <div className={`${isSettings ? "hidden @md:mv-block " : ""}w-0`}>
       <div className="w-0 h-16"></div>
       <div className="w-0 h-screen sticky top-0">
-        <div className="absolute bottom-4 md:bottom-8 -left-20">
+        <div className="absolute bottom-4 @md:mv-bottom-8 -left-20">
           <Link to={`${location.pathname}${location.search}#top`}>
             <CircleButton size="large" floating>
               <svg

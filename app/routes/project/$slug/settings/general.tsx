@@ -383,7 +383,7 @@ function General() {
   return (
     <Section>
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">{t("content.intro")}</p>
+      <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
       <Form
         method="post"
         {...form.props}
@@ -396,8 +396,8 @@ function General() {
       >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <Button type="submit" hidden />
-        <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
-          <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+        <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
+          <div className="@md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
               {t("content.projectTitle.headline")}
             </h2>
@@ -414,7 +414,7 @@ function General() {
             </Input>
           </div>
 
-          <div className="md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="@md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
               {t("content.subline.headline")}
             </h2>
@@ -427,7 +427,7 @@ function General() {
             </Input>
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.formats.headline")}
             </h2>
@@ -534,7 +534,7 @@ function General() {
             )}
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.areas.headline")}
             </h2>
@@ -617,7 +617,7 @@ function General() {
               </Chip.Container>
             )}
           </div>
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.contact.headline")}
             </h2>
@@ -638,7 +638,7 @@ function General() {
               )}
             </Input>
           </div>
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.address.headline")}
             </h2>
@@ -650,8 +650,8 @@ function General() {
                 <Input.Error>{fields.contactName.error}</Input.Error>
               )}
             </Input>
-            <div className="lg:mv-flex lg:mv-gap-4">
-              <div className="mv-w-full lg:mv-w-1/3">
+            <div className="@lg:mv-flex @lg:mv-gap-4">
+              <div className="mv-w-full @lg:mv-w-1/3">
                 <Input {...conform.input(fields.street)}>
                   <Input.Label htmlFor={fields.street.id}>
                     {t("content.address.street.label")}
@@ -661,7 +661,7 @@ function General() {
                   )}
                 </Input>
               </div>
-              <div className="mv-flex mv-flex mv-w-full lg:mv-w-2/3 mv-gap-4 mv-mt-4 lg:mv-mt-0">
+              <div className="mv-flex mv-flex mv-w-full @lg:mv-w-2/3 mv-gap-4 mv-mt-4 @lg:mv-mt-0">
                 <div className="mv-flex-1">
                   <Input {...conform.input(fields.streetNumber)}>
                     <Input.Label htmlFor={fields.streetNumber.id}>
@@ -688,7 +688,7 @@ function General() {
               </div>
             </div>
 
-            <div className="lg:mv-flex lg:mv-gap-4">
+            <div className="@lg:mv-flex @lg:mv-gap-4">
               <div className="mv-flex-1">
                 <Input {...conform.input(fields.zipCode)}>
                   <Input.Label htmlFor={fields.zipCode.id}>
@@ -699,7 +699,7 @@ function General() {
                   )}
                 </Input>
               </div>
-              <div className="mv-flex-1 mv-mt-4 lg:mv-mt-0">
+              <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
                 <Input {...conform.input(fields.city)}>
                   <Input.Label htmlFor={fields.city.id}>
                     {t("content.address.city.label")}
@@ -714,7 +714,7 @@ function General() {
 
           <p className="mv-text-sm mv-mt-4">{t("content.hint")}</p>
           <div className="mv-flex mv-w-full mv-justify-end">
-            <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
+            <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
               <Controls>
                 <Button type="reset" variant="outline" fullSize>
                   {t("content.reset")}

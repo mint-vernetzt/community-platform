@@ -7,7 +7,7 @@ function ExploreProfiles(props: ExploreProfilesProps) {
   return (
     <div>
       <header className="shadow-md mb-8">
-        <div className="container relative z-10">
+        <div className="mv-container-custom relative z-10">
           <div className="px-4 pt-3 pb-3 flex flex-row items-center">
             <div>
               <HeaderLogo />
@@ -37,7 +37,7 @@ function ExploreProfiles(props: ExploreProfilesProps) {
         </div>
       </header>
 
-      <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20 text-center">
+      <section className="hidden @md:mv-block mv-container-custom mt-8 @md:mv-mt-10 @lg:mv-mt-20 text-center">
         <H1 like="h0">Explore the Community</H1>
         <p className="">
           Wir entwickeln MINTvernetzt mit Euch (weiter)! Hier könnt Ihr Euch
@@ -48,12 +48,12 @@ function ExploreProfiles(props: ExploreProfilesProps) {
       </section>
 
       <section
-        className="container my-8 md:my-10 lg:my-20"
+        className="mv-container-custom my-8 @md:mv-my-10 @lg:mv-my-20"
         id="contact-details"
       >
         <div
           data-testid="grid"
-          className="flex flex-wrap justify-center -md:mx-4 items-stretch"
+          className="flex flex-wrap justify-center -@md:mv-mx-4 items-stretch"
         >
           {[
             {
@@ -90,11 +90,11 @@ function ExploreProfiles(props: ExploreProfilesProps) {
             <div
               key={`profile-${index}`}
               data-testid="gridcell"
-              className="flex-100 md:flex-1/2 lg:flex-1/3 px-4 lg:px-4 mb-8"
+              className="flex-100 @md:mv-flex-1/2 @lg:mv-flex-1/3 px-4 @lg:mv-px-4 mb-8"
             >
               <a
                 href="#"
-                className="flex flex-wrap content-between items-stretch px-4 pt-4 lg:p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
+                className="flex flex-wrap content-between items-stretch px-4 pt-4 @lg:mv-p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"
               >
                 <div className="flex items-center flex-row mb-4">
                   <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-md">
@@ -110,8 +110,8 @@ function ExploreProfiles(props: ExploreProfilesProps) {
 
                 <p className="mb-3">{profile.text}</p>
 
-                <div className="flex font-semibold flex-col lg:flex-row w-full">
-                  <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+                <div className="flex font-semibold flex-col @lg:mv-flex-row w-full">
+                  <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                     Aktivitätsgebiete
                   </div>
                   <div className="flex-auto">

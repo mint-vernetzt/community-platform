@@ -9,7 +9,7 @@ export default function Imprint() {
   const { t } = useTranslation(i18nNS);
 
   return (
-    <section className="container my-8 md:my-10 lg:my-20">
+    <section className="mv-container-custom my-8 @md:mv-my-10 @lg:mv-my-20">
       <h1>{t("title")}</h1>
       <p className="mb-2">{t("project.title")}</p>
       <ul className="mb-4">

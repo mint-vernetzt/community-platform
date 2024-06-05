@@ -98,7 +98,7 @@ function Attachments() {
 
   return (
     <>
-      <h1 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+      <h1 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
         {t("content.headline")}
       </h1>
       <div className="mv-flex mv-flex-col mv-gap-6">
@@ -135,7 +135,7 @@ function Attachments() {
                       </MaterialList.Item.Paragraph>
                     )}
                     {loaderData.mode !== "anon" ? (
-                      <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 lg:mv-gap-4 mv-ml-auto">
+                      <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto">
                         <Link
                           to={`./download?type=document&id=${relation.document.id}`}
                           reloadDocument
@@ -149,7 +149,7 @@ function Attachments() {
               })}
             </MaterialList>
             {loaderData.mode !== "anon" ? (
-              <div className="mv-w-full md:mv-max-w-fit">
+              <div className="mv-w-full @md:mv-max-w-fit">
                 {/* TODO: Button as wrapper for Link (better relative path) */}
                 <Button
                   as="a"
@@ -203,7 +203,7 @@ function Attachments() {
                         Foto-Credit: {relation.image.credits}
                       </MaterialList.Item.Paragraph>
                     )}
-                    <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 lg:mv-gap-4 mv-ml-auto">
+                    <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto">
                       <Link
                         to={`./download?type=image&id=${relation.image.id}`}
                         reloadDocument
@@ -215,7 +215,7 @@ function Attachments() {
                 );
               })}
             </MaterialList>
-            <div className="mv-w-full md:mv-max-w-fit">
+            <div className="mv-w-full @md:mv-max-w-fit">
               {/* TODO: Button as wrapper for Link (better relative path) */}
               <Button
                 as="a"

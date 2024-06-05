@@ -496,8 +496,8 @@ function General() {
             reset({}, { keepValues: true });
           }}
         >
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("startDate")}
                 id="startDate"
@@ -510,7 +510,7 @@ function General() {
                 <div>{errors.startDate.message}</div>
               ) : null}
             </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("startTime")}
                 id="startTime"
@@ -526,8 +526,8 @@ function General() {
               ) : null}
             </div>
           </div>
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("endDate")}
                 id="endDate"
@@ -540,7 +540,7 @@ function General() {
                 <div>{errors.endDate.message}</div>
               ) : null}
             </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("endTime")}
                 id="endTime"
@@ -557,8 +557,8 @@ function General() {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("participationFromDate")}
                 id="participationFromDate"
@@ -571,7 +571,7 @@ function General() {
                 <div>{errors.participationFromDate.message}</div>
               ) : null}
             </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("participationFromTime")}
                 id="participationFromTime"
@@ -587,8 +587,8 @@ function General() {
               ) : null}
             </div>
           </div>
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("participationUntilDate")}
                 id="participationUntilDate"
@@ -601,7 +601,7 @@ function General() {
                 <div>{errors.participationUntilDate.message}</div>
               ) : null}
             </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("participationUntilTime")}
                 id="participationUntilTime"
@@ -645,8 +645,8 @@ function General() {
               <div>{errors.venueName.message}</div>
             ) : null}
           </div>
-          <div className="flex flex-col md:flex-row -mx-4">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col @md:mv-flex-row -mx-4">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("venueStreet")}
                 id="venueStreet"
@@ -660,7 +660,7 @@ function General() {
                 <div>{errors.venueStreet.message}</div>
               ) : null}
             </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("venueStreetNumber")}
                 id="venueStreetNumber"
@@ -675,8 +675,8 @@ function General() {
               ) : null}
             </div>
           </div>
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("venueZipCode")}
                 id="venueZipCode"
@@ -690,7 +690,7 @@ function General() {
                 <div>{errors.venueZipCode.message}</div>
               ) : null}
             </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("venueCity")}
                 id="venueCity"
@@ -870,8 +870,8 @@ function General() {
           </div>
         </Form>
       </FormProvider>
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
-        <div className="container">
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 @md:mv-pb-0">
+        <div className="mv-container-custom">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <div
               className={`text-green-500 text-bold ${
