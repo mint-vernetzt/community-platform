@@ -1122,13 +1122,13 @@ function ModalTitle(props: { children: React.ReactNode }) {
   );
 }
 
-function useRedirect() {
+function useRedirect(props: { searchParam: string }) {
   const [searchParams] = useSearchParams();
   const [redirect, setRedirect] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const searchParamsCopy = new URLSearchParams(searchParams.toString());
-    searchParamsCopy.delete("modal");
+    searchParamsCopy.delete(props.searchParam);
     const params = searchParamsCopy.toString();
     let path = location.pathname;
     if (params) {
@@ -1143,7 +1143,7 @@ function useRedirect() {
 function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
   const [searchParams] = useSearchParams();
   const [open, setOpen] = React.useState(false);
-  const redirect = useRedirect();
+  const redirect = useRedirect({ searchParam: props.searchParam });
 
   React.useEffect(() => {
     if (typeof document !== "undefined") {

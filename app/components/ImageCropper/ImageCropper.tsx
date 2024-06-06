@@ -12,10 +12,11 @@ import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
 import { useTranslation } from "react-i18next";
 import { RemixFormsForm } from "../RemixFormsForm/RemixFormsForm";
+import { Form, SubmitFunction, useSubmit } from "@remix-run/react";
+import { Button } from "@mint-vernetzt/components";
 
 export interface ImageCropperProps {
   id: string;
-  headline: string;
   subject: Subject;
   slug?: string;
   uploadKey: UploadKey;
@@ -29,6 +30,7 @@ export interface ImageCropperProps {
   handleCancel?: () => void;
   children: React.ReactNode;
   circularCrop?: boolean;
+  modalSearchParam?: string;
 }
 
 /**
@@ -79,7 +81,6 @@ function ImageCropper(props: ImageCropperProps) {
 
   const {
     id,
-    headline,
     image,
     minCropWidth,
     minCropHeight,
@@ -146,16 +147,6 @@ function ImageCropper(props: ImageCropperProps) {
     setCompletedCrop(undefined);
   }
 
-  function closeModal() {
-    const $modalToggle = document.getElementById(
-      props.id
-      // TODO: can this type assertion be removed and proofen by code?
-    ) as HTMLInputElement | null;
-    if ($modalToggle) {
-      $modalToggle.checked = false;
-    }
-  }
-
   async function scaleDown(canvas: HTMLCanvasElement, width: number) {
     // TODO: can this type assertion be removed and proofen by code?
     const targetCanvas = document.createElement("canvas") as HTMLCanvasElement;
@@ -168,14 +159,15 @@ function ImageCropper(props: ImageCropperProps) {
     return await pica.resize(canvas, targetCanvas);
   }
 
-  async function handleSave(e: React.SyntheticEvent<HTMLButtonElement>) {
+  async function handleSave(
+    e: React.SyntheticEvent<HTMLButtonElement>,
+    submit: SubmitFunction
+  ) {
     e.preventDefault();
     let canvas = previewCanvasRef.current;
 
     try {
       if (canvas) {
-        setIsSaving(true);
-
         if (canvas.width > maxTargetWidth || canvas.height > maxTargetHeight) {
           canvas = await scaleDown(canvas, maxTargetWidth);
         }
@@ -207,19 +199,15 @@ function ImageCropper(props: ImageCropperProps) {
                   );
                 }
               })
-              .then((response) => {
-                setIsSaving(false);
-                closeModal();
-                document.location.reload();
-              })
               .catch((err) => {
                 reset();
-                setIsSaving(false);
-                closeModal();
 
                 console.error({ err });
 
                 alert(t("imageCropper.error"));
+              })
+              .finally(() => {
+                submit(e.currentTarget);
               });
           },
           IMAGE_MIME,
@@ -229,7 +217,6 @@ function ImageCropper(props: ImageCropperProps) {
     } catch (exception) {
       console.log({ exception });
       alert(t("imageCropper.error"));
-      setIsSaving(false);
     }
   }
 
@@ -245,9 +232,10 @@ function ImageCropper(props: ImageCropperProps) {
     }
   }
 
+  const submit = useSubmit();
+
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-center font-bold">{headline}</h2>
       <div className="flex items-center">
         <div className="relative max-h-72">
           {!imgSrc && props.children}
@@ -281,6 +269,8 @@ function ImageCropper(props: ImageCropperProps) {
                     onClick={(e) => {
                       if (!confirm(t("imageCropper.confirmation"))) {
                         e.preventDefault();
+                      } else {
+                        submit(e.currentTarget);
                       }
                     }}
                   >
@@ -399,26 +389,43 @@ function ImageCropper(props: ImageCropperProps) {
         )}
       </div>
       <div className="grid grid-cols-2 gap-x-8 w-full mt-2">
-        <label
-          htmlFor={id}
-          className="btn btn-small btn-link p-5"
-          onClick={() => {
-            reset();
+        <Form method="get">
+          <input
+            hidden
+            name={props.modalSearchParam || "modal"}
+            defaultValue="false"
+          />
+          <Button
+            type="submit"
+            className="mv-p-5"
+            onClick={() => {
+              reset();
+              handleCancel && handleCancel();
+            }}
+          >
+            {t("imageCropper.reset")}
+          </Button>
+        </Form>
 
-            handleCancel && handleCancel();
-          }}
-        >
-          {t("imageCropper.reset")}
-        </label>
-
-        <button
-          onClick={handleSave}
-          className="btn btn-small btn-primary"
-          disabled={isSaving || !imgSrc}
-        >
-          {t("imageCropper.submit")}
-          {isSaving && "..."}
-        </button>
+        <Form method="get" className="justify-self-end">
+          <input
+            hidden
+            name={props.modalSearchParam || "modal"}
+            defaultValue="false"
+          />
+          <Button
+            type="submit"
+            className="mv-p-5"
+            disabled={isSaving || !imgSrc}
+            onClick={(event: React.SyntheticEvent<HTMLButtonElement>) => {
+              setIsSaving(true);
+              handleSave(event, submit);
+            }}
+          >
+            {t("imageCropper.submit")}
+            {isSaving && "..."}
+          </Button>
+        </Form>
       </div>
     </div>
   );

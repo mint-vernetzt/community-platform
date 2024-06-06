@@ -1,6 +1,6 @@
 import { useForm } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import { Input } from "@mint-vernetzt/components";
+import { Button, Input } from "@mint-vernetzt/components";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -22,6 +22,10 @@ import { Trans, useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
+import {
+  createEventAbuseReport,
+  sendNewReportMailToSupport,
+} from "~/abuse-reporting.server";
 import { redirectWithAlert } from "~/alert.server";
 import {
   createAuthClient,
@@ -29,7 +33,6 @@ import {
   getSessionUserOrThrow,
 } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
-import Modal from "~/components/Modal/Modal";
 import { RichText } from "~/components/Richtext/RichText";
 import i18next from "~/i18next.server";
 import {
@@ -49,7 +52,7 @@ import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
-import { Modal as NextModal } from "~/routes/__components";
+import { Modal } from "~/routes/__components";
 import { deriveEventMode } from "../utils.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";
@@ -71,10 +74,6 @@ import {
   type ParticipantsQuery,
   type SpeakersQuery,
 } from "./utils.server";
-import {
-  createEventAbuseReport,
-  sendNewReportMailToSupport,
-} from "~/abuse-reporting.server";
 
 export function links() {
   return [
@@ -98,8 +97,6 @@ const abuseReportSchema = z.object({
   reasons: z.array(z.string()),
   otherReason: z.string().optional(),
 });
-
-type AbuseReportSchema = z.infer<typeof abuseReportSchema>;
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -549,7 +546,7 @@ function Index() {
           loaderData.mode === "authenticated" &&
           loaderData.alreadyAbuseReported === false && (
             <Form method="get">
-              <input hidden name="modal" defaultValue="true" />
+              <input hidden name="modal-report" defaultValue="true" />
               <button type="submit">{t("content.report")}</button>
             </Form>
           )}
@@ -557,12 +554,10 @@ function Index() {
       {loaderData.abilities.abuse_report.hasAccess &&
         loaderData.mode === "authenticated" &&
         loaderData.alreadyAbuseReported === false && (
-          <NextModal searchParam="modal">
-            <NextModal.Title>{t("abuseReport.title")}</NextModal.Title>
-            <NextModal.Section>
-              {t("abuseReport.description")}
-            </NextModal.Section>
-            <NextModal.Section>
+          <Modal searchParam="modal-report">
+            <Modal.Title>{t("abuseReport.title")}</Modal.Title>
+            <Modal.Section>{t("abuseReport.description")}</Modal.Section>
+            <Modal.Section>
               <Form
                 id={abuseReportForm.id}
                 onSubmit={abuseReportForm.onSubmit}
@@ -633,14 +628,12 @@ function Index() {
                   )}
                 </div>
               </Form>
-            </NextModal.Section>
-            <NextModal.SubmitButton form={abuseReportForm.id}>
+            </Modal.Section>
+            <Modal.SubmitButton form={abuseReportForm.id}>
               {t("abuseReport.submit")}
-            </NextModal.SubmitButton>
-            <NextModal.CloseButton>
-              {t("abuseReport.abort")}
-            </NextModal.CloseButton>
-          </NextModal>
+            </Modal.SubmitButton>
+            <Modal.CloseButton>{t("abuseReport.abort")}</Modal.CloseButton>
+          </Modal>
         )}
       <section className="mv-container-custom mt-6">
         <div className="@md:mv-rounded-3xl overflow-hidden w-full relative">
@@ -682,30 +675,31 @@ function Index() {
               {loaderData.mode === "admin" &&
               loaderData.abilities.events.hasAccess ? (
                 <div className="absolute bottom-6 right-6">
-                  <label
-                    htmlFor="modal-background-upload"
-                    className="btn btn-primary modal-button"
-                  >
-                    {t("content.change")}
-                  </label>
+                  <Form method="get">
+                    <input hidden name="modal-background" defaultValue="true" />
+                    <Button type="submit">{t("content.change")}</Button>
+                  </Form>
 
-                  <Modal id="modal-background-upload">
-                    <ImageCropper
-                      headline={t("content.headline")}
-                      subject="event"
-                      id="modal-background-upload"
-                      uploadKey="background"
-                      image={loaderData.event.background || undefined}
-                      aspect={3 / 2}
-                      minCropWidth={72}
-                      minCropHeight={48}
-                      maxTargetWidth={720}
-                      maxTargetHeight={480}
-                      slug={loaderData.event.slug}
-                      redirect={`/event/${loaderData.event.slug}`}
-                    >
-                      <Background />
-                    </ImageCropper>
+                  <Modal searchParam="modal-background">
+                    <Modal.Title>{t("content.headline")}</Modal.Title>
+                    <Modal.Section>
+                      <ImageCropper
+                        subject="event"
+                        id="modal-background-upload"
+                        uploadKey="background"
+                        image={loaderData.event.background || undefined}
+                        aspect={3 / 2}
+                        minCropWidth={72}
+                        minCropHeight={48}
+                        maxTargetWidth={720}
+                        maxTargetHeight={480}
+                        slug={loaderData.event.slug}
+                        redirect={`/event/${loaderData.event.slug}`}
+                        modalSearchParam="modal-background"
+                      >
+                        <Background />
+                      </ImageCropper>
+                    </Modal.Section>
                   </Modal>
                 </div>
               ) : null}
