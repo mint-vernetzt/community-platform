@@ -699,8 +699,7 @@ export default function App() {
             />
           ) : null}
 
-          {isNonAppBaseRoute ||
-          isIndexRoute ||
+          {isIndexRoute ||
           (showFilters !== null && showFilters !== "false") ||
           abilities.next_navbar.hasAccess ? null : (
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
