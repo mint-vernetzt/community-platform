@@ -714,6 +714,7 @@ model Area {
   AreasOnOrganizations AreasOnOrganizations[]
   AreasOnProfiles      AreasOnProfiles[]
   AreasOnProjects      AreasOnProjects[]
+  AreasOnFundings      AreasOnFundings[]
 
   @@map("areas")
 }
@@ -1227,6 +1228,16 @@ model AreasOnProjects {
   @@map("areas_on_projects")
 }
 
+model AreasOnFundings {
+  fundingId String  @map("funding_id")
+  areaId    String  @map("area_id")
+  area      Area    @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  funding   Funding @relation(fields: [fundingId], references: [id], onDelete: Cascade)
+
+  @@id([fundingId, areaId])
+  @@map("areas_on_fundings")
+}
+
 model ResponsibleOrganizationOfProject {
   projectId      String       @map("project_id")
   organizationId String       @map("organization_id")
@@ -1300,6 +1311,101 @@ model AdminOfProject {
 
   @@id([profileId, projectId])
   @@map("admins_of_projects")
+}
+
+model Funding {
+  id               String                              @id @default(uuid())
+  url              String
+  title            String
+  funders          FundersOnFundings[]
+  types            FundingTypesOnFundings[]
+  regions          AreasOnFundings[]
+  areas            FundingAreasOnFundings[]
+  eligibleEntities FundingEligibleEntitiesOnFundings[]
+  checksum         String                              @unique
+  createdAt        DateTime                            @default(now()) @map("created_at")
+
+  @@map("fundings")
+}
+
+model Funder {
+  id       String              @id @default(uuid())
+  title    String              @unique
+  slug     String              @unique
+  fundings FundersOnFundings[]
+
+  @@map("funders")
+}
+
+model FundersOnFundings {
+  fundingId String   @map("funding_id")
+  funderId  String   @map("funder_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  funding   Funding  @relation(fields: [fundingId], references: [id], onDelete: Cascade)
+  funder    Funder   @relation(fields: [funderId], references: [id], onDelete: Cascade)
+
+  @@id([fundingId, funderId])
+  @@map("funders_on_fundings")
+}
+
+model FundingType {
+  id       String                   @id @default(uuid())
+  title    String                   @unique
+  slug     String                   @unique
+  fundings FundingTypesOnFundings[]
+
+  @@map("funding_types")
+}
+
+model FundingTypesOnFundings {
+  fundingId String      @map("funding_id")
+  typeId    String      @map("type_id")
+  createdAt DateTime    @default(now()) @map("created_at")
+  funding   Funding     @relation(fields: [fundingId], references: [id], onDelete: Cascade)
+  type      FundingType @relation(fields: [typeId], references: [id], onDelete: Cascade)
+
+  @@id([fundingId, typeId])
+  @@map("funding_types_on_fundings")
+}
+
+model FundingArea {
+  id       String                   @id @default(uuid())
+  title    String                   @unique
+  slug     String                   @unique
+  fundings FundingAreasOnFundings[]
+
+  @@map("funding_areas")
+}
+
+model FundingAreasOnFundings {
+  fundingId String      @map("funding_id")
+  areaId    String      @map("area_id")
+  createdAt DateTime    @default(now()) @map("created_at")
+  funding   Funding     @relation(fields: [fundingId], references: [id], onDelete: Cascade)
+  area      FundingArea @relation(fields: [areaId], references: [id], onDelete: Cascade)
+
+  @@id([fundingId, areaId])
+  @@map("funding_areas_on_fundings")
+}
+
+model FundingEligibleEntity {
+  id       String                              @id @default(uuid())
+  title    String                              @unique
+  slug     String                              @unique
+  fundings FundingEligibleEntitiesOnFundings[]
+
+  @@map("funding_eligible_entities")
+}
+
+model FundingEligibleEntitiesOnFundings {
+  fundingId String                @map("funding_id")
+  entityId  String                @map("entity_id")
+  createdAt DateTime              @default(now()) @map("created_at")
+  funding   Funding               @relation(fields: [fundingId], references: [id], onDelete: Cascade)
+  entity    FundingEligibleEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@id([fundingId, entityId])
+  @@map("funding_eligible_entities_on_fundings")
 }
 
 enum DistrictType {
