@@ -1,14 +1,14 @@
+import { json } from "@remix-run/server-runtime";
+import { format } from "date-fns";
 import type {
+  AnyObject,
   Asserts,
   InferType,
+  ObjectSchema,
   StringSchema,
   TestContext,
-  AnyObject,
-  ObjectSchema,
 } from "yup";
-import { mixed, number, string, ValidationError } from "yup";
-import { format } from "date-fns";
-import { json } from "@remix-run/server-runtime";
+import { ValidationError, mixed, number, string } from "yup";
 
 type Error = {
   type: string;
@@ -64,6 +64,16 @@ const socialValidation = {
     match: /^(https?:\/\/)?([a-z0-9]+\.)?xing.com\/(profile|pages)\/.+$|^$/,
     error:
       "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/profile/<Nutzername> oder xing.com/pages/<Nutzername>).",
+  },
+  mastodon: {
+    match:
+      /^(https?:\/\/)?([a-z0-9]+\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\/@.+$|^$/,
+    error: "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite.",
+  },
+  tiktok: {
+    match: /^(https?:\/\/)?([a-z0-9]+\.)?tiktok.com\/@.+$|^$/,
+    error:
+      "Deine Eingabe entspricht nicht dem Format einer TikTok Seite (tiktok.com/@...)",
   },
 };
 

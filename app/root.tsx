@@ -40,7 +40,12 @@ import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { detectLanguage, getProfileByUserId } from "./root.server";
-import { NavBarMenu, NextFooter, NextNavBar } from "./routes/__components";
+import {
+  NavBarMenu,
+  NextFooter,
+  NextNavBar,
+  Modal,
+} from "./routes/__components";
 import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
 import legacyStyles from "./styles/legacy-styles.css";
@@ -67,6 +72,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "projects",
     "dashboard",
     "next_navbar",
+    "abuse_report",
   ]);
 
   const user = await getSessionUser(authClient);
@@ -738,7 +744,7 @@ export default function App() {
             <Footer isSettings={isProjectSettings} />
           ) : null}
         </div>
-
+        {abilities.abuse_report.hasAccess && <Modal.Root />}
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

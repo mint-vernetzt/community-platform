@@ -29,7 +29,7 @@ function getWhereStatementFromPeriodOfTime(
   if (periodOfTime === "past") {
     return sqlType === "prisma"
       ? {
-          startTime: {
+          endTime: {
             lte: now,
           },
         }
@@ -37,7 +37,12 @@ function getWhereStatementFromPeriodOfTime(
   }
   if (periodOfTime === "thisWeek" || periodOfTime === "nextWeek") {
     const currentDay = now.getDay();
-    const daysUntilMonday = (8 - currentDay) % 7;
+    let daysUntilMonday = (8 - currentDay) % 7;
+
+    if (daysUntilMonday === 0) {
+      daysUntilMonday = 7;
+    }
+
     const nextMonday = new Date(
       now.getTime() + daysUntilMonday * 24 * 60 * 60 * 1000
     );
@@ -45,12 +50,14 @@ function getWhereStatementFromPeriodOfTime(
     if (periodOfTime === "thisWeek") {
       return sqlType === "prisma"
         ? {
-            startTime: {
+            endTime: {
               gte: now,
+            },
+            startTime: {
               lte: nextMonday,
             },
           }
-        : `start_time >= ${dateToPostgresTimestamp(
+        : `end_time >= ${dateToPostgresTimestamp(
             now
           )} AND start_time <= ${dateToPostgresTimestamp(nextMonday)}`;
     } else {
@@ -60,12 +67,14 @@ function getWhereStatementFromPeriodOfTime(
       );
       return sqlType === "prisma"
         ? {
-            startTime: {
+            endTime: {
               gte: nextMonday,
+            },
+            startTime: {
               lte: secondMonday,
             },
           }
-        : `start_time >= ${dateToPostgresTimestamp(
+        : `end_time >= ${dateToPostgresTimestamp(
             nextMonday
           )} AND start_time <= ${dateToPostgresTimestamp(secondMonday)}`;
     }
@@ -78,12 +87,14 @@ function getWhereStatementFromPeriodOfTime(
     if (periodOfTime === "thisMonth") {
       return sqlType === "prisma"
         ? {
-            startTime: {
+            endTime: {
               gte: now,
+            },
+            startTime: {
               lte: firstDayOfNextMonth,
             },
           }
-        : `start_time >= ${dateToPostgresTimestamp(
+        : `end_time >= ${dateToPostgresTimestamp(
             now
           )} AND start_time <= ${dateToPostgresTimestamp(firstDayOfNextMonth)}`;
     } else {
@@ -91,12 +102,14 @@ function getWhereStatementFromPeriodOfTime(
       firstDayOfNextMonth.setHours(0, 0, 0, 0);
       return sqlType === "prisma"
         ? {
-            startTime: {
+            endTime: {
               gte: firstDayOfNextMonth,
+            },
+            startTime: {
               lte: firstDayOfSecondMonth,
             },
           }
-        : `start_time >= ${dateToPostgresTimestamp(
+        : `end_time >= ${dateToPostgresTimestamp(
             firstDayOfNextMonth
           )} AND start_time <= ${dateToPostgresTimestamp(
             firstDayOfSecondMonth
@@ -105,11 +118,11 @@ function getWhereStatementFromPeriodOfTime(
   }
   return sqlType === "prisma"
     ? {
-        startTime: {
+        endTime: {
           gte: now,
         },
       }
-    : `start_time >= ${dateToPostgresTimestamp(now)}`;
+    : `end_time >= ${dateToPostgresTimestamp(now)}`;
 }
 
 export async function getVisibilityFilteredEventsCount(options: {

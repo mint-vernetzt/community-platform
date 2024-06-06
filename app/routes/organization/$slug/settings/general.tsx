@@ -77,6 +77,8 @@ const createOrganizationSchema = (t: TFunction) => {
     youtube: nullOrString(social("youtube")),
     instagram: nullOrString(social("instagram")),
     xing: nullOrString(social("xing")),
+    mastodon: nullOrString(social("mastodon")),
+    tiktok: nullOrString(social("tiktok")),
     bio: nullOrString(multiline()),
     types: array(string().required()).required(),
     quote: nullOrString(multiline()),

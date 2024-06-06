@@ -111,6 +111,8 @@ export async function getWholeOrganizationBySlug(slug: string) {
       instagram: true,
       youtube: true,
       facebook: true,
+      mastodon: true,
+      tiktok: true,
       types: {
         select: {
           organizationTypeId: true,

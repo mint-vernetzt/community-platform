@@ -28,5 +28,15 @@
     "label": "Xing",
     "placeholder": "xing.com/profile/<Nutzername>",
     "organizationPlaceholder": "xing.com/pages/<Organisationsname>"
+  },
+  "mastodon": {
+    "label": "Mastodon",
+    "placeholder": "<Instanz>/@<Nutzername>",
+    "organizationPlaceholder": "<Instanz>/@<Organisationsname>"
+  },
+  "tiktok": {
+    "label": "TikTok",
+    "placeholder": "tiktok.com/@<Nutzername>",
+    "organizationPlaceholder": "tiktok.com/@<Organisationsname>"
   }
 }

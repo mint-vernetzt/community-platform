@@ -25,6 +25,8 @@ export async function getProfileByUsername(
       website: true,
       youtube: true,
       instagram: true,
+      mastodon: true,
+      tiktok: true,
       firstName: true,
       lastName: true,
       academicTitle: true,

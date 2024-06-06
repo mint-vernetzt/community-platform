@@ -56,6 +56,8 @@ export async function getWholeProfileFromUsername(username: string) {
       instagram: true,
       youtube: true,
       facebook: true,
+      mastodon: true,
+      tiktok: true,
       areas: { select: { area: { select: { id: true } } } },
       offers: { select: { offer: { select: { id: true } } } },
       seekings: { select: { offer: { select: { id: true } } } },

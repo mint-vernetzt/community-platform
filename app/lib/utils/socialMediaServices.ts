@@ -4,11 +4,25 @@ import { TFunction } from "i18next";
 type SocialMediaIdType =
   | keyof Pick<
       Organization,
-      "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
+      | "facebook"
+      | "linkedin"
+      | "twitter"
+      | "youtube"
+      | "instagram"
+      | "xing"
+      | "mastodon"
+      | "tiktok"
     >
   | keyof Pick<
       Profile,
-      "facebook" | "linkedin" | "twitter" | "youtube" | "instagram" | "xing"
+      | "facebook"
+      | "linkedin"
+      | "twitter"
+      | "youtube"
+      | "instagram"
+      | "xing"
+      | "mastodon"
+      | "tiktok"
     >;
 
 type SocialMediaService = {
@@ -25,6 +39,8 @@ const socialMediaServiceIds: SocialMediaIdType[] = [
   "youtube",
   "instagram",
   "xing",
+  "mastodon",
+  "tiktok",
 ];
 
 export const createSocialMediaServices = (

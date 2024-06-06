@@ -124,7 +124,9 @@ export async function filterProfileByVisibility<
         key === "backgroundImage" ||
         key === "backgroundImageId" ||
         key === "notificationSettings" ||
-        key === "youtube"
+        key === "youtube" ||
+        key === "mastodon" ||
+        key === "tiktok"
       ) {
         filteredFields[key] =
           profileVisibility[key] === true ? profile[key] : null;
@@ -240,7 +242,9 @@ export async function filterOrganizationByVisibility<
         key === "instagram" ||
         key === "backgroundImage" ||
         key === "backgroundImageId" ||
-        key === "youtube"
+        key === "youtube" ||
+        key == "mastodon" ||
+        key === "tiktok"
       ) {
         filteredFields[key] =
           organizationVisibility[key] === true ? organization[key] : null;
