@@ -42,6 +42,7 @@ import {
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
 import { Mastodon, TikTok } from "~/routes/project/$slug/detail/__components";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/organization/index"];
 export const handle = {
@@ -73,6 +74,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
+
+  const abilities = await getFeatureAbilities(authClient, ["next_navbar"]);
 
   if (mode !== "anon" && sessionUser !== null) {
     const userProfile = await prismaClient.profile.findFirst({
@@ -133,6 +136,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     pastEvents: enhancedPastEvents,
     userId: sessionUser?.id,
     mode,
+    abilities,
   });
 };
 
@@ -272,7 +276,11 @@ export default function Index() {
       <div className="mv-container-custom relative pb-44">
         <div className="flex flex-col @lg:mv-flex-row -mx-4">
           <div className="flex-gridcol @lg:mv-w-5/12 px-4 pt-10 @lg:mv-pt-0">
-            <div className="sticky top-24">
+            <div
+              className={`sticky ${
+                loaderData.abilities.next_navbar.hasAccess ? "top-24" : "top-4"
+              }`}
+            >
               <div className="px-4 py-8 @lg:mv-p-8 pb-15 @md:mv-pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative @lg:mv-ml-14 @lg:-mv-mt-44 ">
                 <div className="flex items-center flex-col">
                   <Avatar />

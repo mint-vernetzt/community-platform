@@ -91,6 +91,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const abilities = await getFeatureAbilities(authClient, [
     "events",
     "projects",
+    "next_navbar",
   ]);
 
   // Overwrite administeredeEvents on mode !== "owner" with empty array
@@ -322,7 +323,11 @@ export default function Index() {
       <div className="mv-container-custom relative">
         <div className="flex flex-col @lg:mv-flex-row -mx-4">
           <div className="flex-gridcol @lg:mv-w-5/12 px-4 pt-10 @lg:mv-pt-0">
-            <div className="px-4 py-8 @lg:mv-p-8 pb-15 @md:mv-pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative @lg:mv-ml-14 @lg:-mv-mt-44 sticky top-24">
+            <div
+              className={`px-4 py-8 @lg:mv-p-8 pb-15 @md:mv-pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative @lg:mv-ml-14 @lg:-mv-mt-44 sticky ${
+                loaderData.abilities.next_navbar.hasAccess ? "top-24" : "top-4"
+              }`}
+            >
               <div className="flex items-center flex-col">
                 <Avatar />
                 {loaderData.mode === "owner" ? (
