@@ -142,6 +142,7 @@ const exampleResponse = {
       _count: {
         participants: 20,
         waitingList: 3,
+        childEvents: 2,
       },
       responsibleOrganizations: [
         {
@@ -184,6 +185,7 @@ const exampleResponse = {
       _count: {
         participants: 0,
         waitingList: 0,
+        childEvents: 0,
       },
       responsibleOrganizations: [],
     },

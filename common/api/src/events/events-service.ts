@@ -100,6 +100,7 @@ async function getEvents(request: Request, skip: number, take: number) {
         select: {
           participants: true,
           waitingList: true,
+          childEvents: true,
         },
       },
     },

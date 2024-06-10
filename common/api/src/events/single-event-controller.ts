@@ -131,6 +131,24 @@ export class EventController extends Controller {
             title: true,
           },
         },
+        responsibleOrganizations: {
+          select: {
+            organization: {
+              select: {
+                name: true,
+                slug: true,
+                logo: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            participants: true,
+            waitingList: true,
+            childEvents: true,
+          },
+        },
       },
     });
     if (!event) {
