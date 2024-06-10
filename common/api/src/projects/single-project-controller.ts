@@ -11,12 +11,12 @@ import {
   Tags,
   type ValidateError,
 } from "tsoa";
-import { getImageURL } from "../images.server";
+import { getImageURL } from "../cp-modules/images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
-import { prismaClient } from "../prisma";
-import { filterProjectByVisibility } from "../public-fields-filtering.server";
-import { getPublicURL } from "../storage.server";
-import { getBaseURL } from "../utils";
+import { prismaClient } from "../cp-modules/prisma";
+import { filterProjectByVisibility } from "../cp-modules/next-public-fields-filtering.server";
+import { getPublicURL } from "../cp-modules/storage.server";
+import { getBaseURL } from "../cp-modules/utils";
 
 @Route("project")
 @Tags("Project")
@@ -149,6 +149,38 @@ export class ProjectController extends Controller {
             },
           },
         },
+        projectVisibility: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+            background: true,
+            headline: true,
+            excerpt: true,
+            description: true,
+            email: true,
+            phone: true,
+            street: true,
+            streetNumber: true,
+            city: true,
+            zipCode: true,
+            website: true,
+            facebook: true,
+            linkedin: true,
+            twitter: true,
+            youtube: true,
+            instagram: true,
+            xing: true,
+            disciplines: true,
+            additionalDisciplines: true,
+            projectTargetGroups: true,
+            specialTargetGroups: true,
+            formats: true,
+            financings: true,
+            areas: true,
+          },
+        },
       },
     });
     if (!project) {
@@ -202,7 +234,7 @@ export class ProjectController extends Controller {
       background: publicBackground,
     };
 
-    const filteredProject = await filterProjectByVisibility(enhancedProject);
+    const filteredProject = filterProjectByVisibility(enhancedProject);
     return {
       ...filteredProject,
       url,

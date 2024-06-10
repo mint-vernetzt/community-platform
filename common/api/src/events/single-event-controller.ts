@@ -11,12 +11,12 @@ import {
   Tags,
   type ValidateError,
 } from "tsoa";
-import { getImageURL } from "../images.server";
+import { getImageURL } from "../cp-modules/images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
-import { prismaClient } from "../prisma";
-import { filterEventByVisibility } from "../public-fields-filtering.server";
-import { getPublicURL } from "../storage.server";
-import { getBaseURL } from "../utils";
+import { prismaClient } from "../cp-modules/prisma";
+import { filterEventByVisibility } from "../cp-modules/next-public-fields-filtering.server";
+import { getPublicURL } from "../cp-modules/storage.server";
+import { getBaseURL } from "../cp-modules/utils";
 
 @Route("event")
 @Tags("Event")
@@ -145,8 +145,45 @@ export class EventController extends Controller {
                 name: true,
                 slug: true,
                 logo: true,
+                organizationVisibility: {
+                  select: {
+                    name: true,
+                    slug: true,
+                    logo: true,
+                  },
+                },
               },
             },
+          },
+        },
+        eventVisibility: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            background: true,
+            description: true,
+            subline: true,
+            startTime: true,
+            endTime: true,
+            participationFrom: true,
+            participationUntil: true,
+            participantLimit: true,
+            venueName: true,
+            venueStreet: true,
+            venueStreetNumber: true,
+            venueCity: true,
+            venueZipCode: true,
+            canceled: true,
+            parentEventId: true,
+            areas: true,
+            types: true,
+            focuses: true,
+            tags: true,
+            eventTargetGroups: true,
+            experienceLevel: true,
+            stage: true,
+            responsibleOrganizations: true,
           },
         },
         _count: {
@@ -201,7 +238,7 @@ export class EventController extends Controller {
       background: publicBackground,
     };
 
-    const filteredEvent = await filterEventByVisibility(enhancedEvent);
+    const filteredEvent = filterEventByVisibility(enhancedEvent);
     return {
       ...filteredEvent,
       url,

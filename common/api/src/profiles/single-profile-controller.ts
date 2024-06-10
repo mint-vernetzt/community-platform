@@ -11,12 +11,12 @@ import {
   Tags,
   type ValidateError,
 } from "tsoa";
-import { getImageURL } from "../images.server";
+import { getImageURL } from "../cp-modules/images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
-import { prismaClient } from "../prisma";
-import { filterProfileByVisibility } from "../public-fields-filtering.server";
-import { getPublicURL } from "../storage.server";
-import { getBaseURL } from "../utils";
+import { prismaClient } from "../cp-modules/prisma";
+import { filterProfileByVisibility } from "../cp-modules/next-public-fields-filtering.server";
+import { getPublicURL } from "../cp-modules/storage.server";
+import { getBaseURL } from "../cp-modules/utils";
 
 @Route("profile")
 @Tags("Profile")
@@ -97,6 +97,22 @@ export class ProfileController extends Controller {
             },
           },
         },
+        profileVisibility: {
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true,
+            academicTitle: true,
+            email: true,
+            avatar: true,
+            background: true,
+            bio: true,
+            areas: true,
+            offers: true,
+            seekings: true,
+          },
+        },
       },
     });
     if (!profile) {
@@ -150,7 +166,7 @@ export class ProfileController extends Controller {
       background: publicBackground,
     };
 
-    const filteredProfile = await filterProfileByVisibility(enhancedProfile);
+    const filteredProfile = filterProfileByVisibility(enhancedProfile);
     return {
       ...filteredProfile,
       url,
