@@ -56,7 +56,7 @@ export class ProjectController extends Controller {
     @Path() slug: string
   ) {
     const project = await prismaClient.project.findFirst({
-      where: { slug },
+      where: { slug, published: true },
       select: {
         id: true,
         name: true,
@@ -84,15 +84,67 @@ export class ProjectController extends Controller {
             discipline: {
               select: {
                 title: true,
+                slug: true,
               },
             },
           },
         },
-        targetGroups: {
+        additionalDisciplines: {
           select: {
-            targetGroup: {
+            additionalDiscipline: {
               select: {
                 title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        projectTargetGroups: {
+          select: {
+            projectTargetGroup: {
+              select: {
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        specialTargetGroups: {
+          select: {
+            specialTargetGroup: {
+              select: {
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        formats: {
+          select: {
+            format: {
+              select: {
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        financings: {
+          select: {
+            financing: {
+              select: {
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        areas: {
+          select: {
+            area: {
+              select: {
+                name: true,
+                slug: true,
               },
             },
           },

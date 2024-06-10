@@ -74,6 +74,7 @@ export class OrganizationController extends Controller {
             area: {
               select: {
                 name: true,
+                slug: true,
               },
             },
           },
@@ -83,6 +84,17 @@ export class OrganizationController extends Controller {
             organizationType: {
               select: {
                 title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        focuses: {
+          select: {
+            focus: {
+              select: {
+                title: true,
+                slug: true,
               },
             },
           },

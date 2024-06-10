@@ -45,28 +45,127 @@ const responseExample = {
         {
           discipline: {
             title: "Math",
+            slug: "math",
           },
         },
         {
           discipline: {
-            title: "Computer Science",
+            title: "Computer science",
+            slug: "computer_science",
           },
         },
       ],
-      targetGroups: [
+      additionalDisciplines: [
         {
-          targetGroup: {
-            title: "Elementary School",
+          additionalDiscipline: {
+            title: "Design",
+            slug: "design",
           },
         },
         {
-          targetGroup: {
-            title: "Early Childhood Education",
+          additionalDiscipline: {
+            title: "Music",
+            slug: "music",
+          },
+        },
+      ],
+      projectTargetGroups: [
+        {
+          projectTargetGroup: {
+            title: "Elementary school",
+            slug: "elementary_school",
           },
         },
         {
-          targetGroup: {
+          projectTargetGroup: {
+            title: "Early childhood education",
+            slug: "early_childhood_education",
+          },
+        },
+        {
+          projectTargetGroup: {
             title: "Teachers",
+            slug: "teachers",
+          },
+        },
+      ],
+      specialTargetGroups: [
+        {
+          specialTargetGroup: {
+            title: "Disabled people",
+            slug: "disabled_people",
+          },
+        },
+        {
+          specialTargetGroup: {
+            title: "Refugees",
+            slug: "refugees",
+          },
+        },
+        {
+          specialTargetGroup: {
+            title: "Neurodivergent people",
+            slug: "neurodivergent_people",
+          },
+        },
+      ],
+      formats: [
+        {
+          format: {
+            title: "Workshop",
+            slug: "workshop",
+          },
+        },
+        {
+          format: {
+            title: "Holiday offer",
+            slug: "holiday_offer",
+          },
+        },
+        {
+          format: {
+            title: "Project week",
+            slug: "project_week",
+          },
+        },
+      ],
+      financings: [
+        {
+          financing: {
+            title: "Crowdfunding",
+            slug: "crowdfunding",
+          },
+        },
+        {
+          financing: {
+            title: "Self funding",
+            slug: "self_funding",
+          },
+        },
+        {
+          financing: {
+            title: "Private funding",
+            slug: "private_funding",
+          },
+        },
+      ],
+      areas: [
+        {
+          area: {
+            name: "India",
+            slug: "india",
+          },
+        },
+        {
+          area: {
+            name: "Bavaria",
+            slug: "bavaria",
+          },
+        },
+        {
+          area: {
+            name: "New York City",
+            slug: "new_york_city",
           },
         },
       ],
@@ -94,7 +193,12 @@ const responseExample = {
       instagram: null,
       xing: null,
       disciplines: [],
-      targetGroups: [],
+      additionalDisciplines: [],
+      projectTargetGroups: [],
+      specialTargetGroups: [],
+      formats: [],
+      financings: [],
+      areas: [],
     },
   ],
   skip: 0,

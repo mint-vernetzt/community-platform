@@ -35,6 +35,7 @@ async function getEvents(request: Request, skip: number, take: number) {
           area: {
             select: {
               name: true,
+              slug: true,
             },
           },
         },
@@ -44,6 +45,7 @@ async function getEvents(request: Request, skip: number, take: number) {
           eventType: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
@@ -53,6 +55,7 @@ async function getEvents(request: Request, skip: number, take: number) {
           focus: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
@@ -62,15 +65,17 @@ async function getEvents(request: Request, skip: number, take: number) {
           tag: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
       },
-      targetGroups: {
+      eventTargetGroups: {
         select: {
-          targetGroup: {
+          eventTargetGroup: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
@@ -78,11 +83,13 @@ async function getEvents(request: Request, skip: number, take: number) {
       experienceLevel: {
         select: {
           title: true,
+          slug: true,
         },
       },
       stage: {
         select: {
           title: true,
+          slug: true,
         },
       },
       responsibleOrganizations: {

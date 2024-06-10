@@ -81,6 +81,7 @@ export class EventController extends Controller {
             area: {
               select: {
                 name: true,
+                slug: true,
               },
             },
           },
@@ -90,6 +91,7 @@ export class EventController extends Controller {
             eventType: {
               select: {
                 title: true,
+                slug: true,
               },
             },
           },
@@ -99,6 +101,7 @@ export class EventController extends Controller {
             focus: {
               select: {
                 title: true,
+                slug: true,
               },
             },
           },
@@ -108,15 +111,17 @@ export class EventController extends Controller {
             tag: {
               select: {
                 title: true,
+                slug: true,
               },
             },
           },
         },
-        targetGroups: {
+        eventTargetGroups: {
           select: {
-            targetGroup: {
+            eventTargetGroup: {
               select: {
                 title: true,
+                slug: true,
               },
             },
           },
@@ -124,11 +129,13 @@ export class EventController extends Controller {
         experienceLevel: {
           select: {
             title: true,
+            slug: true,
           },
         },
         stage: {
           select: {
             title: true,
+            slug: true,
           },
         },
         responsibleOrganizations: {

@@ -72,6 +72,7 @@ export class ProfileController extends Controller {
             area: {
               select: {
                 name: true,
+                slug: true,
               },
             },
           },
@@ -81,6 +82,7 @@ export class ProfileController extends Controller {
             offer: {
               select: {
                 title: true,
+                slug: true,
               },
             },
           },
@@ -90,6 +92,7 @@ export class ProfileController extends Controller {
             offer: {
               select: {
                 title: true,
+                slug: true,
               },
             },
           },

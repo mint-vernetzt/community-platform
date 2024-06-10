@@ -11,6 +11,9 @@ type Projects = Awaited<ReturnType<typeof getProjects>>;
 
 async function getProjects(request: Request, skip: number, take: number) {
   const projects = await prismaClient.project.findMany({
+    where: {
+      published: true,
+    },
     select: {
       id: true,
       name: true,
@@ -38,15 +41,67 @@ async function getProjects(request: Request, skip: number, take: number) {
           discipline: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
       },
-      targetGroups: {
+      additionalDisciplines: {
         select: {
-          targetGroup: {
+          additionalDiscipline: {
             select: {
               title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      projectTargetGroups: {
+        select: {
+          projectTargetGroup: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      specialTargetGroups: {
+        select: {
+          specialTargetGroup: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      formats: {
+        select: {
+          format: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      financings: {
+        select: {
+          financing: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+              slug: true,
             },
           },
         },

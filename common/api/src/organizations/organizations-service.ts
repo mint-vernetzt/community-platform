@@ -28,6 +28,7 @@ async function getOrganizations(request: Request, skip: number, take: number) {
           area: {
             select: {
               name: true,
+              slug: true,
             },
           },
         },
@@ -37,6 +38,17 @@ async function getOrganizations(request: Request, skip: number, take: number) {
           organizationType: {
             select: {
               title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      focuses: {
+        select: {
+          focus: {
+            select: {
+              title: true,
+              slug: true,
             },
           },
         },

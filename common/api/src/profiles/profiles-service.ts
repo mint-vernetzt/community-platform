@@ -26,6 +26,7 @@ async function getProfiles(request: Request, skip: number, take: number) {
           area: {
             select: {
               name: true,
+              slug: true,
             },
           },
         },
@@ -35,6 +36,7 @@ async function getProfiles(request: Request, skip: number, take: number) {
           offer: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
@@ -44,6 +46,7 @@ async function getProfiles(request: Request, skip: number, take: number) {
           offer: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
@@ -102,10 +105,10 @@ async function getProfiles(request: Request, skip: number, take: number) {
         background: publicBackground,
       };
 
-      const filteredProject = await filterProfileByVisibility(enhancedProfile);
+      const filteredProfile = await filterProfileByVisibility(enhancedProfile);
 
       return {
-        ...filteredProject,
+        ...filteredProfile,
         url: url,
       };
     })

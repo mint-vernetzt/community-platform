@@ -22,7 +22,7 @@ const exampleResponse = {
       lastName: "Doe",
       academicTitle: "Dr.",
       email: "",
-      url: null,
+      url: "https://community.platform.org/url/to/profile",
       avatar: "https://img.platform.org/public/url/of/profile/avatar",
       background: "https://img.platform.org/public/url/of/profile/background",
       bio: "I am a </strong>bio</strong>",
@@ -30,38 +30,58 @@ const exampleResponse = {
         {
           area: {
             name: "India",
+            slug: "india",
           },
         },
         {
           area: {
             name: "Bavaria",
+            slug: "bavaria",
           },
         },
       ],
       offers: [
         {
           offer: {
-            title: "Offer 1",
+            title: "Digital skills",
+            slug: "digital-skills",
           },
         },
         {
           offer: {
-            title: "Offer 2",
+            title: "Contact with companies",
+            slug: "contact-with-companies",
           },
         },
       ],
       seekings: [
         {
           offer: {
-            title: "Offer 1",
+            title: "Contact with trainees",
+            slug: "contact-with-trainees",
           },
         },
         {
           offer: {
-            title: "Offer 2",
+            title: "Networking",
+            slug: "networking",
           },
         },
       ],
+    },
+    {
+      id: "37878ae0-cc7b-42d3-8e7c-a9ddf8810797",
+      firstName: "Jane",
+      lastName: "Doe",
+      academicTitle: null,
+      email: "",
+      url: null,
+      avatar: null,
+      background: null,
+      bio: null,
+      areas: [],
+      offers: [],
+      seekings: [],
     },
   ],
   skip: 0,
