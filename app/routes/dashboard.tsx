@@ -4,6 +4,7 @@ import {
   Link,
   OrganizationCard,
   ProfileCard,
+  ProjectCard,
 } from "@mint-vernetzt/components";
 import type { Organization, Profile } from "@prisma/client";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
@@ -20,6 +21,7 @@ import {
   getOrganizationsForCards,
   getProfileById,
   getProfilesForCards,
+  getProjectsForCards,
 } from "./dashboard.server";
 
 const i18nNS = ["routes/dashboard"];
@@ -179,7 +181,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     extensions.types = organization.types.map((relation) => {
       return relation.organizationType.title;
     });
-
     return {
       ...otherFields,
       ...extensions,
@@ -187,9 +188,69 @@ export const loader = async (args: LoaderFunctionArgs) => {
       background: backgroundImage,
     };
   });
+
+  const numberOfProjects = 4;
+  const rawProjects = await getProjectsForCards(numberOfProjects);
+  const projects = rawProjects.map((project) => {
+    const { logo, background, responsibleOrganizations, ...otherFields } =
+      project;
+    const extensions: {
+      responsibleOrganizations: {
+        organization: Pick<Organization, "name" | "slug" | "logo">;
+      }[];
+    } = { responsibleOrganizations: [] };
+
+    let logoImage: string | null = null;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logoImage = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+        });
+      }
+    }
+
+    let backgroundImage: string | null = null;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL !== null) {
+        backgroundImage = getImageURL(publicURL, {
+          resize: { type: "fill", width: 348, height: 160 },
+        });
+      }
+    }
+
+    extensions.responsibleOrganizations = responsibleOrganizations.map(
+      (relation, index) => {
+        let logoImage: string | null = null;
+        if (index < 2) {
+          if (relation.organization.logo !== null) {
+            const publicURL = getPublicURL(
+              authClient,
+              relation.organization.logo
+            );
+            if (publicURL !== null) {
+              logoImage = getImageURL(publicURL, {
+                resize: { type: "fill", width: 36, height: 36 },
+              });
+            }
+          }
+        }
+        return { organization: { ...relation.organization, logo: logoImage } };
+      }
+    );
+    return {
+      ...otherFields,
+      ...extensions,
+      logo: logoImage,
+      background: backgroundImage,
+    };
+  });
+
   return json({
     profiles,
     organizations,
+    projects,
     firstName: profile.firstName,
     lastName: profile.lastName,
     username: profile.username,
@@ -266,6 +327,27 @@ function Dashboard() {
                   organization={organization}
                 />
               );
+            })}
+          </CardContainer>
+        </div>
+      </section>
+      <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+        <div className="mv-flex mv-mb-4 mv-px-4 xl:mv-px-6 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
+            {t("content.projects")}
+          </div>
+          <div className="mv-text-right">
+            <Link to="/explore/projects">
+              <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
+                {t("content.allProjects")}
+              </span>
+            </Link>
+          </div>
+        </div>
+        <div className="xl:mv-px-2">
+          <CardContainer>
+            {loaderData.projects.map((project) => {
+              return <ProjectCard key={project.slug} project={project} />;
             })}
           </CardContainer>
         </div>
