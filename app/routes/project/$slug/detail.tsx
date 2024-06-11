@@ -20,6 +20,7 @@ import {
   Link,
   Outlet,
   useLoaderData,
+  useLocation,
   useMatches,
 } from "@remix-run/react";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -204,6 +205,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
 function ProjectDetail() {
   const loaderData = useLoaderData<typeof loader>();
+  const location = useLocation();
   const { project, mode } = loaderData;
   const matches = useMatches();
   let pathname = "";
@@ -247,7 +249,7 @@ function ProjectDetail() {
           />
           {mode === "admin" && (
             <Controls>
-              <Form method="get">
+              <Form method="get" action={location.pathname}>
                 <input hidden name="modal-background" defaultValue="true" />
                 {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton mv-container-custom */}
                 <CircleButton type="submit" variant="outline">
@@ -272,7 +274,7 @@ function ProjectDetail() {
           <Header.Body>
             {mode === "admin" && (
               <Controls>
-                <Form method="get">
+                <Form method="get" action={location.pathname}>
                   <input hidden name="modal-logo" defaultValue="true" />
                   <button
                     type="submit"
@@ -302,7 +304,6 @@ function ProjectDetail() {
           {mode === "admin" && (
             <Header.Footer>
               <Controls>
-                {/* TODO: Use absolute path */}
                 <Button as="a" href="./../settings">
                   {t("content.edit")}
                 </Button>
