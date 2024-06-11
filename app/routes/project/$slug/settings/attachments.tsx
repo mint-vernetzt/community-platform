@@ -27,7 +27,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { BackButton, MaterialList } from "./__components";
-import { getExtension, storeDocument, storeImage } from "./attachments.server";
+import { storeDocument, storeImage } from "./attachments.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
@@ -42,6 +42,10 @@ const i18nNS = ["routes/project/settings/attachments"];
 export const handle = {
   i18n: i18nNS,
 };
+
+function getExtension(filename: string) {
+  return filename.substring(filename.lastIndexOf(".") + 1, filename.length);
+}
 
 const createDocumentUploadSchema = (t: TFunction) =>
   z.object({
