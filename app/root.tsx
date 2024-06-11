@@ -600,13 +600,18 @@ export default function App() {
   }
 
   const [searchParams] = useSearchParams();
-  const modal = searchParams.get("modal");
+  let modal = false;
+  searchParams.forEach((value, key) => {
+    if (key.startsWith("modal") && value !== "false") {
+      modal = true;
+    }
+  });
   const showFilters = searchParams.get("showFilters");
   const openNavBarMenuKey = "navbarmenu";
   const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
 
   const bodyClasses = classNames(
-    modal !== null && modal !== "false" && "mv-overflow-hidden",
+    modal && "mv-overflow-hidden",
     showFilters !== null &&
       showFilters !== "false" &&
       "mv-overflow-hidden lg:mv-overflow-auto",
