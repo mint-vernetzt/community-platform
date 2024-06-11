@@ -43,7 +43,7 @@ export const handle = {
   i18n: i18nNS,
 };
 
-function getExtension(filename: string) {
+export function getExtension(filename: string) {
   return filename.substring(filename.lastIndexOf(".") + 1, filename.length);
 }
 
