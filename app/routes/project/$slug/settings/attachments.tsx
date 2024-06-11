@@ -360,9 +360,6 @@ function Attachments() {
       typeof actionData !== "undefined" ? actionData.submission : undefined,
     shouldRevalidate: "onInput",
   });
-  const { initialError: documentInitialError, ...documentPropsRest } =
-    documentUploadFields.filename;
-  const documentUploadFilenameInputProps = documentPropsRest;
 
   const imageUploadSchema = createImageUploadSchema(t);
   const [imageUploadForm, imageUploadFields] = useForm({
@@ -375,9 +372,6 @@ function Attachments() {
       typeof actionData !== "undefined" ? actionData.submission : undefined,
     shouldRevalidate: "onInput",
   });
-  const { initialError: imageInitialError, ...imagePropsRest } =
-    imageUploadFields.filename;
-  const imageUploadFilenameInputProps = imagePropsRest;
 
   const handleDocumentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files !== null) {
@@ -441,7 +435,7 @@ function Attachments() {
             <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
               <input
                 hidden
-                {...documentUploadFilenameInputProps}
+                {...conform.input(documentUploadFields.filename)}
                 defaultValue={documentName !== null ? documentName : ""}
               />
               {/* TODO: component! */}
@@ -627,7 +621,7 @@ function Attachments() {
             <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
               <input
                 hidden
-                {...imageUploadFilenameInputProps}
+                {...conform.input(imageUploadFields.filename)}
                 defaultValue={imageName !== null ? imageName : ""}
               />
               {/* TODO: component! */}
