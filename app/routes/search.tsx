@@ -87,6 +87,7 @@ function SearchView() {
             id="profile-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`profiles?query=${query}`}
+            preventScrollReset
           >
             {t("profiles")} (<>{loaderData.profilesCount}</>)
           </NavLink>
@@ -94,6 +95,7 @@ function SearchView() {
             id="organization-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`organizations?query=${query}`}
+            preventScrollReset
           >
             {t("organizations")} (<>{loaderData.organizationsCount}</>)
           </NavLink>
@@ -101,6 +103,7 @@ function SearchView() {
             id="event-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`events?query=${query}`}
+            preventScrollReset
           >
             {t("events")} (<>{loaderData.eventsCount}</>)
           </NavLink>
@@ -108,6 +111,7 @@ function SearchView() {
             id="project-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`projects?query=${query}`}
+            preventScrollReset
           >
             {t("projects")} (<>{loaderData.projectsCount}</>)
           </NavLink>
