@@ -38,16 +38,19 @@ const exampleResponse = {
         {
           area: {
             name: "India",
+            slug: "india",
           },
         },
         {
           area: {
             name: "Bavaria",
+            slug: "bavaria",
           },
         },
         {
           area: {
             name: "New York City",
+            slug: "new_york_city",
           },
         },
       ],
@@ -55,16 +58,39 @@ const exampleResponse = {
         {
           organizationType: {
             title: "Association",
+            slug: "association",
           },
         },
         {
           organizationType: {
             title: "Company",
+            slug: "company",
           },
         },
         {
           organizationType: {
             title: "Initiative",
+            slug: "initiative",
+          },
+        },
+      ],
+      focuses: [
+        {
+          focus: {
+            title: "Networking",
+            slug: "networking",
+          },
+        },
+        {
+          focus: {
+            title: "Politics",
+            slug: "politics",
+          },
+        },
+        {
+          focus: {
+            title: "Diversity",
+            slug: "diversity",
           },
         },
       ],
@@ -83,6 +109,7 @@ const exampleResponse = {
       supportedBy: [],
       areas: [],
       types: [],
+      focuses: [],
     },
   ],
   skip: 0,
