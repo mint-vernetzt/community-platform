@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import { createHmac } from "crypto";
 
 export type ResizeType = "fit" | "fill" | "crop";
 
@@ -14,10 +14,6 @@ export const GravityType = {
   southWest: "sowe",
   smart: "sm",
 };
-
-const baseUrl = process.env.IMGPROXY_URL;
-const key = process.env.IMGPROXY_KEY;
-const salt = process.env.IMGPROXY_SALT;
 
 function encodeUrlCharacters(url: string) {
   const encodedUrl = url
@@ -62,9 +58,9 @@ export function getImageURL(
   }
 ) {
   if (
-    typeof baseUrl === "undefined" ||
-    typeof key === "undefined" ||
-    typeof salt === "undefined"
+    process.env.IMGPROXY_URL === undefined ||
+    process.env.IMGPROXY_KEY === undefined ||
+    process.env.IMGPROXY_SALT === undefined
   ) {
     throw new Error("imgproxy environment variables are not set");
   }
@@ -74,9 +70,13 @@ export function getImageURL(
   const imgOptions: { [key: string]: string } = {};
 
   // create resize part of the url
-  const { type, width, height, enlarge = true } = resize || {};
   if (typeof resize !== "undefined") {
-    imgOptions.rs = [type, width, height, enlarge ? 1 : 0].join(":");
+    imgOptions.rs = [
+      resize.type,
+      resize.width,
+      resize.height,
+      resize.enlarge ? 1 : 0,
+    ].join(":");
   }
 
   imgOptions.g = gravity;
@@ -86,13 +86,16 @@ export function getImageURL(
   const serializedOptions = serialize(imgOptions); // {key: "value"} --> "/key:value"
   const uri = `/${serializedOptions}/${encodeUrl(url)}`;
 
-  const hmac = crypto.createHmac("sha256", Buffer.from(key, "hex"));
-  hmac.update(Buffer.from(salt, "hex"));
+  const hmac = createHmac(
+    "sha256",
+    Buffer.from(process.env.IMGPROXY_KEY, "hex")
+  );
+  hmac.update(Buffer.from(process.env.IMGPROXY_SALT, "hex"));
   hmac.update(Buffer.from(uri));
 
   const signature = encodeUrl(hmac.digest().subarray(0, 32));
 
-  const imgUrl = new URL(`${signature}${uri}`, baseUrl);
+  const imgUrl = new URL(`${signature}${uri}`, process.env.IMGPROXY_URL);
 
   return imgUrl.toString();
 }
