@@ -150,13 +150,15 @@ function ImageCropper(props: ImageCropperProps) {
   async function scaleDown(canvas: HTMLCanvasElement, width: number) {
     // TODO: can this type assertion be removed and proofen by code?
     const targetCanvas = document.createElement("canvas") as HTMLCanvasElement;
+    targetCanvas.className = "hidden";
     const canvasAspect = canvas.width / canvas.height;
     const isLandScape = canvas.width > canvas.height;
     targetCanvas.width = Math.ceil(width * (isLandScape ? 1 : canvasAspect));
     targetCanvas.height = Math.ceil(width / (!isLandScape ? 1 : canvasAspect));
 
     const pica = new Pica();
-    return await pica.resize(canvas, targetCanvas);
+    const result = await pica.resize(canvas, targetCanvas);
+    return result;
   }
 
   async function handleSave(
@@ -164,17 +166,23 @@ function ImageCropper(props: ImageCropperProps) {
     submit: SubmitFunction
   ) {
     e.preventDefault();
-    let canvas = previewCanvasRef.current;
+    const previewCanvas = previewCanvasRef.current;
+    let resultCanvas;
 
     try {
-      if (canvas) {
-        if (canvas.width > maxTargetWidth || canvas.height > maxTargetHeight) {
-          canvas = await scaleDown(canvas, maxTargetWidth);
+      if (previewCanvas) {
+        if (
+          previewCanvas.width > maxTargetWidth ||
+          previewCanvas.height > maxTargetHeight
+        ) {
+          resultCanvas = await scaleDown(previewCanvas, maxTargetWidth);
+        } else {
+          resultCanvas = previewCanvas;
         }
 
-        document.body.append(canvas);
+        // document.body.append(resultCanvas);
 
-        canvas.toBlob(
+        resultCanvas.toBlob(
           (blob) => {
             const formData = new FormData();
             formData.append(props.uploadKey, blob ?? "");
