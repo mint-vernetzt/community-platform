@@ -292,7 +292,7 @@ export default function Index() {
           </div>
           {loaderData.mode === "owner" ? (
             <div className="absolute bottom-6 right-6">
-              <Form method="get">
+              <Form method="get" preventScrollReset>
                 <input hidden name="modal-background" defaultValue="true" />
                 <Button type="submit">{t("profile.changeBackground")}</Button>
               </Form>
@@ -336,7 +336,7 @@ export default function Index() {
                 <Avatar />
                 {loaderData.mode === "owner" ? (
                   <>
-                    <Form method="get">
+                    <Form method="get" preventScrollReset>
                       <input hidden name="modal-logo" defaultValue="true" />
                       <button
                         type="submit"

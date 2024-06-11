@@ -215,7 +215,7 @@ function ImageCropper(props: ImageCropperProps) {
                 alert(t("imageCropper.error"));
               })
               .finally(() => {
-                submit(e.currentTarget);
+                submit(e.currentTarget, { preventScrollReset: true });
               });
           },
           IMAGE_MIME,
@@ -259,6 +259,7 @@ function ImageCropper(props: ImageCropperProps) {
                 uploadKey: props.uploadKey,
                 redirect: props.redirect,
               }}
+              preventScrollReset
             >
               {({ Field }) => (
                 <>
@@ -397,7 +398,7 @@ function ImageCropper(props: ImageCropperProps) {
         )}
       </div>
       <div className="grid grid-cols-2 gap-x-8 w-full mt-2">
-        <Form method="get">
+        <Form method="get" preventScrollReset>
           <input
             hidden
             name={props.modalSearchParam || "modal"}
@@ -415,7 +416,7 @@ function ImageCropper(props: ImageCropperProps) {
           </Button>
         </Form>
 
-        <Form method="get" className="justify-self-end">
+        <Form method="get" className="justify-self-end" preventScrollReset>
           <input
             hidden
             name={props.modalSearchParam || "modal"}

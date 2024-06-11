@@ -123,6 +123,7 @@ function Documents() {
                     <Form
                       method="get"
                       className="mt-2 mr-2 w-full @sm:mv-w-auto"
+                      preventScrollReset
                     >
                       <input
                         hidden
@@ -142,6 +143,7 @@ function Documents() {
                           fetcher={editDocumentFetcher}
                           action={`/event/${loaderData.event.slug}/settings/documents/edit-document`}
                           schema={editDocumentSchema}
+                          preventScrollReset
                         >
                           {({ Field, Errors, register }) => (
                             <>

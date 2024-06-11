@@ -545,7 +545,7 @@ function Index() {
         {loaderData.abilities.abuse_report.hasAccess &&
           loaderData.mode === "authenticated" &&
           loaderData.alreadyAbuseReported === false && (
-            <Form method="get">
+            <Form method="get" preventScrollReset>
               <input hidden name="modal-report" defaultValue="true" />
               <button type="submit">{t("content.report")}</button>
             </Form>
@@ -562,6 +562,7 @@ function Index() {
                 id={abuseReportForm.id}
                 onSubmit={abuseReportForm.onSubmit}
                 method="post"
+                preventScrollReset
               >
                 <input
                   hidden
@@ -675,7 +676,7 @@ function Index() {
               {loaderData.mode === "admin" &&
               loaderData.abilities.events.hasAccess ? (
                 <div className="absolute bottom-6 right-6">
-                  <Form method="get">
+                  <Form method="get" preventScrollReset>
                     <input hidden name="modal-background" defaultValue="true" />
                     <Button type="submit">{t("content.change")}</Button>
                   </Form>

@@ -1066,7 +1066,12 @@ function ModalSection(props: { children: React.ReactNode }) {
 
 function ModalClose(props: { route: string }) {
   return (
-    <Link id="modal-close-top" className="mv-text-primary" to={props.route}>
+    <Link
+      id="modal-close-top"
+      className="mv-text-primary"
+      to={props.route}
+      preventScrollReset
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="19"
@@ -1093,6 +1098,7 @@ function ModalCloseButton(props: React.PropsWithChildren<{ route?: string }>) {
       id="modal-close-bottom"
       to={props.route}
       className="mv-btn mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-font-semibold mv-whitespace-nowrap mv-w-full mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border"
+      preventScrollReset
     >
       {props.children}
     </Link>

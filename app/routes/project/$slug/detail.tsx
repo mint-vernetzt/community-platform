@@ -249,7 +249,7 @@ function ProjectDetail() {
           />
           {mode === "admin" && (
             <Controls>
-              <Form method="get" action={location.pathname}>
+              <Form method="get" action={location.pathname} preventScrollReset>
                 <input hidden name="modal-background" defaultValue="true" />
                 {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton mv-container-custom */}
                 <CircleButton type="submit" variant="outline">
@@ -274,7 +274,11 @@ function ProjectDetail() {
           <Header.Body>
             {mode === "admin" && (
               <Controls>
-                <Form method="get" action={location.pathname}>
+                <Form
+                  method="get"
+                  action={location.pathname}
+                  preventScrollReset
+                >
                   <input hidden name="modal-logo" defaultValue="true" />
                   <button
                     type="submit"

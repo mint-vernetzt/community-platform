@@ -560,6 +560,7 @@ function Attachments() {
                               method="post"
                               action="./edit"
                               id={`form-${relation.document.id}`}
+                              preventScrollReset
                             >
                               <div className="mv-flex mv-flex-col mv-gap-6">
                                 <Input
@@ -671,6 +672,7 @@ function Attachments() {
                             <MaterialList.Item.Controls.Delete type="submit" />
                             <Link
                               to={`?deep&modal-${relation.document.id}=true`}
+                              preventScrollReset
                             >
                               <MaterialList.Item.Controls.Edit />
                             </Link>
@@ -818,6 +820,7 @@ function Attachments() {
                             method="post"
                             action="./edit"
                             id={`form-${relation.image.id}`}
+                            preventScrollReset
                           >
                             <div className="mv-flex mv-flex-col mv-gap-6">
                               <Input
@@ -945,7 +948,10 @@ function Attachments() {
                             defaultValue={relation.image.filename}
                           />
                           <MaterialList.Item.Controls.Delete type="submit" />
-                          <Link to={`?deep&modal-${relation.image.id}=true`}>
+                          <Link
+                            to={`?deep&modal-${relation.image.id}=true`}
+                            preventScrollReset
+                          >
                             <MaterialList.Item.Controls.Edit />
                           </Link>
                           <Link
