@@ -170,7 +170,9 @@ export function MaterialListItemControlsDownload() {
   );
 }
 
-export function MaterialListItem(props: PropsWithChildren<unknown>) {
+export function MaterialListItem(
+  props: PropsWithChildren<unknown> & { id?: string }
+) {
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
       return React.isValidElement(child) || typeof child === "string";
@@ -218,7 +220,10 @@ export function MaterialListItem(props: PropsWithChildren<unknown>) {
 
   return (
     // <li className="mv-flex mv-flex-row mv-w-full mv-items-center mv-rounded-lg mv-bg-white	mv-border mv-border-neutral-100 mv-overflow-hidden mv-gap-4 hover:mv-bg-neutral-100">
-    <li className="mv-flex mv-w-full mv-items-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-100 mv-gap-4 mv-overflow-hidden">
+    <li
+      key={props.id}
+      className="mv-flex mv-w-full mv-items-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-100 mv-gap-4 mv-overflow-hidden"
+    >
       <div className="mv-shrink-0 mv-w-36 mv-aspect-[3/2] mv-self-stretch mv-bg-primary-100 mv-flex mv-justify-center mv-items-center mv-text-primary mv-hidden @lg:mv-flex">
         {typeof image !== "undefined" && image}
         {typeof pdfIcon !== "undefined" && pdfIcon}
@@ -228,9 +233,9 @@ export function MaterialListItem(props: PropsWithChildren<unknown>) {
           {typeof title !== "undefined" && title}
           {typeof meta !== "undefined" && meta}
         </h4>
-        {paragraphes.map((paragraph) => {
+        {paragraphes.map((paragraph, index) => {
           return (
-            <React.Fragment key={paragraph.toString()}>
+            <React.Fragment key={`${props.id}-${index}`}>
               {paragraph}
             </React.Fragment>
           );
