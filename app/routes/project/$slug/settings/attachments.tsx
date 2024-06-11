@@ -350,7 +350,7 @@ function Attachments() {
   const { t } = useTranslation(i18nNS);
 
   const documentUploadSchema = createDocumentUploadSchema(t);
-  const [documentUploadForm, documentUploadfields] = useForm({
+  const [documentUploadForm, documentUploadFields] = useForm({
     shouldValidate: "onInput",
     onValidate: (values) => {
       const result = parse(values.formData, { schema: documentUploadSchema });
@@ -360,6 +360,9 @@ function Attachments() {
       typeof actionData !== "undefined" ? actionData.submission : undefined,
     shouldRevalidate: "onInput",
   });
+  const { initialError: documentInitialError, ...documentPropsRest } =
+    documentUploadFields.filename;
+  const documentUploadFilenameInputProps = documentPropsRest;
 
   const imageUploadSchema = createImageUploadSchema(t);
   const [imageUploadForm, imageUploadFields] = useForm({
@@ -372,6 +375,9 @@ function Attachments() {
       typeof actionData !== "undefined" ? actionData.submission : undefined,
     shouldRevalidate: "onInput",
   });
+  const { initialError: imageInitialError, ...imagePropsRest } =
+    imageUploadFields.filename;
+  const imageUploadFilenameInputProps = imagePropsRest;
 
   const handleDocumentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files !== null) {
@@ -435,18 +441,18 @@ function Attachments() {
             <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
               <input
                 hidden
-                {...documentUploadfields.filename}
+                {...documentUploadFilenameInputProps}
                 defaultValue={documentName !== null ? documentName : ""}
               />
               {/* TODO: component! */}
               <label
-                htmlFor={documentUploadfields.document.id}
+                htmlFor={documentUploadFields.document.id}
                 className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
               >
                 {t("content.document.select")}
                 <input
-                  id={documentUploadfields.document.id}
-                  name={documentUploadfields.document.name}
+                  id={documentUploadFields.document.id}
+                  name={documentUploadFields.document.name}
                   type="file"
                   accept="application/pdf,image/jpeg"
                   onChange={handleDocumentChange}
@@ -459,7 +465,7 @@ function Attachments() {
                 // @ts-ignore
                 disabled={
                   typeof window !== "undefined"
-                    ? typeof documentUploadfields.document.error !==
+                    ? typeof documentUploadFields.document.error !==
                         "undefined" || documentName === null
                     : true
                 }
@@ -471,7 +477,7 @@ function Attachments() {
               </Button>
             </div>
             <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
-              {typeof documentUploadfields.document.error === "undefined" && (
+              {typeof documentUploadFields.document.error === "undefined" && (
                 <p>
                   {documentName === null
                     ? t("content.document.selection.empty")
@@ -480,9 +486,9 @@ function Attachments() {
                       })}
                 </p>
               )}
-              {typeof documentUploadfields.document.error !== "undefined" && (
+              {typeof documentUploadFields.document.error !== "undefined" && (
                 <p className="mv-text-negative-600">
-                  {documentUploadfields.document.error}
+                  {documentUploadFields.document.error}
                 </p>
               )}
               {typeof actionData !== "undefined" &&
@@ -621,7 +627,7 @@ function Attachments() {
             <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
               <input
                 hidden
-                {...imageUploadFields.filename}
+                {...imageUploadFilenameInputProps}
                 defaultValue={imageName !== null ? imageName : ""}
               />
               {/* TODO: component! */}
