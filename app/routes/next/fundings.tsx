@@ -339,7 +339,7 @@ function Fundings() {
   const filter = fields.filter.getFieldset();
 
   return (
-    <div className="mv-container mv-flex mv-flex-col mv-gap-4">
+    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mv-flex mv-flex-col mv-gap-4">
       <div>
         <Form
           {...getFormProps(form)}
@@ -360,7 +360,7 @@ function Fundings() {
           <Filters showFilters={loaderData.submission.value.showFilters}>
             <Filters.Title>Filter</Filters.Title>
             <Filters.Fieldset
-              className="mv-flex mv-flex-wrap lg:mv-gap-4"
+              className="mv-flex mv-flex-wrap @lg:mv-gap-4"
               {...getFieldsetProps(fields.filter)}
               showMore="Mehr anzeigen"
               showLess="Weniger anzeigen"
@@ -368,7 +368,7 @@ function Fundings() {
               <Dropdown>
                 <Dropdown.Label>
                   Fördererart
-                  <span className="mv-font-normal lg:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.fundingTypes
                       .map((type) => {
@@ -397,7 +397,7 @@ function Fundings() {
               <Dropdown>
                 <Dropdown.Label>
                   Förderbereich
-                  <span className="mv-font-normal lg:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.fundingAreas
                       .map((area) => {
@@ -428,7 +428,7 @@ function Fundings() {
               <Dropdown>
                 <Dropdown.Label>
                   Förderregion
-                  <span className="mv-font-normal lg:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.regions
                       .map((region) => {
@@ -459,7 +459,7 @@ function Fundings() {
               <Dropdown>
                 <Dropdown.Label>
                   Förderberechtigte
-                  <span className="mv-font-normal lg:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.eligibleEntities
                       .map((entity) => {
@@ -497,14 +497,14 @@ function Fundings() {
           </Filters>
         </Form>
       </div>
-      <section className="mv-container mv-mb-6 mv-px-0">
+      <section className="mv-w-full mv-mx-auto @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mv-mb-6 mv-px-0">
         {(loaderData.selectedFunders.length > 0 ||
           loaderData.selectedFundingTypes.length > 0 ||
           loaderData.selectedFundingAreas.length > 0 ||
           loaderData.selectedRegions.length > 0 ||
           loaderData.selectedEligibleEntities.length > 0) && (
           <div className="mv-flex mv-flex-col">
-            <div className="mv-overflow-scroll lg:mv-overflow-auto mv-flex mv-flex-nowrap lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
+            <div className="mv-overflow-scroll @lg:mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
               {loaderData.selectedFunders.map((funder) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.funders.name, funder.slug);
@@ -666,7 +666,7 @@ function Fundings() {
         })}
       </ul>
       {loaderData.count > loaderData.fundings.length && (
-        <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
+        <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
           <Link
             to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
             preventScrollReset
