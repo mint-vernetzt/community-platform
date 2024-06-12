@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import { prismaClient } from "../prisma";
+import { prismaClient } from "../cp-modules/prisma";
 import type { Request } from "express";
 import { decorate } from "../lib/matomoUrlDecorator";
-import { getBaseURL } from "../../src/utils";
-import { filterEventByVisibility } from "../public-fields-filtering.server";
-import { getPublicURL } from "../storage.server";
-import { getImageURL } from "../images.server";
+import { getBaseURL } from "../cp-modules/utils";
+import { filterEventByVisibility } from "../cp-modules/next-public-fields-filtering.server";
+import { getPublicURL } from "../cp-modules/storage.server";
+import { getImageURL } from "../cp-modules/images.server";
 
 type Events = Awaited<ReturnType<typeof getEvents>>;
 
@@ -35,6 +35,7 @@ async function getEvents(request: Request, skip: number, take: number) {
           area: {
             select: {
               name: true,
+              slug: true,
             },
           },
         },
@@ -44,6 +45,7 @@ async function getEvents(request: Request, skip: number, take: number) {
           eventType: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
@@ -53,6 +55,7 @@ async function getEvents(request: Request, skip: number, take: number) {
           focus: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
@@ -62,15 +65,17 @@ async function getEvents(request: Request, skip: number, take: number) {
           tag: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
       },
-      targetGroups: {
+      eventTargetGroups: {
         select: {
-          targetGroup: {
+          eventTargetGroup: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
@@ -78,11 +83,13 @@ async function getEvents(request: Request, skip: number, take: number) {
       experienceLevel: {
         select: {
           title: true,
+          slug: true,
         },
       },
       stage: {
         select: {
           title: true,
+          slug: true,
         },
       },
       responsibleOrganizations: {
@@ -92,14 +99,52 @@ async function getEvents(request: Request, skip: number, take: number) {
               name: true,
               slug: true,
               logo: true,
+              organizationVisibility: {
+                select: {
+                  name: true,
+                  slug: true,
+                  logo: true,
+                },
+              },
             },
           },
+        },
+      },
+      eventVisibility: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          background: true,
+          description: true,
+          subline: true,
+          startTime: true,
+          endTime: true,
+          participationFrom: true,
+          participationUntil: true,
+          participantLimit: true,
+          venueName: true,
+          venueStreet: true,
+          venueStreetNumber: true,
+          venueCity: true,
+          venueZipCode: true,
+          canceled: true,
+          parentEventId: true,
+          areas: true,
+          types: true,
+          focuses: true,
+          tags: true,
+          eventTargetGroups: true,
+          experienceLevel: true,
+          stage: true,
+          responsibleOrganizations: true,
         },
       },
       _count: {
         select: {
           participants: true,
           waitingList: true,
+          childEvents: true,
         },
       },
     },
@@ -183,7 +228,7 @@ async function getEvents(request: Request, skip: number, take: number) {
         responsibleOrganizations: enhancedResponsibleOrganizations,
       };
 
-      const filteredEvent = await filterEventByVisibility(enhancedEvent);
+      const filteredEvent = filterEventByVisibility(enhancedEvent);
 
       return {
         ...filteredEvent,

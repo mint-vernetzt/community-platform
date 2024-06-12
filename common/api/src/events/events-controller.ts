@@ -42,16 +42,19 @@ const exampleResponse = {
         {
           area: {
             name: "India",
+            slug: "india",
           },
         },
         {
           area: {
             name: "Bavaria",
+            slug: "bavaria",
           },
         },
         {
           area: {
             name: "New York City",
+            slug: "new_york_city",
           },
         },
       ],
@@ -59,16 +62,19 @@ const exampleResponse = {
         {
           eventType: {
             title: "Exchange",
+            slug: "exchange",
           },
         },
         {
           eventType: {
             title: "Keynote",
+            slug: "keynote",
           },
         },
         {
           eventType: {
             title: "Workshop",
+            slug: "workshop",
           },
         },
       ],
@@ -76,21 +82,25 @@ const exampleResponse = {
         {
           focus: {
             title: "Social Media Management",
+            slug: "social_media_management",
           },
         },
         {
           focus: {
             title: "Politics",
+            slug: "politics",
           },
         },
         {
           focus: {
             title: "Science",
+            slug: "science",
           },
         },
         {
           focus: {
             title: "Career Orientation",
+            slug: "career_orientation",
           },
         },
       ],
@@ -98,50 +108,60 @@ const exampleResponse = {
         {
           tag: {
             title: "Didactics",
+            slug: "didactics",
           },
         },
         {
           tag: {
             title: "Gender",
+            slug: "gender",
           },
         },
         {
           tag: {
             title: "Innovation",
+            slug: "innovation",
           },
         },
         {
           tag: {
             title: "Networking",
+            slug: "networking",
           },
         },
       ],
-      targetGroups: [
+      eventTargetGroups: [
         {
-          targetGroup: {
+          eventTargetGroup: {
             title: "Elementary School",
+            slug: "elementary_school",
           },
         },
         {
-          targetGroup: {
+          eventTargetGroup: {
             title: "Early Childhood Education",
+            slug: "early_childhood_education",
           },
         },
         {
-          targetGroup: {
+          eventTargetGroup: {
             title: "Teachers",
+            slug: "teachers",
           },
         },
       ],
       experienceLevel: {
         title: "Beginner",
+        slug: "beginner",
       },
       stage: {
         title: "Hybrid",
+        slug: "hybrid",
       },
       _count: {
         participants: 20,
         waitingList: 3,
+        childEvents: 2,
       },
       responsibleOrganizations: [
         {
@@ -178,12 +198,13 @@ const exampleResponse = {
       types: [],
       focuses: [],
       tags: [],
-      targetGroups: [],
+      eventTargetGroups: [],
       experienceLevel: null,
       stage: null,
       _count: {
         participants: 0,
         waitingList: 0,
+        childEvents: 0,
       },
       responsibleOrganizations: [],
     },
