@@ -510,7 +510,7 @@ export function FiltersFieldset(
     <fieldset {...otherProps} className={classes}>
       {firstChildren}
       <ShowMoreButton showMore={showMore} showLess={showLess} />
-      <div className="@lg:mv-hidden @lg:mv-peer-has-[:checked]:mv-flex mv-gap-4 @lg:mv-w-full">
+      <div className="@lg:mv-hidden @lg:peer-has-[:checked]:mv-flex mv-gap-4 @lg:mv-w-full">
         {restChildren}
       </div>
     </fieldset>
