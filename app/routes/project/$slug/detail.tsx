@@ -324,7 +324,9 @@ function ProjectDetail() {
             </Header.Footer>
           )}
         </Header>
-        {mode === "admin" && <Form method="post" id="publish-form" />}
+        {mode === "admin" && (
+          <Form method="post" id="publish-form" preventScrollReset />
+        )}
       </section>
       {mode === "admin" && (
         <>

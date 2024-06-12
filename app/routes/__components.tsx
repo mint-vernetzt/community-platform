@@ -56,7 +56,7 @@ function NextNavBar(props: NextNavBarProps) {
   }
 
   const classes = classNames(
-    "mv-mb-8 mv-sticky mv-top-0 mv-h-[76px] lg:mv-h-20 mv-z-10 mv-bg-white",
+    "mv-sticky mv-top-0 mv-h-[76px] lg:mv-h-20 mv-z-10 mv-bg-white",
     isSettings && "mv-hidden md:mv-block",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
@@ -69,7 +69,7 @@ function NextNavBar(props: NextNavBarProps) {
     <header id="header" className={classes}>
       <div className="mv-flex mv-h-full mv-items-center mv-mr-4 lg:mv-mr-8">
         <Link
-          to={props.sessionUserInfo !== undefined ? "/next/dashboard" : "/"}
+          to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
           className={`lg:mv-w-[300px] mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 ${
             props.sessionUserInfo !== undefined ? "mv-hidden lg:mv-block" : ""
           }`}
@@ -91,7 +91,7 @@ function NextNavBar(props: NextNavBarProps) {
               avatar={props.sessionUserInfo.avatar}
               to={
                 props.sessionUserInfo !== undefined
-                  ? `/next/profile/${props.sessionUserInfo.username}`
+                  ? `/profile/${props.sessionUserInfo.username}`
                   : "/"
               }
             />
@@ -120,7 +120,7 @@ function NextNavBar(props: NextNavBarProps) {
                 avatar={props.sessionUserInfo.avatar}
                 to={
                   props.sessionUserInfo !== undefined
-                    ? `/next/profile/${props.sessionUserInfo.username}`
+                    ? `/profile/${props.sessionUserInfo.username}`
                     : "/"
                 }
               />
@@ -177,7 +177,7 @@ function NavBarMenu(
       } mv-w-full mv-min-w-full lg:mv-w-[300px] lg:mv-min-w-[300px] mv-h-screen mv-sticky mv-top-0 lg:-mv-mt-28 mv-bg-white mv-z-10`}
     >
       <Link
-        to={props.mode !== "anon" ? "/next/dashboard" : "/"}
+        to={props.mode !== "anon" ? "/dashboard" : "/"}
         className="lg:mv-py-3 lg:mv-w-full mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 mv-hidden lg:mv-block mv-flex-shrink"
       >
         <HeaderLogo />
@@ -185,7 +185,7 @@ function NavBarMenu(
 
       <div className="lg:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-3 mv-flex-shrink">
         {props.mode === "anon" ? (
-          <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex lg:mv-hidden">
+          <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex lg:mv-hidden mv-pl-4 lg:mv-pl-0">
             <div>
               <Link to="/login">
                 <Button>{t("root.login")}</Button>
@@ -211,7 +211,7 @@ function NavBarMenu(
             {props.mode === "authenticated" && props.username !== undefined ? (
               <>
                 <Item
-                  to="/next/dashboard"
+                  to="/dashboard"
                   openNavBarMenuKey={props.openNavBarMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
@@ -234,41 +234,51 @@ function NavBarMenu(
                   </Label>
 
                   <TopicItem
-                    to={`/next/profile/${props.username}`}
+                    to={`/profile/${props.username}`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.profile")}
                   </TopicItem>
+
+                  {/* TODO: Link to organization overview route when its implemented */}
                   <TopicItem
-                    to={`/next/overview/organizations/${props.username}`}
+                    to={`/profile/${props.username}#organizations`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.organizations")}
                   </TopicItem>
+
+                  {/* TODO: Link to event overview route when its implemented */}
                   <TopicItem
-                    to={`/next/overview/events/${props.username}`}
+                    to={`/profile/${props.username}#events`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.events")}
                   </TopicItem>
+
+                  {/* TODO: Link to project overview route when its implemented */}
                   <TopicItem
-                    to={`/next/overview/projects/${props.username}`}
+                    to={`/profile/${props.username}#projects`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.projects")}
                   </TopicItem>
-                  <TopicItem
-                    to={`/next/overview/networks/${props.username}`}
+
+                  {/* TODO: Implement this when Network overview is implemented */}
+                  {/* <TopicItem
+                    to={``}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.network")}
-                  </TopicItem>
-                  <TopicItem
-                    to={`/next/overview/bookmarks/${props.username}`}
+                  </TopicItem> */}
+
+                  {/* TODO: Implement this when bookmark feature is available */}
+                  {/* <TopicItem
+                    to={``}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.bookmarks")}
-                  </TopicItem>
+                  </TopicItem> */}
                 </Topic>
               </>
             ) : null}
@@ -285,24 +295,28 @@ function NavBarMenu(
                 </div>
               </Label>
 
-              <TopicItem
+              {/* TODO: Implement this when MINT-Sharepic is implemented */}
+              {/* <TopicItem
                 // TODO: Link to MINT-Sharepic when its available
-                to="https://mint-vernetzt.de"
+                to=""
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {t("root.menu.ressources.sharepic")}
                 <Icon type="box-arrow-up-right" />
                 <NewFeatureBanner />
-              </TopicItem>
-              <TopicItem
+              </TopicItem> */}
+
+              {/* TODO: Implement this when MINT-Bildarchiv is implemented */}
+              {/* <TopicItem
                 // TODO: Link to MINT-Bildarchiv when its available
-                to="https://mint-vernetzt.de"
+                to=""
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {t("root.menu.ressources.imageArchive")}
                 <Icon type="box-arrow-up-right" />
                 <NewFeatureBanner />
-              </TopicItem>
+              </TopicItem> */}
+
               <TopicItem
                 to="https://mintcampus.org/"
                 openNavBarMenuKey={props.openNavBarMenuKey}
@@ -310,6 +324,7 @@ function NavBarMenu(
                 {t("root.menu.ressources.campus")}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
+
               <TopicItem
                 to="https://mint-vernetzt.shinyapps.io/datalab/"
                 openNavBarMenuKey={props.openNavBarMenuKey}
@@ -317,6 +332,7 @@ function NavBarMenu(
                 {t("root.menu.ressources.datalab")}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
+
               <TopicItem
                 to="https://mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
@@ -324,6 +340,7 @@ function NavBarMenu(
                 {t("root.menu.ressources.website")}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
+
               <TopicItem
                 to="https://github.com/mint-vernetzt/community-platform"
                 openNavBarMenuKey={props.openNavBarMenuKey}
@@ -351,24 +368,28 @@ function NavBarMenu(
               >
                 {t("root.menu.explore.profiles")}
               </TopicItem>
+
               <TopicItem
                 to="/explore/organizations"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {t("root.menu.explore.organizations")}
               </TopicItem>
+
               <TopicItem
                 to="/explore/projects"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {t("root.menu.explore.projects")}
               </TopicItem>
+
               <TopicItem
                 to="/explore/events"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {t("root.menu.explore.events")}
               </TopicItem>
+
               <TopicItem
                 to="/next/explore/fundings"
                 openNavBarMenuKey={props.openNavBarMenuKey}
@@ -384,34 +405,41 @@ function NavBarMenu(
               <LocaleSwitch variant="dark" />
             </div>
 
-            <Item
+            {/* TODO: Implement this when /next/help route is implemented */}
+            {/* <Item
               to="/next/help"
               openNavBarMenuKey={props.openNavBarMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
               <Icon type="life-preserver" />
               <div className="mv-font-semibold">{t("root.menu.help")}</div>
-            </Item>
-
-            <Item
-              to={`/next/profile/${props.username}/settings`}
-              openNavBarMenuKey={props.openNavBarMenuKey}
-              setActiveTopicId={setActiveTopicId}
-            >
-              <Icon type="gear" />
-              <div className="mv-font-semibold">{t("root.menu.settings")}</div>
-            </Item>
+            </Item> */}
 
             {props.mode === "authenticated" ? (
-              <Item
-                to="/logout"
-                method="post"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-                setActiveTopicId={setActiveTopicId}
-              >
-                <Icon type="door-closed" />
-                <div className="mv-font-semibold">{t("root.menu.logout")}</div>
-              </Item>
+              <>
+                <Item
+                  to={`/profile/${props.username}/settings`}
+                  openNavBarMenuKey={props.openNavBarMenuKey}
+                  setActiveTopicId={setActiveTopicId}
+                >
+                  <Icon type="gear" />
+                  <div className="mv-font-semibold">
+                    {t("root.menu.settings")}
+                  </div>
+                </Item>
+
+                <Item
+                  to="/logout"
+                  method="post"
+                  openNavBarMenuKey={props.openNavBarMenuKey}
+                  setActiveTopicId={setActiveTopicId}
+                >
+                  <Icon type="door-closed" />
+                  <div className="mv-font-semibold">
+                    {t("root.menu.logout")}
+                  </div>
+                </Item>
+              </>
             ) : null}
           </BottomMenu>
         </div>
@@ -491,6 +519,7 @@ function Item(
   const [searchParams] = useSearchParams();
   const extendedSearchParams = new URLSearchParams(searchParams.toString());
   extendedSearchParams.delete(props.openNavBarMenuKey);
+  const extendedSearchParamsString = extendedSearchParams.toString();
   return props.method === "post" ? (
     <>
       <Form id={props.to} method="post" action={props.to} hidden />
@@ -510,7 +539,11 @@ function Item(
       onClick={() => {
         props.setActiveTopicId(null);
       }}
-      to={`${props.to}?${extendedSearchParams.toString()}`}
+      to={`${props.to}${
+        extendedSearchParamsString.length > 0
+          ? `?${extendedSearchParamsString}`
+          : ""
+      }`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
           "mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg";
@@ -599,6 +632,7 @@ function TopicItem(
   const [searchParams] = useSearchParams();
   const extendedSearchParams = new URLSearchParams(searchParams.toString());
   extendedSearchParams.delete(props.openNavBarMenuKey);
+  const extendedSearchParamsString = extendedSearchParams.toString();
   return external ? (
     <Link
       to={`${props.to}`}
@@ -609,7 +643,11 @@ function TopicItem(
     </Link>
   ) : (
     <NavLink
-      to={`${props.to}?${extendedSearchParams.toString()}`}
+      to={`${props.to}${
+        extendedSearchParamsString.length > 0
+          ? `?${extendedSearchParamsString}`
+          : ""
+      }`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
           "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-8 mv-pr-2 mv-py-4";
@@ -640,9 +678,12 @@ function Opener(props: { openNavBarMenuKey: string }) {
 function Closer(props: { openNavBarMenuKey: string }) {
   const [searchParams] = useSearchParams();
   searchParams.delete(props.openNavBarMenuKey);
+  const searchParamsString = searchParams.toString();
 
   return (
-    <Link to={`?${searchParams.toString()}`}>
+    <Link
+      to={`${searchParamsString.length > 0 ? `?${searchParamsString}` : "."}`}
+    >
       <Icon type="close-x" />
     </Link>
   );
@@ -895,7 +936,7 @@ function Icon(props: { type: IconType }) {
 
   return icon;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function NewFeatureBanner() {
   const { t } = useTranslation(["meta"]);
   return (
