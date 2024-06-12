@@ -543,7 +543,7 @@ export default function Index() {
             ) : null}
             {loaderData.organization.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
-                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
+                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("content.activityAreas")}
                 </div>
                 <div className="@lg:mv-flex-auto">
@@ -555,7 +555,7 @@ export default function Index() {
             ) : null}
             {loaderData.organization.focuses.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
-                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
+                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("content.focuses")}
                 </div>
 
@@ -568,7 +568,7 @@ export default function Index() {
             ) : null}
             {loaderData.organization.supportedBy.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
-                <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
+                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("content.supportedBy")}
                 </div>
 

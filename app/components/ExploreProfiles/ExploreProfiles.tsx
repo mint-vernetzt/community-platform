@@ -111,7 +111,7 @@ function ExploreProfiles(props: ExploreProfilesProps) {
                 <p className="mb-3">{profile.text}</p>
 
                 <div className="flex font-semibold flex-col @lg:mv-flex-row w-full">
-                  <div className="@lg:mv-flex-label text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
+                  <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                     Aktivitätsgebiete
                   </div>
                   <div className="flex-auto">
