@@ -751,7 +751,7 @@ function Index() {
                   laysInThePast === false ? (
                     <div className="@md:mv-bg-white @md:mv-border @md:mv-border-neutral-500 @md:mv-rounded-b-3xl @md:mv-py-6">
                       <div className="@md:mv-flex -mx-[17px] items-center">
-                        <div className="w-full hidden @lg:mv-flex @lg:mv-flex-1/4 px-4"></div>
+                        <div className="w-full hidden @lg:mv-flex @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4"></div>
                         <div className="w-full @md:mv-flex-auto px-4">
                           <p className="font-bold @xl:mv-text-center @md:mv-pl-4 @lg:mv-pl-0 pb-4 @md:mv-pb-0">
                             <Trans
@@ -773,7 +773,7 @@ function Index() {
                             />
                           </p>
                         </div>
-                        <div className="w-full @lg:mv-flex-1/4 px-4 text-right">
+                        <div className="w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4 text-right">
                           <div className="pr-4 @lg:mv-pr-8">
                             <>
                               {loaderData.mode === "anon" &&
@@ -798,7 +798,7 @@ function Index() {
                     laysInThePast === false ? (
                     <div className="@md:mv-bg-accent-300 @md:mv-rounded-b-3xl @md:mv-py-6">
                       <div className="@md:mv-flex -mx-[17px] items-center">
-                        <div className="w-full hidden @lg:mv-flex @lg:mv-flex-1/4 px-4"></div>
+                        <div className="w-full hidden @lg:mv-flex @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4"></div>
                         <div className="w-full @md:mv-flex-auto px-4">
                           <p className="font-bold @xl:mv-text-center @md:mv-pl-4 @lg:mv-pl-0 pb-4 @md:mv-pb-0">
                             <Trans
@@ -816,7 +816,7 @@ function Index() {
                             />
                           </p>
                         </div>
-                        <div className="w-full @lg:mv-flex-1/4 px-4 text-right">
+                        <div className="w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4 text-right">
                           <div className="pr-4 @lg:mv-pr-8">
                             <>
                               {loaderData.mode === "anon" &&
@@ -885,7 +885,7 @@ function Index() {
       </section>
       <div className="mv-container-custom relative pt-8 @lg:mv-pt-16 pb-20 @lg:mv-pb-44">
         <div className="flex -mx-4 justify-center">
-          <div className="@lg:mv-flex-1/2 px-4">
+          <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4">
             <p className="font-bold text-xl mb-8">{duration}</p>
             <header className="mb-8">
               <h1 className="m-0">{loaderData.event.name}</h1>

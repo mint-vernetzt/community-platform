@@ -225,7 +225,7 @@ function ProfilePage(props: ProfilePageProps) {
             </div>
 
             <div className="flex mb-6 text-sm flex-wrap -m-3 flex-col @lg:mv-flex-row">
-              <div className="@lg:mv-flex-1/2 p-3">
+              <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 p-3">
                 <div className="flex p-4 rounded-lg border border-neutral-500">
                   <div className="mr-4">Logo</div>
                   <div>
@@ -235,7 +235,7 @@ function ProfilePage(props: ProfilePageProps) {
                 </div>
               </div>
 
-              <div className="@lg:mv-flex-1/2 p-3">
+              <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 p-3">
                 <div className="flex p-4 rounded-lg border border-neutral-500">
                   <div className="mr-4">Logo</div>
                   <div>
@@ -245,7 +245,7 @@ function ProfilePage(props: ProfilePageProps) {
                 </div>
               </div>
 
-              <div className="@lg:mv-flex-1/2 p-3">
+              <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 p-3">
                 <div className="flex p-4 rounded-lg border border-neutral-500">
                   <div className="mr-4">Logo</div>
                   <div>
@@ -255,7 +255,7 @@ function ProfilePage(props: ProfilePageProps) {
                 </div>
               </div>
 
-              <div className="@lg:mv-flex-1/2 p-3">
+              <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 p-3">
                 <div className="flex p-4 rounded-lg border border-neutral-500">
                   <div className="mr-4">Logo</div>
                   <div>

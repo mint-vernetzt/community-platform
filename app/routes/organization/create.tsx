@@ -151,7 +151,7 @@ function Create() {
   return (
     <div className="mv-container-custom mv-relative">
       <div className="flex -mx-4 justify-center">
-        <div className="@lg:mv-flex-1/2 px-4 pt-10 @lg:mv-pt-0">
+        <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4 pt-10 @lg:mv-pt-0">
           <h4 className="font-semibold">{t("content.headline")}</h4>
           <Form
             method="post"
