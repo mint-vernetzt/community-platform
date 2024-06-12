@@ -149,7 +149,7 @@ function Create() {
   const { t } = useTranslation(i18nNS);
 
   return (
-    <div className="mv-container-custom mv-relative">
+    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mv-relative">
       <div className="flex -mx-4 justify-center">
         <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4 pt-10 @lg:mv-pt-0">
           <h4 className="font-semibold">{t("content.headline")}</h4>

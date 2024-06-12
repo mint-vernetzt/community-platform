@@ -7,7 +7,7 @@ function ProfilePage(props: ProfilePageProps) {
   return (
     <>
       <header className="shadow-md mb-8">
-        <div className="mv-container-custom relative z-10">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative z-10">
           <div className="px-4 pt-3 pb-3 flex flex-row items-center">
             <div>
               <HeaderLogo />
@@ -37,7 +37,7 @@ function ProfilePage(props: ProfilePageProps) {
         </div>
       </header>
 
-      <section className="hidden @md:mv-block mv-container-custom mt-8 @md:mv-mt-10 @lg:mv-mt-20">
+      <section className="hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mt-8 @md:mv-mt-10 @lg:mv-mt-20">
         <div className="hero hero-news flex items-end rounded-3xl relative overflow-hidden bg-yellow-500 h-60 @lg:mv-h-120">
           <div className="absolute bottom-6 right-6">
             <button className="btn btn-primary">Hintergrund ändern</button>
@@ -45,7 +45,7 @@ function ProfilePage(props: ProfilePageProps) {
         </div>
       </section>
 
-      <div className="mv-container-custom relative pb-44">
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative pb-44">
         <div className="flex flex-col @md:mv-flex-row -mx-4">
           <div className="@md:mv-flex-1/2 @lg:mv-flex-5/12 px-4 pt-10 @lg:mv-pt-0">
             <div className="px-4 py-8 @lg:mv-p-8 pb-15 @md:mv-pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative @lg:mv-ml-14 @lg:-mv-mt-64">

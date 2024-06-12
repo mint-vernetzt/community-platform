@@ -490,7 +490,7 @@ function Index() {
 
   return (
     <>
-      <section className="mv-container-custom @md:mv-mt-2">
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] @md:mv-mt-2">
         <div className="font-semi text-neutral-500 flex flex-wrap items-center mb-4">
           {loaderData.event.parentEvent !== null ? (
             <>
@@ -636,7 +636,7 @@ function Index() {
             <Modal.CloseButton>{t("abuseReport.abort")}</Modal.CloseButton>
           </Modal>
         )}
-      <section className="mv-container-custom mt-6">
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mt-6">
         <div className="@md:mv-rounded-3xl overflow-hidden w-full relative">
           <div className="hidden @md:mv-block">
             <div className="relative overflow-hidden w-full aspect-[31/10]">
@@ -883,7 +883,7 @@ function Index() {
           </>
         ) : null}
       </section>
-      <div className="mv-container-custom relative pt-8 @lg:mv-pt-16 pb-20 @lg:mv-pb-44">
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative pt-8 @lg:mv-pt-16 pb-20 @lg:mv-pb-44">
         <div className="flex -mx-4 justify-center">
           <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4">
             <p className="font-bold text-xl mb-8">{duration}</p>

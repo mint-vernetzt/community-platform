@@ -114,7 +114,7 @@ function AcceptTerms() {
   const { t } = useTranslation(i18nNS);
 
   return (
-    <div className="mv-container-custom relative pt-20 pb-44">
+    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative pt-20 pb-44">
       <div className="flex -mx-4 justify-center">
         <div className="@md:mv-shrink-0 @md:mv-grow-0 @md:mv-basis-1/2 px-4 pt-10 @lg:mv-pt-0">
           <h1 className="mb-4">{t("content.headline")}</h1>

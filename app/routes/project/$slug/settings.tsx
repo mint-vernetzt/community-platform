@@ -103,7 +103,7 @@ function ProjectSettings() {
   );
 
   return (
-    <div className="mv-container-custom">
+    <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
       <div className="mv-hidden @md:mv-block mv-mb-8">
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
           <TextButton weight="thin" variant="neutral" arrowLeft>
