@@ -192,6 +192,62 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
   });
 
+  const numberOfProjects = 4;
+  const rawProjects = await getProjectsForCards(numberOfProjects);
+  const projects = rawProjects.map((project) => {
+    const { logo, background, responsibleOrganizations, ...otherFields } =
+      project;
+    const extensions: {
+      responsibleOrganizations: {
+        organization: Pick<Organization, "name" | "slug" | "logo">;
+      }[];
+    } = { responsibleOrganizations: [] };
+
+    let logoImage: string | null = null;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logoImage = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+        });
+      }
+    }
+
+    let backgroundImage: string | null = null;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL !== null) {
+        backgroundImage = getImageURL(publicURL, {
+          resize: { type: "fill", width: 348, height: 160 },
+        });
+      }
+    }
+
+    extensions.responsibleOrganizations = responsibleOrganizations.map(
+      (relation) => {
+        let logoImage: string | null = null;
+        if (relation.organization.logo !== null) {
+          const publicURL = getPublicURL(
+            authClient,
+            relation.organization.logo
+          );
+          if (publicURL !== null) {
+            logoImage = getImageURL(publicURL, {
+              resize: { type: "fill", width: 36, height: 36 },
+            });
+          }
+        }
+        return { organization: { ...relation.organization, logo: logoImage } };
+      }
+    );
+    return {
+      ...otherFields,
+      ...extensions,
+      logo: logoImage,
+      background: backgroundImage,
+    };
+  });
+
   const numberOfEvents = 4;
   const rawEvents = await getEventsForCards(numberOfEvents);
 
