@@ -92,17 +92,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
     extensions.memberOf = memberOf.map((relation, index) => {
       let logoImage: string | null = null;
-      if (index < 2) {
-        if (relation.organization.logo !== null) {
-          const publicURL = getPublicURL(
-            authClient,
-            relation.organization.logo
-          );
-          if (publicURL !== null) {
-            logoImage = getImageURL(publicURL, {
-              resize: { type: "fill", width: 36, height: 36 },
-            });
-          }
+      if (relation.organization.logo !== null) {
+        const publicURL = getPublicURL(authClient, relation.organization.logo);
+        if (publicURL !== null) {
+          logoImage = getImageURL(publicURL, {
+            resize: { type: "fill", width: 36, height: 36 },
+          });
         }
       }
       return { ...relation.organization, logo: logoImage };
@@ -161,14 +156,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
     extensions.teamMembers = teamMembers.map((relation, index) => {
       let avatar: string | null = null;
-      if (index < 4) {
-        if (relation.profile.avatar !== null) {
-          const publicURL = getPublicURL(authClient, relation.profile.avatar);
-          if (publicURL !== null) {
-            avatar = getImageURL(publicURL, {
-              resize: { type: "fill", width: 36, height: 36 },
-            });
-          }
+      if (relation.profile.avatar !== null) {
+        const publicURL = getPublicURL(authClient, relation.profile.avatar);
+        if (publicURL !== null) {
+          avatar = getImageURL(publicURL, {
+            resize: { type: "fill", width: 36, height: 36 },
+          });
         }
       }
       return { ...relation.profile, avatar: avatar };
@@ -406,20 +399,20 @@ function Dashboard() {
           </CardContainer>
         </div>
       </section>
-      <section className="mv-w-full mv-mx-auto mv-mb-8 md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
-        <div className="mv-flex mv-mb-4 mv-px-4 xl:mv-px-6 lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
-          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 lg:mv-text-5xl lg:mv-leading-9">
+      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+        <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {t("content.events")}
           </div>
           <div className="mv-text-right">
             <Link to="/explore/events">
-              <span className="mv-text-sm mv-font-semibold mv-leading-4 lg:mv-text-2xl lg:mv-leading-7">
+              <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
                 {t("content.allEvents")}
               </span>
             </Link>
           </div>
         </div>
-        <div className="xl:mv-px-2">
+        <div className="@xl:mv-px-2">
           <CardContainer>
             {loaderData.events.map((event) => {
               const startTime = utcToZonedTime(
