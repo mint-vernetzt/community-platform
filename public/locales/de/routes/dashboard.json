@@ -9,6 +9,8 @@
     "profiles": "Profile",
     "allProfiles": "Alle Profile",
     "organizations": "Organisationen",
-    "allOrganizations": "Alle Organisationen"
+    "allOrganizations": "Alle Organisationen",
+    "events": "Veranstaltungen",
+    "allEvents": "Alle Veranstaltungen"
   }
 }
