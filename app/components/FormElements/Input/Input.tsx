@@ -13,11 +13,11 @@ const Input = React.forwardRef(
     const { isPublic, withPublicPrivateToggle, errorMessage, ...rest } = props;
 
     return (
-      <div className="form-control w-full">
+      <div className="form-control mv-w-full">
         {props.label && (
           <label
             htmlFor={id}
-            className={`label ${errorMessage ? " text-red-500" : ""}`}
+            className={`label ${errorMessage ? " mv-text-red-500" : ""}`}
             title={props.errorMessage}
           >
             {props.label}
@@ -25,14 +25,14 @@ const Input = React.forwardRef(
           </label>
         )}
 
-        <div className="flex flex-row items-center">
-          <div className="flex-auto">
+        <div className="mv-flex mv-flex-row mv-items-center">
+          <div className="mv-flex-auto">
             <input
               {...rest}
               // TODO: can this type assertion be removed and proofen by code?
               ref={forwardRef as React.RefObject<HTMLInputElement>}
               type={props.type ?? "text"}
-              className={`input input-bordered input-lg w-full ${
+              className={`input input-bordered input-lg mv-w-full ${
                 props.className !== undefined ? props.className : ""
               }`.trimEnd()}
               id={id}

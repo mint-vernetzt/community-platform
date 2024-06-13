@@ -1,47 +1,63 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Button, Image, Section, Toast } from "@mint-vernetzt/components";
 import {
-  type ActionFunctionArgs,
+  Button,
+  Image,
+  Input,
+  Section,
+  Toast,
+} from "@mint-vernetzt/components";
+import {
   json,
   redirect,
   unstable_composeUploadHandlers,
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
+  type ActionFunctionArgs,
   type LoaderFunctionArgs,
   type NodeOnDiskFile,
 } from "@remix-run/node";
 import {
   Form,
   Link,
-  Outlet,
   useActionData,
+  useFetcher,
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
+import { type TFunction } from "i18next";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
+import { Modal } from "~/routes/__components";
 import { getPublicURL } from "~/storage.server";
 import { BackButton, MaterialList } from "./__components";
-import { getExtension, storeDocument, storeImage } from "./attachments.server";
+import { storeDocument, storeImage } from "./attachments.server";
+import {
+  documentSchema,
+  imageSchema,
+  type action as EditAction,
+} from "./attachments/edit";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const MAX_UPLOAD_SIZE = 6 * 1024 * 1024; // 6MB
 const i18nNS = ["routes/project/settings/attachments"];
 export const handle = {
   i18n: i18nNS,
 };
+
+export function getExtension(filename: string) {
+  return filename.substring(filename.lastIndexOf(".") + 1, filename.length);
+}
 
 const createDocumentUploadSchema = (t: TFunction) =>
   z.object({
@@ -342,11 +358,12 @@ function Attachments() {
   const [imageName, setImageName] = React.useState<string | null>(null);
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+  const editFetcher = useFetcher<typeof EditAction>();
 
   const { t } = useTranslation(i18nNS);
 
   const documentUploadSchema = createDocumentUploadSchema(t);
-  const [documentUploadForm, documentUploadfields] = useForm({
+  const [documentUploadForm, documentUploadFields] = useForm({
     shouldValidate: "onInput",
     onValidate: (values) => {
       const result = parse(values.formData, { schema: documentUploadSchema });
@@ -367,6 +384,32 @@ function Attachments() {
     lastSubmission:
       typeof actionData !== "undefined" ? actionData.submission : undefined,
     shouldRevalidate: "onInput",
+  });
+
+  const [editDocumentForm, editDocumentFields] = useForm({
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      let schema = documentSchema;
+      const result = parse(values.formData, { schema });
+      return result;
+    },
+    lastSubmission:
+      typeof editFetcher.data !== "undefined"
+        ? editFetcher.data.submission
+        : undefined,
+  });
+
+  const [editImageForm, editImageFields] = useForm({
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      let schema = imageSchema;
+      const result = parse(values.formData, { schema });
+      return result;
+    },
+    lastSubmission:
+      typeof editFetcher.data !== "undefined"
+        ? editFetcher.data.submission
+        : undefined,
   });
 
   const handleDocumentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -413,11 +456,10 @@ function Attachments() {
 
   return (
     <Section>
-      <Outlet />
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">{t("content.description")}</p>
-      <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+      <p className="mv-my-6 @md:mv-mt-0">{t("content.description")}</p>
+      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.document.upload")}
           </h2>
@@ -428,21 +470,21 @@ function Attachments() {
             encType="multipart/form-data"
             {...documentUploadForm.props}
           >
-            <div className="mv-flex mv-flex-col md:mv-flex-row mv-gap-2">
+            <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
               <input
                 hidden
-                {...documentUploadfields.filename}
+                {...conform.input(documentUploadFields.filename)}
                 defaultValue={documentName !== null ? documentName : ""}
               />
               {/* TODO: component! */}
               <label
-                htmlFor={documentUploadfields.document.id}
+                htmlFor={documentUploadFields.document.id}
                 className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
               >
                 {t("content.document.select")}
                 <input
-                  id={documentUploadfields.document.id}
-                  name={documentUploadfields.document.name}
+                  id={documentUploadFields.document.id}
+                  name={documentUploadFields.document.name}
                   type="file"
                   accept="application/pdf,image/jpeg"
                   onChange={handleDocumentChange}
@@ -455,7 +497,7 @@ function Attachments() {
                 // @ts-ignore
                 disabled={
                   typeof window !== "undefined"
-                    ? typeof documentUploadfields.document.error !==
+                    ? typeof documentUploadFields.document.error !==
                         "undefined" || documentName === null
                     : true
                 }
@@ -467,7 +509,7 @@ function Attachments() {
               </Button>
             </div>
             <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
-              {typeof documentUploadfields.document.error === "undefined" && (
+              {typeof documentUploadFields.document.error === "undefined" && (
                 <p>
                   {documentName === null
                     ? t("content.document.selection.empty")
@@ -476,9 +518,9 @@ function Attachments() {
                       })}
                 </p>
               )}
-              {typeof documentUploadfields.document.error !== "undefined" && (
+              {typeof documentUploadFields.document.error !== "undefined" && (
                 <p className="mv-text-negative-600">
-                  {documentUploadfields.document.error}
+                  {documentUploadFields.document.error}
                 </p>
               )}
               {typeof actionData !== "undefined" &&
@@ -497,7 +539,7 @@ function Attachments() {
             </div>
           </Form>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <>
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.document.current")}
@@ -507,71 +549,146 @@ function Attachments() {
                 <MaterialList>
                   {loaderData.documents.map((relation) => {
                     return (
-                      <MaterialList.Item key={relation.document.id}>
-                        {/* {typeof relation.document.thumbnail !== "undefined" && (
+                      <div key={`document-${relation.document.id}`}>
+                        <Modal searchParam={`modal-${relation.document.id}`}>
+                          <Modal.Title>
+                            {t("content.editModal.editDocument")}
+                          </Modal.Title>
+                          <Modal.Section>
+                            <editFetcher.Form
+                              {...editDocumentForm.props}
+                              method="post"
+                              action="./edit"
+                              id={`form-${relation.document.id}`}
+                              preventScrollReset
+                            >
+                              <div className="mv-flex mv-flex-col mv-gap-6">
+                                <Input
+                                  {...conform.input(editDocumentFields.title)}
+                                  defaultValue={
+                                    relation.document.title || undefined
+                                  }
+                                >
+                                  <Input.Label>
+                                    {t("content.editModal.title")}
+                                  </Input.Label>
+                                  {typeof editDocumentFields.title.error !==
+                                    "undefined" && (
+                                    <Input.Error>
+                                      {editDocumentFields.title.error}
+                                    </Input.Error>
+                                  )}
+                                </Input>
+                                <Input
+                                  {...conform.input(
+                                    editDocumentFields.description
+                                  )}
+                                  defaultValue={
+                                    relation.document.description || undefined
+                                  }
+                                  maxLength={80}
+                                >
+                                  <Input.Label>
+                                    {t("content.editModal.description.label")}
+                                  </Input.Label>
+                                  {typeof editDocumentFields.description
+                                    .error !== "undefined" && (
+                                    <Input.Error>
+                                      {editDocumentFields.description.error}
+                                    </Input.Error>
+                                  )}
+                                </Input>
+                                <input
+                                  hidden
+                                  name="type"
+                                  defaultValue="document"
+                                />
+                                <input
+                                  hidden
+                                  name="id"
+                                  defaultValue={relation.document.id}
+                                />
+                              </div>
+                            </editFetcher.Form>
+                          </Modal.Section>
+                          <Modal.SubmitButton
+                            form={`form-${relation.document.id}`}
+                          >
+                            {t("content.editModal.submit")}
+                          </Modal.SubmitButton>
+                          <Modal.CloseButton>
+                            {t("content.editModal.reset")}
+                          </Modal.CloseButton>
+                        </Modal>
+                        <MaterialList.Item
+                          id={`material-list-item-${relation.document.id}`}
+                        >
+                          {/* {typeof relation.document.thumbnail !== "undefined" && (
                           <Image
                             src={relation.document.thumbnail}
                             alt={relation.document.description || ""}
                           />
                         )} */}
-                        {relation.document.mimeType === "application/pdf" && (
-                          <MaterialList.Item.PDFIcon />
-                        )}
-                        {relation.document.mimeType === "image/jpeg" && (
-                          <MaterialList.Item.JPGIcon />
-                        )}
-                        <MaterialList.Item.Title>
-                          {relation.document.title !== null
-                            ? relation.document.title
-                            : relation.document.filename}
-                        </MaterialList.Item.Title>
-                        <MaterialList.Item.Meta>
-                          ({relation.document.extension},{" "}
-                          {relation.document.sizeInMB} MB)
-                        </MaterialList.Item.Meta>
-                        {relation.document.description !== null && (
-                          <MaterialList.Item.Paragraph>
-                            {relation.document.description}
-                          </MaterialList.Item.Paragraph>
-                        )}
-                        <Form
-                          method="post"
-                          encType="multipart/form-data"
-                          className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 lg:mv-gap-4 mv-ml-auto"
-                        >
-                          <input
-                            hidden
-                            name={conform.INTENT}
-                            defaultValue="delete_document"
-                          />
-                          <input
-                            hidden
-                            name="id"
-                            defaultValue={relation.document.id}
-                          />
-                          <input
-                            hidden
-                            name="filename"
-                            defaultValue={relation.document.filename}
-                          />
-                          <MaterialList.Item.Controls.Delete type="submit" />
-                          <Link
-                            to={`./edit?type=document&id=${relation.document.id}&deep&modal`}
+                          {relation.document.mimeType === "application/pdf" && (
+                            <MaterialList.Item.PDFIcon />
+                          )}
+                          {relation.document.mimeType === "image/jpeg" && (
+                            <MaterialList.Item.JPGIcon />
+                          )}
+                          <MaterialList.Item.Title>
+                            {relation.document.title !== null
+                              ? relation.document.title
+                              : relation.document.filename}
+                          </MaterialList.Item.Title>
+                          <MaterialList.Item.Meta>
+                            ({relation.document.extension},{" "}
+                            {relation.document.sizeInMB} MB)
+                          </MaterialList.Item.Meta>
+                          {relation.document.description !== null && (
+                            <MaterialList.Item.Paragraph>
+                              {relation.document.description}
+                            </MaterialList.Item.Paragraph>
+                          )}
+                          <Form
+                            method="post"
+                            encType="multipart/form-data"
+                            className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto"
                           >
-                            <MaterialList.Item.Controls.Edit />
-                          </Link>
-                          <Link
-                            to={`./download?type=document&id=${relation.document.id}`}
-                            reloadDocument
-                          >
-                            <MaterialList.Item.Controls.Download />
-                          </Link>
-                        </Form>
-                      </MaterialList.Item>
+                            <input
+                              hidden
+                              name={conform.INTENT}
+                              defaultValue="delete_document"
+                            />
+                            <input
+                              hidden
+                              name="id"
+                              defaultValue={relation.document.id}
+                            />
+                            <input
+                              hidden
+                              name="filename"
+                              defaultValue={relation.document.filename}
+                            />
+                            <MaterialList.Item.Controls.Delete type="submit" />
+                            <Link
+                              to={`?deep&modal-${relation.document.id}=true`}
+                              preventScrollReset
+                            >
+                              <MaterialList.Item.Controls.Edit />
+                            </Link>
+                            <Link
+                              to={`./download?type=document&id=${relation.document.id}`}
+                              reloadDocument
+                            >
+                              <MaterialList.Item.Controls.Download />
+                            </Link>
+                          </Form>
+                        </MaterialList.Item>
+                      </div>
                     );
                   })}
                 </MaterialList>
-                <div className="mv-w-full md:mv-max-w-fit">
+                <div className="mv-w-full @md:mv-max-w-fit">
                   <Button
                     as="a"
                     href={`./download?type=documents`}
@@ -603,7 +720,7 @@ function Attachments() {
               )}
           </>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.image.upload")}
           </h2>
@@ -614,10 +731,10 @@ function Attachments() {
             encType="multipart/form-data"
             {...imageUploadForm.props}
           >
-            <div className="mv-flex mv-flex-col md:mv-flex-row mv-gap-2">
+            <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
               <input
                 hidden
-                {...imageUploadFields.filename}
+                {...conform.input(imageUploadFields.filename)}
                 defaultValue={imageName !== null ? imageName : ""}
               />
               {/* TODO: component! */}
@@ -683,7 +800,7 @@ function Attachments() {
             </div>
           </Form>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.image.current")}
           </h2>
@@ -692,73 +809,164 @@ function Attachments() {
               <MaterialList>
                 {loaderData.images.map((relation) => {
                   return (
-                    <MaterialList.Item key={relation.image.id}>
-                      {/* TODO: fix type issue */}
-                      {/* @ts-ignore */}
-                      {typeof relation.image.thumbnail !== "undefined" && (
-                        <Image
-                          // @ts-ignore
-                          src={relation.image.thumbnail}
-                          alt={relation.image.description || ""}
-                        />
-                      )}
-                      <MaterialList.Item.Title>
-                        {relation.image.title !== null
-                          ? relation.image.title
-                          : relation.image.filename}
-                      </MaterialList.Item.Title>
-                      <MaterialList.Item.Meta>
-                        ({relation.image.extension}, {relation.image.sizeInMB}{" "}
-                        MB)
-                      </MaterialList.Item.Meta>
-                      {relation.image.description !== null && (
-                        <MaterialList.Item.Paragraph>
-                          {relation.image.description}
-                        </MaterialList.Item.Paragraph>
-                      )}
-                      {relation.image.credits !== null && (
-                        <MaterialList.Item.Paragraph>
-                          Foto-Credit: {relation.image.credits}
-                        </MaterialList.Item.Paragraph>
-                      )}
-                      <Form
-                        method="post"
-                        encType="multipart/form-data"
-                        className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 lg:mv-gap-4 mv-ml-auto"
+                    <div key={`image-${relation.image.id}`}>
+                      <Modal searchParam={`modal-${relation.image.id}`}>
+                        <Modal.Title>
+                          {t("content.editModal.editImage")}
+                        </Modal.Title>
+                        <Modal.Section>
+                          <editFetcher.Form
+                            {...editImageForm.props}
+                            method="post"
+                            action="./edit"
+                            id={`form-${relation.image.id}`}
+                            preventScrollReset
+                          >
+                            <div className="mv-flex mv-flex-col mv-gap-6">
+                              <Input
+                                {...conform.input(editImageFields.title)}
+                                defaultValue={relation.image.title || undefined}
+                              >
+                                <Input.Label>
+                                  {t("content.editModal.title")}
+                                </Input.Label>
+                                {typeof editImageFields.title.error !==
+                                  "undefined" && (
+                                  <Input.Error>
+                                    {editImageFields.title.error}
+                                  </Input.Error>
+                                )}
+                              </Input>
+
+                              <Input
+                                {...conform.input(editImageFields.credits)}
+                                defaultValue={
+                                  relation.image.credits || undefined
+                                }
+                                maxLength={80}
+                              >
+                                <Input.Label>
+                                  {t("content.editModal.credits.label")}
+                                </Input.Label>
+                                <Input.HelperText>
+                                  {t("content.editModal.credits.helper")}
+                                </Input.HelperText>
+                                {typeof editImageFields.credits.error !==
+                                  "undefined" && (
+                                  <Input.Error>
+                                    {editImageFields.credits.error}
+                                  </Input.Error>
+                                )}
+                              </Input>
+
+                              <Input
+                                {...conform.input(editImageFields.description)}
+                                defaultValue={
+                                  relation.image.description || undefined
+                                }
+                                maxLength={80}
+                              >
+                                <Input.Label>
+                                  {t("content.editModal.description.label")}
+                                </Input.Label>
+                                <Input.HelperText>
+                                  {t("content.editModal.description.helper")}
+                                </Input.HelperText>
+
+                                {typeof editImageFields.description.error !==
+                                  "undefined" && (
+                                  <Input.Error>
+                                    {editImageFields.description.error}
+                                  </Input.Error>
+                                )}
+                              </Input>
+                              <input hidden name="type" defaultValue="image" />
+                              <input
+                                hidden
+                                name="id"
+                                defaultValue={relation.image.id}
+                              />
+                            </div>
+                          </editFetcher.Form>
+                        </Modal.Section>
+                        <Modal.SubmitButton form={`form-${relation.image.id}`}>
+                          {t("content.editModal.submit")}
+                        </Modal.SubmitButton>
+                        <Modal.CloseButton>
+                          {t("content.editModal.reset")}
+                        </Modal.CloseButton>
+                      </Modal>
+                      <MaterialList.Item
+                        id={`material-list-image-item-${relation.image.id}`}
                       >
-                        <input
-                          hidden
-                          name={conform.INTENT}
-                          defaultValue="delete_image"
-                        />
-                        <input
-                          hidden
-                          name="id"
-                          defaultValue={relation.image.id}
-                        />
-                        <input
-                          hidden
-                          name="filename"
-                          defaultValue={relation.image.filename}
-                        />
-                        <MaterialList.Item.Controls.Delete type="submit" />
-                        <Link
-                          to={`./edit?type=image&id=${relation.image.id}&deep&modal`}
+                        {/* TODO: fix type issue */}
+                        {/* @ts-ignore */}
+                        {typeof relation.image.thumbnail !== "undefined" && (
+                          <Image
+                            // @ts-ignore
+                            src={relation.image.thumbnail}
+                            alt={relation.image.description || ""}
+                          />
+                        )}
+                        <MaterialList.Item.Title>
+                          {relation.image.title !== null
+                            ? relation.image.title
+                            : relation.image.filename}
+                        </MaterialList.Item.Title>
+                        <MaterialList.Item.Meta>
+                          ({relation.image.extension}, {relation.image.sizeInMB}{" "}
+                          MB)
+                        </MaterialList.Item.Meta>
+                        {relation.image.description !== null && (
+                          <MaterialList.Item.Paragraph>
+                            {relation.image.description}
+                          </MaterialList.Item.Paragraph>
+                        )}
+                        {relation.image.credits !== null && (
+                          <MaterialList.Item.Paragraph>
+                            Foto-Credit: {relation.image.credits}
+                          </MaterialList.Item.Paragraph>
+                        )}
+                        <Form
+                          method="post"
+                          encType="multipart/form-data"
+                          className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto"
                         >
-                          <MaterialList.Item.Controls.Edit />
-                        </Link>
-                        <Link
-                          to={`./download?type=image&id=${relation.image.id}`}
-                          reloadDocument
-                        >
-                          <MaterialList.Item.Controls.Download />
-                        </Link>
-                      </Form>
-                    </MaterialList.Item>
+                          <input
+                            hidden
+                            name={conform.INTENT}
+                            defaultValue="delete_image"
+                          />
+                          <input
+                            hidden
+                            name="id"
+                            defaultValue={relation.image.id}
+                          />
+                          <input
+                            hidden
+                            name="filename"
+                            defaultValue={relation.image.filename}
+                          />
+                          <MaterialList.Item.Controls.Delete type="submit" />
+                          <Link
+                            to={`?deep&modal-${relation.image.id}=true`}
+                            preventScrollReset
+                          >
+                            <MaterialList.Item.Controls.Edit />
+                          </Link>
+                          <Link
+                            to={`./download?type=image&id=${relation.image.id}`}
+                            reloadDocument
+                          >
+                            <MaterialList.Item.Controls.Download />
+                          </Link>
+                        </Form>
+                      </MaterialList.Item>
+                    </div>
                   );
                 })}
               </MaterialList>
-              <div className="mv-w-full md:mv-max-w-fit">
+              <div className="mv-w-full @md:mv-max-w-fit">
                 {/* TODO: Button as wrapper for Link (better relative path) */}
                 <Button
                   as="a"

@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useSearchParams } from "@remix-run/react";
+import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -14,6 +14,7 @@ import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/reset/set-password"];
 export const handle = {
@@ -39,7 +40,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
-  return null;
+  const abilities = await getFeatureAbilities(authClient, "next_navbar");
+  return { abilities };
 };
 
 const createMutation = (t: TFunction) => {
@@ -90,6 +92,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function SetPassword() {
+  const loaderData = useLoaderData<typeof loader>();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
 
@@ -99,15 +102,18 @@ export default function SetPassword() {
   return (
     <>
       <PageBackground imagePath="/images/login_background_image.jpg" />
-      <div className="md:container md:mx-auto px-4 relative z-10">
-        <div className="flex flex-row -mx-4 justify-end">
-          <div className="basis-full md:basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
-            <div>
-              <HeaderLogo />
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative z-10">
+        {loaderData.abilities.next_navbar.hasAccess === false ? (
+          <div className="flex flex-row -mx-4 justify-end">
+            <div className="basis-full @md:mv-basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
+              <div>
+                <HeaderLogo />
+              </div>
+              <div className="ml-auto"></div>
             </div>
-            <div className="ml-auto"></div>
           </div>
-        </div>
+        ) : null}
+
         <RemixFormsForm
           method="post"
           schema={schema}
@@ -117,9 +123,9 @@ export default function SetPassword() {
           }}
         >
           {({ Field, Button, Errors, register }) => (
-            <div className="flex flex-col md:flex-row -mx-4">
-              <div className="basis-full md:basis-6/12"></div>
-              <div className="basis-full md:basis-6/12 xl:basis-5/12 px-4">
+            <div className="flex flex-col @md:mv-flex-row -mx-4">
+              <div className="basis-full @md:mv-basis-6/12"> </div>
+              <div className="basis-full @md:mv-basis-6/12 @xl:mv-basis-5/12 px-4 justify-end">
                 <h1 className="mb-8">Neues Passwort vergeben</h1>
                 <Field name="loginRedirect" />
                 <div className="mb-4">

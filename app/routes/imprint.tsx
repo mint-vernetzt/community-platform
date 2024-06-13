@@ -9,14 +9,14 @@ export default function Imprint() {
   const { t } = useTranslation(i18nNS);
 
   return (
-    <section className="container my-8 md:my-10 lg:my-20">
+    <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] my-8 @md:mv-my-10 @lg:mv-my-20">
       <h1>{t("title")}</h1>
       <p className="mb-2">{t("project.title")}</p>
       <ul className="mb-4">
         {t("project.members")
           .split(";")
-          .map((s: string) => (
-            <li>- {s.trim()}</li>
+          .map((s: string, index) => (
+            <li key={index}>- {s.trim()}</li>
           ))}
       </ul>
       <p className="mb-2">{t("serviceProvider.intro")}</p>

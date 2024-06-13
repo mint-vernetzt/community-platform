@@ -1,4 +1,4 @@
-import { User } from "@supabase/supabase-js";
+import { type User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 
 export async function getProfileById(id: string) {
@@ -94,6 +94,39 @@ export async function getOrganizationsForCards(take: number) {
   });
 
   return profiles;
+}
+
+export async function getProjectsForCards(take: number) {
+  const projects = await prismaClient.project.findMany({
+    select: {
+      slug: true,
+      name: true,
+      logo: true,
+      subline: true,
+      excerpt: true,
+      background: true,
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              slug: true,
+              logo: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          organization: {
+            updatedAt: "asc",
+          },
+        },
+      },
+    },
+    take,
+    orderBy: { createdAt: "desc" },
+  });
+
+  return projects;
 }
 
 export async function getEventsForCards(take: number) {

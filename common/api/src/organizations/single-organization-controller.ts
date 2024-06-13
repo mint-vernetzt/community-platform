@@ -11,12 +11,12 @@ import {
   Tags,
   type ValidateError,
 } from "tsoa";
-import { getImageURL } from "../images.server";
+import { getImageURL } from "../cp-modules/images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
-import { prismaClient } from "../prisma";
-import { filterOrganizationByVisibility } from "../public-fields-filtering.server";
-import { getPublicURL } from "../storage.server";
-import { getBaseURL } from "../utils";
+import { prismaClient } from "../cp-modules/prisma";
+import { filterOrganizationByVisibility } from "../cp-modules/next-public-fields-filtering.server";
+import { getPublicURL } from "../cp-modules/storage.server";
+import { getBaseURL } from "../cp-modules/utils";
 
 @Route("organization")
 @Tags("Organization")
@@ -74,6 +74,7 @@ export class OrganizationController extends Controller {
             area: {
               select: {
                 name: true,
+                slug: true,
               },
             },
           },
@@ -83,8 +84,37 @@ export class OrganizationController extends Controller {
             organizationType: {
               select: {
                 title: true,
+                slug: true,
               },
             },
+          },
+        },
+        focuses: {
+          select: {
+            focus: {
+              select: {
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        organizationVisibility: {
+          select: {
+            id: true,
+            slug: true,
+            name: true,
+            logo: true,
+            background: true,
+            bio: true,
+            street: true,
+            streetNumber: true,
+            city: true,
+            zipCode: true,
+            supportedBy: true,
+            areas: true,
+            types: true,
+            focuses: true,
           },
         },
       },
@@ -140,9 +170,8 @@ export class OrganizationController extends Controller {
       background: publicBackground,
     };
 
-    const filteredOrganization = await filterOrganizationByVisibility(
-      enhancedOrganization
-    );
+    const filteredOrganization =
+      filterOrganizationByVisibility(enhancedOrganization);
     return {
       ...filteredOrganization,
       url,

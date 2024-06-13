@@ -11,6 +11,8 @@
     "organizations": "Organizations",
     "allOrganizations": "All organizations",
     "events": "Events",
-    "allEvents": "All events"
+    "allEvents": "All events",
+    "projects": "Projects",
+    "allProjects": "All projects"
   }
 }

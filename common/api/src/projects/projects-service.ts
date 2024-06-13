@@ -1,16 +1,19 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Request } from "express";
-import { getBaseURL } from "../../src/utils";
-import { getImageURL } from "../images.server";
+import { getBaseURL } from "../cp-modules/utils";
+import { getImageURL } from "../cp-modules/images.server";
 import { decorate } from "../lib/matomoUrlDecorator";
-import { prismaClient } from "../prisma";
-import { filterProjectByVisibility } from "../public-fields-filtering.server";
-import { getPublicURL } from "../storage.server";
+import { prismaClient } from "../cp-modules/prisma";
+import { filterProjectByVisibility } from "../cp-modules/next-public-fields-filtering.server";
+import { getPublicURL } from "../cp-modules/storage.server";
 
 type Projects = Awaited<ReturnType<typeof getProjects>>;
 
 async function getProjects(request: Request, skip: number, take: number) {
   const projects = await prismaClient.project.findMany({
+    where: {
+      published: true,
+    },
     select: {
       id: true,
       name: true,
@@ -38,17 +41,101 @@ async function getProjects(request: Request, skip: number, take: number) {
           discipline: {
             select: {
               title: true,
+              slug: true,
             },
           },
         },
       },
-      targetGroups: {
+      additionalDisciplines: {
         select: {
-          targetGroup: {
+          additionalDiscipline: {
             select: {
               title: true,
+              slug: true,
             },
           },
+        },
+      },
+      projectTargetGroups: {
+        select: {
+          projectTargetGroup: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      specialTargetGroups: {
+        select: {
+          specialTargetGroup: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      formats: {
+        select: {
+          format: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      financings: {
+        select: {
+          financing: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      projectVisibility: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          logo: true,
+          background: true,
+          headline: true,
+          excerpt: true,
+          description: true,
+          email: true,
+          phone: true,
+          street: true,
+          streetNumber: true,
+          city: true,
+          zipCode: true,
+          website: true,
+          facebook: true,
+          linkedin: true,
+          twitter: true,
+          youtube: true,
+          instagram: true,
+          xing: true,
+          disciplines: true,
+          additionalDisciplines: true,
+          projectTargetGroups: true,
+          specialTargetGroups: true,
+          formats: true,
+          financings: true,
+          areas: true,
         },
       },
     },
@@ -107,7 +194,7 @@ async function getProjects(request: Request, skip: number, take: number) {
         background: publicBackground,
       };
 
-      const filteredProject = await filterProjectByVisibility(enhancedProject);
+      const filteredProject = filterProjectByVisibility(enhancedProject);
 
       return {
         ...filteredProject,

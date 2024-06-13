@@ -14,7 +14,7 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
 
   const classes = classNames(
     "mv-min-w-fit",
-    "last:mv-mr-6 sm:last:mv-mr-0",
+    "last:mv-mr-6 @sm:mv-last:mv-mr-0",
     active
       ? "mv-text-primary mv-border-b-2 mv-border-b-primary"
       : "mv-text-gray-400"
@@ -161,7 +161,7 @@ function TabBar(props: TabBarProps) {
           onScroll={handleScroll}
           ref={scrollContainerRef}
         >
-          <ul className="mv-mb-4 mv-flex mv-justify-between mv-flex-nowrap mv-w-fit mv-gap-4 sm:mv-gap-14 mv-font-semibold">
+          <ul className="mv-mb-4 mv-flex mv-justify-between mv-flex-nowrap mv-w-fit mv-gap-4 @sm:mv-gap-14 mv-font-semibold">
             {validChildren}
           </ul>
         </div>

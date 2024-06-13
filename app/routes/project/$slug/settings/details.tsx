@@ -635,7 +635,7 @@ function Details() {
   return (
     <Section>
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">{t("content.description")}</p>
+      <p className="mv-my-6 @md:mv-mt-0">{t("content.description")}</p>
       <Form
         method="post"
         {...form.props}
@@ -660,8 +660,8 @@ function Details() {
       >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <Button type="submit" hidden />
-        <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+        <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.disciplines.headline")}
             </h2>
@@ -825,7 +825,7 @@ function Details() {
                   </Button>
                 </Input.Controls>
               </Input>
-              {/* <div className="mv--mt-1">
+              {/* <div className="-mv-mt-1">
               </div> */}
             </div>
             {furtherDisciplinesList.length > 0 && (
@@ -853,7 +853,7 @@ function Details() {
             )}
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.participants.headline")}
             </h2>
@@ -1016,7 +1016,7 @@ function Details() {
             </Input>
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.shortDescription.headline")}
             </h2>
@@ -1032,7 +1032,7 @@ function Details() {
             </Input>
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.extendedDescription.headline")}
             </h2>
@@ -1104,7 +1104,7 @@ function Details() {
             />
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.video.headline")}
             </h2>
@@ -1135,7 +1135,7 @@ function Details() {
           </div>
 
           <div className="mv-flex mv-w-full mv-justify-end">
-            <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
+            <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
               <Controls>
                 {/* <Link
                   to="."

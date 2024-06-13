@@ -80,7 +80,7 @@ export function Playground(props: HeaderPlaygroundProps) {
           )}
           {/* // TODO: Implement styled Heading: <H1 as="h3" className="mv-mb-0">Error Music - don't delete!</H1> */}
           <h1>Error Music - don't delete!</h1>
-          <p className="mv-text-base md:mv-text-2xl">
+          <p className="mv-text-base @md:mv-text-2xl">
             Sound x Tech Format für Mädchen*, trans*, inter* und non-binäre
             Jugendliche ab 12 Jahren.
           </p>

@@ -148,7 +148,7 @@ const Autocomplete = React.forwardRef(
         <input {...rest} hidden value={submitValue} />
         {suggestions.length > 0 ? (
           <div
-            className="mt-2 pb-4 md:pb-14"
+            className="mt-2 pb-4 @md:mv-pb-14"
             id="suggestions-container"
             ref={suggestionsContainerRef}
           >
@@ -236,7 +236,7 @@ const Autocomplete = React.forwardRef(
                       index === activeSuggestion - 1 ? "bg-blue-100 " : ""
                     }w-full text-left border-b border-neutral-400 p-1 flex items-stretch overflow-hidden`}
                   >
-                    <div className="hidden xl:block w-40 shrink-0">
+                    <div className="hidden @xl:mv-block w-40 shrink-0">
                       <img
                         src={
                           suggestion.background ||
@@ -285,15 +285,15 @@ const Autocomplete = React.forwardRef(
                           ""
                         )}
                       </p>
-                      <h4 className="font-bold text-base m-0 md:mv-line-clamp-1">
+                      <h4 className="font-bold text-base m-0 @md:mv-line-clamp-1">
                         {suggestion.name}
                       </h4>
                       {suggestion.subline !== null ? (
-                        <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
+                        <p className="hidden @md:mv-block text-xs mt-1 @md:mv-line-clamp-2">
                           {suggestion.subline}
                         </p>
                       ) : (
-                        <p className="hidden md:block text-xs mt-1 md:mv-line-clamp-2">
+                        <p className="hidden @md:mv-block text-xs mt-1 @md:mv-line-clamp-2">
                           {suggestion.description}
                         </p>
                       )}

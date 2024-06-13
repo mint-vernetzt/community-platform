@@ -15,12 +15,12 @@ function CardContainer(props: CardContainerProps) {
   );
 
   return type === "single row" ? (
-    <div className="mv-flex mv-overflow-x-scroll xl:mv-overflow-x-visible mv-items-stretch">
+    <div className="mv-flex mv-overflow-x-scroll @xl:mv-overflow-x-visible mv-items-stretch">
       {validChildren.map((child, index) => {
         return (
           <div
             key={`item-${index}`}
-            className="mv-flex-none mv-w-3/4 sm:mv-w-1/2 lg:mv-w-1/3 xl:mv-w-1/4 mv-pb-8 first:mv-pl-4 sm:odd:mv-pl-4 mv-pr-4 lg:mv-pl-4"
+            className="mv-flex-none mv-w-3/4 @sm:mv-w-1/2 @lg:mv-w-1/3 @xl:mv-w-1/4 mv-pb-8 first:mv-pl-4 @sm:mv-odd:mv-pl-4 mv-pr-4 @lg:mv-pl-4"
           >
             {child}
           </div>
@@ -31,7 +31,7 @@ function CardContainer(props: CardContainerProps) {
     <div className={`mv-flex mv-flex-wrap`}>
       {validChildren.map((child, index) => {
         const classes = classNames(
-          "mv-w-full sm:mv-w-1/2 lg:mv-w-1/3 xl:mv-w-1/4 mv-pb-8 mv-px-4"
+          "mv-w-full @sm:mv-w-1/2 @lg:mv-w-1/3 @xl:mv-w-1/4 mv-pb-8 mv-px-4"
         );
 
         return (

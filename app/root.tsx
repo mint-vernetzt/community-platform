@@ -1,4 +1,3 @@
-import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import {
   Alert,
   CircleButton,
@@ -20,31 +19,37 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
   useLoaderData,
   useLocation,
   useMatches,
-  useSearchParams,
   useRouteError,
-  isRouteErrorResponse,
+  useSearchParams,
 } from "@remix-run/react";
+import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useChangeLanguage } from "remix-i18next";
 import { getFullName } from "~/lib/profile/getFullName";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
+import { H1, H2 } from "./components/Heading/Heading";
 import Search from "./components/Search/Search";
 import { getImageURL } from "./images.server";
 import { getInitials } from "./lib/profile/getInitials";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { detectLanguage, getProfileByUserId } from "./root.server";
-import { getPublicURL } from "./storage.server";
-import styles from "./styles/legacy-styles.css";
-import { combineHeaders } from "./utils.server";
-import { H1, H2 } from "./components/Heading/Heading";
+import {
+  NavBarMenu,
+  NextFooter,
+  NextNavBar,
+  Modal,
+} from "./routes/__components";
 import { initializeSentry } from "./sentry.client";
-import { useChangeLanguage } from "remix-i18next";
-import { Modal } from "./routes/__components";
+import { getPublicURL } from "./storage.server";
+import legacyStyles from "./styles/legacy-styles.css";
+import { combineHeaders, deriveMode } from "./utils.server";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -52,7 +57,9 @@ export const meta: MetaFunction = () => {
   return [{ title: "MINTvernetzt Community Plattform" }];
 };
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: legacyStyles },
+];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -64,12 +71,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "events",
     "projects",
     "dashboard",
+    "next_navbar",
     "abuse_report",
   ]);
 
   const user = await getSessionUser(authClient);
 
   let sessionUserInfo;
+  let nextSessionUserInfo;
 
   if (user !== null) {
     // Refresh session to reset the cookie max age
@@ -94,12 +103,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
         name: getFullName(profile),
         avatar,
       };
+      nextSessionUserInfo = {
+        username: profile.username,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        avatar,
+      };
     } else {
       throw json({ message: "profile not found." }, { status: 404 });
     }
   }
 
   const { alert, headers: alertHeaders } = await getAlert(request);
+
+  const mode = deriveMode(user);
 
   const env = {
     baseUrl: process.env.COMMUNITY_BASE_URL,
@@ -111,10 +128,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       sessionUserInfo,
+      nextSessionUserInfo,
       abilities,
       alert,
       locale,
       env,
+      mode,
     },
     { headers: combineHeaders(headers, alertHeaders) }
   );
@@ -133,7 +152,7 @@ export const handle = {
   ],
 };
 
-function HeaderLogo() {
+export function HeaderLogo() {
   const { t } = useTranslation(["meta"]);
   return (
     <div className="flex flex-row items-center">
@@ -144,7 +163,7 @@ function HeaderLogo() {
         viewBox="0 0 56 56"
         aria-describedby="mint-title-header"
         role="img"
-        className="w-10 h-10 md:w-auto md:h-auto"
+        className="w-10 h-10 lg:w-auto lg:h-auto"
       >
         <title id="mint-title-header">{t("root.logo")}</title>
         <g fill="none">
@@ -162,7 +181,7 @@ function HeaderLogo() {
           />
         </g>
       </svg>
-      <span className="hidden md:block font-bold text-primary ml-2">
+      <span className="hidden lg:block font-bold text-primary ml-2">
         {t("root.community")}
       </span>
     </div>
@@ -494,6 +513,8 @@ export const ErrorBoundary = () => {
 
       <body>
         <div id="top" className="flex flex-col min-h-screen">
+          {/* TODO: Include NextNavBar */}
+          {/* <NextNavBar abilities={{}} /> */}
           <NavBar abilities={{}} />
           <section className="container my-8 md:mt-10 lg:mt-20 text-center">
             <H1 like="h0">{errorTitle}</H1>
@@ -539,15 +560,17 @@ export default function App() {
     matomoUrl,
     matomoSiteId,
     sessionUserInfo: currentUserInfo,
+    nextSessionUserInfo,
     abilities,
     alert,
     locale,
     env,
+    mode,
   } = useLoaderData<typeof loader>();
 
   React.useEffect(() => {
     initializeSentry({ baseUrl: env.baseUrl, dsn: env.sentryDsn });
-  }, []);
+  }, [env.baseUrl, env.sentryDsn]);
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
@@ -577,14 +600,24 @@ export default function App() {
   }
 
   const [searchParams] = useSearchParams();
-  const modal = searchParams.get("modal");
+  let modal = false;
+  searchParams.forEach((value, key) => {
+    if (key.startsWith("modal") && value !== "false") {
+      modal = true;
+    }
+  });
   const showFilters = searchParams.get("showFilters");
+  const openNavBarMenuKey = "navbarmenu";
+  const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
 
   const bodyClasses = classNames(
-    modal !== null && modal !== "false" && "overflow-hidden",
+    modal && "mv-overflow-hidden",
     showFilters !== null &&
       showFilters !== "false" &&
-      "overflow-hidden lg:overflow-auto"
+      "mv-overflow-hidden lg:mv-overflow-auto",
+    navBarMenuIsOpen !== null &&
+      navBarMenuIsOpen !== "false" &&
+      "mv-overflow-hidden lg:mv-overflow-auto"
   );
 
   const { i18n } = useTranslation();
@@ -595,7 +628,7 @@ export default function App() {
       {typeof alert !== "undefined" &&
       isNonAppBaseRoute === false &&
       isIndexRoute === false ? (
-        <div className="container">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
           <Alert level={alert.level}>{alert.message}</Alert>
         </div>
       ) : null}
@@ -606,10 +639,10 @@ export default function App() {
   // Scroll to top button
   // Should this be a component?
   const scrollButton = (
-    <div className={`${isSettings ? "hidden md:block " : ""}w-0`}>
+    <div className={`${isSettings ? "hidden @md:mv-block " : ""}w-0`}>
       <div className="w-0 h-16"></div>
       <div className="w-0 h-screen sticky top-0">
-        <div className="absolute bottom-4 md:bottom-8 -left-20">
+        <div className="absolute bottom-4 @md:mv-bottom-8 -left-20">
           <Link to={`${location.pathname}${location.search}#top`}>
             <CircleButton size="large" floating>
               <svg
@@ -669,25 +702,54 @@ export default function App() {
 
       <body className={bodyClasses}>
         <div id="top" className="flex flex-col min-h-screen">
-          {isNonAppBaseRoute || isIndexRoute ? null : (
+          {abilities.next_navbar.hasAccess ? (
+            <NextNavBar
+              sessionUserInfo={nextSessionUserInfo}
+              abilities={abilities}
+              openNavBarMenuKey={openNavBarMenuKey}
+            />
+          ) : null}
+
+          {isIndexRoute ||
+          (showFilters !== null && showFilters !== "false") ||
+          abilities.next_navbar.hasAccess ? null : (
             <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
           )}
-          {isIndexRoute ? (
+          {isIndexRoute && abilities.next_navbar.hasAccess === false ? (
             <div className="z-10">
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
           ) : null}
-          {isNonAppBaseRoute ? (
-            <>{main}</>
-          ) : (
-            <div className="flex flex-nowrap">
-              {main}
-              {scrollButton}
+
+          <div className="mv-flex">
+            {abilities.next_navbar.hasAccess ? (
+              <NavBarMenu
+                mode={mode}
+                openNavBarMenuKey={openNavBarMenuKey}
+                username={currentUserInfo?.username}
+              />
+            ) : null}
+            <div className="mv-flex-grow mv-@container">
+              {isNonAppBaseRoute ? (
+                <>{main}</>
+              ) : (
+                <>
+                  <div className="flex flex-nowrap">
+                    {main}
+                    {scrollButton}
+                  </div>
+                  {abilities.next_navbar.hasAccess && isIndexRoute ? (
+                    <NextFooter />
+                  ) : null}
+                </>
+              )}
             </div>
-          )}
-          <Footer isSettings={isProjectSettings} />
+          </div>
+          {abilities.next_navbar.hasAccess === false ? (
+            <Footer isSettings={isProjectSettings} />
+          ) : null}
         </div>
-        {abilities.abuse_report.hasAccess && <Modal.Root />}
+        <Modal.Root />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

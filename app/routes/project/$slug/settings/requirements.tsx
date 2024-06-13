@@ -451,7 +451,7 @@ function Requirements() {
     <>
       <Section>
         <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-        <p className="mv-my-6 md:mv-mt-0">{t("content.intro")}</p>
+        <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
         <Form
           method="post"
           {...form.props}
@@ -477,8 +477,8 @@ function Requirements() {
           {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
           <Button type="submit" hidden />
           <Input id="deep" defaultValue="true" type="hidden" />
-          <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
-            <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
+            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
                 {t("form.timeframe.headline")}
               </h2>
@@ -493,7 +493,7 @@ function Requirements() {
               />
             </div>
 
-            <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
                 {t("form.personellSituation.headline")}
               </h2>
@@ -521,7 +521,7 @@ function Requirements() {
               />
             </div>
 
-            <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
                 {t("form.budget.headline")}
               </h2>
@@ -610,7 +610,7 @@ function Requirements() {
               />
             </div>
 
-            <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
                 {t("form.technicalFrame.headline")}
               </h2>
@@ -636,7 +636,7 @@ function Requirements() {
               />
             </div>
 
-            <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
                 {t("form.spatialSituation.headline")}
               </h2>
@@ -662,7 +662,7 @@ function Requirements() {
             </div>
 
             <div className="mv-flex mv-w-full mv-justify-end">
-              <div className="mv-flex mv-shrink mv-w-full md:mv-max-w-fit lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
+              <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
                 <Controls>
                   {/* <Link
                     to="."

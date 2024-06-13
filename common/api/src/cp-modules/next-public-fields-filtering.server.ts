@@ -1,9 +1,7 @@
 import type { Event, Organization, Profile, Project } from "@prisma/client";
-import { type EntitySubset } from "./types";
-import { prismaClient } from "./prisma";
-import { json } from "@remix-run/server-runtime";
+import type { EntitySubset } from "./types";
 
-type ProfileWithRelations = Profile & {
+export type ProfileWithRelations = Profile & {
   areas: any;
   memberOf: any;
   offers: any;
@@ -27,29 +25,12 @@ type ProfileWithRelations = Profile & {
   _count: any;
 };
 
-export async function filterProfileByVisibility<
-  T extends EntitySubset<ProfileWithRelations, T>
+export function filterProfileByVisibility<
+  T extends EntitySubset<ProfileWithRelations, T> &
+    Pick<ProfileWithRelations, "profileVisibility">
 >(profile: T) {
-  const profileVisibility = await prismaClient.profileVisibility.findFirst({
-    where: {
-      profile: {
-        id: profile.id,
-      },
-    },
-  });
-  if (profileVisibility === null) {
-    throw json({ message: "Profile visibilities not found." }, { status: 404 });
-  }
-
-  for (const key in profile) {
-    if (!profileVisibility.hasOwnProperty(key)) {
-      console.error(
-        `profile.${key} is not present in the profile visibilities.`
-      );
-    }
-  }
   const filteredFields: { [key: string]: any } = {};
-  for (const key in profileVisibility) {
+  for (const key in profile.profileVisibility) {
     if (key !== "id" && key !== "profileId") {
       // Fields in Profile with type String
       if (
@@ -59,7 +40,7 @@ export async function filterProfileByVisibility<
         key === "lastName"
       ) {
         filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : "";
+          profile.profileVisibility[key] === true ? profile[key] : "";
       }
       // Fields in Profile with type []
       else if (
@@ -84,7 +65,7 @@ export async function filterProfileByVisibility<
         key === "waitingForEvents"
       ) {
         filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : [];
+          profile.profileVisibility[key] === true ? profile[key] : [];
       }
       // Fields in Profile with type DateTime
       else if (
@@ -93,19 +74,19 @@ export async function filterProfileByVisibility<
         key === "updatedAt"
       ) {
         filteredFields[key] =
-          profileVisibility[key] === true
+          profile.profileVisibility[key] === true
             ? profile[key]
             : new Date("1970-01-01T00:00:00.000Z");
       }
       // Fields in Profile with type Boolean
       else if (key === "termsAccepted") {
         filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : true;
+          profile.profileVisibility[key] === true ? profile[key] : true;
       }
       // Fields in Profile with type Int
       else if (key === "score") {
         filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : 0;
+          profile.profileVisibility[key] === true ? profile[key] : 0;
       }
       // All other fields in Profile that are optional (String? or Relation?)
       else if (
@@ -129,7 +110,7 @@ export async function filterProfileByVisibility<
         key === "tiktok"
       ) {
         filteredFields[key] =
-          profileVisibility[key] === true ? profile[key] : null;
+          profile.profileVisibility[key] === true ? profile[key] : null;
       } else {
         console.error(
           `The ProfileVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
@@ -158,38 +139,19 @@ type OrganizationWithRelations = Organization & {
   abuseReports: any;
 };
 
-export async function filterOrganizationByVisibility<
-  T extends EntitySubset<OrganizationWithRelations, T>
+export function filterOrganizationByVisibility<
+  T extends EntitySubset<OrganizationWithRelations, T> &
+    Pick<OrganizationWithRelations, "organizationVisibility">
 >(organization: T) {
-  const organizationVisibility =
-    await prismaClient.organizationVisibility.findFirst({
-      where: {
-        organization: {
-          id: organization.id,
-        },
-      },
-    });
-
-  if (organizationVisibility === null) {
-    throw json(
-      { message: "Organization visibilities not found." },
-      { status: 404 }
-    );
-  }
-  for (const key in organization) {
-    if (!organizationVisibility.hasOwnProperty(key)) {
-      console.error(
-        `organization.${key} is not present in the organization visibilities.`
-      );
-    }
-  }
   const filteredFields: { [key: string]: any } = {};
-  for (const key in organizationVisibility) {
+  for (const key in organization.organizationVisibility) {
     if (key !== "id" && key !== "organizationId") {
       // Fields in Organization with type String
       if (key === "name" || key === "slug") {
         filteredFields[key] =
-          organizationVisibility[key] === true ? organization[key] : "";
+          organization.organizationVisibility[key] === true
+            ? organization[key]
+            : "";
       }
       // Fields in Organization with type []
       else if (
@@ -206,19 +168,23 @@ export async function filterOrganizationByVisibility<
         key === "responsibleForProject"
       ) {
         filteredFields[key] =
-          organizationVisibility[key] === true ? organization[key] : [];
+          organization.organizationVisibility[key] === true
+            ? organization[key]
+            : [];
       }
       // Fields in Organization with type DateTime
       else if (key === "createdAt" || key === "updatedAt") {
         filteredFields[key] =
-          organizationVisibility[key] === true
+          organization.organizationVisibility[key] === true
             ? organization[key]
             : new Date("1970-01-01T00:00:00.000Z");
       }
       // Fields in Organization with type Int
       else if (key === "score") {
         filteredFields[key] =
-          organizationVisibility[key] === true ? organization[key] : 0;
+          organization.organizationVisibility[key] === true
+            ? organization[key]
+            : 0;
       }
       // All other fields in Organization that are optional (String? or Relation?)
       else if (
@@ -247,7 +213,9 @@ export async function filterOrganizationByVisibility<
         key === "tiktok"
       ) {
         filteredFields[key] =
-          organizationVisibility[key] === true ? organization[key] : null;
+          organization.organizationVisibility[key] === true
+            ? organization[key]
+            : null;
       } else {
         console.error(
           `The OrganizationVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
@@ -284,35 +252,17 @@ type EventWithRelations = Event & {
   _count: any;
 };
 
-export async function filterEventByVisibility<
-  T extends EntitySubset<EventWithRelations, T>
+export function filterEventByVisibility<
+  T extends EntitySubset<EventWithRelations, T> &
+    Pick<EventWithRelations, "eventVisibility">
 >(event: T) {
-  const exceptions = ["_count"];
-
-  const eventVisibility = await prismaClient.eventVisibility.findFirst({
-    where: {
-      event: {
-        id: event.id,
-      },
-    },
-  });
-
-  if (eventVisibility === null) {
-    throw json({ message: "Event visibilities not found." }, { status: 404 });
-  }
-
-  for (const key in event) {
-    if (!exceptions.includes(key) && !eventVisibility.hasOwnProperty(key)) {
-      console.error(`event.${key} is not present in the event visibilities.`);
-    }
-  }
-
   const filteredFields: { [key: string]: any } = {};
-  for (const key in eventVisibility) {
+  for (const key in event.eventVisibility) {
     if (key !== "id" && key !== "eventId") {
       // Fields in Event with type String
       if (key === "name" || key === "slug") {
-        filteredFields[key] = eventVisibility[key] === true ? event[key] : "";
+        filteredFields[key] =
+          event.eventVisibility[key] === true ? event[key] : "";
       }
       // Fields in Event with type []
       else if (
@@ -332,7 +282,8 @@ export async function filterEventByVisibility<
         key === "abuseReports" ||
         key === "waitingList"
       ) {
-        filteredFields[key] = eventVisibility[key] === true ? event[key] : [];
+        filteredFields[key] =
+          event.eventVisibility[key] === true ? event[key] : [];
       }
       // Fields in Event with type DateTime
       else if (
@@ -344,13 +295,14 @@ export async function filterEventByVisibility<
         key === "participationFrom"
       ) {
         filteredFields[key] =
-          eventVisibility[key] === true
+          event.eventVisibility[key] === true
             ? event[key]
             : new Date("1970-01-01T00:00:00.000Z");
       }
       // Fields in Profile with type Boolean
       else if (key === "published" || key === "canceled") {
-        filteredFields[key] = eventVisibility[key] === true ? event[key] : true;
+        filteredFields[key] =
+          event.eventVisibility[key] === true ? event[key] : true;
       }
       // All other fields in Event that are optional (String?, Int?, Relation?, etc...)
       else if (
@@ -374,7 +326,8 @@ export async function filterEventByVisibility<
         key === "backgroundImageId" ||
         key === "stageId"
       ) {
-        filteredFields[key] = eventVisibility[key] === true ? event[key] : null;
+        filteredFields[key] =
+          event.eventVisibility[key] === true ? event[key] : null;
       } else {
         console.error(
           `The EventVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
@@ -408,34 +361,17 @@ type ProjectWithRelations = Project & {
   _count: any;
 };
 
-export async function filterProjectByVisibility<
-  T extends EntitySubset<ProjectWithRelations, T>
+export function filterProjectByVisibility<
+  T extends EntitySubset<ProjectWithRelations, T> &
+    Pick<ProjectWithRelations, "projectVisibility">
 >(project: T) {
-  const projectVisibility = await prismaClient.projectVisibility.findFirst({
-    where: {
-      project: {
-        id: project.id,
-      },
-    },
-  });
-
-  if (projectVisibility === null) {
-    throw json({ message: "Project visibilities not found." }, { status: 404 });
-  }
-  for (const key in project) {
-    if (!projectVisibility.hasOwnProperty(key)) {
-      console.error(
-        `project.${key} is not present in the project visibilities.`
-      );
-    }
-  }
   const filteredFields: { [key: string]: any } = {};
-  for (const key in projectVisibility) {
+  for (const key in project.projectVisibility) {
     if (key !== "id" && key !== "projectId") {
       // Fields in Project with type String
       if (key === "name" || key === "slug") {
         filteredFields[key] =
-          projectVisibility[key] === true ? project[key] : "";
+          project.projectVisibility[key] === true ? project[key] : "";
       }
       // Fields in Project with type []
       else if (
@@ -458,12 +394,12 @@ export async function filterProjectByVisibility<
         key === "teamMembers"
       ) {
         filteredFields[key] =
-          projectVisibility[key] === true ? project[key] : [];
+          project.projectVisibility[key] === true ? project[key] : [];
       }
       // Fields in Project with type DateTime
       else if (key === "createdAt" || key === "updatedAt") {
         filteredFields[key] =
-          projectVisibility[key] === true
+          project.projectVisibility[key] === true
             ? project[key]
             : new Date("1970-01-01T00:00:00.000Z");
       }
@@ -515,7 +451,7 @@ export async function filterProjectByVisibility<
         key === "city"
       ) {
         filteredFields[key] =
-          projectVisibility[key] === true ? project[key] : null;
+          project.projectVisibility[key] === true ? project[key] : null;
       } else {
         console.error(
           `The ProjectVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`

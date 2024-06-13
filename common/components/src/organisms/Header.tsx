@@ -33,15 +33,15 @@ export function Header(props: HeaderProps) {
   }
 
   return (
-    <div className="mv-relative mv-w-full mv-border mv-rounded-none md:mv-rounded-3xl mv-overflow-hidden">
-      <div className="mv-relative mv-w-full mv-aspect-[3/2] md:mv-aspect-[2/1] lg:mv-aspect-[31/10] mv-bg-attention-400">
+    <div className="mv-relative mv-w-full mv-border mv-rounded-none @md:mv-rounded-3xl mv-overflow-hidden">
+      <div className="mv-relative mv-w-full mv-aspect-[3/2] @md:mv-aspect-[2/1] @lg:mv-aspect-[31/10] mv-bg-attention-400">
         {image || null}
         {status !== undefined && (
           <div className="mv-absolute mv-top-0 mv-inset-x-0">{status}</div>
         )}
         {avatar !== undefined && (
-          <div className="mv-absolute mv-inset-x-0 mv--bottom-20 md:mv--bottom-[124px] mv-flex mv-flex-col mv-items-center">
-            <div className="mv-w-40 md:mv-w-[248px] mv-aspect-[1]">
+          <div className="mv-absolute mv-inset-x-0 -mv-bottom-20 @md:-mv-bottom-[124px] mv-flex mv-flex-col mv-items-center">
+            <div className="mv-w-40 @md:mv-w-[248px] mv-aspect-[1]">
               {avatar}
             </div>
           </div>
@@ -54,9 +54,9 @@ export function Header(props: HeaderProps) {
         <div
           className={`${
             avatar !== undefined
-              ? "mv-mt-24 md:mv-mt-[140px]"
-              : "mv-mt-2 md:mv-mt-4"
-          } mv-mb-2 md:mv-mb-4`}
+              ? "mv-mt-24 @md:mv-mt-[140px]"
+              : "mv-mt-2 @md:mv-mt-4"
+          } mv-mb-2 @md:mv-mb-4`}
         >
           {body}
         </div>
@@ -88,9 +88,9 @@ function Body(props: BodyProps) {
   });
 
   return (
-    <div className="mv-flex mv-flex-col mv-items-center mv-gap-2 mv-w-full mv-mb-6 md:mv-mb-8 mv-px-4 md:mv-px-8 mv-text-center">
+    <div className="mv-flex mv-flex-col mv-items-center mv-gap-2 mv-w-full mv-mb-6 @md:mv-mb-8 mv-px-4 @md:mv-px-8 mv-text-center">
       {controls !== undefined && (
-        <div className="mv-my-0 md:mv-my-2">{controls}</div>
+        <div className="mv-my-0 @md:mv-my-2">{controls}</div>
       )}
       {otherChilds}
     </div>
@@ -120,7 +120,7 @@ function Footer(props: FooterProps) {
 
   return (
     <div
-      className={`mv-flex mv-flex-col lg:mv-flex-row mv-gap-4 lg:mv-gap-0 mv-justify-end mv-w-full md:mv-border-t mv-p-6 ${
+      className={`mv-flex mv-flex-col @lg:mv-flex-row mv-gap-4 @lg:mv-gap-0 mv-justify-end mv-w-full @md:mv-border-t mv-p-6 ${
         otherChilds.length > 0 ? "mv-bg-accent-300" : ""
       }`}
     >
@@ -130,7 +130,7 @@ function Footer(props: FooterProps) {
         </div>
       )}
       {controls !== undefined && (
-        <div className="mv-flex mv-shrink mv-w-full lg:mv-w-auto mv-items-center mv-justify-center lg:mv-justify-end">
+        <div className="mv-flex mv-shrink mv-w-full @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
           {controls}
         </div>
       )}
