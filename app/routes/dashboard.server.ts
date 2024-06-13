@@ -94,3 +94,36 @@ export async function getOrganizationsForCards(take: number) {
 
   return profiles;
 }
+
+export async function getProjectsForCards(take: number) {
+  const projects = await prismaClient.project.findMany({
+    select: {
+      slug: true,
+      name: true,
+      logo: true,
+      subline: true,
+      excerpt: true,
+      background: true,
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              slug: true,
+              logo: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          organization: {
+            updatedAt: "asc",
+          },
+        },
+      },
+    },
+    take,
+    orderBy: { createdAt: "desc" },
+  });
+
+  return projects;
+}
