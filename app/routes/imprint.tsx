@@ -15,8 +15,8 @@ export default function Imprint() {
       <ul className="mb-4">
         {t("project.members")
           .split(";")
-          .map((s: string) => (
-            <li>- {s.trim()}</li>
+          .map((s: string, index) => (
+            <li key={index}>- {s.trim()}</li>
           ))}
       </ul>
       <p className="mb-2">{t("serviceProvider.intro")}</p>
