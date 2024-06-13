@@ -669,7 +669,7 @@ function Opener(props: { openNavBarMenuKey: string }) {
   }
 
   return (
-    <Link to={`?${searchParams.toString()}`}>
+    <Link to={`?${searchParams.toString()}`} preventScrollReset>
       <Icon type="menu" />
     </Link>
   );
@@ -683,6 +683,7 @@ function Closer(props: { openNavBarMenuKey: string }) {
   return (
     <Link
       to={`${searchParamsString.length > 0 ? `?${searchParamsString}` : "."}`}
+      preventScrollReset
     >
       <Icon type="close-x" />
     </Link>
