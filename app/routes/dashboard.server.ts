@@ -1,3 +1,4 @@
+import { type User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 
 export async function getProfileById(id: string) {
@@ -126,4 +127,138 @@ export async function getProjectsForCards(take: number) {
   });
 
   return projects;
+}
+
+export async function getEventsForCards(take: number) {
+  const events = await prismaClient.event.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      parentEventId: true,
+      startTime: true,
+      endTime: true,
+      participationUntil: true,
+      participationFrom: true,
+      participantLimit: true,
+      background: true,
+      published: true,
+      stage: {
+        select: {
+          title: true,
+          slug: true,
+        },
+      },
+      canceled: true,
+      subline: true,
+      description: true,
+      _count: {
+        select: {
+          childEvents: true,
+          participants: true,
+          responsibleOrganizations: true,
+          waitingList: true,
+        },
+      },
+      responsibleOrganizations: {
+        select: {
+          organization: {
+            select: {
+              slug: true,
+              name: true,
+              logo: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      published: true,
+      endTime: { gte: new Date() },
+    },
+    take,
+    orderBy: { startTime: "asc" },
+  });
+
+  return events;
+}
+
+export async function enhanceEventsWithParticipationStatus(
+  sessionUser: User | null,
+  events: Awaited<ReturnType<typeof getEventsForCards>>
+) {
+  if (sessionUser === null) {
+    const enhancedEvents = events.map((item) => {
+      const isParticipant = false;
+      const isOnWaitingList = false;
+      const isSpeaker = false;
+      const isTeamMember = false;
+
+      return {
+        ...item,
+        isParticipant,
+        isOnWaitingList,
+        isSpeaker,
+        isTeamMember,
+      };
+    });
+    return enhancedEvents;
+  } else {
+    const eventIdsWhereParticipant = (
+      await prismaClient.participantOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereOnWaitingList = (
+      await prismaClient.waitingParticipantOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereSpeaker = (
+      await prismaClient.speakerOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+    const eventIdsWhereTeamMember = (
+      await prismaClient.teamMemberOfEvent.findMany({
+        where: {
+          profileId: sessionUser.id,
+        },
+        select: {
+          eventId: true,
+        },
+      })
+    ).map((event) => event.eventId);
+
+    const enhancedEvents = events.map((item) => {
+      const isParticipant = eventIdsWhereParticipant.includes(item.id);
+      const isOnWaitingList = eventIdsWhereOnWaitingList.includes(item.id);
+      const isSpeaker = eventIdsWhereSpeaker.includes(item.id);
+      const isTeamMember = eventIdsWhereTeamMember.includes(item.id);
+
+      return {
+        ...item,
+        isParticipant,
+        isOnWaitingList,
+        isSpeaker,
+        isTeamMember,
+      };
+    });
+    return enhancedEvents;
+  }
 }

@@ -10,6 +10,8 @@
     "allProfiles": "All profiles",
     "organizations": "Organizations",
     "allOrganizations": "All organizations",
+    "events": "Events",
+    "allEvents": "All events",
     "projects": "Projects",
     "allProjects": "All projects"
   }
