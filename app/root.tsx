@@ -749,7 +749,7 @@ export default function App() {
             <Footer isSettings={isProjectSettings} />
           ) : null}
         </div>
-        {abilities.abuse_report.hasAccess && <Modal.Root />}
+        <Modal.Root />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
