@@ -281,7 +281,7 @@ export function DropdownLabel(
   return (
     <label
       ref={ref}
-      className="mv-peer mv-group mv-w-full lg:mv-w-fit lg:mv-min-w-content mv-inline-flex lg:mv-flex mv-justify-between mv-items-center mv-gap-3 mv-cursor-pointer mv-p-6 lg:mv-px-4 lg:mv-py-2.5 lg:mv-rounded-lg lg:mv-border lg:mv-border-gray-100 mv-font-semibold mv-text-gray-700 hover:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-bg-gray-100 mv-transition"
+      className="mv-peer mv-group mv-w-full @lg:mv-w-fit @lg:mv-min-w-content mv-inline-flex @lg:mv-flex mv-justify-between mv-items-center mv-gap-3 mv-cursor-pointer mv-p-6 @lg:mv-px-4 @lg:mv-py-2.5 @lg:mv-rounded-lg @lg:mv-border @lg:mv-border-gray-100 mv-font-semibold mv-text-gray-700 hover:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-bg-gray-100 mv-transition"
     >
       <span>{props.children}</span>
       <input
@@ -334,7 +334,7 @@ export const DropdownList = React.forwardRef<
   const orientation = props.orientation || "left";
 
   const classes = classNames(
-    "lg:mv-w-72 lg:mv-h-fit lg:mv-max-h-72 mv-overflow-auto lg:mv-absolute lg:mv-top-[calc(100%+0.5rem)] mv-py-2 lg:mv-rounded-lg lg:mv-shadow-xl mv-hidden peer-has-[:checked]:mv-block peer-has-[:checked]:mv-z-10 mv-bg-white",
+    "@lg:mv-w-72 @lg:mv-h-fit @lg:mv-max-h-72 mv-overflow-auto @lg:mv-absolute @lg:mv-top-[calc(100%+0.5rem)] mv-py-2 @lg:mv-rounded-lg @lg:mv-shadow-xl mv-hidden peer-has-[:checked]:mv-block peer-has-[:checked]:mv-z-10 mv-bg-white",
     orientation === "left" && "mv-left-0",
     orientation === "right" && "mv-right-0"
   );
@@ -393,14 +393,14 @@ export function Dropdown(
 
   const classes = classNames(
     props.className,
-    "mv-relative mv-group/dropdown mv-w-full lg:mv-w-fit lg:mv-whitespace-nowrap"
+    "mv-relative mv-group/dropdown mv-w-full @lg:mv-w-fit @lg:mv-whitespace-nowrap"
   );
 
   return (
     <div className={classes}>
       {labelClone}
       {listClone}
-      <hr className="lg:mv-hidden mv-border-b mv-border-gray-200" />
+      <hr className="@lg:mv-hidden mv-border-b mv-border-gray-200" />
     </div>
   );
 }
@@ -416,7 +416,7 @@ export function ShowFiltersButton(
 ) {
   const { children, ...otherProps } = props;
   return (
-    <div className="lg:mv-hidden mv-text-center">
+    <div className="@lg:mv-hidden mv-text-center">
       <label className="mv-inline-flex mv-items-center mv-font-semibold mv-whitespace-nowrap mv-px-6 mv-py-2.5 mv-border mv-rounded-lg mv-border-primary-500 mv-gap-2 mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-cursor-pointer">
         {children}
         <svg
@@ -466,7 +466,7 @@ function ShowMoreButton(props: { showMore: string; showLess: string }) {
   const [checked, setChecked] = React.useState(false);
 
   return (
-    <label className="mv-hidden lg:mv-block mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-12 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
+    <label className="mv-hidden @lg:mv-block mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-12 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
       <input
         type="checkbox"
         className="mv-peer mv-h-0 mv-w-0 mv-opacity-0"
@@ -504,13 +504,13 @@ export function FiltersFieldset(
   const firstChildren = childrenArray.slice(0, 3);
   const restChildren = childrenArray.slice(3);
 
-  const classes = classNames(className, "mv-flex mv-flex-col lg:mv-flex-row");
+  const classes = classNames(className, "mv-flex mv-flex-col @lg:mv-flex-row");
 
   return (
     <fieldset {...otherProps} className={classes}>
       {firstChildren}
       <ShowMoreButton showMore={showMore} showLess={showLess} />
-      <div className="lg:mv-hidden lg:peer-has-[:checked]:mv-flex mv-gap-4 lg:mv-w-full">
+      <div className="@lg:mv-hidden @lg:peer-has-[:checked]:mv-flex mv-gap-4 @lg:mv-w-full">
         {restChildren}
       </div>
     </fieldset>
@@ -566,8 +566,8 @@ export function Filters(props: FiltersProps) {
   const location = useLocation();
 
   const filterClasses = classNames(
-    "mv-fixed mv-overflow-scroll lg:mv-overflow-visible lg:mv-relative mv-z-20 lg:mv-z-10 mv-bg-white mv-w-full mv-h-dvh lg:mv-h-fit mv-left-0 mv-bottom-0 lg:mv-justify-between mv-flex mv-flex-col lg:mv-flex-row",
-    showFilters === true ? "mv-flex" : "mv-hidden lg:mv-flex"
+    "mv-fixed mv-overflow-scroll @lg:mv-overflow-visible @lg:mv-relative mv-z-20 @lg:mv-z-10 mv-bg-white mv-w-full mv-h-dvh @lg:mv-h-fit mv-left-0 mv-top-0 @lg:mv-justify-between mv-flex mv-flex-col @lg:mv-flex-row",
+    showFilters === true ? "mv-flex" : "mv-hidden @lg:mv-flex"
   );
 
   const children = React.Children.toArray(props.children);
@@ -591,12 +591,12 @@ export function Filters(props: FiltersProps) {
   return (
     <>
       <div className={filterClasses}>
-        <div className="mv-flex mv-justify-between mv-items-center mv-px-4 mv-pt-8 mv-pb-4 mv-shadow-lg lg:mv-hidden">
-          <h2 className="mv-mb-0 -mv-mr-[33px] mv-w-full lg:mv-hidden mv-text-center mv-text-gray-700 mv-text-base">
+        <div className="mv-flex mv-justify-between mv-items-center mv-px-4 mv-pt-8 mv-pb-4 mv-shadow-lg @lg:mv-hidden">
+          <h2 className="mv-mb-0 -mv-mr-[33px] mv-w-full @lg:mv-hidden mv-text-center mv-text-gray-700 mv-text-base">
             {title}
           </h2>
           <Link
-            className="lg:mv-hidden"
+            className="@lg:mv-hidden"
             to={`./${location.search
               .replace("showFilters=on", "")
               .replace("&&", "&")
@@ -618,10 +618,10 @@ export function Filters(props: FiltersProps) {
             </svg>
           </Link>
         </div>
-        <div className="mv-flex mv-flex-col-reverse mv-grow lg:mv-flex-row lg:mv-justify-between">
+        <div className="mv-flex mv-flex-col-reverse mv-grow @lg:mv-flex-row @lg:mv-justify-between">
           {fieldSets}
         </div>
-        <div className="mv-p-5 mv-max-h-full mv-flex mv-flex-col md:mv-flex-row mv-justify-between mv-gap-2 mv-border-t mv-border-gray lg:mv-hidden">
+        <div className="mv-p-5 mv-max-h-full mv-flex mv-flex-col @md:mv-flex-row mv-justify-between mv-gap-2 mv-border-t mv-border-gray @lg:mv-hidden">
           {resetButton}
           {applyButton}
         </div>

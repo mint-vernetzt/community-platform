@@ -10,7 +10,7 @@ function HeaderLogo(props: HeaderLogoProps) {
         viewBox="0 0 56 56"
         aria-describedby="mint-title-header"
         role="img"
-        className="w-10 h-10 md:w-auto md:h-auto"
+        className="w-10 h-10 @md:mv-w-auto @md:mv-h-auto"
       >
         <title id="mint-title-header">Logo: mint vernetzt</title>
         <g fill="none">

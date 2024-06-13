@@ -202,6 +202,11 @@ async function main(
     numberOfStandardEntities
   );
 
+  await executeCommand("npx", [
+    "tsx",
+    "prisma/scripts/create-filter-vectors/index.ts",
+  ]);
+
   console.log("\n--- Seeding finished ---\n");
   console.log("\n--- User list ---\n");
   for (let email of profileEmails) {

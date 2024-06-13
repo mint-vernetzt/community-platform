@@ -51,6 +51,7 @@
     "@sentry/remix": "^7.100.1",
     "@supabase/ssr": "^0.0.10",
     "@supabase/supabase-js": "^2.39.1",
+    "@tailwindcss/container-queries": "^0.1.1",
     "classnames": "^2.3.2",
     "commander": "^11.1.0",
     "date-fns": "^2.30.0",

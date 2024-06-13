@@ -86,7 +86,7 @@ function Index() {
         {t("content.current.headline")}
       </h4>
       <p className="mb-8">{t("content.current.intro")} </p>
-      <div className="mb-4 md:max-h-[630px] overflow-auto">
+      <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
         {loaderData.networkMembers.map((member) => {
           return (
             <NetworkMemberRemoveForm

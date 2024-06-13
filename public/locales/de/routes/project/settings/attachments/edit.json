@@ -2,19 +2,5 @@
   "error": {
     "invalidRoute": "No valid route",
     "invalidParameters": "Wrong or missing parameters"
-  },
-  "content": {
-    "editDocument": "Dokument editieren",
-    "editImage": "Fotoinformation editieren",
-    "credits": {
-      "label": "Credits",
-      "helper": "Bitte nenne hier den oder die Urheber:in des Bildes"
-    },
-    "description": {
-      "label": "Beschreibung",
-      "helper": "Hilf blinden Menschen mit Deiner Bildbeschreibung zu verstehen, was auf dem Bild zu sehen ist."
-    },
-    "submit": "Speichern",
-    "reset": "Verwerfen"
   }
 }

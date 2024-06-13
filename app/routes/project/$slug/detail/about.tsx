@@ -235,11 +235,11 @@ function About() {
 
   return (
     <>
-      <h1 className="mv-text-primary md:mv-font-bold lg:mv-font-black mv-text-5xl lg:mv-text-7xl mb-0">
+      <h1 className="mv-text-primary @md:mv-font-bold @lg:mv-font-black mv-text-5xl @lg:mv-text-7xl mb-0">
         {loaderData.project.name}
       </h1>
       {loaderData.project.excerpt !== null && (
-        <p className="mv-font-semibold mv-text-lg lg:mv-text-2xl mv-text-neutral-700">
+        <p className="mv-font-semibold mv-text-lg @lg:mv-text-2xl mv-text-neutral-700 mv-text-wrap">
           {loaderData.project.excerpt}
         </p>
       )}
@@ -376,7 +376,7 @@ function About() {
         loaderData.project.targeting !== null ||
         loaderData.project.hints !== null) && (
         <>
-          <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             {t("content.furtherDescription")}
           </h2>
           {/* only further description */}
@@ -471,7 +471,7 @@ function About() {
       )}
       {loaderData.project.teamMembers.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-2">
-          <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             {t("content.team")}
           </h2>
           <List maxColumns={2}>
@@ -502,7 +502,7 @@ function About() {
       )}
       {loaderData.project.responsibleOrganizations.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-2">
-          <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             {t("content.responsibleOrganizations")}
           </h2>
           <List maxColumns={2}>
@@ -538,7 +538,7 @@ function About() {
           </List>
         </div>
       )}
-      <div className="mv-flex mv-flex-col md:mv-flex-row mv-gap-8 md:mv-gap-4 mv-items-center mv-bg-primary-50 mv-p-4 md:mv-p-8 mv-rounded-xl">
+      <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-8 @md:mv-gap-4 mv-items-center mv-bg-primary-50 mv-p-4 @md:mv-p-8 mv-rounded-xl">
         <div className="mv-flex mv-flex-col mv-items-center mv-gap-4">
           <div className="mv-w-64 mv-aspect-[1]">
             <AvatarIcon

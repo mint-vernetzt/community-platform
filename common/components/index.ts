@@ -43,6 +43,7 @@ export {
   ProfileCard,
   ProjectCard,
 } from "./src/organisms/cards";
+export { LocaleSwitch } from "./src/organisms/buttons";
 export {
   CardContainer,
   Section,

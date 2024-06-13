@@ -62,10 +62,6 @@ const emailEnvironmentSchema = z.object({
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/profile/settings/security",
-  ]);
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
@@ -223,7 +219,6 @@ export default function Security() {
           </h4>
 
           <p className="mb-8">{t("section.changePassword2.intro")}</p>
-          <input type="hidden" name="action" value="changePassword" />
 
           <RemixFormsForm method="post" schema={passwordSchema}>
             {({ Field, Button, Errors, register }) => (
@@ -260,7 +255,7 @@ export default function Security() {
                     <>
                       <input
                         type="hidden"
-                        value="changePassword"
+                        defaultValue="changePassword"
                         {...register("submittedForm")}
                       ></input>
                       <Errors />
@@ -284,7 +279,7 @@ export default function Security() {
               </>
             )}
           </RemixFormsForm>
-          <hr className="border-neutral-400 my-10 lg:my-16" />
+          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
           <h4 className="mb-4 font-semibold">
             {t("section.changeEmail.headline")}
@@ -325,7 +320,7 @@ export default function Security() {
                     <>
                       <input
                         type="hidden"
-                        value="changeEmail"
+                        defaultValue="changeEmail"
                         {...register("submittedForm")}
                       ></input>
                       <Errors />

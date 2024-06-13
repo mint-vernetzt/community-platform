@@ -313,8 +313,8 @@ export default function Index() {
 
             <p className="mb-8">{t("general.intro")}</p>
 
-            <div className="flex flex-col md:flex-row -mx-4">
-              <div className="basis-full md:basis-6/12 px-4 mb-4">
+            <div className="flex flex-col @md:mv-flex-row -mx-4">
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
                 <SelectField
                   {...register("academicTitle")}
                   label={t("general.form.title.label")}
@@ -337,7 +337,7 @@ export default function Index() {
                   defaultValue={profile.academicTitle || ""}
                 />
               </div>
-              <div className="basis-full md:basis-6/12 px-4 mb-4">
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
                 <InputText
                   {...register("position")}
                   id="position"
@@ -349,8 +349,8 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row -mx-4">
-              <div className="basis-full md:basis-6/12 px-4 mb-4">
+            <div className="flex flex-col @md:mv-flex-row -mx-4">
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
                 <InputText
                   {...register("firstName")}
                   id="firstName"
@@ -361,7 +361,7 @@ export default function Index() {
                   errorMessage={errors?.firstName?.message}
                 />
               </div>
-              <div className="basis-full md:basis-6/12 px-4 mb-4">
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
                 <InputText
                   {...register("lastName")}
                   id="lastName"
@@ -374,8 +374,8 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row -mx-4">
-              <div className="basis-full md:basis-6/12 px-4 mb-4">
+            <div className="flex flex-col @md:mv-flex-row -mx-4">
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
                 <InputText
                   {...register("email")}
                   type="text"
@@ -387,7 +387,7 @@ export default function Index() {
                   errorMessage={errors?.email?.message}
                 />
               </div>
-              <div className="basis-full md:basis-6/12 px-4 mb-4">
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
                 <InputText
                   {...register("phone")}
                   id="phone"
@@ -399,7 +399,7 @@ export default function Index() {
               </div>
             </div>
 
-            <hr className="border-neutral-400 my-10 lg:my-16" />
+            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
             <div className="flex flex-row items-center mb-4">
               <h4 className="font-semibold">{t("aboutMe.headline")}</h4>
@@ -459,7 +459,7 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 lg:my-16" />
+            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
             <h4 className="mb-4 font-semibold">{t("offer.headline")}</h4>
 
             <p className="mb-8">{t("offer.intro")}</p>
@@ -481,7 +481,7 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 lg:my-16" />
+            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
             <h4 className="mb-4 font-semibold">{t("lookingFor.headline")}</h4>
 
@@ -504,7 +504,7 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 lg:my-16" />
+            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
             <h2 className="mb-8">{t("websiteSocialMedia.headline")}</h2>
 
@@ -529,7 +529,7 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 lg:my-16" />
+            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
             <h4 className="mb-4 font-semibold">
               {t("websiteSocialMedia.socialMedia.headline")}
@@ -552,7 +552,7 @@ export default function Index() {
               </div>
             ))}
 
-            <hr className="border-neutral-400 my-10 lg:my-16" />
+            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
             <div className="flex flex-row items-center mb-4">
               <h4 className="font-semibold">{t("network.headline")}</h4>
@@ -567,8 +567,8 @@ export default function Index() {
               <Trans i18nKey="network.intro" ns={i18nNS} />
             </p>
 
-            <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
-              <div className="container">
+            <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 @md:mv-pb-0">
+              <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
                 <div className="flex flex-row flex-nowrap items-center justify-end my-4">
                   <div
                     className={`text-green-500 text-bold ${

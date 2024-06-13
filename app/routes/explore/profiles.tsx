@@ -323,14 +323,14 @@ export default function ExploreProfiles() {
 
   return (
     <>
-      <section className="mv-container mv-mb-12 mv-mt-5 md:mv-mt-7 lg:mv-mt-8 mv-text-center">
-        <H1 className="mv-mb-4 md:mv-mb-2 lg:mv-mb-3" like="h0">
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
+        <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
           {t("headline")}
         </H1>
         <p>{t("intro")}</p>
       </section>
 
-      <section className="mv-container mv-mb-4">
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mv-mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -352,13 +352,13 @@ export default function ExploreProfiles() {
             <Filters.Title>{t("filter.title")}</Filters.Title>
 
             <Filters.Fieldset
-              className="mv-flex mv-flex-wrap lg:mv-gap-4"
+              className="mv-flex mv-flex-wrap @lg:mv-gap-4"
               {...getFieldsetProps(fields.filter)}
             >
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.offers")}
-                  <span className="mv-font-normal lg:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedOffers
                       .map((offer) => {
@@ -399,7 +399,7 @@ export default function ExploreProfiles() {
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.areas")}
-                  <span className="mv-font-normal lg:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedAreas
                       .map((area) => {
@@ -564,11 +564,11 @@ export default function ExploreProfiles() {
             <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
-                  <span className="lg:mv-hidden">
+                  <span className="@lg:mv-hidden">
                     {t("filter.sortBy.label")}
                     <br />
                   </span>
-                  <span className="mv-font-normal lg:mv-font-semibold">
+                  <span className="mv-font-normal @lg:mv-font-semibold">
                     {t(
                       `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
                     )}
@@ -616,14 +616,14 @@ export default function ExploreProfiles() {
           </noscript>
         </Form>
       </section>
-      <div className="mv-container mv-mb-4">
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mv-mb-4">
         <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
       </div>
-      <section className="container mb-6">
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mb-6">
         {(loaderData.selectedOffers.length > 0 ||
           loaderData.selectedAreas.length > 0) && (
           <div className="mv-flex mv-flex-col">
-            <div className="mv-overflow-scroll lg:mv-overflow-auto mv-flex mv-flex-nowrap lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
+            <div className="mv-overflow-scroll @lg:mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
@@ -686,10 +686,10 @@ export default function ExploreProfiles() {
         )}
       </section>
 
-      <section className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl">
+      <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-sm @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
         {loaderData.filteredByVisibilityCount !== undefined &&
         loaderData.filteredByVisibilityCount > 0 ? (
-          <p className="text-center text-gray-700 mb-4 mv-mx-4 md:mv-mx-0">
+          <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
             {t("notShown", { count: loaderData.filteredByVisibilityCount })}
           </p>
         ) : loaderData.profilesCount > 0 ? (
@@ -714,7 +714,7 @@ export default function ExploreProfiles() {
               })}
             </CardContainer>
             {loaderData.profilesCount > loaderData.profiles.length && (
-              <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
+              <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
                 <Link
                   to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
                   preventScrollReset

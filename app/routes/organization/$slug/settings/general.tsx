@@ -374,8 +374,8 @@ function Index() {
               errorMessage={errors?.name?.message}
             />
           </div>
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("email")}
                 id="email"
@@ -385,7 +385,7 @@ function Index() {
                 isPublic={organizationVisibilities.email}
               />
             </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("phone")}
                 id="phone"
@@ -399,8 +399,8 @@ function Index() {
           <h4 className="mb-4 font-semibold">
             {t("content.address.headline")}
           </h4>
-          <div className="flex flex-col md:flex-row -mx-4">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col @md:mv-flex-row -mx-4">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("street")}
                 id="street"
@@ -410,7 +410,7 @@ function Index() {
                 isPublic={organizationVisibilities.street}
               />
             </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("streetNumber")}
                 id="streetNumber"
@@ -421,8 +421,8 @@ function Index() {
               />
             </div>
           </div>
-          <div className="flex flex-col md:flex-row -mx-4 mb-2">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("zipCode")}
                 id="zipCode"
@@ -432,7 +432,7 @@ function Index() {
                 isPublic={organizationVisibilities.zipCode}
               />
             </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("city")}
                 id="city"
@@ -444,7 +444,7 @@ function Index() {
             </div>
           </div>
 
-          <hr className="border-neutral-400 my-10 lg:my-16" />
+          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
           <h4 className="font-semibold mb-4">{t("content.about.headline")}</h4>
 
@@ -529,8 +529,8 @@ function Index() {
               maxCharacters={300}
             />
           </div>
-          <div className="flex flex-col md:flex-row -mx-4 mb-2 w-full">
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2 w-full">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("quoteAuthor")}
                 id="quoteAuthor"
@@ -540,7 +540,7 @@ function Index() {
                 isPublic={organizationVisibilities.quoteAuthor}
               />
             </div>
-            <div className="basis-full md:basis-6/12 px-4 mb-6">
+            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("quoteAuthorInformation")}
                 id="quoteAuthorInformation"
@@ -552,7 +552,7 @@ function Index() {
             </div>
           </div>
 
-          <hr className="border-neutral-400 my-10 lg:my-16" />
+          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
           <h2 className="mb-8">{t("content.websiteAndSocial.headline")}</h2>
 
@@ -575,7 +575,7 @@ function Index() {
             />
           </div>
 
-          <hr className="border-neutral-400 my-10 lg:my-16" />
+          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
           <h4 className="mb-4 font-semibold">
             {t("content.websiteAndSocial.social.headline")}
@@ -598,8 +598,8 @@ function Index() {
             </div>
           ))}
 
-          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
-            <div className="container">
+          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 @md:mv-pb-0">
+            <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
               <div className="flex flex-row flex-nowrap items-center justify-end my-4">
                 <div
                   className={`text-green-500 text-bold ${

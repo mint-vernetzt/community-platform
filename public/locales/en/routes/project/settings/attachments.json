@@ -17,6 +17,21 @@
     "onStoring": "Error on storing document"
   },
   "content": {
+    "editModal": {
+      "editDocument": "Edit document",
+      "editImage": "Edit image",
+      "title": "Title",
+      "credits": {
+        "label": "Credits",
+        "helper": "Please name the creator of the image here"
+      },
+      "description": {
+        "label": "Description",
+        "helper": "Help blind people understand what is in the picture with your picture description."
+      },
+      "submit": "Save",
+      "reset": "Discard"
+    },
     "back": "Manage documents",
     "description": "Add or remove materials such as flyers, images or checklists from your project.",
     "document": {

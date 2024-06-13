@@ -1,15 +1,15 @@
 /**
  * @vitest-environment jsdom
  */
-import { beforeAll, expect, test, vi } from "vitest";
-import { prismaClient } from "~/__mocks__/prisma.server";
-import { consoleError } from "./../../tests/setup/setup-test-env";
-import { createServerClient } from "~/__mocks__/auth.server";
 import { createRemixStub } from "@remix-run/testing";
-import { default as LandingPageRoute, loader } from "./index";
 import { render, screen } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
+import { expect, test, vi } from "vitest";
+import { createServerClient } from "~/__mocks__/auth.server";
+import { prismaClient } from "~/__mocks__/prisma.server";
 import i18n from "./../../tests/i18n-for-tests";
+import { consoleError } from "./../../tests/setup/setup-test-env";
+import { default as LandingPageRoute, loader } from "./index";
 
 /* 
 
@@ -47,10 +47,6 @@ Functional tests:
 */
 
 vi.mock("~/prisma.server");
-
-beforeAll(() => {
-  process.env.FEATURE_FLAGS = "keycloak: some-profile-id";
-});
 
 test("Landing page is rendered without errors", async () => {
   createServerClient.auth.getSession.mockResolvedValue({

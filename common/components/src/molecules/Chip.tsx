@@ -38,7 +38,7 @@ function Chip(props: ChipProps) {
     !disabled && interactive && "mv-cursor-pointer",
     "mv-flex mv-gap-2 mv-items-center",
     "mv-border mv-rounded-lg mv-font-semibold mv-w-fit mv-max-w-full mv-h-fit mv-text-left mv-text-ellipsis mv-whitespace-nowrap mv-overflow-hidden mv-shrink-0",
-    props.responsive && "md:mv-px-4 md:mv-py-2 md:mv-text-base",
+    props.responsive && "@md:mv-px-4 @md:mv-py-2 @md:mv-text-base",
     size === "small" && "mv-text-xs mv-py-1.5 mv-px-3",
     size === "medium" && "mv-text-base mv-py-2 mv-px-4"
   );
@@ -107,7 +107,9 @@ export function ChipDelete(
 
   const classes = classNames(
     "mv-rounded-full hover:mv-bg-white -mv-my-2",
-    typeof props.responsive !== "undefined" && props.responsive && "md:mv-my-0",
+    typeof props.responsive !== "undefined" &&
+      props.responsive &&
+      "@md:mv-my-0",
     !disabled &&
       interactive &&
       color === "primary" &&

@@ -167,13 +167,13 @@ function Admins() {
       <p className="mb-8">
         {t("content.current.intro", { count: loaderData.admins.length })}{" "}
       </p>
-      <div className="mb-4 md:max-h-[630px] overflow-auto">
+      <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
         {loaderData.admins.map((admin) => {
           const initials = getInitials(admin);
           return (
             <div
               key={`team-member-${admin.id}`}
-              className="w-full flex items-center flex-row flex-wrap sm:flex-nowrap border-b border-neutral-400 py-4 md:px-4"
+              className="w-full flex items-center flex-row flex-wrap @sm:mv-flex-nowrap border-b border-neutral-400 py-4 @md:mv-px-4"
             >
               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                 {admin.avatar !== null && admin.avatar !== "" ? (
@@ -197,7 +197,7 @@ function Admins() {
                   </p>
                 ) : null}
               </div>
-              <div className="flex-100 sm:flex-auto sm:ml-auto flex items-center flex-row pt-4 sm:pt-0 justify-end">
+              <div className="flex-100 @sm:mv-flex-auto @sm:mv-ml-auto flex items-center flex-row pt-4 @sm:mv-pt-0 justify-end">
                 <RemixFormsForm
                   schema={removeAdminSchema}
                   fetcher={removeAdminFetcher}
