@@ -11,6 +11,7 @@ import type { Organization, Profile } from "@prisma/client";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { utcToZonedTime } from "date-fns-tz";
 import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
@@ -26,7 +27,12 @@ import {
   getProfilesForCards,
   getProjectsForCards,
 } from "./dashboard.server";
-import { utcToZonedTime } from "date-fns-tz";
+import {
+  getEventCount,
+  getOrganizationCount,
+  getProfileCount,
+  getProjectCount,
+} from "./utils.server";
 
 const i18nNS = ["routes/dashboard"];
 export const handle = {
@@ -293,7 +299,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
   });
 
+  const communityCounter = {
+    profiles: await getProfileCount(),
+    organizations: await getOrganizationCount(),
+    events: await getEventCount(),
+    projects: await getProjectCount(),
+  };
+
   return json({
+    communityCounter,
     profiles,
     organizations,
     events,
@@ -310,7 +324,7 @@ function Dashboard() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-my-8 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
         <div className="mv-px-4 @xl:mv-px-6">
           <h1 className="mv-text-primary mv-font-black mv-text-5xl @lg:mv-text-7xl mv-leading-tight mv-mb-2">
             {t("content.welcome")}
@@ -327,6 +341,30 @@ function Dashboard() {
               {t("content.myProfile")}
             </Button>
           </p>
+        </div>
+      </section>
+      <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+        <div className="mv-flex mv-flex-col mv-w-full mv-items-center mv-gap-6 mv-py-6 mv-bg-gray-50 mv-border mv-border-neutral-200 mv-rounded-lg">
+          <h2 className="mv-appearance-none mv-w-full mv-text-primary mv-text-center mv-text-3xl mv-font-semibold mv-leading-7 @lg:mv-leading-8 mv-tracking-tight mv-px-11 @lg:mv-px-6">
+            {t("content.communityCounter.headline")}
+          </h2>
+          <ul className="mv-grid mv-grid-cols-2 mv-grid-rows-2 mv-place-items-center mv-w-fit mv-gap-x-6 mv-gap-y-8 mv-px-6 @lg:mv-gap-x-16 @lg:mv-grid-cols-4 @lg:mv-grid-rows-1">
+            {Object.entries(loaderData.communityCounter).map(([key, value]) => {
+              return (
+                <li
+                  key={key}
+                  className="mv-grid mv-grid-cols-1 mv-grid-rows-2 mv-place-items-center mv-gap-2"
+                >
+                  <div className="mv-text-5xl mv-font-bold mv-leading-10 mv-tracking-tighter mv-text-primary">
+                    {value}
+                  </div>
+                  <div className="mv-text-lg mv-font-bold mv-leading-6 mv-tracking-tight mv-text-primary">
+                    {t(`content.communityCounter.${key}`)}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </section>
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
@@ -399,7 +437,7 @@ function Dashboard() {
           </CardContainer>
         </div>
       </section>
-      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+      <section className="mv-w-full mv-mx-auto @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {t("content.events")}

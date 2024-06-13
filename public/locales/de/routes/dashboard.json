@@ -6,6 +6,13 @@
     "welcome": "Willkommen,",
     "community": "in Deiner MINTvernetzt-Community!",
     "myProfile": "Mein Profil besuchen",
+    "communityCounter": {
+      "headline": "WIE UNSERE COMMUNITY WÄCHST",
+      "profiles": "Profile",
+      "organizations": "Organisationen",
+      "events": "Veranstaltungen",
+      "projects": "Projekte"
+    },
     "profiles": "Profile",
     "allProfiles": "Alle Profile",
     "organizations": "Organisationen",

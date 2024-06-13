@@ -6,6 +6,13 @@
     "welcome": "Welcome,",
     "community": "to your MINTvernetzt Community!",
     "myProfile": "View my profile",
+    "communityCounter": {
+      "headline": "HOW OUR COMMUNITY IS GROWING",
+      "profiles": "Profiles",
+      "organizations": "Organizations",
+      "events": "Events",
+      "projects": "Projects"
+    },
     "profiles": "Profiles",
     "allProfiles": "All profiles",
     "organizations": "Organizations",
