@@ -405,9 +405,9 @@ function NavBarMenu(
               <LocaleSwitch variant="dark" />
             </div>
 
-            {/* TODO: Implement this when /next/help route is implemented */}
+            {/* TODO: Implement this when Help route is implemented */}
             {/* <Item
-              to="/next/help"
+              to=""
               openNavBarMenuKey={props.openNavBarMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
