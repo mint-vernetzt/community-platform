@@ -26,12 +26,16 @@ function Avatar(props: AvatarProps) {
       "mv-h-[44px] mv-w-[44px]": size === "lg",
       "mv-h-[40px] mv-w-[40px]": size === "md",
       "mv-h-[36px] mv-w-[36px]": size === "sm",
+      "mv-h-[24px] mv-w-[24px]": size === "xs",
+      "mv-h-[20px] mv-w-[20px]": size === "xxs",
     },
     {
       "mv-text-[70px]": size === "xl" || textSize === "xl",
       "mv-text-[22px]": size === "lg" || textSize === "lg",
       "mv-text-[20px]": size === "md" || textSize === "md",
       "mv-text-[14px]": size === "sm" || textSize === "sm",
+      "mv-text-[10px]": size === "xs" || textSize === "xs",
+      "mv-text-[9px]": size === "xxs" || textSize === "xxs",
     },
     {
       "mv-border-2": size === "xl" || textSize === "xl",
@@ -39,9 +43,11 @@ function Avatar(props: AvatarProps) {
         size === "lg" ||
         size === "md" ||
         size === "sm" ||
+        size === "xs" ||
         textSize === "lg" ||
         textSize === "md" ||
-        textSize === "sm",
+        textSize === "sm" ||
+        textSize === "xs",
     },
     "mv-bg-primary mv-border-gray-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0",
     "mv-text-white mv-font-normal	mv-flex mv-items-center mv-justify-center",
@@ -127,9 +133,9 @@ export function AvatarList(props: AvatarListProps) {
   );
 }
 
-export type AvatarSize = "sm" | "md" | "lg" | "xl" | "full";
+export type AvatarSize = "xxs" | "xs" | "sm" | "md" | "lg" | "xl" | "full";
 
-export type TextSize = "sm" | "md" | "lg" | "xl";
+export type TextSize = "xxs" | "xs" | "sm" | "md" | "lg" | "xl";
 
 export type AvatarProps = {
   size?: AvatarSize;

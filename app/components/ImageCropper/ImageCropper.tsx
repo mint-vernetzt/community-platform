@@ -12,10 +12,11 @@ import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
 import { useTranslation } from "react-i18next";
 import { RemixFormsForm } from "../RemixFormsForm/RemixFormsForm";
+import { Form, SubmitFunction, useSubmit } from "@remix-run/react";
+import { Button } from "@mint-vernetzt/components";
 
 export interface ImageCropperProps {
   id: string;
-  headline: string;
   subject: Subject;
   slug?: string;
   uploadKey: UploadKey;
@@ -29,6 +30,7 @@ export interface ImageCropperProps {
   handleCancel?: () => void;
   children: React.ReactNode;
   circularCrop?: boolean;
+  modalSearchParam?: string;
 }
 
 /**
@@ -79,7 +81,6 @@ function ImageCropper(props: ImageCropperProps) {
 
   const {
     id,
-    headline,
     image,
     minCropWidth,
     minCropHeight,
@@ -146,43 +147,42 @@ function ImageCropper(props: ImageCropperProps) {
     setCompletedCrop(undefined);
   }
 
-  function closeModal() {
-    const $modalToggle = document.getElementById(
-      props.id
-      // TODO: can this type assertion be removed and proofen by code?
-    ) as HTMLInputElement | null;
-    if ($modalToggle) {
-      $modalToggle.checked = false;
-    }
-  }
-
   async function scaleDown(canvas: HTMLCanvasElement, width: number) {
     // TODO: can this type assertion be removed and proofen by code?
     const targetCanvas = document.createElement("canvas") as HTMLCanvasElement;
+    targetCanvas.className = "hidden";
     const canvasAspect = canvas.width / canvas.height;
     const isLandScape = canvas.width > canvas.height;
     targetCanvas.width = Math.ceil(width * (isLandScape ? 1 : canvasAspect));
     targetCanvas.height = Math.ceil(width / (!isLandScape ? 1 : canvasAspect));
 
     const pica = new Pica();
-    return await pica.resize(canvas, targetCanvas);
+    const result = await pica.resize(canvas, targetCanvas);
+    return result;
   }
 
-  async function handleSave(e: React.SyntheticEvent<HTMLButtonElement>) {
+  async function handleSave(
+    e: React.SyntheticEvent<HTMLButtonElement>,
+    submit: SubmitFunction
+  ) {
     e.preventDefault();
-    let canvas = previewCanvasRef.current;
+    const previewCanvas = previewCanvasRef.current;
+    let resultCanvas;
 
     try {
-      if (canvas) {
-        setIsSaving(true);
-
-        if (canvas.width > maxTargetWidth || canvas.height > maxTargetHeight) {
-          canvas = await scaleDown(canvas, maxTargetWidth);
+      if (previewCanvas) {
+        if (
+          previewCanvas.width > maxTargetWidth ||
+          previewCanvas.height > maxTargetHeight
+        ) {
+          resultCanvas = await scaleDown(previewCanvas, maxTargetWidth);
+        } else {
+          resultCanvas = previewCanvas;
         }
 
-        document.body.append(canvas);
+        // document.body.append(resultCanvas);
 
-        canvas.toBlob(
+        resultCanvas.toBlob(
           (blob) => {
             const formData = new FormData();
             formData.append(props.uploadKey, blob ?? "");
@@ -207,19 +207,15 @@ function ImageCropper(props: ImageCropperProps) {
                   );
                 }
               })
-              .then((response) => {
-                setIsSaving(false);
-                closeModal();
-                document.location.reload();
-              })
               .catch((err) => {
                 reset();
-                setIsSaving(false);
-                closeModal();
 
                 console.error({ err });
 
                 alert(t("imageCropper.error"));
+              })
+              .finally(() => {
+                submit(e.currentTarget, { preventScrollReset: true });
               });
           },
           IMAGE_MIME,
@@ -229,7 +225,6 @@ function ImageCropper(props: ImageCropperProps) {
     } catch (exception) {
       console.log({ exception });
       alert(t("imageCropper.error"));
-      setIsSaving(false);
     }
   }
 
@@ -245,9 +240,10 @@ function ImageCropper(props: ImageCropperProps) {
     }
   }
 
+  const submit = useSubmit();
+
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-center font-bold">{headline}</h2>
       <div className="flex items-center">
         <div className="relative max-h-72">
           {!imgSrc && props.children}
@@ -263,6 +259,7 @@ function ImageCropper(props: ImageCropperProps) {
                 uploadKey: props.uploadKey,
                 redirect: props.redirect,
               }}
+              preventScrollReset
             >
               {({ Field }) => (
                 <>
@@ -281,6 +278,8 @@ function ImageCropper(props: ImageCropperProps) {
                     onClick={(e) => {
                       if (!confirm(t("imageCropper.confirmation"))) {
                         e.preventDefault();
+                      } else {
+                        submit(e.currentTarget);
                       }
                     }}
                   >
@@ -347,7 +346,7 @@ function ImageCropper(props: ImageCropperProps) {
         />
         {imgSrc && (
           <div className="flex items-center w-full mb-2">
-            <div className="flex-auto w-1/2 md:w-[calc(25%+1rem)] flex justify-end px-4 md:px2">
+            <div className="flex-auto w-1/2 @md:mv-w-[calc(25%+1rem)] flex justify-end px-4 @md:mv-px2">
               <button
                 id="scaleDown"
                 className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
@@ -366,7 +365,7 @@ function ImageCropper(props: ImageCropperProps) {
                 </svg>
               </button>
             </div>
-            <div className="w-[250px] py-2 hidden md:block md:w-[calc(50%-2rem)] md:px2">
+            <div className="w-[250px] py-2 hidden @md:mv-block @md:mv-w-[calc(50%-2rem)] @md:mv-px2">
               <Slider
                 min={0.1}
                 max={DEFAULT_SCALE * 2}
@@ -376,7 +375,7 @@ function ImageCropper(props: ImageCropperProps) {
                 onChange={(v) => setScale(v as number)}
               />
             </div>
-            <div className="flex-auto w-1/2 md:w-[calc(25%+1rem)] flex justify-start px-4 md:px2">
+            <div className="flex-auto w-1/2 @md:mv-w-[calc(25%+1rem)] flex justify-start px-4 @md:mv-px2">
               <button
                 id="scaleUp"
                 className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
@@ -399,26 +398,43 @@ function ImageCropper(props: ImageCropperProps) {
         )}
       </div>
       <div className="grid grid-cols-2 gap-x-8 w-full mt-2">
-        <label
-          htmlFor={id}
-          className="btn btn-small btn-link p-5"
-          onClick={() => {
-            reset();
+        <Form method="get" preventScrollReset>
+          <input
+            hidden
+            name={props.modalSearchParam || "modal"}
+            defaultValue="false"
+          />
+          <Button
+            type="submit"
+            className="mv-p-5"
+            onClick={() => {
+              reset();
+              handleCancel && handleCancel();
+            }}
+          >
+            {t("imageCropper.reset")}
+          </Button>
+        </Form>
 
-            handleCancel && handleCancel();
-          }}
-        >
-          {t("imageCropper.reset")}
-        </label>
-
-        <button
-          onClick={handleSave}
-          className="btn btn-small btn-primary"
-          disabled={isSaving || !imgSrc}
-        >
-          {t("imageCropper.submit")}
-          {isSaving && "..."}
-        </button>
+        <Form method="get" className="justify-self-end" preventScrollReset>
+          <input
+            hidden
+            name={props.modalSearchParam || "modal"}
+            defaultValue="false"
+          />
+          <Button
+            type="submit"
+            className="mv-p-5"
+            disabled={isSaving || !imgSrc}
+            onClick={(event: React.SyntheticEvent<HTMLButtonElement>) => {
+              setIsSaving(true);
+              handleSave(event, submit);
+            }}
+          >
+            {t("imageCropper.submit")}
+            {isSaving && "..."}
+          </Button>
+        </Form>
       </div>
     </div>
   );

@@ -93,19 +93,19 @@ function ProjectSettings() {
   const navLinks = createNavLinks(t);
 
   const menuClasses = classNames(
-    "mv-w-full md:mv-w-1/3 2xl:mv-w-1/4 mv-max-h-screen md:mv-max-h-fit mv-flex mv-flex-col mv-absolute md:mv-relative mv-top-0 mv-bg-white md:mv-border-l md:mv-border-b md:mv-rounded-bl-xl md:mv-self-start",
-    deep !== null && deep !== "false" && "mv-hidden md:mv-block"
+    "mv-w-full @md:mv-w-1/3 @2xl:mv-w-1/4 mv-max-h-screen @md:mv-max-h-fit mv-flex mv-flex-col mv-absolute @md:mv-relative mv-top-0 mv-bg-white @md:mv-border-l @md:mv-border-b @md:mv-rounded-bl-xl @md:mv-self-start",
+    deep !== null && deep !== "false" && "mv-hidden @md:mv-block"
   );
 
   const outletClasses = classNames(
-    "mv-overflow-hidden md:mv-w-2/3 2xl:mv-w-3/4 md:mv-border-x md:mv-border-b md:mv-rounded-b-xl md:-mv-mb-2",
-    (deep === null || deep === "false") && "mv-hidden md:mv-block"
+    "mv-overflow-hidden @md:mv-w-2/3 @2xl:mv-w-3/4 @md:mv-border-x @md:mv-border-b @md:mv-rounded-b-xl @md:-mv-mb-2",
+    (deep === null || deep === "false") && "mv-hidden @md:mv-block"
   );
 
   return (
-    <div className="md:container">
-      <div className="mv-hidden md:mv-block mv-mb-8">
-        <div className="mv-flex mv-flex-col mv-gap-8 lg:mv-gap-14">
+    <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
+      <div className="mv-hidden @md:mv-block mv-mb-8">
+        <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
           <TextButton weight="thin" variant="neutral" arrowLeft>
             <Link to={`/project/${loaderData.project.slug}`} prefetch="intent">
               {t("content.toProject")}
@@ -116,21 +116,21 @@ function ProjectSettings() {
       </div>
       {loaderData.toast !== null &&
         loaderData.toast.id === "settings-toast" && (
-          <div id={loaderData.toast.id} className="md:mv-py-4">
+          <div id={loaderData.toast.id} className="@md:mv-py-4">
             <Toast key={loaderData.toast.key} level={loaderData.toast.level}>
               {loaderData.toast.message}
             </Toast>
           </div>
         )}
-      <div className="mv-hidden md:mv-block">
+      <div className="mv-hidden @md:mv-block">
         <Section variant="primary" withBorder>
           <Section.Header>{loaderData.project.name}</Section.Header>
           <Section.Body>{t("content.share")}</Section.Body>
         </Section>
       </div>
-      <div className="mv-w-full md:mv-flex md:mv-mb-20 lg:mv-mb-0">
+      <div className="mv-w-full @md:mv-flex @md:mv-mb-20 @lg:mv-mb-0">
         <div className={menuClasses}>
-          <div className="mv-flex mv-gap-2 mv-items-center mv-justify-between md:mv-hidden">
+          <div className="mv-flex mv-gap-2 mv-items-center mv-justify-between @md:mv-hidden">
             <span className="mv-p-6">
               <h1 className="mv-text-2xl mv-m-0">{t("content.settings")}</h1>
             </span>
@@ -161,22 +161,22 @@ function ProjectSettings() {
               const isActive = location.pathname.includes(absolutePath);
 
               const itemClasses = classNames(
-                "md:mv-border-b md:last:mv-border-b-0 mv-overflow-hidden",
-                isActive && "md:mv-border-l-8",
+                "@md:mv-border-b @md:mv-last:mv-border-b-0 mv-overflow-hidden",
+                isActive && "@md:mv-border-l-8",
                 navLink.variant === "negative"
-                  ? "md:mv-border-l-negative"
-                  : "md:mv-border-l-primary"
+                  ? "@md:mv-border-l-negative"
+                  : "@md:mv-border-l-primary"
               );
               const linkClasses = classNames(
-                "mv-text-lg md:mv-text-2xl mv-font-semibold mv-block",
-                "mv-px-6 md:mv-px-8 mv-py-4 md:mv-py-8",
+                "mv-text-lg @md:mv-text-2xl mv-font-semibold mv-block",
+                "mv-px-6 @md:mv-px-8 mv-py-4 @md:mv-py-8",
                 navLink.variant === "negative"
                   ? "mv-text-negative"
                   : "mv-text-primary",
-                isActive && "md:mv-pl-6 md:mv-pr-8",
+                isActive && "@md:mv-pl-6 @md:mv-pr-8",
                 isActive === false &&
                   navLink.variant !== "negative" &&
-                  "md:mv-text-neutral md:hover:mv-text-primary"
+                  "@md:mv-text-neutral @md:mv-hover:mv-text-primary"
               );
 
               return (

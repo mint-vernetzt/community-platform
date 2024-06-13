@@ -10,7 +10,7 @@ export interface ChipProps {
 
 function getClassNames(isEnabled: boolean, tagHandlerIsCallable: boolean) {
   let classesList: string[] = [
-    `badge badge-outline gap-2 max-w-[calc(100%)] lg:max-w-[calc(100%-44px)] w-auto`,
+    `badge badge-outline gap-2 max-w-[calc(100%)] @lg:mv-max-w-[calc(100%-44px)] w-auto`,
   ];
 
   if (isEnabled) {

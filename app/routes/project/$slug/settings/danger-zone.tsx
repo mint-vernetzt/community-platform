@@ -49,7 +49,7 @@ function DangerZone() {
   return (
     <Section>
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <div id="danger-zone-tab-bar" className="md:mv--mt-6">
+      <div id="danger-zone-tab-bar" className="@md:-mv-mt-6">
         <TabBar>
           <TabBar.Item active={location.pathname.endsWith("/change-url")}>
             <Link to="./change-url?deep" preventScrollReset>
@@ -63,7 +63,7 @@ function DangerZone() {
           </TabBar.Item>
         </TabBar>
       </div>
-      <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
+      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         <Outlet />
       </div>
     </Section>

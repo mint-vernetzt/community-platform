@@ -258,18 +258,14 @@ export const action = async (args: ActionFunctionArgs) => {
       },
     });
 
-    return redirectWithToast(
-      request.url,
-      {
-        id: "add-member-toast",
-        key: hash,
-        message: t("content.added", {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-        }),
-      },
-      { scrollToToast: true }
-    );
+    return redirectWithToast(request.url, {
+      id: "add-member-toast",
+      key: hash,
+      message: t("content.added", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
+    });
   } else if (action.startsWith("remove_")) {
     const username = action.replace("remove_", "");
 
@@ -306,18 +302,14 @@ export const action = async (args: ActionFunctionArgs) => {
       },
     });
 
-    return redirectWithToast(
-      request.url,
-      {
-        id: "remove-member-toast",
-        key: hash,
-        message: t("content.removed", {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-        }),
-      },
-      { scrollToToast: true }
-    );
+    return redirectWithToast(request.url, {
+      id: "remove-member-toast",
+      key: hash,
+      message: t("content.removed", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
+    });
   }
 
   return json({ success: false, action, profile: null });
@@ -340,8 +332,8 @@ function Team() {
   return (
     <Section>
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <p className="mv-my-6 md:mv-mt-0">{t("content.intro")}</p>
-      <div className="mv-flex mv-flex-col mv-gap-6 md:mv-gap-4">
+      <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
+      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         {toast !== null && toast.id === "remove-member-toast" && (
           <div id={toast.id}>
             <Toast key={toast.key} level={toast.level}>
@@ -350,12 +342,12 @@ function Team() {
           </div>
         )}
         {project.teamMembers.length > 0 && (
-          <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.current.headline")}
             </h2>
             <p>{t("content.current.intro")}</p>
-            <Form method="post">
+            <Form method="post" preventScrollReset>
               <List>
                 {project.teamMembers.map((teamMember) => {
                   return (
@@ -399,7 +391,7 @@ function Team() {
             </Toast>
           </div>
         )}
-        <div className="mv-flex mv-flex-col mv-gap-4 md:mv-p-4 md:mv-border md:mv-rounded-lg md:mv-border-gray-200">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.add.headline")}
           </h2>
@@ -427,7 +419,7 @@ function Team() {
               )}
             </Input>
           </Form>
-          <Form method="post">
+          <Form method="post" preventScrollReset>
             <List>
               {searchResult.map((profile) => {
                 return (

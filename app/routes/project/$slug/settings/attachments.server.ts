@@ -2,10 +2,7 @@ import { type SupabaseClient } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { createHashFromString } from "~/utils.server";
-
-export function getExtension(filename: string) {
-  return filename.substring(filename.lastIndexOf(".") + 1, filename.length);
-}
+import { getExtension } from "./attachments";
 
 // TODO: DRY
 

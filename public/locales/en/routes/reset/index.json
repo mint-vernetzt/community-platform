@@ -8,7 +8,10 @@
   },
   "response": {
     "headline": "Reset password",
-    "done": "An email to reset your password has been sent to <p>{email}</p>.",
+    "done": {
+      "prefix": "An email to reset your password has been sent to",
+      "suffix": "."
+    },
     "notice": "If you have not yet registered under this email address, you will not receive an email to reset your password."
   },
   "form": {

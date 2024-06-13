@@ -85,7 +85,7 @@ function Requirements() {
         )}
       {project.timeframe !== null && (
         <>
-          <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             {t("content.timeFrame.headline")}
           </h2>
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
@@ -97,7 +97,7 @@ function Requirements() {
       {(project.jobFillings !== null ||
         project.furtherJobFillings !== null) && (
         <>
-          <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             {t("content.jobFillings.headline")}
           </h2>
           {project.jobFillings !== null && (
@@ -122,7 +122,7 @@ function Requirements() {
         project.financings.length > 0 ||
         project.furtherFinancings !== null) && (
         <>
-          <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             {t("content.finance.headline")}
           </h2>
           {project.yearlyBudget !== null && (
@@ -164,7 +164,7 @@ function Requirements() {
       {(project.technicalRequirements !== null ||
         project.furtherTechnicalRequirements !== null) && (
         <>
-          <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             {t("content.technical.headline")}
           </h2>
           {project.technicalRequirements !== null && (
@@ -188,7 +188,7 @@ function Requirements() {
       {(project.roomSituation !== null ||
         project.furtherRoomSituation !== null) && (
         <>
-          <h2 className="mv-text-2xl md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             {t("content.rooms.headline")}
           </h2>
           {project.roomSituation !== null && (

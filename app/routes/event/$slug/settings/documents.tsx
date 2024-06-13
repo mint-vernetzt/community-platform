@@ -1,11 +1,17 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useFetcher,
+  useLoaderData,
+  useParams,
+} from "@remix-run/react";
 import { useState } from "react";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
-import Modal from "~/components/Modal/Modal";
+import { Modal } from "~/routes/__components";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -28,6 +34,7 @@ import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { publishSchema, type action as publishAction } from "./events/publish";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { Button } from "@mint-vernetzt/components";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -53,16 +60,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     event: event,
   });
 };
-
-function closeModal(id: string) {
-  // TODO: can this type assertion be removed and proofen by code?
-  const $modalToggle = document.getElementById(
-    `modal-edit-document-${id}`
-  ) as HTMLInputElement | null;
-  if ($modalToggle) {
-    $modalToggle.checked = false;
-  }
-}
 
 function clearFileInput() {
   // TODO: can this type assertion be removed and proofen by code?
@@ -115,97 +112,96 @@ function Documents() {
                     <p>{item.document.title || item.document.filename}</p>
                     <p>({Math.round(item.document.sizeInMB * 100) / 100} MB)</p>
                   </div>
-                  <div className="ml-auto flex-1/2 sm:flex">
+                  <div className="ml-auto flex-1/2 @sm:mv-flex">
                     <Link
-                      className="btn btn-outline-primary btn-small mt-2 mr-2 w-full sm:w-auto"
+                      className="btn btn-outline-primary btn-small mt-2 mr-2 w-full @sm:mv-w-auto"
                       to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
                       reloadDocument
                     >
                       {t("content.current.download")}
                     </Link>
-                    <label
-                      htmlFor={`modal-edit-document-${item.document.id}`}
-                      className="btn btn-outline-primary btn-small mt-2 mr-2 w-full sm:w-auto"
+                    <Form
+                      method="get"
+                      className="mt-2 mr-2 w-full @sm:mv-w-auto"
+                      preventScrollReset
                     >
-                      {t("content.current.edit")}
-                    </label>
-                    <Modal id={`modal-edit-document-${item.document.id}`}>
-                      <RemixFormsForm
-                        method="post"
-                        fetcher={editDocumentFetcher}
-                        action={`/event/${loaderData.event.slug}/settings/documents/edit-document`}
-                        schema={editDocumentSchema}
-                        onSubmit={(event) => {
-                          closeModal(item.document.id);
-                          // TODO: fix type issue
-                          // @ts-ignore
-                          if (event.nativeEvent.submitter.name === "cancel") {
-                            event.preventDefault();
-                            event.currentTarget.reset();
-                          }
-                        }}
+                      <input
+                        hidden
+                        name={`modal-${item.document.id}`}
+                        defaultValue="true"
+                      />
+                      <Button type="submit" variant="outline">
+                        {t("content.current.edit")}
+                      </Button>
+                    </Form>
+                    <Modal searchParam={`modal-${item.document.id}`}>
+                      <Modal.Title>{t("content.current.edit")}</Modal.Title>
+                      <Modal.Section>
+                        <RemixFormsForm
+                          id={`form-edit-document-${item.document.id}`}
+                          method="post"
+                          fetcher={editDocumentFetcher}
+                          action={`/event/${loaderData.event.slug}/settings/documents/edit-document`}
+                          schema={editDocumentSchema}
+                          preventScrollReset
+                        >
+                          {({ Field, Errors, register }) => (
+                            <>
+                              <Field
+                                name="documentId"
+                                hidden
+                                value={item.document.id}
+                              />
+                              <Field
+                                name="extension"
+                                hidden
+                                value={item.document.extension}
+                              />
+                              <Field name="title">
+                                {({ Errors }) => (
+                                  <>
+                                    <InputText
+                                      {...register("title")}
+                                      id="title"
+                                      label={t("form.title.label")}
+                                      defaultValue={
+                                        item.document.title ||
+                                        item.document.filename
+                                      }
+                                    />
+                                    <Errors />
+                                  </>
+                                )}
+                              </Field>
+                              <Field name="description">
+                                {({ Errors }) => (
+                                  <>
+                                    <TextAreaWithCounter
+                                      {...register("description")}
+                                      id="description"
+                                      label={t("form.description.label")}
+                                      defaultValue={
+                                        item.document.description || ""
+                                      }
+                                      maxCharacters={100}
+                                    />
+                                    <Errors />
+                                  </>
+                                )}
+                              </Field>
+                              <Errors />
+                            </>
+                          )}
+                        </RemixFormsForm>
+                      </Modal.Section>
+                      <Modal.SubmitButton
+                        form={`form-edit-document-${item.document.id}`}
                       >
-                        {({ Field, Errors, register }) => (
-                          <>
-                            <Field
-                              name="documentId"
-                              hidden
-                              value={item.document.id}
-                            />
-                            <Field
-                              name="extension"
-                              hidden
-                              value={item.document.extension}
-                            />
-                            <Field name="title">
-                              {({ Errors }) => (
-                                <>
-                                  <InputText
-                                    {...register("title")}
-                                    id="title"
-                                    label={t("form.title.label")}
-                                    defaultValue={
-                                      item.document.title ||
-                                      item.document.filename
-                                    }
-                                  />
-                                  <Errors />
-                                </>
-                              )}
-                            </Field>
-                            <Field name="description">
-                              {({ Errors }) => (
-                                <>
-                                  <TextAreaWithCounter
-                                    {...register("description")}
-                                    id="description"
-                                    label={t("form.description.label")}
-                                    defaultValue={
-                                      item.document.description || ""
-                                    }
-                                    maxCharacters={100}
-                                  />
-                                  <Errors />
-                                </>
-                              )}
-                            </Field>
-                            <button
-                              type="submit"
-                              className="btn btn-outline-primary ml-auto btn-small mt-2"
-                            >
-                              {t("form.submit.label")}
-                            </button>
-                            <button
-                              type="submit"
-                              name="cancel"
-                              className="btn btn-outline-primary ml-auto btn-small mt-2"
-                            >
-                              {t("form.cancel.label")}
-                            </button>
-                            <Errors />
-                          </>
-                        )}
-                      </RemixFormsForm>
+                        {t("form.submit.label")}
+                      </Modal.SubmitButton>
+                      <Modal.CloseButton>
+                        {t("form.cancel.label")}
+                      </Modal.CloseButton>
                     </Modal>
                     <RemixFormsForm
                       method="post"
@@ -222,7 +218,7 @@ function Documents() {
                           />
                           <button
                             type="submit"
-                            className="btn btn-outline-primary ml-auto btn-small mt-2 w-full sm:w-auto"
+                            className="btn btn-outline-primary ml-auto btn-small mt-2 w-full @sm:mv-w-auto"
                           >
                             {t("form.delete.label")}
                           </button>
@@ -283,8 +279,8 @@ function Documents() {
           </>
         )}
       </RemixFormsForm>
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 md:pb-0">
-        <div className="container">
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 @md:mv-pb-0">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}

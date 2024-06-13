@@ -164,7 +164,7 @@ function Create() {
 
   return (
     <>
-      <div className="container relative pt-20 pb-44">
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative pt-20 pb-44">
         <div className="mv-flex mv-justify-center">
           <div className="mv-flex mv-flex-col mv-w-[480px] mv-gap-6 mv-p-8 mv-border mv-rounded-lg mv-border-gray-200">
             <div className="mv-flex mv-justify-between mv-items-center mv-gap-4">

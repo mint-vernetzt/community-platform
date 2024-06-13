@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -66,6 +66,15 @@ export const action = async (args: ActionFunctionArgs) => {
     schema,
     mutation: createMutation(t),
   });
+
+  if (result.success) {
+    const currentUrl = new URL(request.url);
+    currentUrl.searchParams.delete(`modal-${result.data.documentId}`);
+    const redirectUrl = new URL(
+      `${process.env.COMMUNITY_BASE_URL}/event/${slug}/settings/documents`
+    );
+    return redirect(`${redirectUrl.pathname}${currentUrl.search}`);
+  }
 
   return json(result);
 };

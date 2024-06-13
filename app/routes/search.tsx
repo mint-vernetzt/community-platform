@@ -71,19 +71,23 @@ function SearchView() {
 
   return query !== null && query !== "" ? (
     <>
-      <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mt-8 @md:mv-mt-10 @lg:mv-mt-20 text-center">
         <H1 like="h0">{t("title.query")}</H1>
         <p>{t("results", { query })}</p>
       </section>
-      <section className="container my-8 md:my-10" id="search-results">
+      <section
+        className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] my-8 @md:mv-my-10"
+        id="search-results"
+      >
         <ul
-          className="flex flex-col md:flex-row flex-wrap justify-around text-center"
+          className="flex flex-col @md:mv-flex-row flex-wrap justify-around text-center"
           id="search-result-tablist"
         >
           <NavLink
             id="profile-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`profiles?query=${query}`}
+            preventScrollReset
           >
             {t("profiles")} (<>{loaderData.profilesCount}</>)
           </NavLink>
@@ -91,6 +95,7 @@ function SearchView() {
             id="organization-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`organizations?query=${query}`}
+            preventScrollReset
           >
             {t("organizations")} (<>{loaderData.organizationsCount}</>)
           </NavLink>
@@ -98,6 +103,7 @@ function SearchView() {
             id="event-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`events?query=${query}`}
+            preventScrollReset
           >
             {t("events")} (<>{loaderData.eventsCount}</>)
           </NavLink>
@@ -105,6 +111,7 @@ function SearchView() {
             id="project-tab"
             className={({ isActive }) => getClassName(isActive)}
             to={`projects?query=${query}`}
+            preventScrollReset
           >
             {t("projects")} (<>{loaderData.projectsCount}</>)
           </NavLink>
@@ -113,7 +120,7 @@ function SearchView() {
       <Outlet />
     </>
   ) : (
-    <section className="container mt-8 md:mt-10 lg:mt-20 text-center">
+    <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mt-8 @md:mv-mt-10 @lg:mv-mt-20 text-center">
       <H1 like="h0">{t("title.noquery")}</H1>
       <Form
         method="get"

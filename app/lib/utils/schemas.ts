@@ -1,13 +1,12 @@
 import { z } from "zod";
-import { subject, uploadKey } from "~/routes/upload/utils.server";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 
 const i18nNS = "utils/schemas";
 
 export const fileUploadSchema = z.object({
-  subject: subject,
+  subject: z.string(),
   slug: z.string().min(1),
-  uploadKey: uploadKey,
+  uploadKey: z.string(),
   redirect: z.string(),
 });
 

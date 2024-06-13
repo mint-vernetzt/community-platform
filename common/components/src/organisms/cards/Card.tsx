@@ -307,7 +307,7 @@ function wrapCardRowContainerChildren(
 
   return React.Children.map(validChildren, (child) => {
     return (
-      <div className="mv-w-3/4 md:mv-w-1/3 mv-px-2 md:mv-px-4 mv-shrink-0">
+      <div className="mv-w-3/4 @md:mv-w-1/3 mv-px-2 @md:mv-px-4 mv-shrink-0">
         {child}
       </div>
     );
@@ -323,7 +323,7 @@ export function CardRowContainer(props: CardRowContainerProps) {
     }
   );
 
-  const classes = classNames("mv-flex mv--mx-2 md:mv--mx-4 mv-mb-8", {
+  const classes = classNames("mv-flex -mv-mx-2 @md:-mv-mx-4 mv-mb-8", {
     "mv-flex-wrap": itemsPerRow < validChildren.length,
   });
 

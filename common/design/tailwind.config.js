@@ -3,6 +3,7 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
 const daisyui = require("daisyui");
 const theme = require("./styles/theme");
+const tailwindContainerQueries = require("@tailwindcss/container-queries");
 
 const safelist = Object.keys(theme.colors.aliases).reduce(
   (classList, color) => {
@@ -25,9 +26,16 @@ module.exports = {
     "../components/src/**/*.@(js|jsx|ts|tsx)",
     "../../app/**/*.@(js|jsx|ts|tsx)",
   ],
-  plugins: [daisyui],
+  plugins: [daisyui, tailwindContainerQueries],
   theme: {
     extend: {
+      containers: {
+        sm: "600px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
+      },
       colors: theme.colors.aliases,
       fontFamily: {
         sans: ["'Source Sans Pro'", ...defaultTheme.fontFamily.sans],
@@ -60,13 +68,13 @@ module.exports = {
           DEFAULT: "1rem",
           xl: "1.5rem",
         },
-        screens: {
-          sm: "600px",
-          md: "768px",
-          lg: "1024px",
-          xl: "1280px",
-          "2xl": "1536px",
-        },
+        // screens: {
+        //   sm: "600px",
+        //   md: "768px",
+        //   lg: "1024px",
+        //   xl: "1280px",
+        //   "2xl": "1536px",
+        // },
       },
       backgroundImage: {
         "select-arrow":

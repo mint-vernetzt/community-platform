@@ -160,7 +160,7 @@ export default function Profiles() {
   return (
     <section
       id="search-results-profiles"
-      className="mv-mx-auto sm:mv-px-4 md:mv-px-0 xl:mv-px-2 mv-w-full sm:mv-max-w-screen-sm md:mv-max-w-screen-md lg:mv-max-w-screen-lg xl:mv-max-w-screen-xl 2xl:mv-max-w-screen-2xl"
+      className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-sm @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl"
     >
       {items.length > 0 ? (
         <>
@@ -176,7 +176,7 @@ export default function Profiles() {
             })}
           </CardContainer>
           {shouldFetch && (
-            <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 md:mv-mb-24 lg:mv-mb-8 mv-mt-4 lg:mv-mt-8">
+            <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
               <fetcher.Form method="get">
                 <input key="query" type="hidden" name="query" value={query} />
                 <input key="page" type="hidden" name="page" value={page + 1} />

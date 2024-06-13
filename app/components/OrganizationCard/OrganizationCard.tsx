@@ -18,7 +18,7 @@ function OrganizationCard(props: OrganizationCardProps) {
     <div
       key={props.id}
       data-testid="gridcell"
-      className="flex-100 md:flex-1/2 px-3 mb-4"
+      className="flex-100 @md:mv-flex-1/2 px-3 mb-4"
     >
       <Link
         to={props.link}

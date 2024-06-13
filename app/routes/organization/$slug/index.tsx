@@ -1,7 +1,7 @@
 import type { Organization } from "@prisma/client";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, Form } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
@@ -12,7 +12,6 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3, H4 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
-import Modal from "~/components/Modal/Modal";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import ProfileCard from "~/components/ProfileCard/ProfileCard";
 import { RichText } from "~/components/Richtext/RichText";
@@ -42,6 +41,9 @@ import {
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
 import { Mastodon, TikTok } from "~/routes/project/$slug/detail/__components";
+import { getFeatureAbilities } from "~/lib/utils/application";
+import { Modal } from "~/routes/__components";
+import { Button } from "@mint-vernetzt/components";
 
 const i18nNS = ["routes/organization/index"];
 export const handle = {
@@ -73,6 +75,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
+
+  const abilities = await getFeatureAbilities(authClient, ["next_navbar"]);
 
   if (mode !== "anon" && sessionUser !== null) {
     const userProfile = await prismaClient.profile.findFirst({
@@ -133,6 +137,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     pastEvents: enhancedPastEvents,
     userId: sessionUser?.id,
     mode,
+    abilities,
   });
 };
 
@@ -227,7 +232,7 @@ export default function Index() {
 
   return (
     <>
-      <section className="hidden md:block container mt-8 md:mt-10 lg:mt-20">
+      <section className="hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mt-8 @md:mv-mt-10 @lg:mv-mt-20">
         <div className="rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
           <div className="w-full h-full">
             {background ? (
@@ -240,79 +245,91 @@ export default function Index() {
           </div>
           {loaderData.mode === "admin" ? (
             <div className="absolute bottom-6 right-6">
-              <label
-                htmlFor="modal-background-upload"
-                className="btn btn-primary modal-button"
-              >
-                {t("image.background.change")}
-              </label>
+              <Form method="get" preventScrollReset>
+                <input hidden name="modal-background" defaultValue="true" />
+                <Button type="submit">{t("image.background.change")}</Button>
+              </Form>
 
-              <Modal id="modal-background-upload">
-                <ImageCropper
-                  headline={t("image.background.headline")}
-                  subject="organization"
-                  id="modal-background-upload"
-                  uploadKey="background"
-                  image={background || undefined}
-                  aspect={31 / 10}
-                  minCropWidth={620}
-                  minCropHeight={62}
-                  maxTargetWidth={1488}
-                  maxTargetHeight={480}
-                  slug={loaderData.organization.slug}
-                  redirect={uploadRedirect}
-                >
-                  <Background />
-                </ImageCropper>
+              <Modal searchParam="modal-background">
+                <Modal.Title>{t("image.background.headline")}</Modal.Title>
+                <Modal.Section>
+                  <ImageCropper
+                    subject="organization"
+                    id="modal-background-upload"
+                    uploadKey="background"
+                    image={background || undefined}
+                    aspect={31 / 10}
+                    minCropWidth={620}
+                    minCropHeight={62}
+                    maxTargetWidth={1488}
+                    maxTargetHeight={480}
+                    slug={loaderData.organization.slug}
+                    redirect={uploadRedirect}
+                    modalSearchParam="modal-background"
+                  >
+                    <Background />
+                  </ImageCropper>
+                </Modal.Section>
               </Modal>
             </div>
           ) : null}
         </div>
       </section>
-      <div className="container relative pb-44">
-        <div className="flex flex-col lg:flex-row -mx-4">
-          <div className="flex-gridcol lg:w-5/12 px-4 pt-10 lg:pt-0">
-            <div className="sticky top-4">
-              <div className="px-4 py-8 lg:p-8 pb-15 md:pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative lg:ml-14 lg:-mt-44 ">
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative pb-44">
+        <div className="flex flex-col @lg:mv-flex-row -mx-4">
+          <div className="flex-gridcol @lg:mv-w-5/12 px-4 pt-10 @lg:mv-pt-0">
+            <div
+              className={`sticky ${
+                loaderData.abilities.next_navbar.hasAccess ? "top-24" : "top-4"
+              }`}
+            >
+              <div className="px-4 py-8 @lg:mv-p-8 pb-15 @md:mv-pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative @lg:mv-ml-14 @lg:-mv-mt-44 ">
                 <div className="flex items-center flex-col">
                   <Avatar />
                   {loaderData.mode === "admin" ? (
                     <>
-                      <label
-                        htmlFor="modal-avatar"
-                        className="flex content-center items-center nowrap py-2 cursor-pointer text-primary"
-                      >
-                        <svg
-                          width="17"
-                          height="16"
-                          viewBox="0 0 17 16"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="fill-neutral-600"
+                      <Form method="get" preventScrollReset>
+                        <input hidden name="modal-logo" defaultValue="true" />
+                        <button
+                          type="submit"
+                          className="appearance-none flex content-center items-center nowrap py-2 cursor-pointer text-primary"
                         >
-                          <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
-                        </svg>
-                        <span className="ml-2 mr-4">
-                          {t("image.logo.change")}
-                        </span>
-                      </label>
-                      <Modal id="modal-avatar">
-                        <ImageCropper
-                          id="modal-avatar"
-                          subject="organization"
-                          slug={loaderData.organization.slug}
-                          uploadKey="logo"
-                          headline={t("image.logo.headline")}
-                          image={logo || undefined}
-                          aspect={1 / 1}
-                          minCropWidth={100}
-                          minCropHeight={100}
-                          maxTargetHeight={1488}
-                          maxTargetWidth={1488}
-                          redirect={uploadRedirect}
-                          circularCrop={true}
-                        >
-                          <Avatar />
-                        </ImageCropper>
+                          <svg
+                            width="17"
+                            height="16"
+                            viewBox="0 0 17 16"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="fill-neutral-600"
+                          >
+                            <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
+                          </svg>
+                          <span className="ml-2 mr-4">
+                            {t("image.logo.change")}
+                          </span>
+                        </button>
+                      </Form>
+
+                      <Modal searchParam="modal-logo">
+                        <Modal.Title>{t("image.logo.headline")}</Modal.Title>
+                        <Modal.Section>
+                          <ImageCropper
+                            id="modal-avatar"
+                            subject="organization"
+                            slug={loaderData.organization.slug}
+                            uploadKey="logo"
+                            image={logo || undefined}
+                            aspect={1 / 1}
+                            minCropWidth={100}
+                            minCropHeight={100}
+                            maxTargetHeight={1488}
+                            maxTargetWidth={1488}
+                            redirect={uploadRedirect}
+                            circularCrop={true}
+                            modalSearchParam="modal-logo"
+                          >
+                            <Avatar />
+                          </ImageCropper>
+                        </Modal.Section>
                       </Modal>
                     </>
                   ) : null}
@@ -487,7 +504,7 @@ export default function Index() {
               {/** TODO: Styling of quote section */}
               {typeof loaderData.organization.quote === "string" &&
               loaderData.organization.quote !== "" ? (
-                <div className="py-8 px-4 pb-15 md:pb-5 relative lg:ml-14">
+                <div className="py-8 px-4 pb-15 @md:mv-pb-5 relative @lg:mv-ml-14">
                   <div className="mb-0 text-[72px] leading-none">“</div>
                   <div className="mb-4">"{loaderData.organization.quote}"</div>
                   <div className="text-primary font-bold">
@@ -501,13 +518,13 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="flex-gridcol lg:w-7/12 px-4 pt-10 lg:pt-20">
+          <div className="flex-gridcol @lg:mv-w-7/12 px-4 pt-10 @lg:mv-pt-20">
             {loaderData.mode === "admin" ? (
-              <div className="flex flex-col-reverse lg:flex-row flex-nowrap">
+              <div className="flex flex-col-reverse @lg:mv-flex-row flex-nowrap">
                 <div className="flex-auto pr-4 mb-6">
                   <h1 className="mb-0">{loaderData.organization.name}</h1>
                 </div>
-                <div className="flex-initial lg:pl-4 pt-3 mb-6">
+                <div className="flex-initial @lg:mv-pl-4 pt-3 mb-6">
                   <Link
                     className="btn btn-outline btn-primary"
                     to={`/organization/${loaderData.organization.slug}/settings`}
@@ -525,11 +542,11 @@ export default function Index() {
               />
             ) : null}
             {loaderData.organization.areas.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("content.activityAreas")}
                 </div>
-                <div className="lg:flex-auto">
+                <div className="@lg:mv-flex-auto">
                   {loaderData.organization.areas
                     .map((relation) => relation.area.name)
                     .join(" / ")}
@@ -537,8 +554,8 @@ export default function Index() {
               </div>
             ) : null}
             {loaderData.organization.focuses.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("content.focuses")}
                 </div>
 
@@ -550,8 +567,8 @@ export default function Index() {
               </div>
             ) : null}
             {loaderData.organization.supportedBy.length > 0 ? (
-              <div className="flex mb-6 font-semibold flex-col lg:flex-row">
-                <div className="lg:flex-label text-xs lg:text-sm leading-4 lg:leading-6 mb-2 lg:mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
+                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
                   {t("content.supportedBy")}
                 </div>
 
@@ -601,7 +618,7 @@ export default function Index() {
                 <h3 id="team-members" className="mb-6 mt-14 font-bold">
                   {t("content.team")}
                 </h3>
-                <div className="flex flex-wrap -mx-3 lg:items-stretch">
+                <div className="flex flex-wrap -mx-3 @lg:mv-items-stretch">
                   {loaderData.organization.teamMembers.map((relation) => (
                     <ProfileCard
                       id={`profile-${relation.profile.username}`}
@@ -671,7 +688,7 @@ export default function Index() {
                               ) : null}
                             </div>
                             {relation.project.awards.length > 0 ? (
-                              <div className="md:pr-4 flex gap-4 -mt-4 flex-initial self-start">
+                              <div className="@md:mv-pr-4 flex gap-4 -mt-4 flex-initial self-start">
                                 {relation.project.awards.map((relation) => {
                                   const date = utcToZonedTime(
                                     relation.award.date,
@@ -714,7 +731,7 @@ export default function Index() {
                                 })}
                               </div>
                             ) : null}
-                            <div className="hidden md:flex items-center flex-initial">
+                            <div className="hidden @md:mv-flex items-center flex-initial">
                               <button className="btn btn-primary">
                                 {t("content.toProject")}
                               </button>
@@ -758,7 +775,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${relation.event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -830,15 +847,15 @@ export default function Index() {
                                       </>
                                     ) : null}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {relation.event.name}
                                   </h4>
                                   {relation.event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-2">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-2">
                                       {relation.event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-2">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-2">
                                       {removeHtmlTags(
                                         relation.event.description ?? ""
                                       )}
@@ -930,7 +947,7 @@ export default function Index() {
                                 className="flex"
                                 to={`/event/${relation.event.slug}`}
                               >
-                                <div className="hidden xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -976,15 +993,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {relation.event.name}
                                   </h4>
                                   {relation.event.subline !== null ? (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {relation.event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden lg:block text-xs mt-1 lg:mv-line-clamp-1">
+                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(
                                         relation.event.description ?? ""
                                       )}
