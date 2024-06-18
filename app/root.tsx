@@ -624,7 +624,11 @@ export default function App() {
   useChangeLanguage(locale);
 
   const main = (
-    <main className="flex-auto relative pb-8 w-full">
+    <main
+      className={`flex-auto relative w-full mv-py-6 @lg:mv-py-8 ${
+        abilities.next_navbar.hasAccess ? "mv-bg-[#F8F9FA]" : ""
+      }`}
+    >
       {typeof alert !== "undefined" &&
       isNonAppBaseRoute === false &&
       isIndexRoute === false ? (
@@ -721,7 +725,7 @@ export default function App() {
             </div>
           ) : null}
 
-          <div className="mv-flex">
+          <div className="mv-flex mv-h-full">
             {abilities.next_navbar.hasAccess ? (
               <NavBarMenu
                 mode={mode}
@@ -730,19 +734,14 @@ export default function App() {
               />
             ) : null}
             <div className="mv-flex-grow mv-@container">
-              {isNonAppBaseRoute ? (
-                <>{main}</>
-              ) : (
-                <>
-                  <div className="flex flex-nowrap">
-                    {main}
-                    {scrollButton}
-                  </div>
-                  {abilities.next_navbar.hasAccess && isIndexRoute ? (
-                    <NextFooter />
-                  ) : null}
-                </>
-              )}
+              <div className="flex flex-nowrap min-h-[calc(100dvh - 76px)] lg:min-h-[calc(100dvh - 80px)]">
+                {main}
+                {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
+                {scrollButton}
+              </div>
+              {abilities.next_navbar.hasAccess && isIndexRoute ? (
+                <NextFooter />
+              ) : null}
             </div>
           </div>
           {abilities.next_navbar.hasAccess === false ? (

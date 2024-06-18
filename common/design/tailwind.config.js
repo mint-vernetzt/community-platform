@@ -105,6 +105,7 @@ module.exports = {
     "peer-checked:mv-grid-rows-6",
     "peer-checked:mv-grid-rows-7",
     "peer-checked:mv-grid-rows-8",
+    ...safelist,
   ],
   daisyui: {
     styled: false,

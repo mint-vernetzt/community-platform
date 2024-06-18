@@ -951,7 +951,7 @@ function NextFooter() {
   const { t } = useTranslation(["organisms/footer"]);
 
   return (
-    <footer className="-mv-mt-8 mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
+    <footer className="mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
       {/* CP logo and description */}
       <div className="mv-flex mv-gap-0 @sm:mv-gap-18 mv-items-center">
         <div className="mv-w-48 mv-flex mv-flex-col mv-gap-3">
