@@ -6,7 +6,7 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -110,20 +110,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(locale, ["routes/event/index"]);
 
   const sessionUser = await getSessionUser(authClient);
-
-  if (sessionUser !== null) {
-    const userProfile = await prismaClient.profile.findFirst({
-      where: { id: sessionUser.id },
-      select: { termsAccepted: true },
-    });
-    if (userProfile !== null) {
-      if (userProfile.termsAccepted === false) {
-        return redirect(`/accept-terms?redirect_to=/event/${slug}`);
-      }
-    } else {
-      throw json({ message: t("error.notFound") }, { status: 404 });
-    }
-  }
 
   const rawEvent = await getEvent(slug);
 

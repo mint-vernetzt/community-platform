@@ -64,10 +64,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
 
-  if (profile.termsAccepted === false) {
-    return redirect("/accept-terms?redirect_to=/dashboard");
-  }
-
   const numberOfProfiles = 4;
   const profileTake = numberOfProfiles;
   const rawProfiles = await getProfilesForCards(profileTake);

@@ -8,6 +8,7 @@ export async function getProfileByUserId(id: string) {
       firstName: true,
       lastName: true,
       avatar: true,
+      termsAccepted: true,
     },
     where: {
       id,

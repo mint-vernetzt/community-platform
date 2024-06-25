@@ -8,7 +8,6 @@ export async function getProfileById(id: string) {
       firstName: true,
       lastName: true,
       username: true,
-      termsAccepted: true,
     },
   });
 

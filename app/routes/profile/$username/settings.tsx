@@ -5,8 +5,6 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { prismaClient } from "~/prisma.server";
 
 const i18nNS = ["routes/profile/settings"];
 export const handle = {
@@ -14,8 +12,7 @@ export const handle = {
 };
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request, params } = args;
-  const username = getParamValueOrThrow(params, "username");
+  const { request } = args;
   const { authClient } = createAuthClient(request);
 
   const { sessionUser, redirectPath } =
@@ -23,18 +20,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
-  }
-  if (sessionUser !== null) {
-    const userProfile = await prismaClient.profile.findFirst({
-      where: { id: sessionUser.id },
-      select: { termsAccepted: true },
-    });
-    // TODO: Could this be moved to root.tsx?
-    if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(
-        `/accept-terms?redirect_to=/profile/${username}/settings`
-      );
-    }
   }
   return null;
 };
