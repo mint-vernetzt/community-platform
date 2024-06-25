@@ -554,20 +554,20 @@ export default function Index() {
 
             <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
-            <div className="flex flex-row items-center mb-4">
+            <div className="mv-flex mv-flex-col mv-justify-start @sm:mv-items-center mv-mb-4 @sm:mv-flex-row mv-gap-2 @sm:mv-gap-4">
               <h4 className="font-semibold">{t("network.headline")}</h4>
               <Link
                 to="/organization/create"
-                className="btn btn-outline-primary ml-auto btn-small"
+                className="btn btn-outline-primary btn-small"
               >
                 {t("network.action")}
               </Link>
             </div>
-            <p className="mb-8">
+            <p className="mv-mb-4">
               <Trans i18nKey="network.intro" ns={i18nNS} />
             </p>
 
-            <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 @md:mv-pb-0">
+            <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 mv-pb-0">
               <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
                 <div className="flex flex-row flex-nowrap items-center justify-end my-4">
                   <div
