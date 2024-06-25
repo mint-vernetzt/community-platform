@@ -1,5 +1,6 @@
+import { Button } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -8,33 +9,35 @@ import {
   useParams,
 } from "@remix-run/react";
 import { useState } from "react";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { useTranslation } from "react-i18next";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
-import { Modal } from "~/routes/__components";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
+import { Modal } from "~/routes/__components";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug } from "./documents.server";
 import {
-  type action as deleteDocumentAction,
   deleteDocumentSchema,
+  type action as deleteDocumentAction,
 } from "./documents/delete-document";
 import {
-  type action as editDocumentAction,
   editDocumentSchema,
+  type action as editDocumentAction,
 } from "./documents/edit-document";
 import {
-  type action as uploadDocumentAction,
   uploadDocumentSchema,
+  type action as uploadDocumentAction,
 } from "./documents/upload-document";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 import { publishSchema, type action as publishAction } from "./events/publish";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { Button } from "@mint-vernetzt/components";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -48,7 +51,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const event = await getEventBySlug(slug);
   invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);

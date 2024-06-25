@@ -10,7 +10,11 @@ import { format } from "date-fns-tz";
 import { useForm } from "react-hook-form";
 import type { InferType } from "yup";
 import { object, string } from "yup";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import type { FormError } from "~/lib/utils/yup";
@@ -76,7 +80,12 @@ type FormType = InferType<SchemaType>;
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient, response } = createAuthClient(request);
-  await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
 
   const url = new URL(request.url);
   const child = url.searchParams.get("child") || "";

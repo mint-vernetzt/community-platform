@@ -7,6 +7,7 @@ import {
   createAdminAuthClient,
   createAuthClient,
   deleteUserByUid,
+  getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
   signOut,
 } from "~/auth.server";
@@ -55,7 +56,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   if (profile === null) {
     throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const mode = await deriveProfileMode(sessionUser, username);
   invariantResponse(mode === "owner", t("error.notPrivileged"), {
     status: 403,

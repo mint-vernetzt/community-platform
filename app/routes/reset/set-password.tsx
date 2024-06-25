@@ -6,7 +6,11 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { invariantResponse } from "~/lib/utils/response";
-import { createAuthClient, getSessionUser } from "../../auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrRedirectPathToLogin,
+} from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
 import PageBackground from "../../components/PageBackground/PageBackground";
@@ -38,8 +42,12 @@ const environmentSchema = z.object({
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const abilities = await getFeatureAbilities(authClient, "next_navbar");
   return { abilities };
 };

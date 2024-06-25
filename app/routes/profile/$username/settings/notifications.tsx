@@ -5,6 +5,7 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   json,
+  redirect,
 } from "@remix-run/node";
 import {
   Form,
@@ -12,7 +13,11 @@ import {
   useLoaderData,
   useSubmit,
 } from "@remix-run/react";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
@@ -56,7 +61,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (profile === null) {
     throw json(t("error.profileNotFound"), { status: 404 });
   }
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const mode = await deriveProfileMode(sessionUser, username);
   invariantResponse(mode === "owner", t("error.notPrivileged"), {
     status: 403,

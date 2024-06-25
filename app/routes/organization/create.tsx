@@ -12,10 +12,15 @@ import {
 } from "@remix-run/react";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import i18next from "~/i18next.server";
 import { z } from "zod";
-import { createAuthClient, getSessionUser } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+  getSessionUserOrThrow,
+} from "~/auth.server";
+import i18next from "~/i18next.server";
 import { GravityType, getImageURL } from "~/images.server";
+import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
 import {
@@ -23,7 +28,6 @@ import {
   createOrganizationOnProfile,
   searchForOrganizationsByName,
 } from "./create.server";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/organization/create"];
 export const handle = {
@@ -43,13 +47,14 @@ const createSchema = (t: TFunction) => {
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
 
   const url = new URL(request.url);
-
-  if (sessionUser === null) {
-    return redirect(`/login?login_redirect=${url.pathname}`);
-  }
 
   const queryString = url.searchParams.get("search");
   const query = queryString !== null ? queryString.split(" ") : [];
@@ -80,15 +85,11 @@ export async function action(args: ActionFunctionArgs) {
   const { request } = args;
 
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const url = new URL(request.url);
 
   const queryString = url.searchParams.get("search");
-
-  if (sessionUser === null) {
-    return redirect(`/login?login_redirect=${url.pathname}`);
-  }
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes/organization/create"]);

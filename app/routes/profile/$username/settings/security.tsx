@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { type TFunction } from "i18next";
@@ -8,6 +8,7 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
   createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
   sendResetEmailLink,
   updatePassword,
@@ -67,7 +68,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   if (profile === null) {
     throw json({ message: "profile not found." }, { status: 404 });
   }
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const mode = await deriveProfileMode(sessionUser, username);
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 

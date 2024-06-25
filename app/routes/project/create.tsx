@@ -4,20 +4,20 @@ import { Button, Input, Link } from "@mint-vernetzt/components";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useNavigate } from "@remix-run/react";
+import { type TFunction } from "i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import {
   createAuthClient,
-  getSessionUser,
+  getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
 import { deriveMode, generateProjectSlug } from "~/utils.server";
 import { getSubmissionHash } from "./$slug/settings/utils.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { Trans, useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/create"];
 export const handle = {
@@ -36,11 +36,11 @@ const createSchema = (t: TFunction) =>
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
 
-  if (sessionUser === null) {
-    const url = new URL(request.url);
-    return redirect(`/login?login_redirect=${url.pathname}`);
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
   }
 
   const mode = await deriveMode(sessionUser);

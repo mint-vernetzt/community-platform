@@ -3,7 +3,7 @@ import type {
   LinksFunction,
   LoaderFunctionArgs,
 } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -16,7 +16,11 @@ import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -118,7 +122,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   const dbOrganization = await getWholeOrganizationBySlug(slug);

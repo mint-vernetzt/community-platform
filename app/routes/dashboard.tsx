@@ -13,7 +13,10 @@ import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { useTranslation } from "react-i18next";
-import { createAuthClient, getSessionUser } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
 import i18next from "~/i18next.server";
 import { GravityType, getImageURL } from "~/images.server";
 import { detectLanguage } from "~/root.server";
@@ -49,10 +52,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { authClient } = createAuthClient(request);
 
-  const sessionUser = await getSessionUser(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
 
-  if (sessionUser === null) {
-    return redirect("/login");
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
   }
 
   const profile = await getProfileById(sessionUser.id);

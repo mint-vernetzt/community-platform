@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -8,43 +8,45 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { useTranslation } from "react-i18next";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
 import { getFullDepthProfiles } from "../utils.server";
-import { type action as publishAction, publishSchema } from "./events/publish";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import {
   getEventBySlug,
   getParticipantsDataFromEvent,
 } from "./waiting-list.server";
 import {
-  type action as addToWaitingListAction,
   addToWaitingListSchema,
+  type action as addToWaitingListAction,
 } from "./waiting-list/add-to-waiting-list";
 import {
-  type action as moveToParticipantsAction,
   moveToParticipantsSchema,
+  type action as moveToParticipantsAction,
 } from "./waiting-list/move-to-participants";
 import {
-  type action as removeFromWaitingListAction,
   removeFromWaitingListSchema,
+  type action as removeFromWaitingListAction,
 } from "./waiting-list/remove-from-waiting-list";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const response = new Response();
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes/event/settings/waiting-list",
@@ -52,7 +54,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const event = await getEventBySlug(slug);
   invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
@@ -228,6 +235,7 @@ function Participants() {
       ) : null}
 
       {moveToParticipantsFetcher.data !== undefined &&
+        "success" in moveToParticipantsFetcher.data &&
         moveToParticipantsFetcher.data.success === true && (
           <div>{t("content.current.feedback")}</div>
         )}

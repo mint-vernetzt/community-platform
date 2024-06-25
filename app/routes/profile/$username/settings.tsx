@@ -1,9 +1,12 @@
 import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { NavLink, Outlet } from "@remix-run/react";
-import { createAuthClient, getSessionUser } from "~/auth.server";
+import { useTranslation } from "react-i18next";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
-import { useTranslation } from "react-i18next";
 
 const i18nNS = ["routes/profile/settings"];
 export const handle = {
@@ -15,7 +18,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const username = getParamValueOrThrow(params, "username");
   const { authClient } = createAuthClient(request);
 
-  const sessionUser = await getSessionUser(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   if (sessionUser !== null) {
     const userProfile = await prismaClient.profile.findFirst({
       where: { id: sessionUser.id },

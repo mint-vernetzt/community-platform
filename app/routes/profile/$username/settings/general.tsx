@@ -3,7 +3,7 @@ import type {
   LinksFunction,
   LoaderFunctionArgs,
 } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -19,7 +19,11 @@ import { Trans, useTranslation } from "react-i18next";
 import quillStyles from "react-quill/dist/quill.snow.css";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
@@ -109,7 +113,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     "routes/profile/settings/general",
   ]);
   const username = getParamValueOrThrow(params, "username");
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const mode = await deriveProfileMode(sessionUser, username);
   invariantResponse(mode === "owner", t("error.notPrivileged"), {
     status: 403,

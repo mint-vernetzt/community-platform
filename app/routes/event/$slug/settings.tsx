@@ -1,16 +1,24 @@
-import { NavLink, Outlet } from "@remix-run/react";
 import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { prismaClient } from "~/prisma.server";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { NavLink, Outlet } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { prismaClient } from "~/prisma.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
 
-  const sessionUser = await getSessionUser(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   if (sessionUser !== null) {
     const userProfile = await prismaClient.profile.findFirst({
       where: { id: sessionUser.id },
