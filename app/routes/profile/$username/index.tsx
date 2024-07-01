@@ -1,6 +1,7 @@
+import { Button } from "@mint-vernetzt/components";
 import type { Profile } from "@prisma/client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -29,10 +30,11 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
-import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
+import { Modal } from "~/routes/__components";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
+import { Mastodon, TikTok } from "~/routes/project/$slug/detail/__components";
 import { getProfileByUsername } from "./index.server";
 import {
   addImgUrls,
@@ -41,9 +43,6 @@ import {
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
-import { Mastodon, TikTok } from "~/routes/project/$slug/detail/__components";
-import { Button } from "@mint-vernetzt/components";
-import { Modal } from "~/routes/__components";
 
 const i18nNS = ["routes/profile/index"];
 export const handle = {
@@ -69,20 +68,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
-
-  if (mode !== "anon" && sessionUser !== null) {
-    const userProfile = await prismaClient.profile.findFirst({
-      where: { id: sessionUser.id },
-      select: { termsAccepted: true },
-    });
-    if (userProfile !== null) {
-      if (userProfile.termsAccepted === false) {
-        return redirect(`/accept-terms?redirect_to=/profile/${username}`);
-      }
-    } else {
-      throw json({ message: t("error.profileNotFound") }, { status: 404 });
-    }
-  }
 
   const profile = await getProfileByUsername(username, mode);
   if (profile === null) {

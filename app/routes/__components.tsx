@@ -8,6 +8,7 @@ import {
   Form,
   Link,
   NavLink,
+  useLocation,
   useMatches,
   useSearchParams,
 } from "@remix-run/react";
@@ -45,6 +46,7 @@ type NextSessionUserInfo = {
 };
 
 function NextNavBar(props: NextNavBarProps) {
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
   const navBarMenuIsOpen = searchParams.get(props.openNavBarMenuKey);
@@ -133,14 +135,14 @@ function NextNavBar(props: NextNavBarProps) {
           ) : (
             <div className="mv-gap-4 mv-items-center mv-hidden lg:mv-flex">
               <div>
-                <Link to="/login">
+                <Link to={`/login?login_redirect=${location.pathname}`}>
                   <Button variant="ghost">
                     <span className="mv-underline">{t("root.login")}</span>
                   </Button>
                 </Link>
               </div>
               <div>
-                <Link to="/register">
+                <Link to={`/register?login_redirect=${location.pathname}`}>
                   <Button>{t("root.register")}</Button>
                 </Link>
               </div>
@@ -160,6 +162,7 @@ function NavBarMenu(
     username?: string;
   }
 ) {
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get(props.openNavBarMenuKey);
 
@@ -187,7 +190,7 @@ function NavBarMenu(
         {props.mode === "anon" ? (
           <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex lg:mv-hidden mv-pl-4 lg:mv-pl-0">
             <div>
-              <Link to="/login">
+              <Link to={`/login?login_redirect=${location.pathname}`}>
                 <Button>{t("root.login")}</Button>
               </Link>
             </div>
@@ -195,7 +198,7 @@ function NavBarMenu(
               {t("root.or")}
             </div>
             <div>
-              <Link to="/register">
+              <Link to={`/register?login_redirect=${location.pathname}`}>
                 <Button variant="outline">{t("root.register")}</Button>
               </Link>
             </div>

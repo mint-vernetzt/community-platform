@@ -5,7 +5,11 @@ import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import i18next from "~/i18next.server";
@@ -46,7 +50,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", t("error.notFound"), { status: 403 });
 

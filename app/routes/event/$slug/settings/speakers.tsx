@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -8,34 +8,37 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { useTranslation } from "react-i18next";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { GravityType, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
-import { type action as publishAction, publishSchema } from "./events/publish";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import {
   getEventBySlug,
   getSpeakerProfileDataFromEvent,
 } from "./speakers.server";
 import {
-  type action as addSpeakerAction,
   addSpeakerSchema,
+  type action as addSpeakerAction,
 } from "./speakers/add-speaker";
 import {
-  type action as removeSpeakerAction,
   removeSpeakerSchema,
+  type action as removeSpeakerAction,
 } from "./speakers/remove-speaker";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -44,7 +47,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = await getParamValueOrThrow(params, "slug");
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const event = await getEventBySlug(slug);
   invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
@@ -239,7 +247,7 @@ function Speakers() {
           );
         })}
       </div>
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 @md:mv-pb-0">
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm

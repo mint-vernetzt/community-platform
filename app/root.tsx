@@ -9,7 +9,7 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -89,6 +89,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     let avatar: string | undefined;
 
     if (profile) {
+      const url = new URL(request.url);
+      if (profile.termsAccepted === false && url.pathname !== "/accept-terms") {
+        return redirect(`/accept-terms?redirect_to=${url.pathname}`);
+      }
       if (profile.avatar) {
         const publicURL = getPublicURL(authClient, profile.avatar);
         if (publicURL) {
@@ -213,6 +217,7 @@ function NavBar(props: NavBarProps) {
 
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
+  const location = useLocation();
 
   const matches = useMatches();
   let isSettings = false;
@@ -460,14 +465,14 @@ function NavBar(props: NavBarProps) {
           ) : (
             <div className="flex-initial h-10 w-1/2 xl:w-[150px] flex justify-end items-center lg:order-3">
               <Link
-                to="/login"
+                to={`/login?login_redirect=${location.pathname}`}
                 className="text-primary font-semibold hover:underline"
               >
                 {t("root.login")}
               </Link>{" "}
               /{" "}
               <Link
-                to="/register"
+                to={`/register?login_redirect=${location.pathname}`}
                 className="text-primary font-semibold hover:underline"
               >
                 {t("root.register")}

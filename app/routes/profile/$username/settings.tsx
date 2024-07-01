@@ -1,9 +1,10 @@
 import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { NavLink, Outlet } from "@remix-run/react";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { prismaClient } from "~/prisma.server";
 import { useTranslation } from "react-i18next";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
 
 const i18nNS = ["routes/profile/settings"];
 export const handle = {
@@ -11,22 +12,14 @@ export const handle = {
 };
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request, params } = args;
-  const username = getParamValueOrThrow(params, "username");
+  const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  const sessionUser = await getSessionUser(authClient);
-  if (sessionUser !== null) {
-    const userProfile = await prismaClient.profile.findFirst({
-      where: { id: sessionUser.id },
-      select: { termsAccepted: true },
-    });
-    // TODO: Could this be moved to root.tsx?
-    if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(
-        `/accept-terms?redirect_to=/profile/${username}/settings`
-      );
-    }
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
   }
   return null;
 };

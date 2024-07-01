@@ -2,26 +2,30 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
 import { deriveEventMode } from "../../utils.server";
 import {
   getEventBySlug,
   getEventBySlugForAction,
   getProfileById,
 } from "./delete.server";
-import { type action as publishAction, publishSchema } from "./events/publish";
+import { publishSchema, type action as publishAction } from "./events/publish";
 import { deleteEventBySlug } from "./utils.server";
-import i18next from "~/i18next.server";
-import { type TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   eventName: z.string().optional(),
@@ -42,7 +46,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const event = await getEventBySlug(slug);
   invariantResponse(event, t("error.eventNotFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
@@ -167,7 +176,7 @@ function Delete() {
           </>
         )}
       </RemixFormsForm>
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0 pb-24 @md:mv-pb-0">
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm

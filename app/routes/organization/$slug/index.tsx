@@ -1,7 +1,8 @@
+import { Button } from "@mint-vernetzt/components";
 import type { Organization } from "@prisma/client";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Link, useLoaderData, Form } from "@remix-run/react";
+import { json } from "@remix-run/node";
+import { Form, Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import * as React from "react";
@@ -25,13 +26,15 @@ import {
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
-import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
+import { Modal } from "~/routes/__components";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
+import { Mastodon, TikTok } from "~/routes/project/$slug/detail/__components";
 import {
   addImgUrls,
   filterOrganization,
@@ -40,10 +43,6 @@ import {
   splitEventsIntoFutureAndPast,
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
-import { Mastodon, TikTok } from "~/routes/project/$slug/detail/__components";
-import { getFeatureAbilities } from "~/lib/utils/application";
-import { Modal } from "~/routes/__components";
-import { Button } from "@mint-vernetzt/components";
 
 const i18nNS = ["routes/organization/index"];
 export const handle = {
@@ -77,16 +76,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const mode = await deriveOrganizationMode(sessionUser, slug);
 
   const abilities = await getFeatureAbilities(authClient, ["next_navbar"]);
-
-  if (mode !== "anon" && sessionUser !== null) {
-    const userProfile = await prismaClient.profile.findFirst({
-      where: { id: sessionUser.id },
-      select: { termsAccepted: true },
-    });
-    if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(`/accept-terms?redirect_to=/organization/${slug}`);
-    }
-  }
 
   const organization = await getOrganizationBySlug(slug);
   if (organization === null) {

@@ -1,8 +1,11 @@
 import { type Event } from "@prisma/client";
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import type { DateArray } from "ics";
 import * as ics from "ics";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -123,7 +126,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
 
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });

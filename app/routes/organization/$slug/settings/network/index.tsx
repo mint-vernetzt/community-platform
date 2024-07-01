@@ -1,10 +1,16 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { useTranslation } from "react-i18next";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { ArrayElement } from "~/lib/utils/types";
+import { detectLanguage } from "~/root.server";
 import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { deriveOrganizationMode } from "../../utils.server";
 import {
@@ -13,9 +19,6 @@ import {
 } from "../utils.server";
 import Add from "./add";
 import { NetworkMemberRemoveForm } from "./remove";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/organization/settings/network/index"];
 export const handle = {
@@ -40,7 +43,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,

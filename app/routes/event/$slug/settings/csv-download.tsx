@@ -1,15 +1,19 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { type TFunction } from "i18next";
+import { redirect } from "react-router-dom";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
+import i18next from "~/i18next.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
 import { deriveEventMode } from "../../utils.server";
 import { getFullDepthProfiles } from "../utils.server";
 import { getEventBySlug } from "./csv-download.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { detectLanguage } from "~/root.server";
 
 async function getProfilesBySearchParams(
   event: NonNullable<Awaited<ReturnType<typeof getEventBySlug>>>,
@@ -125,7 +129,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);

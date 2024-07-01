@@ -1,9 +1,10 @@
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { NavLink, Outlet } from "@remix-run/react";
-import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { prismaClient } from "~/prisma.server";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { useTranslation } from "react-i18next";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
 
 const i18nNS = ["routes/organization/settings"];
 export const handle = {
@@ -11,21 +12,14 @@ export const handle = {
 };
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request, params } = args;
-  const slug = getParamValueOrThrow(params, "slug");
+  const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  const sessionUser = await getSessionUser(authClient);
-  if (sessionUser !== null) {
-    const userProfile = await prismaClient.profile.findFirst({
-      where: { id: sessionUser.id },
-      select: { termsAccepted: true },
-    });
-    if (userProfile !== null && userProfile.termsAccepted === false) {
-      return redirect(
-        `/accept-terms?redirect_to=/organization/${slug}/settings`
-      );
-    }
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
   }
   return null;
 };
