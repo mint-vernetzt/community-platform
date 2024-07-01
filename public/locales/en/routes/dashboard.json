@@ -20,6 +20,24 @@
     "events": "Events",
     "allEvents": "All events",
     "projects": "Projects",
-    "allProjects": "All projects"
+    "allProjects": "All projects",
+    "externalLinks": {
+      "headline": "More about MINTvernetzt",
+      "website": {
+        "headline": "Your networking office",
+        "description": "Learn more about MINTvernetzt",
+        "linkDescription": "To the MINTvernetzt website"
+      },
+      "dataLab": {
+        "headline": "MINT-DataLab",
+        "description": "Find analyses, graphics and statistics about STEM",
+        "linkDescription": "To the MINT-DataLab"
+      },
+      "meshMint": {
+        "headline": "MesH_MINT",
+        "description": "Transfer of research results for educational practice",
+        "linkDescription": "To MeSH_MINT"
+      }
+    }
   }
 }

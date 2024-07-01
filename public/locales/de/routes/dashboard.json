@@ -20,6 +20,24 @@
     "events": "Veranstaltungen",
     "allEvents": "Alle Veranstaltungen",
     "projects": "Projekte",
-    "allProjects": "Alle Projekte"
+    "allProjects": "Alle Projekte",
+    "externalLinks": {
+      "headline": "Mehr zu MINTvernetzt",
+      "website": {
+        "headline": "Eure Vernetzungsstelle",
+        "description": "Erfahre mehr über MINTvernetzt",
+        "linkDescription": "Zur MINTvernetzt Website"
+      },
+      "dataLab": {
+        "headline": "MINT-DataLab",
+        "description": "Finde Analysen, Grafiken und Statistiken rund um MINT",
+        "linkDescription": "Zum MINT-DataLab"
+      },
+      "meshMint": {
+        "headline": "MesH_MINT",
+        "description": "Transfer von Forschungsergebnissen für die Bildungspraxis",
+        "linkDescription": "Zu MeSH_MINT"
+      }
+    }
   }
 }
