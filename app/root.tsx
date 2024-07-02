@@ -45,6 +45,7 @@ import {
   NextFooter,
   NextNavBar,
   Modal,
+  LoginOrRegisterCTA,
 } from "./routes/__components";
 import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
@@ -739,7 +740,8 @@ export default function App() {
               />
             ) : null}
             <div className="mv-flex-grow mv-@container">
-              <div className="flex flex-nowrap min-h-[calc(100dvh - 76px)] lg:min-h-[calc(100dvh - 80px)]">
+              <div className="flex flex-nowrap flex-col min-h-[calc(100dvh - 76px)] lg:min-h-[calc(100dvh - 80px)]">
+                <LoginOrRegisterCTA isAnon={mode === "anon"} />
                 {main}
                 {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
                 {scrollButton}
