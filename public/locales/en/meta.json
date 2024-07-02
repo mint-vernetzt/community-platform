@@ -59,6 +59,12 @@
       "imprint": "Imprint",
       "privacy": "Privacy policy",
       "terms": "Terms of use"
+    },
+    "loginOrRegisterCTA": {
+      "info": "Log in or register to fully utilize the platform.",
+      "login": "Login",
+      "or":"or",
+      "register": "Register"
     }
   }
 }

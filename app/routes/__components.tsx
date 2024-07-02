@@ -1282,6 +1282,8 @@ function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
   const location = useLocation();
   const submit = useSubmit();
 
+  const { t } = useTranslation(["meta"]);
+
   const hideLoginOrRegisterCookie = Cookies.get(
     "mv-hide-login-or-register-cta"
   );
@@ -1294,7 +1296,7 @@ function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
     <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-px-6 mv-py-6 mv-text-primary mv-bg-primary-50">
       <div className="mv-flex mv-justify-between mv-w-full">
         <p className="mv-block mv-font-semibold">
-          Melde Dich an, um die Plattform in vollem Umfang nutzen zu können.
+          {t("root.loginOrRegisterCTA.info")}
         </p>
         <Form
           action={location.pathname}
@@ -1328,15 +1330,17 @@ function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
           className="text-primary font-semibold hover:underline mv-flex-grow @sm:mv-flex-grow-0"
         >
           <Button variant="outline" fullSize>
-            Anmelden
+            {t("root.loginOrRegisterCTA.login")}
           </Button>
         </Link>
-        <p className="mv-text-xs mv-flex-grow-0">oder</p>
+        <p className="mv-text-xs mv-flex-grow-0">
+          {t("root.loginOrRegisterCTA.or")}
+        </p>
         <Link
           to={`/register?login_redirect=${location.pathname}`}
           className="text-primary font-semibold hover:underline mv-flex-grow @sm:mv-flex-grow-0"
         >
-          <Button fullSize>Registrieren</Button>
+          <Button fullSize>{t("root.loginOrRegisterCTA.register")}</Button>
         </Link>
       </div>
     </div>
