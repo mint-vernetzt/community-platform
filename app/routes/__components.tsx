@@ -14,7 +14,7 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import classNames from "classnames";
-import React from "react";
+import React, { useEffect } from "react";
 import { useCountUp, type CountUpProps } from "react-countup";
 import { useTranslation } from "react-i18next";
 import Search from "~/components/Search/Search";
@@ -1284,11 +1284,18 @@ function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
 
   const { t } = useTranslation(["meta"]);
 
-  const hideLoginOrRegisterCookie = Cookies.get(
-    "mv-hide-login-or-register-cta"
-  );
+  const [hideLoginOrRegisterCookie, setHideLoginOrRegisterCookie] =
+    React.useState(true);
+  useEffect(() => {
+    const cookie = Cookies.get("mv-hide-login-or-register-cta");
+    if (cookie === "true") {
+      setHideLoginOrRegisterCookie(true);
+    } else {
+      setHideLoginOrRegisterCookie(false);
+    }
+  }, []);
 
-  if (isAnon === false || hideLoginOrRegisterCookie === "true") {
+  if (isAnon === false || hideLoginOrRegisterCookie) {
     return null;
   }
 
@@ -1305,6 +1312,7 @@ function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
             Cookies.set("mv-hide-login-or-register-cta", "true", {
               expires: 1,
             });
+            setHideLoginOrRegisterCookie(true);
             submit(event.currentTarget);
           }}
         >
