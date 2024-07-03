@@ -666,6 +666,7 @@ function TopicItem(
     </Link>
   ) : (
     <NavLink
+      end
       to={`${props.to}${
         extendedSearchParamsString.length > 0
           ? `?${extendedSearchParamsString}`
