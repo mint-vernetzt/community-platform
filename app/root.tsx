@@ -632,7 +632,7 @@ export default function App() {
   const main = (
     <main
       className={`flex-auto relative w-full mv-py-6 @lg:mv-py-8 ${
-        abilities.next_navbar.hasAccess ? "mv-bg-[#F8F9FA]" : ""
+        abilities.next_navbar.hasAccess ? "mv-bg-neutral-100" : ""
       }`}
     >
       {typeof alert !== "undefined" &&
