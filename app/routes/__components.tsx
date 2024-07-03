@@ -619,7 +619,7 @@ function Label(props: React.PropsWithChildren) {
       <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow group-has-[:checked]:mv-text-primary-500">
         {children}
       </div>
-      <div className="mv-flex-shrink mv-cursor-pointer group-has-[:checked]:mv-rotate-90">
+      <div className="mv-flex-shrink mv-cursor-pointer mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
         <Icon type="chevron-right" />
       </div>
     </div>
