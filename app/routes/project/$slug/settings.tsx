@@ -98,7 +98,7 @@ function ProjectSettings() {
   );
 
   const outletClasses = classNames(
-    "mv-overflow-hidden @md:mv-w-2/3 @2xl:mv-w-3/4 @md:mv-border-x @md:mv-border-b @md:mv-rounded-b-xl @md:-mv-mb-2",
+    "mv-overflow-hidden @md:mv-w-2/3 @2xl:mv-w-3/4 @md:mv-border-x @md:mv-border-b @md:mv-rounded-b-xl @md:-mv-mb-2 mv-bg-white",
     (deep === null || deep === "false") && "mv-hidden @md:mv-block"
   );
 

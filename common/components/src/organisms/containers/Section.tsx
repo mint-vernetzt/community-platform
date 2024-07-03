@@ -93,7 +93,7 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
     typeof footer === "undefined";
 
   const classes = classNames(
-    "mv-w-full mv-min-w-full mv-flex mv-flex-col",
+    "mv-w-full mv-min-w-full mv-flex mv-flex-col mv-bg-white",
     noSectionItems && "mv-p-6 mv-rounded-lg",
     noSectionItems && props.withBorder && "mv-border mv-border-gray-200"
   );
