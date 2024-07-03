@@ -281,7 +281,7 @@ export function DropdownLabel(
   return (
     <label
       ref={ref}
-      className="mv-peer mv-group mv-w-full @lg:mv-w-fit @lg:mv-min-w-content mv-inline-flex @lg:mv-flex mv-justify-between mv-items-center mv-gap-3 mv-cursor-pointer mv-p-6 @lg:mv-px-4 @lg:mv-py-2.5 @lg:mv-rounded-lg @lg:mv-border @lg:mv-border-gray-100 mv-font-semibold mv-text-gray-700 hover:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-bg-gray-100 mv-transition"
+      className="mv-peer mv-group mv-w-full @lg:mv-w-fit @lg:mv-min-w-content mv-inline-flex @lg:mv-flex mv-justify-between mv-items-center mv-gap-3 mv-cursor-pointer mv-p-6 @lg:mv-px-4 @lg:mv-py-2.5 @lg:mv-rounded-lg @lg:mv-border @lg:mv-border-gray-100 mv-font-semibold mv-text-gray-700 hover:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-bg-gray-100 mv-transition mv-bg-white"
     >
       <span>{props.children}</span>
       <input
@@ -466,7 +466,7 @@ function ShowMoreButton(props: { showMore: string; showLess: string }) {
   const [checked, setChecked] = React.useState(false);
 
   return (
-    <label className="mv-hidden @lg:mv-block mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-12 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
+    <label className="mv-hidden @lg:mv-block mv-peer mv-bg-white mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-12 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
       <input
         type="checkbox"
         className="mv-peer mv-h-0 mv-w-0 mv-opacity-0"
@@ -566,7 +566,7 @@ export function Filters(props: FiltersProps) {
   const location = useLocation();
 
   const filterClasses = classNames(
-    "mv-fixed mv-overflow-scroll @lg:mv-overflow-visible @lg:mv-relative mv-z-20 @lg:mv-z-10 mv-bg-white mv-w-full mv-h-dvh @lg:mv-h-fit mv-left-0 mv-top-0 @lg:mv-justify-between mv-flex mv-flex-col @lg:mv-flex-row",
+    "mv-fixed mv-overflow-scroll @lg:mv-overflow-visible @lg:mv-relative mv-z-20 @lg:mv-z-10 mv-w-full mv-h-dvh @lg:mv-h-fit mv-left-0 mv-top-0 @lg:mv-justify-between mv-flex mv-flex-col @lg:mv-flex-row",
     showFilters === true ? "mv-flex" : "mv-hidden @lg:mv-flex"
   );
 
