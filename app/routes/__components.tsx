@@ -534,7 +534,7 @@ function Item(
         }}
         form={props.to}
         type="submit"
-        className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500"
+        className="mv-flex mv-items-center mv-gap-4 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500"
       >
         {children}
       </button>
@@ -551,7 +551,7 @@ function Item(
       }`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
-          "mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg";
+          "mv-flex mv-items-center mv-gap-4 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg";
         if (isActive || isPending || isTransitioning) {
           return `${baseClasses} mv-bg-blue-50 mv-text-primary-500`;
         }
@@ -616,7 +616,7 @@ function Label(props: React.PropsWithChildren) {
 
   return (
     <div className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500">
-      <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow group-has-[:checked]:mv-text-primary-500">
+      <div className="mv-flex mv-items-center mv-gap-4 mv-flex-grow group-has-[:checked]:mv-text-primary-500">
         {children}
       </div>
       <div className="mv-flex-shrink mv-cursor-pointer group-has-[:checked]:mv-rotate-90">
@@ -642,7 +642,7 @@ function TopicItem(
     <Link
       to={`${props.to}`}
       target="_blank"
-      className="mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-8 mv-pr-2 mv-py-4 hover:mv-bg-blue-50 hover:mv-text-primary-500"
+      className="mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50 hover:mv-text-primary-500"
     >
       {children}
     </Link>
@@ -655,7 +655,7 @@ function TopicItem(
       }`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
-          "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-8 mv-pr-2 mv-py-4";
+          "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4";
         if (isActive || isPending || isTransitioning) {
           return `${baseClasses} mv-bg-blue-50 mv-text-primary-500`;
         }
