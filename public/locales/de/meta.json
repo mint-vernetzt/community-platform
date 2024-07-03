@@ -59,6 +59,12 @@
       "imprint": "Impressum",
       "privacy": "Datenschutz",
       "terms": "AGB"
+    },
+    "loginOrRegisterCTA": {
+      "info": "Melde Dich an, um die Plattform in vollem Umfang nutzen zu können.",
+      "login": "Anmelden",
+      "or":"oder",
+      "register": "Registrieren"
     }
   }
 }
