@@ -566,7 +566,7 @@ export function Filters(props: FiltersProps) {
   const location = useLocation();
 
   const filterClasses = classNames(
-    "mv-fixed mv-overflow-scroll @lg:mv-overflow-visible @lg:mv-relative mv-z-20 @lg:mv-z-10 mv-w-full mv-h-dvh @lg:mv-h-fit mv-left-0 mv-top-0 @lg:mv-justify-between mv-flex mv-flex-col @lg:mv-flex-row",
+    "mv-fixed mv-left-0 mv-top-0 mv-overflow-scroll @lg:mv-overflow-visible @lg:mv-relative mv-z-20 @lg:mv-z-10 mv-w-full mv-h-dvh @lg:mv-h-fit @lg:mv-justify-between mv-flex mv-flex-col @lg:mv-flex-row mv-bg-white @lg:mv-bg-transparent",
     showFilters === true ? "mv-flex" : "mv-hidden @lg:mv-flex"
   );
 
@@ -591,7 +591,7 @@ export function Filters(props: FiltersProps) {
   return (
     <>
       <div className={filterClasses}>
-        <div className="mv-flex mv-justify-between mv-items-center mv-px-4 mv-pt-8 mv-pb-4 mv-shadow-lg @lg:mv-hidden">
+        <div className="mv-flex mv-justify-between mv-items-center mv-px-4 mv-py-5 lg:mv-py-6 @lg:mv-hidden">
           <h2 className="mv-mb-0 -mv-mr-[33px] mv-w-full @lg:mv-hidden mv-text-center mv-text-gray-700 mv-text-base">
             {title}
           </h2>

@@ -620,7 +620,11 @@ export default function App() {
     modal && "mv-overflow-hidden",
     showFilters !== null &&
       showFilters !== "false" &&
-      "mv-overflow-hidden lg:mv-overflow-auto",
+      `mv-overflow-hidden ${
+        abilities.next_navbar.hasAccess
+          ? "@lg:mv-overflow-auto"
+          : "lg:mv-overflow-auto"
+      }`,
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
       "mv-overflow-hidden lg:mv-overflow-auto"
@@ -713,23 +717,18 @@ export default function App() {
       <body className={bodyClasses}>
         <div id="top" className="flex flex-col min-h-screen">
           {abilities.next_navbar.hasAccess ? (
-            <NextNavBar
-              sessionUserInfo={nextSessionUserInfo}
-              abilities={abilities}
-              openNavBarMenuKey={openNavBarMenuKey}
-            />
-          ) : null}
-
-          {isIndexRoute ||
-          (showFilters !== null && showFilters !== "false") ||
-          abilities.next_navbar.hasAccess ? null : (
-            <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
-          )}
-          {isIndexRoute && abilities.next_navbar.hasAccess === false ? (
-            <div className="z-10">
+            <div className={`${showFilters ? "mv-hidden @lg:mv-block" : ""}`}>
+              <NextNavBar
+                sessionUserInfo={nextSessionUserInfo}
+                abilities={abilities}
+                openNavBarMenuKey={openNavBarMenuKey}
+              />
+            </div>
+          ) : (
+            <div className={`${showFilters ? "mv-hidden @lg:mv-block" : ""}`}>
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
-          ) : null}
+          )}
 
           <div className="mv-flex mv-h-full">
             {abilities.next_navbar.hasAccess ? (
