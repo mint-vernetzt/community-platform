@@ -26,17 +26,19 @@ module.exports = {
       colors: {
         neutral: {
           DEFAULT: "#70809D",
-          50: "#FCFCFD",
-          100: "#F4F5F6",
-          200: "#EAECF0",
-          300: "#BFC6D3",
-          400: "#8893A7",
-          500: "#70809D",
-          600: "#4D5970",
-          700: "#3C4658",
-          800: "#262D38",
-          900: "#0B0D10",
         },
+        // Cannot use object syntax here, because daisyui overrides the colors
+        // see https://github.com/saadeghi/daisyui/issues/2368
+        "neutral-50": "#FCFCFD",
+        "neutral-100": "#F4F5F6",
+        "neutral-200": "#EAECF0",
+        "neutral-300": "#BFC6D3",
+        "neutral-400": "#8893A7",
+        "neutral-500": "#70809D",
+        "neutral-600": "#4D5970",
+        "neutral-700": "#3C4658",
+        "neutral-800": "#262D38",
+        "neutral-900": "#0B0D10",
         primary: {
           DEFAULT: "#154194",
           50: "#EDF3FF",
