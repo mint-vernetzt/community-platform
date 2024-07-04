@@ -553,10 +553,6 @@ function Item(
 ) {
   const children = React.Children.toArray(props.children);
 
-  const [searchParams] = useSearchParams();
-  const extendedSearchParams = new URLSearchParams(searchParams.toString());
-  extendedSearchParams.delete(props.openNavBarMenuKey);
-  const extendedSearchParamsString = extendedSearchParams.toString();
   return props.method === "post" ? (
     <>
       <Form id={props.to} method="post" action={props.to} hidden />
@@ -576,11 +572,7 @@ function Item(
       onClick={() => {
         props.setActiveTopicId(null);
       }}
-      to={`${props.to}${
-        extendedSearchParamsString.length > 0
-          ? `?${extendedSearchParamsString}`
-          : ""
-      }`}
+      to={`${props.to}`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
           "mv-flex mv-items-center mv-gap-4 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg";
@@ -666,10 +658,6 @@ function TopicItem(
 ) {
   const external = props.to.startsWith("http");
   const children = React.Children.toArray(props.children);
-  const [searchParams] = useSearchParams();
-  const extendedSearchParams = new URLSearchParams(searchParams.toString());
-  extendedSearchParams.delete(props.openNavBarMenuKey);
-  const extendedSearchParamsString = extendedSearchParams.toString();
   return external ? (
     <Link
       to={`${props.to}`}
@@ -681,11 +669,7 @@ function TopicItem(
   ) : (
     <NavLink
       end
-      to={`${props.to}${
-        extendedSearchParamsString.length > 0
-          ? `?${extendedSearchParamsString}`
-          : ""
-      }`}
+      to={`${props.to}`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
           "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4";
