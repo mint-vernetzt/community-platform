@@ -32,7 +32,7 @@
       },
       "seventhCard": {
         "title": "STEM sharepic and image database",
-        "description": "The Sharepic Generator helps you quickly and easily create graphics for e.g. your social media posts. You can find STEM images in the image database (DAM)."
+        "description": "The Sharepic Generator helps you quickly and easily create graphics for e.g. your social media posts. You can find STEM images in the image database."
       }
     },
     "secondColumn": {
@@ -57,26 +57,30 @@
         "description": "You can use the filter to search for specific criteria within the overview pages of profiles, organizations, events or projects."
       },
       "secondCard": {
+        "title": "Projects",
+        "description": "All community members can share their experiences from insightful and successful projects, providing valuable information for learning and inspiration. This includes downloadable materials, details on project setups, and funding information."
+      },
+      "thirdCard": {
         "title": "Language setting: English",
         "description": "With the expanded language settings, we enable a larger group of actors to use the community platform well."
       },
-      "thirdCard": {
+      "fourthCard": {
         "title": "Eventmanagement",
         "description": "Browse for suitable MINTvernetzt events, register and see who has also registered for the event."
       },
-      "fourthCard": {
+      "fifthCard": {
         "title": "Profile & organization profile",
         "description": "You introduce yourself to the STEM community using your profile and by creating your organization with its team members."
       },
-      "fifthCard": {
+      "sixthCard": {
         "title": "Search",
         "description": "You can use the search function to search for profiles, organizations, events, projects and keywords."
       },
-      "sixthCard": {
+      "seventhCard": {
         "title": "MINT-ID",
         "description": "In order to be able to easily switch between the two offers MINTvernetzt and MINT-Campus, there is the MINT-ID, with which you can use both platforms (single sign-in)."
       },
-      "seventhCard": {
+      "eighthCard": {
         "title": "Landing page",
         "description": "The landing page informs new members about the content and usage figures of the community platform."
       }
