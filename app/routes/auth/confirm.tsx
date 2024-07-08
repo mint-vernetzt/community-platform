@@ -2,17 +2,10 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { type EmailOtpType } from "@supabase/supabase-js";
-import HeaderLogo from "~/components/HeaderLogo/HeaderLogo";
 import { invariantResponse } from "~/lib/utils/response";
-import PageBackground from "../../components/PageBackground/PageBackground";
-import { createAuthClient } from "~/auth.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-
-  const { authClient } = createAuthClient(request);
-  const abilities = await getFeatureAbilities(authClient, "next_navbar");
 
   const url = new URL(request.url);
 
@@ -62,7 +55,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   return json({
     confirmationLink: sanitizedConfirmationLink,
-    abilities,
   });
 };
 
@@ -73,26 +65,15 @@ export default function Confirm() {
 
   return (
     <>
-      <PageBackground imagePath="/images/login_background_image.jpg" />
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative z-10">
-        {loaderData.abilities.next_navbar.hasAccess === false ? (
-          <div className="flex flex-row -mx-4 justify-end">
-            <div className="basis-full @md:mv-basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
-              <div>
-                <HeaderLogo />
-              </div>
-              <div className="ml-auto"></div>
-            </div>
-          </div>
-        ) : null}
-        <div className="flex flex-col @md:mv-flex-row -mx-4">
-          <div className="basis-full @md:mv-basis-6/12 px-4"> </div>
-          <div className="basis-full @md:mv-basis-6/12 @xl:mv-basis-5/12 px-4">
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-sm @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @xl:mv-px-6 @2xl:mv-max-w-screen-2xl relative z-10">
+        <div className="flex flex-col mv-w-full mv-items-center">
+          <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
+            <div className="mv-mb-14 mv-mt-6"> </div>
             {type === "signup" && (
               <>
                 <h1 className="mb-4">Registrierungsbestätigung</h1>
 
-                <p className="mb-4">
+                <p className="mb-6">
                   Herzlich willkommen in der MINTcommunity! Bitte bestätige
                   innerhalb von 24 Stunden die E-Mail-Adresse zur Aktivierung
                   Deines Profils auf der MINTvernetzt-Plattform über den
@@ -110,7 +91,7 @@ export default function Confirm() {
               <>
                 <h1 className="mb-4">E-Mail-Adresse ändern</h1>
 
-                <p className="mb-4">
+                <p className="mb-6">
                   Um Deine E-Mail-Adresse auf der MINTvernetzt-Plattform zu
                   ändern, folge bitte diesem Link:
                 </p>
@@ -126,7 +107,7 @@ export default function Confirm() {
               <>
                 <h1 className="mb-4">Passwort zurücksetzen</h1>
 
-                <p className="mb-4">
+                <p className="mb-6">
                   Du hast dein Passwort vergessen? Klicke auf den untenstehenden
                   Link, um dein Passwort zurückzusetzen:
                 </p>
