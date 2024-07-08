@@ -355,7 +355,7 @@ function getExternalLinks() {
       ),
     },
     meshMint: {
-      link: "https://www.mint-vernetzt.de/mesh-studie/?limit=6¤tPostType=mesh_study",
+      link: "https://www.mint-vernetzt.de/mesh-studie/?limit=6&PostType=mesh_study",
       icon: (
         <svg
           width="85"
