@@ -149,7 +149,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const originalFilename = getFilenameBySearchParams(event, depth, type);
   const filename = escapeFilenameSpecialChars(originalFilename);
   const csv = createCsvString(profiles);
-  return new Response(csv, {
+
+  // \uFEFF is the byte order mark (BOM) for UTF-8
+  // It is used to tell the receiving program that the text is UTF-8 encoded
+  // fix for Excel not recognizing UTF-8 encoding
+  return new Response(`\uFEFF${csv}`, {
     status: 200,
     headers: {
       "Content-Type": "text/csv",
