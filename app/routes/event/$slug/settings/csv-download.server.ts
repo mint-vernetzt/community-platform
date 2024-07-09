@@ -23,6 +23,15 @@ export async function getEventBySlug(slug: string) {
                   },
                 },
               },
+              areas: {
+                select: {
+                  area: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -45,6 +54,15 @@ export async function getEventBySlug(slug: string) {
               memberOf: {
                 select: {
                   organization: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+              areas: {
+                select: {
+                  area: {
                     select: {
                       name: true,
                     },
