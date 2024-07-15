@@ -32,7 +32,7 @@
     },
     "seventhCard": {
       "title": "MINT-Sharepic und -Bilddatenbank",
-      "description": "Der Sharepic Generator hilft Euch schnell und einfach Grafiken für z.B. Eure Social Media Posts zu erstellen. MINT-Bilder findet Ihr in der Bilddatenbank (DAM)."
+      "description": "Der Sharepic Generator hilft Euch schnell und einfach Grafiken für z.B. Eure Social Media Posts zu erstellen. MINT-Bilder findet Ihr in der Bilddatenbank."
     }
   },
   "secondColumn": {
@@ -57,26 +57,30 @@
       "description": "Mit dem Filter kannst Du innerhalb der Übersichtseiten der Profile, Organisationen, Events oder Projekte nach bestimmten Kriterien durchsuchen."
     },
     "secondCard": {
+      "title": "Gute Praxis-Projekte",
+      "description": "Über die von der Community angelegten Projekte ermöglichen wir Euch untereinander den Wissenstransfer und Inspiration in Form vom Tipps zum Nachmachen, Materialdownload und Infos über Rahmenbedingungen und Finanzierungen."
+    },
+    "thirdCard": {
       "title": "Spracheinstellung: Englisch",
       "description": "Mit der erweiterten Spracheinstellung ermöglichen wir einem größeren Akteur:innen-Kreis die Community Plattform gut zu nutzen."
     },
-    "thirdCard": {
+    "fourthCard": {
       "title": "Eventmanagement",
       "description": "Stöbere nach passenden MINTvernetzt-Events, melde Dich an und schau, wer sich auch für das Event angemeldet hat."
     },
-    "fourthCard": {
+    "fifthCard": {
       "title": "Profil & Organisationsprofil",
       "description": "Du stellst Dich mithilfe Deines Profils der MINT-Community vor und legst Deine Organisation mit Teammitgliedern an."
     },
-    "fifthCard": {
+    "sixthCard": {
       "title": "Suche",
       "description": "Über die Suchfunktion kannst Du nach Profilen, Organisationen, Events, Projekten und nach Stichwörtern suchen."
     },
-    "sixthCard": {
+    "seventhCard": {
       "title": "MINT-ID",
       "description": "Um bequem zwischen den beiden Angeboten MINTvernetzt und MINT-Campus wechseln zu können, gibt es die MINT-ID, mit der man beide Plattformen nutzen kann (Single-Sign-in)."
     },
-    "seventhCard": {
+    "eighthCard": {
       "title": "Startseite",
       "description": "Die Startseite informiert neue Mitglieder über Inhalte und Nutzungszahlen der Community-Plattform."
     }
