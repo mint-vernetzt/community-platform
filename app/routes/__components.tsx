@@ -718,9 +718,23 @@ function Closer(props: { openNavBarMenuKey: string }) {
   searchParams.delete(props.openNavBarMenuKey);
   const searchParamsString = searchParams.toString();
 
+  const location = useLocation();
+
+  console.log(
+    `${
+      searchParamsString.length > 0
+        ? `${location.pathname}?${searchParamsString}`
+        : location.pathname
+    }`
+  );
+
   return (
     <Link
-      to={`${searchParamsString.length > 0 ? `?${searchParamsString}` : "."}`}
+      to={`${
+        searchParamsString.length > 0
+          ? `${location.pathname}?${searchParamsString}`
+          : location.pathname
+      }`}
       preventScrollReset
     >
       <Icon type="close-x" />
