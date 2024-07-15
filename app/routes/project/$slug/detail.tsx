@@ -220,7 +220,7 @@ function ProjectDetail() {
   return (
     <>
       {loaderData.username !== null && (
-        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mb-4">
+        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mb-4">
           <TextButton weight="thin" variant="neutral" arrowLeft>
             <Link
               to={`/profile/${loaderData.username}/#projects`}
@@ -231,7 +231,7 @@ function ProjectDetail() {
           </TextButton>
         </section>
       )}
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
         <Header>
           {mode === "admin" && project.published === false && (
             <Status>{t("content.draft")}</Status>
@@ -251,7 +251,7 @@ function ProjectDetail() {
             <Controls>
               <Form method="get" action={location.pathname} preventScrollReset>
                 <input hidden name="modal-background" defaultValue="true" />
-                {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] */}
+                {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl */}
                 <CircleButton type="submit" variant="outline">
                   <div className="mv-absolute mv-top-4 mv-left-4 mv-w-full mv-h-full mv-modal-button mv-cursor-pointer">
                     <svg
@@ -389,7 +389,7 @@ function ProjectDetail() {
       )}
       <section
         id="tab-bar-container"
-        className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mv-overflow-hidden mv-pb-8"
+        className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-overflow-hidden mv-pb-8"
       >
         <div className="@md:mv-flex @xl:mv-justify-center">
           <div className="mv-flex mv-flex-col mv-gap-8 @xl:mv-w-2/3">

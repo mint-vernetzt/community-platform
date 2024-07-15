@@ -15,7 +15,7 @@ function Footer(props: { isSettings?: boolean }) {
       <footer className="mv-relative mv-text-sm mv-shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)] mv-bg-white mv-block">
         <div className={`mv-flex mv-flex-col lg:mv-max-h-fit`}>
           <hr className="mv-hidden lg:mv-block lg:mv-order-2" />
-          <div className="lg:mv-order-3 mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] lg:mv-py-6 lg:mv-flex ">
+          <div className="lg:mv-order-3 mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl lg:mv-py-6 lg:mv-flex ">
             <div className="mv-font-bold mv-hidden lg:mv-block lg:mv-w-3/12">
               {t("meta.copyright")}
             </div>
@@ -127,7 +127,7 @@ function Footer(props: { isSettings?: boolean }) {
             </div>
           </div>
 
-          <div className="lg:mv-order-1 mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] lg:mv-pt-12 lg:mv-pb-8 lg:mv-flex">
+          <div className="lg:mv-order-1 mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl lg:mv-pt-12 lg:mv-pb-8 lg:mv-flex">
             <div className="mv-font-bold mv-hidden lg:mv-block">
               <div className="mv-w-48 md:mv-mr-16 xl:mv-mr-20">
                 <Link

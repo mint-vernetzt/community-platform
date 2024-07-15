@@ -425,8 +425,8 @@ function Dashboard() {
         </div>
       </section>
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
-        {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1120px]"> */}
-        {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @2xl:mv-max-w-[1563px] mv-mb-16"> */}
+        {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] @md:mv-max-w-screen-container-md @lg:mv-max-w-[1120px]"> */}
+        {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-[1563px] mv-mb-16"> */}
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {t("content.profiles")}

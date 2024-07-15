@@ -635,14 +635,14 @@ export default function App() {
 
   const main = (
     <main
-      className={`flex-auto relative w-full mv-py-6 @lg:mv-py-8 ${
+      className={`flex-auto relative w-full ${
         abilities.next_navbar.hasAccess ? "mv-bg-neutral-100" : ""
       }`}
     >
       {typeof alert !== "undefined" &&
       isNonAppBaseRoute === false &&
       isIndexRoute === false ? (
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
           <Alert level={alert.level}>{alert.message}</Alert>
         </div>
       ) : null}

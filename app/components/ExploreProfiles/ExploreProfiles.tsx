@@ -7,7 +7,7 @@ function ExploreProfiles(props: ExploreProfilesProps) {
   return (
     <div>
       <header className="shadow-md mb-8">
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative z-10">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
           <div className="px-4 pt-3 pb-3 flex flex-row items-center">
             <div>
               <HeaderLogo />
@@ -37,7 +37,7 @@ function ExploreProfiles(props: ExploreProfilesProps) {
         </div>
       </header>
 
-      <section className="hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mt-8 @md:mv-mt-10 @lg:mv-mt-20 text-center">
+      <section className="hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mt-8 @md:mv-mt-10 @lg:mv-mt-20 text-center">
         <H1 like="h0">Explore the Community</H1>
         <p className="">
           Wir entwickeln MINTvernetzt mit Euch (weiter)! Hier könnt Ihr Euch
@@ -48,7 +48,7 @@ function ExploreProfiles(props: ExploreProfilesProps) {
       </section>
 
       <section
-        className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] my-8 @md:mv-my-10 @lg:mv-my-20"
+        className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl my-8 @md:mv-my-10 @lg:mv-my-20"
         id="contact-details"
       >
         <div
