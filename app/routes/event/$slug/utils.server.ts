@@ -59,7 +59,8 @@ export async function getFullDepthProfiles(
                   avatar, 
                   academic_title as "academicTitle", 
                   get_full_depth.name as "participatedEvents", 
-                  array_remove(array_agg(DISTINCT organizations.name), null) as "memberOf"`;
+                  array_remove(array_agg(DISTINCT organizations.name), null) as "memberOf",
+                  array_remove(array_agg(DISTINCT areas.name), null) as "areas"`;
 
     const profileJoin =
       relation === "participants"
@@ -85,6 +86,14 @@ export async function getFullDepthProfiles(
                     LEFT JOIN "organizations"
                     ON "organizations".id = "members_of_organizations"."organizationId"`;
 
+    const areasJoin =
+      groupBy === "profiles"
+        ? Prisma.empty
+        : Prisma.sql`LEFT JOIN "areas_on_profiles"
+                    ON "profiles".id = "areas_on_profiles"."profileId"
+                    LEFT JOIN "areas"
+                    ON "areas".id = "areas_on_profiles"."areaId"`;
+
     const groupByClause =
       groupBy === "profiles"
         ? Prisma.sql`GROUP BY profiles.id`
@@ -100,7 +109,12 @@ export async function getFullDepthProfiles(
         | "username"
         | "avatar"
         | "position"
-      > & { email?: string; participatedEvents?: string; memberOf?: string[] }
+      > & {
+        email?: string;
+        participatedEvents?: string;
+        memberOf?: string[];
+        areas?: string[];
+      }
     > = await prismaClient.$queryRaw`
       WITH RECURSIVE get_full_depth AS (
           SELECT id, parent_event_id, name
@@ -116,6 +130,7 @@ export async function getFullDepthProfiles(
         FROM get_full_depth
           ${profileJoin}
           ${organizationJoin}
+          ${areasJoin}
         ${groupByClause}
         ORDER BY first_name ASC
       ;`;
