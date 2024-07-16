@@ -188,9 +188,9 @@ function NavBarMenu(
         <HeaderLogo />
       </Link>
 
-      <div className="lg:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-3 mv-flex-shrink">
+      <div className="lg:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-flex-shrink">
         {props.mode === "anon" ? (
-          <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex lg:mv-hidden mv-pl-4 lg:mv-pl-0">
+          <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex lg:mv-hidden">
             <div>
               <Link to={`/login?login_redirect=${location.pathname}`}>
                 <Button>{t("root.login")}</Button>
@@ -208,9 +208,7 @@ function NavBarMenu(
         ) : (
           <div className="mv-flex-grow"> </div>
         )}
-        <div className="mv-pr-3">
-          <Closer openNavBarMenuKey={props.openNavBarMenuKey} />
-        </div>
+        <Closer openNavBarMenuKey={props.openNavBarMenuKey} />
       </div>
       <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
         <div className="mv-flex-grow">
