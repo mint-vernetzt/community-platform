@@ -622,7 +622,7 @@ export default function App() {
       showFilters !== "false" &&
       `mv-overflow-hidden ${
         abilities.next_navbar.hasAccess
-          ? "@lg:mv-overflow-auto"
+          ? "md:mv-overflow-auto"
           : "lg:mv-overflow-auto"
       }`,
     navBarMenuIsOpen !== null &&
