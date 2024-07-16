@@ -636,7 +636,7 @@ export default function App() {
   const main = (
     <main
       className={`flex-auto relative w-full ${
-        abilities.next_navbar.hasAccess ? "mv-bg-neutral-100" : ""
+        abilities.next_navbar.hasAccess ? "mv-bg-neutral-50" : ""
       }`}
     >
       {typeof alert !== "undefined" &&
