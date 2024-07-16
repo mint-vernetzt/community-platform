@@ -3,28 +3,24 @@ import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useActionData,
-  useLoaderData,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
+import { makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
 import type { KeyboardEvent } from "react";
 import React from "react";
-import { makeDomainFunction } from "domain-functions";
+import { Trans, useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUser, signUp } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import SelectField from "../../components/FormElements/SelectField/SelectField";
-import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
-import PageBackground from "../../components/PageBackground/PageBackground";
-import { generateUsername } from "../../utils.server";
-import { type TFunction } from "i18next";
-import { Trans, useTranslation } from "react-i18next";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
+import SelectField from "../../components/FormElements/SelectField/SelectField";
+import { generateUsername } from "../../utils.server";
 
 const i18nNS = ["routes/register/index"];
 export const handle = {
@@ -60,9 +56,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (sessionUser !== null) {
     return redirect("/dashboard");
   }
-  const abilities = await getFeatureAbilities(authClient, "next_navbar");
 
-  return { abilities };
+  return null;
 };
 
 const createMutation = (t: TFunction) => {
@@ -126,7 +121,6 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 export default function Register() {
-  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
@@ -147,31 +141,20 @@ export default function Register() {
 
   return (
     <>
-      <PageBackground imagePath="/images/login_background_image.jpg" />
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
-        {loaderData.abilities.next_navbar.hasAccess === false ? (
-          <div className="flex flex-row -mx-4 justify-end">
-            <div className="basis-full @md:mv-basis-6/12 px-4 pt-3 pb-24 flex flex-row items-center">
-              <div>
-                <HeaderLogo />
-              </div>
-              <div className="ml-auto">
-                {t("content.question")}{" "}
-                <Link
-                  to={`/login${
-                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                  }`}
-                  className="text-primary font-bold"
-                >
-                  {t("content.login")}
-                </Link>
-              </div>
+        <div className="flex flex-col mv-w-full mv-items-center">
+          <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
+            <div className="mv-mb-14 mv-mt-6">
+              {t("content.question")}{" "}
+              <Link
+                to={`/login${
+                  loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                }`}
+                className="text-primary font-bold"
+              >
+                {t("content.login")}
+              </Link>
             </div>
-          </div>
-        ) : null}
-        <div className="flex flex-col @md:mv-flex-row -mx-4">
-          <div className="basis-full @md:mv-basis-6/12 px-4"></div>
-          <div className="basis-full @md:mv-basis-6/12 @xl:mv-basis-5/12 px-4">
             <h1 className="mb-4">{t("content.create")}</h1>
             {actionData !== undefined && actionData.success ? (
               <>

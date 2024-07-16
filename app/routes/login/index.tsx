@@ -3,27 +3,23 @@ import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useActionData,
-  useLoaderData,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
 import type { KeyboardEvent } from "react";
+import { useTranslation } from "react-i18next";
 import type { FormProps } from "remix-forms";
 import { performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
-import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import HeaderLogo from "../../components/HeaderLogo/HeaderLogo";
-import PageBackground from "../../components/PageBackground/PageBackground";
-import { useTranslation } from "react-i18next";
-import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
+import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 
 const i18nNS = ["routes/login"];
 export const handle = {
@@ -53,14 +49,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (sessionUser !== null) {
     return redirect("/dashboard");
   }
-  const abilities = await getFeatureAbilities(authClient, "next_navbar");
 
-  return { abilities };
+  return null;
 };
-
-// const mutation = makeDomainFunction(schema)(async (values) => {
-//   return { ...values };
-// });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const locale = detectLanguage(request);
@@ -108,7 +99,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Index() {
-  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const loginError =
     actionData !== undefined && "message" in actionData
@@ -139,31 +129,20 @@ export default function Index() {
     >
       {({ Field, Button, Errors, register }) => (
         <>
-          <PageBackground imagePath="/images/login_background_image.jpg" />
           <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
-            {loaderData.abilities.next_navbar.hasAccess === false ? (
-              <div className="flex flex-row -mx-4 justify-end">
-                <div className="basis-full @md:mv-basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
-                  <div className="">
-                    <HeaderLogo />
-                  </div>
-                  <div className="ml-auto">
-                    {t("content.question")}{" "}
-                    <Link
-                      to={`/register${
-                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                      }`}
-                      className="text-primary font-bold"
-                    >
-                      {t("content.action")}
-                    </Link>
-                  </div>
+            <div className="flex flex-col mv-w-full mv-items-center">
+              <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
+                <div className="mv-mb-14 mv-mt-6">
+                  {t("content.question")}{" "}
+                  <Link
+                    to={`/register${
+                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                    }`}
+                    className="text-primary font-bold"
+                  >
+                    {t("content.action")}
+                  </Link>
                 </div>
-              </div>
-            ) : null}
-            <div className="flex flex-col @md:mv-flex-row -mx-4">
-              <div className="basis-full @md:mv-basis-6/12 px-4"> </div>
-              <div className="basis-full @md:mv-basis-6/12 @xl:mv-basis-5/12 px-4">
                 <h1 className="mb-8">{t("content.headline")}</h1>
 
                 <Errors className="mv-p-3 mv-mb-3 mv-bg-error mv-text-white">

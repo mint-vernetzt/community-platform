@@ -159,6 +159,10 @@ function Roadmap() {
               title={t("thirdColumn.seventhCard.title")}
               text={t("thirdColumn.seventhCard.description")}
             />
+            <RoadmapCard
+              title={t("thirdColumn.eighthCard.title")}
+              text={t("thirdColumn.eighthCard.description")}
+            />
           </RoadmapColumn>
         </div>
         <div className="mv-flex mv-justify-center mv-mt-12">

@@ -94,26 +94,40 @@ function getFilenameBySearchParams(
 function createCsvString(
   profiles: Awaited<ReturnType<typeof getProfilesBySearchParams>>
 ) {
-  let csv = "VORNAME,NACHNAME,EMAIL,POSITION,ORGANISATIONEN,VERANSTALTUNG\n";
+  let csv =
+    "VORNAME,NACHNAME,EMAIL,POSITION,ORGANISATIONEN,AKTIVITÄTSGEBIETE,VERANSTALTUNG\n";
 
   for (const profile of profiles) {
-    if ("profile" in profile) {
-      csv += `"${profile.profile.firstName}","${profile.profile.lastName}","${
-        profile.profile.email || ""
-      }","${profile.profile.position}","${
-        profile.profile.memberOf !== undefined
-          ? profile.profile.memberOf.join(", ")
-          : ""
-      }","${profile.profile.participatedEvents || ""}"\n`;
-    } else {
-      csv += `"${profile.firstName}","${profile.lastName}","${
-        profile.email
-      }","${profile.position}","${profile.memberOf
-        .map((organization) => {
-          return organization.organization.name;
-        })
-        .join(", ")}","${profile.participatedEvents}"\n`;
-    }
+    const ref = "profile" in profile ? profile.profile : profile;
+    const data = [];
+    data.push(`"${ref.firstName}"`);
+    data.push(`"${ref.lastName}"`);
+    data.push(typeof ref.email === "string" ? `"${ref.email}"` : "");
+    data.push(`"${ref.position}"`);
+    data.push(
+      Array.isArray(ref.memberOf)
+        ? `"${ref.memberOf
+            .map((rel) => {
+              return typeof rel === "string" ? rel : rel.organization.name;
+            })
+            .join(", ")}"`
+        : ""
+    );
+    data.push(
+      Array.isArray(ref.areas)
+        ? `"${ref.areas
+            .map((rel) => {
+              return typeof rel === "string" ? rel : rel.area.name;
+            })
+            .join(", ")}"`
+        : ""
+    );
+    data.push(
+      typeof ref.participatedEvents === "string"
+        ? `"${ref.participatedEvents}"`
+        : ""
+    );
+    csv += data.join(",") + "\n";
   }
 
   return csv;
@@ -149,7 +163,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const originalFilename = getFilenameBySearchParams(event, depth, type);
   const filename = escapeFilenameSpecialChars(originalFilename);
   const csv = createCsvString(profiles);
-  return new Response(csv, {
+
+  // \uFEFF is the byte order mark (BOM) for UTF-8
+  // It is used to tell the receiving program that the text is UTF-8 encoded
+  // fix for Excel not recognizing UTF-8 encoding
+  return new Response(`\uFEFF${csv}`, {
     status: 200,
     headers: {
       "Content-Type": "text/csv",
