@@ -66,7 +66,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedProject.background);
       if (publicURL) {
         enhancedProject.background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 400, height: 280 },
+          resize: { type: "fill", width: 348, height: 160 },
         });
       }
     }
@@ -75,7 +75,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedProject.logo);
       if (publicURL) {
         enhancedProject.logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 144, height: 144 },
+          resize: { type: "fit", width: 136, height: 136 },
         });
       }
     }
@@ -86,7 +86,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
+            resize: { type: "fit", width: 36, height: 36 },
             gravity: GravityType.center,
           });
         }
@@ -101,7 +101,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
+              resize: { type: "fill", width: 36, height: 36 },
               gravity: GravityType.center,
             });
           }
@@ -180,7 +180,7 @@ export default function SearchView() {
             </CardContainer>
           </section>
           {shouldFetch && (
-            <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
+            <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
               <fetcher.Form method="get">
                 <input
                   key="query"

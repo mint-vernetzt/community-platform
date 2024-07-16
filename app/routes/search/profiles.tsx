@@ -83,7 +83,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, enhancedProfile.background);
       if (publicURL !== null) {
         enhancedProfile.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
+          resize: { type: "fill", width: 348, height: 160 },
           gravity: GravityType.center,
         });
       }
@@ -94,7 +94,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
+          resize: { type: "fit", width: 36, height: 36 },
         });
       }
       return { ...organization, logo };
@@ -176,7 +176,7 @@ export default function Profiles() {
             })}
           </CardContainer>
           {shouldFetch && (
-            <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
+            <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
               <fetcher.Form method="get">
                 <input key="query" type="hidden" name="query" value={query} />
                 <input key="page" type="hidden" name="page" value={page + 1} />

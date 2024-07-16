@@ -85,7 +85,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
+              resize: { type: "fill", width: 36, height: 36 },
               gravity: GravityType.center,
             });
           }
@@ -208,7 +208,7 @@ export default function SearchView() {
             </CardContainer>
           </section>
           {shouldFetch && (
-            <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
+            <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
               <fetcher.Form method="get">
                 <input key="query" type="hidden" name="query" value={query} />
                 <input key="page" type="hidden" name="page" value={page + 1} />
