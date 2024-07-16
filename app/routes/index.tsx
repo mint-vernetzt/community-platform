@@ -141,8 +141,8 @@ export default function Index() {
   //background: linear-gradient(358.45deg, #FFFFFF 12.78%, rgba(255, 255, 255, 0.4) 74.48%, rgba(255, 255, 255, 0.4) 98.12%);
   return (
     <>
-      <section className="-mt-8 bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
-        <div className="py-16 @lg:mv-py-20 relative overflow-hidden @xl:mv-min-h-[calc(100vh-129px)] @md:mv-flex @md:mv-items-center">
+      <section className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
+        <div className="py-16 @lg:mv-py-20 relative overflow-hidden mv-min-h-[calc(100dvh-76px)] lg:mv-min-h-[calc(100dvh-80px)] @md:mv-flex @md:mv-items-center">
           <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden @lg:mv-block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -350,7 +350,7 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="absolute left-1/2 bottom-8 hidden @xl:mv-block">
+          <div className="absolute left-1/2 bottom-8 hidden @md:mv-block">
             <a href="#intro">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
