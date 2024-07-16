@@ -221,7 +221,7 @@ export default function Index() {
 
   return (
     <>
-      <section className="hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mt-8 @md:mv-mt-10 @lg:mv-mt-20">
+      <section className="hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mt-10 @md:mv-mt-12 @lg:mv-mt-14">
         <div className="rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
           <div className="w-full h-full">
             {background ? (
@@ -265,13 +265,9 @@ export default function Index() {
         </div>
       </section>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative pb-44">
-        <div className="flex flex-col @lg:mv-flex-row -mx-4">
+        <div className="flex flex-col @lg:mv-flex-row -mx-4 -mv-mt-2">
           <div className="flex-gridcol @lg:mv-w-5/12 px-4 pt-10 @lg:mv-pt-0">
-            <div
-              className={`sticky ${
-                loaderData.abilities.next_navbar.hasAccess ? "top-24" : "top-4"
-              }`}
-            >
+            <div className="sticky top-4">
               <div className="px-4 py-8 @lg:mv-p-8 pb-15 @md:mv-pb-5 rounded-3xl border border-neutral-400 bg-neutral-200 shadow-lg relative @lg:mv-ml-14 @lg:-mv-mt-44 ">
                 <div className="flex items-center flex-col">
                   <Avatar />
