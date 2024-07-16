@@ -208,7 +208,9 @@ function NavBarMenu(
         ) : (
           <div className="mv-flex-grow"> </div>
         )}
-        <Closer openNavBarMenuKey={props.openNavBarMenuKey} />
+        <div className="mv-pr-3">
+          <Closer openNavBarMenuKey={props.openNavBarMenuKey} />
+        </div>
       </div>
       <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
         <div className="mv-flex-grow">
@@ -703,14 +705,6 @@ function Closer(props: { openNavBarMenuKey: string }) {
   const searchParamsString = searchParams.toString();
 
   const location = useLocation();
-
-  console.log(
-    `${
-      searchParamsString.length > 0
-        ? `${location.pathname}?${searchParamsString}`
-        : location.pathname
-    }`
-  );
 
   return (
     <Link
