@@ -591,7 +591,7 @@ export function Filters(props: FiltersProps) {
   return (
     <>
       <div className={filterClasses}>
-        <div className="mv-flex mv-justify-between mv-items-center mv-px-4 mv-py-5 lg:mv-py-6 @md:mv-hidden">
+        <div className="mv-flex mv-justify-between mv-items-center mv-px-4 mv-py-5 @md:mv-py-6 @md:mv-hidden">
           <h2 className="mv-mb-0 -mv-mr-[33px] mv-w-full @md:mv-hidden mv-text-center mv-text-gray-700 mv-text-base">
             {title}
           </h2>

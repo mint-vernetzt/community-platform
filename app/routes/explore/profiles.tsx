@@ -352,13 +352,13 @@ export default function ExploreProfiles() {
             <Filters.Title>{t("filter.title")}</Filters.Title>
 
             <Filters.Fieldset
-              className="mv-flex mv-flex-wrap @lg:mv-gap-4"
+              className="mv-flex mv-flex-wrap @md:mv-gap-4"
               {...getFieldsetProps(fields.filter)}
             >
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.offers")}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="mv-font-normal @md:mv-hidden">
                     <br />
                     {loaderData.selectedOffers
                       .map((offer) => {
@@ -399,7 +399,7 @@ export default function ExploreProfiles() {
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.areas")}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="mv-font-normal @md:mv-hidden">
                     <br />
                     {loaderData.selectedAreas
                       .map((area) => {
@@ -564,11 +564,11 @@ export default function ExploreProfiles() {
             <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
-                  <span className="@lg:mv-hidden">
+                  <span className="@md:mv-hidden">
                     {t("filter.sortBy.label")}
                     <br />
                   </span>
-                  <span className="mv-font-normal @lg:mv-font-semibold">
+                  <span className="mv-font-normal @md:mv-font-semibold">
                     {t(
                       `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
                     )}
@@ -622,8 +622,8 @@ export default function ExploreProfiles() {
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mb-6">
         {(loaderData.selectedOffers.length > 0 ||
           loaderData.selectedAreas.length > 0) && (
-          <div className="mv-flex mv-flex-col">
-            <div className="mv-overflow-scroll @lg:mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
+          <div className="mv-flex mv-flex-col mv-gap-2">
+            <div className="mv-overflow-auto mv-flex mv-flex-nowrap @md:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
@@ -686,7 +686,7 @@ export default function ExploreProfiles() {
         )}
       </section>
 
-      <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-sm @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+      <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         {loaderData.filteredByVisibilityCount !== undefined &&
         loaderData.filteredByVisibilityCount > 0 ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
@@ -714,7 +714,7 @@ export default function ExploreProfiles() {
               })}
             </CardContainer>
             {loaderData.profilesCount > loaderData.profiles.length && (
-              <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
+              <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
                 <Link
                   to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
                   preventScrollReset
