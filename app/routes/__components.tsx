@@ -9,7 +9,6 @@ import {
   Link,
   NavLink,
   useLocation,
-  useMatches,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
@@ -53,18 +52,11 @@ function NextNavBar(props: NextNavBarProps) {
   const query = searchParams.get("query");
   const navBarMenuIsOpen = searchParams.get(props.openNavBarMenuKey);
 
-  const matches = useMatches();
-  let isSettings = false;
-  if (matches[1] !== undefined) {
-    isSettings = matches[1].id === "routes/project/$slug/settings";
-  }
-
   const classes = classNames(
     "mv-sticky mv-top-0 mv-h-[76px] lg:mv-h-20 mv-z-10 mv-bg-white",
-    isSettings && "mv-hidden sm:mv-block",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
-      "mv-hidden sm:mv-hidden lg:mv-block"
+      "mv-hidden lg:mv-block"
   );
 
   const { t } = useTranslation(["meta"]);
@@ -156,7 +148,6 @@ function NextNavBar(props: NextNavBarProps) {
   );
 }
 
-// TODO: i18n for NavBarMenu and all its contents
 function NavBarMenu(
   props: React.PropsWithChildren & {
     mode: Mode;

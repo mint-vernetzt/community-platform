@@ -715,9 +715,15 @@ export default function App() {
       </head>
 
       <body className={bodyClasses}>
-        <div id="top" className="flex flex-col min-h-screen">
+        <div id="top" className="flex flex-col min-h-screen mv-@container/main">
           {abilities.next_navbar.hasAccess ? (
-            <div className={`${showFilters ? "mv-hidden @lg:mv-block" : ""}`}>
+            <div
+              className={`${
+                showFilters || isProjectSettings
+                  ? "mv-hidden @md/main:mv-block"
+                  : ""
+              }`}
+            >
               <NextNavBar
                 sessionUserInfo={nextSessionUserInfo}
                 abilities={abilities}
@@ -725,7 +731,9 @@ export default function App() {
               />
             </div>
           ) : (
-            <div className={`${showFilters ? "mv-hidden @lg:mv-block" : ""}`}>
+            <div
+              className={`${showFilters ? "mv-hidden @md/main:mv-block" : ""}`}
+            >
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
           )}
