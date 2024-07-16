@@ -656,7 +656,7 @@ export default function App() {
     <div className={`${isSettings ? "hidden @md:mv-block " : ""}w-0`}>
       <div className="w-0 h-16"></div>
       <div className="w-0 h-screen sticky top-0">
-        <div className="absolute bottom-4 @md:mv-bottom-8 -left-20">
+        <div className="absolute bottom-4 -left-20">
           <Link to={`${location.pathname}${location.search}#top`}>
             <CircleButton size="large" floating>
               <svg
