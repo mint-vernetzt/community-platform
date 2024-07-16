@@ -219,8 +219,8 @@ function ProjectDetail() {
 
   return (
     <>
-      {loaderData.username !== null && (
-        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mb-4">
+      {loaderData.username !== null ? (
+        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
           <TextButton weight="thin" variant="neutral" arrowLeft>
             <Link
               to={`/profile/${loaderData.username}/#projects`}
@@ -230,6 +230,10 @@ function ProjectDetail() {
             </Link>
           </TextButton>
         </section>
+      ) : (
+        <div className="mv-w-full mv-mb-2 @md:mv-mb-4 @md:mv-mt-2 mv-h-6">
+          {" "}
+        </div>
       )}
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
         <Header>
@@ -389,7 +393,7 @@ function ProjectDetail() {
       )}
       <section
         id="tab-bar-container"
-        className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-overflow-hidden mv-pb-8"
+        className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-overflow-hidden mv-mb-24"
       >
         <div className="@md:mv-flex @xl:mv-justify-center">
           <div className="mv-flex mv-flex-col mv-gap-8 @xl:mv-w-2/3">
