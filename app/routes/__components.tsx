@@ -61,10 +61,10 @@ function NextNavBar(props: NextNavBarProps) {
 
   const classes = classNames(
     "mv-sticky mv-top-0 mv-h-[76px] lg:mv-h-20 mv-z-10 mv-bg-white",
-    isSettings && "mv-hidden md:mv-block",
+    isSettings && "mv-hidden sm:mv-block",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
-      "mv-hidden lg:mv-block"
+      "mv-hidden sm:mv-hidden lg:mv-block"
   );
 
   const { t } = useTranslation(["meta"]);
