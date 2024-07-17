@@ -53,21 +53,21 @@ function NextNavBar(props: NextNavBarProps) {
   const navBarMenuIsOpen = searchParams.get(props.openNavBarMenuKey);
 
   const classes = classNames(
-    "mv-sticky mv-top-0 mv-h-[76px] lg:mv-h-20 mv-z-10 mv-bg-white",
+    "mv-sticky mv-top-0 mv-h-[76px] xl:mv-h-20 mv-z-10 mv-bg-white",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
-      "mv-hidden lg:mv-block"
+      "mv-hidden xl:mv-block"
   );
 
   const { t } = useTranslation(["meta"]);
 
   return (
     <header id="header" className={classes}>
-      <div className="mv-flex mv-h-full mv-items-center mv-mr-4 lg:mv-mr-8">
+      <div className="mv-flex mv-h-full mv-items-center mv-mr-4 xl:mv-mr-8">
         <Link
           to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
-          className={`lg:mv-w-[300px] mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 ${
-            props.sessionUserInfo !== undefined ? "mv-hidden lg:mv-block" : ""
+          className={`xl:mv-w-[300px] mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 ${
+            props.sessionUserInfo !== undefined ? "mv-hidden xl:mv-block" : ""
           }`}
         >
           <HeaderLogo />
@@ -76,7 +76,7 @@ function NextNavBar(props: NextNavBarProps) {
           <div
             className={`${
               props.sessionUserInfo !== undefined
-                ? "mv-mx-4 mv-block lg:mv-hidden"
+                ? "mv-mx-4 mv-block xl:mv-hidden"
                 : ""
             }`}
           >
@@ -94,7 +94,7 @@ function NextNavBar(props: NextNavBarProps) {
           </div>
         )}
 
-        <div className="mv-flex mv-gap-2 lg:mv-gap-4 mv-flex-grow mv-items-center">
+        <div className="mv-flex mv-gap-2 xl:mv-gap-4 mv-flex-grow mv-items-center">
           <Form className="mv-flex-grow" method="get" action="/search">
             <Search
               placeholder={t("root.search.placeholder")}
@@ -103,12 +103,12 @@ function NextNavBar(props: NextNavBarProps) {
             />
           </Form>
 
-          <div className="mv-flex-shrink mv-block lg:mv-hidden">
+          <div className="mv-flex-shrink mv-block xl:mv-hidden">
             <Opener openNavBarMenuKey="navbarmenu" />
           </div>
 
           {props.sessionUserInfo !== undefined ? (
-            <div className="mv-flex-col mv-items-center mv-hidden lg:mv-flex">
+            <div className="mv-flex-col mv-items-center mv-hidden xl:mv-flex">
               <Avatar
                 size="xs"
                 firstName={props.sessionUserInfo.firstName}
@@ -127,7 +127,7 @@ function NextNavBar(props: NextNavBarProps) {
               </div>
             </div>
           ) : (
-            <div className="mv-gap-4 mv-items-center mv-hidden lg:mv-flex">
+            <div className="mv-gap-4 mv-items-center mv-hidden xl:mv-flex">
               <div>
                 <Link to={`/login?login_redirect=${location.pathname}`}>
                   <Button variant="ghost">
@@ -168,20 +168,20 @@ function NavBarMenu(
       id="navbarmenu"
       className={`${
         isOpen !== null && isOpen !== "false"
-          ? "mv-flex mv-flex-col mv-mr-20 lg:mv-mr-0"
-          : "mv-hidden lg:mv-flex lg:mv-flex-col"
-      } mv-w-full mv-min-w-full lg:mv-w-[300px] lg:mv-min-w-[300px] mv-h-screen mv-sticky mv-top-0 lg:-mv-mt-28 mv-bg-white mv-z-10`}
+          ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
+          : "mv-hidden xl:mv-flex xl:mv-flex-col"
+      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-screen mv-sticky mv-top-0 xl:-mv-mt-28 mv-bg-white mv-z-10`}
     >
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
-        className="lg:mv-py-3 lg:mv-w-full mv-pl-4 lg:mv-pl-6 mv-pr-2 lg:mv-pr-0 mv-hidden lg:mv-block mv-flex-shrink"
+        className="xl:mv-py-3 xl:mv-w-full mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 mv-hidden xl:mv-block mv-flex-shrink"
       >
         <HeaderLogo />
       </Link>
 
-      <div className="lg:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-flex-shrink">
+      <div className="xl:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-flex-shrink">
         {props.mode === "anon" ? (
-          <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex lg:mv-hidden">
+          <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex xl:mv-hidden">
             <div>
               <Link to={`/login?login_redirect=${location.pathname}`}>
                 <Button>{t("root.login")}</Button>

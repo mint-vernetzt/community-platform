@@ -622,12 +622,12 @@ export default function App() {
       showFilters !== "false" &&
       `mv-overflow-hidden ${
         abilities.next_navbar.hasAccess
-          ? "md:mv-overflow-auto"
+          ? "lg:mv-overflow-auto"
           : "lg:mv-overflow-auto"
       }`,
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
-      "mv-overflow-hidden lg:mv-overflow-auto"
+      "mv-overflow-hidden xl:mv-overflow-auto"
   );
 
   const { i18n } = useTranslation();
@@ -719,10 +719,8 @@ export default function App() {
           {abilities.next_navbar.hasAccess ? (
             <div
               className={`${
-                showFilters || isProjectSettings
-                  ? "mv-hidden @md/main:mv-block"
-                  : ""
-              }`}
+                showFilters ? "mv-hidden @lg/main:mv-block " : " "
+              }${isProjectSettings ? "mv-hidden @md/main:mv-block" : ""}`}
             >
               <NextNavBar
                 sessionUserInfo={nextSessionUserInfo}
@@ -732,7 +730,9 @@ export default function App() {
             </div>
           ) : (
             <div
-              className={`${showFilters ? "mv-hidden @md/main:mv-block" : ""}`}
+              className={`${
+                showFilters ? "mv-hidden @lg/main:mv-block " : " "
+              }${isProjectSettings ? "mv-hidden @md/main:mv-block" : ""}`}
             >
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
@@ -750,7 +750,7 @@ export default function App() {
               {isIndexRoute === false && isNonAppBaseRoute === false && (
                 <LoginOrRegisterCTA isAnon={mode === "anon"} />
               )}
-              <div className="flex flex-nowrap min-h-[calc(100dvh - 76px)] lg:min-h-[calc(100dvh - 80px)]">
+              <div className="flex flex-nowrap min-h-[calc(100dvh - 76px)] xl:min-h-[calc(100dvh - 80px)]">
                 {main}
                 {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
                 {scrollButton}

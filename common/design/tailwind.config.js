@@ -16,10 +16,22 @@ module.exports = {
   plugins: [daisyui, tailwindContainerQueries],
   theme: {
     extend: {
+      screens: {
+        sm: "600px",
+        "container-sm": "600px",
+        md: "768px",
+        "container-md": "768px",
+        lg: "1024px",
+        "container-lg": "965px",
+        xl: "1280px",
+        "container-xl": "1280px",
+        "2xl": "1536px",
+        "container-2xl": "1536px",
+      },
       containers: {
         sm: "600px",
-        md: "700px",
-        lg: "1024px",
+        md: "768px",
+        lg: "965px",
         xl: "1280px",
         "2xl": "1536px",
       },
@@ -149,18 +161,6 @@ module.exports = {
           DEFAULT: "1rem",
           xl: "1.5rem",
         },
-      },
-      screens: {
-        sm: "600px",
-        "container-sm": "600px",
-        md: "768px",
-        "container-md": "700px",
-        lg: "1024px",
-        "container-lg": "1024px",
-        xl: "1280px",
-        "container-xl": "1280px",
-        "2xl": "1536px",
-        "container-2xl": "1536px",
       },
       backgroundImage: {
         "select-arrow":
