@@ -14,7 +14,7 @@ function LoginPage(props: LoginPageProps) {
   return (
     <div className="">
       <PageBackground imagePath="/images/default_kitchen.jpg" />
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative z-10">
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
         <div className="flex flex-row -mx-4 justify-end">
           <div className="basis-6/12 px-4 pt-4 pb-24 flex flex-row items-center">
             <div className="">

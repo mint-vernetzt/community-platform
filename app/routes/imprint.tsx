@@ -9,7 +9,7 @@ export default function Imprint() {
   const { t } = useTranslation(i18nNS);
 
   return (
-    <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] my-8 @md:mv-my-10 @lg:mv-my-20">
+    <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl my-8 @md:mv-my-10 @lg:mv-my-20">
       <h1>{t("title")}</h1>
       <p className="mb-2">{t("project.title")}</p>
       <ul className="mb-4">

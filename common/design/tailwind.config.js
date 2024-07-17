@@ -18,7 +18,7 @@ module.exports = {
     extend: {
       containers: {
         sm: "600px",
-        md: "768px",
+        md: "700px",
         lg: "1024px",
         xl: "1280px",
         "2xl": "1536px",
@@ -152,10 +152,15 @@ module.exports = {
       },
       screens: {
         sm: "600px",
+        "container-sm": "600px",
         md: "768px",
+        "container-md": "700px",
         lg: "1024px",
+        "container-lg": "1024px",
         xl: "1280px",
+        "container-xl": "1280px",
         "2xl": "1536px",
+        "container-2xl": "1536px",
       },
       backgroundImage: {
         "select-arrow":

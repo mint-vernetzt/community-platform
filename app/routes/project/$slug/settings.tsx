@@ -103,7 +103,7 @@ function ProjectSettings() {
   );
 
   return (
-    <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
+    <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-px-4 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
       <div className="mv-hidden @md:mv-block mv-mb-8">
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
           <TextButton weight="thin" variant="neutral" arrowLeft>
@@ -155,28 +155,28 @@ function ProjectSettings() {
               </svg>
             </Link>
           </div>
-          <ul>
+          <ul className="mv-grid mv-grid-cols-1 mv-grid-rows-9">
             {navLinks.map((navLink) => {
               const absolutePath = navLink.to.replace(".", "");
               const isActive = location.pathname.includes(absolutePath);
 
               const itemClasses = classNames(
-                "@md:mv-border-b @md:mv-last:mv-border-b-0 mv-overflow-hidden",
+                "@md:mv-border-b @md:mv-last:mv-border-b-0 mv-h-full mv-grid mv-grid-rows-1 mv-grid-cols-1",
                 isActive && "@md:mv-border-l-8",
                 navLink.variant === "negative"
                   ? "@md:mv-border-l-negative"
                   : "@md:mv-border-l-primary"
               );
               const linkClasses = classNames(
-                "mv-text-lg @md:mv-text-2xl mv-font-semibold mv-block",
-                "mv-px-6 @md:mv-px-8 mv-py-4 @md:mv-py-8",
+                "mv-text-lg @lg:mv-text-2xl mv-font-semibold mv-block mv-place-self-center mv-w-full",
+                "mv-px-6 @lg:mv-px-8 mv-py-4 @lg:mv-py-8",
                 navLink.variant === "negative"
                   ? "mv-text-negative"
                   : "mv-text-primary",
-                isActive && "@md:mv-pl-6 @md:mv-pr-8",
+                isActive && "@lg:mv-pl-6 @lg:mv-pr-8",
                 isActive === false &&
                   navLink.variant !== "negative" &&
-                  "@md:mv-text-neutral @md:mv-hover:mv-text-primary"
+                  "@lg:mv-text-neutral @lg:mv-hover:mv-text-primary"
               );
 
               return (
@@ -188,9 +188,7 @@ function ProjectSettings() {
                     prefetch="intent"
                     preventScrollReset
                   >
-                    <span className="mv-truncate mv-overflow-hidden mv-block">
-                      {navLink.label}
-                    </span>
+                    <span className="mv-text-wrap">{navLink.label}</span>
                   </Link>
                 </li>
               );

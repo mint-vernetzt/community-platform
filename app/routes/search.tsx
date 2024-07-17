@@ -71,12 +71,14 @@ function SearchView() {
 
   return query !== null && query !== "" ? (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mt-8 @md:mv-mt-10 @lg:mv-mt-20 text-center">
-        <H1 like="h0">{t("title.query")}</H1>
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 @md:mv-mb-16 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 text-center">
+        <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
+          {t("title.query")}
+        </H1>
         <p>{t("results", { query })}</p>
       </section>
       <section
-        className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] my-8 @md:mv-my-10"
+        className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-10 @md:mv-mb-20"
         id="search-results"
       >
         <ul
@@ -120,8 +122,10 @@ function SearchView() {
       <Outlet />
     </>
   ) : (
-    <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mt-8 @md:mv-mt-10 @lg:mv-mt-20 text-center">
-      <H1 like="h0">{t("title.noquery")}</H1>
+    <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 @md:mv-mb-16 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 text-center">
+      <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
+        {t("title.noquery")}
+      </H1>
       <Form
         method="get"
         action="/search/profiles"

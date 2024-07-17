@@ -26,7 +26,7 @@ function Settings() {
       active ? "text-primary" : "text-neutral-500"
     }  hover:text-primary py-3`;
   return (
-    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative">
+    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative mv-mt-10 @md:mv-mt-12 @lg:mv-mt-14">
       <div className="flex flex-col items-stretch @lg:mv-flex-row -mx-4 pt-10 @lg:mv-pt-0 mb-8">
         <div className="basis-4/12 px-4">
           <div className="px-4 py-8 @lg:mv-p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
@@ -106,7 +106,7 @@ function Settings() {
             </menu>
           </div>
         </div>
-        <div className="basis-6/12 px-4 pb-24">
+        <div className="basis-6/12 px-4 pb-24 mv-mb-8">
           <main>
             <Outlet />
           </main>

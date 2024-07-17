@@ -339,7 +339,7 @@ function Fundings() {
   const filter = fields.filter.getFieldset();
 
   return (
-    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mv-flex mv-flex-col mv-gap-4">
+    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-flex mv-flex-col mv-gap-4">
       <div>
         <Form
           {...getFormProps(form)}
@@ -497,7 +497,7 @@ function Fundings() {
           </Filters>
         </Form>
       </div>
-      <section className="mv-w-full mv-mx-auto @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mv-mb-6 mv-px-0">
+      <section className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 mv-px-0">
         {(loaderData.selectedFunders.length > 0 ||
           loaderData.selectedFundingTypes.length > 0 ||
           loaderData.selectedFundingAreas.length > 0 ||

@@ -141,8 +141,8 @@ export default function Index() {
   //background: linear-gradient(358.45deg, #FFFFFF 12.78%, rgba(255, 255, 255, 0.4) 74.48%, rgba(255, 255, 255, 0.4) 98.12%);
   return (
     <>
-      <section className="-mt-8 bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
-        <div className="py-16 @lg:mv-py-20 relative overflow-hidden @xl:mv-min-h-[calc(100vh-129px)] @md:mv-flex @md:mv-items-center">
+      <section className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
+        <div className="py-16 @lg:mv-py-20 relative overflow-hidden mv-min-h-[calc(100dvh-76px)] lg:mv-min-h-[calc(100dvh-80px)] @md:mv-flex @md:mv-items-center">
           <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden @lg:mv-block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -171,7 +171,7 @@ export default function Index() {
             </svg>
           </div>
 
-          <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative">
+          <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
             <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
               <div className="@md:mv-col-start-1 @md:mv-col-span-7 @xl:mv-col-start-2 @xl:mv-col-span-5 @md:mv-flex @md:mv-items-center">
                 <div>
@@ -185,7 +185,7 @@ export default function Index() {
               </div>
 
               <div className="@md:mv-col-start-8 @md:mv-col-span-5 @lg:mv-col-start-9 @lg:mv-col-span-4 @xl:mv-col-start-8 @xl:mv-col-span-4">
-                <div className="py-8 mv-bg-white @sm:mv-mv-bg-neutral-50 @sm:mv-rounded-3xl @sm:mv-p-8 @sm:mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+                <div className="py-8 mv-bg-transparent @sm:mv-bg-neutral-50 @sm:mv-rounded-3xl @sm:mv-p-8 @sm:mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
                   {loaderData.abilities.keycloak.hasAccess && (
                     <div className="text-center">
                       <Button
@@ -350,7 +350,7 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="absolute left-1/2 bottom-8 hidden @xl:mv-block">
+          <div className="absolute left-1/2 bottom-8 hidden @md:mv-block">
             <a href="#intro">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -373,7 +373,7 @@ export default function Index() {
       </section>
 
       <section className="py-16 @lg:mv-py-24 relative" id="intro">
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
           <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
             <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12">
@@ -405,7 +405,7 @@ export default function Index() {
       </section>
 
       <section className="py-16 @lg:mv-py-24 relative bg-primary text-white">
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
           <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
             <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12 text-white tracking-wider">
@@ -490,7 +490,7 @@ export default function Index() {
             </g>
           </svg>
         </div>
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] relative">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
           <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
             <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
               <H3 className="text-center font-semibold all-small-caps mb-12 tracking-wider">

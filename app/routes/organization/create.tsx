@@ -150,9 +150,9 @@ function Create() {
   const { t } = useTranslation(i18nNS);
 
   return (
-    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px] mv-relative">
-      <div className="flex -mx-4 justify-center">
-        <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4 pt-10 @lg:mv-pt-0">
+    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
+      <div className="flex -mx-4 justify-center mv-w-full">
+        <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4 pt-10 mv-w-full">
           <h4 className="font-semibold">{t("content.headline")}</h4>
           <Form
             method="post"

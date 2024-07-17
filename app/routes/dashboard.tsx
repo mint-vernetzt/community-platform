@@ -381,7 +381,7 @@ function Dashboard() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+      <section className="mv-w-full mv-mx-auto mv-m-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-px-4 @xl:mv-px-6">
           <h1 className="mv-text-primary mv-font-black mv-text-5xl @lg:mv-text-7xl mv-leading-tight mv-mb-2">
             {t("content.welcome")}
@@ -400,7 +400,7 @@ function Dashboard() {
           </p>
         </div>
       </section>
-      <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+      <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-flex-col mv-w-full mv-items-center mv-gap-6 mv-py-6 mv-bg-gray-50 mv-border mv-border-neutral-200 mv-rounded-lg">
           <h2 className="mv-appearance-none mv-w-full mv-text-primary mv-text-center mv-text-3xl mv-font-semibold mv-leading-7 @lg:mv-leading-8 mv-tracking-tight mv-px-11 @lg:mv-px-6">
             {t("content.communityCounter.headline")}
@@ -424,9 +424,9 @@ function Dashboard() {
           </ul>
         </div>
       </section>
-      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
-        {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1120px]"> */}
-        {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @2xl:mv-max-w-[1563px] mv-mb-16"> */}
+      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+        {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] @md:mv-max-w-screen-container-md @lg:mv-max-w-[1120px]"> */}
+        {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-[1563px] mv-mb-16"> */}
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {t("content.profiles")}
@@ -447,7 +447,7 @@ function Dashboard() {
           </CardContainer>
         </div>
       </section>
-      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {t("content.organizations")}
@@ -473,7 +473,7 @@ function Dashboard() {
           </CardContainer>
         </div>
       </section>
-      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {t("content.projects")}
@@ -494,7 +494,7 @@ function Dashboard() {
           </CardContainer>
         </div>
       </section>
-      <section className="mv-w-full mv-mb-12 mv-mx-auto @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+      <section className="mv-w-full mv-mb-12 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {t("content.events")}
@@ -538,7 +538,7 @@ function Dashboard() {
           </CardContainer>
         </div>
       </section>
-      <section className="mv-w-full mv-mb-16 @xl:mv-mb-20 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-md @lg:mv-max-w-screen-lg @xl:mv-max-w-screen-xl @2xl:mv-max-w-screen-2xl">
+      <section className="mv-w-full mv-mb-24 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <h2 className="mv-appearance-none mv-w-full mv-mb-6 mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-tracking-[-0.44px]">
           {t("content.externalLinks.headline")}
         </h2>

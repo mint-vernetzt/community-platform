@@ -9,7 +9,6 @@ import {
   Link,
   NavLink,
   useLocation,
-  useMatches,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
@@ -53,15 +52,8 @@ function NextNavBar(props: NextNavBarProps) {
   const query = searchParams.get("query");
   const navBarMenuIsOpen = searchParams.get(props.openNavBarMenuKey);
 
-  const matches = useMatches();
-  let isSettings = false;
-  if (matches[1] !== undefined) {
-    isSettings = matches[1].id === "routes/project/$slug/settings";
-  }
-
   const classes = classNames(
     "mv-sticky mv-top-0 mv-h-[76px] lg:mv-h-20 mv-z-10 mv-bg-white",
-    isSettings && "mv-hidden md:mv-block",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
       "mv-hidden lg:mv-block"
@@ -156,7 +148,6 @@ function NextNavBar(props: NextNavBarProps) {
   );
 }
 
-// TODO: i18n for NavBarMenu and all its contents
 function NavBarMenu(
   props: React.PropsWithChildren & {
     mode: Mode;
@@ -188,9 +179,9 @@ function NavBarMenu(
         <HeaderLogo />
       </Link>
 
-      <div className="lg:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-3 mv-flex-shrink">
+      <div className="lg:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-flex-shrink">
         {props.mode === "anon" ? (
-          <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex lg:mv-hidden mv-pl-4 lg:mv-pl-0">
+          <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex lg:mv-hidden">
             <div>
               <Link to={`/login?login_redirect=${location.pathname}`}>
                 <Button>{t("root.login")}</Button>
@@ -702,9 +693,15 @@ function Closer(props: { openNavBarMenuKey: string }) {
   searchParams.delete(props.openNavBarMenuKey);
   const searchParamsString = searchParams.toString();
 
+  const location = useLocation();
+
   return (
     <Link
-      to={`${searchParamsString.length > 0 ? `?${searchParamsString}` : "."}`}
+      to={`${
+        searchParamsString.length > 0
+          ? `${location.pathname}?${searchParamsString}`
+          : location.pathname
+      }`}
       preventScrollReset
     >
       <Icon type="close-x" />

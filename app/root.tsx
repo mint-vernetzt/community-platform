@@ -620,7 +620,11 @@ export default function App() {
     modal && "mv-overflow-hidden",
     showFilters !== null &&
       showFilters !== "false" &&
-      "mv-overflow-hidden lg:mv-overflow-auto",
+      `mv-overflow-hidden ${
+        abilities.next_navbar.hasAccess
+          ? "md:mv-overflow-auto"
+          : "lg:mv-overflow-auto"
+      }`,
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
       "mv-overflow-hidden lg:mv-overflow-auto"
@@ -631,14 +635,14 @@ export default function App() {
 
   const main = (
     <main
-      className={`flex-auto relative w-full mv-py-6 @lg:mv-py-8 ${
-        abilities.next_navbar.hasAccess ? "mv-bg-neutral-100" : ""
+      className={`flex-auto relative w-full ${
+        abilities.next_navbar.hasAccess ? "mv-bg-neutral-50" : ""
       }`}
     >
       {typeof alert !== "undefined" &&
       isNonAppBaseRoute === false &&
       isIndexRoute === false ? (
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-[600px] @md:mv-max-w-[768px] @lg:mv-max-w-[1024px] @xl:mv-max-w-[1280px] @xl:mv-px-6 @2xl:mv-max-w-[1536px]">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
           <Alert level={alert.level}>{alert.message}</Alert>
         </div>
       ) : null}
@@ -652,7 +656,7 @@ export default function App() {
     <div className={`${isSettings ? "hidden @md:mv-block " : ""}w-0`}>
       <div className="w-0 h-16"></div>
       <div className="w-0 h-screen sticky top-0">
-        <div className="absolute bottom-4 @md:mv-bottom-8 -left-20">
+        <div className="absolute bottom-4 -left-20">
           <Link to={`${location.pathname}${location.search}#top`}>
             <CircleButton size="large" floating>
               <svg
@@ -711,25 +715,28 @@ export default function App() {
       </head>
 
       <body className={bodyClasses}>
-        <div id="top" className="flex flex-col min-h-screen">
+        <div id="top" className="flex flex-col min-h-screen mv-@container/main">
           {abilities.next_navbar.hasAccess ? (
-            <NextNavBar
-              sessionUserInfo={nextSessionUserInfo}
-              abilities={abilities}
-              openNavBarMenuKey={openNavBarMenuKey}
-            />
-          ) : null}
-
-          {isIndexRoute ||
-          (showFilters !== null && showFilters !== "false") ||
-          abilities.next_navbar.hasAccess ? null : (
-            <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
-          )}
-          {isIndexRoute && abilities.next_navbar.hasAccess === false ? (
-            <div className="z-10">
+            <div
+              className={`${
+                showFilters || isProjectSettings
+                  ? "mv-hidden @md/main:mv-block"
+                  : ""
+              }`}
+            >
+              <NextNavBar
+                sessionUserInfo={nextSessionUserInfo}
+                abilities={abilities}
+                openNavBarMenuKey={openNavBarMenuKey}
+              />
+            </div>
+          ) : (
+            <div
+              className={`${showFilters ? "mv-hidden @md/main:mv-block" : ""}`}
+            >
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
-          ) : null}
+          )}
 
           <div className="mv-flex mv-h-full">
             {abilities.next_navbar.hasAccess ? (
