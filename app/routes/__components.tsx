@@ -608,7 +608,7 @@ function Topic(
         id={props.id}
         name="open-topic"
         type="checkbox"
-        hidden
+        className="mv-w-0 mv-h-0 mv-opacity-0 mv-peer"
         checked={props.activeTopicId === props.id}
         onChange={() => {
           if (props.activeTopicId === props.id) {
@@ -618,7 +618,9 @@ function Topic(
           }
         }}
       />
-      {label}
+      <span className="peer-[:focus]:mv-text-primary-500 peer-[:focus]:mv-border-blue-500 mv-border-2 mv-border-transparent mv-rounded-lg">
+        {label}
+      </span>
       <div className="mv-hidden group-has-[:checked]:mv-block">
         {topicItems}
       </div>
