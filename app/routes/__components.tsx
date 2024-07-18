@@ -153,6 +153,7 @@ function NavBarMenu(
     mode: Mode;
     openNavBarMenuKey: string;
     username?: string;
+    abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
   }
 ) {
   const location = useLocation();
@@ -411,13 +412,14 @@ function NavBarMenu(
               >
                 {t("root.menu.explore.events")}
               </TopicItem>
-
-              <TopicItem
-                to="/next/explore/fundings"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {t("root.menu.explore.fundings")}
-              </TopicItem>
+              {props.abilities.fundings.hasAccess && (
+                <TopicItem
+                  to="/next/explore/fundings"
+                  openNavBarMenuKey={props.openNavBarMenuKey}
+                >
+                  {t("root.menu.explore.fundings")}
+                </TopicItem>
+              )}
             </Topic>
           </TopMenu>
         </div>
