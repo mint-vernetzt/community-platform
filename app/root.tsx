@@ -622,12 +622,13 @@ export default function App() {
       showFilters !== "false" &&
       `mv-overflow-hidden ${
         abilities.next_navbar.hasAccess
-          ? "md:mv-overflow-auto"
+          ? // -15px is because of the scroll bar that gets hidden X_X
+            "container-lg:mv-overflow-auto"
           : "lg:mv-overflow-auto"
       }`,
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
-      "mv-overflow-hidden lg:mv-overflow-auto"
+      "mv-overflow-hidden xl:mv-overflow-auto"
   );
 
   const { i18n } = useTranslation();
@@ -715,14 +716,12 @@ export default function App() {
       </head>
 
       <body className={bodyClasses}>
-        <div id="top" className="flex flex-col min-h-screen mv-@container/main">
+        <div id="top" className="flex flex-col min-h-screen">
           {abilities.next_navbar.hasAccess ? (
             <div
               className={`${
-                showFilters || isProjectSettings
-                  ? "mv-hidden @md/main:mv-block"
-                  : ""
-              }`}
+                showFilters ? "mv-hidden container-lg:mv-block " : " "
+              }${isProjectSettings ? "mv-hidden container-md:mv-block" : ""}`}
             >
               <NextNavBar
                 sessionUserInfo={nextSessionUserInfo}
@@ -732,7 +731,9 @@ export default function App() {
             </div>
           ) : (
             <div
-              className={`${showFilters ? "mv-hidden @md/main:mv-block" : ""}`}
+              className={`${
+                showFilters ? "mv-hidden container-lg:mv-block " : " "
+              }${isProjectSettings ? "mv-hidden container-md:mv-block" : ""}`}
             >
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
@@ -750,7 +751,7 @@ export default function App() {
               {isIndexRoute === false && isNonAppBaseRoute === false && (
                 <LoginOrRegisterCTA isAnon={mode === "anon"} />
               )}
-              <div className="flex flex-nowrap min-h-[calc(100dvh - 76px)] lg:min-h-[calc(100dvh - 80px)]">
+              <div className="flex flex-nowrap min-h-[calc(100dvh - 76px)] xl:min-h-[calc(100dvh - 80px)]">
                 {main}
                 {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
                 {scrollButton}

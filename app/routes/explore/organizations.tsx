@@ -382,12 +382,12 @@ export default function ExploreOrganizations() {
             <Filters.Title>{t("filter.title")}</Filters.Title>
             <Filters.Fieldset
               {...getFieldsetProps(fields.filter)}
-              className="mv-flex mv-flex-wrap @md:mv-gap-4"
+              className="mv-flex mv-flex-wrap @lg:mv-gap-4"
             >
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.types")}
-                  <span className="mv-font-normal @md:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedTypes
                       .map((type) => {
@@ -428,7 +428,7 @@ export default function ExploreOrganizations() {
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.focuses")}
-                  <span className="mv-font-normal @md:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedFocuses
                       .map((focus) => {
@@ -469,7 +469,7 @@ export default function ExploreOrganizations() {
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.areas")}
-                  <span className="mv-font-normal @md:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedAreas
                       .map((area) => {
@@ -634,11 +634,11 @@ export default function ExploreOrganizations() {
             <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
-                  <span className="@md:mv-hidden">
+                  <span className="@lg:mv-hidden">
                     {t("filter.sortBy.label")}
                     <br />
                   </span>
-                  <span className="mv-font-normal @md:mv-font-semibold">
+                  <span className="mv-font-normal @lg:mv-font-semibold">
                     {t(
                       `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
                     )}
@@ -694,7 +694,7 @@ export default function ExploreOrganizations() {
           loaderData.selectedFocuses.length > 0 ||
           loaderData.selectedAreas.length > 0) && (
           <div className="mv-flex mv-flex-col mv-gap-2">
-            <div className="mv-overflow-auto mv-flex mv-flex-nowrap @md:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
+            <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedTypes.map((selectedType) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.type.name, selectedType.slug);

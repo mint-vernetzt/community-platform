@@ -503,7 +503,7 @@ export default function ExploreProjects() {
           <Filters showFilters={loaderData.submission.value.showFilters}>
             <Filters.Title>{t("filter.title")}</Filters.Title>
             <Filters.Fieldset
-              className="mv-flex mv-flex-wrap @md:mv-gap-4"
+              className="mv-flex mv-flex-wrap @lg:mv-gap-4"
               {...getFieldsetProps(fields.filter)}
               showMore={t("filter.showMore")}
               showLess={t("filter.showLess")}
@@ -511,7 +511,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.disciplines")}
-                  <span className="mv-font-normal @md:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedDisciplines
                       .map((discipline) => {
@@ -597,7 +597,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.targetGroups")}
-                  <span className="mv-font-normal @md:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedTargetGroups
                       .map((targetGroup) => {
@@ -641,7 +641,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.areas")}
-                  <span className="mv-font-normal @md:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedAreas
                       .map((area) => {
@@ -805,7 +805,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.formats")}
-                  <span className="mv-font-normal @md:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedFormats
                       .map((format) => {
@@ -846,7 +846,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.specialTargetGroups")}
-                  <span className="mv-font-normal @md:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedSpecialTargetGroups
                       .map((targetGroup) => {
@@ -890,7 +890,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {t("filter.financings")}
-                  <span className="mv-font-normal @md:mv-hidden">
+                  <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedFinancings
                       .map((financing) => {
@@ -933,11 +933,11 @@ export default function ExploreProjects() {
             <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
-                  <span className="@md:mv-hidden">
+                  <span className="@lg:mv-hidden">
                     {t("filter.sortBy.label")}
                     <br />
                   </span>
-                  <span className="mv-font-normal @md:mv-font-semibold">
+                  <span className="mv-font-normal @lg:mv-font-semibold">
                     {t(
                       `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
                     )}
@@ -997,7 +997,7 @@ export default function ExploreProjects() {
           loaderData.selectedSpecialTargetGroups.length > 0 ||
           loaderData.selectedFinancings.length > 0) && (
           <div className="mv-flex mv-flex-col mv-gap-2">
-            <div className="mv-overflow-auto mv-flex mv-flex-nowrap @md:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
+            <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedDisciplines.map((selectedDiscipline) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
