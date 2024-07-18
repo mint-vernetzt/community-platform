@@ -72,6 +72,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "events",
     "projects",
     "dashboard",
+    "fundings",
     "next_navbar",
     "abuse_report",
   ]);
@@ -745,6 +746,7 @@ export default function App() {
                 mode={mode}
                 openNavBarMenuKey={openNavBarMenuKey}
                 username={currentUserInfo?.username}
+                abilities={abilities}
               />
             ) : null}
             <div className="mv-flex-grow mv-@container">
