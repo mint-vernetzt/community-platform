@@ -622,7 +622,8 @@ export default function App() {
       showFilters !== "false" &&
       `mv-overflow-hidden ${
         abilities.next_navbar.hasAccess
-          ? "lg:mv-overflow-auto"
+          ? // -15px is because of the scroll bar that gets hidden X_X
+            "container-lg:mv-overflow-auto"
           : "lg:mv-overflow-auto"
       }`,
     navBarMenuIsOpen !== null &&
@@ -715,12 +716,12 @@ export default function App() {
       </head>
 
       <body className={bodyClasses}>
-        <div id="top" className="flex flex-col min-h-screen mv-@container/main">
+        <div id="top" className="flex flex-col min-h-screen">
           {abilities.next_navbar.hasAccess ? (
             <div
               className={`${
-                showFilters ? "mv-hidden @lg/main:mv-block " : " "
-              }${isProjectSettings ? "mv-hidden @md/main:mv-block" : ""}`}
+                showFilters ? "mv-hidden container-lg:mv-block " : " "
+              }${isProjectSettings ? "mv-hidden container-md:mv-block" : ""}`}
             >
               <NextNavBar
                 sessionUserInfo={nextSessionUserInfo}
@@ -731,8 +732,8 @@ export default function App() {
           ) : (
             <div
               className={`${
-                showFilters ? "mv-hidden @lg/main:mv-block " : " "
-              }${isProjectSettings ? "mv-hidden @md/main:mv-block" : ""}`}
+                showFilters ? "mv-hidden container-lg:mv-block " : " "
+              }${isProjectSettings ? "mv-hidden container-md:mv-block" : ""}`}
             >
               <NavBar sessionUserInfo={currentUserInfo} abilities={abilities} />
             </div>
