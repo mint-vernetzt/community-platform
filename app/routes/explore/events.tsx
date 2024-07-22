@@ -379,6 +379,13 @@ export default function ExploreOrganizations() {
     defaultValue: loaderData.submission.value,
   });
 
+  const formRef = React.useRef<HTMLFormElement>(null);
+  React.useEffect(() => {
+    if (formRef.current !== null) {
+      formRef.current.reset();
+    }
+  }, [loaderData.submission.value]);
+
   const filter = fields.filter.getFieldset();
 
   const page = loaderData.submission.value.page;
@@ -405,6 +412,7 @@ export default function ExploreOrganizations() {
         <Form
           {...getFormProps(form)}
           method="get"
+          ref={formRef}
           onChange={(event) => {
             submit(event.currentTarget, { preventScrollReset: true });
           }}
@@ -879,6 +887,7 @@ export default function ExploreOrganizations() {
               })}
             </div>
             <Link
+              className="mv-w-fit"
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
                   ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`

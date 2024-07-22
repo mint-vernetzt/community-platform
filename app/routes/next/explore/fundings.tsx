@@ -27,6 +27,7 @@ import {
   FormControl,
   ShowFiltersButton,
 } from "../../explore/__components";
+import React from "react";
 
 const getFundingsSchema = z.object({
   filter: z
@@ -330,6 +331,14 @@ function Fundings() {
     lastResult: loaderData.submission,
     defaultValue: loaderData.submission.value,
   });
+
+  const formRef = React.useRef<HTMLFormElement>(null);
+  React.useEffect(() => {
+    if (formRef.current !== null) {
+      formRef.current.reset();
+    }
+  }, [loaderData.submission.value]);
+
   const navigation = useNavigation();
   const location = useLocation();
 
@@ -344,6 +353,7 @@ function Fundings() {
         <Form
           {...getFormProps(form)}
           method="get"
+          ref={formRef}
           onChange={(event) => {
             submit(event.currentTarget, { preventScrollReset: true });
           }}
@@ -604,7 +614,11 @@ function Fundings() {
                 ) : null;
               })}
             </div>
-            <Link to={`${location.pathname}`} preventScrollReset>
+            <Link
+              className="mv-w-fit"
+              to={`${location.pathname}`}
+              preventScrollReset
+            >
               <Button
                 variant="outline"
                 loading={navigation.state === "loading"}

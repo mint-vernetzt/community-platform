@@ -464,6 +464,13 @@ export default function ExploreProjects() {
     defaultValue: loaderData.submission.value,
   });
 
+  const formRef = React.useRef<HTMLFormElement>(null);
+  React.useEffect(() => {
+    if (formRef.current !== null) {
+      formRef.current.reset();
+    }
+  }, [loaderData.submission.value]);
+
   const filter = fields.filter.getFieldset();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
@@ -486,6 +493,7 @@ export default function ExploreProjects() {
         <Form
           {...getFormProps(form)}
           method="get"
+          ref={formRef}
           onChange={(event) => {
             submit(event.currentTarget, { preventScrollReset: true });
           }}
@@ -1155,6 +1163,7 @@ export default function ExploreProjects() {
               })}
             </div>
             <Link
+              className="mv-w-fit"
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
                   ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`

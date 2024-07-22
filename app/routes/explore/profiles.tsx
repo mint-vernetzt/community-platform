@@ -312,6 +312,13 @@ export default function ExploreProfiles() {
     defaultValue: loaderData.submission.value,
   });
 
+  const formRef = React.useRef<HTMLFormElement>(null);
+  React.useEffect(() => {
+    if (formRef.current !== null) {
+      formRef.current.reset();
+    }
+  }, [loaderData.submission.value]);
+
   const filter = fields.filter.getFieldset();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
@@ -334,8 +341,16 @@ export default function ExploreProfiles() {
         <Form
           {...getFormProps(form)}
           method="get"
+          ref={formRef}
           onChange={(event) => {
+            // const submissionPromise = new Promise<void>((resolve) => {
+            //   resolve(
             submit(event.currentTarget, { preventScrollReset: true });
+            //   );
+            // });
+            // submissionPromise.then(() => {
+            //   event.currentTarget.reset();
+            // });
           }}
           preventScrollReset
         >
