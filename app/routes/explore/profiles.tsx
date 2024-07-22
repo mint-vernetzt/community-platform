@@ -667,6 +667,7 @@ export default function ExploreProfiles() {
               })}
             </div>
             <Link
+              className="mv-w-fit"
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
                   ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
