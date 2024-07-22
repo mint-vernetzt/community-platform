@@ -337,73 +337,6 @@ function NavBarMenu(
             ) : null}
 
             <Topic
-              id="resources"
-              activeTopicId={activeTopicId}
-              setActiveTopicId={setActiveTopicId}
-            >
-              <Label>
-                <Icon type="briefcase-outline" />
-                <div className="mv-font-semibold">
-                  {t("root.menu.ressources.label")}
-                </div>
-              </Label>
-
-              {/* TODO: Implement this when MINT-Sharepic is implemented */}
-              {/* <TopicItem
-                // TODO: Link to MINT-Sharepic when its available
-                to=""
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {t("root.menu.ressources.sharepic")}
-                <Icon type="box-arrow-up-right" />
-                <NewFeatureBanner />
-              </TopicItem> */}
-
-              {/* TODO: Implement this when MINT-Bildarchiv is implemented */}
-              {/* <TopicItem
-                // TODO: Link to MINT-Bildarchiv when its available
-                to=""
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {t("root.menu.ressources.imageArchive")}
-                <Icon type="box-arrow-up-right" />
-                <NewFeatureBanner />
-              </TopicItem> */}
-
-              <TopicItem
-                to="https://mintcampus.org/"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {t("root.menu.ressources.campus")}
-                <Icon type="box-arrow-up-right" />
-              </TopicItem>
-
-              <TopicItem
-                to="https://mint-vernetzt.shinyapps.io/datalab/"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {t("root.menu.ressources.datalab")}
-                <Icon type="box-arrow-up-right" />
-              </TopicItem>
-
-              <TopicItem
-                to="https://mint-vernetzt.de"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {t("root.menu.ressources.website")}
-                <Icon type="box-arrow-up-right" />
-              </TopicItem>
-
-              <TopicItem
-                to="https://github.com/mint-vernetzt/community-platform"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {t("root.menu.ressources.github")}
-                <Icon type="box-arrow-up-right" />
-              </TopicItem>
-            </Topic>
-
-            <Topic
               id="explore"
               activeTopicId={activeTopicId}
               setActiveTopicId={setActiveTopicId}
@@ -454,6 +387,73 @@ function NavBarMenu(
                   {t("root.menu.explore.fundings")}
                 </TopicItem>
               )}
+            </Topic>
+
+            <Topic
+              id="resources"
+              activeTopicId={activeTopicId}
+              setActiveTopicId={setActiveTopicId}
+            >
+              <Label>
+                <Icon type="briefcase-outline" />
+                <div className="mv-font-semibold">
+                  {t("root.menu.ressources.label")}
+                </div>
+              </Label>
+
+              {/* TODO: Implement this when MINT-Sharepic is implemented */}
+              {/* <TopicItem
+                // TODO: Link to MINT-Sharepic when its available
+                to=""
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                {t("root.menu.ressources.sharepic")}
+                <Icon type="box-arrow-up-right" />
+                <NewFeatureBanner />
+              </TopicItem> */}
+
+              {/* TODO: Implement this when MINT-Bildarchiv is implemented */}
+              {/* <TopicItem
+                // TODO: Link to MINT-Bildarchiv when its available
+                to=""
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                {t("root.menu.ressources.imageArchive")}
+                <Icon type="box-arrow-up-right" />
+                <NewFeatureBanner />
+              </TopicItem> */}
+
+              <TopicItem
+                to="https://mint-vernetzt.de"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                {t("root.menu.ressources.website")}
+                <Icon type="box-arrow-up-right" />
+              </TopicItem>
+
+              <TopicItem
+                to="https://mint-vernetzt.shinyapps.io/datalab/"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                {t("root.menu.ressources.datalab")}
+                <Icon type="box-arrow-up-right" />
+              </TopicItem>
+
+              <TopicItem
+                to="https://mintcampus.org/"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                {t("root.menu.ressources.campus")}
+                <Icon type="box-arrow-up-right" />
+              </TopicItem>
+
+              <TopicItem
+                to="https://github.com/mint-vernetzt/community-platform"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                {t("root.menu.ressources.github")}
+                <Icon type="box-arrow-up-right" />
+              </TopicItem>
             </Topic>
           </TopMenu>
         </div>
