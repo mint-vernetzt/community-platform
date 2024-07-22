@@ -26,7 +26,6 @@ import {
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
@@ -74,8 +73,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-
-  const abilities = await getFeatureAbilities(authClient, ["next_navbar"]);
 
   const organization = await getOrganizationBySlug(slug);
   if (organization === null) {
@@ -126,7 +123,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     pastEvents: enhancedPastEvents,
     userId: sessionUser?.id,
     mode,
-    abilities,
   });
 };
 
