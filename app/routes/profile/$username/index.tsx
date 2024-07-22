@@ -77,7 +77,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const abilities = await getFeatureAbilities(authClient, [
     "events",
     "projects",
-    "next_navbar",
   ]);
 
   // Overwrite administeredeEvents on mode !== "owner" with empty array
