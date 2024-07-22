@@ -201,9 +201,14 @@ export async function getAllOrganizations(options: {
     where: {
       AND: whereClauses,
     },
-    orderBy: {
-      [options.sortBy.value]: options.sortBy.direction,
-    },
+    orderBy: [
+      {
+        [options.sortBy.value]: options.sortBy.direction,
+      },
+      {
+        id: "asc",
+      },
+    ],
     take: options.take,
   });
 

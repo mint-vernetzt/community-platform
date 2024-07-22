@@ -392,7 +392,7 @@ export async function getAllEvents(options: {
     where: {
       AND: [...whereClauses, { published: true }],
     },
-    orderBy:
+    orderBy: [
       options.filter.periodOfTime === "past" &&
       options.sortBy.value === "startTime"
         ? {
@@ -401,6 +401,10 @@ export async function getAllEvents(options: {
         : {
             [options.sortBy.value]: options.sortBy.direction,
           },
+      {
+        id: "asc",
+      },
+    ],
     take: options.take,
   });
 
