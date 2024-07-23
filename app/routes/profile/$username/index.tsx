@@ -876,11 +876,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1067,11 +1067,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1244,11 +1244,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1415,11 +1415,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1509,13 +1509,13 @@ export default function Index() {
                           return (
                             <div
                               key={`past-admin-event-${event.id}`}
-                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
                                 className="flex"
                                 to={`/event/${event.slug}`}
                               >
-                                <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:mv-block mv-w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
                                     <img
                                       src={
@@ -1561,15 +1561,15 @@ export default function Index() {
                                       i18n.language
                                     )}
                                   </p>
-                                  <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
+                                  <h4 className="mv-line-clamp-1 mv-font-bold mv-text-base mv-m-0">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className=" mv-hidden @lg:mv-line-clamp-1 mv-text-xs mv-mt-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className=" mv-hidden @lg:mv-line-clamp-1 mv-text-xs mv-mt-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1702,11 +1702,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1824,11 +1824,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1942,11 +1942,11 @@ export default function Index() {
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
