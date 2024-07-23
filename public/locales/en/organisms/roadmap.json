@@ -7,15 +7,15 @@
     "firstColumn": {
       "title": "Ideas",
       "firstCard": {
-        "title": "Networking function",
-        "description": "You can use the networking function to network with other actors or organizations and collect your contacts in lists."
+        "title": "Networking feature",
+        "description": "The networking feature allows you to connect with other professionals or organizations and categorize your contacts into lists."
       },
       "secondCard": {
-        "title": "Matching function",
-        "description": "Suitable projects, organizations and actors are suggested to you via an algorithm."
+        "title": "Matching feature",
+        "description": "An algorithm suggests suitable projects, organizations, and professionals for you.."
       },
       "thirdCard": {
-        "title": "Create own events",
+        "title": "Create your own events",
         "description": "As a STEM actor, you can create your own events and manage the participants."
       },
       "fourthCard": {
@@ -39,11 +39,11 @@
       "title": "In development",
       "firstCard": {
         "title": "Dashboard",
-        "description": "After logging in, you can use the dashboard to clearly see all the platform's functions at a glance and be informed about news."
+        "description": "The dashboard provides an overview of all platform functions at a glance and keeps you informed about the latest news after logging in."
       },
       "secondCard": {
         "title": "Funding tool",
-        "description": "With the help of a crawler, STEM funding is compiled and displayed for you on the platform."
+        "description": "A web crawler gathers STEM funding opportunities and presents them to you on the platform."
       },
       "thirdCard": {
         "title": "FAQ",
@@ -54,7 +54,7 @@
       "title": "Already implemented",
       "firstCard": {
         "title": "Filter function",
-        "description": "You can use the filter to search for specific criteria within the overview pages of profiles, organizations, events or projects."
+        "description": "With the filter, you can search profiles, organizations, events, or projects based on specific criteria."
       },
       "secondCard": {
         "title": "Projects",
@@ -62,7 +62,7 @@
       },
       "thirdCard": {
         "title": "Language setting: English",
-        "description": "With the expanded language settings, we enable a larger group of actors to use the community platform well."
+        "description": "With the extended language setting, we enable a broader group of professionals to effectively use the community platform."
       },
       "fourthCard": {
         "title": "Eventmanagement",
