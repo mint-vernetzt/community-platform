@@ -832,11 +832,11 @@ export default function Index() {
                                     {relation.event.name}
                                   </h4>
                                   {relation.event.subline !== null ? (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-2">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {relation.event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-2">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(
                                         relation.event.description ?? ""
                                       )}
@@ -978,11 +978,11 @@ export default function Index() {
                                     {relation.event.name}
                                   </h4>
                                   {relation.event.subline !== null ? (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {relation.event.subline}
                                     </p>
                                   ) : (
-                                    <p className="hidden @lg:mv-block text-xs mt-1 @lg:mv-line-clamp-1">
+                                    <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
                                       {removeHtmlTags(
                                         relation.event.description ?? ""
                                       )}
