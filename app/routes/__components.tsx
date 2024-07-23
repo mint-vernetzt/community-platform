@@ -255,7 +255,7 @@ function NavBarMenu(
                     {t("root.menu.overview")}
                   </div>
                 </Item>
-                <Item
+                {/* <Item
                   to={`/profile/${props.username}`}
                   openNavBarMenuKey={props.openNavBarMenuKey}
                   setActiveTopicId={setActiveTopicId}
@@ -268,15 +268,18 @@ function NavBarMenu(
                   <div className="mv-font-semibold">
                     {t("root.menu.personalSpace.label")}
                   </div>
-                </Item>
+                </Item> */}
 
-                {/* <Topic
+                <Topic
                   id="personalSpace"
                   activeTopicId={activeTopicId}
                   setActiveTopicId={setActiveTopicId}
-                > */}
-                {/* <Label>
-                    {location.pathname === `/profile/${props.username}` ? (
+                >
+                  <Label>
+                    {location.pathname === `/profile/${props.username}` ||
+                    location.pathname === "/organization/create" ||
+                    location.pathname === "/event/create" ||
+                    location.pathname === "/project/create" ? (
                       <Icon type="person" />
                     ) : (
                       <Icon type="person-outline" />
@@ -291,48 +294,71 @@ function NavBarMenu(
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.profile")}
-                  </TopicItem> */}
+                  </TopicItem>
 
-                {/* TODO: Link to organization overview route when its implemented */}
-                {/* <TopicItem
+                  <TopicItem
+                    to={`/organization/create`}
+                    openNavBarMenuKey={props.openNavBarMenuKey}
+                  >
+                    {t("root.menu.personalSpace.createOrganization")}
+                  </TopicItem>
+
+                  {props.abilities.events?.hasAccess && (
+                    <TopicItem
+                      to={`/event/create`}
+                      openNavBarMenuKey={props.openNavBarMenuKey}
+                    >
+                      {t("root.menu.personalSpace.createEvent")}
+                    </TopicItem>
+                  )}
+
+                  <TopicItem
+                    to={`/project/create`}
+                    openNavBarMenuKey={props.openNavBarMenuKey}
+                  >
+                    {t("root.menu.personalSpace.createProject")}
+                  </TopicItem>
+
+                  {/* TODO: Link to organization overview route when its implemented */}
+                  {/* <TopicItem
                     to={`/profile/${props.username}#organizations`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.organizations")}
                   </TopicItem> */}
 
-                {/* TODO: Link to event overview route when its implemented */}
-                {/* <TopicItem
+                  {/* TODO: Link to event overview route when its implemented */}
+                  {/* <TopicItem
                     to={`/profile/${props.username}#events`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.events")}
                   </TopicItem> */}
 
-                {/* TODO: Link to project overview route when its implemented */}
-                {/* <TopicItem
+                  {/* TODO: Link to project overview route when its implemented */}
+                  {/* <TopicItem
                     to={`/profile/${props.username}#projects`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.projects")}
                   </TopicItem> */}
 
-                {/* TODO: Implement this when Network overview is implemented */}
-                {/* <TopicItem
+                  {/* TODO: Implement this when Network overview is implemented */}
+                  {/* <TopicItem
                     to={``}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.network")}
                   </TopicItem> */}
 
-                {/* TODO: Implement this when bookmark feature is available */}
-                {/* <TopicItem
+                  {/* TODO: Implement this when bookmark feature is available */}
+                  {/* <TopicItem
                     to={``}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.bookmarks")}
                   </TopicItem> */}
-                {/* </Topic> */}
+                </Topic>
               </>
             ) : null}
 
@@ -768,7 +794,6 @@ type IconType =
   | "door-closed-outline"
   | "box-arrow-up-right";
 
-// TODO: fill of the icons should be transparent and hover/focus:primary-500. Currently they are filled with the text color thats black on unfocused and primary-500 on hover/focus
 function Icon(props: { type: IconType }) {
   let icon;
   if (props.type === "chevron-right") {

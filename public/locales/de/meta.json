@@ -30,6 +30,9 @@
       "personalSpace": {
         "label": "Mein MINT-Bereich",
         "profile": "Mein Profil",
+        "createOrganization": "Organisation anlegen",
+        "createEvent": "Veranstaltung anlegen",
+        "createProject": "Projekt anlegen",
         "organizations": "Meine Organisationen",
         "events": "Meine Veranstaltungen",
         "projects": "Meine Projekte",
