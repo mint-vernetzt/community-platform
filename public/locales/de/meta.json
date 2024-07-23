@@ -50,10 +50,10 @@
       }, 
       "explore": {
         "label": "Entdecken",
-        "profiles": "Personen",
+        "profiles": "Profile",
         "organizations": "Organisationen",
         "projects": "Projekte",
-        "events": "Events",
+        "events": "Veranstaltungen",
         "fundings": "Förderungen"
       },
       "help": "Hilfe",
