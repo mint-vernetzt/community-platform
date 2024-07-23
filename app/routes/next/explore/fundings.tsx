@@ -329,7 +329,6 @@ function Fundings() {
   const submit = useSubmit();
   const [form, fields] = useForm<GetFundingsSchema>({
     lastResult: loaderData.submission,
-    defaultValue: loaderData.submission.value,
   });
 
   const navigation = useNavigation();
@@ -388,7 +387,11 @@ function Fundings() {
                           value: type.slug,
                         })}
                         key={type.slug}
-                        defaultChecked={type.isChecked}
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={type.isChecked}
+                        readOnly
                       >
                         <FormControl.Label>{type.title}</FormControl.Label>
                       </FormControl>
@@ -417,9 +420,13 @@ function Fundings() {
                           value: area.slug,
                         })}
                         key={area.slug}
-                        defaultChecked={loaderData.submission.value.filter.areas.includes(
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={loaderData.submission.value.filter.areas.includes(
                           area.slug
                         )}
+                        readOnly
                       >
                         <FormControl.Label>{area.title}</FormControl.Label>
                       </FormControl>
@@ -448,9 +455,13 @@ function Fundings() {
                           value: area.slug,
                         })}
                         key={area.slug}
-                        defaultChecked={loaderData.submission.value.filter.regions.includes(
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={loaderData.submission.value.filter.regions.includes(
                           area.slug
                         )}
+                        readOnly
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                       </FormControl>
@@ -479,9 +490,13 @@ function Fundings() {
                           value: entity.slug,
                         })}
                         key={entity.slug}
-                        defaultChecked={loaderData.submission.value.filter.regions.includes(
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={loaderData.submission.value.filter.regions.includes(
                           entity.slug
                         )}
+                        readOnly
                       >
                         <FormControl.Label>{entity.title}</FormControl.Label>
                       </FormControl>
