@@ -43,7 +43,7 @@ module.exports = {
         // see https://github.com/saadeghi/daisyui/issues/2368
         "neutral-50": "#FCFCFD",
         "neutral-100": "#F4F5F6",
-        "neutral-200": "#EAECF0",
+        "neutral-200": "#E6E8EC",
         "neutral-300": "#BFC6D3",
         "neutral-400": "#8893A7",
         "neutral-500": "#70809D",
