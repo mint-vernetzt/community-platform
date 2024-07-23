@@ -332,13 +332,6 @@ function Fundings() {
     defaultValue: loaderData.submission.value,
   });
 
-  const formRef = React.useRef<HTMLFormElement>(null);
-  React.useEffect(() => {
-    if (formRef.current !== null) {
-      formRef.current.reset();
-    }
-  }, [loaderData.submission.value]);
-
   const navigation = useNavigation();
   const location = useLocation();
 
@@ -353,7 +346,6 @@ function Fundings() {
         <Form
           {...getFormProps(form)}
           method="get"
-          ref={formRef}
           onChange={(event) => {
             submit(event.currentTarget, { preventScrollReset: true });
           }}
@@ -521,7 +513,7 @@ function Fundings() {
                 return funder.title !== null ? (
                   <Chip key={funder.slug} size="medium">
                     {funder.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -540,7 +532,7 @@ function Fundings() {
                 return type.title !== null ? (
                   <Chip key={type.slug} size="medium">
                     {type.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -559,7 +551,7 @@ function Fundings() {
                 return area.title !== null ? (
                   <Chip key={area.slug} size="medium">
                     {area.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -578,7 +570,7 @@ function Fundings() {
                 return region.name !== null ? (
                   <Chip key={region.slug} size="medium">
                     {region.name}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -600,7 +592,7 @@ function Fundings() {
                 return entity.title !== null ? (
                   <Chip key={entity.slug} size="medium">
                     {entity.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname

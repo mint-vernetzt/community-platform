@@ -379,13 +379,6 @@ export default function ExploreOrganizations() {
     defaultValue: loaderData.submission.value,
   });
 
-  const formRef = React.useRef<HTMLFormElement>(null);
-  React.useEffect(() => {
-    if (formRef.current !== null) {
-      formRef.current.reset();
-    }
-  }, [loaderData.submission.value]);
-
   const filter = fields.filter.getFieldset();
 
   const page = loaderData.submission.value.page;
@@ -412,7 +405,6 @@ export default function ExploreOrganizations() {
         <Form
           {...getFormProps(form)}
           method="get"
-          ref={formRef}
           onChange={(event) => {
             submit(event.currentTarget, { preventScrollReset: true });
           }}
@@ -457,7 +449,6 @@ export default function ExploreOrganizations() {
                         })}
                         key={stage.slug}
                         defaultChecked={stage.isChecked}
-                        disabled={navigation.state === "loading"}
                       >
                         <FormControl.Label>
                           {t(`filter.stage.${stage.slug}`)}
@@ -489,10 +480,7 @@ export default function ExploreOrganizations() {
                         })}
                         key={focus.slug}
                         defaultChecked={focus.isChecked}
-                        disabled={
-                          (focus.vectorCount === 0 && !focus.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={focus.vectorCount === 0 && !focus.isChecked}
                       >
                         <FormControl.Label>
                           {focus.title}
@@ -538,7 +526,6 @@ export default function ExploreOrganizations() {
                               : periodOfTimeValues[0] === periodOfTimeValue
                             : periodOfTimeValues[0] === periodOfTimeValue
                         }
-                        disabled={navigation.state === "loading"}
                       >
                         <FormControl.Label>
                           {t(`filter.periodOfTime.${periodOfTimeValue}`)}
@@ -571,9 +558,8 @@ export default function ExploreOrganizations() {
                         key={targetGroup.slug}
                         defaultChecked={targetGroup.isChecked}
                         disabled={
-                          (targetGroup.vectorCount === 0 &&
-                            !targetGroup.isChecked) ||
-                          navigation.state === "loading"
+                          targetGroup.vectorCount === 0 &&
+                          !targetGroup.isChecked
                         }
                       >
                         <FormControl.Label>
@@ -615,10 +601,7 @@ export default function ExploreOrganizations() {
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -636,10 +619,7 @@ export default function ExploreOrganizations() {
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -712,10 +692,7 @@ export default function ExploreOrganizations() {
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
-                          disabled={
-                            (area.vectorCount === 0 && !area.isChecked) ||
-                            navigation.state === "loading"
-                          }
+                          disabled={area.vectorCount === 0 && !area.isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -743,10 +720,7 @@ export default function ExploreOrganizations() {
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
-                          disabled={
-                            (area.vectorCount === 0 && !area.isChecked) ||
-                            navigation.state === "loading"
-                          }
+                          disabled={area.vectorCount === 0 && !area.isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -782,7 +756,6 @@ export default function ExploreOrganizations() {
                         })}
                         key={sortValue}
                         defaultChecked={submissionSortValue === sortValue}
-                        disabled={navigation.state === "loading"}
                       >
                         <FormControl.Label>
                           {t(`filter.sortBy.${sortValue}`)}
@@ -831,7 +804,7 @@ export default function ExploreOrganizations() {
                 return selectedFocus.title !== null ? (
                   <Chip key={selectedFocus.slug} responsive>
                     {selectedFocus.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -853,7 +826,7 @@ export default function ExploreOrganizations() {
                 return selectedTargetGroup.title !== null ? (
                   <Chip key={selectedTargetGroup.slug} responsive>
                     {selectedTargetGroup.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -872,7 +845,7 @@ export default function ExploreOrganizations() {
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} responsive>
                     {selectedArea.name}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname

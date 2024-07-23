@@ -464,13 +464,6 @@ export default function ExploreProjects() {
     defaultValue: loaderData.submission.value,
   });
 
-  const formRef = React.useRef<HTMLFormElement>(null);
-  React.useEffect(() => {
-    if (formRef.current !== null) {
-      formRef.current.reset();
-    }
-  }, [loaderData.submission.value]);
-
   const filter = fields.filter.getFieldset();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
@@ -493,7 +486,6 @@ export default function ExploreProjects() {
         <Form
           {...getFormProps(form)}
           method="get"
-          ref={formRef}
           onChange={(event) => {
             submit(event.currentTarget, { preventScrollReset: true });
           }}
@@ -546,9 +538,7 @@ export default function ExploreProjects() {
                         key={discipline.slug}
                         defaultChecked={discipline.isChecked}
                         disabled={
-                          (discipline.vectorCount === 0 &&
-                            !discipline.isChecked) ||
-                          navigation.state === "loading"
+                          discipline.vectorCount === 0 && !discipline.isChecked
                         }
                       >
                         <FormControl.Label>
@@ -580,9 +570,8 @@ export default function ExploreProjects() {
                           key={additionalDiscipline.slug}
                           defaultChecked={additionalDiscipline.isChecked}
                           disabled={
-                            (additionalDiscipline.vectorCount === 0 &&
-                              !additionalDiscipline.isChecked) ||
-                            navigation.state === "loading"
+                            additionalDiscipline.vectorCount === 0 &&
+                            !additionalDiscipline.isChecked
                           }
                         >
                           <FormControl.Label>
@@ -625,9 +614,8 @@ export default function ExploreProjects() {
                         key={targetGroup.slug}
                         defaultChecked={targetGroup.isChecked}
                         disabled={
-                          (targetGroup.vectorCount === 0 &&
-                            !targetGroup.isChecked) ||
-                          navigation.state === "loading"
+                          targetGroup.vectorCount === 0 &&
+                          !targetGroup.isChecked
                         }
                       >
                         <FormControl.Label>
@@ -668,10 +656,7 @@ export default function ExploreProjects() {
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -689,10 +674,7 @@ export default function ExploreProjects() {
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -765,10 +747,7 @@ export default function ExploreProjects() {
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
-                          disabled={
-                            (area.vectorCount === 0 && !area.isChecked) ||
-                            navigation.state === "loading"
-                          }
+                          disabled={area.vectorCount === 0 && !area.isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -796,10 +775,7 @@ export default function ExploreProjects() {
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
-                          disabled={
-                            (area.vectorCount === 0 && !area.isChecked) ||
-                            navigation.state === "loading"
-                          }
+                          disabled={area.vectorCount === 0 && !area.isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -832,10 +808,7 @@ export default function ExploreProjects() {
                         })}
                         key={format.slug}
                         defaultChecked={format.isChecked}
-                        disabled={
-                          (format.vectorCount === 0 && !format.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={format.vectorCount === 0 && !format.isChecked}
                       >
                         <FormControl.Label>{format.title}</FormControl.Label>
                         {format.description !== null && (
@@ -874,9 +847,8 @@ export default function ExploreProjects() {
                         key={targetGroup.slug}
                         defaultChecked={targetGroup.isChecked}
                         disabled={
-                          (targetGroup.vectorCount === 0 &&
-                            !targetGroup.isChecked) ||
-                          navigation.state === "loading"
+                          targetGroup.vectorCount === 0 &&
+                          !targetGroup.isChecked
                         }
                       >
                         <FormControl.Label>
@@ -918,9 +890,7 @@ export default function ExploreProjects() {
                         key={financing.slug}
                         defaultChecked={financing.isChecked}
                         disabled={
-                          (financing.vectorCount === 0 &&
-                            !financing.isChecked) ||
-                          navigation.state === "loading"
+                          financing.vectorCount === 0 && !financing.isChecked
                         }
                       >
                         <FormControl.Label>{financing.title}</FormControl.Label>
@@ -962,7 +932,6 @@ export default function ExploreProjects() {
                         })}
                         key={sortValue}
                         defaultChecked={submissionSortValue === sortValue}
-                        disabled={navigation.state === "loading"}
                       >
                         <FormControl.Label>
                           {t(`filter.sortBy.${sortValue}`)}
@@ -1015,7 +984,7 @@ export default function ExploreProjects() {
                 return selectedDiscipline.title !== null ? (
                   <Chip key={selectedDiscipline.slug} size="medium">
                     {selectedDiscipline.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -1038,7 +1007,7 @@ export default function ExploreProjects() {
                   return selectedAdditionalDiscipline.title !== null ? (
                     <Chip key={selectedAdditionalDiscipline.slug} size="medium">
                       {selectedAdditionalDiscipline.title}
-                      <Chip.Delete disabled={navigation.state === "loading"}>
+                      <Chip.Delete>
                         <Link
                           to={`${
                             location.pathname
@@ -1061,7 +1030,7 @@ export default function ExploreProjects() {
                 return selectedTargetGroup.title !== null ? (
                   <Chip key={selectedTargetGroup.slug} size="medium">
                     {selectedTargetGroup.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -1080,7 +1049,7 @@ export default function ExploreProjects() {
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} size="medium">
                     {selectedArea.name}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -1102,7 +1071,7 @@ export default function ExploreProjects() {
                 return selectedFormat.title !== null ? (
                   <Chip key={selectedFormat.slug} size="medium">
                     {selectedFormat.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -1125,7 +1094,7 @@ export default function ExploreProjects() {
                   return selectedSpecialTargetGroup.title !== null ? (
                     <Chip key={selectedSpecialTargetGroup.slug} size="medium">
                       {selectedSpecialTargetGroup.title}
-                      <Chip.Delete disabled={navigation.state === "loading"}>
+                      <Chip.Delete>
                         <Link
                           to={`${
                             location.pathname
@@ -1148,7 +1117,7 @@ export default function ExploreProjects() {
                 return selectedFinancing.title !== null ? (
                   <Chip key={selectedFinancing.slug} size="medium">
                     {selectedFinancing.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname

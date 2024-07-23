@@ -342,13 +342,6 @@ export default function ExploreOrganizations() {
     defaultValue: loaderData.submission.value,
   });
 
-  const formRef = React.useRef<HTMLFormElement>(null);
-  React.useEffect(() => {
-    if (formRef.current !== null) {
-      formRef.current.reset();
-    }
-  }, [loaderData.submission.value]);
-
   const filter = fields.filter.getFieldset();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
@@ -371,7 +364,6 @@ export default function ExploreOrganizations() {
         <Form
           {...getFormProps(form)}
           method="get"
-          ref={formRef}
           onChange={(event) => {
             submit(event.currentTarget, { preventScrollReset: true });
           }}
@@ -414,10 +406,7 @@ export default function ExploreOrganizations() {
                         })}
                         key={type.slug}
                         defaultChecked={type.isChecked}
-                        disabled={
-                          (type.vectorCount === 0 && !type.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={type.vectorCount === 0 && !type.isChecked}
                       >
                         <FormControl.Label>
                           {type.title}
@@ -455,10 +444,7 @@ export default function ExploreOrganizations() {
                         })}
                         key={focus.slug}
                         defaultChecked={focus.isChecked}
-                        disabled={
-                          (focus.vectorCount === 0 && !focus.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={focus.vectorCount === 0 && !focus.isChecked}
                       >
                         <FormControl.Label>
                           {focus.title}
@@ -496,10 +482,7 @@ export default function ExploreOrganizations() {
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -517,10 +500,7 @@ export default function ExploreOrganizations() {
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -593,10 +573,7 @@ export default function ExploreOrganizations() {
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
-                          disabled={
-                            (area.vectorCount === 0 && !area.isChecked) ||
-                            navigation.state === "loading"
-                          }
+                          disabled={area.vectorCount === 0 && !area.isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -624,10 +601,7 @@ export default function ExploreOrganizations() {
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
-                          disabled={
-                            (area.vectorCount === 0 && !area.isChecked) ||
-                            navigation.state === "loading"
-                          }
+                          disabled={area.vectorCount === 0 && !area.isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -663,7 +637,6 @@ export default function ExploreOrganizations() {
                         })}
                         key={sortValue}
                         defaultChecked={submissionSortValue === sortValue}
-                        disabled={navigation.state === "loading"}
                       >
                         <FormControl.Label>
                           {t(`filter.sortBy.${sortValue}`)}
@@ -709,7 +682,7 @@ export default function ExploreOrganizations() {
                 return selectedType.title !== null ? (
                   <Chip key={selectedType.slug} size="medium">
                     {selectedType.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -731,7 +704,7 @@ export default function ExploreOrganizations() {
                 return selectedFocus.title !== null ? (
                   <Chip key={selectedFocus.slug} size="medium">
                     {selectedFocus.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -750,7 +723,7 @@ export default function ExploreOrganizations() {
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} size="medium">
                     {selectedArea.name}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname

@@ -312,13 +312,6 @@ export default function ExploreProfiles() {
     defaultValue: loaderData.submission.value,
   });
 
-  const formRef = React.useRef<HTMLFormElement>(null);
-  React.useEffect(() => {
-    if (formRef.current !== null) {
-      formRef.current.reset();
-    }
-  }, [loaderData.submission.value]);
-
   const filter = fields.filter.getFieldset();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
@@ -341,16 +334,8 @@ export default function ExploreProfiles() {
         <Form
           {...getFormProps(form)}
           method="get"
-          ref={formRef}
           onChange={(event) => {
-            // const submissionPromise = new Promise<void>((resolve) => {
-            //   resolve(
             submit(event.currentTarget, { preventScrollReset: true });
-            //   );
-            // });
-            // submissionPromise.then(() => {
-            //   event.currentTarget.reset();
-            // });
           }}
           preventScrollReset
         >
@@ -392,10 +377,7 @@ export default function ExploreProfiles() {
                         })}
                         key={offer.slug}
                         defaultChecked={offer.isChecked}
-                        disabled={
-                          (offer.vectorCount === 0 && !offer.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={offer.vectorCount === 0 && !offer.isChecked}
                       >
                         <FormControl.Label>
                           {offer.title}
@@ -433,10 +415,7 @@ export default function ExploreProfiles() {
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -454,10 +433,7 @@ export default function ExploreProfiles() {
                         })}
                         key={area.slug}
                         defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -530,10 +506,7 @@ export default function ExploreProfiles() {
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
-                          disabled={
-                            (area.vectorCount === 0 && !area.isChecked) ||
-                            navigation.state === "loading"
-                          }
+                          disabled={area.vectorCount === 0 && !area.isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -561,10 +534,7 @@ export default function ExploreProfiles() {
                           })}
                           key={area.slug}
                           defaultChecked={area.isChecked}
-                          disabled={
-                            (area.vectorCount === 0 && !area.isChecked) ||
-                            navigation.state === "loading"
-                          }
+                          disabled={area.vectorCount === 0 && !area.isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -600,7 +570,6 @@ export default function ExploreProfiles() {
                         })}
                         key={sortValue}
                         defaultChecked={submissionSortValue === sortValue}
-                        disabled={navigation.state === "loading"}
                       >
                         <FormControl.Label>
                           {t(`filter.sortBy.${sortValue}`)}
@@ -648,7 +617,7 @@ export default function ExploreProfiles() {
                 return selectedOffer.title !== null ? (
                   <Chip key={selectedOffer.slug} size="medium">
                     {selectedOffer.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -667,7 +636,7 @@ export default function ExploreProfiles() {
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} size="medium">
                     {selectedArea.name}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
