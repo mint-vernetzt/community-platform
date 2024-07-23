@@ -27,6 +27,7 @@ import {
   FormControl,
   ShowFiltersButton,
 } from "../../explore/__components";
+import React from "react";
 
 const getFundingsSchema = z.object({
   filter: z
@@ -328,8 +329,8 @@ function Fundings() {
   const submit = useSubmit();
   const [form, fields] = useForm<GetFundingsSchema>({
     lastResult: loaderData.submission,
-    defaultValue: loaderData.submission.value,
   });
+
   const navigation = useNavigation();
   const location = useLocation();
 
@@ -386,7 +387,11 @@ function Fundings() {
                           value: type.slug,
                         })}
                         key={type.slug}
-                        defaultChecked={type.isChecked}
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={type.isChecked}
+                        readOnly
                       >
                         <FormControl.Label>{type.title}</FormControl.Label>
                       </FormControl>
@@ -415,9 +420,13 @@ function Fundings() {
                           value: area.slug,
                         })}
                         key={area.slug}
-                        defaultChecked={loaderData.submission.value.filter.areas.includes(
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={loaderData.submission.value.filter.areas.includes(
                           area.slug
                         )}
+                        readOnly
                       >
                         <FormControl.Label>{area.title}</FormControl.Label>
                       </FormControl>
@@ -446,9 +455,13 @@ function Fundings() {
                           value: area.slug,
                         })}
                         key={area.slug}
-                        defaultChecked={loaderData.submission.value.filter.regions.includes(
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={loaderData.submission.value.filter.regions.includes(
                           area.slug
                         )}
+                        readOnly
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                       </FormControl>
@@ -477,9 +490,13 @@ function Fundings() {
                           value: entity.slug,
                         })}
                         key={entity.slug}
-                        defaultChecked={loaderData.submission.value.filter.regions.includes(
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={loaderData.submission.value.filter.regions.includes(
                           entity.slug
                         )}
+                        readOnly
                       >
                         <FormControl.Label>{entity.title}</FormControl.Label>
                       </FormControl>
@@ -511,7 +528,7 @@ function Fundings() {
                 return funder.title !== null ? (
                   <Chip key={funder.slug} size="medium">
                     {funder.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -530,7 +547,7 @@ function Fundings() {
                 return type.title !== null ? (
                   <Chip key={type.slug} size="medium">
                     {type.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -549,7 +566,7 @@ function Fundings() {
                 return area.title !== null ? (
                   <Chip key={area.slug} size="medium">
                     {area.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -568,7 +585,7 @@ function Fundings() {
                 return region.name !== null ? (
                   <Chip key={region.slug} size="medium">
                     {region.name}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -590,7 +607,7 @@ function Fundings() {
                 return entity.title !== null ? (
                   <Chip key={entity.slug} size="medium">
                     {entity.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -604,7 +621,11 @@ function Fundings() {
                 ) : null;
               })}
             </div>
-            <Link to={`${location.pathname}`} preventScrollReset>
+            <Link
+              className="mv-w-fit"
+              to={`${location.pathname}`}
+              preventScrollReset
+            >
               <Button
                 variant="outline"
                 loading={navigation.state === "loading"}

@@ -376,7 +376,6 @@ export default function ExploreOrganizations() {
 
   const [form, fields] = useForm<GetEventsSchema>({
     lastResult: loaderData.submission,
-    defaultValue: loaderData.submission.value,
   });
 
   const filter = fields.filter.getFieldset();
@@ -448,8 +447,11 @@ export default function ExploreOrganizations() {
                           value: stage.slug,
                         })}
                         key={stage.slug}
-                        defaultChecked={stage.isChecked}
-                        disabled={navigation.state === "loading"}
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={stage.isChecked}
+                        readOnly
                       >
                         <FormControl.Label>
                           {t(`filter.stage.${stage.slug}`)}
@@ -480,11 +482,12 @@ export default function ExploreOrganizations() {
                           value: focus.slug,
                         })}
                         key={focus.slug}
-                        defaultChecked={focus.isChecked}
-                        disabled={
-                          (focus.vectorCount === 0 && !focus.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={focus.isChecked}
+                        readOnly
+                        disabled={focus.vectorCount === 0 && !focus.isChecked}
                       >
                         <FormControl.Label>
                           {focus.title}
@@ -522,7 +525,10 @@ export default function ExploreOrganizations() {
                           value: periodOfTimeValue,
                         })}
                         key={periodOfTimeValue}
-                        defaultChecked={
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={
                           submissionFilter !== undefined
                             ? submissionFilter.periodOfTime !== undefined
                               ? submissionFilter.periodOfTime ===
@@ -530,7 +536,7 @@ export default function ExploreOrganizations() {
                               : periodOfTimeValues[0] === periodOfTimeValue
                             : periodOfTimeValues[0] === periodOfTimeValue
                         }
-                        disabled={navigation.state === "loading"}
+                        readOnly
                       >
                         <FormControl.Label>
                           {t(`filter.periodOfTime.${periodOfTimeValue}`)}
@@ -561,11 +567,14 @@ export default function ExploreOrganizations() {
                           value: targetGroup.slug,
                         })}
                         key={targetGroup.slug}
-                        defaultChecked={targetGroup.isChecked}
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={targetGroup.isChecked}
+                        readOnly
                         disabled={
-                          (targetGroup.vectorCount === 0 &&
-                            !targetGroup.isChecked) ||
-                          navigation.state === "loading"
+                          targetGroup.vectorCount === 0 &&
+                          !targetGroup.isChecked
                         }
                       >
                         <FormControl.Label>
@@ -606,11 +615,12 @@ export default function ExploreOrganizations() {
                           value: area.slug,
                         })}
                         key={area.slug}
-                        defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={area.isChecked}
+                        readOnly
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -627,11 +637,12 @@ export default function ExploreOrganizations() {
                           value: area.slug,
                         })}
                         key={area.slug}
-                        defaultChecked={area.isChecked}
-                        disabled={
-                          (area.vectorCount === 0 && !area.isChecked) ||
-                          navigation.state === "loading"
-                        }
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={area.isChecked}
+                        readOnly
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -650,7 +661,11 @@ export default function ExploreOrganizations() {
                             value: selectedArea.slug,
                           })}
                           key={selectedArea.slug}
-                          defaultChecked
+                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                          defaultChecked={undefined}
+                          checked
+                          readOnly
                         >
                           <FormControl.Label>
                             {selectedArea.name}
@@ -703,11 +718,12 @@ export default function ExploreOrganizations() {
                             value: area.slug,
                           })}
                           key={area.slug}
-                          defaultChecked={area.isChecked}
-                          disabled={
-                            (area.vectorCount === 0 && !area.isChecked) ||
-                            navigation.state === "loading"
-                          }
+                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                          defaultChecked={undefined}
+                          checked={area.isChecked}
+                          readOnly
+                          disabled={area.vectorCount === 0 && !area.isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -734,11 +750,12 @@ export default function ExploreOrganizations() {
                             value: area.slug,
                           })}
                           key={area.slug}
-                          defaultChecked={area.isChecked}
-                          disabled={
-                            (area.vectorCount === 0 && !area.isChecked) ||
-                            navigation.state === "loading"
-                          }
+                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                          defaultChecked={undefined}
+                          checked={area.isChecked}
+                          readOnly
+                          disabled={area.vectorCount === 0 && !area.isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -773,8 +790,11 @@ export default function ExploreOrganizations() {
                           value: sortValue,
                         })}
                         key={sortValue}
-                        defaultChecked={submissionSortValue === sortValue}
-                        disabled={navigation.state === "loading"}
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={submissionSortValue === sortValue}
+                        readOnly
                       >
                         <FormControl.Label>
                           {t(`filter.sortBy.${sortValue}`)}
@@ -823,7 +843,7 @@ export default function ExploreOrganizations() {
                 return selectedFocus.title !== null ? (
                   <Chip key={selectedFocus.slug} responsive>
                     {selectedFocus.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -845,7 +865,7 @@ export default function ExploreOrganizations() {
                 return selectedTargetGroup.title !== null ? (
                   <Chip key={selectedTargetGroup.slug} responsive>
                     {selectedTargetGroup.title}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -864,7 +884,7 @@ export default function ExploreOrganizations() {
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} responsive>
                     {selectedArea.name}
-                    <Chip.Delete disabled={navigation.state === "loading"}>
+                    <Chip.Delete>
                       <Link
                         to={`${
                           location.pathname
@@ -879,6 +899,7 @@ export default function ExploreOrganizations() {
               })}
             </div>
             <Link
+              className="mv-w-fit"
               to={`${location.pathname}${
                 loaderData.submission.value.sortBy !== undefined
                   ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
