@@ -38,14 +38,10 @@
   "secondColumn": {
     "title": "In der Entwicklung",
     "firstCard": {
-      "title": "Dashboard",
-      "description": "Über das Dashboard siehst du nach dem Einloggen übersichtlich alle Funktionen der Plattform auf einen Blick und wirst über Neuigkeiten informiert."
-    },
-    "secondCard": {
       "title": "Förder-Tool",
       "description": "Mit Hilfe eines Crawlers werden MINT-Förderungen zusammengetragen und für Euch in der Plattform ausgespielt."
     },
-    "thirdCard": {
+    "secondCard": {
       "title": "FAQ",
       "description": "In dieser FAQ-Liste sammeln wir häufig gestellte Fragen und Antworten rund um die Community-Plattform, die Euch weiterführende Informationen zur Nutzung der Plattform bieten."
     }
@@ -53,34 +49,38 @@
   "thirdColumn": {
     "title": "Bereits umgesetzt",
     "firstCard": {
+      "title": "Dashboard",
+      "description": "Über das Dashboard siehst du nach dem Einloggen übersichtlich alle Funktionen der Plattform auf einen Blick und wirst über Neuigkeiten informiert."
+    },
+    "secondCard": {
       "title": "Filter-Funktion",
       "description": "Mit dem Filter kannst Du innerhalb der Übersichtseiten der Profile, Organisationen, Events oder Projekte nach bestimmten Kriterien durchsuchen."
     },
-    "secondCard": {
+    "thirdCard": {
       "title": "Gute Praxis-Projekte",
       "description": "Über die von der Community angelegten Projekte ermöglichen wir Euch untereinander den Wissenstransfer und Inspiration in Form vom Tipps zum Nachmachen, Materialdownload und Infos über Rahmenbedingungen und Finanzierungen."
     },
-    "thirdCard": {
+    "fourthCard": {
       "title": "Spracheinstellung: Englisch",
       "description": "Mit der erweiterten Spracheinstellung ermöglichen wir einem größeren Akteur:innen-Kreis die Community Plattform gut zu nutzen."
     },
-    "fourthCard": {
+    "fifthCard": {
       "title": "Eventmanagement",
       "description": "Stöbere nach passenden MINTvernetzt-Events, melde Dich an und schau, wer sich auch für das Event angemeldet hat."
     },
-    "fifthCard": {
+    "sixthCard": {
       "title": "Profil & Organisationsprofil",
       "description": "Du stellst Dich mithilfe Deines Profils der MINT-Community vor und legst Deine Organisation mit Teammitgliedern an."
     },
-    "sixthCard": {
+    "seventhCard": {
       "title": "Suche",
       "description": "Über die Suchfunktion kannst Du nach Profilen, Organisationen, Events, Projekten und nach Stichwörtern suchen."
     },
-    "seventhCard": {
+    "eighthCard": {
       "title": "MINT-ID",
       "description": "Um bequem zwischen den beiden Angeboten MINTvernetzt und MINT-Campus wechseln zu können, gibt es die MINT-ID, mit der man beide Plattformen nutzen kann (Single-Sign-in)."
     },
-    "eighthCard": {
+    "ninthCard": {
       "title": "Startseite",
       "description": "Die Startseite informiert neue Mitglieder über Inhalte und Nutzungszahlen der Community-Plattform."
     }
