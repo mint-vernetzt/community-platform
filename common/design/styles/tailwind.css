@@ -8,7 +8,7 @@
   }
 
   input ~ div div p {
-    min-height: 120px;
+    min-height: 150px;
   }
 
   input ~ div div:nth-child(-n + 2) {
