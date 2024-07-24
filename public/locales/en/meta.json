@@ -23,7 +23,7 @@
     "login": "Login",
     "register": "Register",
     "search": {
-      "placeholder": "Search (min. 3 letters)"
+      "placeholder": "Search (min. 3 characters)"
     },
     "menu": {
       "overview": "Overview",
