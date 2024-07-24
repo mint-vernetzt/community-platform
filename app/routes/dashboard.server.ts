@@ -121,6 +121,9 @@ export async function getProjectsForCards(take: number) {
         },
       },
     },
+    where: {
+      published: true,
+    },
     take,
     orderBy: { createdAt: "desc" },
   });
