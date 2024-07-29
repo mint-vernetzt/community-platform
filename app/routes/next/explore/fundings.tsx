@@ -27,6 +27,7 @@ import {
   FormControl,
   ShowFiltersButton,
 } from "../../explore/__components";
+import FundingCard from "./__components";
 
 const getFundingsSchema = z.object({
   filter: z
@@ -638,50 +639,44 @@ function Fundings() {
         )}
       </section>
       <p>{loaderData.count} Förderungen gefunden!</p>
-      <ul className="mv-flex mv-flex-col mv-gap-4">
+
+      <FundingCard.Container>
         {loaderData.fundings.map((funding) => {
           return (
-            <li key={funding.url} className="mv-border mv-p-4">
-              <a
-                href={funding.url}
-                className="hover:mv-underline"
-                target="_blank"
-                rel="noreffer nofollow"
+            <FundingCard key={funding.url} url={funding.url}>
+              <FundingCard.Subtitle>
+                {funding.types
+                  .map((relation) => {
+                    return relation.type.title;
+                  })
+                  .join(", ")}
+              </FundingCard.Subtitle>
+              <FundingCard.Title>{funding.title}</FundingCard.Title>
+              <FundingCard.Category
+                items={funding.regions.map((relation) => {
+                  return relation.area.name;
+                })}
               >
-                <h3>{funding.title}</h3>
-              </a>
-              <h4>Förderer</h4>
-              <ul>
-                {funding.funders.map((relation) => {
-                  return (
-                    <li key={relation.funder.slug}>{relation.funder.title}</li>
-                  );
-                })}
-              </ul>
-              <h4>Förderart</h4>
-              <ul>
-                {funding.types.map((relation) => {
-                  return (
-                    <li key={relation.type.slug}>{relation.type.title}</li>
-                  );
-                })}
-              </ul>
-              <h4>Förderbereich</h4>
-              <ul>
-                {funding.sourceAreas.map((area) => {
-                  return <li key={area}>{area}</li>;
-                })}
-              </ul>
-              <h4>Förderberechtigte</h4>
-              <ul>
-                {funding.sourceEntities.map((entity) => {
-                  return <li key={entity}>{entity}</li>;
-                })}
-              </ul>
-            </li>
+                <FundingCard.Category.Title>
+                  Fördergebiet
+                </FundingCard.Category.Title>
+              </FundingCard.Category>
+              <FundingCard.Category items={funding.sourceEntities}>
+                <FundingCard.Category.Title>
+                  Wer wird gefördert?
+                </FundingCard.Category.Title>
+              </FundingCard.Category>
+
+              <FundingCard.Category items={funding.sourceAreas}>
+                <FundingCard.Category.Title>
+                  Was wird gefördert?
+                </FundingCard.Category.Title>
+              </FundingCard.Category>
+            </FundingCard>
           );
         })}
-      </ul>
+      </FundingCard.Container>
+
       {loaderData.count > loaderData.fundings.length && (
         <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
           <Link
