@@ -1,0 +1,92 @@
+{
+    "headline": "Help Center",
+    "subline": "Here you will find answers to the most frequently asked questions.",
+    "faq": {
+        "stemEducation": {
+            "headline": "TODO - English version",
+            "whatIsStem": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            }
+        },
+        "generalPlatformInformation": {
+            "headline": "TODO - English version",
+            "whoIsThePlatformFor": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version>"
+            },
+            "benefitsOfThePlatform": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version>"
+            },
+            "isItFree": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            },
+            "whoOperatesThePlatform": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            }
+        },
+        "registration": {
+            "headline": "TODO - English version",
+            "benefitsOfRegistration": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            },
+            "mintId": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version>"
+            },
+            "registrationProblems": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            },
+            "addToOrganization": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            },
+            "removeFromOrganization": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            },
+            "emailChanged": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            }
+        },
+        "contentCreation": {
+            "headline": "TODO - English version",
+            "networkVsOrganization": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            }
+        },
+        "events": {
+            "healine": "TODO - English version",
+            "eventParticipation": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            },
+            "eventCreation": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            }
+        },
+        "furtherQuestions": {
+            "headline": "TODO - English version",
+            "contribution": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            },
+            "questionsSuggestionsWishes": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            },
+            "futureDevelopment": {
+                "question": "TODO - English version",
+                "answer": "TODO - English version."
+            }
+        }
+    }
+}
