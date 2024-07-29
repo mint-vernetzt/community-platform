@@ -1315,14 +1315,18 @@ model AdminOfProject {
 
 model Funding {
   id               String                              @id @default(uuid())
-  url              String
+  url              String                              @unique
   title            String
   funders          FundersOnFundings[]
   types            FundingTypesOnFundings[]
   regions          AreasOnFundings[]
   areas            FundingAreasOnFundings[]
   eligibleEntities FundingEligibleEntitiesOnFundings[]
-  checksum         String                              @unique
+  sourceFunders    String[]
+  sourceTypes      String[]
+  sourceRegions    String[]
+  sourceAreas      String[]
+  sourceEntities   String[]
   createdAt        DateTime                            @default(now()) @map("created_at")
 
   @@map("fundings")

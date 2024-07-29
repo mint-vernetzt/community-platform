@@ -27,7 +27,6 @@ import {
   FormControl,
   ShowFiltersButton,
 } from "../../explore/__components";
-import React from "react";
 
 const getFundingsSchema = z.object({
   filter: z
@@ -127,7 +126,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const fundings = await prismaClient.funding.findMany({
     select: {
-      checksum: true,
       title: true,
       url: true,
       funders: {
@@ -180,6 +178,8 @@ export async function loader(args: LoaderFunctionArgs) {
           },
         },
       },
+      sourceEntities: true,
+      sourceAreas: true,
     },
     where: {
       AND: whereClauses,
@@ -641,7 +641,7 @@ function Fundings() {
       <ul className="mv-flex mv-flex-col mv-gap-4">
         {loaderData.fundings.map((funding) => {
           return (
-            <li key={funding.checksum} className="mv-border mv-p-4">
+            <li key={funding.url} className="mv-border mv-p-4">
               <a
                 href={funding.url}
                 className="hover:mv-underline"
@@ -668,18 +668,14 @@ function Fundings() {
               </ul>
               <h4>Förderbereich</h4>
               <ul>
-                {funding.areas.map((relation) => {
-                  return (
-                    <li key={relation.area.slug}>{relation.area.title}</li>
-                  );
+                {funding.sourceAreas.map((area) => {
+                  return <li key={area}>{area}</li>;
                 })}
               </ul>
               <h4>Förderberechtigte</h4>
               <ul>
-                {funding.eligibleEntities.map((relation) => {
-                  return (
-                    <li key={relation.entity.slug}>{relation.entity.title}</li>
-                  );
+                {funding.sourceEntities.map((entity) => {
+                  return <li key={entity}>{entity}</li>;
                 })}
               </ul>
             </li>
