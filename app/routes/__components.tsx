@@ -489,15 +489,18 @@ function NavBarMenu(
               <LocaleSwitch variant="dark" />
             </div>
 
-            {/* TODO: Implement this when Help route is implemented */}
-            {/* <Item
-              to=""
+            <Item
+              to="/help"
               openNavBarMenuKey={props.openNavBarMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
-              <Icon type="life-preserver" />
+              {location.pathname === "/help" ? (
+                <Icon type="life-preserver" />
+              ) : (
+                <Icon type="life-preserver-outline" />
+              )}
               <div className="mv-font-semibold">{t("root.menu.help")}</div>
-            </Item> */}
+            </Item>
 
             {props.mode === "authenticated" ? (
               <>
@@ -1043,13 +1046,10 @@ function Icon(props: { type: IconType }) {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <circle cx="8" cy="8" r="7.5" stroke="currentColor" />
-        <circle cx="8" cy="8" r="3.5" stroke="currentColor" />
         <path
-          d="M15.25 1.25L11.25 1.25M4.75 1.25L0.75 1.25"
+          d="M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16ZM14.4297 10.7719C13.723 12.4091 12.4091 13.723 10.7719 14.4297L9.65674 11.6418C10.5343 11.242 11.242 10.5343 11.6418 9.65674L14.4297 10.7719ZM5.2281 14.4297C3.59086 13.723 2.27703 12.4091 1.57026 10.7719L4.35815 9.65674C4.75801 10.5343 5.46571 11.242 6.34326 11.6418L5.2281 14.4297ZM14.4297 5.2281L11.6418 6.34326C11.242 5.46571 10.5343 4.75801 9.65674 4.35815L10.7719 1.57026C12.4091 2.27703 13.723 3.59086 14.4297 5.2281ZM6.34326 4.35815C5.46571 4.75801 4.75801 5.46571 4.35815 6.34326L1.57026 5.2281C2.27703 3.59086 3.59086 2.27703 5.2281 1.57026L6.34326 4.35815ZM8 11C6.34315 11 5 9.65685 5 8C5 6.34315 6.34315 5 8 5C9.65685 5 11 6.34315 11 8C11 9.65685 9.65685 11 8 11Z"
           stroke="currentColor"
         />
-        <path d="M0.999997 0L0.999996 4M1 10.5L1 14.5" stroke="currentColor" />
       </svg>
     );
   }
