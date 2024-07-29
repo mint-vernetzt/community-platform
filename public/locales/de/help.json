@@ -6,18 +6,18 @@
             "headline": "Fragen zum Thema MINT-Bildung",
             "whatIsStem": {
                 "question": "Was ist MINT?",
-                "answer": "MINT steht für Mathematik, Informatik, Naturwissenschaften und Technik. Diese Bereiche bilden das Fundament für zahlreiche technologische Innovationen und wissenschaftliche Erkenntnisse. Der Begriff “MINT+” spiegelt das Einbinden von verschiedenen Disziplinen wie Kunst, Design, Musik, Umwelt, aber auch gesellschaftliche oder soziale Themen wider. Wird beispielsweise ein künstlerischer Bereich mit einbezogen, so wird MINT erweitert um ein “K” für “Kunst” und wird zu MINKT."
+                "answer": "<pTop>MINT steht für Mathematik, Informatik, Naturwissenschaften und Technik. Diese Bereiche bilden das Fundament für zahlreiche technologische Innovationen und wissenschaftliche Erkenntnisse.</pTop><pBottom>Der Begriff “MINT+” spiegelt das Einbinden von verschiedenen Disziplinen wie Kunst, Design, Musik, Umwelt, aber auch gesellschaftliche oder soziale Themen wider. Wird beispielsweise ein künstlerischer Bereich mit einbezogen, so wird MINT erweitert um ein “K” für “Kunst” und wird zu MINKT.</pBottom>"
             }
         },
         "generalPlatformInformation": {
             "headline": "Allgemeine Informationen zur Plattform",
             "whoIsThePlatformFor": {
                 "question": "Für wen ist die Community-Plattform?",
-                "answer": "Unsere Plattform richtet sich an Akteur:innen aus der MINT-Bildung, darunter zählen wir zum Beispiel:<ul><li>Anbieter:innen von MINT-Bildungsangeboten</li><li>Mitarbeiter:innen außerschulischer MINT-Lernorte</li><li>Koordinator:innen regionaler MINT-Netzwerke, von MINT-Clustern, MINT-Initiativen oder MINT-Projekten</li><li>Engagierte für Frauen in MINT-Berufen</li><li>Ehrenamtliche im MINT-Bereich</li><li>Mitarbeitende aus Wirtschaft und Industrie, die sich mit den Themen MINT, Mädchen und Gender beschäftigen</li><li>Projektentwickler:innen und Förderer:innen, die auf der Suche MINT-Bildungsanbieter:innen, Rolemodels und Projekten sind</li><li>alle MINT-Interessierten</li></ul>"
+                "answer": "<p>Unsere Plattform richtet sich an Akteur:innen aus der MINT-Bildung, darunter zählen wir zum Beispiel:</p><ul><li>Anbieter:innen von MINT-Bildungsangeboten</li><li>Mitarbeiter:innen außerschulischer MINT-Lernorte</li><li>Koordinator:innen regionaler MINT-Netzwerke, von MINT-Clustern, MINT-Initiativen oder MINT-Projekten</li><li>Engagierte für Frauen in MINT-Berufen</li><li>Ehrenamtliche im MINT-Bereich</li><li>Mitarbeitende aus Wirtschaft und Industrie, die sich mit den Themen MINT, Mädchen und Gender beschäftigen</li><li>Projektentwickler:innen und Förderer:innen, die auf der Suche MINT-Bildungsanbieter:innen, Rolemodels und Projekten sind</li><li>alle MINT-Interessierten</li></ul>"
             },
             "benefitsOfThePlatform": {
                 "question": "Welche Mehrwerte bietet die MINTvernetzt-Community-Plattform?",
-                "answer": "Die bundesweite MINT-Community lebt davon, sich auszutauschen, Wissen zu teilen, von- und miteinander zu lernen. Auf der Community-Plattform könnt Ihr Euch untereinander und mit Organisationen vernetzen und Inspiration oder Expert:innen zu konkreten Themen in Eurer Umgebung finden. Auf der Plattform erwarten Euch eine Vielzahl an Funktionen und Möglichkeiten:<ul><li>Die MINT-Welt an einem Ort: Findet Akteur:innen, Initiativen, Projekte und Veranstaltungen.</li><li>MINT-Projekte sichtbar machen: Präsentiert Eure Projekte und lernt voneinander.</li><li>Meldet Euch für aktuelle Events an oder durchstöbert bereits von Euch besuchte: Findet andere Interessierte unter den Teilnehmer:innen und ladet Präsentationen herunter.</li><li>Nutzt erweiterte Filter- und Suchfunktionen: Sucht gezielt nach Kompetenzen, Zielgruppen, Regionen oder Themen.</li><li>Schnelle Antworten: Durchstöbert die FAQ-Seite mit häufig gestellten Fragen und Antworten rund um die Community-Plattform.</li><li>Ideen einbringen: Schlagt neue Funktionen oder Ideen vor, um die Plattform weiterzuentwickeln.</li></ul>Geplante weitere Funktionen:<ul><li>Eure Veranstaltungen für die MINT-Community: Teilt Eure Veranstaltungen für die Zielgruppe MINT-Akteur:innen.</li><li>Stärkt Eure Social-Media-Arbeit: Nutzt zukünftig unser Grafikdesign-Einsteiger-Tool und die Mediendatenbank mit MINT-Bezug.</li><li>Entdeckt Fördermöglichkeiten: Testet schon bald unseren Fundraising-Crawler, der ausgewählte bestehende Förder-Datenbanken durchsucht und passende MINT-Förderungen in unserer Plattform ausspielt.</li><li>Vernetzt Euch gezielt: Profitiert in Zukunft vom Matching-System, das passende Personen, Projekte oder Initiativen basierend auf Interessen vorschlägt.</li></ul>"
+                "answer": "<pTop>Die bundesweite MINT-Community lebt davon, sich auszutauschen, Wissen zu teilen, von- und miteinander zu lernen. Auf der Community-Plattform könnt Ihr Euch untereinander und mit Organisationen vernetzen und Inspiration oder Expert:innen zu konkreten Themen in Eurer Umgebung finden. Auf der Plattform erwarten Euch eine Vielzahl an Funktionen und Möglichkeiten:</pTop><ul><li>Die MINT-Welt an einem Ort: Findet Akteur:innen, Initiativen, Projekte und Veranstaltungen.</li><li>MINT-Projekte sichtbar machen: Präsentiert Eure Projekte und lernt voneinander.</li><li>Meldet Euch für aktuelle Events an oder durchstöbert bereits von Euch besuchte: Findet andere Interessierte unter den Teilnehmer:innen und ladet Präsentationen herunter.</li><li>Nutzt erweiterte Filter- und Suchfunktionen: Sucht gezielt nach Kompetenzen, Zielgruppen, Regionen oder Themen.</li><li>Schnelle Antworten: Durchstöbert die FAQ-Seite mit häufig gestellten Fragen und Antworten rund um die Community-Plattform.</li><li>Ideen einbringen: Schlagt neue Funktionen oder Ideen vor, um die Plattform weiterzuentwickeln.</li></ul><pBottom>Geplante weitere Funktionen:</pBottom><ul><li>Eure Veranstaltungen für die MINT-Community: Teilt Eure Veranstaltungen für die Zielgruppe MINT-Akteur:innen.</li><li>Stärkt Eure Social-Media-Arbeit: Nutzt zukünftig unser Grafikdesign-Einsteiger-Tool und die Mediendatenbank mit MINT-Bezug.</li><li>Entdeckt Fördermöglichkeiten: Testet schon bald unseren Fundraising-Crawler, der ausgewählte bestehende Förder-Datenbanken durchsucht und passende MINT-Förderungen in unserer Plattform ausspielt.</li><li>Vernetzt Euch gezielt: Profitiert in Zukunft vom Matching-System, das passende Personen, Projekte oder Initiativen basierend auf Interessen vorschlägt.</li></ul>"
             },
             "isItFree": {
                 "question": "Ist die Nutzung der Plattform kostenfrei?",
@@ -25,7 +25,7 @@
             },
             "whoOperatesThePlatform": {
                 "question": "Wer betreibt die Plattform?",
-                "answer": "Die MINT-Vernetzungsstelle Deutschland, kurz MINTvernetzt, ist die zentrale Service- und Anlaufstelle für (außerschulische) MINT-Akteur:innen im deutschsprachigen Raum. Wir schaffen Vernetzungsräume und bieten verschiedene kostenfreie, praxisorientierte Workshopformate, u.a. zu zielgruppengerechter und klischeefreier Ansprache, innovativer Gestaltung sowie Finanzierung und Verstetigung von MINT-Angeboten.<br />MINTvernetzt wird vom Bundesministerium für Bildung und Forschung gefördert und von Mitarbeitenden der Körber-Stiftung, der matrix gGmbH, des Nationalen MINT Forums e. V., des Stifterverbands und der Universität Regensburg als Verbund gemeinsam umgesetzt.<br />Die matrix gGmbH ist zuständig für die Entwicklung und Umsetzung der Community-Plattform. Seit Herbst 2022 ist die MINTvernetzt-Community-Plattform live. Unser ko-kreativer Ansatz mit partizipativen Prozessen ermöglicht die stetige Weiterentwicklung nach den Wünschen und Bedarfen der MINT-Community. So erweitern wir die Plattform stetig weiter. Auf der Startseite der Plattform unter „Fahrplan“ könnt Ihr nachlesen, welche Funktionen als nächstes geplant sind."
+                "answer": "<pTop>Die MINT-Vernetzungsstelle Deutschland, kurz MINTvernetzt, ist die zentrale Service- und Anlaufstelle für (außerschulische) MINT-Akteur:innen im deutschsprachigen Raum. Wir schaffen Vernetzungsräume und bieten verschiedene kostenfreie, praxisorientierte Workshopformate, u.a. zu zielgruppengerechter und klischeefreier Ansprache, innovativer Gestaltung sowie Finanzierung und Verstetigung von MINT-Angeboten.</pTop><pTop>MINTvernetzt wird vom Bundesministerium für Bildung und Forschung gefördert und von Mitarbeitenden der Körber-Stiftung, der matrix gGmbH, des Nationalen MINT Forums e. V., des Stifterverbands und der Universität Regensburg als Verbund gemeinsam umgesetzt.</pTop><pBottom>Die matrix gGmbH ist zuständig für die Entwicklung und Umsetzung der Community-Plattform. Seit Herbst 2022 ist die MINTvernetzt-Community-Plattform live. Unser ko-kreativer Ansatz mit partizipativen Prozessen ermöglicht die stetige Weiterentwicklung nach den Wünschen und Bedarfen der MINT-Community. So erweitern wir die Plattform stetig weiter. Auf der Startseite der Plattform unter „Fahrplan“ könnt Ihr nachlesen, welche Funktionen als nächstes geplant sind.</pBottom>"
             }
         },
         "registration": {
@@ -36,11 +36,11 @@
             },
             "mintId": {
                 "question": "Was ist die MINT-ID?",
-                "answer": "Mit der MINT-ID könnt ihr Euch gleichzeitig für die MINTvernetzt-Community-Plattform und dem MINT-Campus registrieren. Ihr meldet Euch nur einmal an und könnt damit alle Funktionen und Angebote von beiden Plattformen nutzen. Der MINT-Campus ist die digitale Lernplattform für die MINT-Community mit frei zugänglichen Materialien und Lernangeboten für die Bildungs- und Projektarbeit. Mit der MINT-ID spart Ihr also Zeit bei der Registrierung und habt anschließend die Möglichkeit, bequem zwischen den beiden Plattformen zu wechseln. Ihr könnt auch ohne eine MINT-ID weiterhin Euren MINTvernetzt-Account nutzen. Weitere Informationen zur MINT-ID findest du hier: <a href=\"https://mint-vernetzt.de/terms-of-use-community-platform\" target=\"_blank\" rel=\"noreferrer\">https://mintcampus.org/mint-id/</a>"
+                "answer": "<p>Mit der MINT-ID könnt ihr Euch gleichzeitig für die MINTvernetzt-Community-Plattform und dem MINT-Campus registrieren. Ihr meldet Euch nur einmal an und könnt damit alle Funktionen und Angebote von beiden Plattformen nutzen. Der MINT-Campus ist die digitale Lernplattform für die MINT-Community mit frei zugänglichen Materialien und Lernangeboten für die Bildungs- und Projektarbeit.</p><p>Mit der MINT-ID spart Ihr also Zeit bei der Registrierung und habt anschließend die Möglichkeit, bequem zwischen den beiden Plattformen zu wechseln. Ihr könnt auch ohne eine MINT-ID weiterhin Euren MINTvernetzt-Account nutzen. Weitere Informationen zur MINT-ID findest du hier:</p><a>https://mintcampus.org/mint-id/</a>"
             },
             "registrationProblems": {
                 "question": "Ich habe Probleme mit der Registrierung oder Anmeldung. An wen kann ich mich wenden?",
-                "answer": "Schreibt uns eine Nachricht an unseren technischen Support: <a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>."
+                "answer": "<p>Schreibt uns eine Nachricht an unseren technischen Support:</p><a>support@mint-vernetzt.de</a>."
             },
             "addToOrganization": {
                 "question": "Wie kann ich mich als Team-Mitglied zu meiner Organisation hinzufügen?",
@@ -52,7 +52,7 @@
             },
             "emailChanged": {
                 "question": "Meine E-Mail-Adresse, mit der ich angemeldet bin, existiert nicht mehr, z.B. weil ich den Arbeitgeber gewechselt habe. Wie kann ich wieder auf mein Profil zugreifen?",
-                "answer": "Wende Dich in dem Fall bitte an unseren Support unter <a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>."
+                "answer": "<p>Wende Dich in dem Fall bitte an unseren Support:</p><a>support@mint-vernetzt.de</a>."
             }
         },
         "contentCreation": {
@@ -63,25 +63,25 @@
             }
         },
         "events": {
-            "healine": "Fragen zu Veranstaltungen",
+            "headline": "Fragen zu Veranstaltungen",
             "eventParticipation": {
                 "question": "Ich möchte an einer Veranstaltung teilnehmen. Wie kann ich mich anmelden?",
-                "answer": "Klickt in der linken Navigation auf den Reiter „Veranstaltungen“ und wählt dort das gewünschte Event aus. Klickt dann auf „Teilnehmen“.<br />Bitte beachtet, dass Ihr auf der Plattform angemeldet sein müsst, um Euch für ein Event anmelden zu können.<br />Ihr habt noch kein Profil auf der MINTvernetzt-Community-Plattform? <a href=\"/register\">Hier könnt Ihr Euch registrieren</a>."
+                "answer": "<p>Klickt in der linken Navigation auf den Reiter „Veranstaltungen“ und wählt dort das gewünschte Event aus. Klickt dann auf „Teilnehmen“.</p><p>Bitte beachtet, dass Ihr auf der Plattform angemeldet sein müsst, um Euch für ein Event anmelden zu können.</p><p>Ihr habt noch kein Profil auf der MINTvernetzt-Community-Plattform?</p><a>Hier könnt Ihr Euch registrieren</a>."
             },
             "eventCreation": {
                 "question": "Ich möchte eine Veranstaltung erstellen. Was muss ich beachten?",
-                "answer": "Aktuell stellen wir ausschließlich MINTvernetzt- und MINT-Campus-Events auf der Community-Plattform zur Verfügung. Im nächsten Schritt sollt Ihr auch die Möglichkeit haben, Eure eigenen Events mit der Community zu teilen und eigene Veranstaltungen zu erstellen.<br /><b>Wichtig:</b> Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen etc. Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schülerlabor gehören hier nicht hin."
+                "answer": "<pTop>Aktuell stellen wir ausschließlich MINTvernetzt- und MINT-Campus-Events auf der Community-Plattform zur Verfügung. Im nächsten Schritt sollt Ihr auch die Möglichkeit haben, Eure eigenen Events mit der Community zu teilen und eigene Veranstaltungen zu erstellen.</pTop><pBottom><span>Wichtig:</span> Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen etc. Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schülerlabor gehören hier nicht hin.</pBottom>"
             }
         },
         "furtherQuestions": {
             "headline": "Weitere Fragen",
             "contribution": {
                 "question": "Ich möchte mich gerne bei der Weiterentwicklung der MINTvernetzt Community-Plattform einbringen.",
-                "answer": "Du bist MINT-Akteur:in, Designer:in oder Programmierer:in und möchtest die Plattform aktiv mitgestalten? Wir sind immer wieder auf der Suche nach Tester:innen für neue Funktionen. Melde Dich bei uns über <a href=\"mailto:community@mint-vernetzt.de\">community@mint-vernetzt.de</a>. Wir entwickeln die Plattform mit Open-Source-Software – <a href=\"https://github.com/mint-vernetzt/community-platform\" target=\"_blank\" rel=\"noreferrer\">hier</a> geht's zu unserem GitHub Repository."
+                "answer": "Du bist MINT-Akteur:in, Designer:in oder Programmierer:in und möchtest die Plattform aktiv mitgestalten? Wir sind immer wieder auf der Suche nach Tester:innen für neue Funktionen. Melde Dich bei uns über <aCommunity>community@mint-vernetzt.de</aCommunity>. Wir entwickeln die Plattform mit Open-Source-Software – <aGithub>hier</aGithub> geht's zu unserem GitHub Repository."
             },
             "questionsSuggestionsWishes": {
                 "question": "Ich habe Fragen, Anregungen, Wünsche.",
-                "answer": "Wir freuen uns immer über Feedback und Fragen, denn wir wollen die Plattform so nah wie möglich an den Bedürfnissen unserer Nutzer:innen entwickeln. Wendet Euch also gerne an Inga Leffers unter <a href=\"mailto:community@mint-vernetzt.de\">community@mint-vernetzt.de</a>."
+                "answer": "Wir freuen uns immer über Feedback und Fragen, denn wir wollen die Plattform so nah wie möglich an den Bedürfnissen unserer Nutzer:innen entwickeln. Wendet Euch also gerne an Inga Leffers unter <a>community@mint-vernetzt.de</a>."
             },
             "futureDevelopment": {
                 "question": "Was wird noch entwickelt?",

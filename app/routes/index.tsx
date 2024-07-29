@@ -384,8 +384,8 @@ export default function Index() {
                   i18nKey="content.education.content"
                   ns={i18nNS}
                   components={[
-                    <span className="bg-lilac-200" />,
-                    <span className="hyphens-manual" />,
+                    <span className="bg-lilac-200" />, // eslint-disable-line react/jsx-key
+                    <span className="hyphens-manual" />, // eslint-disable-line react/jsx-key
                   ]}
                 />
               </p>
@@ -500,7 +500,7 @@ export default function Index() {
                 <Trans
                   i18nKey="content.more.content"
                   ns={i18nNS}
-                  components={[<span className="bg-lilac-200" />]}
+                  components={[<span className="bg-lilac-200" />]} // eslint-disable-line react/jsx-key
                 />
               </p>
               <p className="text-center">

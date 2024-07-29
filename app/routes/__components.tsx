@@ -1566,4 +1566,4 @@ function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
   );
 }
 
-export { CountUp, Modal, NavBarMenu, NavBar, Footer, LoginOrRegisterCTA };
+export { CountUp, Modal, NavBarMenu, NavBar, Footer, LoginOrRegisterCTA, Icon };
