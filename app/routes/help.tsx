@@ -1,6 +1,7 @@
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { faq } from "public/locales/en/help.json";
 import { Icon } from "./__components";
+import { RichText } from "~/components/Richtext/RichText";
 
 const i18nNS = ["help"];
 export const handle = {
@@ -55,8 +56,11 @@ export default function Help() {
                           type="checkbox"
                           className="mv-absolute mv-opacity-0 mv-w-0 mv-h-0 mv-overflow-hidden"
                         />
-                        <div className="mv-text-primary-600 mv-leading-[20.8px] mv-font-normal mv-pr-5 mv-pt-[10px] mv-pb-6 @xl:mv-pt-4 @xl:mv-pb-8 @sm:mv-pr-8 @md:mv-pr-20 @xl:mv-pr-[166px] mv-hidden group-has-[:checked]:mv-block mv-hyphens-auto">
-                          {qAndAkey === "whatIsStem" ? (
+                        <div
+                          id="faq-content"
+                          className="mv-text-primary-600 mv-leading-[20.8px] mv-font-normal mv-pr-5 mv-pt-[10px] mv-pb-6 @xl:mv-pt-4 @xl:mv-pb-8 @sm:mv-pr-8 @md:mv-pr-20 @xl:mv-pr-[166px] mv-hidden group-has-[:checked]:mv-block mv-hyphens-auto"
+                        >
+                          {/* {qAndAkey === "whatIsStem" ? (
                             <Trans
                               i18nKey={`faq.${topicKey}.${qAndAkey}.answer`}
                               ns={i18nNS}
@@ -188,9 +192,11 @@ export default function Help() {
                                 ),
                               }}
                             />
-                          ) : (
-                            <p>{t(`faq.${topicKey}.${qAndAkey}.answer`)}</p>
-                          )}
+                          ) : ( */}
+                          <RichText
+                            html={t(`faq.${topicKey}.${qAndAkey}.answer`)}
+                          />
+                          {/* )} */}
                         </div>
                       </li>
                     );
