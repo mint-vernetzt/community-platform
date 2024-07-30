@@ -1329,6 +1329,9 @@ model Funding {
   sourceEntities   String[]
   createdAt        DateTime                            @default(now()) @map("created_at")
 
+  filterVector Unsupported("tsvector")? @map("filter_vector")
+
+  @@index([filterVector], type: Gin)
   @@map("fundings")
 }
 

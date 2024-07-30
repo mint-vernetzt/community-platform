@@ -28,11 +28,15 @@ import {
   ShowFiltersButton,
 } from "../../explore/__components";
 import FundingCard from "./__components";
+import {
+  getFilterCountForSlug,
+  getFundingFilterVector,
+  getKeys,
+} from "./fundings.server";
 
 const getFundingsSchema = z.object({
   filter: z
     .object({
-      funders: z.array(z.string()),
       types: z.array(z.string()),
       areas: z.array(z.string()),
       regions: z.array(z.string()),
@@ -40,9 +44,8 @@ const getFundingsSchema = z.object({
     })
     .optional()
     .transform((filter) => {
-      if (filter === undefined) {
+      if (typeof filter === "undefined") {
         return {
-          funders: [],
           types: [],
           areas: [],
           regions: [],
@@ -63,7 +66,8 @@ const getFundingsSchema = z.object({
   showFilters: z.boolean().optional(),
 });
 
-type GetFundingsSchema = z.infer<typeof getFundingsSchema>;
+export type GetFundingsSchema = z.infer<typeof getFundingsSchema>;
+export type FilterKey = keyof GetFundingsSchema["filter"];
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -86,26 +90,9 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const whereClauses = [];
   for (const key in submission.value.filter) {
-    const typedKey = key as keyof GetFundingsSchema["filter"];
+    const typedKey = key as FilterKey;
 
-    let singularKey;
-    let pluralKey;
-    if (
-      typedKey === "funders" ||
-      typedKey === "types" ||
-      typedKey === "areas"
-    ) {
-      singularKey = typedKey.slice(0, -1);
-      pluralKey = typedKey;
-    } else if (typedKey === "regions") {
-      singularKey = "area";
-      pluralKey = typedKey;
-    } else if (typedKey === "eligibleEntities") {
-      singularKey = "entity";
-      pluralKey = "eligibleEntities";
-    } else {
-      throw new Error("Invalid key");
-    }
+    const { singularKey, pluralKey } = getKeys(typedKey);
 
     const values = submission.value.filter[typedKey];
     if (values.length === 0) {
@@ -115,7 +102,8 @@ export async function loader(args: LoaderFunctionArgs) {
       const whereStatement = {
         [pluralKey]: {
           some: {
-            [singularKey]: {
+            [typedKey === "regions" ? "area" : singularKey]: {
+              // funding data for areas is stored in regions
               slug: value,
             },
           },
@@ -194,27 +182,10 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
-  const funders = await prismaClient.funder.findMany({
-    select: {
-      slug: true,
-      title: true,
-    },
-  });
-  const enhancedFunders = funders.map((funder) => {
-    const isChecked = submission.value.filter.funders.includes(funder.slug);
-    return {
-      ...funder,
-      isChecked,
-    };
+  const filterVector = await getFundingFilterVector({
+    filter: submission.value.filter,
   });
 
-  const selectedFunders = submission.value.filter.funders.map((slug) => {
-    const funderMatch = funders.find((funder) => funder.slug === slug);
-    return {
-      slug,
-      title: funderMatch?.title || null,
-    };
-  });
   const fundingTypes = await prismaClient.fundingType.findMany({
     select: {
       slug: true,
@@ -222,9 +193,11 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
   const enhancedFundingTypes = fundingTypes.map((type) => {
+    const vectorCount = getFilterCountForSlug(type.slug, filterVector, "types");
     const isChecked = submission.value.filter.types.includes(type.slug);
     return {
       ...type,
+      vectorCount,
       isChecked,
     };
   });
@@ -242,9 +215,11 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
   const enhancedFundingAreas = fundingAreas.map((area) => {
+    const vectorCount = getFilterCountForSlug(area.slug, filterVector, "areas");
     const isChecked = submission.value.filter.areas.includes(area.slug);
     return {
       ...area,
+      vectorCount,
       isChecked,
     };
   });
@@ -262,11 +237,17 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
   const enhancedEligibleEntities = eligibleEntities.map((entity) => {
+    const vectorCount = getFilterCountForSlug(
+      entity.slug,
+      filterVector,
+      "eligibleEntities"
+    );
     const isChecked = submission.value.filter.eligibleEntities.includes(
       entity.slug
     );
     return {
       ...entity,
+      vectorCount,
       isChecked,
     };
   });
@@ -293,9 +274,15 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
   const enhancedRegions = regions.map((region) => {
+    const vectorCount = getFilterCountForSlug(
+      region.slug,
+      filterVector,
+      "regions"
+    );
     const isChecked = submission.value.filter.regions.includes(region.slug);
     return {
       ...region,
+      vectorCount,
       isChecked,
     };
   });
@@ -309,8 +296,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
   return json({
     fundings,
-    funders: enhancedFunders,
-    selectedFunders,
     fundingTypes: enhancedFundingTypes,
     selectedFundingTypes,
     fundingAreas: enhancedFundingAreas,
@@ -393,8 +378,12 @@ function Fundings() {
                         defaultChecked={undefined}
                         checked={type.isChecked}
                         readOnly
+                        disabled={type.vectorCount === 0 && !type.isChecked}
                       >
                         <FormControl.Label>{type.title}</FormControl.Label>
+                        <FormControl.Counter>
+                          {type.vectorCount}
+                        </FormControl.Counter>
                       </FormControl>
                     );
                   })}
@@ -428,8 +417,12 @@ function Fundings() {
                           area.slug
                         )}
                         readOnly
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.title}</FormControl.Label>
+                        <FormControl.Counter>
+                          {area.vectorCount}
+                        </FormControl.Counter>
                       </FormControl>
                     );
                   })}
@@ -463,8 +456,12 @@ function Fundings() {
                           area.slug
                         )}
                         readOnly
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
+                        <FormControl.Counter>
+                          {area.vectorCount}
+                        </FormControl.Counter>
                       </FormControl>
                     );
                   })}
@@ -498,8 +495,12 @@ function Fundings() {
                           entity.slug
                         )}
                         readOnly
+                        disabled={entity.vectorCount === 0 && !entity.isChecked}
                       >
                         <FormControl.Label>{entity.title}</FormControl.Label>
+                        <FormControl.Counter>
+                          {entity.vectorCount}
+                        </FormControl.Counter>
                       </FormControl>
                     );
                   })}
@@ -516,32 +517,12 @@ function Fundings() {
         </Form>
       </div>
       <section className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 mv-px-0">
-        {(loaderData.selectedFunders.length > 0 ||
-          loaderData.selectedFundingTypes.length > 0 ||
+        {(loaderData.selectedFundingTypes.length > 0 ||
           loaderData.selectedFundingAreas.length > 0 ||
           loaderData.selectedRegions.length > 0 ||
           loaderData.selectedEligibleEntities.length > 0) && (
           <div className="mv-flex mv-flex-col">
             <div className="mv-overflow-scroll @lg:mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
-              {loaderData.selectedFunders.map((funder) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.funders.name, funder.slug);
-                return funder.title !== null ? (
-                  <Chip key={funder.slug} size="medium">
-                    {funder.title}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
               {loaderData.selectedFundingTypes.map((type) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.types.name, type.slug);
