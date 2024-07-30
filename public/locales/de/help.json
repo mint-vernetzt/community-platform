@@ -1,6 +1,6 @@
 {
     "headline": "Hilfebereich",
-    "subline": "Hier findest du Antworten auf die am häufigsten gestellten Fragen.",
+    "subline": "Hier findest du Antworten auf Fragen rund um die Nutzung der Community-Plattform.",
     "faq": {
         "stemEducation": {
             "headline": "Fragen zum Thema MINT-Bildung",
@@ -40,7 +40,7 @@
             },
             "registrationProblems": {
                 "question": "Ich habe Probleme mit der Registrierung oder Anmeldung. An wen kann ich mich wenden?",
-                "answer": "<p>Schreibt uns eine Nachricht an unseren technischen Support:</p><a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>."
+                "answer": "<p>Schreibt uns eine Nachricht an unseren technischen Support:</p><a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>"
             },
             "addToOrganization": {
                 "question": "Wie kann ich mich als Team-Mitglied zu meiner Organisation hinzufügen?",
@@ -52,7 +52,7 @@
             },
             "emailChanged": {
                 "question": "Meine E-Mail-Adresse, mit der ich angemeldet bin, existiert nicht mehr, z.B. weil ich den Arbeitgeber gewechselt habe. Wie kann ich wieder auf mein Profil zugreifen?",
-                "answer": "<p>Wende Dich in dem Fall bitte an unseren Support:</p><a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>."
+                "answer": "<p>Wende Dich in dem Fall bitte an unseren Support:</p><a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>"
             }
         },
         "contentCreation": {

@@ -1,91 +1,91 @@
 {
-    "headline": "Help Center",
-    "subline": "Here you will find answers to the most frequently asked questions.",
+    "headline": "Help section",
+    "subline": "Here you will find answers to questions about using the community platform.",
     "faq": {
         "stemEducation": {
-            "headline": "TODO - English version",
+            "headline": "Questions about STEM education",
             "whatIsStem": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "What is STEM?",
+                "answer": "<p>STEM stands for science, technology, engineering,mathematics. These areas form the basis for numerous technological innovations and scientific findings. The term “STEM” reflects the integration of various disciplines such as art, design, music, the environment, but also societal or social issues. If, for example, an artistic field is included, STEM is extended by a “A” for “art” and becomes STEAM.</p>"
             }
         },
         "generalPlatformInformation": {
-            "headline": "TODO - English version",
+            "headline": "General information about the platform",
             "whoIsThePlatformFor": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version>"
+                "question": "Who is the community platform for?",
+                "answer": "<p>Our platform is aimed at stakeholders in STEM education, including, for example</p><ul><li>Providers of STEM education programs</li><li>Employees of extracurricular STEM learning locations</li><li>Coordinators of regional STEM networks, STEM clusters, STEM initiatives or STEM projects</li><li>People committed to women in STEM professions</li><li>Volunteers in the STEM field</li><li>Employees from business and industry who deal with the topics of STEM, girls and gender</li><li>Employees from business and industry who deal with the topics of STEM, girls and gender</li><li>Project developers and sponsors who are looking for STEM education providers, role models and projects</li><li>Anyone interested in STEM</li></ul>"
             },
             "benefitsOfThePlatform": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version>"
+                "question": "What added value does the MINTvernetzt community platform offer?",
+                "answer": "<p>The nationwide STEM community thrives on exchanging ideas, sharing knowledge and learning from and with each other. On the community platform, you can network with each other and with organizations and find inspiration or experts on specific topics in your area. A wide range of functions and opportunities await you on the platform:</p><ul><li>The STEM world in one place: Find players, initiatives, projects and events.</li><li>Make STEM projects visible: Present your projects and learn from each other.</li><li>Register for current events or browse through events you have already attended: Find other interested parties among the participants and download presentations.</li><li>Use advanced filter and search functions: Search specifically for skills, target groups, regions or topics.</li><li>Quick answers: Browse the FAQ page with frequently asked questions and answers about the community platform.</li><li>Contribute ideas: Suggest new functions or ideas to further develop the platform.</li></ul><p>Planned additional functions:</p><ul><li>Your events for the STEM community: Share your events for the target group of STEM stakeholders.</li><li>Strengthen your social media work: Use our graphic design beginner tool and the STEM-related media database in the future.</li><li>Discover funding opportunities: Test our fundraising crawler soon, which searches selected existing funding databases and displays suitable STEM funding in our platform.</li><li>Network in a targeted way: In future, benefit from the matching system, which suggests suitable people, projects or initiatives based on interests.</li></ul>"
             },
             "isItFree": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "Is the platform free to use?",
+                "answer": "Yes, the platform is available free of charge."
             },
             "whoOperatesThePlatform": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "Who operates the platform?",
+                "answer": "<p>The MINT-Vernetzungsstelle Deutschlands, or MINTvernetzt for short, is the central service and contact point for (extracurricular) STEM stakeholders in German-speaking countries. We create networking spaces and offer various free, practice-oriented workshop formats, including on addressing target groups in a target group-oriented and cliché-free manner, innovative design and the financing and consolidation of STEM offerings.</p><p>MINTvernetzt is funded by the Federal Ministry of Education and Research and is jointly implemented by employees of Körber Foundation, matrix gGmbH, Nationales MINT Forum e. V., Stifterverband and University of Regensburg.</p><p>matrix gGmbH is responsible for the development and implementation of the community platform. The MINTvernetzt community platform has been live since fall 2022. Our co-creative approach with participatory processes enables us to continuously develop the platform according to the wishes and needs of the STEM community. In this way, we are constantly expanding the platform. You can find out which functions are planned next on the platform's homepage under “Roadmap”.</p>"
             }
         },
         "registration": {
-            "headline": "TODO - English version",
+            "headline": "Questions about registration and my profile",
             "benefitsOfRegistration": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "Why should I register? I can already see content.",
+                "answer": "<p>We want to make many functions freely accessible so that you can see content easily. Not all content is visible when you are not logged in, so we recommend that you register. In addition, your own profiles, organizations and projects can only be created after registration. You can also only register for events once you have created a profile. Other STEM stakeholders will only be able to find you if you can be found via your profile.<p>"
             },
             "mintId": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version>"
+                "question": "What is the MINT ID?",
+                "answer": "<p>With the MINT-ID, you can register for the MINTvernetzt community platform and the MINT-Campus at the same time. You only have to register once and can use all the functions and offers of both platforms. The MINT Campus is the digital learning platform for the MINT community with freely accessible materials and learning opportunities for educational and project work.</p><p>The MINT-ID saves you time when registering and you can then easily switch between the two platforms. You can also continue to use your MINTvernetzt account without a MINT-ID. You can find more information about the MINT-ID here:</p><a href=\"https://mintcampus.org/mint-id/\" target=\"_blank\" rel=\"noreferrer\">https://mintcampus.org/mint-id/</a>"
             },
             "registrationProblems": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "I have problems registering or logging in. Who can I contact?",
+                "answer": "<p>Write us a message to our technical support:</p><a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>"
             },
             "addToOrganization": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "How can I add myself as a team member to my organization?",
+                "answer": "<p>The administrator of your organization can add you. We are currently working on a way to add yourself to an organization.</p>"
             },
             "removeFromOrganization": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "I am no longer active in the organization/as an actor.",
+                "answer": "<p>If you leave your organization, you can inform the administrator of your organization to remove you from the organization. In the future, this will also be possible independently. If you remain within the MINT community, your new organization will be happy to add you as a team member. If you leave the MINT Community, you can also delete your profile. Click on “Settings” at the bottom left, where you can “Edit your profile” and find the “Delete profile” tab.</p>"
             },
             "emailChanged": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "The e-mail address I am registered with no longer exists, e.g. because I have changed employer. How can I access my profile again?",
+                "answer": "<p>In this case, please contact our support team:</p><a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>"
             }
         },
         "contentCreation": {
-            "headline": "TODO - English version",
+            "headline": "Questions about creating organizations, projects and events",
             "networkVsOrganization": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "What is the difference between a network and a member organization?",
+                "answer": "<p>A network consists of several member organizations that work together to achieve common goals. Member organizations are the individual institutions that participate in these networks.</p>"
             }
         },
         "events": {
-            "headline": "TODO - English version",
+            "headline": "Questions about events",
             "eventParticipation": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "I would like to take part in an event. How can I register?",
+                "answer": "<p>Click on the “Events” tab in the navigation on the left and select the desired event. Then click on “Participate”.  Please note that you must be registered on the platform in order to register for an event.</p><p>Don't have a profile on the MINTvernetzt community platform yet?</p><a href=\"/register\">You can register here</a>."
             },
             "eventCreation": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "I would like to create an event. What do I have to consider?",
+                "answer": "<p>Currently, we only provide MINTvernetzt and MINT-Campus events on the community platform. In the next step, you will also have the opportunity to share your own events with the community and create your own events.</p><p><span>Important:</span> Our platform is NOT aimed at children and young people, but exclusively at STEM stakeholders, education providers, network coordinators, etc. Events such as STEM vacation courses or weekly offers in a school lab are not included here.</p>"
             }
         },
         "furtherQuestions": {
-            "headline": "TODO - English version",
+            "headline": "Further questions",
             "contribution": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "I would like to get involved in the further development of the MINTvernetzt community platform.",
+                "answer": "<p>Are you a STEM actor, designer or programmer and would like to play an active role in shaping the platform? We are always on the lookout for testers for new functions. Get in touch with us at <a href=\"mailto:community@mint-vernetzt.de\">community@mint-vernetzt.de</a>. We develop the platform with open source software - click <a href=\"https://github.com/mint-vernetzt/community-platform\" target=\"_blank\" rel=\"noreferrer\">here</a> for our GitHub repository.</p>"
             },
             "questionsSuggestionsWishes": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "I have questions, suggestions or requests.",
+                "answer": "<p>We are always happy to receive feedback and questions, because we want to develop the platform as closely as possible to the needs of our users. So feel free to contact Inga Leffers at <a href=\"mailto:community@mint-vernetzt.de\">community@mint-vernetzt.de</a>.</p>"
             },
             "futureDevelopment": {
-                "question": "TODO - English version",
-                "answer": "TODO - English version."
+                "question": "What else is being developed?",
+                "answer": "<p>We present our current roadmap on the platform's homepage - when you are not logged in. There we provide an insight into the functions that we are currently developing and those that are still planned. For example, we are working on a graphic design beginners' tool, a STEM-related media database and a funding crawler that searches selected existing funding databases and displays suitable STEM funding on our platform. We will keep you informed about new features on the platform via updates.</p>"
             }
         }
     }
