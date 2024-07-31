@@ -72,7 +72,7 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
         htmlFor={`expand-question-${props.id}`}
         className="mv-pb-6 mv-pt-6 @xl:mv-pb-8 @xl:mv-pt-8 group-has-[:checked]:mv-pb-0 mv-text-primary-600 mv-text-xl mv-font-bold mv-leading-6 mv-cursor-pointer mv-flex mv-gap-2 mv-items-center mv-justify-between mv-mb-0"
       >
-        <p className="mv-max-w-[720px]">{itemLabel}</p>
+        <p className="mv-max-w-[800px]">{itemLabel}</p>
         <span className="mv-w-fit mv-h-fit mv-rotate-90 group-has-[:checked]:-mv-rotate-90 mv-mr-0 @md:mv-mr-3 @lg:mv-mr-6">
           <Icon type="chevron-right" />
         </span>
@@ -82,7 +82,7 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
         type="checkbox"
         className="mv-absolute mv-opacity-0 mv-w-0 mv-h-0 mv-overflow-hidden"
       />
-      <div className="mv-text-primary-600 mv-leading-[20.8px] mv-font-normal mv-pt-[10px] mv-pb-6 @xl:mv-pt-4 @xl:mv-pb-8 mv-max-w-[720px] mv-hidden group-has-[:checked]:mv-block mv-hyphens-auto">
+      <div className="mv-text-primary-600 mv-leading-[20.8px] mv-font-normal mv-pt-[10px] mv-pb-6 @xl:mv-pt-4 @xl:mv-pb-8 mv-max-w-[800px] mv-hidden group-has-[:checked]:mv-block mv-hyphens-auto">
         {content}
       </div>
     </li>

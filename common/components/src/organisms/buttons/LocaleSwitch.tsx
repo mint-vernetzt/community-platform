@@ -10,17 +10,19 @@ export default function LocaleSwitch(props: { variant?: TextButtonVariants }) {
   );
 
   return (
-    <ul className="flex items-center">
+    <ul className="mv-flex mv-items-center">
       {languages.map((l: string, cnt: number) => (
-        <li key={cnt} className="inline-flex">
+        <li key={cnt} className="mv-flex mv-items-center">
           {cnt > 0 ? <span className="mx-2">|</span> : ""}
-          <TextButton
-            variant={variant}
-            weight={l === i18n.language ? "normal" : "thin"}
-            onClick={() => i18n.changeLanguage(l)}
-          >
-            {l.toUpperCase()}
-          </TextButton>
+          <span>
+            <TextButton
+              variant={variant}
+              weight={l === i18n.language ? "normal" : "thin"}
+              onClick={() => i18n.changeLanguage(l)}
+            >
+              {l.toUpperCase()}
+            </TextButton>
+          </span>
         </li>
       ))}
     </ul>
