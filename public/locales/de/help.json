@@ -88,5 +88,12 @@
                 "answer": "<p>Auf der Startseite der Plattform – im nicht-eingeloggten Zustand – stellen wir unseren aktuellen Fahrplan vor. Dort geben wir einen Einblick in die Funktionen, die wir derzeit entwickeln und die noch geplant sind. Wir arbeiten z.B. an einem Grafikdesign-Einsteiger:innen-Tool, einer Mediendatenbank mit MINT-Bezug, sowie eine Fördermittel-Crawler, der ausgewählte bestehende Förder-Datenbanken durchsucht und passende MINT-Förderungen in unserer Plattform ausspielt. Über Neuerungen auf der Plattform halten wir Euch über Updates auf dem Laufenden.</p>"
             }
         }
+    },
+    "support": {
+        "headline": "SUPPORT",
+        "subline": "Findest Du keine Antwort auf Deine Frage?",
+        "ctaText": "Schreibe uns gerne eine E-Mail an:",
+        "email": "support@mint-vernetzt.de",
+        "cta": "Support kontaktieren"
     }
 }

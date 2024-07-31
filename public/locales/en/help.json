@@ -88,5 +88,12 @@
                 "answer": "<p>We present our current roadmap on the platform's homepage - when you are not logged in. There we provide an insight into the functions that we are currently developing and those that are still planned. For example, we are working on a graphic design beginners' tool, a STEM-related media database and a funding crawler that searches selected existing funding databases and displays suitable STEM funding on our platform. We will keep you informed about new features on the platform via updates.</p>"
             }
         }
+    },
+    "support": {
+        "headline": "SUPPORT",
+        "subline": "Can't find an answer to your question?",
+        "ctaText": "Please send us an e-mail:",
+        "email": "support@mint-vernetzt.de",
+        "cta": "Contact support"
     }
 }
