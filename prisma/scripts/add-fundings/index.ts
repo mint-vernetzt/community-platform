@@ -3,6 +3,7 @@ import { z } from "zod";
 import fs from "fs-extra";
 import { prismaClient } from "~/prisma.server";
 import { generateValidSlug } from "~/utils.server";
+import { updateFilterVectorOfFunding } from "~/routes/next/explore/fundings.server";
 
 program.requiredOption(
   "-f, --file <file>",
@@ -321,6 +322,8 @@ async function main() {
         },
       },
     });
+
+    await updateFilterVectorOfFunding(result.id);
   }
 }
 

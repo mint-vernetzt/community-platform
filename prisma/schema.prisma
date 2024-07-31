@@ -1328,6 +1328,7 @@ model Funding {
   sourceAreas      String[]
   sourceEntities   String[]
   createdAt        DateTime                            @default(now()) @map("created_at")
+  checksum         String? // legacy
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
