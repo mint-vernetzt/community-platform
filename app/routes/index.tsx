@@ -28,8 +28,10 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
+import { Accordion } from "./__help.components";
+import { RichText } from "~/components/Richtext/RichText";
 
-const i18nNS = ["routes/index"];
+const i18nNS = ["routes/index", "help"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -488,7 +490,6 @@ export default function Index() {
         </div>
         <Button
           as="a"
-          size="small"
           variant="outline"
           href="https://mint-vernetzt.de/"
           target="_blank"
@@ -524,7 +525,7 @@ export default function Index() {
           <span>{t("content.more.action")}</span>
         </Button>
       </section>
-      <section className="mv-w-full mv-bg-neutral-50 mv-h-[1600px] mv-relative">
+      <section className="mv-w-full mv-flex mv-flex-col mv-items-center mv-bg-neutral-50 mv-py-16 mv-px-4 @md:mv-px-10 @xl:mv-px-16 mv-relative">
         <div className="mv-absolute -mv-top-[420px] mv-right-0 mv-hidden @xl:mv-block">
           <svg
             width="174"
@@ -553,6 +554,89 @@ export default function Index() {
               strokeWidth="2"
             />
           </svg>
+        </div>
+        <h2 className="mv-mb-[42px] mv-text-primary-600 @xl:mv-text-primary-500 mv-text-4xl @xl:mv-text-5xl mv-font-semibold mv-leading-7 @md:mv-leading-8 @xl:mv-leading-9 mv-uppercase">
+          {t("content.faq.headline")}
+        </h2>
+        <div className="mv-w-full mv-mb-8 @md:mv-mb-14 @xl:mv-mb-[88px]">
+          <Accordion>
+            <Accordion.Item id="whatIsStem" key="whatIsStem">
+              {t(`faq.stemEducation.whatIsStem.question`, { ns: "help" })}
+              <RichText
+                id="faq-content"
+                html={t(`faq.stemEducation.whatIsStem.answer`, { ns: "help" })}
+              />
+            </Accordion.Item>
+            <Accordion.Item id="whoIsThePlatformFor" key="whoIsThePlatformFor">
+              {t(
+                `faq.generalPlatformInformation.whoIsThePlatformFor.question`,
+                { ns: "help" }
+              )}
+              <RichText
+                id="faq-content"
+                html={t(
+                  `faq.generalPlatformInformation.whoIsThePlatformFor.answer`,
+                  { ns: "help" }
+                )}
+              />
+            </Accordion.Item>
+            <Accordion.Item
+              id="benefitsOfThePlatform"
+              key="benefitsOfThePlatform"
+            >
+              {t(
+                `faq.generalPlatformInformation.benefitsOfThePlatform.question`,
+                { ns: "help" }
+              )}
+              <RichText
+                id="faq-content"
+                html={t(
+                  `faq.generalPlatformInformation.benefitsOfThePlatform.answer`,
+                  { ns: "help" }
+                )}
+              />
+            </Accordion.Item>
+            <Accordion.Item id="isItFree" key="isItFree">
+              {t(`faq.generalPlatformInformation.isItFree.question`, {
+                ns: "help",
+              })}
+              <RichText
+                id="faq-content"
+                html={t(`faq.generalPlatformInformation.isItFree.answer`, {
+                  ns: "help",
+                })}
+              />
+            </Accordion.Item>
+            <Accordion.Item
+              id="benefitsOfRegistration"
+              key="benefitsOfRegistration"
+            >
+              {t(`faq.registration.benefitsOfRegistration.question`, {
+                ns: "help",
+              })}
+              <RichText
+                id="faq-content"
+                html={t(`faq.registration.benefitsOfRegistration.answer`, {
+                  ns: "help",
+                })}
+              />
+            </Accordion.Item>
+            <Accordion.Item id="mintId" key="mintId">
+              {t(`faq.registration.mintId.question`, { ns: "help" })}
+              <RichText
+                id="faq-content"
+                html={t(`faq.registration.mintId.answer`, { ns: "help" })}
+              />
+            </Accordion.Item>
+          </Accordion>
+        </div>
+        <Button as="a" href="/help" variant="outline">
+          {t("content.faq.cta")}
+        </Button>
+        <div className="mv-text-center mv-text-primary-600 @xl:mv-text-primary-500 mv-font-semibold mv-leading-5 mv-mt-10">
+          <p>{t("content.faq.supportQuestion")}</p>
+          <p>{t("content.faq.supportCta")}</p>
+          <p>{t("content.faq.supportEmail")}</p>
         </div>
       </section>
     </>

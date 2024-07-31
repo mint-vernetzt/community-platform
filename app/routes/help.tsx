@@ -82,7 +82,6 @@ export default function Help() {
             as="a"
             href="mailto:support@mint-vernetzt.de"
             variant="outline"
-            size="small"
           >
             {t("support.cta")}
           </Button>
