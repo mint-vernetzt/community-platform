@@ -489,15 +489,18 @@ function NavBarMenu(
               <LocaleSwitch variant="dark" />
             </div>
 
-            {/* TODO: Implement this when Help route is implemented */}
-            {/* <Item
-              to=""
+            <Item
+              to="/help"
               openNavBarMenuKey={props.openNavBarMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
-              <Icon type="life-preserver" />
+              {location.pathname === "/help" ? (
+                <Icon type="life-preserver" />
+              ) : (
+                <Icon type="life-preserver-outline" />
+              )}
               <div className="mv-font-semibold">{t("root.menu.help")}</div>
-            </Item> */}
+            </Item>
 
             {props.mode === "authenticated" ? (
               <>
@@ -1045,11 +1048,11 @@ function Icon(props: { type: IconType }) {
       >
         <circle cx="8" cy="8" r="7.5" stroke="currentColor" />
         <circle cx="8" cy="8" r="3.5" stroke="currentColor" />
+        <path d="M8 1L8 5M8 11.5L8 15.5" stroke="currentColor" />
         <path
-          d="M15.25 1.25L11.25 1.25M4.75 1.25L0.75 1.25"
+          d="M15.25 8.25L11.25 8.25M4.75 8.25L0.75 8.25"
           stroke="currentColor"
         />
-        <path d="M0.999997 0L0.999996 4M1 10.5L1 14.5" stroke="currentColor" />
       </svg>
     );
   }
@@ -1566,4 +1569,4 @@ function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
   );
 }
 
-export { CountUp, Modal, NavBarMenu, NavBar, Footer, LoginOrRegisterCTA };
+export { CountUp, Modal, NavBarMenu, NavBar, Footer, LoginOrRegisterCTA, Icon };
