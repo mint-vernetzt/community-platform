@@ -50,3 +50,30 @@
     }
   }
 }
+
+#faq-content {
+  ul {
+    @apply mv-list-disc mv-flex mv-flex-col mv-gap-1;
+  }
+  li {
+    @apply mv-ml-4;
+  }
+  a {
+    @apply mv-font-semibold mv-cursor-pointer mv-underline hover:mv-no-underline;
+  }
+  p {
+    @apply mv-mb-2;
+  }
+  p:last-child {
+    @apply mv-mb-0;
+  }
+  ul + p {
+    @apply mv-mt-2;
+  }
+  a + p {
+    @apply mv-mt-2;
+  }
+  span {
+    @apply mv-font-semibold;
+  }
+}
