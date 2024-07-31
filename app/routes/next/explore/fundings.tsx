@@ -400,7 +400,7 @@ function Fundings() {
                   {t("filter.type")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
-                    {loaderData.fundingTypes
+                    {loaderData.selectedFundingTypes
                       .map((type) => {
                         return type.title;
                       })
@@ -437,7 +437,7 @@ function Fundings() {
                   {t("filter.area")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
-                    {loaderData.fundingAreas
+                    {loaderData.selectedFundingAreas
                       .map((area) => {
                         return area.title;
                       })
@@ -476,7 +476,7 @@ function Fundings() {
                   {t("filter.region")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
-                    {loaderData.regions
+                    {loaderData.selectedRegions
                       .map((region) => {
                         return region.name;
                       })
@@ -515,7 +515,7 @@ function Fundings() {
                   {t("filter.eligibleEntity")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
-                    {loaderData.eligibleEntities
+                    {loaderData.selectedEligibleEntities
                       .map((entity) => {
                         return entity.title;
                       })
