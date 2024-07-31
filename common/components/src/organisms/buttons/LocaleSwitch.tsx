@@ -5,9 +5,11 @@ import { type TextButtonVariants } from "../../molecules/TextButton";
 export default function LocaleSwitch(props: { variant?: TextButtonVariants }) {
   const variant = props.variant || "primary";
   const { i18n } = useTranslation();
-  const languages = i18n.options.supportedLngs.filter(
-    (l: string): boolean => l !== "cimode"
-  );
+
+  let languages = ["de", "en"];
+  if (i18n.options.supportedLngs) {
+    languages = i18n.options.supportedLngs.filter((l) => l !== "cimode");
+  }
 
   return (
     <ul className="mv-flex mv-items-center">
