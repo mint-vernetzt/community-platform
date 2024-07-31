@@ -36,6 +36,8 @@ import {
 import { useTranslation } from "react-i18next";
 import { H1 } from "~/components/Heading/Heading";
 
+const sortValues = ["title-asc", "title-desc", "createdAt-desc"] as const;
+
 const getFundingsSchema = z.object({
   filter: z
     .object({
@@ -55,6 +57,22 @@ const getFundingsSchema = z.object({
         };
       }
       return filter;
+    }),
+  sortBy: z
+    .enum(sortValues)
+    .optional()
+    .transform((sortValue) => {
+      if (sortValue !== undefined) {
+        const splittedValue = sortValue.split("-");
+        return {
+          value: splittedValue[0],
+          direction: splittedValue[1],
+        };
+      }
+      return {
+        value: sortValues[0].split("-")[0],
+        direction: sortValues[0].split("-")[1],
+      };
     }),
   page: z
     .number()
@@ -114,6 +132,8 @@ export async function loader(args: LoaderFunctionArgs) {
       whereClauses.push(whereStatement);
     }
   }
+
+  const sortBy = submission.value.sortBy;
 
   const fundings = await prismaClient.funding.findMany({
     select: {
@@ -176,6 +196,14 @@ export async function loader(args: LoaderFunctionArgs) {
       AND: whereClauses,
     },
     take: take,
+    orderBy: [
+      {
+        [sortBy.value]: sortBy.direction,
+      },
+      {
+        id: "asc",
+      },
+    ],
   });
 
   const count = await prismaClient.funding.count({
@@ -516,6 +544,44 @@ function Fundings() {
                         <FormControl.Counter>
                           {entity.vectorCount}
                         </FormControl.Counter>
+                      </FormControl>
+                    );
+                  })}
+                </Dropdown.List>
+              </Dropdown>
+            </Filters.Fieldset>
+            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+              <Dropdown orientation="right">
+                <Dropdown.Label>
+                  <span className="@lg:mv-hidden">
+                    {t("filter.sortBy.label")}
+                    <br />
+                  </span>
+                  <span className="mv-font-normal @lg:mv-font-semibold">
+                    {t(
+                      `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                    )}
+                  </span>
+                </Dropdown.Label>
+                <Dropdown.List>
+                  {sortValues.map((sortValue) => {
+                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                    return (
+                      <FormControl
+                        {...getInputProps(fields.sortBy, {
+                          type: "radio",
+                          value: sortValue,
+                        })}
+                        key={sortValue}
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={submissionSortValue === sortValue}
+                        readOnly
+                      >
+                        <FormControl.Label>
+                          {t(`filter.sortBy.${sortValue}`)}
+                        </FormControl.Label>
                       </FormControl>
                     );
                   })}

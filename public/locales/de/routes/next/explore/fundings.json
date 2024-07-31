@@ -16,8 +16,13 @@
         "type": "Förderart",
         "area": "Förderbereich",
         "region": "Fördergebiet",
-        "eligbileEntity": "Förderberechtigte"
-
+        "eligbileEntity": "Förderberechtigte",
+        "sortBy": {
+            "label": "Sortierung",
+            "title-asc": "Title (A-Z)",
+            "title-desc": "Title (Z-A)",
+            "createdAt-desc": "Neueste zuerst"
+        }
     },
     "card": {
         "region": "Fördergebiet",

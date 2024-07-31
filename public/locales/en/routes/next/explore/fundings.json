@@ -16,13 +16,19 @@
       "type": "Funding type",
       "area": "Funding area",
       "region": "Funding region",
-      "eligibleEntity": "Eligible entity"
+      "eligibleEntity": "Eligible entity",
+      "sortBy": {
+        "label": "Sorting",
+        "title-asc": "Titel (A-Z)",
+        "title-desc": "Titel (Z-A)",
+        "createdAt-desc": "Newest first"
+      }
     },
     "card": {
-        "region": "Funding region",
-        "eligibleEntity": "Who will receive funding?",
-        "area": "What is being funded?",
-        "toFunding": "To funding",
-        "notProvided": "-not provided-"
+      "region": "Funding region",
+      "eligibleEntity": "Who will receive funding?",
+      "area": "What is being funded?",
+      "toFunding": "To funding",
+      "notProvided": "-not provided-"
     }
 }
