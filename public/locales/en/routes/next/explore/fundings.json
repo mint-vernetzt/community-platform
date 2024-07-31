@@ -19,8 +19,8 @@
       "eligibleEntity": "Eligible entity",
       "sortBy": {
         "label": "Sorting",
-        "title-asc": "Titel (A-Z)",
-        "title-desc": "Titel (Z-A)",
+        "title-asc": "Title (A-Z)",
+        "title-desc": "Title (Z-A)",
         "createdAt-desc": "Newest first"
       }
     },
