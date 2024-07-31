@@ -1,6 +1,9 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 function FundingCard(props: { url: string; children: React.ReactNode }) {
+  const { t } = useTranslation(i18nNS);
+
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
       return React.isValidElement(child);
@@ -25,7 +28,7 @@ function FundingCard(props: { url: string; children: React.ReactNode }) {
       {subtitle}
       {title}
       {categories}
-      <FundingCard.Link to={props.url}>Zur Förderung</FundingCard.Link>
+      <FundingCard.Link to={props.url}>{t("card.toFunding")}</FundingCard.Link>
     </li>
   );
 }
@@ -102,10 +105,13 @@ function FundingCardLink(props: { to: string; children: React.ReactNode }) {
   );
 }
 
+const i18nNS = ["routes/next/explore/fundings"];
 function FundingCardCategory(props: {
   children: React.ReactNode;
   items: string[];
 }) {
+  const { t } = useTranslation(i18nNS);
+
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
       return React.isValidElement(child);
@@ -125,7 +131,7 @@ function FundingCardCategory(props: {
           </span>
         ) : (
           <span className="mv-text-neutral-400 mv-text-sm mv-tracking-wide">
-            -nicht angegeben-
+            {t("card.notProvided")}
           </span>
         )}
       </div>

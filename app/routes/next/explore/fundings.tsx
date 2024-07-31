@@ -33,6 +33,8 @@ import {
   getFundingFilterVector,
   getKeys,
 } from "./fundings.server";
+import { useTranslation } from "react-i18next";
+import { H1 } from "~/components/Heading/Heading";
 
 const getFundingsSchema = z.object({
   filter: z
@@ -309,7 +311,14 @@ export async function loader(args: LoaderFunctionArgs) {
   } as const);
 }
 
+const i18nNS = ["routes/next/explore/fundings"];
+export const handle = {
+  i18n: i18nNS,
+};
+
 function Fundings() {
+  const { t } = useTranslation(i18nNS);
+
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
@@ -326,8 +335,14 @@ function Fundings() {
   const filter = fields.filter.getFieldset();
 
   return (
-    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-flex mv-flex-col mv-gap-4">
-      <div>
+    <>
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
+        <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
+          {t("title")}
+        </H1>
+        <p>{t("intro")}</p>
+      </section>
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -342,19 +357,19 @@ function Fundings() {
               value: loaderData.submission.value.showFilters === true,
             })}
           >
-            Filter anzeigen
+            {t("showFiltersLabel")}
           </ShowFiltersButton>
           <Filters showFilters={loaderData.submission.value.showFilters}>
             <Filters.Title>Filter</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
               {...getFieldsetProps(fields.filter)}
-              showMore="Mehr anzeigen"
-              showLess="Weniger anzeigen"
+              showMore={t("filter.showMore")}
+              showLess={t("filter.showLess")}
             >
               <Dropdown>
                 <Dropdown.Label>
-                  Fördererart
+                  {t("filter.type")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.fundingTypes
@@ -391,7 +406,7 @@ function Fundings() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  Förderbereich
+                  {t("filter.area")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.fundingAreas
@@ -430,7 +445,7 @@ function Fundings() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  Förderregion
+                  {t("filter.region")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.regions
@@ -469,7 +484,7 @@ function Fundings() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  Förderberechtigte
+                  {t("filter.eligibleEntity")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.eligibleEntities
@@ -508,175 +523,190 @@ function Fundings() {
               </Dropdown>
             </Filters.Fieldset>
             <Filters.ResetButton to={`${location.pathname}`}>
-              Filter zurücksetzen
+              {t("filter.reset")}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {loaderData.count} Förderungen anzeigen
+              {t("showNumberOfItems", {
+                count: loaderData.count,
+              })}
             </Filters.ApplyButton>
           </Filters>
+          <noscript>
+            <Button>{t("filter.apply")}</Button>
+          </noscript>
         </Form>
-      </div>
-      <section className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 mv-px-0">
-        {(loaderData.selectedFundingTypes.length > 0 ||
-          loaderData.selectedFundingAreas.length > 0 ||
-          loaderData.selectedRegions.length > 0 ||
-          loaderData.selectedEligibleEntities.length > 0) && (
-          <div className="mv-flex mv-flex-col">
-            <div className="mv-overflow-scroll @lg:mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
-              {loaderData.selectedFundingTypes.map((type) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.types.name, type.slug);
-                return type.title !== null ? (
-                  <Chip key={type.slug} size="medium">
-                    {type.title}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
-              {loaderData.selectedFundingAreas.map((area) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.areas.name, area.slug);
-                return area.title !== null ? (
-                  <Chip key={area.slug} size="medium">
-                    {area.title}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
-              {loaderData.selectedRegions.map((region) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.regions.name, region.slug);
-                return region.name !== null ? (
-                  <Chip key={region.slug} size="medium">
-                    {region.name}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
-              {loaderData.selectedEligibleEntities.map((entity) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  filter.eligibleEntities.name,
-                  entity.slug
-                );
-                return entity.title !== null ? (
-                  <Chip key={entity.slug} size="medium">
-                    {entity.title}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+          <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+        </div>
+        <section className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 mv-px-0">
+          {(loaderData.selectedFundingTypes.length > 0 ||
+            loaderData.selectedFundingAreas.length > 0 ||
+            loaderData.selectedRegions.length > 0 ||
+            loaderData.selectedEligibleEntities.length > 0) && (
+            <div className="mv-flex mv-flex-col">
+              <div className="mv-overflow-scroll @lg:mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
+                {loaderData.selectedFundingTypes.map((type) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(filter.types.name, type.slug);
+                  return type.title !== null ? (
+                    <Chip key={type.slug} size="medium">
+                      {type.title}
+                      <Chip.Delete>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  ) : null;
+                })}
+                {loaderData.selectedFundingAreas.map((area) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(filter.areas.name, area.slug);
+                  return area.title !== null ? (
+                    <Chip key={area.slug} size="medium">
+                      {area.title}
+                      <Chip.Delete>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  ) : null;
+                })}
+                {loaderData.selectedRegions.map((region) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(filter.regions.name, region.slug);
+                  return region.name !== null ? (
+                    <Chip key={region.slug} size="medium">
+                      {region.name}
+                      <Chip.Delete>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  ) : null;
+                })}
+                {loaderData.selectedEligibleEntities.map((entity) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    filter.eligibleEntities.name,
+                    entity.slug
+                  );
+                  return entity.title !== null ? (
+                    <Chip key={entity.slug} size="medium">
+                      {entity.title}
+                      <Chip.Delete>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  ) : null;
+                })}
+              </div>
+              <Link
+                className="mv-w-fit"
+                to={`${location.pathname}`}
+                preventScrollReset
+              >
+                <Button
+                  variant="outline"
+                  loading={navigation.state === "loading"}
+                  disabled={navigation.state === "loading"}
+                >
+                  Filter zurücksetzen
+                </Button>
+              </Link>
             </div>
+          )}
+        </section>
+        {loaderData.count > 0 ? (
+          <p className="text-center text-gray-700 mb-4">
+            <strong>{loaderData.count}</strong>{" "}
+            {t("itemsCountSuffix", { count: loaderData.count })}
+          </p>
+        ) : (
+          <p className="text-center text-gray-700 mb-4">{t("empty")}</p>
+        )}
+
+        <FundingCard.Container>
+          {loaderData.fundings.map((funding) => {
+            return (
+              <FundingCard key={funding.url} url={funding.url}>
+                <FundingCard.Subtitle>
+                  {funding.types
+                    .map((relation) => {
+                      return relation.type.title;
+                    })
+                    .join(", ")}
+                </FundingCard.Subtitle>
+                <FundingCard.Title>{funding.title}</FundingCard.Title>
+                <FundingCard.Category
+                  items={funding.regions.map((relation) => {
+                    return relation.area.name;
+                  })}
+                >
+                  <FundingCard.Category.Title>
+                    {t("card.region")}
+                  </FundingCard.Category.Title>
+                </FundingCard.Category>
+                <FundingCard.Category items={funding.sourceEntities}>
+                  <FundingCard.Category.Title>
+                    {t("card.eligibleEntity")}
+                  </FundingCard.Category.Title>
+                </FundingCard.Category>
+
+                <FundingCard.Category items={funding.sourceAreas}>
+                  <FundingCard.Category.Title>
+                    {t("card.area")}
+                  </FundingCard.Category.Title>
+                </FundingCard.Category>
+              </FundingCard>
+            );
+          })}
+        </FundingCard.Container>
+
+        {loaderData.count > loaderData.fundings.length && (
+          <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
             <Link
-              className="mv-w-fit"
-              to={`${location.pathname}`}
+              to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
               preventScrollReset
+              replace
             >
               <Button
+                size="large"
                 variant="outline"
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
-                Filter zurücksetzen
+                {t("more")}
               </Button>
             </Link>
           </div>
         )}
       </section>
-      <p>{loaderData.count} Förderungen gefunden!</p>
-
-      <FundingCard.Container>
-        {loaderData.fundings.map((funding) => {
-          return (
-            <FundingCard key={funding.url} url={funding.url}>
-              <FundingCard.Subtitle>
-                {funding.types
-                  .map((relation) => {
-                    return relation.type.title;
-                  })
-                  .join(", ")}
-              </FundingCard.Subtitle>
-              <FundingCard.Title>{funding.title}</FundingCard.Title>
-              <FundingCard.Category
-                items={funding.regions.map((relation) => {
-                  return relation.area.name;
-                })}
-              >
-                <FundingCard.Category.Title>
-                  Fördergebiet
-                </FundingCard.Category.Title>
-              </FundingCard.Category>
-              <FundingCard.Category items={funding.sourceEntities}>
-                <FundingCard.Category.Title>
-                  Wer wird gefördert?
-                </FundingCard.Category.Title>
-              </FundingCard.Category>
-
-              <FundingCard.Category items={funding.sourceAreas}>
-                <FundingCard.Category.Title>
-                  Was wird gefördert?
-                </FundingCard.Category.Title>
-              </FundingCard.Category>
-            </FundingCard>
-          );
-        })}
-      </FundingCard.Container>
-
-      {loaderData.count > loaderData.fundings.length && (
-        <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
-          <Link
-            to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
-            preventScrollReset
-            replace
-          >
-            <Button
-              size="large"
-              variant="outline"
-              loading={navigation.state === "loading"}
-              disabled={navigation.state === "loading"}
-            >
-              Mehr
-            </Button>
-          </Link>
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 
