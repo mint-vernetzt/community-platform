@@ -1,5 +1,6 @@
 import { prismaClient } from "~/prisma.server";
 import { updateFilterVectorOfEvent } from "~/routes/event/$slug/settings/utils.server";
+import { updateFilterVectorOfFunding } from "~/routes/next/explore/fundings.server";
 import { updateFilterVectorOfOrganization } from "~/routes/organization/$slug/settings/utils.server";
 import { updateFilterVectorOfProfile } from "~/routes/profile/$username/utils.server";
 import { updateFilterVectorOfProject } from "~/routes/project/$slug/settings/utils.server";
@@ -78,6 +79,19 @@ async function main() {
   }
 
   // await Promise.all(projectBulk);
+
+  const fundings = await prismaClient.funding.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  console.log(`Creating filter vectors of ${projects.length} projects.`);
+
+  for await (const funding of fundings) {
+    console.log(`Creating filter vector of funding ${funding.id}.`);
+    await updateFilterVectorOfFunding(funding.id);
+  }
 }
 
 main()

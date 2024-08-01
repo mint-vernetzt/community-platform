@@ -27,12 +27,20 @@ import {
   FormControl,
   ShowFiltersButton,
 } from "../../explore/__components";
-import React from "react";
+import FundingCard from "./__components";
+import {
+  getFilterCountForSlug,
+  getFundingFilterVector,
+  getKeys,
+} from "./fundings.server";
+import { useTranslation } from "react-i18next";
+import { H1 } from "~/components/Heading/Heading";
+
+const sortValues = ["title-asc", "title-desc", "createdAt-desc"] as const;
 
 const getFundingsSchema = z.object({
   filter: z
     .object({
-      funders: z.array(z.string()),
       types: z.array(z.string()),
       areas: z.array(z.string()),
       regions: z.array(z.string()),
@@ -40,9 +48,8 @@ const getFundingsSchema = z.object({
     })
     .optional()
     .transform((filter) => {
-      if (filter === undefined) {
+      if (typeof filter === "undefined") {
         return {
-          funders: [],
           types: [],
           areas: [],
           regions: [],
@@ -50,6 +57,22 @@ const getFundingsSchema = z.object({
         };
       }
       return filter;
+    }),
+  sortBy: z
+    .enum(sortValues)
+    .optional()
+    .transform((sortValue) => {
+      if (sortValue !== undefined) {
+        const splittedValue = sortValue.split("-");
+        return {
+          value: splittedValue[0],
+          direction: splittedValue[1],
+        };
+      }
+      return {
+        value: sortValues[0].split("-")[0],
+        direction: sortValues[0].split("-")[1],
+      };
     }),
   page: z
     .number()
@@ -63,7 +86,8 @@ const getFundingsSchema = z.object({
   showFilters: z.boolean().optional(),
 });
 
-type GetFundingsSchema = z.infer<typeof getFundingsSchema>;
+export type GetFundingsSchema = z.infer<typeof getFundingsSchema>;
+export type FilterKey = keyof GetFundingsSchema["filter"];
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -86,26 +110,9 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const whereClauses = [];
   for (const key in submission.value.filter) {
-    const typedKey = key as keyof GetFundingsSchema["filter"];
+    const typedKey = key as FilterKey;
 
-    let singularKey;
-    let pluralKey;
-    if (
-      typedKey === "funders" ||
-      typedKey === "types" ||
-      typedKey === "areas"
-    ) {
-      singularKey = typedKey.slice(0, -1);
-      pluralKey = typedKey;
-    } else if (typedKey === "regions") {
-      singularKey = "area";
-      pluralKey = typedKey;
-    } else if (typedKey === "eligibleEntities") {
-      singularKey = "entity";
-      pluralKey = "eligibleEntities";
-    } else {
-      throw new Error("Invalid key");
-    }
+    const { singularKey, pluralKey } = getKeys(typedKey);
 
     const values = submission.value.filter[typedKey];
     if (values.length === 0) {
@@ -115,7 +122,8 @@ export async function loader(args: LoaderFunctionArgs) {
       const whereStatement = {
         [pluralKey]: {
           some: {
-            [singularKey]: {
+            [typedKey === "regions" ? "area" : singularKey]: {
+              // funding data for areas is stored in regions
               slug: value,
             },
           },
@@ -125,9 +133,10 @@ export async function loader(args: LoaderFunctionArgs) {
     }
   }
 
+  const sortBy = submission.value.sortBy;
+
   const fundings = await prismaClient.funding.findMany({
     select: {
-      checksum: true,
       title: true,
       url: true,
       funders: {
@@ -180,11 +189,21 @@ export async function loader(args: LoaderFunctionArgs) {
           },
         },
       },
+      sourceEntities: true,
+      sourceAreas: true,
     },
     where: {
       AND: whereClauses,
     },
     take: take,
+    orderBy: [
+      {
+        [sortBy.value]: sortBy.direction,
+      },
+      {
+        id: "asc",
+      },
+    ],
   });
 
   const count = await prismaClient.funding.count({
@@ -193,27 +212,10 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
-  const funders = await prismaClient.funder.findMany({
-    select: {
-      slug: true,
-      title: true,
-    },
-  });
-  const enhancedFunders = funders.map((funder) => {
-    const isChecked = submission.value.filter.funders.includes(funder.slug);
-    return {
-      ...funder,
-      isChecked,
-    };
+  const filterVector = await getFundingFilterVector({
+    filter: submission.value.filter,
   });
 
-  const selectedFunders = submission.value.filter.funders.map((slug) => {
-    const funderMatch = funders.find((funder) => funder.slug === slug);
-    return {
-      slug,
-      title: funderMatch?.title || null,
-    };
-  });
   const fundingTypes = await prismaClient.fundingType.findMany({
     select: {
       slug: true,
@@ -221,9 +223,11 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
   const enhancedFundingTypes = fundingTypes.map((type) => {
+    const vectorCount = getFilterCountForSlug(type.slug, filterVector, "types");
     const isChecked = submission.value.filter.types.includes(type.slug);
     return {
       ...type,
+      vectorCount,
       isChecked,
     };
   });
@@ -241,9 +245,11 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
   const enhancedFundingAreas = fundingAreas.map((area) => {
+    const vectorCount = getFilterCountForSlug(area.slug, filterVector, "areas");
     const isChecked = submission.value.filter.areas.includes(area.slug);
     return {
       ...area,
+      vectorCount,
       isChecked,
     };
   });
@@ -261,11 +267,17 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
   const enhancedEligibleEntities = eligibleEntities.map((entity) => {
+    const vectorCount = getFilterCountForSlug(
+      entity.slug,
+      filterVector,
+      "eligibleEntities"
+    );
     const isChecked = submission.value.filter.eligibleEntities.includes(
       entity.slug
     );
     return {
       ...entity,
+      vectorCount,
       isChecked,
     };
   });
@@ -292,9 +304,15 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
   const enhancedRegions = regions.map((region) => {
+    const vectorCount = getFilterCountForSlug(
+      region.slug,
+      filterVector,
+      "regions"
+    );
     const isChecked = submission.value.filter.regions.includes(region.slug);
     return {
       ...region,
+      vectorCount,
       isChecked,
     };
   });
@@ -308,8 +326,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
   return json({
     fundings,
-    funders: enhancedFunders,
-    selectedFunders,
     fundingTypes: enhancedFundingTypes,
     selectedFundingTypes,
     fundingAreas: enhancedFundingAreas,
@@ -323,7 +339,14 @@ export async function loader(args: LoaderFunctionArgs) {
   } as const);
 }
 
+const i18nNS = ["routes/next/explore/fundings"];
+export const handle = {
+  i18n: i18nNS,
+};
+
 function Fundings() {
+  const { t } = useTranslation(i18nNS);
+
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
@@ -340,8 +363,14 @@ function Fundings() {
   const filter = fields.filter.getFieldset();
 
   return (
-    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-flex mv-flex-col mv-gap-4">
-      <div>
+    <>
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
+        <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
+          {t("title")}
+        </H1>
+        <p>{t("intro")}</p>
+      </section>
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -356,22 +385,22 @@ function Fundings() {
               value: loaderData.submission.value.showFilters === true,
             })}
           >
-            Filter anzeigen
+            {t("showFiltersLabel")}
           </ShowFiltersButton>
           <Filters showFilters={loaderData.submission.value.showFilters}>
             <Filters.Title>Filter</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
               {...getFieldsetProps(fields.filter)}
-              showMore="Mehr anzeigen"
-              showLess="Weniger anzeigen"
+              showMore={t("filter.showMore")}
+              showLess={t("filter.showLess")}
             >
               <Dropdown>
                 <Dropdown.Label>
-                  Fördererart
+                  {t("filter.type")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
-                    {loaderData.fundingTypes
+                    {loaderData.selectedFundingTypes
                       .map((type) => {
                         return type.title;
                       })
@@ -392,8 +421,12 @@ function Fundings() {
                         defaultChecked={undefined}
                         checked={type.isChecked}
                         readOnly
+                        disabled={type.vectorCount === 0 && !type.isChecked}
                       >
                         <FormControl.Label>{type.title}</FormControl.Label>
+                        <FormControl.Counter>
+                          {type.vectorCount}
+                        </FormControl.Counter>
                       </FormControl>
                     );
                   })}
@@ -401,10 +434,10 @@ function Fundings() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  Förderbereich
+                  {t("filter.area")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
-                    {loaderData.fundingAreas
+                    {loaderData.selectedFundingAreas
                       .map((area) => {
                         return area.title;
                       })
@@ -427,8 +460,12 @@ function Fundings() {
                           area.slug
                         )}
                         readOnly
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.title}</FormControl.Label>
+                        <FormControl.Counter>
+                          {area.vectorCount}
+                        </FormControl.Counter>
                       </FormControl>
                     );
                   })}
@@ -436,10 +473,10 @@ function Fundings() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  Förderregion
+                  {t("filter.region")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
-                    {loaderData.regions
+                    {loaderData.selectedRegions
                       .map((region) => {
                         return region.name;
                       })
@@ -462,8 +499,12 @@ function Fundings() {
                           area.slug
                         )}
                         readOnly
+                        disabled={area.vectorCount === 0 && !area.isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
+                        <FormControl.Counter>
+                          {area.vectorCount}
+                        </FormControl.Counter>
                       </FormControl>
                     );
                   })}
@@ -471,10 +512,10 @@ function Fundings() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  Förderberechtigte
+                  {t("filter.eligibleEntity")}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
-                    {loaderData.eligibleEntities
+                    {loaderData.selectedEligibleEntities
                       .map((entity) => {
                         return entity.title;
                       })
@@ -497,8 +538,50 @@ function Fundings() {
                           entity.slug
                         )}
                         readOnly
+                        disabled={entity.vectorCount === 0 && !entity.isChecked}
                       >
                         <FormControl.Label>{entity.title}</FormControl.Label>
+                        <FormControl.Counter>
+                          {entity.vectorCount}
+                        </FormControl.Counter>
+                      </FormControl>
+                    );
+                  })}
+                </Dropdown.List>
+              </Dropdown>
+            </Filters.Fieldset>
+            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+              <Dropdown orientation="right">
+                <Dropdown.Label>
+                  <span className="@lg:mv-hidden">
+                    {t("filter.sortBy.label")}
+                    <br />
+                  </span>
+                  <span className="mv-font-normal @lg:mv-font-semibold">
+                    {t(
+                      `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                    )}
+                  </span>
+                </Dropdown.Label>
+                <Dropdown.List>
+                  {sortValues.map((sortValue) => {
+                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                    return (
+                      <FormControl
+                        {...getInputProps(fields.sortBy, {
+                          type: "radio",
+                          value: sortValue,
+                        })}
+                        key={sortValue}
+                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
+                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
+                        defaultChecked={undefined}
+                        checked={submissionSortValue === sortValue}
+                        readOnly
+                      >
+                        <FormControl.Label>
+                          {t(`filter.sortBy.${sortValue}`)}
+                        </FormControl.Label>
                       </FormControl>
                     );
                   })}
@@ -506,205 +589,190 @@ function Fundings() {
               </Dropdown>
             </Filters.Fieldset>
             <Filters.ResetButton to={`${location.pathname}`}>
-              Filter zurücksetzen
+              {t("filter.reset")}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {loaderData.count} Förderungen anzeigen
+              {t("showNumberOfItems", {
+                count: loaderData.count,
+              })}
             </Filters.ApplyButton>
           </Filters>
+          <noscript>
+            <Button>{t("filter.apply")}</Button>
+          </noscript>
         </Form>
-      </div>
-      <section className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 mv-px-0">
-        {(loaderData.selectedFunders.length > 0 ||
-          loaderData.selectedFundingTypes.length > 0 ||
-          loaderData.selectedFundingAreas.length > 0 ||
-          loaderData.selectedRegions.length > 0 ||
-          loaderData.selectedEligibleEntities.length > 0) && (
-          <div className="mv-flex mv-flex-col">
-            <div className="mv-overflow-scroll @lg:mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
-              {loaderData.selectedFunders.map((funder) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.funders.name, funder.slug);
-                return funder.title !== null ? (
-                  <Chip key={funder.slug} size="medium">
-                    {funder.title}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
-              {loaderData.selectedFundingTypes.map((type) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.types.name, type.slug);
-                return type.title !== null ? (
-                  <Chip key={type.slug} size="medium">
-                    {type.title}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
-              {loaderData.selectedFundingAreas.map((area) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.areas.name, area.slug);
-                return area.title !== null ? (
-                  <Chip key={area.slug} size="medium">
-                    {area.title}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
-              {loaderData.selectedRegions.map((region) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.regions.name, region.slug);
-                return region.name !== null ? (
-                  <Chip key={region.slug} size="medium">
-                    {region.name}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
-              {loaderData.selectedEligibleEntities.map((entity) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  filter.eligibleEntities.name,
-                  entity.slug
-                );
-                return entity.title !== null ? (
-                  <Chip key={entity.slug} size="medium">
-                    {entity.title}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
-                ) : null;
-              })}
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+          <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+        </div>
+        <section className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 mv-px-0">
+          {(loaderData.selectedFundingTypes.length > 0 ||
+            loaderData.selectedFundingAreas.length > 0 ||
+            loaderData.selectedRegions.length > 0 ||
+            loaderData.selectedEligibleEntities.length > 0) && (
+            <div className="mv-flex mv-flex-col">
+              <div className="mv-overflow-scroll @lg:mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
+                {loaderData.selectedFundingTypes.map((type) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(filter.types.name, type.slug);
+                  return type.title !== null ? (
+                    <Chip key={type.slug} size="medium">
+                      {type.title}
+                      <Chip.Delete>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  ) : null;
+                })}
+                {loaderData.selectedFundingAreas.map((area) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(filter.areas.name, area.slug);
+                  return area.title !== null ? (
+                    <Chip key={area.slug} size="medium">
+                      {area.title}
+                      <Chip.Delete>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  ) : null;
+                })}
+                {loaderData.selectedRegions.map((region) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(filter.regions.name, region.slug);
+                  return region.name !== null ? (
+                    <Chip key={region.slug} size="medium">
+                      {region.name}
+                      <Chip.Delete>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  ) : null;
+                })}
+                {loaderData.selectedEligibleEntities.map((entity) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    filter.eligibleEntities.name,
+                    entity.slug
+                  );
+                  return entity.title !== null ? (
+                    <Chip key={entity.slug} size="medium">
+                      {entity.title}
+                      <Chip.Delete>
+                        <Link
+                          to={`${
+                            location.pathname
+                          }?${deleteSearchParams.toString()}`}
+                          preventScrollReset
+                        >
+                          X
+                        </Link>
+                      </Chip.Delete>
+                    </Chip>
+                  ) : null;
+                })}
+              </div>
+              <Link
+                className="mv-w-fit"
+                to={`${location.pathname}`}
+                preventScrollReset
+              >
+                <Button
+                  variant="outline"
+                  loading={navigation.state === "loading"}
+                  disabled={navigation.state === "loading"}
+                >
+                  Filter zurücksetzen
+                </Button>
+              </Link>
             </div>
+          )}
+        </section>
+        {loaderData.count > 0 ? (
+          <p className="text-center text-gray-700 mb-4">
+            <strong>{loaderData.count}</strong>{" "}
+            {t("itemsCountSuffix", { count: loaderData.count })}
+          </p>
+        ) : (
+          <p className="text-center text-gray-700 mb-4">{t("empty")}</p>
+        )}
+
+        <FundingCard.Container>
+          {loaderData.fundings.map((funding) => {
+            return (
+              <FundingCard key={funding.url} url={funding.url}>
+                <FundingCard.Subtitle>
+                  {funding.types
+                    .map((relation) => {
+                      return relation.type.title;
+                    })
+                    .join(", ")}
+                </FundingCard.Subtitle>
+                <FundingCard.Title>{funding.title}</FundingCard.Title>
+                <FundingCard.Category
+                  items={funding.regions.map((relation) => {
+                    return relation.area.name;
+                  })}
+                >
+                  <FundingCard.Category.Title>
+                    {t("card.region")}
+                  </FundingCard.Category.Title>
+                </FundingCard.Category>
+                <FundingCard.Category items={funding.sourceEntities}>
+                  <FundingCard.Category.Title>
+                    {t("card.eligibleEntity")}
+                  </FundingCard.Category.Title>
+                </FundingCard.Category>
+
+                <FundingCard.Category items={funding.sourceAreas}>
+                  <FundingCard.Category.Title>
+                    {t("card.area")}
+                  </FundingCard.Category.Title>
+                </FundingCard.Category>
+              </FundingCard>
+            );
+          })}
+        </FundingCard.Container>
+
+        {loaderData.count > loaderData.fundings.length && (
+          <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
             <Link
-              className="mv-w-fit"
-              to={`${location.pathname}`}
+              to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
               preventScrollReset
+              replace
             >
               <Button
+                size="large"
                 variant="outline"
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
-                Filter zurücksetzen
+                {t("more")}
               </Button>
             </Link>
           </div>
         )}
       </section>
-      <p>{loaderData.count} Förderungen gefunden!</p>
-      <ul className="mv-flex mv-flex-col mv-gap-4">
-        {loaderData.fundings.map((funding) => {
-          return (
-            <li key={funding.checksum} className="mv-border mv-p-4">
-              <a
-                href={funding.url}
-                className="hover:mv-underline"
-                target="_blank"
-                rel="noreffer nofollow"
-              >
-                <h3>{funding.title}</h3>
-              </a>
-              <h4>Förderer</h4>
-              <ul>
-                {funding.funders.map((relation) => {
-                  return (
-                    <li key={relation.funder.slug}>{relation.funder.title}</li>
-                  );
-                })}
-              </ul>
-              <h4>Förderart</h4>
-              <ul>
-                {funding.types.map((relation) => {
-                  return (
-                    <li key={relation.type.slug}>{relation.type.title}</li>
-                  );
-                })}
-              </ul>
-              <h4>Förderbereich</h4>
-              <ul>
-                {funding.areas.map((relation) => {
-                  return (
-                    <li key={relation.area.slug}>{relation.area.title}</li>
-                  );
-                })}
-              </ul>
-              <h4>Förderberechtigte</h4>
-              <ul>
-                {funding.eligibleEntities.map((relation) => {
-                  return (
-                    <li key={relation.entity.slug}>{relation.entity.title}</li>
-                  );
-                })}
-              </ul>
-            </li>
-          );
-        })}
-      </ul>
-      {loaderData.count > loaderData.fundings.length && (
-        <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
-          <Link
-            to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
-            preventScrollReset
-            replace
-          >
-            <Button
-              size="large"
-              variant="outline"
-              loading={navigation.state === "loading"}
-              disabled={navigation.state === "loading"}
-            >
-              Mehr
-            </Button>
-          </Link>
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 

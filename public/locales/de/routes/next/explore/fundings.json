@@ -1,0 +1,34 @@
+{
+    "title": "Finde Förderungen für Deine Projekte",
+    "intro": "Hier findest du Antworten auf Fragen rund um die Nutzung der Community-Plattform.",
+    "more": "Weitere laden",
+    "empty": "Es konnten leider keine Förderungen gefunden werden.",
+    "itemsCountSuffix_one": "Förderung",
+    "itemsCountSuffix_other": "Förderungen",
+    "showNumberOfItems_one": "{{count}} Profil anzeigen",
+    "showNumberOfItems_other": "{{count}} Profile anzeigen",
+    "showFiltersLabel": "Förderungen filtern",
+    "filter": {
+        "apply": "Filter anwenden",
+        "reset": "Alles zurücksetzen",
+        "showMore": "Mehr anzeigen",
+        "showLess": "Weniger anzeigen",
+        "type": "Förderart",
+        "area": "Förderbereich",
+        "region": "Fördergebiet",
+        "eligibleEntity": "Förderberechtigte",
+        "sortBy": {
+            "label": "Sortierung",
+            "title-asc": "Titel (A-Z)",
+            "title-desc": "Titel (Z-A)",
+            "createdAt-desc": "Neueste zuerst"
+        }
+    },
+    "card": {
+        "region": "Fördergebiet",
+        "eligibleEntity": "Wer wird gefördert?",
+        "area": "Was wird gefördert?",
+        "toFunding": "Zur Förderung",
+        "notProvided": "-nicht angegeben-"
+    }
+}

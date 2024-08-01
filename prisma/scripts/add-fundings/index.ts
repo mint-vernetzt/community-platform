@@ -3,11 +3,13 @@ import { z } from "zod";
 import fs from "fs-extra";
 import { prismaClient } from "~/prisma.server";
 import { generateValidSlug } from "~/utils.server";
+import { updateFilterVectorOfFunding } from "~/routes/next/explore/fundings.server";
 
 program.requiredOption(
   "-f, --file <file>",
   "The file that contains the fundings."
 );
+program.option("--overwrite", "Overwrite existing fundings.", false);
 
 program.parse(process.argv);
 
@@ -17,12 +19,20 @@ const schema = z.array(
   z.object({
     url: z.string().url(),
     title: z.string(),
-    checksum: z.string(),
-    funder: z.array(z.string()),
-    fundingType: z.array(z.string()),
-    fundingRegion: z.array(z.string()),
-    fundingArea: z.array(z.string()),
-    eligibleEntities: z.array(z.string()),
+    mapping: z.object({
+      funder: z.array(z.string()),
+      fundingType: z.array(z.string()),
+      fundingRegion: z.array(z.string()),
+      fundingArea: z.array(z.string()),
+      eligibleEntities: z.array(z.string()),
+    }),
+    source: z.object({
+      funder: z.array(z.string()),
+      fundingType: z.array(z.string()),
+      fundingRegion: z.array(z.string()),
+      fundingArea: z.array(z.string()),
+      eligibleEntities: z.array(z.string()),
+    }),
   })
 );
 
@@ -30,6 +40,12 @@ type Funding = z.infer<typeof schema>[0];
 
 async function main() {
   let data = await fs.readJson(options.file);
+
+  if (options.overwrite) {
+    console.log("Overwriting all fundings.");
+    await prismaClient.funding.deleteMany();
+  }
+
   const parsedData = schema.safeParse(data);
 
   let fundings: Funding[];
@@ -63,27 +79,27 @@ async function main() {
   const eligibleEntities: string[] = [];
   const fundingRegions: string[] = [];
   for (const funding of fundings) {
-    for (const funder of funding.funder) {
+    for (const funder of funding.mapping.funder) {
       if (funders.includes(funder) === false) {
         funders.push(funder);
       }
     }
-    for (const type of funding.fundingType) {
+    for (const type of funding.mapping.fundingType) {
       if (funders.includes(type) === false) {
         fundingTypes.push(type);
       }
     }
-    for (const area of funding.fundingArea) {
+    for (const area of funding.mapping.fundingArea) {
       if (funders.includes(area) === false) {
         fundingAreas.push(area);
       }
     }
-    for (const entity of funding.eligibleEntities) {
+    for (const entity of funding.mapping.eligibleEntities) {
       if (funders.includes(entity) === false) {
         eligibleEntities.push(entity);
       }
     }
-    for (const region of funding.fundingRegion) {
+    for (const region of funding.mapping.fundingRegion) {
       if (funders.includes(region) === false) {
         fundingRegions.push(region);
       }
@@ -162,52 +178,54 @@ async function main() {
   for await (const funding of fundings) {
     const existingFunding = await prismaClient.funding.count({
       where: {
-        checksum: funding.checksum,
+        url: funding.url,
       },
     });
 
     if (existingFunding > 0) {
       console.log(
-        `Funding with checksum ${funding.checksum} already exists. Skipping.`
+        `Funding with url "${funding.url}" already exists. Skipping.`
       );
       continue;
     }
-
-    console.log("Create funding:", funding.title);
 
     const result = await prismaClient.funding.create({
       data: {
         url: funding.url,
         title: funding.title,
-        checksum: funding.checksum,
+        sourceFunders: funding.source.funder,
+        sourceTypes: funding.source.fundingType,
+        sourceRegions: funding.source.fundingRegion,
+        sourceAreas: funding.source.fundingArea,
+        sourceEntities: funding.source.eligibleEntities,
       },
     });
 
     const funders = await prismaClient.funder.findMany({
       where: {
         title: {
-          in: funding.funder,
+          in: funding.mapping.funder,
         },
       },
     });
     const fundingTypes = await prismaClient.fundingType.findMany({
       where: {
         title: {
-          in: funding.fundingType,
+          in: funding.mapping.fundingType,
         },
       },
     });
     const fundingAreas = await prismaClient.fundingArea.findMany({
       where: {
         title: {
-          in: funding.fundingArea,
+          in: funding.mapping.fundingArea,
         },
       },
     });
     const eligibleEntities = await prismaClient.fundingEligibleEntity.findMany({
       where: {
         title: {
-          in: funding.eligibleEntities,
+          in: funding.mapping.eligibleEntities,
         },
       },
     });
@@ -217,7 +235,7 @@ async function main() {
           not: "district",
         },
         name: {
-          in: funding.fundingRegion,
+          in: funding.mapping.fundingRegion,
         },
       },
     });
@@ -304,6 +322,8 @@ async function main() {
         },
       },
     });
+
+    await updateFilterVectorOfFunding(result.id);
   }
 }
 
