@@ -73,7 +73,7 @@ const createMutation = (t: TFunction) => {
         profile.id
       );
       if (error !== null) {
-        console.error(error);
+        throw "Unexpected server error";
       } else if (data.user !== null) {
         // if user uses email provider send password reset link
         if (data.user.app_metadata.provider === "email") {
@@ -87,15 +87,14 @@ const createMutation = (t: TFunction) => {
             values.email,
             loginRedirect
           );
-          console.log(error);
           if (error !== null && error.message !== "User not found") {
             throw error.message;
           }
         }
-
         return values;
       }
     }
+    return values;
   });
 };
 
