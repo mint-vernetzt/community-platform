@@ -37,6 +37,13 @@
       "headline": "Learn more",
       "content": "The MINTvernetzt community platform is a project launched in 2021 to sustainably strengthen the <0>STEM community across Germany</0>. Learn more about <0>MINTvernetzt's initiatives, the service and support centre for STEM professionals</0>, on our website.",
       "action": "Visit the MINTvernetzt website"
+    },
+    "faq": {
+      "headline": "Questions and answers",
+      "cta": "Complete help section",
+      "supportQuestion": "Can't find an answer to your question?",
+      "supportCta": "Feel free to send us an email at:",
+      "supportEmail": "support@mint-vernetzt.de"
     }
   }
 }

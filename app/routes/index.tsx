@@ -28,8 +28,10 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
+import { Accordion } from "./__help.components";
+import { RichText } from "~/components/Richtext/RichText";
 
-const i18nNS = ["routes/index"];
+const i18nNS = ["routes/index", "help"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -473,75 +475,168 @@ export default function Index() {
 
       <Roadmap />
 
-      <section className="py-16 @lg:mv-py-24 relative overflow-hidden @lg:mv-min-h-[700px] bg-beige-100">
-        <div className="absolute top-0 left-1/2 @lg:mv-ml-[calc(992px/12*5)] @2xl:mv-ml-[calc(1488px/12*5)] hidden @lg:mv-block">
-          <svg xmlns="http://www.w3.org/2000/svg" width="730" height="724">
-            <g fill="none" fillRule="evenodd">
+      <section className="mv-flex mv-flex-col mv-items-center mv-gap-12 mv-w-full py-16 @md:mv-py-24 @xl:mv-py-32 mv-px-4 @md:mv-px-20 @xl:mv-px-36 mv-bg-accent-200">
+        <div className="mv-max-w-[852px] mv-text-primary-600 @xl:mv-text-primary-500 mv-text-3xl mv-font-semibold">
+          <h2 className="mv-mb-12 mv-text-center @md:mv-text-4xl @xl:mv-text-5xl mv-leading-6 @md:mv-leading-7 @xl:mv-leading-9 mv-uppercase">
+            {t("content.more.headline")}
+          </h2>
+          <p className="mv-hyphens-auto mv-leading-8">
+            <Trans
+              i18nKey="content.more.content"
+              ns={i18nNS}
+              components={[<span className="bg-lilac-200" />]} // eslint-disable-line react/jsx-key
+            />
+          </p>
+        </div>
+        <Button
+          as="a"
+          variant="outline"
+          href="https://mint-vernetzt.de/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              className="w-4 h-4"
+            >
               <path
-                fill="#BE88BA"
-                fillRule="nonzero"
-                d="M281.794 16.486c62.702-16.409 135.5 28.338 147.57 33.153 12.071 4.815 140.949 64.953 209.862 118.26 86.142 66.634 45.138 159.988-35.185 362.317-80.323 202.329-161.219 172.422-415.959 42.912C-79.241 437.222 44.349 297.002 92.047 213.345c47.698-83.658 127.046-180.449 189.747-196.859Z"
+                fill="currentColor"
+                fillRule="evenodd"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeWidth=".3"
+                d="M7.477 3.625a.375.375 0 0 0-.375-.375H2.125C1.504 3.25 1 3.754 1 4.375v7.5C1 12.496 1.504 13 2.125 13h7.5c.621 0 1.125-.504 1.125-1.125V6.898a.375.375 0 0 0-.75 0v4.977a.375.375 0 0 1-.375.375h-7.5a.375.375 0 0 1-.375-.375v-7.5c0-.207.168-.375.375-.375h4.977a.375.375 0 0 0 .375-.375Z"
+                clipRule="evenodd"
               />
               <path
-                stroke="#1B54C0"
-                strokeWidth="3"
-                d="M727.79 409.534c-8.146 67.976-80.306 122.201-89.711 132.2-9.406 9.998-118.402 113.381-197.47 160.474-98.836 58.866-174.713-17.574-342.47-174.842C-69.618 370.097-8.907 302.169 216.992 101.943 454.05-108.172 544.015 67.576 607.77 146.839c63.755 79.264 128.165 194.719 120.02 262.695Z"
+                fill="currentColor"
+                fillRule="evenodd"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth=".3"
+                d="M13 1.375A.375.375 0 0 0 12.625 1h-3.75a.375.375 0 1 0 0 .75h2.845L5.61 7.86a.375.375 0 0 0 .53.53l6.11-6.11v2.845a.375.375 0 0 0 .75 0v-3.75Z"
+                clipRule="evenodd"
               />
-            </g>
+            </svg>
+          </span>
+          <span>{t("content.more.action")}</span>
+        </Button>
+      </section>
+      <section className="mv-w-full mv-flex mv-flex-col mv-items-center mv-bg-neutral-50 mv-py-16 mv-px-4 @md:mv-px-10 @xl:mv-px-16 mv-relative">
+        <div className="mv-absolute -mv-top-[420px] mv-right-0 mv-hidden @xl:mv-block">
+          <svg
+            width="174"
+            height="665"
+            viewBox="0 0 174 665"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M260.794 4.4861C323.496 -11.9233 396.294 32.8236 408.364 37.639C420.435 42.4545 549.313 102.592 618.226 155.899C704.368 222.533 663.364 315.887 583.041 518.216C502.718 720.545 421.822 690.638 167.082 561.128C-100.241 425.222 23.349 285.002 71.0468 201.345C118.745 117.687 198.093 20.8955 260.794 4.4861Z"
+              fill="#BE88BA"
+            />
           </svg>
         </div>
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
-          <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
-            <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
-              <H3 className="text-center font-semibold all-small-caps mb-12 tracking-wider">
-                {t("content.more.headline")}
-              </H3>
-              <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
-                <Trans
-                  i18nKey="content.more.content"
-                  ns={i18nNS}
-                  components={[<span className="bg-lilac-200" />]} // eslint-disable-line react/jsx-key
-                />
-              </p>
-              <p className="text-center">
-                <a
-                  href="https://mint-vernetzt.de/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn btn-outline-primary inline-flex items-center gap-2 hover:border-primary"
-                >
-                  <span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      className="w-4 h-4"
-                    >
-                      <path
-                        fill="currentColor"
-                        fillRule="evenodd"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeWidth=".3"
-                        d="M7.477 3.625a.375.375 0 0 0-.375-.375H2.125C1.504 3.25 1 3.754 1 4.375v7.5C1 12.496 1.504 13 2.125 13h7.5c.621 0 1.125-.504 1.125-1.125V6.898a.375.375 0 0 0-.75 0v4.977a.375.375 0 0 1-.375.375h-7.5a.375.375 0 0 1-.375-.375v-7.5c0-.207.168-.375.375-.375h4.977a.375.375 0 0 0 .375-.375Z"
-                        clipRule="evenodd"
-                      />
-                      <path
-                        fill="currentColor"
-                        fillRule="evenodd"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth=".3"
-                        d="M13 1.375A.375.375 0 0 0 12.625 1h-3.75a.375.375 0 1 0 0 .75h2.845L5.61 7.86a.375.375 0 0 0 .53.53l6.11-6.11v2.845a.375.375 0 0 0 .75 0v-3.75Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                  <span>{t("content.more.action")}</span>
-                </a>
-              </p>
-            </div>
-          </div>
+        <div className="mv-absolute -mv-top-[436px] mv-right-0 mv-hidden @xl:mv-block">
+          <svg
+            width="186"
+            height="722"
+            viewBox="0 0 186 722"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M726.765 408.295C718.619 476.271 646.46 530.496 637.054 540.494C627.649 550.493 518.653 653.876 439.584 700.968C340.748 759.834 264.872 683.395 97.1149 526.126C-70.642 368.858 -9.93142 300.93 215.968 100.704C453.026 -109.412 542.991 66.3363 606.746 145.6C670.501 224.864 734.911 340.319 726.765 408.295Z"
+              stroke="#1B54C0"
+              strokeWidth="2"
+            />
+          </svg>
+        </div>
+        <h2 className="mv-mb-[42px] mv-text-primary-600 @xl:mv-text-primary-500 mv-text-4xl @xl:mv-text-5xl mv-font-semibold mv-leading-7 @md:mv-leading-8 @xl:mv-leading-9 mv-uppercase">
+          {t("content.faq.headline")}
+        </h2>
+        <div className="mv-w-full mv-mb-8 @md:mv-mb-14 @xl:mv-mb-[88px]">
+          <Accordion>
+            <Accordion.Item id="whatIsStem" key="whatIsStem">
+              {t(`faq.stemEducation.whatIsStem.question`, { ns: "help" })}
+              <RichText
+                id="faq-content"
+                html={t(`faq.stemEducation.whatIsStem.answer`, { ns: "help" })}
+              />
+            </Accordion.Item>
+            <Accordion.Item id="whoIsThePlatformFor" key="whoIsThePlatformFor">
+              {t(
+                `faq.generalPlatformInformation.whoIsThePlatformFor.question`,
+                { ns: "help" }
+              )}
+              <RichText
+                id="faq-content"
+                html={t(
+                  `faq.generalPlatformInformation.whoIsThePlatformFor.answer`,
+                  { ns: "help" }
+                )}
+              />
+            </Accordion.Item>
+            <Accordion.Item
+              id="benefitsOfThePlatform"
+              key="benefitsOfThePlatform"
+            >
+              {t(
+                `faq.generalPlatformInformation.benefitsOfThePlatform.question`,
+                { ns: "help" }
+              )}
+              <RichText
+                id="faq-content"
+                html={t(
+                  `faq.generalPlatformInformation.benefitsOfThePlatform.answer`,
+                  { ns: "help" }
+                )}
+              />
+            </Accordion.Item>
+            <Accordion.Item id="isItFree" key="isItFree">
+              {t(`faq.generalPlatformInformation.isItFree.question`, {
+                ns: "help",
+              })}
+              <RichText
+                id="faq-content"
+                html={t(`faq.generalPlatformInformation.isItFree.answer`, {
+                  ns: "help",
+                })}
+              />
+            </Accordion.Item>
+            <Accordion.Item
+              id="benefitsOfRegistration"
+              key="benefitsOfRegistration"
+            >
+              {t(`faq.registration.benefitsOfRegistration.question`, {
+                ns: "help",
+              })}
+              <RichText
+                id="faq-content"
+                html={t(`faq.registration.benefitsOfRegistration.answer`, {
+                  ns: "help",
+                })}
+              />
+            </Accordion.Item>
+            <Accordion.Item id="mintId" key="mintId">
+              {t(`faq.registration.mintId.question`, { ns: "help" })}
+              <RichText
+                id="faq-content"
+                html={t(`faq.registration.mintId.answer`, { ns: "help" })}
+              />
+            </Accordion.Item>
+          </Accordion>
+        </div>
+        <Button as="a" href="/help" variant="outline">
+          {t("content.faq.cta")}
+        </Button>
+        <div className="mv-text-center mv-text-primary-600 @xl:mv-text-primary-500 mv-font-semibold mv-leading-5 mv-mt-10">
+          <p>{t("content.faq.supportQuestion")}</p>
+          <p>{t("content.faq.supportCta")}</p>
+          <p>{t("content.faq.supportEmail")}</p>
         </div>
       </section>
     </>

@@ -37,6 +37,13 @@
       "headline": "Mehr erfahren",
       "content": "Die MINTvernetzt Community-Plattform ist ein Projekt von MINTvernetzt, das 2021 gestartet ist, um die <0>MINT-Community deutschlandweit nachhaltig zu stärken</0>. Erfahre mehr über die Projekte von <0>MINTvernetzt, der Service- und Anlaufstelle für MINT-Akteur:innen</0> auf der MINTvernetzt-Website.",
       "action": "MINTvernetzt-Website besuchen"
+    },
+    "faq": {
+      "headline": "Fragen und Antworten",
+      "cta": "Gesamter Hilfebereich",
+      "supportQuestion": "Findest Du keine Antwort auf Deine Frage?",
+      "supportCta": "Schreibe uns gerne eine E-Mail an:",
+      "supportEmail": "support@mint-vernetzt.de"
     }
   }
 }

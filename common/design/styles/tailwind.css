@@ -52,6 +52,7 @@
 }
 
 #faq-content {
+  @apply mv-leading-[22px];
   ul {
     @apply mv-list-disc mv-flex mv-flex-col mv-gap-1;
   }
