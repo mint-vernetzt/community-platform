@@ -486,9 +486,14 @@ export default function ExploreProjects() {
           {...getFormProps(form)}
           method="get"
           onChange={(event) => {
-            submit(event.currentTarget, { preventScrollReset: true });
+            let preventScrollReset = true;
+            if (
+              (event.target as HTMLFormElement).name === fields.showFilters.name
+            ) {
+              preventScrollReset = false;
+            }
+            submit(event.currentTarget, { preventScrollReset });
           }}
-          preventScrollReset
         >
           <input name="page" defaultValue="1" hidden />
           <ShowFiltersButton
