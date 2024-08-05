@@ -32,7 +32,7 @@ const Input = React.forwardRef(
               // TODO: can this type assertion be removed and proofen by code?
               ref={forwardRef as React.RefObject<HTMLInputElement>}
               type={props.type ?? "text"}
-              className={`input input-bordered input-lg mv-w-full ${
+              className={`mv-appearance-none mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-min-h-10 mv-p-2 mv-text-gray-800 mv-bg-white mv-text-base mv-text-start mv-leading-snug mv-font-semibold placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-blue-400 focus-visible:mv-outline-0 ${
                 props.className !== undefined ? props.className : ""
               }`.trimEnd()}
               id={id}
