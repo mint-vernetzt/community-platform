@@ -221,16 +221,33 @@ export async function loader(args: LoaderFunctionArgs) {
       slug: true,
       title: true,
     },
+    orderBy: {
+      title: "asc",
+    },
   });
-  const enhancedFundingTypes = fundingTypes.map((type) => {
-    const vectorCount = getFilterCountForSlug(type.slug, filterVector, "types");
-    const isChecked = submission.value.filter.types.includes(type.slug);
-    return {
-      ...type,
-      vectorCount,
-      isChecked,
-    };
-  });
+  const enhancedFundingTypes = fundingTypes
+    .sort((a, b) => {
+      if (a.title === "Sonstiges") {
+        return 1;
+      }
+      if (b.title === "Sonstiges") {
+        return -1;
+      }
+      return 0;
+    })
+    .map((type) => {
+      const vectorCount = getFilterCountForSlug(
+        type.slug,
+        filterVector,
+        "types"
+      );
+      const isChecked = submission.value.filter.types.includes(type.slug);
+      return {
+        ...type,
+        vectorCount,
+        isChecked,
+      };
+    });
   const selectedFundingTypes = submission.value.filter.types.map((slug) => {
     const fundingTypeMatch = fundingTypes.find((type) => type.slug === slug);
     return {
@@ -243,16 +260,33 @@ export async function loader(args: LoaderFunctionArgs) {
       slug: true,
       title: true,
     },
+    orderBy: {
+      title: "asc",
+    },
   });
-  const enhancedFundingAreas = fundingAreas.map((area) => {
-    const vectorCount = getFilterCountForSlug(area.slug, filterVector, "areas");
-    const isChecked = submission.value.filter.areas.includes(area.slug);
-    return {
-      ...area,
-      vectorCount,
-      isChecked,
-    };
-  });
+  const enhancedFundingAreas = fundingAreas
+    .sort((a, b) => {
+      if (a.title === "Sonstiges") {
+        return 1;
+      }
+      if (b.title === "Sonstiges") {
+        return -1;
+      }
+      return 0;
+    })
+    .map((area) => {
+      const vectorCount = getFilterCountForSlug(
+        area.slug,
+        filterVector,
+        "areas"
+      );
+      const isChecked = submission.value.filter.areas.includes(area.slug);
+      return {
+        ...area,
+        vectorCount,
+        isChecked,
+      };
+    });
   const selectedFundingAreas = submission.value.filter.areas.map((slug) => {
     const fundingAreaMatch = fundingAreas.find((area) => area.slug === slug);
     return {
@@ -265,22 +299,35 @@ export async function loader(args: LoaderFunctionArgs) {
       slug: true,
       title: true,
     },
+    orderBy: {
+      title: "asc",
+    },
   });
-  const enhancedEligibleEntities = eligibleEntities.map((entity) => {
-    const vectorCount = getFilterCountForSlug(
-      entity.slug,
-      filterVector,
-      "eligibleEntities"
-    );
-    const isChecked = submission.value.filter.eligibleEntities.includes(
-      entity.slug
-    );
-    return {
-      ...entity,
-      vectorCount,
-      isChecked,
-    };
-  });
+  const enhancedEligibleEntities = eligibleEntities
+    .sort((a, b) => {
+      if (a.title === "Sonstiges") {
+        return 1;
+      }
+      if (b.title === "Sonstiges") {
+        return -1;
+      }
+      return 0;
+    })
+    .map((entity) => {
+      const vectorCount = getFilterCountForSlug(
+        entity.slug,
+        filterVector,
+        "eligibleEntities"
+      );
+      const isChecked = submission.value.filter.eligibleEntities.includes(
+        entity.slug
+      );
+      return {
+        ...entity,
+        vectorCount,
+        isChecked,
+      };
+    });
   const selectedEligibleEntities = submission.value.filter.eligibleEntities.map(
     (slug) => {
       const entityMatch = eligibleEntities.find(
@@ -302,20 +349,30 @@ export async function loader(args: LoaderFunctionArgs) {
       slug: true,
       name: true,
     },
+    orderBy: {
+      name: "asc",
+    },
   });
-  const enhancedRegions = regions.map((region) => {
-    const vectorCount = getFilterCountForSlug(
-      region.slug,
-      filterVector,
-      "regions"
-    );
-    const isChecked = submission.value.filter.regions.includes(region.slug);
-    return {
-      ...region,
-      vectorCount,
-      isChecked,
-    };
-  });
+  const enhancedRegions = regions
+    .sort((a, b) => {
+      if (a.name === "Bundesweit" || a.name === "International") {
+        return -1;
+      }
+      return 0;
+    })
+    .map((region) => {
+      const vectorCount = getFilterCountForSlug(
+        region.slug,
+        filterVector,
+        "regions"
+      );
+      const isChecked = submission.value.filter.regions.includes(region.slug);
+      return {
+        ...region,
+        vectorCount,
+        isChecked,
+      };
+    });
   const selectedRegions = submission.value.filter.regions.map((slug) => {
     const regionMatch = regions.find((region) => region.slug === slug);
     return {
