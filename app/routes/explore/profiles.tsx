@@ -129,12 +129,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
+
   const submission = parseWithZod(searchParams, { schema: getProfilesSchema });
   invariantResponse(
     submission.status === "success",
     "Validation failed for get request",
     { status: 400 }
   );
+
   const take = getTakeParam(submission.value.page);
   const { authClient } = createAuthClient(request);
 
@@ -307,9 +309,7 @@ export default function ExploreProfiles() {
   const debounceSubmit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
-  const [form, fields] = useForm<GetProfilesSchema>({
-    lastResult: loaderData.submission,
-  });
+  const [form, fields] = useForm<GetProfilesSchema>({});
 
   const filter = fields.filter.getFieldset();
 
@@ -340,19 +340,15 @@ export default function ExploreProfiles() {
             ) {
               preventScrollReset = false;
             }
+
             submit(event.currentTarget, { preventScrollReset });
           }}
         >
           <input name="page" defaultValue="1" hidden />
-          <ShowFiltersButton
-            {...getInputProps(fields.showFilters, {
-              type: "checkbox",
-              value: loaderData.submission.value.showFilters === true,
-            })}
+          <ShowFiltersButton>{t("filter.showFiltersLabel")}</ShowFiltersButton>
+          <Filters
+            showFilters={searchParams.get(fields.showFilters.name) === "on"}
           >
-            {t("filter.showFiltersLabel")}
-          </ShowFiltersButton>
-          <Filters showFilters={loaderData.submission.value.showFilters}>
             <Filters.Title>{t("filter.title")}</Filters.Title>
 
             <Filters.Fieldset

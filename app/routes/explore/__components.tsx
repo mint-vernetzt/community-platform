@@ -1,5 +1,10 @@
 import { Button } from "@mint-vernetzt/components";
-import { Link, useLocation, useNavigation } from "@remix-run/react";
+import {
+  Link,
+  useLocation,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
 import classNames from "classnames";
 import React, { type FormEvent, type InputHTMLAttributes } from "react";
 
@@ -411,13 +416,18 @@ Dropdown.Divider = DropdownListDivider;
 Dropdown.Legend = DropDownListLegend;
 Dropdown.Category = DropdownListCategory;
 
-export function ShowFiltersButton(
-  props: InputHTMLAttributes<HTMLInputElement>
-) {
+export function ShowFiltersButton(props: React.PropsWithChildren) {
   const { children, ...otherProps } = props;
+
+  const [searchParams] = useSearchParams();
+  searchParams.set("showFilters", "on");
+
   return (
     <div className="@lg:mv-hidden mv-text-center">
-      <label className="mv-inline-flex mv-items-center mv-font-semibold mv-whitespace-nowrap mv-px-6 mv-py-2.5 mv-border mv-rounded-lg mv-border-primary-500 mv-gap-2 mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-cursor-pointer">
+      <Link
+        className="mv-inline-flex mv-items-center mv-font-semibold mv-whitespace-nowrap mv-px-6 mv-py-2.5 mv-border mv-rounded-lg mv-border-primary-500 mv-gap-2 mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-cursor-pointer"
+        to={`./?${searchParams.toString()}`}
+      >
         {children}
         <svg
           width="20"
@@ -451,9 +461,7 @@ export function ShowFiltersButton(
             strokeLinecap="round"
           />
         </svg>
-
-        <input {...otherProps} className="mv-hidden" />
-      </label>
+      </Link>
     </div>
   );
 }
@@ -558,10 +566,11 @@ export function FiltersApplyButton(props: React.PropsWithChildren) {
 
 export type FiltersProps = {
   showFilters?: boolean;
+  showFiltersName?: string;
 } & React.PropsWithChildren;
 
 export function Filters(props: FiltersProps) {
-  const { showFilters = false } = props;
+  const { showFilters = false, showFiltersName = "showFilters" } = props;
 
   const location = useLocation();
 
@@ -590,6 +599,12 @@ export function Filters(props: FiltersProps) {
 
   return (
     <>
+      <input
+        type="checkbox"
+        name={showFiltersName}
+        hidden
+        defaultChecked={showFilters}
+      />
       <div className={filterClasses}>
         <div className="mv-flex mv-justify-between mv-items-center mv-py-5 @lg:mv-py-6 @lg:mv-hidden">
           <h2 className="mv-mb-0 -mv-mr-[33px] mv-w-full @lg:mv-hidden mv-text-center mv-text-gray-700 mv-text-base">

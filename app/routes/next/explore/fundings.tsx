@@ -350,9 +350,7 @@ function Fundings() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
-  const [form, fields] = useForm<GetFundingsSchema>({
-    lastResult: loaderData.submission,
-  });
+  const [form, fields] = useForm<GetFundingsSchema>({});
 
   const navigation = useNavigation();
   const location = useLocation();
@@ -385,15 +383,10 @@ function Fundings() {
           }}
         >
           <input name="page" defaultValue="1" hidden />
-          <ShowFiltersButton
-            {...getInputProps(fields.showFilters, {
-              type: "checkbox",
-              value: loaderData.submission.value.showFilters === true,
-            })}
+          <ShowFiltersButton>{t("showFiltersLabel")}</ShowFiltersButton>
+          <Filters
+            showFilters={searchParams.get(fields.showFilters.name) === "on"}
           >
-            {t("showFiltersLabel")}
-          </ShowFiltersButton>
-          <Filters showFilters={loaderData.submission.value.showFilters}>
             <Filters.Title>Filter</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"

@@ -337,9 +337,7 @@ export default function ExploreOrganizations() {
   const debounceSubmit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
-  const [form, fields] = useForm<GetOrganizationsSchema>({
-    lastResult: loaderData.submission,
-  });
+  const [form, fields] = useForm<GetOrganizationsSchema>({});
 
   const filter = fields.filter.getFieldset();
 
@@ -374,15 +372,10 @@ export default function ExploreOrganizations() {
           }}
         >
           <input name="page" defaultValue="1" hidden />
-          <ShowFiltersButton
-            {...getInputProps(fields.showFilters, {
-              type: "checkbox",
-              value: loaderData.submission.value.showFilters === true,
-            })}
+          <ShowFiltersButton>{t("filter.showFiltersLabel")}</ShowFiltersButton>
+          <Filters
+            showFilters={searchParams.get(fields.showFilters.name) === "on"}
           >
-            {t("filter.showFiltersLabel")}
-          </ShowFiltersButton>
-          <Filters showFilters={loaderData.submission.value.showFilters}>
             <Filters.Title>{t("filter.title")}</Filters.Title>
             <Filters.Fieldset
               {...getFieldsetProps(fields.filter)}

@@ -459,9 +459,7 @@ export default function ExploreProjects() {
   const debounceSubmit = useDebounceSubmit();
   const { t } = useTranslation(i18nNS);
 
-  const [form, fields] = useForm<GetProjectsSchema>({
-    lastResult: loaderData.submission,
-  });
+  const [form, fields] = useForm<GetProjectsSchema>({});
 
   const filter = fields.filter.getFieldset();
 
@@ -496,15 +494,10 @@ export default function ExploreProjects() {
           }}
         >
           <input name="page" defaultValue="1" hidden />
-          <ShowFiltersButton
-            {...getInputProps(fields.showFilters, {
-              type: "checkbox",
-              value: loaderData.submission.value.showFilters === true,
-            })}
+          <ShowFiltersButton>{t("filter.showFiltersLabel")}</ShowFiltersButton>
+          <Filters
+            showFilters={searchParams.get(fields.showFilters.name) === "on"}
           >
-            {t("filter.showFiltersLabel")}
-          </ShowFiltersButton>
-          <Filters showFilters={loaderData.submission.value.showFilters}>
             <Filters.Title>{t("filter.title")}</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
