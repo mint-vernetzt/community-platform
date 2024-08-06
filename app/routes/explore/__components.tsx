@@ -143,7 +143,11 @@ export function FormControlLabelInfo(props: React.PropsWithChildren) {
 }
 
 export function FormControlLabel(props: React.PropsWithChildren) {
-  return <>{props.children}</>;
+  return (
+    <span className="mv-hyphens-auto" lang="de">
+      {props.children}
+    </span>
+  );
 }
 
 export function FromControlInfo(
