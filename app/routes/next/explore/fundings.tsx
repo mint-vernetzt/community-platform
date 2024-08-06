@@ -533,7 +533,7 @@ function Fundings() {
                         // The Checkbox UI does not rerender when using the delete chips or the reset filter button
                         // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
                         defaultChecked={undefined}
-                        checked={loaderData.submission.value.filter.regions.includes(
+                        checked={loaderData.submission.value.filter.eligibleEntities.includes(
                           entity.slug
                         )}
                         readOnly
