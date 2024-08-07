@@ -89,6 +89,16 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
         data !== undefined ? ` | ${data.event.name}` : ""
       }`,
     },
+    {
+      name: "description",
+      content: data?.event.description
+        ? removeHtmlTags(data.event.description)
+        : "",
+    },
+    {
+      name: "og:image",
+      content: data?.event.background || "/images/default-event-background.jpg",
+    },
   ];
 };
 
