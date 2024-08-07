@@ -82,12 +82,30 @@ export function links() {
   ];
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = (args) => {
+  const { matches, data } = args;
+  const parentMeta = matches.flatMap((match) => {
+    if (match.meta) {
+      return match.meta;
+    }
+    return [];
+  });
   return [
+    ...parentMeta,
     {
       title: `MINTvernetzt Community Plattform${
         data !== undefined ? ` | ${data.event.name}` : ""
       }`,
+    },
+    {
+      name: "description",
+      content: data?.event.description
+        ? removeHtmlTags(data.event.description)
+        : "",
+    },
+    {
+      name: "og:image",
+      content: data?.event.background || "/images/default-event-background.jpg",
     },
   ];
 };
