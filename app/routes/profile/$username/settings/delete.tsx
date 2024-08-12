@@ -132,16 +132,6 @@ const createMutation = (t: TFunction) => {
       )}`;
     }
 
-    const adminAuthClient = createAdminAuthClient();
-
-    const { error } = await deleteUserByUid(
-      adminAuthClient,
-      environment.userId
-    );
-    if (error !== null) {
-      console.error(error.message);
-      throw t("error.serverError");
-    }
     return values;
   });
 };
@@ -170,6 +160,15 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     if (error !== null) {
       throw json({ message: error.message }, { status: 500 });
     }
+
+    const adminAuthClient = createAdminAuthClient();
+
+    const result = await deleteUserByUid(adminAuthClient, sessionUser.id);
+    if (result.error !== null) {
+      console.error(result.error.message);
+      throw t("error.serverError");
+    }
+
     return redirect("/goodbye", { headers });
   }
   return json(result);
