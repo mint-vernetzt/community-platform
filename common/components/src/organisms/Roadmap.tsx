@@ -69,7 +69,9 @@ export type RoadmapCardProps = {
 function RoadmapCard(props: RoadmapCardProps) {
   return (
     <div className="mv-card mv-bg-white mv-rounded-lg mv-text-primary mv-w-full mv-px-4 @xl:mv-px-6">
-      <h5 className="mv-font-bold mv-text-lg mv-mb-3">{props.title}</h5>
+      <h5 className="mv-font-bold mv-text-lg mv-mb-3 mv-min-h-11">
+        {props.title}
+      </h5>
       <p>{props.text}</p>
     </div>
   );
@@ -105,14 +107,6 @@ function Roadmap() {
               title={t("firstColumn.fifthCard.title")}
               text={t("firstColumn.fifthCard.description")}
             />
-            <RoadmapCard
-              title={t("firstColumn.sixthCard.title")}
-              text={t("firstColumn.sixthCard.description")}
-            />
-            <RoadmapCard
-              title={t("firstColumn.seventhCard.title")}
-              text={t("firstColumn.seventhCard.description")}
-            />
           </RoadmapColumn>
 
           <RoadmapColumn title={t("secondColumn.title")} id="2">
@@ -123,6 +117,14 @@ function Roadmap() {
             <RoadmapCard
               title={t("secondColumn.secondCard.title")}
               text={t("secondColumn.secondCard.description")}
+            />
+            <RoadmapCard
+              title={t("secondColumn.thirdCard.title")}
+              text={t("secondColumn.thirdCard.description")}
+            />
+            <RoadmapCard
+              title={t("secondColumn.fourthCard.title")}
+              text={t("secondColumn.fourthCard.description")}
             />
           </RoadmapColumn>
 
