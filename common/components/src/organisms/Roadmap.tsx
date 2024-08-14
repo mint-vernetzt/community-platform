@@ -69,9 +69,7 @@ export type RoadmapCardProps = {
 function RoadmapCard(props: RoadmapCardProps) {
   return (
     <div className="mv-card mv-bg-white mv-rounded-lg mv-text-primary mv-w-full mv-px-4 @xl:mv-px-6">
-      <h5 className="mv-font-bold mv-text-lg mv-mb-3 mv-min-h-11">
-        {props.title}
-      </h5>
+      <h5 className="mv-font-bold mv-text-lg mv-mb-3">{props.title}</h5>
       <p>{props.text}</p>
     </div>
   );
