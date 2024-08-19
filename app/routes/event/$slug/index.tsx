@@ -90,6 +90,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     }
     return [];
   });
+
   return [
     ...parentMeta,
     {
@@ -99,13 +100,27 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     },
     {
       name: "description",
+      property: "og:description",
       content: data?.event.description
         ? removeHtmlTags(data.event.description)
         : "",
     },
     {
-      name: "og:image",
-      content: data?.event.background || "/images/default-event-background.jpg",
+      name: "image",
+      property: "og:image",
+      content:
+        data?.event.background ||
+        data?.meta.baseUrl + "/images/default-event-background.jpg",
+    },
+    {
+      property: "og:image:secure_url",
+      content:
+        data?.event.background ||
+        data?.meta.baseUrl + "/images/default-event-background.jpg",
+    },
+    {
+      property: "og:url",
+      content: data?.meta.url,
     },
   ];
 };
@@ -271,6 +286,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     abilities,
     alreadyAbuseReported,
     abuseReportReasons,
+    meta: {
+      baseUrl: process.env.COMMUNITY_BASE_URL,
+      url: request.url,
+    },
   });
 };
 
