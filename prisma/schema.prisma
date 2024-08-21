@@ -11,15 +11,15 @@ datasource db {
 }
 
 model Profile {
-  id                        String                      @id @default(uuid())
-  username                  String                      @unique
+  id                        String                               @id @default(uuid())
+  username                  String                               @unique
   email                     String
   phone                     String?
   website                   String?
   avatar                    String?
   background                String? // legacy
-  backgroundImage           Image?                      @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
-  backgroundImageId         String?                     @map("background_image_id")
+  backgroundImage           Image?                               @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId         String?                              @map("background_image_id")
   facebook                  String?
   linkedin                  String?
   twitter                   String?
@@ -27,20 +27,20 @@ model Profile {
   bio                       String?
   skills                    String[]
   interests                 String[]
-  academicTitle             String?                     @map("academic_title")
-  createdAt                 DateTime                    @default(now()) @map("created_at")
-  firstName                 String                      @map("first_name")
-  lastName                  String                      @map("last_name")
-  publicFields              String[]                    @map("public_fields") // legacy
-  termsAccepted             Boolean                     @map("terms_accepted")
-  termsAcceptedAt           DateTime                    @default(now()) @map("terms_accepted_at")
-  updatedAt                 DateTime                    @default(now()) @map("updated_at")
+  academicTitle             String?                              @map("academic_title")
+  createdAt                 DateTime                             @default(now()) @map("created_at")
+  firstName                 String                               @map("first_name")
+  lastName                  String                               @map("last_name")
+  publicFields              String[]                             @map("public_fields") // legacy
+  termsAccepted             Boolean                              @map("terms_accepted")
+  termsAcceptedAt           DateTime                             @default(now()) @map("terms_accepted_at")
+  updatedAt                 DateTime                             @default(now()) @map("updated_at")
   position                  String?
   instagram                 String?
   youtube                   String?
   mastodon                  String?
   tiktok                    String?
-  score                     Int                         @default(0)
+  score                     Int                                  @default(0)
   areas                     AreasOnProfiles[]
   memberOf                  MemberOfOrganization[]
   offers                    OffersOnProfiles[]
@@ -55,11 +55,13 @@ model Profile {
   administeredOrganizations AdminOfOrganization[]
   administeredProjects      AdminOfProject[]
   notificationSettings      NotificationSettings?
-  profileAbuseReport        ProfileAbuseReport[]        @relation("reporter_of_profile_abuse_report")
-  organizationAbuseReport   OrganizationAbuseReport[]   @relation("reporter_of_organization_abuse_report")
-  eventAbuseReport          EventAbuseReport[]          @relation("reporter_of_event_abuse_report")
-  projectAbuseReport        ProjectAbuseReport[]        @relation("reporter_of_project_abuse_report")
-  abuseReports              ProfileAbuseReport[]        @relation("profile_of_profile_abuse_report")
+  profileAbuseReport        ProfileAbuseReport[]                 @relation("reporter_of_profile_abuse_report")
+  organizationAbuseReport   OrganizationAbuseReport[]            @relation("reporter_of_organization_abuse_report")
+  eventAbuseReport          EventAbuseReport[]                   @relation("reporter_of_event_abuse_report")
+  projectAbuseReport        ProjectAbuseReport[]                 @relation("reporter_of_project_abuse_report")
+  abuseReports              ProfileAbuseReport[]                 @relation("profile_of_profile_abuse_report")
+  joinOrganizationRequests  RequestToOrganizationToAddProfile[]
+  joinOrganizationInvites   InviteForProfileToJoinOrganization[]
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -117,6 +119,8 @@ model ProfileVisibility {
   eventAbuseReport          Boolean @default(false)
   projectAbuseReport        Boolean @default(false)
   abuseReports              Boolean @default(false)
+  joinOrganizationRequests  Boolean @default(false)
+  joinOrganizationInvites   Boolean @default(false)
 
   @@map("profile_visibilities")
 }
@@ -208,9 +212,9 @@ model OffersOnProfiles {
 }
 
 model Organization {
-  id                     String                             @id @default(uuid())
+  id                     String                               @id @default(uuid())
   name                   String
-  slug                   String                             @unique
+  slug                   String                               @unique
   email                  String?
   phone                  String?
   street                 String?
@@ -218,38 +222,40 @@ model Organization {
   website                String?
   logo                   String?
   background             String? // legacy
-  backgroundImage        Image?                             @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
-  backgroundImageId      String?                            @map("background_image_id")
+  backgroundImage        Image?                               @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId      String?                              @map("background_image_id")
   facebook               String?
   linkedin               String?
   twitter                String?
   xing                   String?
   bio                    String?
   quote                  String?
-  createdAt              DateTime                           @default(now()) @map("created_at")
-  publicFields           String[]                           @map("public_fields") // legacy
-  quoteAuthor            String?                            @map("quote_author")
-  quoteAuthorInformation String?                            @map("quote_author_information")
-  streetNumber           String?                            @map("street_number")
-  supportedBy            String[]                           @map("supported_by")
-  updatedAt              DateTime                           @default(now()) @updatedAt @map("updated_at")
-  zipCode                String?                            @map("zip_code")
+  createdAt              DateTime                             @default(now()) @map("created_at")
+  publicFields           String[]                             @map("public_fields") // legacy
+  quoteAuthor            String?                              @map("quote_author")
+  quoteAuthorInformation String?                              @map("quote_author_information")
+  streetNumber           String?                              @map("street_number")
+  supportedBy            String[]                             @map("supported_by")
+  updatedAt              DateTime                             @default(now()) @updatedAt @map("updated_at")
+  zipCode                String?                              @map("zip_code")
   instagram              String?
   youtube                String?
   mastodon               String?
   tiktok                 String?
-  score                  Int                                @default(0)
+  score                  Int                                  @default(0)
   areas                  AreasOnOrganizations[]
   focuses                FocusesOnOrganizations[]
-  networkMembers         MemberOfNetwork[]                  @relation("network")
-  memberOf               MemberOfNetwork[]                  @relation("network_member")
+  networkMembers         MemberOfNetwork[]                    @relation("network")
+  memberOf               MemberOfNetwork[]                    @relation("network_member")
   teamMembers            MemberOfOrganization[]
   types                  OrganizationTypesOnOrganizations[]
   responsibleForEvents   ResponsibleOrganizationOfEvent[]
   responsibleForProject  ResponsibleOrganizationOfProject[]
   organizationVisibility OrganizationVisibility?
   admins                 AdminOfOrganization[]
-  abuseReports           OrganizationAbuseReport[]          @relation("organization_of_organization_abuse_report")
+  abuseReports           OrganizationAbuseReport[]            @relation("organization_of_organization_abuse_report")
+  profileJoinRequests    RequestToOrganizationToAddProfile[]
+  profileJoinInvites     InviteForProfileToJoinOrganization[]
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -298,6 +304,8 @@ model OrganizationVisibility {
   responsibleForEvents   Boolean      @default(true)
   responsibleForProject  Boolean      @default(true)
   abuseReports           Boolean      @default(false)
+  profileJoinRequests    Boolean      @default(false)
+  profileJoinInvites     Boolean      @default(false)
   organization           Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId         String       @unique
 
@@ -1438,4 +1446,46 @@ enum AbuseReportStatus {
   rejected
 
   @@map("abuse_report_status")
+}
+
+enum OrganizationRole {
+  admin
+  member
+
+  @@map("organization_roles")
+}
+
+enum JoinStatus {
+  pending
+  accepted
+  rejected
+
+  @@map("join_statuses")
+}
+
+model InviteForProfileToJoinOrganization {
+  id             String           @id @default(uuid())
+  profileId      String           @map("profile_id")
+  profile        Profile          @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  organizationId String           @map("organization_id")
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           OrganizationRole
+  status         JoinStatus
+  updatedAt      DateTime         @default(now()) @updatedAt @map("updated_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+
+  @@map("invites_for_profiles_to_join_organizations")
+}
+
+model RequestToOrganizationToAddProfile {
+  id             String       @id @default(uuid())
+  profileId      String       @map("profile_id")
+  profile        Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  status         JoinStatus
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@map("requests_to_organizations_to_add_profiles")
 }
