@@ -137,35 +137,9 @@ export async function getOrganizationsFromProfile(username: string) {
 
 export function addImageUrlToOrganizations(
   authClient: SupabaseClient,
-  result: Awaited<ReturnType<typeof getOrganizationsFromProfile>>
+  organizations: Awaited<ReturnType<typeof getOrganizationsFromProfile>>
 ) {
-  const adminOrganizations = result.adminOrganizations.map((organization) => {
-    let background = organization.background;
-    let logo = organization.logo;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
-      if (publicURL !== null) {
-        background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 348, height: 160 },
-        });
-      }
-    }
-    if (logo !== null) {
-      const publicURL = getPublicURL(authClient, logo);
-      if (publicURL !== null) {
-        logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
-        });
-      }
-    }
-    return {
-      ...organization,
-      logo,
-      background,
-    };
-  });
-
-  const teamMemberOrganizations = result.teamMemberOrganizations.map(
+  const adminOrganizations = organizations.adminOrganizations.map(
     (organization) => {
       let background = organization.background;
       let logo = organization.logo;
@@ -185,10 +159,122 @@ export function addImageUrlToOrganizations(
           });
         }
       }
+      const teamMembers = organization.teamMembers.map((relation) => {
+        let avatar = relation.profile.avatar;
+        if (avatar !== null) {
+          const publicURL = getPublicURL(authClient, avatar);
+          if (publicURL !== null) {
+            avatar = getImageURL(publicURL, {
+              resize: { type: "fill", width: 64, height: 64 },
+            });
+          }
+        }
+        return {
+          ...relation,
+          profile: {
+            ...relation.profile,
+            avatar,
+          },
+        };
+      });
       return {
         ...organization,
         logo,
         background,
+        teamMembers,
+      };
+    }
+  );
+
+  const teamMemberOrganizations = organizations.teamMemberOrganizations.map(
+    (organization) => {
+      let background = organization.background;
+      let logo = organization.logo;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
+        if (publicURL !== null) {
+          background = getImageURL(publicURL, {
+            resize: { type: "fill", width: 348, height: 160 },
+          });
+        }
+      }
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: { type: "fill", width: 136, height: 136 },
+          });
+        }
+      }
+      const teamMembers = organization.teamMembers.map((relation) => {
+        let avatar = relation.profile.avatar;
+        if (avatar !== null) {
+          const publicURL = getPublicURL(authClient, avatar);
+          if (publicURL !== null) {
+            avatar = getImageURL(publicURL, {
+              resize: { type: "fill", width: 64, height: 64 },
+            });
+          }
+        }
+        return {
+          ...relation,
+          profile: {
+            ...relation.profile,
+            avatar,
+          },
+        };
+      });
+      return {
+        ...organization,
+        logo,
+        background,
+        teamMembers,
+      };
+    }
+  );
+
+  return { adminOrganizations, teamMemberOrganizations };
+}
+
+export function flattenOrganizationRelations(
+  organizations: Awaited<ReturnType<typeof getOrganizationsFromProfile>>
+) {
+  const adminOrganizations = organizations.adminOrganizations.map(
+    (organization) => {
+      return {
+        ...organization,
+        teamMembers: organization.teamMembers.map((relation) => {
+          return relation.profile;
+        }),
+        types: organization.types.map((relation) => {
+          return relation.organizationType.title;
+        }),
+        focuses: organization.focuses.map((relation) => {
+          return relation.focus.title;
+        }),
+        areas: organization.areas.map((relation) => {
+          return relation.area.name;
+        }),
+      };
+    }
+  );
+
+  const teamMemberOrganizations = organizations.teamMemberOrganizations.map(
+    (organization) => {
+      return {
+        ...organization,
+        teamMembers: organization.teamMembers.map((relation) => {
+          return relation.profile;
+        }),
+        types: organization.types.map((relation) => {
+          return relation.organizationType.title;
+        }),
+        focuses: organization.focuses.map((relation) => {
+          return relation.focus.title;
+        }),
+        areas: organization.areas.map((relation) => {
+          return relation.area.name;
+        }),
       };
     }
   );
