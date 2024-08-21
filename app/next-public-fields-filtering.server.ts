@@ -22,6 +22,8 @@ export type ProfileWithRelations = Profile & {
   eventAbuseReport: any;
   projectAbuseReport: any;
   abuseReports: any;
+  joinOrganizationRequests: any;
+  joinOrganizationInvites: any;
   _count: any;
 };
 
@@ -62,6 +64,8 @@ export function filterProfileByVisibility<
         key === "eventAbuseReport" ||
         key === "projectAbuseReport" ||
         key === "abuseReports" ||
+        key === "joinOrganizationRequests" ||
+        key === "joinOrganizationInvites" ||
         key === "waitingForEvents"
       ) {
         filteredFields[key] =
@@ -137,6 +141,8 @@ type OrganizationWithRelations = Organization & {
   admins: any;
   backgroundImage: any;
   abuseReports: any;
+  profileJoinRequests: any;
+  profileJoinInvites: any;
 };
 
 export function filterOrganizationByVisibility<
@@ -165,6 +171,8 @@ export function filterOrganizationByVisibility<
         key === "responsibleForEvents" ||
         key === "admins" ||
         key === "abuseReports" ||
+        key === "profileJoinRequests" ||
+        key === "profileJoinInvites" ||
         key === "responsibleForProject"
       ) {
         filteredFields[key] =
