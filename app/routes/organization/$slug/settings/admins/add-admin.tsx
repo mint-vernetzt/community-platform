@@ -11,10 +11,12 @@ import {
   addAdminToOrganization,
   getOrganizationBySlug,
   getProfileById,
+  inviteProfileToJoinOrganization,
 } from "./add-admin.server";
 import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/organization/settings/admin/add-admin"];
 export const handle = {
@@ -58,7 +60,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/admin/add-admin",
+    "routes/organization/settings/admins/add-admin",
   ]);
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
@@ -75,17 +77,48 @@ export const action = async (args: ActionFunctionArgs) => {
     environment: { organizationSlug: slug },
   });
 
-  if (result.success === true) {
+  if (result.success) {
     const organization = await getOrganizationBySlug(slug);
     invariantResponse(organization, t("error.notFound"), { status: 404 });
-    await addAdminToOrganization(organization.id, result.data.profileId);
 
-    return json({
-      message: t("feedback", {
+    const abilities = await getFeatureAbilities(
+      authClient,
+      "add-to-organization"
+    );
+
+    let message: string;
+    let status: "error" | "success";
+
+    if (abilities["add-to-organization"].hasAccess) {
+      const error = await inviteProfileToJoinOrganization(
+        organization.id,
+        result.data.profileId
+      );
+
+      if (error !== null) {
+        message = t("invite.error");
+        status = "error";
+      } else {
+        message = t("invite.success", {
+          firstName: result.data.firstName,
+          lastName: result.data.lastName,
+        });
+        status = "success";
+      }
+    } else {
+      await addAdminToOrganization(organization.id, result.data.profileId);
+      message = t("feedback", {
         firstName: result.data.firstName,
         lastName: result.data.lastName,
-      }),
+      });
+      status = "success";
+    }
+
+    return json({
+      message,
+      status,
     });
   }
+
   return json(result);
 };

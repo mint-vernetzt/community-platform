@@ -7,5 +7,9 @@
       "alreadyAdmin": "Das Profil unter diesem Namen ist bereits Administrator:in Eurer Organisation."
     }
   },
+  "invite": {
+    "success": "Einladung wurde erfolgreich versendet.",
+    "error": "Einladung konnte nicht versendet werden."
+  },
   "feedback": "\"{{firstName} {{lastName}}\" wurde als Administrator:in hinzugefügt."
 }

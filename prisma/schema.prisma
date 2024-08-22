@@ -1459,12 +1459,12 @@ enum JoinStatus {
   pending
   accepted
   rejected
+  canceled
 
   @@map("join_statuses")
 }
 
 model InviteForProfileToJoinOrganization {
-  id             String           @id @default(uuid())
   profileId      String           @map("profile_id")
   profile        Profile          @relation(fields: [profileId], references: [id], onDelete: Cascade)
   organizationId String           @map("organization_id")
@@ -1474,11 +1474,11 @@ model InviteForProfileToJoinOrganization {
   updatedAt      DateTime         @default(now()) @updatedAt @map("updated_at")
   createdAt      DateTime         @default(now()) @map("created_at")
 
+  @@id([profileId, organizationId, role])
   @@map("invites_for_profiles_to_join_organizations")
 }
 
 model RequestToOrganizationToAddProfile {
-  id             String       @id @default(uuid())
   profileId      String       @map("profile_id")
   profile        Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
   organizationId String       @map("organization_id")
@@ -1487,5 +1487,6 @@ model RequestToOrganizationToAddProfile {
   updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
   createdAt      DateTime     @default(now()) @map("created_at")
 
+  @@id([profileId, organizationId])
   @@map("requests_to_organizations_to_add_profiles")
 }

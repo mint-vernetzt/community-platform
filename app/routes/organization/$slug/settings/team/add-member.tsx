@@ -11,10 +11,12 @@ import {
   addTeamMemberToOrganization,
   getOrganizationBySlug,
   getProfileById,
+  inviteProfileToJoinOrganization,
 } from "./add-member.server";
 import i18next from "~/i18next.server";
 import { type TFunction } from "i18next";
 import { detectLanguage } from "~/root.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/organization/settings/network/remove"];
 export const handle = {
@@ -84,12 +86,43 @@ export const action = async (args: ActionFunctionArgs) => {
   if (result.success) {
     const organization = await getOrganizationBySlug(slug);
     invariantResponse(organization, t("error.notFound"), { status: 404 });
-    await addTeamMemberToOrganization(organization.id, result.data.profileId);
-    return json({
-      message: t("feedback", {
+
+    const abilities = await getFeatureAbilities(
+      authClient,
+      "add-to-organization"
+    );
+
+    let message: string;
+    let status: "error" | "success";
+
+    if (abilities["add-to-organization"].hasAccess) {
+      const error = await inviteProfileToJoinOrganization(
+        organization.id,
+        result.data.profileId
+      );
+
+      if (error !== null) {
+        message = t("invite.error");
+        status = "error";
+      } else {
+        message = t("invite.success", {
+          firstName: result.data.firstName,
+          lastName: result.data.lastName,
+        });
+        status = "success";
+      }
+    } else {
+      await addTeamMemberToOrganization(organization.id, result.data.profileId);
+      message = t("feedback", {
         firstName: result.data.firstName,
         lastName: result.data.lastName,
-      }),
+      });
+      status = "success";
+    }
+
+    return json({
+      message,
+      status,
     });
   }
 

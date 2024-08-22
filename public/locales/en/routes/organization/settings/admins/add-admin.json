@@ -7,5 +7,9 @@
       "alreadyAdmin": "The profile under this name is already an administrator of your organization."
     }
   },
+  "invite": {
+    "success": "Invitation was sent successfully.",
+    "error": "Invitation could not be sent."
+  },
   "feedback": "\"{{firstName} {{lastName}}\" has been added as an administrator."
 }

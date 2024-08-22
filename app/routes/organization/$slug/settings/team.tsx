@@ -23,15 +23,24 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { deriveOrganizationMode } from "../utils.server";
-import { getMembersOfOrganization, getOrganizationBySlug } from "./team.server";
+import {
+  getInvitedProfilesOfOrganization,
+  getMembersOfOrganization,
+  getOrganizationBySlug,
+} from "./team.server";
 import {
   addMemberSchema,
   type action as addMemberAction,
 } from "./team/add-member";
 import {
+  cancelInviteSchema,
+  type action as cancelInviteAction,
+} from "./team/cancel-invite";
+import {
   removeMemberSchema,
   type action as removeMemberAction,
 } from "./team/remove-member";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/organization/settings/team"];
 export const handle = {
@@ -67,27 +76,41 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return relation.profile;
   });
 
+  const invitedProfiles = await getInvitedProfilesOfOrganization(
+    authClient,
+    organization.id
+  );
+
   const url = new URL(request.url);
   const suggestionsQuery =
     url.searchParams.get("autocomplete_query") || undefined;
   let memberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
     const query = suggestionsQuery.split(" ");
-    const alreadyMemberIds = members.map((member) => {
-      return member.profile.id;
-    });
+    const profileIdsToFilter = [...enhancedMembers, ...invitedProfiles].map(
+      (profile) => {
+        return profile.id;
+      }
+    );
     memberSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
-      alreadyMemberIds,
+      profileIdsToFilter,
       query
     );
   }
 
+  const abilities = await getFeatureAbilities(
+    authClient,
+    "add-to-organization"
+  );
+
   return json({
     members: enhancedMembers,
+    invitedProfiles,
     memberSuggestions,
     organizationId: organization.id,
     slug: slug,
+    abilities,
   });
 };
 
@@ -95,6 +118,7 @@ function Index() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
   const addMemberFetcher = useFetcher<typeof addMemberAction>();
+  const cancelInviteFetcher = useFetcher<typeof cancelInviteAction>();
   const removeMemberFetcher = useFetcher<typeof removeMemberAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
@@ -158,9 +182,94 @@ function Index() {
       </RemixFormsForm>
       {addMemberFetcher.data !== undefined &&
       "message" in addMemberFetcher.data ? (
-        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
+        <div
+          className={`p-4 ${
+            addMemberFetcher.data.status === "success"
+              ? "bg-green-200"
+              : "bg-red-200"
+          } rounded-md mt-4`}
+        >
           {addMemberFetcher.data.message}
         </div>
+      ) : null}
+      {loaderData.abilities["add-to-organization"].hasAccess &&
+      loaderData.invitedProfiles.length > 0 ? (
+        <>
+          <h4 className="mb-4 mt-16 font-semibold">
+            {t("content.invites.headline")}
+          </h4>
+          <p className="mb-8">{t("content.invites.intro")} </p>
+          {loaderData.invitedProfiles.map((profile) => {
+            const initials = getInitials(profile);
+            return (
+              <div
+                key={`team-member-${profile.id}`}
+                className="w-full flex items-center flex-row flex-wrap @sm:mv-flex-nowrap border-b border-neutral-400 py-4 @md:mv-px-4"
+              >
+                <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+                  {profile.avatar !== null && profile.avatar !== "" ? (
+                    <img src={profile.avatar} alt={initials} />
+                  ) : (
+                    <>{initials}</>
+                  )}
+                </div>
+                <div className="pl-4">
+                  <Link to={`/profile/${profile.username}`}>
+                    <H3
+                      like="h4"
+                      className="text-xl mb-1 no-underline hover:underline"
+                    >
+                      {profile.firstName} {profile.lastName}
+                    </H3>
+                  </Link>
+                  {profile.position ? (
+                    <p className="font-bold text-sm cursor-default">
+                      {profile.position}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="flex-100 @sm:mv-flex-auto @sm:mv-ml-auto flex items-center flex-row pt-4 @sm:mv-pt-0 justify-end">
+                  <RemixFormsForm
+                    method="post"
+                    action={`/organization/${slug}/settings/team/cancel-invite`}
+                    schema={cancelInviteSchema}
+                    hiddenFields={["profileId"]}
+                    values={{
+                      profileId: profile.id,
+                    }}
+                    fetcher={cancelInviteFetcher}
+                  >
+                    {({ Field, Button, Errors }) => {
+                      return (
+                        <>
+                          <Button
+                            className="ml-auto btn-none"
+                            title={t("content.invites.cancel")}
+                          >
+                            <svg
+                              viewBox="0 0 10 10"
+                              width="10px"
+                              height="10px"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                                fill="currentColor"
+                              />
+                            </svg>
+                          </Button>
+                          <Field name="profileId" />
+                          <Errors />
+                        </>
+                      );
+                    }}
+                  </RemixFormsForm>
+                </div>
+              </div>
+            );
+          })}
+        </>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
         {t("content.current.headline")}
@@ -213,7 +322,7 @@ function Index() {
                         {loaderData.members.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
-                            title={"content.current.remove"}
+                            title={t("content.current.remove")}
                           >
                             <svg
                               viewBox="0 0 10 10"
