@@ -13,6 +13,11 @@
       "intro": "Add an existing profile to your organization here.",
       "label": "Name or email"
     },
+    "invites": {
+      "headline": "Invitations",
+      "intro": "Here you can see all the invitations you have already sent.",
+      "cancel": "Cancel"
+    },
     "current": {
       "headline": "Current administrators",
       "intro": "Here you can see all the administrators of the organization at a glance.",

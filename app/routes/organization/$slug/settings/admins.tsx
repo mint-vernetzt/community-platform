@@ -25,15 +25,23 @@ import { detectLanguage } from "~/root.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveOrganizationMode } from "../utils.server";
-import { getOrganization } from "./admins.server";
+import {
+  getInvitedProfilesOfOrganization,
+  getOrganization,
+} from "./admins.server";
 import {
   addAdminSchema,
   type action as addAdminAction,
 } from "./admins/add-admin";
 import {
+  cancelInviteSchema,
+  type action as cancelInviteAction,
+} from "./admins/cancel-invite";
+import {
   removeAdminSchema,
   type action as removeAdminAction,
 } from "./admins/remove-admin";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/organization/settings/admins"];
 export const handle = {
@@ -73,15 +81,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return { ...relation.profile, avatar };
   });
 
+  const invitedProfiles = await getInvitedProfilesOfOrganization(
+    authClient,
+    organization.id
+  );
+
   const url = new URL(request.url);
   const suggestionsQuery =
     url.searchParams.get("autocomplete_query") || undefined;
   let adminSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
     const query = suggestionsQuery.split(" ");
-    const alreadyAdminIds = organization.admins.map((relation) => {
-      return relation.profile.id;
-    });
+    const alreadyAdminIds = [...enhancedAdmins, ...invitedProfiles].map(
+      (relation) => {
+        return relation.id;
+      }
+    );
     adminSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
       alreadyAdminIds,
@@ -89,9 +104,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
+  const abilities = await getFeatureAbilities(
+    authClient,
+    "add-to-organization"
+  );
+
   return json({
     admins: enhancedAdmins,
+    invitedProfiles,
     adminSuggestions,
+    abilities,
   });
 };
 
@@ -99,6 +121,7 @@ function Admins() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
   const addAdminFetcher = useFetcher<typeof addAdminAction>();
+  const cancelInviteFetcher = useFetcher<typeof cancelInviteAction>();
   const removeAdminFetcher = useFetcher<typeof removeAdminAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
@@ -168,6 +191,85 @@ function Admins() {
         <div className={`p-4 bg-green-200 rounded-md mt-4`}>
           {addAdminFetcher.data.message}
         </div>
+      ) : null}
+      {loaderData.abilities["add-to-organization"].hasAccess &&
+      loaderData.invitedProfiles.length > 0 ? (
+        <>
+          <h4 className="mb-4 mt-16 font-semibold">
+            {t("content.invites.headline")}
+          </h4>
+          <p className="mb-8">{t("content.invites.intro")} </p>
+          {loaderData.invitedProfiles.map((profile) => {
+            const initials = getInitials(profile);
+            return (
+              <div
+                key={`team-member-${profile.id}`}
+                className="w-full flex items-center flex-row flex-wrap @sm:mv-flex-nowrap border-b border-neutral-400 py-4 @md:mv-px-4"
+              >
+                <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+                  {profile.avatar !== null && profile.avatar !== "" ? (
+                    <img src={profile.avatar} alt={initials} />
+                  ) : (
+                    <>{initials}</>
+                  )}
+                </div>
+                <div className="pl-4">
+                  <Link to={`/profile/${profile.username}`}>
+                    <H3
+                      like="h4"
+                      className="text-xl mb-1 no-underline hover:underline"
+                    >
+                      {profile.firstName} {profile.lastName}
+                    </H3>
+                  </Link>
+                  {profile.position ? (
+                    <p className="font-bold text-sm cursor-default">
+                      {profile.position}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="flex-100 @sm:mv-flex-auto @sm:mv-ml-auto flex items-center flex-row pt-4 @sm:mv-pt-0 justify-end">
+                  <RemixFormsForm
+                    method="post"
+                    action={`/organization/${slug}/settings/admins/cancel-invite`}
+                    schema={cancelInviteSchema}
+                    hiddenFields={["profileId"]}
+                    values={{
+                      profileId: profile.id,
+                    }}
+                    fetcher={cancelInviteFetcher}
+                  >
+                    {({ Field, Button, Errors }) => {
+                      return (
+                        <>
+                          <Button
+                            className="ml-auto btn-none"
+                            title={t("content.invites.cancel")}
+                          >
+                            <svg
+                              viewBox="0 0 10 10"
+                              width="10px"
+                              height="10px"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                                fill="currentColor"
+                              />
+                            </svg>
+                          </Button>
+                          <Field name="profileId" />
+                          <Errors />
+                        </>
+                      );
+                    }}
+                  </RemixFormsForm>
+                </div>
+              </div>
+            );
+          })}
+        </>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
         {t("content.current.headline", { count: loaderData.admins.length })}

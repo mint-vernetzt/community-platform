@@ -65,9 +65,10 @@ export async function inviteProfileToJoinOrganization(
 
   await prismaClient.inviteForProfileToJoinOrganization.upsert({
     where: {
-      profileId_organizationId: {
+      profileId_organizationId_role: {
         profileId,
         organizationId,
+        role: "member",
       },
     },
     create: {

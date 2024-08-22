@@ -1474,7 +1474,7 @@ model InviteForProfileToJoinOrganization {
   updatedAt      DateTime         @default(now()) @updatedAt @map("updated_at")
   createdAt      DateTime         @default(now()) @map("created_at")
 
-  @@id([profileId, organizationId])
+  @@id([profileId, organizationId, role])
   @@map("invites_for_profiles_to_join_organizations")
 }
 

@@ -20,7 +20,7 @@ export async function cancelInviteOfProfileFromOrganization(
       profileId_organizationId_role: {
         profileId,
         organizationId,
-        role: "member",
+        role: "admin",
       },
     },
     data: {

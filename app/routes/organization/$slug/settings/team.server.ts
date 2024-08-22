@@ -70,6 +70,7 @@ export async function getInvitedProfilesOfOrganization(
       where: {
         organizationId,
         status: "pending",
+        role: "member",
       },
       select: {
         profile: {
