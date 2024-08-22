@@ -71,6 +71,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "dashboard",
     "fundings",
     "abuse_report",
+    "my_organizations",
   ]);
 
   const user = await getSessionUser(authClient);
@@ -338,10 +339,10 @@ export default function App() {
   // Should this be a component?
   const scrollButton = (
     <div className={`${isSettings ? "hidden @md:mv-block " : ""}w-0`}>
-      <div className="w-0 h-16"></div>
+      <div className="w-0 h-4"></div>
       <div className="w-0 h-screen sticky top-0">
         <div className="absolute bottom-4 -left-20">
-          <Link to={`${location.pathname}${location.search}#top`}>
+          <Link to={`${location.pathname}${location.search}#`}>
             <CircleButton size="large" floating>
               <svg
                 width="30"

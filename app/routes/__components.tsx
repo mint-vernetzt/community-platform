@@ -199,7 +199,7 @@ function NavBarMenu(
   const { t } = useTranslation(["meta"]);
 
   return (
-    <div
+    <nav
       id="navbarmenu"
       className={`${
         isOpen !== null && isOpen !== "false"
@@ -255,20 +255,6 @@ function NavBarMenu(
                     {t("root.menu.overview")}
                   </div>
                 </Item>
-                {/* <Item
-                  to={`/profile/${props.username}`}
-                  openNavBarMenuKey={props.openNavBarMenuKey}
-                  setActiveTopicId={setActiveTopicId}
-                >
-                  {location.pathname === `/profile/${props.username}` ? (
-                    <Icon type="person" />
-                  ) : (
-                    <Icon type="person-outline" />
-                  )}
-                  <div className="mv-font-semibold">
-                    {t("root.menu.personalSpace.label")}
-                  </div>
-                </Item> */}
 
                 <Topic
                   id="personalSpace"
@@ -277,7 +263,10 @@ function NavBarMenu(
                 >
                   <Label>
                     {location.pathname === `/profile/${props.username}` ||
-                    location.pathname === "/organization/create" ||
+                    (location.pathname === "/my/organizations" &&
+                      props.abilities.my_organizations.hasAccess) ||
+                    (location.pathname === "/organization/create" &&
+                      props.abilities.my_organizations.hasAccess === false) ||
                     location.pathname === "/event/create" ||
                     location.pathname === "/project/create" ? (
                       <Icon type="person" />
@@ -293,15 +282,24 @@ function NavBarMenu(
                     to={`/profile/${props.username}`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.profile")}
+                    {t("root.menu.personalSpace.myProfile")}
                   </TopicItem>
 
-                  <TopicItem
-                    to={`/organization/create`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
-                  >
-                    {t("root.menu.personalSpace.createOrganization")}
-                  </TopicItem>
+                  {props.abilities.my_organizations.hasAccess ? (
+                    <TopicItem
+                      to={`/my/organizations`}
+                      openNavBarMenuKey={props.openNavBarMenuKey}
+                    >
+                      {t("root.menu.personalSpace.myOrganizations")}
+                    </TopicItem>
+                  ) : (
+                    <TopicItem
+                      to={`/organization/create`}
+                      openNavBarMenuKey={props.openNavBarMenuKey}
+                    >
+                      {t("root.menu.personalSpace.createOrganization")}
+                    </TopicItem>
+                  )}
 
                   {props.abilities.events?.hasAccess && (
                     <TopicItem
@@ -319,44 +317,36 @@ function NavBarMenu(
                     {t("root.menu.personalSpace.createProject")}
                   </TopicItem>
 
-                  {/* TODO: Link to organization overview route when its implemented */}
-                  {/* <TopicItem
-                    to={`/profile/${props.username}#organizations`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
-                  >
-                    {t("root.menu.personalSpace.organizations")}
-                  </TopicItem> */}
-
                   {/* TODO: Link to event overview route when its implemented */}
                   {/* <TopicItem
-                    to={`/profile/${props.username}#events`}
+                    to={`/my/events`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.events")}
+                    {t("root.menu.personalSpace.myEvents")}
                   </TopicItem> */}
 
                   {/* TODO: Link to project overview route when its implemented */}
                   {/* <TopicItem
-                    to={`/profile/${props.username}#projects`}
+                    to={`/my/projects`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.projects")}
+                    {t("root.menu.personalSpace.myProjects")}
                   </TopicItem> */}
 
                   {/* TODO: Implement this when Network overview is implemented */}
                   {/* <TopicItem
-                    to={``}
+                    to={`my/network`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.network")}
+                    {t("root.menu.personalSpace.myNetwork")}
                   </TopicItem> */}
 
                   {/* TODO: Implement this when bookmark feature is available */}
                   {/* <TopicItem
-                    to={``}
+                    to={`my/bookmarks`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.bookmarks")}
+                    {t("root.menu.personalSpace.myBookmarks")}
                   </TopicItem> */}
                 </Topic>
               </>
@@ -563,7 +553,7 @@ function NavBarMenu(
           </FooterMenu>
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
 

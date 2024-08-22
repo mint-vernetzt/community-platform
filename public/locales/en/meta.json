@@ -29,15 +29,15 @@
       "overview": "Overview",
       "personalSpace": {
         "label": "My space",
-        "profile": "My profile",
+        "myProfile": "My profile",
+        "myOrganizations": "My organizations",
+        "myEvents": "My events",
+        "myProjects": "My projects",
+        "myNetwork": "My network",
+        "myBookmarks": "Bookmarks",
         "createOrganization": "Create organization",
         "createEvent": "Create event",
-        "createProject": "Create project",
-        "organizations": "My organizations",
-        "events": "My events",
-        "projects": "My projects",
-        "network": "My network",
-        "bookmarks": "Bookmarks"
+        "createProject": "Create project"
       },
       "ressources": {
         "label": "Ressources",

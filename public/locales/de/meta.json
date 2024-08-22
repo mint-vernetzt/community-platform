@@ -29,15 +29,15 @@
       "overview": "Überblick",
       "personalSpace": {
         "label": "Mein MINT-Bereich",
-        "profile": "Mein Profil",
+        "myProfile": "Mein Profil",
+        "myOrganizations": "Meine Organisationen",
+        "myEvents": "Meine Veranstaltungen",
+        "myProjects": "Meine Projekte",
+        "myNetwork": "Mein Netzwerk",
+        "myBookmarks": "Gemerkte Inhalte",
         "createOrganization": "Organisation anlegen",
         "createEvent": "Veranstaltung anlegen",
-        "createProject": "Projekt anlegen",
-        "organizations": "Meine Organisationen",
-        "events": "Meine Veranstaltungen",
-        "projects": "Meine Projekte",
-        "network": "Mein Netzwerk",
-        "bookmarks": "Gemerkte Inhalte"
+        "createProject": "Projekt anlegen"
       },
       "ressources": {
         "label": "Ressourcen",
