@@ -69,6 +69,7 @@ export async function getInvitedProfilesOfOrganization(
     await prismaClient.inviteForProfileToJoinOrganization.findMany({
       where: {
         organizationId,
+        status: "pending",
       },
       select: {
         profile: {

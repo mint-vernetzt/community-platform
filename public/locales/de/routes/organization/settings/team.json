@@ -12,6 +12,11 @@
       "intro": "Füge hier Eurer Organisation ein bereits bestehendes Profil hinzu.",
       "label": "Name oder Email"
     },
+    "invites": {
+      "headline": "Einladungen",
+      "intro": "Hier siehst du alle Einladungen, die du bereits versendet hast.",
+      "cancel": "zurückziehen"
+    },
     "current": {
       "headline": "Aktuelle Teammitglieder",
       "intro": "Hier siehst du alle Teammitglieder auf einen Blick.",

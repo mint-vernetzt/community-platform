@@ -63,11 +63,20 @@ export async function inviteProfileToJoinOrganization(
     return new Error("Profile or organization not found");
   }
 
-  await prismaClient.inviteForProfileToJoinOrganization.create({
-    data: {
+  await prismaClient.inviteForProfileToJoinOrganization.upsert({
+    where: {
+      profileId_organizationId: {
+        profileId,
+        organizationId,
+      },
+    },
+    create: {
       profileId,
       organizationId,
       role: "member",
+      status: "pending",
+    },
+    update: {
       status: "pending",
     },
   });
