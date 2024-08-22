@@ -158,7 +158,13 @@ function Index() {
       </RemixFormsForm>
       {addMemberFetcher.data !== undefined &&
       "message" in addMemberFetcher.data ? (
-        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
+        <div
+          className={`p-4 ${
+            addMemberFetcher.data.status === "success"
+              ? "bg-green-200"
+              : "bg-red-200"
+          } rounded-md mt-4`}
+        >
           {addMemberFetcher.data.message}
         </div>
       ) : null}

@@ -7,5 +7,9 @@
       "alreadyMember": "Das Profil unter diesem Namen ist bereits Mitglied Eurer Organisation."
     }
   },
+  "invite": {
+    "success": "Einladung wurde erfolgreich versendet.",
+    "error": "Einladung konnte nicht versendet werden."
+  },
   "feedback": "Ein neues Teammitglied mit dem Namen \"{{firstName}} {{lastName}}\" wurde hinzugefügt."
 }
