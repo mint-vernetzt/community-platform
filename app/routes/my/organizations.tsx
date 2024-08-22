@@ -17,6 +17,12 @@ import {
 } from "@mint-vernetzt/components";
 import { useState } from "react";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { useTranslation } from "react-i18next";
+
+const i18nNS = ["routes/my/organizations"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -51,14 +57,13 @@ export default function MyOrganizations() {
       ? "teamMember"
       : "admin"
   );
+  const { t } = useTranslation(i18nNS);
 
-  // TODO: Styling
-  // TODO: i18n
   return (
     <div className="mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16">
       <div className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 @md:mv-gap-6 @lg:mv-gap-8 mv-items-center mv-justify-between">
         <h1 className="mv-mb-0 mv-text-5xl mv-text-primary mv-font-bold mv-leading-9">
-          Meine Organisationen
+          {t("headline")}
         </h1>
         <Button as="a" href={"/organization/create"}>
           <svg
@@ -73,7 +78,7 @@ export default function MyOrganizations() {
               fill="currentColor"
             />
           </svg>
-          Organisation anlegen
+          {t("cta")}
         </Button>
       </div>
       {loaderData.teamMemberOrganizations.length > 0 ||
@@ -95,7 +100,7 @@ export default function MyOrganizations() {
                 }}
               >
                 <div className="mv-flex mv-gap-1.5 mv-items-center">
-                  <span>Teammitglied</span>
+                  <span>{t("tabbar.teamMember")}</span>
                   <TabBar.Counter active={activeItem === "teamMember"}>
                     {loaderData.teamMemberOrganizations.length}
                   </TabBar.Counter>
@@ -115,7 +120,7 @@ export default function MyOrganizations() {
                 }}
               >
                 <div className="mv-flex mv-gap-1.5 mv-items-center">
-                  <span>Admin</span>
+                  <span>{t("tabbar.admin")}</span>
                   <TabBar.Counter active={activeItem === "admin"}>
                     {loaderData.adminOrganizations.length}
                   </TabBar.Counter>
@@ -125,8 +130,8 @@ export default function MyOrganizations() {
           </TabBar>
           <p className="mv-hidden @sm:mv-block">
             {activeItem === "teamMember"
-              ? "Diesen Organisationen bist du als Teammitglied zugeordnet."
-              : "Diesen Organisationen bist du als Admin zugeordnet."}
+              ? t("subline.teamMember")
+              : t("subline.admin")}
           </p>
           <div className="-mv-mx-4">
             {activeItem === "teamMember" &&
