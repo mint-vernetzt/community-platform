@@ -401,7 +401,7 @@ function Dashboard() {
         </div>
       </section>
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-flex-col mv-w-full mv-items-center mv-gap-6 mv-py-6 mv-bg-gray-50 mv-border mv-border-neutral-200 mv-rounded-lg">
+        <div className="mv-flex mv-flex-col mv-w-full mv-items-center mv-gap-6 mv-py-6 mv-bg-white mv-border mv-border-neutral-200 mv-rounded-lg">
           <h2 className="mv-appearance-none mv-w-full mv-text-primary mv-text-center mv-text-3xl mv-font-semibold mv-leading-7 @lg:mv-leading-8 mv-tracking-tight mv-px-11 @lg:mv-px-6">
             {t("content.communityCounter.headline")}
           </h2>
@@ -549,7 +549,7 @@ function Dashboard() {
                 <Link
                   to={value.link}
                   target="_blank"
-                  className="mv-flex mv-gap-2 mv-items-center mv-rounded-lg mv-bg-neutral-50 mv-border mv-border-neutral-200 mv-px-4 mv-py-2 hover:mv-no-underline @xl:mv-h-full"
+                  className="mv-flex mv-gap-2 mv-items-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-200 mv-px-4 mv-py-2 hover:mv-no-underline @xl:mv-h-full"
                 >
                   <div className="mv-flex mv-flex-col mv-gap-2 mv-py-2 mv-flex-grow @xl:mv-h-full">
                     <h3 className="mv-appearance-none mv-text-neutral-700 mv-text-xs mv-font-bold mv-leading-[15.6px] mv-tracking-[-0.24px]">
