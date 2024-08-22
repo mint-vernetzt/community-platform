@@ -3,7 +3,7 @@ import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
-export async function getOrganizationsFromProfile(username: string) {
+export async function getOrganizationsFromProfile(id: string) {
   const [adminOrganizations, teamMemberOrganizations] =
     await prismaClient.$transaction([
       prismaClient.organization.findMany({
@@ -59,7 +59,7 @@ export async function getOrganizationsFromProfile(username: string) {
           admins: {
             some: {
               profile: {
-                username: username,
+                id: id,
               },
             },
           },
@@ -121,7 +121,7 @@ export async function getOrganizationsFromProfile(username: string) {
           teamMembers: {
             some: {
               profile: {
-                username: username,
+                id: id,
               },
             },
           },

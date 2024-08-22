@@ -3,9 +3,6 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { deriveProfileMode } from "~/routes/profile/$username/utils.server";
 import {
   addImageUrlToOrganizations,
   flattenOrganizationRelations,
@@ -34,11 +31,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
-  const username = getParamValueOrThrow(params, "username");
-  const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Forbidden", { status: 403 });
 
-  const organizations = await getOrganizationsFromProfile(username);
+  const organizations = await getOrganizationsFromProfile(sessionUser.id);
   const enhancedOrganizations = addImageUrlToOrganizations(
     authClient,
     organizations
