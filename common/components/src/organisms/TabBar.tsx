@@ -5,7 +5,7 @@ function Counter(props: React.PropsWithChildren<{ active?: boolean }>) {
   const { active } = props;
   return (
     <span
-      className={`mv-px-2.5 mv-rounded-lg${
+      className={`mv-text-xs mv-font-semibold mv-leading-4 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-fit mv-py-0.5 mv-px-2.5 mv-rounded-lg${
         active
           ? " mv-text-primary mv-bg-primary-50"
           : " mv-text-neutral-600 mv-bg-neutral-200"
