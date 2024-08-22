@@ -23,7 +23,11 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { deriveOrganizationMode } from "../utils.server";
-import { getMembersOfOrganization, getOrganizationBySlug } from "./team.server";
+import {
+  getInvitedProfilesOfOrganization,
+  getMembersOfOrganization,
+  getOrganizationBySlug,
+} from "./team.server";
 import {
   addMemberSchema,
   type action as addMemberAction,
@@ -67,18 +71,25 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return relation.profile;
   });
 
+  const invitedProfiles = await getInvitedProfilesOfOrganization(
+    authClient,
+    organization.id
+  );
+
   const url = new URL(request.url);
   const suggestionsQuery =
     url.searchParams.get("autocomplete_query") || undefined;
   let memberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
     const query = suggestionsQuery.split(" ");
-    const alreadyMemberIds = members.map((member) => {
-      return member.profile.id;
-    });
+    const profileIdsToFilter = [...enhancedMembers, ...invitedProfiles].map(
+      (profile) => {
+        return profile.id;
+      }
+    );
     memberSuggestions = await getProfileSuggestionsForAutocomplete(
       authClient,
-      alreadyMemberIds,
+      profileIdsToFilter,
       query
     );
   }
