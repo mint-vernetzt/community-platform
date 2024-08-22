@@ -1,30 +1,52 @@
 import classNames from "classnames";
 import React from "react";
 
+function Counter(props: React.PropsWithChildren<{ active?: boolean }>) {
+  const { active } = props;
+  return (
+    <span
+      className={`mv-px-2.5 mv-rounded-lg${
+        active
+          ? " mv-text-primary mv-bg-primary-50"
+          : " mv-text-neutral-600 mv-bg-neutral-200"
+      }`}
+    >
+      {props.children}
+    </span>
+  );
+}
+
 export type TabBarItemProps = {
   children: React.ReactNode;
   active?: boolean;
+  disabled?: boolean;
 };
 
 function Item(props: React.PropsWithChildren<TabBarItemProps>) {
-  const { active } = props;
+  const { active, disabled } = props;
 
   const children = React.Children.toArray(props.children);
   const firstNode = children[0];
 
-  const classes = classNames(
+  const listItemClasses = classNames(
+    "mv-h-fit",
     "mv-min-w-fit",
     "last:mv-mr-6 @sm:mv-last:mv-mr-0",
-    active
-      ? "mv-text-primary mv-border-b-2 mv-border-b-primary"
-      : "mv-text-gray-400"
+    disabled && "mv-cursor-default mv-pointer-events-none mv-text-neutral-300",
+    active && "mv-text-primary mv-border-b-2 mv-border-b-primary",
+    !disabled && !active && "mv-text-neutral-500 hover:mv-text-neutral-600"
+  );
+
+  const spanClasses = classNames(
+    "mv-mt-2 mv-mb-3 mv-p-2 mv-block",
+    !disabled && !active && "hover:mv-bg-neutral-100 hover:mv-rounded-lg"
   );
 
   // if first node is a string, wrap string into span
   if (typeof firstNode === "string") {
     return (
-      <li className={classes}>
-        <span className="mv-pt-6 mv-pb-1 mv-block">{firstNode}</span>
+      <li className={listItemClasses}>
+        <span className={spanClasses}>{firstNode}</span>
       </li>
     );
   }
@@ -37,10 +59,10 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
     if (cloneChildren.length > 0) {
       const firstChild = cloneChildren[0];
       const wrappedFirstChild = (
-        <span className="mv-pt-6 mv-pb-1 mv-block">{firstChild}</span>
+        <span className={spanClasses}>{firstChild}</span>
       );
       return (
-        <li className={classes}>
+        <li className={listItemClasses}>
           {React.cloneElement(firstNode, {}, wrappedFirstChild)}
         </li>
       );
@@ -161,7 +183,7 @@ function TabBar(props: TabBarProps) {
           onScroll={handleScroll}
           ref={scrollContainerRef}
         >
-          <ul className="mv-mb-4 mv-flex mv-justify-between mv-flex-nowrap mv-w-fit mv-gap-4 @sm:mv-gap-14 mv-font-semibold">
+          <ul className="mv-w-full mv-border-b mv-border-neutral-200 mv-flex mv-flex-nowrap mv-gap-8 @sm:mv-gap-14 mv-font-semibold">
             {validChildren}
           </ul>
         </div>
@@ -214,5 +236,6 @@ function TabBar(props: TabBarProps) {
 }
 
 TabBar.Item = Item;
+TabBar.Counter = Counter;
 
 export default TabBar;
