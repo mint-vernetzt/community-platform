@@ -24,7 +24,7 @@ export function Card(props: CardProps) {
   });
 
   return (
-    <div className="mv-w-full mv-h-full mv-bg-neutral-50 mv-shadow-xl mv-rounded-3xl mv-relative mv-overflow-hidden mv-text-gray-700 mv-flex mv-flex-col mv-items-stretch">
+    <div className="mv-w-full mv-h-full mv-bg-white mv-border mv-border-neutral-200 mv-rounded-3xl mv-relative mv-overflow-hidden mv-text-gray-700 mv-flex mv-flex-col mv-items-stretch">
       {props.to !== undefined && props.to !== "" ? (
         <>
           <div className="mv-h-full hover:mv-bg-neutral-100 active:mv-bg-neutral-100 focus:mv-bg-neutral-100">
