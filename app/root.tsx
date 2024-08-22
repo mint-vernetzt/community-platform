@@ -342,7 +342,7 @@ export default function App() {
       <div className="w-0 h-4"></div>
       <div className="w-0 h-screen sticky top-0">
         <div className="absolute bottom-4 -left-20">
-          <Link to={`${location.pathname}${location.search}#top`}>
+          <Link to={`${location.pathname}${location.search}#`}>
             <CircleButton size="large" floating>
               <svg
                 width="30"

@@ -33,13 +33,14 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
     "mv-min-w-fit",
     "last:mv-mr-6 @sm:mv-last:mv-mr-0",
     disabled && "mv-cursor-default mv-pointer-events-none mv-text-neutral-300",
-    active && "mv-text-primary mv-border-b-2 mv-border-b-primary",
-    !disabled && !active && "mv-text-neutral-500 hover:mv-text-neutral-600"
+    active && "mv-text-primary mv-border-b-2 mv-border-b-primary"
   );
 
   const spanClasses = classNames(
     "mv-mt-2 mv-mb-3 mv-p-2 mv-block",
-    !disabled && !active && "hover:mv-bg-neutral-100 hover:mv-rounded-lg"
+    !disabled &&
+      !active &&
+      "hover:mv-bg-neutral-100 hover:mv-rounded-lg mv-text-neutral-500 hover:mv-text-neutral-600"
   );
 
   // if first node is a string, wrap string into span
