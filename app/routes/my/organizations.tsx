@@ -61,7 +61,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function MyOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(i18nNS);
   const [searchParams] = useSearchParams();
+
   const [activeOrganizationsTab, setActiveOrganizationsTab] = useState(
     searchParams.get("organizations-tab") !== null &&
       searchParams.get("organizations-tab") !== ""
@@ -114,7 +116,7 @@ export default function MyOrganizations() {
     },
   };
 
-  const { t } = useTranslation(i18nNS);
+  // TODO: Forms with action function
 
   return (
     <div className="mv-w-full mv-flex mv-justify-center">
