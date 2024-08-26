@@ -309,6 +309,7 @@ export async function getOrganizationInvitesForProfile(id: string) {
       where: {
         profileId: id,
         role: "admin",
+        status: "pending",
       },
     }),
     prismaClient.inviteForProfileToJoinOrganization.findMany({
@@ -335,6 +336,7 @@ export async function getOrganizationInvitesForProfile(id: string) {
       where: {
         profileId: id,
         role: "member",
+        status: "pending",
       },
     }),
   ]);
