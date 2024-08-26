@@ -1,12 +1,24 @@
 {
     "headline": "Meine Organisationen",
     "cta": "Organisation anlegen",
-    "tabbar": {
-        "teamMember": "Teammitglied",
-        "admin": "Admin"
+    "invites": {
+        "headline": "Einladungen",
+        "subline": "Ein Admin wird benachrichtigt, sobald Du Dich zu der Einladung äußerst.",
+        "tabbar": {
+            "teamMember": "Teammitglied",
+            "admin": "Admin"
+        },
+        "decline": "Ablehnen",
+        "accept": "Annehmen"
     },
-    "subline": {
-        "teamMember": "Diesen Organisationen bist du als Teammitglied zugeordnet.",
-        "admin": "Diesen Organisationen bist du als Admin zugeordnet."
+    "organizations": {
+        "tabbar": {
+            "teamMember": "Teammitglied",
+            "admin": "Admin"
+        },
+        "subline": {
+            "teamMember": "Diesen Organisationen bist du als Teammitglied zugeordnet.",
+            "admin": "Diesen Organisationen bist du als Admin zugeordnet."
+        }
     }
 }

@@ -10,8 +10,9 @@ import {
   getOrganizationInvitesForProfile,
   getOrganizationsFromProfile,
 } from "./organizations.server";
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import {
+  Avatar,
   Button,
   CardContainer,
   OrganizationCard,
@@ -65,8 +66,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function MyOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
-  const [activeItem, setActiveItem] = useState(
-    searchParams.get("tab") || loaderData.teamMemberOrganizations.length > 0
+  const [activeOrganizationsTab, setActiveOrganizationsTab] = useState(
+    searchParams.get("organizations-tab") ||
+      loaderData.teamMemberOrganizations.length > 0
+      ? "teamMember"
+      : "admin"
+  );
+  const [activeInvitesTab, setActiveInvitesTab] = useState(
+    searchParams.get("invites-tab") ||
+      loaderData.teamMemberOrganizations.length > 0
       ? "teamMember"
       : "admin"
   );
@@ -95,59 +103,171 @@ export default function MyOrganizations() {
             {t("cta")}
           </Button>
         </div>
-        {/* TODO: Invite Section */}
+        {loaderData.teamMemberInvites.length > 0 ||
+        loaderData.adminInvites.length > 0 ? (
+          <section>
+            <h2>{t("invites.headline")}</h2>
+            <p>{t("invites.subline")}</p>
+            <TabBar>
+              <TabBar.Item
+                active={activeInvitesTab === "teamMember"}
+                disabled={loaderData.teamMemberInvites.length === 0}
+              >
+                <Link
+                  to="?invites-tab=teamMember"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setActiveInvitesTab("teamMember");
+                    return;
+                  }}
+                >
+                  <div className="mv-flex mv-gap-1.5 mv-items-center">
+                    <span>{t("invites.tabbar.teamMember")}</span>
+                    <TabBar.Counter active={activeInvitesTab === "teamMember"}>
+                      {loaderData.teamMemberInvites.length}
+                    </TabBar.Counter>
+                  </div>
+                </Link>
+              </TabBar.Item>
+              <TabBar.Item
+                active={activeInvitesTab === "admin"}
+                disabled={loaderData.adminInvites.length === 0}
+              >
+                <Link
+                  to="?invites-tab=admin"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setActiveInvitesTab("admin");
+                    return;
+                  }}
+                >
+                  <div className="mv-flex mv-gap-1.5 mv-items-center">
+                    <span>{t("invites.tabbar.admin")}</span>
+                    <TabBar.Counter active={activeInvitesTab === "admin"}>
+                      {loaderData.adminInvites.length}
+                    </TabBar.Counter>
+                  </div>
+                </Link>
+              </TabBar.Item>
+            </TabBar>
+            <ul>
+              {activeInvitesTab === "teamMember" &&
+              loaderData.teamMemberInvites.length > 0
+                ? loaderData.teamMemberInvites.map((invite) => {
+                    return (
+                      <li
+                        key={`team-member-invite-${invite.organizationId}-${invite.profileId}`}
+                      >
+                        <Link to={`/organization/${invite.organization.slug}`}>
+                          <Avatar {...invite.organization} />
+                          <p>{invite.organization.name}</p>
+                          <p>
+                            {invite.organization.types
+                              .map((relation) => {
+                                return relation.organizationType.title;
+                              })
+                              .join(", ")}
+                          </p>
+                        </Link>
+                        <Form method="post">
+                          <Button variant="outline">
+                            {t("invites.decline")}
+                          </Button>
+                          <Button>{t("invites.accept")}</Button>
+                        </Form>
+                      </li>
+                    );
+                  })
+                : null}
+              {activeInvitesTab === "admin" &&
+              loaderData.adminInvites.length > 0
+                ? loaderData.adminInvites.map((invite) => {
+                    return (
+                      <li
+                        key={`admin-invite-${invite.organizationId}-${invite.profileId}`}
+                      >
+                        <Link to={`/organization/${invite.organization.slug}`}>
+                          <Avatar {...invite.organization} />
+                          <p>{invite.organization.name}</p>
+                          <p>
+                            {invite.organization.types
+                              .map((relation) => {
+                                return relation.organizationType.title;
+                              })
+                              .join(", ")}
+                          </p>
+                        </Link>
+                        <Form method="post">
+                          <Button variant="outline">
+                            {t("invites.decline")}
+                          </Button>
+                          <Button>{t("invites.accept")}</Button>
+                        </Form>
+                      </li>
+                    );
+                  })
+                : null}
+            </ul>
+          </section>
+        ) : null}
         {loaderData.teamMemberOrganizations.length > 0 ||
         loaderData.adminOrganizations.length > 0 ? (
           <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-2 @md:mv-px-4 @lg:mv-px-8 @sm:mv-py-2 @md:mv-py-4 @lg:mv-py-6 @sm:mv-gap-4 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">
             <TabBar>
               <TabBar.Item
-                active={activeItem === "teamMember"}
+                active={activeOrganizationsTab === "teamMember"}
                 disabled={loaderData.teamMemberOrganizations.length === 0}
               >
                 <Link
                   to="?tab=teamMember"
                   onClick={(event) => {
                     event.preventDefault();
-                    setActiveItem("teamMember");
+                    setActiveOrganizationsTab("teamMember");
                     return;
                   }}
                 >
                   <div className="mv-flex mv-gap-1.5 mv-items-center">
-                    <span>{t("tabbar.teamMember")}</span>
-                    <TabBar.Counter active={activeItem === "teamMember"}>
+                    <span>{t("organizations.tabbar.teamMember")}</span>
+                    <TabBar.Counter
+                      active={activeOrganizationsTab === "teamMember"}
+                    >
                       {loaderData.teamMemberOrganizations.length}
                     </TabBar.Counter>
                   </div>
                 </Link>
               </TabBar.Item>
               <TabBar.Item
-                active={activeItem === "admin"}
+                active={activeOrganizationsTab === "admin"}
                 disabled={loaderData.adminOrganizations.length === 0}
               >
                 <Link
                   to="?tab=admin"
                   onClick={(event) => {
                     event.preventDefault();
-                    setActiveItem("admin");
+                    setActiveOrganizationsTab("admin");
                     return;
                   }}
                 >
                   <div className="mv-flex mv-gap-1.5 mv-items-center">
-                    <span>{t("tabbar.admin")}</span>
-                    <TabBar.Counter active={activeItem === "admin"}>
+                    <span>{t("organizations.tabbar.admin")}</span>
+                    <TabBar.Counter active={activeOrganizationsTab === "admin"}>
                       {loaderData.adminOrganizations.length}
                     </TabBar.Counter>
                   </div>
                 </Link>
               </TabBar.Item>
             </TabBar>
+            {/* TODO: 
+              Ask design if this is intentional: mv-hidden @sm:mv-block
+              Its not the bahaviour of above section
+             */}
             <p className="mv-hidden @sm:mv-block">
-              {activeItem === "teamMember"
-                ? t("subline.teamMember")
-                : t("subline.admin")}
+              {activeOrganizationsTab === "teamMember"
+                ? t("organizations.subline.teamMember")
+                : t("organizations.subline.admin")}
             </p>
             <div className="-mv-mx-4">
-              {activeItem === "teamMember" &&
+              {activeOrganizationsTab === "teamMember" &&
               loaderData.teamMemberOrganizations.length > 0 ? (
                 <CardContainer type="multi row">
                   {loaderData.teamMemberOrganizations.map((organization) => {
@@ -160,7 +280,7 @@ export default function MyOrganizations() {
                   })}
                 </CardContainer>
               ) : null}
-              {activeItem === "admin" &&
+              {activeOrganizationsTab === "admin" &&
               loaderData.adminOrganizations.length > 0 ? (
                 <CardContainer type="multi row">
                   {loaderData.adminOrganizations.map((organization) => {
