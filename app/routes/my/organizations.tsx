@@ -46,20 +46,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     authClient,
     organizations
   );
-  const { adminOrganizations, teamMemberOrganizations } =
-    flattenOrganizationRelations(enhancedOrganizations);
-
-  const invites = await getOrganizationInvitesForProfile(sessionUser.id);
-  const { adminInvites, teamMemberInvites } = addImageUrlToInvites(
-    authClient,
-    invites
+  const flattenedOrganizations = flattenOrganizationRelations(
+    enhancedOrganizations
   );
 
+  const invites = await getOrganizationInvitesForProfile(sessionUser.id);
+  const enhancedInvites = addImageUrlToInvites(authClient, invites);
+
   return json({
-    adminOrganizations,
-    teamMemberOrganizations,
-    adminInvites,
-    teamMemberInvites,
+    organizations: flattenedOrganizations,
+    invites: enhancedInvites,
   });
 };
 
@@ -67,17 +63,57 @@ export default function MyOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const [activeOrganizationsTab, setActiveOrganizationsTab] = useState(
-    searchParams.get("organizations-tab") ||
-      loaderData.teamMemberOrganizations.length > 0
+    searchParams.get("organizations-tab") !== null &&
+      searchParams.get("organizations-tab") !== ""
+      ? searchParams.get("organizations-tab")
+      : loaderData.organizations.teamMemberOrganizations.length > 0
       ? "teamMember"
       : "admin"
   );
+  const teamMemberOrganizationsTabSearchParams = new URLSearchParams(
+    searchParams
+  );
+  teamMemberOrganizationsTabSearchParams.set("organizations-tab", "teamMember");
+  const adminOrganizationsTabSearchParams = new URLSearchParams(searchParams);
+  adminOrganizationsTabSearchParams.set("organizations-tab", "admin");
+  const organizations = {
+    teamMember: {
+      organizations: loaderData.organizations.teamMemberOrganizations,
+      active: activeOrganizationsTab === "teamMember",
+      searchParams: teamMemberOrganizationsTabSearchParams,
+    },
+    admin: {
+      organizations: loaderData.organizations.adminOrganizations,
+      active: activeOrganizationsTab === "admin",
+      searchParams: adminOrganizationsTabSearchParams,
+    },
+  };
+
   const [activeInvitesTab, setActiveInvitesTab] = useState(
-    searchParams.get("invites-tab") ||
-      loaderData.teamMemberOrganizations.length > 0
+    searchParams.get("invites-tab") !== null &&
+      searchParams.get("invites-tab") !== ""
+      ? searchParams.get("invites-tab")
+      : loaderData.invites.teamMemberInvites.length > 0
       ? "teamMember"
       : "admin"
   );
+  const teamMemberInvitesTabSearchParams = new URLSearchParams(searchParams);
+  teamMemberInvitesTabSearchParams.set("invites-tab", "teamMember");
+  const adminInvitesTabSearchParams = new URLSearchParams(searchParams);
+  adminInvitesTabSearchParams.set("invites-tab", "admin");
+  const invites = {
+    teamMember: {
+      invites: loaderData.invites.teamMemberInvites,
+      active: activeInvitesTab === "teamMember",
+      searchParams: teamMemberInvitesTabSearchParams,
+    },
+    admin: {
+      invites: loaderData.invites.adminInvites,
+      active: activeInvitesTab === "admin",
+      searchParams: adminInvitesTabSearchParams,
+    },
+  };
+
   const { t } = useTranslation(i18nNS);
 
   return (
@@ -103,159 +139,125 @@ export default function MyOrganizations() {
             {t("cta")}
           </Button>
         </div>
-        {loaderData.teamMemberInvites.length > 0 ||
-        loaderData.adminInvites.length > 0 ? (
-          <section>
-            <h2>{t("invites.headline")}</h2>
-            <p>{t("invites.subline")}</p>
+        {invites.teamMember.invites.length > 0 ||
+        invites.admin.invites.length > 0 ? (
+          <section className="mv-py-6 @lg:mv-py-8 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <h2 className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0">
+                {t("invites.headline")}
+              </h2>
+              <p className="mv-text-sm mv-text-neutral-700">
+                {t("invites.subline")}
+              </p>
+            </div>
             <TabBar>
-              <TabBar.Item
-                active={activeInvitesTab === "teamMember"}
-                disabled={loaderData.teamMemberInvites.length === 0}
-              >
-                <Link
-                  to="?invites-tab=teamMember"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setActiveInvitesTab("teamMember");
-                    return;
-                  }}
-                >
-                  <div className="mv-flex mv-gap-1.5 mv-items-center">
-                    <span>{t("invites.tabbar.teamMember")}</span>
-                    <TabBar.Counter active={activeInvitesTab === "teamMember"}>
-                      {loaderData.teamMemberInvites.length}
-                    </TabBar.Counter>
-                  </div>
-                </Link>
-              </TabBar.Item>
-              <TabBar.Item
-                active={activeInvitesTab === "admin"}
-                disabled={loaderData.adminInvites.length === 0}
-              >
-                <Link
-                  to="?invites-tab=admin"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setActiveInvitesTab("admin");
-                    return;
-                  }}
-                >
-                  <div className="mv-flex mv-gap-1.5 mv-items-center">
-                    <span>{t("invites.tabbar.admin")}</span>
-                    <TabBar.Counter active={activeInvitesTab === "admin"}>
-                      {loaderData.adminInvites.length}
-                    </TabBar.Counter>
-                  </div>
-                </Link>
-              </TabBar.Item>
+              {Object.entries(invites).map(([key, value]) => {
+                return (
+                  <TabBar.Item
+                    key={`${key}-invites-tab`}
+                    active={value.active}
+                    disabled={value.invites.length === 0}
+                  >
+                    <Link
+                      to={`?${value.searchParams.toString()}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        setActiveInvitesTab(key);
+                        return;
+                      }}
+                      preventScrollReset
+                    >
+                      <div className="mv-flex mv-gap-1.5 mv-items-center">
+                        <span>{t(`invites.tabbar.${key}`)}</span>
+                        <TabBar.Counter active={value.active}>
+                          {value.invites.length}
+                        </TabBar.Counter>
+                      </div>
+                    </Link>
+                  </TabBar.Item>
+                );
+              })}
             </TabBar>
-            <ul>
-              {activeInvitesTab === "teamMember" &&
-              loaderData.teamMemberInvites.length > 0
-                ? loaderData.teamMemberInvites.map((invite) => {
-                    return (
-                      <li
-                        key={`team-member-invite-${invite.organizationId}-${invite.profileId}`}
-                      >
-                        <Link to={`/organization/${invite.organization.slug}`}>
-                          <Avatar {...invite.organization} />
-                          <p>{invite.organization.name}</p>
-                          <p>
-                            {invite.organization.types
-                              .map((relation) => {
-                                return relation.organizationType.title;
-                              })
-                              .join(", ")}
-                          </p>
-                        </Link>
-                        <Form method="post">
-                          <Button variant="outline">
-                            {t("invites.decline")}
-                          </Button>
-                          <Button>{t("invites.accept")}</Button>
-                        </Form>
-                      </li>
-                    );
-                  })
-                : null}
-              {activeInvitesTab === "admin" &&
-              loaderData.adminInvites.length > 0
-                ? loaderData.adminInvites.map((invite) => {
-                    return (
-                      <li
-                        key={`admin-invite-${invite.organizationId}-${invite.profileId}`}
-                      >
-                        <Link to={`/organization/${invite.organization.slug}`}>
-                          <Avatar {...invite.organization} />
-                          <p>{invite.organization.name}</p>
-                          <p>
-                            {invite.organization.types
-                              .map((relation) => {
-                                return relation.organizationType.title;
-                              })
-                              .join(", ")}
-                          </p>
-                        </Link>
-                        <Form method="post">
-                          <Button variant="outline">
-                            {t("invites.decline")}
-                          </Button>
-                          <Button>{t("invites.accept")}</Button>
-                        </Form>
-                      </li>
-                    );
-                  })
-                : null}
+            <ul className="mv-flex mv-flex-col mv-gap-4">
+              {Object.entries(invites).map(([key, value]) => {
+                return value.active && value.invites.length > 0
+                  ? value.invites.map((invite) => {
+                      return (
+                        <li
+                          key={`${key}-invite-${invite.organizationId}`}
+                          className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center"
+                        >
+                          <Link
+                            to={`/organization/${invite.organization.slug}`}
+                            className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
+                          >
+                            <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
+                              <Avatar size="full" {...invite.organization} />
+                            </div>
+                            <div>
+                              <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
+                                {invite.organization.name}
+                              </p>
+                              <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
+                                {invite.organization.types
+                                  .map((relation) => {
+                                    return relation.organizationType.title;
+                                  })
+                                  .join(", ")}
+                              </p>
+                            </div>
+                          </Link>
+                          <Form
+                            method="post"
+                            className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit"
+                          >
+                            <Button variant="outline" fullSize>
+                              {t("invites.decline")}
+                            </Button>
+                            <Button fullSize>{t("invites.accept")}</Button>
+                          </Form>
+                        </li>
+                      );
+                    })
+                  : null;
+              })}
             </ul>
           </section>
         ) : null}
-        {loaderData.teamMemberOrganizations.length > 0 ||
-        loaderData.adminOrganizations.length > 0 ? (
+        {organizations.teamMember.organizations.length > 0 ||
+        organizations.admin.organizations.length > 0 ? (
+          // TODO:
+          // Ask design if this is intentional: section has py-6 and px-8 on lg -> section above has py-8 and px-6 on lg
+          // Its not the bahaviour of above section
+
           <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-2 @md:mv-px-4 @lg:mv-px-8 @sm:mv-py-2 @md:mv-py-4 @lg:mv-py-6 @sm:mv-gap-4 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">
             <TabBar>
-              <TabBar.Item
-                active={activeOrganizationsTab === "teamMember"}
-                disabled={loaderData.teamMemberOrganizations.length === 0}
-              >
-                <Link
-                  to="?tab=teamMember"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setActiveOrganizationsTab("teamMember");
-                    return;
-                  }}
-                >
-                  <div className="mv-flex mv-gap-1.5 mv-items-center">
-                    <span>{t("organizations.tabbar.teamMember")}</span>
-                    <TabBar.Counter
-                      active={activeOrganizationsTab === "teamMember"}
+              {Object.entries(organizations).map(([key, value]) => {
+                return (
+                  <TabBar.Item
+                    key={`${key}-organizations-tab`}
+                    active={value.active}
+                    disabled={value.organizations.length === 0}
+                  >
+                    <Link
+                      to={`?${value.searchParams.toString()}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        setActiveOrganizationsTab(key);
+                        return;
+                      }}
+                      preventScrollReset
                     >
-                      {loaderData.teamMemberOrganizations.length}
-                    </TabBar.Counter>
-                  </div>
-                </Link>
-              </TabBar.Item>
-              <TabBar.Item
-                active={activeOrganizationsTab === "admin"}
-                disabled={loaderData.adminOrganizations.length === 0}
-              >
-                <Link
-                  to="?tab=admin"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setActiveOrganizationsTab("admin");
-                    return;
-                  }}
-                >
-                  <div className="mv-flex mv-gap-1.5 mv-items-center">
-                    <span>{t("organizations.tabbar.admin")}</span>
-                    <TabBar.Counter active={activeOrganizationsTab === "admin"}>
-                      {loaderData.adminOrganizations.length}
-                    </TabBar.Counter>
-                  </div>
-                </Link>
-              </TabBar.Item>
+                      <div className="mv-flex mv-gap-1.5 mv-items-center">
+                        <span>{t(`organizations.tabbar.${key}`)}</span>
+                        <TabBar.Counter active={value.active}>
+                          {value.organizations.length}
+                        </TabBar.Counter>
+                      </div>
+                    </Link>
+                  </TabBar.Item>
+                );
+              })}
             </TabBar>
             {/* TODO: 
               Ask design if this is intentional: mv-hidden @sm:mv-block
@@ -267,32 +269,20 @@ export default function MyOrganizations() {
                 : t("organizations.subline.admin")}
             </p>
             <div className="-mv-mx-4">
-              {activeOrganizationsTab === "teamMember" &&
-              loaderData.teamMemberOrganizations.length > 0 ? (
-                <CardContainer type="multi row">
-                  {loaderData.teamMemberOrganizations.map((organization) => {
-                    return (
-                      <OrganizationCard
-                        key={`team-member-organization-${organization.id}`}
-                        organization={organization}
-                      />
-                    );
-                  })}
-                </CardContainer>
-              ) : null}
-              {activeOrganizationsTab === "admin" &&
-              loaderData.adminOrganizations.length > 0 ? (
-                <CardContainer type="multi row">
-                  {loaderData.adminOrganizations.map((organization) => {
-                    return (
-                      <OrganizationCard
-                        key={`admin-organization-${organization.id}`}
-                        organization={organization}
-                      />
-                    );
-                  })}
-                </CardContainer>
-              ) : null}
+              {Object.entries(organizations).map(([key, value]) => {
+                return value.active && value.organizations.length > 0 ? (
+                  <CardContainer key={`${key}-organizations`} type="multi row">
+                    {value.organizations.map((organization) => {
+                      return (
+                        <OrganizationCard
+                          key={`${key}-organization-${organization.id}`}
+                          organization={organization}
+                        />
+                      );
+                    })}
+                  </CardContainer>
+                ) : null;
+              })}
             </div>
           </section>
         ) : null}

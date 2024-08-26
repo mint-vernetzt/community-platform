@@ -352,7 +352,7 @@ export function addImageUrlToInvites(
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
+          resize: { type: "fill", width: 144, height: 144 },
         });
       }
     }
@@ -371,7 +371,7 @@ export function addImageUrlToInvites(
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
+          resize: { type: "fill", width: 144, height: 144 },
         });
       }
     }
