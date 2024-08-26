@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { useTranslation } from "react-i18next";
+import { extendSearchParams } from "~/lib/utils/searchParams";
 
 const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -72,22 +73,20 @@ export default function MyOrganizations() {
       ? "teamMember"
       : "admin"
   );
-  const teamMemberOrganizationsTabSearchParams = new URLSearchParams(
-    searchParams
-  );
-  teamMemberOrganizationsTabSearchParams.set("organizations-tab", "teamMember");
-  const adminOrganizationsTabSearchParams = new URLSearchParams(searchParams);
-  adminOrganizationsTabSearchParams.set("organizations-tab", "admin");
   const organizations = {
     teamMember: {
       organizations: loaderData.organizations.teamMemberOrganizations,
       active: activeOrganizationsTab === "teamMember",
-      searchParams: teamMemberOrganizationsTabSearchParams,
+      searchParams: extendSearchParams(searchParams, {
+        set: { "organizations-tab": "teamMember" },
+      }),
     },
     admin: {
       organizations: loaderData.organizations.adminOrganizations,
       active: activeOrganizationsTab === "admin",
-      searchParams: adminOrganizationsTabSearchParams,
+      searchParams: extendSearchParams(searchParams, {
+        set: { "organizations-tab": "admin" },
+      }),
     },
   };
 
@@ -99,20 +98,20 @@ export default function MyOrganizations() {
       ? "teamMember"
       : "admin"
   );
-  const teamMemberInvitesTabSearchParams = new URLSearchParams(searchParams);
-  teamMemberInvitesTabSearchParams.set("invites-tab", "teamMember");
-  const adminInvitesTabSearchParams = new URLSearchParams(searchParams);
-  adminInvitesTabSearchParams.set("invites-tab", "admin");
   const invites = {
     teamMember: {
       invites: loaderData.invites.teamMemberInvites,
       active: activeInvitesTab === "teamMember",
-      searchParams: teamMemberInvitesTabSearchParams,
+      searchParams: extendSearchParams(searchParams, {
+        set: { "invites-tab": "teamMember" },
+      }),
     },
     admin: {
       invites: loaderData.invites.adminInvites,
       active: activeInvitesTab === "admin",
-      searchParams: adminInvitesTabSearchParams,
+      searchParams: extendSearchParams(searchParams, {
+        set: { "invites-tab": "admin" },
+      }),
     },
   };
 
