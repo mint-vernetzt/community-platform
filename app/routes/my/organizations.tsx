@@ -4,8 +4,10 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import {
+  addImageUrlToInvites,
   addImageUrlToOrganizations,
   flattenOrganizationRelations,
+  getOrganizationInvitesForProfile,
   getOrganizationsFromProfile,
 } from "./organizations.server";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
@@ -24,7 +26,7 @@ export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, "my_organizations");
@@ -46,7 +48,18 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { adminOrganizations, teamMemberOrganizations } =
     flattenOrganizationRelations(enhancedOrganizations);
 
-  return json({ adminOrganizations, teamMemberOrganizations });
+  const invites = await getOrganizationInvitesForProfile(sessionUser.id);
+  const { adminInvites, teamMemberInvites } = addImageUrlToInvites(
+    authClient,
+    invites
+  );
+
+  return json({
+    adminOrganizations,
+    teamMemberOrganizations,
+    adminInvites,
+    teamMemberInvites,
+  });
 };
 
 export default function MyOrganizations() {
@@ -82,6 +95,7 @@ export default function MyOrganizations() {
             {t("cta")}
           </Button>
         </div>
+        {/* TODO: Invite Section */}
         {loaderData.teamMemberOrganizations.length > 0 ||
         loaderData.adminOrganizations.length > 0 ? (
           <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-2 @md:mv-px-4 @lg:mv-px-8 @sm:mv-py-2 @md:mv-py-4 @lg:mv-py-6 @sm:mv-gap-4 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">

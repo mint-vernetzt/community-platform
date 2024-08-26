@@ -281,3 +281,108 @@ export function flattenOrganizationRelations(
 
   return { adminOrganizations, teamMemberOrganizations };
 }
+// TODO: Get invites -> transaction of two queries -> getInvitesForProfile(sessionUser.id) -> returns {adminInvites, teamMemberInvites}
+// Select fields: slug, logo, name, organizationType
+export async function getOrganizationInvitesForProfile(id: string) {
+  const [adminInvites, teamMemberInvites] = await prismaClient.$transaction([
+    prismaClient.inviteForProfileToJoinOrganization.findMany({
+      select: {
+        profileId: true,
+        organizationId: true,
+        organization: {
+          select: {
+            slug: true,
+            name: true,
+            logo: true,
+            types: {
+              select: {
+                organizationType: {
+                  select: {
+                    title: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      where: {
+        profileId: id,
+        role: "admin",
+      },
+    }),
+    prismaClient.inviteForProfileToJoinOrganization.findMany({
+      select: {
+        profileId: true,
+        organizationId: true,
+        organization: {
+          select: {
+            slug: true,
+            name: true,
+            logo: true,
+            types: {
+              select: {
+                organizationType: {
+                  select: {
+                    title: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      where: {
+        profileId: id,
+        role: "member",
+      },
+    }),
+  ]);
+
+  return { adminInvites, teamMemberInvites };
+}
+
+export function addImageUrlToInvites(
+  authClient: SupabaseClient,
+  invites: Awaited<ReturnType<typeof getOrganizationInvitesForProfile>>
+) {
+  const adminInvites = invites.adminInvites.map((invite) => {
+    let logo = invite.organization.logo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+        });
+      }
+    }
+    return {
+      ...invite,
+      organization: {
+        ...invite.organization,
+        logo,
+      },
+    };
+  });
+
+  const teamMemberInvites = invites.teamMemberInvites.map((invite) => {
+    let logo = invite.organization.logo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: { type: "fill", width: 136, height: 136 },
+        });
+      }
+    }
+    return {
+      ...invite,
+      organization: {
+        ...invite.organization,
+        logo,
+      },
+    };
+  });
+
+  return { adminInvites, teamMemberInvites };
+}
