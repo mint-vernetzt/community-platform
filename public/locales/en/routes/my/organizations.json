@@ -15,10 +15,6 @@
         "tabbar": {
             "teamMember": "Team Member",
             "admin": "Admin"
-        },
-        "subline": {
-            "teamMember": "You are assigned to these organizations as a team member.",
-            "admin": "You are assigned to these organizations as an admin."
         }
     }
 }

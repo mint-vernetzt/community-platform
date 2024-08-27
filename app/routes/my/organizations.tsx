@@ -260,15 +260,6 @@ export default function MyOrganizations() {
                 );
               })}
             </TabBar>
-            {/* TODO: 
-              Ask design if this is intentional: mv-hidden @sm:mv-block
-              Its not the bahaviour of above section
-             */}
-            <p className="mv-hidden @sm:mv-block">
-              {activeOrganizationsTab === "teamMember"
-                ? t("organizations.subline.teamMember")
-                : t("organizations.subline.admin")}
-            </p>
             <div className="-mv-mx-4">
               {Object.entries(organizations).map(([key, value]) => {
                 return value.active && value.organizations.length > 0 ? (
