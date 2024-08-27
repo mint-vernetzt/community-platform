@@ -1,16 +1,3 @@
-import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import {
-  createAuthClient,
-  getSessionUserOrRedirectPathToLogin,
-} from "~/auth.server";
-import {
-  addImageUrlToInvites,
-  addImageUrlToOrganizations,
-  flattenOrganizationRelations,
-  getOrganizationInvitesForProfile,
-  getOrganizationsFromProfile,
-} from "./organizations.server";
-import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import {
   Avatar,
   Button,
@@ -18,10 +5,30 @@ import {
   OrganizationCard,
   TabBar,
 } from "@mint-vernetzt/components";
+import {
+  json,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
+import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import { extendSearchParams } from "~/lib/utils/searchParams";
+import {
+  addImageUrlToInvites,
+  addImageUrlToOrganizations,
+  flattenOrganizationRelations,
+  getOrganizationInvitesForProfile,
+  getOrganizationsFromProfile,
+} from "./organizations.server";
+import { parseWithZod } from "@conform-to/zod-v1";
 
 const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -58,6 +65,41 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     organizations: flattenedOrganizations,
     invites: enhancedInvites,
   });
+};
+
+const inviteSchema = z.object({
+  intent: z
+    .string()
+    .refine((intent) => intent === "accepted" || intent === "rejected", {
+      message: "Only accepted and rejected are valid intents.",
+    }),
+  organizationId: z.string().uuid(),
+});
+
+export const action = async (args: ActionFunctionArgs) => {
+  const { request } = args;
+  const { authClient } = createAuthClient(request);
+
+  const abilities = await getFeatureAbilities(authClient, "my_organizations");
+  if (abilities.my_organizations.hasAccess === false) {
+    return redirect("/");
+  }
+
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+
+  const formData = await request.formData();
+  const submission = parseWithZod(formData, { schema: inviteSchema });
+  if (submission.status !== "success") {
+    return json(submission.reply());
+  }
+
+  // TODO: Implement invite acceptance/rejection
+
+  return json({});
 };
 
 export default function MyOrganizations() {
@@ -115,8 +157,6 @@ export default function MyOrganizations() {
     },
   };
 
-  // TODO: Forms with action function
-
   return (
     <div className="mv-w-full mv-flex mv-justify-center">
       <div className="mv-w-full mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl">
@@ -144,10 +184,16 @@ export default function MyOrganizations() {
         invites.admin.invites.length > 0 ? (
           <section className="mv-py-6 @lg:mv-py-8 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
             <div className="mv-flex mv-flex-col mv-gap-2">
-              <h2 className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0">
+              <h2
+                id="invites-headline"
+                className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
+              >
                 {t("invites.headline")}
               </h2>
-              <p className="mv-text-sm mv-text-neutral-700">
+              <p
+                id="invites-subline"
+                className="mv-text-sm mv-text-neutral-700"
+              >
                 {t("invites.subline")}
               </p>
             </div>
@@ -168,7 +214,10 @@ export default function MyOrganizations() {
                       }}
                       preventScrollReset
                     >
-                      <div className="mv-flex mv-gap-1.5 mv-items-center">
+                      <div
+                        id={`tab-description-${key}`}
+                        className="mv-flex mv-gap-1.5 mv-items-center"
+                      >
                         <span>{t(`invites.tabbar.${key}`)}</span>
                         <TabBar.Counter active={value.active}>
                           {value.invites.length}
@@ -209,13 +258,38 @@ export default function MyOrganizations() {
                             </div>
                           </Link>
                           <Form
+                            id={`invite-form-${invite.organizationId}`}
                             method="post"
                             className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit"
                           >
-                            <Button variant="outline" fullSize>
+                            <input
+                              type="hidden"
+                              required
+                              readOnly
+                              name="organizationId"
+                              defaultValue={invite.organizationId}
+                            />
+                            <Button
+                              id={`reject-invite-${invite.organizationId}`}
+                              variant="outline"
+                              fullSize
+                              type="submit"
+                              name="intent"
+                              value="rejected"
+                              aria-describedby={`invites-headline tab-description-${key} reject-invite-${invite.organizationId} invites-subline`}
+                            >
                               {t("invites.decline")}
                             </Button>
-                            <Button fullSize>{t("invites.accept")}</Button>
+                            <Button
+                              id={`accept-invite-${invite.organizationId}`}
+                              fullSize
+                              type="submit"
+                              name="intent"
+                              value="accepted"
+                              aria-describedby={`invites-headline tab-description-${key} accept-invite-${invite.organizationId} invites-subline`}
+                            >
+                              {t("invites.accept")}
+                            </Button>
                           </Form>
                         </li>
                       );
