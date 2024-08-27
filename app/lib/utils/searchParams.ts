@@ -1,15 +1,15 @@
 export function extendSearchParams(
   params: URLSearchParams,
   options: {
-    set?: Record<string, string>;
+    addOrReplace?: Record<string, string>;
     remove?: string[];
   }
 ) {
-  const { set, remove } = options;
+  const { addOrReplace, remove } = options;
   const extendSearchParams = new URLSearchParams(params);
-  if (set) {
-    for (const key in set) {
-      extendSearchParams.set(key, set[key]);
+  if (addOrReplace) {
+    for (const key in addOrReplace) {
+      extendSearchParams.set(key, addOrReplace[key]);
     }
   }
   if (remove) {

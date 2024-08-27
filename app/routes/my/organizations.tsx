@@ -78,14 +78,14 @@ export default function MyOrganizations() {
       organizations: loaderData.organizations.teamMemberOrganizations,
       active: activeOrganizationsTab === "teamMember",
       searchParams: extendSearchParams(searchParams, {
-        set: { "organizations-tab": "teamMember" },
+        addOrReplace: { "organizations-tab": "teamMember" },
       }),
     },
     admin: {
       organizations: loaderData.organizations.adminOrganizations,
       active: activeOrganizationsTab === "admin",
       searchParams: extendSearchParams(searchParams, {
-        set: { "organizations-tab": "admin" },
+        addOrReplace: { "organizations-tab": "admin" },
       }),
     },
   };
@@ -103,14 +103,14 @@ export default function MyOrganizations() {
       invites: loaderData.invites.teamMemberInvites,
       active: activeInvitesTab === "teamMember",
       searchParams: extendSearchParams(searchParams, {
-        set: { "invites-tab": "teamMember" },
+        addOrReplace: { "invites-tab": "teamMember" },
       }),
     },
     admin: {
       invites: loaderData.invites.adminInvites,
       active: activeInvitesTab === "admin",
       searchParams: extendSearchParams(searchParams, {
-        set: { "invites-tab": "admin" },
+        addOrReplace: { "invites-tab": "admin" },
       }),
     },
   };
