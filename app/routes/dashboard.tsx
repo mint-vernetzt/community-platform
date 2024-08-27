@@ -466,7 +466,7 @@ function Dashboard() {
                 )}
               </div>
               <div className="mv-flex-1 mv-text-primary">
-                <h3 className="mv-font-bold mv-text-2xl mv-mb-2 leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+                <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
                   {t("content.invites.headline", {
                     count: loaderData.organizationsFromInvites.length,
                   })}
