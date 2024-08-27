@@ -9,7 +9,8 @@
             "admin": "Admin"
         },
         "decline": "Ablehnen",
-        "accept": "Annehmen"
+        "accept": "Annehmen",
+        "more": "{{count}} weitere anzeigen"
     },
     "organizations": {
         "tabbar": {

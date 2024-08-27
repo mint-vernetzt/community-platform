@@ -36,6 +36,7 @@ import {
   sendOrganizationInviteUpdatedEmail,
   updateOrganizationInvite,
 } from "./organizations.server";
+import { Icon } from "../__components";
 
 const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -259,84 +260,117 @@ export default function MyOrganizations() {
                 );
               })}
             </TabBar>
-            <ul className="mv-flex mv-flex-col mv-gap-4">
-              {Object.entries(invites).map(([key, value]) => {
-                return value.active && value.invites.length > 0
-                  ? value.invites.map((invite) => {
-                      return (
-                        <li
-                          key={`${key}-invite-${invite.organizationId}`}
-                          className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center"
+
+            {Object.entries(invites).map(([key, value]) => {
+              return value.active && value.invites.length > 0 ? (
+                <ul
+                  key={`${key}-list`}
+                  className="mv-flex mv-flex-col mv-gap-4 mv-group"
+                >
+                  {value.invites.map((invite, index) => {
+                    return (
+                      <li
+                        key={`${key}-invite-${invite.organizationId}`}
+                        className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center ${
+                          index > 2
+                            ? "mv-hidden group-has-[:checked]:mv-flex"
+                            : "mv-flex"
+                        }`}
+                      >
+                        <Link
+                          to={`/organization/${invite.organization.slug}`}
+                          className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
                         >
-                          <Link
-                            to={`/organization/${invite.organization.slug}`}
-                            className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
+                          <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
+                            <Avatar size="full" {...invite.organization} />
+                          </div>
+                          <div>
+                            <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
+                              {invite.organization.name}
+                            </p>
+                            <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
+                              {invite.organization.types
+                                .map((relation) => {
+                                  return relation.organizationType.title;
+                                })
+                                .join(", ")}
+                            </p>
+                          </div>
+                        </Link>
+                        <Form
+                          id={`invite-form-${invite.organizationId}`}
+                          method="post"
+                          className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit"
+                        >
+                          <input
+                            type="hidden"
+                            required
+                            readOnly
+                            name="organizationId"
+                            defaultValue={invite.organizationId}
+                          />
+                          <input
+                            type="hidden"
+                            required
+                            readOnly
+                            name="role"
+                            defaultValue={
+                              key === "teamMember" ? "member" : "admin"
+                            }
+                          />
+                          <Button
+                            id={`reject-invite-${invite.organizationId}`}
+                            variant="outline"
+                            fullSize
+                            type="submit"
+                            name="intent"
+                            value="rejected"
+                            aria-describedby={`invites-headline tab-description-${key} reject-invite-${invite.organizationId} invites-subline`}
                           >
-                            <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
-                              <Avatar size="full" {...invite.organization} />
-                            </div>
-                            <div>
-                              <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
-                                {invite.organization.name}
-                              </p>
-                              <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
-                                {invite.organization.types
-                                  .map((relation) => {
-                                    return relation.organizationType.title;
-                                  })
-                                  .join(", ")}
-                              </p>
-                            </div>
-                          </Link>
-                          <Form
-                            id={`invite-form-${invite.organizationId}`}
-                            method="post"
-                            className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit"
+                            {t("invites.decline")}
+                          </Button>
+                          <Button
+                            id={`accept-invite-${invite.organizationId}`}
+                            fullSize
+                            type="submit"
+                            name="intent"
+                            value="accepted"
+                            aria-describedby={`invites-headline tab-description-${key} accept-invite-${invite.organizationId} invites-subline`}
                           >
-                            <input
-                              type="hidden"
-                              required
-                              readOnly
-                              name="organizationId"
-                              defaultValue={invite.organizationId}
-                            />
-                            <input
-                              type="hidden"
-                              required
-                              readOnly
-                              name="role"
-                              defaultValue={
-                                key === "teamMember" ? "member" : "admin"
-                              }
-                            />
-                            <Button
-                              id={`reject-invite-${invite.organizationId}`}
-                              variant="outline"
-                              fullSize
-                              type="submit"
-                              name="intent"
-                              value="rejected"
-                              aria-describedby={`invites-headline tab-description-${key} reject-invite-${invite.organizationId} invites-subline`}
-                            >
-                              {t("invites.decline")}
-                            </Button>
-                            <Button
-                              id={`accept-invite-${invite.organizationId}`}
-                              fullSize
-                              type="submit"
-                              name="intent"
-                              value="accepted"
-                              aria-describedby={`invites-headline tab-description-${key} accept-invite-${invite.organizationId} invites-subline`}
-                            >
-                              {t("invites.accept")}
-                            </Button>
-                          </Form>
-                        </li>
-                      );
-                    })
-                  : null;
-              })}
-            </ul>
+                            {t("invites.accept")}
+                          </Button>
+                        </Form>
+                      </li>
+                    );
+                  })}
+                  {value.invites.length > 3 ? (
+                    <div
+                      key={`show-more-${key}-invites`}
+                      className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
+                    >
+                      <label
+                        htmlFor={`show-more-${key}-invites`}
+                        className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
+                      >
+                        <div>
+                          {t("invites.more", {
+                            count: value.invites.length - 3,
+                          })}
+                        </div>
+                        <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
+                          <Icon type="chevron-right" />
+                        </div>
+                      </label>
+                      <input
+                        id={`show-more-${key}-invites`}
+                        type="checkbox"
+                        className="mv-w-0 mv-h-0 mv-opacity-0"
+                      />
+                    </div>
+                  ) : null}
+                </ul>
+              ) : null;
+            })}
           </section>
         ) : null}
         {organizations.teamMember.organizations.length > 0 ||

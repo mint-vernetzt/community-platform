@@ -313,6 +313,11 @@ export async function getOrganizationInvitesForProfile(id: string) {
         role: "admin",
         status: "pending",
       },
+      orderBy: {
+        organization: {
+          name: "asc",
+        },
+      },
     }),
     prismaClient.inviteForProfileToJoinOrganization.findMany({
       select: {
@@ -339,6 +344,11 @@ export async function getOrganizationInvitesForProfile(id: string) {
         profileId: id,
         role: "member",
         status: "pending",
+      },
+      orderBy: {
+        organization: {
+          name: "asc",
+        },
       },
     }),
   ]);
