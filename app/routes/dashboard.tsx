@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Button,
   CardContainer,
   EventCard,
@@ -26,6 +27,7 @@ import {
   enhanceEventsWithParticipationStatus,
   getEventsForCards,
   getOrganizationsForCards,
+  getOrganizationsFromInvites,
   getProfileById,
   getProfilesForCards,
   getProjectsForCards,
@@ -36,6 +38,7 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/dashboard"];
 export const handle = {
@@ -63,6 +66,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (profile === null) {
     throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
+
+  const abilities = await getFeatureAbilities(authClient, [
+    "add-to-organization",
+    "my_organizations",
+  ]);
 
   const numberOfProfiles = 4;
   const profileTake = numberOfProfiles;
@@ -306,6 +314,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     projects: await getProjectCount(),
   };
 
+  const organizationsFromInvites = await getOrganizationsFromInvites(
+    authClient,
+    sessionUser.id
+  );
+
   return json({
     communityCounter,
     profiles,
@@ -315,6 +328,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     firstName: profile.firstName,
     lastName: profile.lastName,
     username: profile.username,
+    organizationsFromInvites,
+    abilities,
   });
 };
 
@@ -424,6 +439,48 @@ function Dashboard() {
           </ul>
         </div>
       </section>
+      {loaderData.abilities["add-to-organization"].hasAccess &&
+        loaderData.abilities["my_organizations"].hasAccess &&
+        loaderData.organizationsFromInvites.length > 0 && (
+          <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+            <div className="mv-flex mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
+              <div className="mv-flex mv-items-center mv-gap-2">
+                <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+                  {loaderData.organizationsFromInvites
+                    .slice(0, 3)
+                    .map((organization) => {
+                      return (
+                        <div
+                          key={organization.name}
+                          className="mv-w-[73px] mv-h-[73px]"
+                        >
+                          <Avatar size="full" {...organization} />
+                        </div>
+                      );
+                    })}
+                </div>
+                {loaderData.organizationsFromInvites.length > 3 && (
+                  <div className="mv-text-2xl mv-font-semibold mv-text-primary">
+                    +{loaderData.organizationsFromInvites.length - 3}
+                  </div>
+                )}
+              </div>
+              <div className="mv-flex-1 mv-text-primary">
+                <h3 className="mv-font-bold mv-text-2xl mv-mb-2 leading-[1.625rem]">
+                  {t("content.invites.headline", {
+                    count: loaderData.organizationsFromInvites.length,
+                  })}
+                </h3>
+                <p className="mv-text-normal mv-text-sm">
+                  {t("content.invites.description")}
+                </p>
+              </div>
+              <Button as="a" href="/my/organizations">
+                {t("content.invites.linkDescription")}
+              </Button>
+            </div>
+          </section>
+        )}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         {/* <section className="mv-w-full mv-mx-auto mv-mb-8 mv-max-w-[600px] @md:mv-max-w-screen-container-md @lg:mv-max-w-[1120px]"> */}
         {/* <section className="mv-w-full mv-mx-auto mv-max-w-[600px] @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-[1563px] mv-mb-16"> */}

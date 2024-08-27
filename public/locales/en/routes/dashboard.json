@@ -38,6 +38,12 @@
         "description": "Highlights from educational research",
         "linkDescription": "To MesH_MINT"
       }
+    },
+    "invites": {
+      "headline_one": "You have received {{count}} open invitation.",
+      "headline_other": "You have received {{count}} open invitations.",
+      "description": "Answer the request and become visible as a team member of the organization.",
+      "linkDescription": "To my organizations"
     }
   }
 }
