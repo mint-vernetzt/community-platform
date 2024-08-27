@@ -1,3 +1,4 @@
+import { parseWithZod } from "@conform-to/zod-v1";
 import {
   Avatar,
   Button,
@@ -12,23 +13,29 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import i18next from "~/i18next.server";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
+import { redirectWithAlert } from "~/alert.server";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
+import { detectLanguage } from "~/root.server";
 import {
   addImageUrlToInvites,
   addImageUrlToOrganizations,
   flattenOrganizationRelations,
   getOrganizationInvitesForProfile,
   getOrganizationsFromProfile,
+  getPendingOrganizationInvite,
+  sendOrganizationInviteUpdatedEmail,
+  updateOrganizationInvite,
 } from "./organizations.server";
-import { parseWithZod } from "@conform-to/zod-v1";
 
 const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -74,10 +81,17 @@ const inviteSchema = z.object({
       message: "Only accepted and rejected are valid intents.",
     }),
   organizationId: z.string().uuid(),
+  role: z.string().refine((role) => role === "admin" || role === "member", {
+    message: "Only admin and member are valid roles.",
+  }),
 });
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   const { authClient } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, "my_organizations");
@@ -97,9 +111,26 @@ export const action = async (args: ActionFunctionArgs) => {
     return json(submission.reply());
   }
 
-  // TODO: Implement invite acceptance/rejection
+  const pendingInvite = await getPendingOrganizationInvite(
+    submission.value.organizationId,
+    sessionUser.id,
+    submission.value.role
+  );
+  invariantResponse(pendingInvite !== null, "Pending invite not found.", {
+    status: 404,
+  });
 
-  return json({});
+  const invite = await updateOrganizationInvite({
+    profileId: sessionUser.id,
+    ...submission.value,
+  });
+  await sendOrganizationInviteUpdatedEmail(submission.value.intent, invite);
+  return redirectWithAlert(".", {
+    level: submission.value.intent === "accepted" ? "positive" : "negative",
+    message: `${t(`alerts.${submission.value.intent}`, {
+      organization: invite.organization.name,
+    })}`,
+  });
 };
 
 export default function MyOrganizations() {
@@ -268,6 +299,15 @@ export default function MyOrganizations() {
                               readOnly
                               name="organizationId"
                               defaultValue={invite.organizationId}
+                            />
+                            <input
+                              type="hidden"
+                              required
+                              readOnly
+                              name="role"
+                              defaultValue={
+                                key === "teamMember" ? "member" : "admin"
+                              }
                             />
                             <Button
                               id={`reject-invite-${invite.organizationId}`}

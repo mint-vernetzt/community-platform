@@ -16,5 +16,9 @@
             "teamMember": "Teammitglied",
             "admin": "Admin"
         }
+    },
+    "alerts": {
+        "accepted": "Du bist erfolgreich der Organisation {{organization}} beigetreten.",
+        "rejected": "Du hast den Beitritt zur Organisation {{organization}} abgelehnt."
     }
 }

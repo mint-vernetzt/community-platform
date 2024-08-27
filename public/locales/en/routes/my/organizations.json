@@ -16,5 +16,9 @@
             "teamMember": "Team Member",
             "admin": "Admin"
         }
+    },
+    "alerts": {
+        "accepted": "You have successfully joined the {{organization}} organization.",
+        "rejected": "You have declined to join the {{organization}} organization."
     }
 }
