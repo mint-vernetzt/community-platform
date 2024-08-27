@@ -1,5 +1,7 @@
-import { type User } from "@supabase/supabase-js";
+import { SupabaseClient, type User } from "@supabase/supabase-js";
+import { getImageURL, GravityType } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
 
 export async function getProfileById(id: string) {
   const profile = await prismaClient.profile.findUnique({
@@ -263,4 +265,50 @@ export async function enhanceEventsWithParticipationStatus(
     });
     return enhancedEvents;
   }
+}
+
+export async function getOrganizationsFromInvites(
+  authClient: SupabaseClient,
+  profileId: string
+) {
+  const organizations =
+    await prismaClient.inviteForProfileToJoinOrganization.findMany({
+      where: {
+        profileId,
+        status: "pending",
+      },
+      select: {
+        organization: {
+          select: {
+            name: true,
+            logo: true,
+          },
+        },
+      },
+    });
+
+  const enhancedOrganizations = organizations.map((relation) => {
+    if (relation.organization.logo !== null) {
+      const publicURL = getPublicURL(authClient, relation.organization.logo);
+      if (publicURL !== null) {
+        const logo = getImageURL(publicURL, {
+          resize: { type: "fill", width: 73, height: 73 },
+          gravity: GravityType.center,
+        });
+        return {
+          ...relation,
+          organization: { ...relation.organization, logo },
+        };
+      }
+    }
+    return relation;
+  });
+
+  const flat = enhancedOrganizations.map((relation) => {
+    return {
+      ...relation.organization,
+    };
+  });
+
+  return flat;
 }
