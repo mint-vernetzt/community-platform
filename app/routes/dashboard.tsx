@@ -443,7 +443,7 @@ function Dashboard() {
         loaderData.abilities["my_organizations"].hasAccess &&
         loaderData.organizationsFromInvites.length > 0 && (
           <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-            <div className="mv-flex mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
+            <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
               <div className="mv-flex mv-items-center mv-gap-2">
                 <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
                   {loaderData.organizationsFromInvites
@@ -466,7 +466,7 @@ function Dashboard() {
                 )}
               </div>
               <div className="mv-flex-1 mv-text-primary">
-                <h3 className="mv-font-bold mv-text-2xl mv-mb-2 leading-[1.625rem]">
+                <h3 className="mv-font-bold mv-text-2xl mv-mb-2 leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
                   {t("content.invites.headline", {
                     count: loaderData.organizationsFromInvites.length,
                   })}
