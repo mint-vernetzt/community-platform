@@ -227,11 +227,7 @@ export default function MyOrganizations() {
         ) : null}
         {organizations.teamMember.organizations.length > 0 ||
         organizations.admin.organizations.length > 0 ? (
-          // TODO:
-          // Ask design if this is intentional: section has py-6 and px-8 on lg -> section above has py-8 and px-6 on lg
-          // Its not the bahaviour of above section
-
-          <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-2 @md:mv-px-4 @lg:mv-px-8 @sm:mv-py-2 @md:mv-py-4 @lg:mv-py-6 @sm:mv-gap-4 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">
+          <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-4 @lg:mv-px-6 @sm:mv-py-6 @lg:mv-py-8 @sm:mv-gap-4 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">
             <TabBar>
               {Object.entries(organizations).map(([key, value]) => {
                 return (
