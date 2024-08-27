@@ -40,8 +40,8 @@
       }
     },
     "invites": {
-      "headline_one": "You have received {{count}} open invitation.",
-      "headline_other": "You have received {{count}} open invitations.",
+      "headline_one": "You have received {{count}} invitation.",
+      "headline_other": "You have received {{count}} invitations.",
       "description": "Answer the request and become visible as a team member of the organization.",
       "linkDescription": "To my organizations"
     }

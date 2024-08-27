@@ -40,8 +40,8 @@
       }
     },
     "invites": {
-      "headline_one": "Du hast {{count}} offene Einladung erhalten.",
-      "headline_other": "Du hast {{count}} offene Einladungen erhalten.",
+      "headline_one": "Du hast {{count}} offene Einladung.",
+      "headline_other": "Du hast {{count}} offene Einladungen.",
       "description": "Beantworte die Anfrage und werde damit als Teammitglied der Organisation sichtbar.",
       "linkDescription": "Zu meinen Organisationen"
     }
