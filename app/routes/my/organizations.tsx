@@ -12,7 +12,12 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "@remix-run/node";
-import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import i18next from "~/i18next.server";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -138,7 +143,9 @@ export default function MyOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
   const { t } = useTranslation(i18nNS);
   const [searchParams] = useSearchParams();
+  const inviteFetcher = useFetcher();
 
+  // SearchParams as fallback when javascript is disabled (See <Links> in <TabBar>)
   const [activeOrganizationsTab, setActiveOrganizationsTab] = useState(
     searchParams.get("organizations-tab") !== null &&
       searchParams.get("organizations-tab") !== ""
@@ -189,18 +196,47 @@ export default function MyOrganizations() {
     },
   };
 
+  // Effect to change tab after action when there are no more invites in the current tab
   React.useEffect(() => {
-    if (loaderData.invites.teamMemberInvites.length > 0) {
-      setActiveInvitesTab("teamMember");
-    } else {
-      setActiveInvitesTab("admin");
+    if (
+      loaderData.invites.adminInvites.length === 0 ||
+      loaderData.invites.teamMemberInvites.length === 0
+    ) {
+      if (loaderData.invites.teamMemberInvites.length > 0) {
+        setActiveInvitesTab("teamMember");
+      } else {
+        setActiveInvitesTab("admin");
+      }
     }
-    if (loaderData.organizations.teamMemberOrganizations.length > 0) {
-      setActiveOrganizationsTab("teamMember");
-    } else {
-      setActiveOrganizationsTab("admin");
+    if (
+      loaderData.organizations.adminOrganizations.length === 0 ||
+      loaderData.organizations.teamMemberOrganizations.length === 0
+    ) {
+      if (loaderData.organizations.teamMemberOrganizations.length > 0) {
+        setActiveOrganizationsTab("teamMember");
+      } else {
+        setActiveOrganizationsTab("admin");
+      }
     }
   }, [loaderData]);
+
+  // Optimistic UI
+  if (inviteFetcher.formData?.has("intent")) {
+    const organizationId = inviteFetcher.formData.get("organizationId");
+    if (inviteFetcher.formData.get("role") === "admin") {
+      loaderData.invites.adminInvites = loaderData.invites.adminInvites.filter(
+        (invite) => {
+          return invite.organizationId !== organizationId;
+        }
+      );
+    }
+    if (inviteFetcher.formData.get("role") === "member") {
+      loaderData.invites.teamMemberInvites =
+        loaderData.invites.teamMemberInvites.filter((invite) => {
+          return invite.organizationId !== organizationId;
+        });
+    }
+  }
 
   return (
     <div className="mv-w-full mv-flex mv-justify-center">
@@ -310,7 +346,7 @@ export default function MyOrganizations() {
                             </p>
                           </div>
                         </Link>
-                        <Form
+                        <inviteFetcher.Form
                           id={`invite-form-${invite.organizationId}`}
                           method="post"
                           className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit"
@@ -352,7 +388,7 @@ export default function MyOrganizations() {
                           >
                             {t("invites.accept")}
                           </Button>
-                        </Form>
+                        </inviteFetcher.Form>
                       </li>
                     );
                   })}
