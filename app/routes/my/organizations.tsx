@@ -214,7 +214,7 @@ export default function MyOrganizations() {
         </div>
         {invites.teamMember.invites.length > 0 ||
         invites.admin.invites.length > 0 ? (
-          <section className="mv-py-6 @lg:mv-py-8 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
+          <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
             <div className="mv-flex mv-flex-col mv-gap-2">
               <h2
                 id="invites-headline"
@@ -375,7 +375,7 @@ export default function MyOrganizations() {
         ) : null}
         {organizations.teamMember.organizations.length > 0 ||
         organizations.admin.organizations.length > 0 ? (
-          <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-4 @lg:mv-px-6 @sm:mv-py-6 @lg:mv-py-8 @sm:mv-gap-4 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">
+          <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-4 @lg:mv-px-6 @sm:mv-py-6 @sm:mv-gap-6 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">
             <TabBar>
               {Object.entries(organizations).map(([key, value]) => {
                 return (

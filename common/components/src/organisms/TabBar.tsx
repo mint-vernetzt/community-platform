@@ -38,7 +38,7 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
   );
 
   const spanClasses = classNames(
-    "mv-mt-2 mv-mb-3 mv-p-2 mv-block",
+    "mv-mb-3 mv-p-2 mv-block",
     !disabled &&
       !active &&
       "hover:mv-bg-neutral-100 hover:mv-rounded-lg mv-text-neutral-500 hover:mv-text-neutral-600"
