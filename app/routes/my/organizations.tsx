@@ -342,14 +342,16 @@ export default function MyOrganizations() {
                                 .map((relation) => {
                                   return relation.organizationType.title;
                                 })
-                                .join(", ")}
+                                .join(", ")}{" "}
+                              really really really really really really long
+                              text
                             </p>
                           </div>
                         </Link>
                         <inviteFetcher.Form
                           id={`invite-form-${invite.organizationId}`}
                           method="post"
-                          className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit"
+                          className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
                         >
                           <input
                             type="hidden"
