@@ -1,12 +1,25 @@
 {
     "headline": "My Organizations",
     "cta": "Create Organization",
-    "tabbar": {
-        "teamMember": "Team Member",
-        "admin": "Admin"
+    "invites": {
+        "headline": "Invites",
+        "subline": "An admin will be notified as soon as you respond to the invitation.",
+        "tabbar": {
+            "teamMember": "Team Member",
+            "admin": "Admin"
+        },
+        "decline": "Decline",
+        "accept": "Accept",
+        "more": "Show {{count}} more"
     },
-    "subline": {
-        "teamMember": "You are assigned to these organizations as a team member.",
-        "admin": "You are assigned to these organizations as an admin."
+    "organizations": {
+        "tabbar": {
+            "teamMember": "Team Member",
+            "admin": "Admin"
+        }
+    },
+    "alerts": {
+        "accepted": "You have successfully joined the {{organization}} organization.",
+        "rejected": "You have declined to join the {{organization}} organization."
     }
 }

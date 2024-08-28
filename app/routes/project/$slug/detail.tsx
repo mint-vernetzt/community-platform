@@ -395,7 +395,7 @@ function ProjectDetail() {
         id="tab-bar-container"
         className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-overflow-hidden mv-mb-24"
       >
-        <div className="@md:mv-flex @xl:mv-justify-center">
+        <div className="@md:mv-flex @xl:mv-justify-center mv-mt-6">
           <div className="mv-flex mv-flex-col mv-gap-8 @xl:mv-w-2/3">
             <TabBar>
               <TabBar.Item active={pathname.endsWith("/about")}>

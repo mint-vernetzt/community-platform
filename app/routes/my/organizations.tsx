@@ -1,30 +1,54 @@
-import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { parseWithZod } from "@conform-to/zod-v1";
 import {
-  createAuthClient,
-  getSessionUserOrRedirectPathToLogin,
-} from "~/auth.server";
-import {
-  addImageUrlToOrganizations,
-  flattenOrganizationRelations,
-  getOrganizationsFromProfile,
-} from "./organizations.server";
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
-import {
+  Avatar,
   Button,
   CardContainer,
   OrganizationCard,
   TabBar,
 } from "@mint-vernetzt/components";
-import { useState } from "react";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import {
+  json,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
+import i18next from "~/i18next.server";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
+import { redirectWithAlert } from "~/alert.server";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
+import { extendSearchParams } from "~/lib/utils/searchParams";
+import { detectLanguage } from "~/root.server";
+import {
+  addImageUrlToInvites,
+  addImageUrlToOrganizations,
+  flattenOrganizationRelations,
+  getOrganizationInvitesForProfile,
+  getOrganizationsFromProfile,
+  getPendingOrganizationInvite,
+  sendOrganizationInviteUpdatedEmail,
+  updateOrganizationInvite,
+} from "./organizations.server";
+import { Icon } from "../__components";
 
 const i18nNS = ["routes/my/organizations"];
 export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, "my_organizations");
@@ -43,25 +67,180 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     authClient,
     organizations
   );
-  const { adminOrganizations, teamMemberOrganizations } =
-    flattenOrganizationRelations(enhancedOrganizations);
+  const flattenedOrganizations = flattenOrganizationRelations(
+    enhancedOrganizations
+  );
 
-  return json({ adminOrganizations, teamMemberOrganizations });
+  const invites = await getOrganizationInvitesForProfile(sessionUser.id);
+  const enhancedInvites = addImageUrlToInvites(authClient, invites);
+
+  return json({
+    organizations: flattenedOrganizations,
+    invites: enhancedInvites,
+  });
+};
+
+const inviteSchema = z.object({
+  intent: z
+    .string()
+    .refine((intent) => intent === "accepted" || intent === "rejected", {
+      message: "Only accepted and rejected are valid intents.",
+    }),
+  organizationId: z.string().uuid(),
+  role: z.string().refine((role) => role === "admin" || role === "member", {
+    message: "Only admin and member are valid roles.",
+  }),
+});
+
+export const action = async (args: ActionFunctionArgs) => {
+  const { request } = args;
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
+  const { authClient } = createAuthClient(request);
+
+  const abilities = await getFeatureAbilities(authClient, "my_organizations");
+  if (abilities.my_organizations.hasAccess === false) {
+    return redirect("/");
+  }
+
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+
+  const formData = await request.formData();
+  const submission = parseWithZod(formData, { schema: inviteSchema });
+  if (submission.status !== "success") {
+    return json(submission.reply());
+  }
+
+  const pendingInvite = await getPendingOrganizationInvite(
+    submission.value.organizationId,
+    sessionUser.id,
+    submission.value.role
+  );
+  invariantResponse(pendingInvite !== null, "Pending invite not found.", {
+    status: 404,
+  });
+
+  const invite = await updateOrganizationInvite({
+    profileId: sessionUser.id,
+    ...submission.value,
+  });
+  await sendOrganizationInviteUpdatedEmail(submission.value.intent, invite);
+  return redirectWithAlert(".", {
+    level: submission.value.intent === "accepted" ? "positive" : "negative",
+    message: `${t(`alerts.${submission.value.intent}`, {
+      organization: invite.organization.name,
+    })}`,
+  });
 };
 
 export default function MyOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(i18nNS);
   const [searchParams] = useSearchParams();
-  const [activeItem, setActiveItem] = useState(
-    searchParams.get("tab") || loaderData.teamMemberOrganizations.length > 0
+  const inviteFetcher = useFetcher();
+
+  // SearchParams as fallback when javascript is disabled (See <Links> in <TabBar>)
+  const [activeOrganizationsTab, setActiveOrganizationsTab] = useState(
+    searchParams.get("organizations-tab") !== null &&
+      searchParams.get("organizations-tab") !== ""
+      ? searchParams.get("organizations-tab")
+      : loaderData.organizations.teamMemberOrganizations.length > 0
       ? "teamMember"
       : "admin"
   );
-  const { t } = useTranslation(i18nNS);
+  const organizations = {
+    teamMember: {
+      organizations: loaderData.organizations.teamMemberOrganizations,
+      active: activeOrganizationsTab === "teamMember",
+      searchParams: extendSearchParams(searchParams, {
+        addOrReplace: { "organizations-tab": "teamMember" },
+      }),
+    },
+    admin: {
+      organizations: loaderData.organizations.adminOrganizations,
+      active: activeOrganizationsTab === "admin",
+      searchParams: extendSearchParams(searchParams, {
+        addOrReplace: { "organizations-tab": "admin" },
+      }),
+    },
+  };
+
+  const [activeInvitesTab, setActiveInvitesTab] = useState(
+    searchParams.get("invites-tab") !== null &&
+      searchParams.get("invites-tab") !== ""
+      ? searchParams.get("invites-tab")
+      : loaderData.invites.teamMemberInvites.length > 0
+      ? "teamMember"
+      : "admin"
+  );
+  const invites = {
+    teamMember: {
+      invites: loaderData.invites.teamMemberInvites,
+      active: activeInvitesTab === "teamMember",
+      searchParams: extendSearchParams(searchParams, {
+        addOrReplace: { "invites-tab": "teamMember" },
+      }),
+    },
+    admin: {
+      invites: loaderData.invites.adminInvites,
+      active: activeInvitesTab === "admin",
+      searchParams: extendSearchParams(searchParams, {
+        addOrReplace: { "invites-tab": "admin" },
+      }),
+    },
+  };
+
+  // Effect to change tab after action when there are no more invites in the current tab
+  React.useEffect(() => {
+    if (
+      loaderData.invites.adminInvites.length === 0 ||
+      loaderData.invites.teamMemberInvites.length === 0
+    ) {
+      if (loaderData.invites.teamMemberInvites.length > 0) {
+        setActiveInvitesTab("teamMember");
+      } else {
+        setActiveInvitesTab("admin");
+      }
+    }
+    if (
+      loaderData.organizations.adminOrganizations.length === 0 ||
+      loaderData.organizations.teamMemberOrganizations.length === 0
+    ) {
+      if (loaderData.organizations.teamMemberOrganizations.length > 0) {
+        setActiveOrganizationsTab("teamMember");
+      } else {
+        setActiveOrganizationsTab("admin");
+      }
+    }
+  }, [loaderData]);
+
+  // Optimistic UI
+  if (inviteFetcher.formData?.has("intent")) {
+    const organizationId = inviteFetcher.formData.get("organizationId");
+    if (inviteFetcher.formData.get("role") === "admin") {
+      loaderData.invites.adminInvites = loaderData.invites.adminInvites.filter(
+        (invite) => {
+          return invite.organizationId !== organizationId;
+        }
+      );
+    }
+    if (inviteFetcher.formData.get("role") === "member") {
+      loaderData.invites.teamMemberInvites =
+        loaderData.invites.teamMemberInvites.filter((invite) => {
+          return invite.organizationId !== organizationId;
+        });
+    }
+  }
 
   return (
     <div className="mv-w-full mv-flex mv-justify-center">
-      <div className="mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl">
+      <div className="mv-w-full mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl">
         <div className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 @md:mv-gap-6 @lg:mv-gap-8 mv-items-center mv-justify-between">
           <h1 className="mv-mb-0 mv-text-5xl mv-text-primary mv-font-bold mv-leading-9">
             {t("headline")}
@@ -82,83 +261,213 @@ export default function MyOrganizations() {
             {t("cta")}
           </Button>
         </div>
-        {loaderData.teamMemberOrganizations.length > 0 ||
-        loaderData.adminOrganizations.length > 0 ? (
-          <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-2 @md:mv-px-4 @lg:mv-px-8 @sm:mv-py-2 @md:mv-py-4 @lg:mv-py-6 @sm:mv-gap-4 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">
+        {invites.teamMember.invites.length > 0 ||
+        invites.admin.invites.length > 0 ? (
+          <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <h2
+                id="invites-headline"
+                className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
+              >
+                {t("invites.headline")}
+              </h2>
+              <p
+                id="invites-subline"
+                className="mv-text-sm mv-text-neutral-700"
+              >
+                {t("invites.subline")}
+              </p>
+            </div>
             <TabBar>
-              <TabBar.Item
-                active={activeItem === "teamMember"}
-                disabled={loaderData.teamMemberOrganizations.length === 0}
-              >
-                <Link
-                  to="?tab=teamMember"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setActiveItem("teamMember");
-                    return;
-                  }}
-                >
-                  <div className="mv-flex mv-gap-1.5 mv-items-center">
-                    <span>{t("tabbar.teamMember")}</span>
-                    <TabBar.Counter active={activeItem === "teamMember"}>
-                      {loaderData.teamMemberOrganizations.length}
-                    </TabBar.Counter>
-                  </div>
-                </Link>
-              </TabBar.Item>
-              <TabBar.Item
-                active={activeItem === "admin"}
-                disabled={loaderData.adminOrganizations.length === 0}
-              >
-                <Link
-                  to="?tab=admin"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setActiveItem("admin");
-                    return;
-                  }}
-                >
-                  <div className="mv-flex mv-gap-1.5 mv-items-center">
-                    <span>{t("tabbar.admin")}</span>
-                    <TabBar.Counter active={activeItem === "admin"}>
-                      {loaderData.adminOrganizations.length}
-                    </TabBar.Counter>
-                  </div>
-                </Link>
-              </TabBar.Item>
+              {Object.entries(invites).map(([key, value]) => {
+                return (
+                  <TabBar.Item
+                    key={`${key}-invites-tab`}
+                    active={value.active}
+                    disabled={value.invites.length === 0}
+                  >
+                    <Link
+                      to={`?${value.searchParams.toString()}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        setActiveInvitesTab(key);
+                        return;
+                      }}
+                      preventScrollReset
+                    >
+                      <div
+                        id={`tab-description-${key}`}
+                        className="mv-flex mv-gap-1.5 mv-items-center"
+                      >
+                        <span>{t(`invites.tabbar.${key}`)}</span>
+                        <TabBar.Counter active={value.active}>
+                          {value.invites.length}
+                        </TabBar.Counter>
+                      </div>
+                    </Link>
+                  </TabBar.Item>
+                );
+              })}
             </TabBar>
-            <p className="mv-hidden @sm:mv-block">
-              {activeItem === "teamMember"
-                ? t("subline.teamMember")
-                : t("subline.admin")}
-            </p>
+
+            {Object.entries(invites).map(([key, value]) => {
+              return value.active && value.invites.length > 0 ? (
+                <ul
+                  key={`${key}-list`}
+                  className="mv-flex mv-flex-col mv-gap-4 mv-group"
+                >
+                  {value.invites.map((invite, index) => {
+                    return (
+                      <li
+                        key={`${key}-invite-${invite.organizationId}`}
+                        className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center ${
+                          index > 2
+                            ? "mv-hidden group-has-[:checked]:mv-flex"
+                            : "mv-flex"
+                        }`}
+                      >
+                        <Link
+                          to={`/organization/${invite.organization.slug}`}
+                          className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
+                        >
+                          <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
+                            <Avatar size="full" {...invite.organization} />
+                          </div>
+                          <div>
+                            <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
+                              {invite.organization.name}
+                            </p>
+                            <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
+                              {invite.organization.types
+                                .map((relation) => {
+                                  return relation.organizationType.title;
+                                })
+                                .join(", ")}
+                            </p>
+                          </div>
+                        </Link>
+                        <inviteFetcher.Form
+                          id={`invite-form-${invite.organizationId}`}
+                          method="post"
+                          className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
+                        >
+                          <input
+                            type="hidden"
+                            required
+                            readOnly
+                            name="organizationId"
+                            defaultValue={invite.organizationId}
+                          />
+                          <input
+                            type="hidden"
+                            required
+                            readOnly
+                            name="role"
+                            defaultValue={
+                              key === "teamMember" ? "member" : "admin"
+                            }
+                          />
+                          <Button
+                            id={`reject-invite-${invite.organizationId}`}
+                            variant="outline"
+                            fullSize
+                            type="submit"
+                            name="intent"
+                            value="rejected"
+                            aria-describedby={`invites-headline tab-description-${key} reject-invite-${invite.organizationId} invites-subline`}
+                          >
+                            {t("invites.decline")}
+                          </Button>
+                          <Button
+                            id={`accept-invite-${invite.organizationId}`}
+                            fullSize
+                            type="submit"
+                            name="intent"
+                            value="accepted"
+                            aria-describedby={`invites-headline tab-description-${key} accept-invite-${invite.organizationId} invites-subline`}
+                          >
+                            {t("invites.accept")}
+                          </Button>
+                        </inviteFetcher.Form>
+                      </li>
+                    );
+                  })}
+                  {value.invites.length > 3 ? (
+                    <div
+                      key={`show-more-${key}-invites`}
+                      className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
+                    >
+                      <label
+                        htmlFor={`show-more-${key}-invites`}
+                        className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
+                      >
+                        <div>
+                          {t("invites.more", {
+                            count: value.invites.length - 3,
+                          })}
+                        </div>
+                        <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
+                          <Icon type="chevron-right" />
+                        </div>
+                      </label>
+                      <input
+                        id={`show-more-${key}-invites`}
+                        type="checkbox"
+                        className="mv-w-0 mv-h-0 mv-opacity-0"
+                      />
+                    </div>
+                  ) : null}
+                </ul>
+              ) : null;
+            })}
+          </section>
+        ) : null}
+        {organizations.teamMember.organizations.length > 0 ||
+        organizations.admin.organizations.length > 0 ? (
+          <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-4 @lg:mv-px-6 @sm:mv-py-6 @sm:mv-gap-6 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">
+            <TabBar>
+              {Object.entries(organizations).map(([key, value]) => {
+                return (
+                  <TabBar.Item
+                    key={`${key}-organizations-tab`}
+                    active={value.active}
+                    disabled={value.organizations.length === 0}
+                  >
+                    <Link
+                      to={`?${value.searchParams.toString()}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        setActiveOrganizationsTab(key);
+                        return;
+                      }}
+                      preventScrollReset
+                    >
+                      <div className="mv-flex mv-gap-1.5 mv-items-center">
+                        <span>{t(`organizations.tabbar.${key}`)}</span>
+                        <TabBar.Counter active={value.active}>
+                          {value.organizations.length}
+                        </TabBar.Counter>
+                      </div>
+                    </Link>
+                  </TabBar.Item>
+                );
+              })}
+            </TabBar>
             <div className="-mv-mx-4">
-              {activeItem === "teamMember" &&
-              loaderData.teamMemberOrganizations.length > 0 ? (
-                <CardContainer type="multi row">
-                  {loaderData.teamMemberOrganizations.map((organization) => {
-                    return (
-                      <OrganizationCard
-                        key={`team-member-organization-${organization.id}`}
-                        organization={organization}
-                      />
-                    );
-                  })}
-                </CardContainer>
-              ) : null}
-              {activeItem === "admin" &&
-              loaderData.adminOrganizations.length > 0 ? (
-                <CardContainer type="multi row">
-                  {loaderData.adminOrganizations.map((organization) => {
-                    return (
-                      <OrganizationCard
-                        key={`admin-organization-${organization.id}`}
-                        organization={organization}
-                      />
-                    );
-                  })}
-                </CardContainer>
-              ) : null}
+              {Object.entries(organizations).map(([key, value]) => {
+                return value.active && value.organizations.length > 0 ? (
+                  <CardContainer key={`${key}-organizations`} type="multi row">
+                    {value.organizations.map((organization) => {
+                      return (
+                        <OrganizationCard
+                          key={`${key}-organization-${organization.id}`}
+                          organization={organization}
+                        />
+                      );
+                    })}
+                  </CardContainer>
+                ) : null;
+              })}
             </div>
           </section>
         ) : null}

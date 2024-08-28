@@ -327,8 +327,10 @@ export default function App() {
       {typeof alert !== "undefined" &&
       isNonAppBaseRoute === false &&
       isIndexRoute === false ? (
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-          <Alert level={alert.level}>{alert.message}</Alert>
+        <div className="mv-w-full mv-flex mv-justify-center">
+          <div className="mv-w-full mv-max-w-screen-2xl mv-px-4 @lg:mv-px-8">
+            <Alert level={alert.level}>{alert.message}</Alert>
+          </div>
         </div>
       ) : null}
       <Outlet />

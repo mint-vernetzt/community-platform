@@ -59,4 +59,10 @@ migrate-storage-objects: ## Migrating all storage objects from old supabase stor
 
 upload-sentry-sourcemaps: ## Sourcemaps are created with each remix build (see npm script build). This command uploads those sourcemaps to sentry and sentry creates a new release.
 	npx sentry-upload-sourcemaps --org ${SENTRY_ORGANIZATION_NAME} --project ${SENTRY_PROJECT_NAME}
+
+mailer: ## Start mailer
+	cd docker/mailhog && docker compose up
+
+mailer_stop: ## Stop mailer
+	cd docker/mailhog && docker compose down
   

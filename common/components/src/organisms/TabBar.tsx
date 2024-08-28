@@ -31,13 +31,14 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
   const listItemClasses = classNames(
     "mv-h-fit",
     "mv-min-w-fit",
+    "mv-relative",
     "last:mv-mr-6 @sm:mv-last:mv-mr-0",
     disabled && "mv-cursor-default mv-pointer-events-none mv-text-neutral-300",
-    active && "mv-text-primary mv-border-b-2 mv-border-b-primary"
+    active && "mv-text-primary"
   );
 
   const spanClasses = classNames(
-    "mv-mt-2 mv-mb-3 mv-p-2 mv-block",
+    "mv-mb-3 mv-p-2 mv-block",
     !disabled &&
       !active &&
       "hover:mv-bg-neutral-100 hover:mv-rounded-lg mv-text-neutral-500 hover:mv-text-neutral-600"
@@ -48,6 +49,9 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
     return (
       <li className={listItemClasses}>
         <span className={spanClasses}>{firstNode}</span>
+        {active ? (
+          <div className="mv-absolute mv-bottom-0 mv-w-full mv-h-1 mv-rounded-t-lg mv-bg-primary" />
+        ) : null}
       </li>
     );
   }
@@ -65,6 +69,9 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
       return (
         <li className={listItemClasses}>
           {React.cloneElement(firstNode, {}, wrappedFirstChild)}
+          {active ? (
+            <div className="mv-absolute mv-bottom-0 mv-w-full mv-h-1 mv-rounded-t-lg mv-bg-primary" />
+          ) : null}
         </li>
       );
     }
