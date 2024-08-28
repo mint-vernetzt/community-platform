@@ -14,7 +14,7 @@ import {
 } from "@remix-run/node";
 import { Form, Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import i18next from "~/i18next.server";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { redirectWithAlert } from "~/alert.server";
@@ -188,6 +188,19 @@ export default function MyOrganizations() {
       }),
     },
   };
+
+  React.useEffect(() => {
+    if (loaderData.invites.teamMemberInvites.length > 0) {
+      setActiveInvitesTab("teamMember");
+    } else {
+      setActiveInvitesTab("admin");
+    }
+    if (loaderData.organizations.teamMemberOrganizations.length > 0) {
+      setActiveOrganizationsTab("teamMember");
+    } else {
+      setActiveOrganizationsTab("admin");
+    }
+  }, [loaderData]);
 
   return (
     <div className="mv-w-full mv-flex mv-justify-center">
