@@ -342,9 +342,7 @@ export default function MyOrganizations() {
                                 .map((relation) => {
                                   return relation.organizationType.title;
                                 })
-                                .join(", ")}{" "}
-                              really really really really really really long
-                              text
+                                .join(", ")}
                             </p>
                           </div>
                         </Link>
