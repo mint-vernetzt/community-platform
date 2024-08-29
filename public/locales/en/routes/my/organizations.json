@@ -12,6 +12,10 @@
         "accept": "Accept",
         "more": "Show {{count}} more"
     },
+    "addOrganization": {
+        "headline": "Add organization",
+        "subline": "Search for organizations, add yourself as a team member or create an organization."
+    },
     "organizations": {
         "tabbar": {
             "teamMember": "Team Member",
