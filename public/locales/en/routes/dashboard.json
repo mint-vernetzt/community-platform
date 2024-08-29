@@ -8,6 +8,8 @@
     "myProfile": "View my profile",
     "updates": {
       "headline": "Updates",
+      "hide": "Hide updates",
+      "show": "Show updates",
       "addYourselfToOrganizations": {
         "headline": "New feature",
         "description": "You can now add yourself to organizations",

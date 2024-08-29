@@ -1,3 +1,4 @@
+import { parseWithZod } from "@conform-to/zod-v1";
 import {
   Avatar,
   Button,
@@ -9,23 +10,31 @@ import {
   ProjectCard,
 } from "@mint-vernetzt/components";
 import type { Organization, Profile } from "@prisma/client";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LinksFunction,
+  LoaderFunctionArgs,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useActionData, useFetcher, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { GravityType, getImageURL } from "~/images.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css";
+import { TeaserCard, type TeaserIconType } from "./__dashboard.components";
 import {
   enhanceEventsWithParticipationStatus,
   getEventsForCards,
+  getHideUpdatesCookie,
   getOrganizationsForCards,
   getOrganizationsFromInvites,
   getProfileById,
@@ -38,8 +47,6 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
-import { TeaserCard, type TeaserIconType } from "./__dashboard.components";
 
 const i18nNS = ["routes/dashboard"];
 export const handle = {
@@ -321,6 +328,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     sessionUser.id
   );
 
+  const cookieHeader = request.headers.get("Cookie");
+  const hideUpdatesCookie = getHideUpdatesCookie();
+  const parsedHideUpdatesCookie = (await hideUpdatesCookie.parse(
+    cookieHeader
+  )) || { hideUpdates: "false" };
+
   return json({
     communityCounter,
     profiles,
@@ -332,7 +345,55 @@ export const loader = async (args: LoaderFunctionArgs) => {
     username: profile.username,
     organizationsFromInvites,
     abilities,
+    hideUpdates: parsedHideUpdatesCookie.hideUpdates,
   });
+};
+
+const hideUpdatesSchema = z.object({
+  hideUpdates: z
+    .string()
+    .refine(
+      (hideUpdates) => hideUpdates === "true" || hideUpdates === "false",
+      {
+        message: "Only true and false are valid hideUpdate values.",
+      }
+    ),
+});
+
+export const action = async (args: ActionFunctionArgs) => {
+  const { request } = args;
+  const { authClient } = createAuthClient(request);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+
+  const formData = await request.formData();
+  const submission = parseWithZod(formData, { schema: hideUpdatesSchema });
+  if (submission.status !== "success") {
+    return json(submission.reply());
+  }
+
+  const hideUpdatesCookie = getHideUpdatesCookie();
+
+  return json(
+    { hideUpdates: submission.value.hideUpdates },
+    {
+      headers: {
+        "Set-Cookie": await hideUpdatesCookie.serialize(
+          {
+            hideUpdates: submission.value.hideUpdates,
+          },
+          {
+            // TODO: Ask about expiry
+            expires: new Date(Date.now() + 60_000),
+            maxAge: 60,
+          }
+        ),
+      },
+    }
+  );
 };
 
 function getDataForExternalLinkTeasers() {
@@ -376,9 +437,31 @@ function getDataForUpdateTeasers() {
 
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const { t } = useTranslation(i18nNS);
+
   const externalLinkTeasers = getDataForExternalLinkTeasers();
+
   const updateTeasers = getDataForUpdateTeasers();
+  const hideUpdatesFetcher = useFetcher();
+  // Optimistic UI
+  if (hideUpdatesFetcher.formData?.has("hideUpdates")) {
+    const hideUpdates = hideUpdatesFetcher.formData.get("hideUpdates");
+    if (hideUpdates !== null && typeof hideUpdates === "string") {
+      if (
+        actionData !== undefined &&
+        "hideUpdates" in actionData &&
+        (hideUpdates === "true" || hideUpdates === "false")
+      ) {
+        actionData.hideUpdates = hideUpdates;
+      }
+      loaderData.hideUpdates = hideUpdates;
+    }
+  }
+  const hideUpdates =
+    actionData && "hideUpdates" in actionData
+      ? actionData.hideUpdates
+      : loaderData.hideUpdates;
 
   return (
     <>
@@ -445,23 +528,48 @@ function Dashboard() {
         )}
       {loaderData.abilities["updates"].hasAccess ? (
         <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <h2 className="mv-appearance-none mv-w-full mv-mb-4 mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold">
-            {t("content.updates.headline")}
-          </h2>
-          <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full">
-            {Object.entries(updateTeasers).map(([key, value]) => {
-              return (
-                <TeaserCard
-                  key={key}
-                  to={value.link}
-                  headline={t(`content.updates.${key}.headline`)}
-                  description={t(`content.updates.${key}.description`)}
-                  linkDescription={t(`content.updates.${key}.linkDescription`)}
-                  iconType={value.icon}
-                />
-              );
-            })}
-          </ul>
+          <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
+            <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
+              {t("content.updates.headline")}
+            </h2>
+            <hideUpdatesFetcher.Form
+              method="post"
+              className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline"
+            >
+              <input
+                type="hidden"
+                readOnly
+                name="hideUpdates"
+                defaultValue={hideUpdates === "true" ? "false" : "true"}
+              />
+              <button
+                type="submit"
+                className="mv-appearance-none mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline"
+              >
+                {hideUpdates === "true"
+                  ? t("content.updates.show")
+                  : t("content.updates.hide")}
+              </button>
+            </hideUpdatesFetcher.Form>
+          </div>
+          {hideUpdates === "true" ? null : (
+            <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full">
+              {Object.entries(updateTeasers).map(([key, value]) => {
+                return (
+                  <TeaserCard
+                    key={key}
+                    to={value.link}
+                    headline={t(`content.updates.${key}.headline`)}
+                    description={t(`content.updates.${key}.description`)}
+                    linkDescription={t(
+                      `content.updates.${key}.linkDescription`
+                    )}
+                    iconType={value.icon}
+                  />
+                );
+              })}
+            </ul>
+          )}
         </section>
       ) : null}
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">

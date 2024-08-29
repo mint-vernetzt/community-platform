@@ -212,42 +212,8 @@ export function TeaserIcon(props: { type: TeaserIconType }) {
     );
   }
   if (type === "life-preserver-outline") {
-    icon = (
-      <svg
-        width="39"
-        height="40"
-        viewBox="0 0 39 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle
-          cx="19.5"
-          cy="20"
-          r="18.2812"
-          stroke="white"
-          strokeWidth="2.4375"
-        />
-        <circle
-          cx="19.5"
-          cy="20"
-          r="8.53125"
-          stroke="white"
-          strokeWidth="2.4375"
-        />
-
-        <path
-          d="M1.49999 0.9375L1.49999 10.6875M1.5 26.5313L1.5 36.2813"
-          stroke="white"
-          strokeWidth="2.4375"
-        />
-
-        <path
-          d="M36.1719 1.60937L26.4219 1.60937M10.5781 1.60937L0.828125 1.60937"
-          stroke="white"
-          strokeWidth="2.4375"
-        />
-      </svg>
-    );
+    // TODO: Ask Design for better svg
+    icon = <></>;
   }
   if (type === "Plus big") {
     icon = (
