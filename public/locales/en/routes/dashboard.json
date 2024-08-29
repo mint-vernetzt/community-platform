@@ -21,6 +21,21 @@
         "linkDescription": "To the FAQ"
       }
     },
+    "news": {
+      "headline": "MINTvernetzt News",
+      "hide": "Hide news",
+      "show": "Show news",
+      "actionDaysProgramOutNow": {
+        "headline": "New event",
+        "description": "Program for the MINTvernetzt Action Days online",
+        "linkDescription": "Register now"
+      },
+      "annualConferenceDateSet": {
+        "headline": "Save the Date",
+        "description": "Date set for the MINTvernetzt annual conference",
+        "linkDescription": "To the event"
+      }
+    },
     "communityCounter": {
       "headline": "HOW OUR COMMUNITY IS GROWING",
       "profiles": "Profiles",

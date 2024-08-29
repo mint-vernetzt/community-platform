@@ -326,3 +326,16 @@ export function getHideUpdatesCookie() {
     secure: process.env.NODE_ENV === "production",
   });
 }
+
+export function getHideNewsCookie() {
+  return createCookie("mv-hide-news", {
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    secrets:
+      process.env.NODE_ENV !== "test"
+        ? process.env.SESSION_SECRET.split(",")
+        : ["secret"],
+    secure: process.env.NODE_ENV === "production",
+  });
+}

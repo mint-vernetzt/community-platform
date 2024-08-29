@@ -7,9 +7,17 @@ export function TeaserCard(props: {
   linkDescription: string;
   iconType: TeaserIconType;
   external?: boolean;
+  type?: "primary" | "secondary";
 }) {
-  const { to, headline, description, linkDescription, iconType, external } =
-    props;
+  const {
+    to,
+    headline,
+    description,
+    linkDescription,
+    iconType,
+    external,
+    type = "primary",
+  } = props;
   return (
     <li>
       <Link
@@ -55,7 +63,11 @@ export function TeaserCard(props: {
             ) : null}
           </div>
         </div>
-        <div className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-[76px] mv-w-[85px] mv-min-h-[76px] mv-min-w-[85px] mv-flex-shrink mv-bg-primary-200 mv-rounded-lg">
+        <div
+          className={`mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-[76px] mv-w-[85px] mv-min-h-[76px] mv-min-w-[85px] mv-flex-shrink mv-rounded-lg ${
+            type === "primary" ? "mv-bg-primary-200" : "mv-bg-secondary"
+          }`}
+        >
           <TeaserIcon type={iconType} />
         </div>
       </Link>
