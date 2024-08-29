@@ -454,7 +454,7 @@ function getDataForNewsTeasers() {
   } = {
     actionDaysProgramOutNow: {
       link: "/event/mintvernetztaktionstage2024-lxt2bw2l",
-      icon: "megaphone",
+      icon: "life-preserver-outline",
     },
     annualConferenceDateSet: {
       link: "/event/mintvernetztjahrestagung2025-lxa5gke3",

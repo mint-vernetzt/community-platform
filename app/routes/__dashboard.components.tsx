@@ -224,8 +224,40 @@ export function TeaserIcon(props: { type: TeaserIconType }) {
     );
   }
   if (type === "life-preserver-outline") {
-    // TODO: Ask Design for better svg
-    icon = <></>;
+    icon = (
+      <svg
+        width="39"
+        height="40"
+        viewBox="0 0 39 40"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle
+          cx="19.5"
+          cy="20"
+          r="18.2812"
+          stroke="white"
+          stroke-width="2.4375"
+        />
+        <circle
+          cx="19.5"
+          cy="20"
+          r="8.53125"
+          stroke="white"
+          stroke-width="2.4375"
+        />
+        <path
+          d="M19.5 2.9375L19.5 12.6875M19.5 28.5313L19.5 38.2813"
+          stroke="white"
+          stroke-width="2.4375"
+        />
+        <path
+          d="M37.1719 20.6094L27.4219 20.6094M11.5781 20.6094L1.82812 20.6094"
+          stroke="white"
+          stroke-width="2.4375"
+        />
+      </svg>
+    );
   }
   if (type === "Plus big") {
     icon = (
