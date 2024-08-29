@@ -388,16 +388,9 @@ export const action = async (args: ActionFunctionArgs) => {
       { hideNews: submission.value.hide },
       {
         headers: {
-          "Set-Cookie": await hideNewsCookie.serialize(
-            {
-              hideNews: submission.value.hide,
-            },
-            {
-              // TODO: Ask about expiry
-              expires: new Date(Date.now() + 60_000),
-              maxAge: 60,
-            }
-          ),
+          "Set-Cookie": await hideNewsCookie.serialize({
+            hideNews: submission.value.hide,
+          }),
         },
       }
     );
@@ -407,16 +400,9 @@ export const action = async (args: ActionFunctionArgs) => {
     { hideUpdates: submission.value.hide },
     {
       headers: {
-        "Set-Cookie": await hideUpdatesCookie.serialize(
-          {
-            hideUpdates: submission.value.hide,
-          },
-          {
-            // TODO: Ask about expiry
-            expires: new Date(Date.now() + 60_000),
-            maxAge: 60,
-          }
-        ),
+        "Set-Cookie": await hideUpdatesCookie.serialize({
+          hideUpdates: submission.value.hide,
+        }),
       },
     }
   );
@@ -489,7 +475,6 @@ function Dashboard() {
   const hideUpdatesFetcher = useFetcher();
   // Optimistic UI
   if (hideUpdatesFetcher.formData?.has("hide")) {
-    console.log("OPTIMISTIC UI UPDATES");
     const hideUpdates = hideUpdatesFetcher.formData.get("hide");
     if (hideUpdates !== null && typeof hideUpdates === "string") {
       if (
@@ -511,7 +496,6 @@ function Dashboard() {
   const hideNewsFetcher = useFetcher();
   // Optimistic UI
   if (hideNewsFetcher.formData?.has("hide")) {
-    console.log("OPTIMISTIC UI NEWS");
     const hideNews = hideNewsFetcher.formData.get("hide");
     if (hideNews !== null && typeof hideNews === "string") {
       if (
