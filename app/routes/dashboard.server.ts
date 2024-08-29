@@ -1,4 +1,4 @@
-import { SupabaseClient, type User } from "@supabase/supabase-js";
+import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { getImageURL, GravityType } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";

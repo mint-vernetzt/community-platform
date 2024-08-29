@@ -6,6 +6,19 @@
     "welcome": "Willkommen,",
     "community": "in Deiner MINTvernetzt-Community!",
     "myProfile": "Mein Profil besuchen",
+    "updates": {
+      "headline": "Updates",
+      "addYourselfToOrganizations": {
+        "headline": "Neue Funktion",
+        "description": "Du kannst dich jetzt selbst zu Organisationen hinzufügen",
+        "linkDescription": "Jetzt ausprobieren"
+      },
+      "faq": {
+        "headline": "Neue Funktion",
+        "description": "Fragen und Antworten",
+        "linkDescription": "Zum FAQ"
+      }
+    },
     "communityCounter": {
       "headline": "WIE UNSERE COMMUNITY WÄCHST",
       "profiles": "Profile",

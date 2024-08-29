@@ -6,6 +6,19 @@
     "welcome": "Welcome,",
     "community": "to your MINTvernetzt Community!",
     "myProfile": "View my profile",
+    "updates": {
+      "headline": "Updates",
+      "addYourselfToOrganizations": {
+        "headline": "New feature",
+        "description": "You can now add yourself to organizations",
+        "linkDescription": "Try it out now"
+      },
+      "faq": {
+        "headline": "New feature",
+        "description": "Questions and answers",
+        "linkDescription": "To the FAQ"
+      }
+    },
     "communityCounter": {
       "headline": "HOW OUR COMMUNITY IS GROWING",
       "profiles": "Profiles",
