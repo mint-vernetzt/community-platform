@@ -40,3 +40,4 @@ app/lib/no-cache/seed.ts
 
 # exports
 *.csv
+/prisma/scripts/export-duplicate-entities/data/*.json
