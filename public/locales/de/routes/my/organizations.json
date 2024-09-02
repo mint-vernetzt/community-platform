@@ -17,6 +17,12 @@
         "subline": "Suche Organisationen, füge Dich als Teammitglied hinzu oder lege eine Organisation an.",
         "toasts": {
             "organizationsFound": "Es existieren bereits Organisationen mit diesem Namen. Frage an, ob Du einer Organisation beitreten kannst."
+        },
+        "createRequest": "Beitritt anfragen",
+        "errors": {
+            "invalidRoute": "Keine gültige Route",
+            "alreadyInRelation": "Du hast schon angefragt, dieses Profil dieser Organisation hinzuzufügen, hast eine Einladung erhalten oder bist bereits Mitglied.",
+            "custom": "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support."
         }
     },
     "organizations": {

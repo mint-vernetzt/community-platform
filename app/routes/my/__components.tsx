@@ -1,4 +1,4 @@
-import { Avatar, Toast } from "@mint-vernetzt/components";
+import { Avatar, Button, Toast } from "@mint-vernetzt/components";
 import { Link, useFetcher, useSearchParams } from "@remix-run/react";
 import React from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
@@ -6,8 +6,10 @@ import {
   GetOrganizationsToAdd,
   loader as organizationsToAddLoader,
 } from "./organizations/get-organizations-to-add";
+import { action as requestToOrganizationToAddProfileAction } from "./organizations/create-request-to-organization-to-add-profile";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
 import { useTranslation } from "react-i18next";
+import { i18nNS as organizationsI18nNS } from "./organizations";
 
 export function Section(props: { children: React.ReactNode }) {
   const validChildren = React.Children.toArray(props.children).filter(
@@ -69,18 +71,17 @@ function SectionSubline(props: React.PropsWithChildren<{ id?: string }>) {
 Section.Headline = SectionHeadline;
 Section.Subline = SectionSubline;
 
-const i18nNS = ["routes/my/organizations"];
-
 export function AddOrganization(props: {
   organizations?: Awaited<ReturnType<typeof getOrganizationsToAdd>>;
 }) {
   const { organizations = [] } = props;
 
   const [searchParams] = useSearchParams();
-  const fetcher = useFetcher<typeof organizationsToAddLoader>();
+  const getOrganizationsToAddFetcher =
+    useFetcher<typeof organizationsToAddLoader>();
   const isHydrated = useHydrated();
 
-  const { t } = useTranslation(i18nNS);
+  const { t } = useTranslation(organizationsI18nNS);
 
   const handleFormActions = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -91,7 +92,7 @@ export function AddOrganization(props: {
       return;
     }
     if (input.value.length > 3) {
-      fetcher.submit(event.currentTarget);
+      getOrganizationsToAddFetcher.submit(event.currentTarget);
     }
     return;
   };
@@ -99,16 +100,19 @@ export function AddOrganization(props: {
   const [data, setData] = React.useState(organizations);
 
   React.useEffect(() => {
-    if (Array.isArray(fetcher.data)) {
-      setData(fetcher.data);
+    if (Array.isArray(getOrganizationsToAddFetcher.data)) {
+      setData(getOrganizationsToAddFetcher.data);
     } else {
       setData(organizations);
     }
-  }, [fetcher.data, organizations]);
+  }, [getOrganizationsToAddFetcher.data, organizations]);
+
+  const createRequestToOrganizationToAddProfileFetcher =
+    useFetcher<typeof requestToOrganizationToAddProfileAction>();
 
   return (
     <>
-      <fetcher.Form
+      <getOrganizationsToAddFetcher.Form
         method="get"
         action="/my/organizations/get-organizations-to-add"
         onChange={handleFormActions}
@@ -138,7 +142,7 @@ export function AddOrganization(props: {
             />
           </div>
         </div>
-      </fetcher.Form>
+      </getOrganizationsToAddFetcher.Form>
       {data.length > 0 ? (
         <>
           <Toast level="neutral" delay={5000}>
@@ -152,7 +156,7 @@ export function AddOrganization(props: {
               return (
                 <li
                   key={`request-${organization.id}`}
-                  className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center`}
+                  className={`mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center`}
                 >
                   <Link
                     to={`/organization/${organization.slug}`}
@@ -174,6 +178,22 @@ export function AddOrganization(props: {
                       </p>
                     </div>
                   </Link>
+                  <createRequestToOrganizationToAddProfileFetcher.Form
+                    method="post"
+                    className="mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
+                    action="/my/organizations/create-request-to-organization-to-add-profile"
+                  >
+                    <input
+                      type="hidden"
+                      required
+                      readOnly
+                      name="organizationId"
+                      defaultValue={organization.id}
+                    />
+                    <Button variant="outline" fullSize type="submit">
+                      {t("addOrganization.createRequest")}
+                    </Button>
+                  </createRequestToOrganizationToAddProfileFetcher.Form>
                 </li>
               );
             })}

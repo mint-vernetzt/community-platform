@@ -45,7 +45,7 @@ import {
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
 
-const i18nNS = ["routes/my/organizations"];
+export const i18nNS = ["routes/my/organizations"];
 export const handle = {
   i18n: i18nNS,
 };
