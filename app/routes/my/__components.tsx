@@ -1,4 +1,4 @@
-import { Avatar } from "@mint-vernetzt/components";
+import { Avatar, Toast } from "@mint-vernetzt/components";
 import { Link, useFetcher, useSearchParams } from "@remix-run/react";
 import React from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
@@ -7,6 +7,7 @@ import {
   loader as organizationsToAddLoader,
 } from "./organizations/get-organizations-to-add";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
+import { useTranslation } from "react-i18next";
 
 export function Section(props: { children: React.ReactNode }) {
   const validChildren = React.Children.toArray(props.children).filter(
@@ -68,6 +69,8 @@ function SectionSubline(props: React.PropsWithChildren<{ id?: string }>) {
 Section.Headline = SectionHeadline;
 Section.Subline = SectionSubline;
 
+const i18nNS = ["routes/my/organizations"];
+
 export function AddOrganization(props: {
   organizations?: Awaited<ReturnType<typeof getOrganizationsToAdd>>;
 }) {
@@ -76,6 +79,8 @@ export function AddOrganization(props: {
   const [searchParams] = useSearchParams();
   const fetcher = useFetcher<typeof organizationsToAddLoader>();
   const isHydrated = useHydrated();
+
+  const { t } = useTranslation(i18nNS);
 
   const handleFormActions = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -91,9 +96,15 @@ export function AddOrganization(props: {
     return;
   };
 
-  const data = (
-    Array.isArray(fetcher.data) ? fetcher.data : organizations
-  ) as typeof organizations;
+  const [data, setData] = React.useState(organizations);
+
+  React.useEffect(() => {
+    if (Array.isArray(fetcher.data)) {
+      setData(fetcher.data);
+    } else {
+      setData(organizations);
+    }
+  }, [fetcher.data, organizations]);
 
   return (
     <>
@@ -129,40 +140,45 @@ export function AddOrganization(props: {
         </div>
       </fetcher.Form>
       {data.length > 0 ? (
-        <ul className="mv-flex mv-flex-col mv-gap-4 mv-group">
-          {data.map((organization) => {
-            if (organization === null) {
-              return null;
-            }
-            return (
-              <li
-                key={`request-${organization.id}`}
-                className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center`}
-              >
-                <Link
-                  to={`/organization/${organization.slug}`}
-                  className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
+        <>
+          <Toast level="neutral" delay={5000}>
+            {t("addOrganization.toasts.organizationsFound")}
+          </Toast>
+          <ul className="mv-flex mv-flex-col mv-gap-4 mv-group">
+            {data.map((organization) => {
+              if (organization === null) {
+                return null;
+              }
+              return (
+                <li
+                  key={`request-${organization.id}`}
+                  className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center`}
                 >
-                  <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
-                    <Avatar size="full" {...organization} />
-                  </div>
-                  <div>
-                    <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
-                      {organization.name}
-                    </p>
-                    <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
-                      {organization.types
-                        .map((relation) => {
-                          return relation.organizationType.title;
-                        })
-                        .join(", ")}
-                    </p>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                  <Link
+                    to={`/organization/${organization.slug}`}
+                    className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
+                  >
+                    <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
+                      <Avatar size="full" {...organization} />
+                    </div>
+                    <div>
+                      <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
+                        {organization.name}
+                      </p>
+                      <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
+                        {organization.types
+                          .map((relation) => {
+                            return relation.organizationType.title;
+                          })
+                          .join(", ")}
+                      </p>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       ) : null}
     </>
   );
