@@ -1,4 +1,3 @@
-import { parseWithZod } from "@conform-to/zod-v1";
 import {
   Avatar,
   Button,
@@ -10,16 +9,13 @@ import {
   ProjectCard,
 } from "@mint-vernetzt/components";
 import type { Organization, Profile } from "@prisma/client";
-import type {
-  ActionFunctionArgs,
-  LinksFunction,
-  LoaderFunctionArgs,
-} from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useFetcher, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
+import Cookies from "js-cookie";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -34,8 +30,6 @@ import { TeaserCard, type TeaserIconType } from "./__dashboard.components";
 import {
   enhanceEventsWithParticipationStatus,
   getEventsForCards,
-  getHideNewsCookie,
-  getHideUpdatesCookie,
   getOrganizationsForCards,
   getOrganizationsFromInvites,
   getProfileById,
@@ -330,16 +324,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     sessionUser.id
   );
 
-  const cookieHeader = request.headers.get("Cookie");
-  const hideUpdatesCookie = getHideUpdatesCookie();
-  const parsedHideUpdatesCookie = (await hideUpdatesCookie.parse(
-    cookieHeader
-  )) || { hideUpdates: "false" };
-  const hideNewsCookie = getHideNewsCookie();
-  const parsedHideNewsCookie = (await hideNewsCookie.parse(cookieHeader)) || {
-    hideNews: "false",
-  };
-
   return json({
     communityCounter,
     profiles,
@@ -351,61 +335,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     username: profile.username,
     organizationsFromInvites,
     abilities,
-    hideUpdates: parsedHideUpdatesCookie.hideUpdates,
-    hideNews: parsedHideNewsCookie.hideNews,
   });
-};
-
-const hideSchema = z.object({
-  hide: z.string().refine((hide) => hide === "true" || hide === "false", {
-    message: "Only true and false are valid hide values.",
-  }),
-  intent: z
-    .string()
-    .refine((intent) => intent === "hideNews" || intent === "hideUpdates", {
-      message: "Only hideNews or hideUpdates are valid intents.",
-    }),
-});
-
-export const action = async (args: ActionFunctionArgs) => {
-  const { request } = args;
-  const { authClient } = createAuthClient(request);
-  const { sessionUser, redirectPath } =
-    await getSessionUserOrRedirectPathToLogin(authClient, request);
-  if (sessionUser === null && redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-
-  const formData = await request.formData();
-  const submission = parseWithZod(formData, { schema: hideSchema });
-  if (submission.status !== "success") {
-    return json(submission.reply());
-  }
-
-  if (submission.value.intent === "hideNews") {
-    const hideNewsCookie = getHideNewsCookie();
-    return json(
-      { hideNews: submission.value.hide },
-      {
-        headers: {
-          "Set-Cookie": await hideNewsCookie.serialize({
-            hideNews: submission.value.hide,
-          }),
-        },
-      }
-    );
-  }
-  const hideUpdatesCookie = getHideUpdatesCookie();
-  return json(
-    { hideUpdates: submission.value.hide },
-    {
-      headers: {
-        "Set-Cookie": await hideUpdatesCookie.serialize({
-          hideUpdates: submission.value.hide,
-        }),
-      },
-    }
-  );
 };
 
 function getDataForExternalLinkTeasers() {
@@ -466,52 +396,25 @@ function getDataForNewsTeasers() {
 
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
   const { t } = useTranslation(i18nNS);
 
   const externalLinkTeasers = getDataForExternalLinkTeasers();
-
   const updateTeasers = getDataForUpdateTeasers();
-  const hideUpdatesFetcher = useFetcher();
-  // Optimistic UI
-  if (hideUpdatesFetcher.formData?.has("hide")) {
-    const hideUpdates = hideUpdatesFetcher.formData.get("hide");
-    if (hideUpdates !== null && typeof hideUpdates === "string") {
-      if (
-        actionData !== undefined &&
-        "hideUpdates" in actionData &&
-        (hideUpdates === "true" || hideUpdates === "false")
-      ) {
-        actionData.hideUpdates = hideUpdates;
-      }
-      loaderData.hideUpdates = hideUpdates;
-    }
-  }
-  const hideUpdates =
-    actionData && "hideUpdates" in actionData
-      ? actionData.hideUpdates
-      : loaderData.hideUpdates;
-
   const newsTeasers = getDataForNewsTeasers();
-  const hideNewsFetcher = useFetcher();
-  // Optimistic UI
-  if (hideNewsFetcher.formData?.has("hide")) {
-    const hideNews = hideNewsFetcher.formData.get("hide");
-    if (hideNews !== null && typeof hideNews === "string") {
-      if (
-        actionData !== undefined &&
-        "hideNews" in actionData &&
-        (hideNews === "true" || hideNews === "false")
-      ) {
-        actionData.hideNews = hideNews;
-      }
-      loaderData.hideNews = hideNews;
+
+  const [hideUpdates, setHideUpdates] = React.useState(false);
+  const [hideNews, setHideNews] = React.useState(false);
+
+  React.useEffect(() => {
+    const hideUpdatesCookie = Cookies.get("mv-hide-updates");
+    if (hideUpdatesCookie === "true") {
+      setHideUpdates(true);
     }
-  }
-  const hideNews =
-    actionData && "hideNews" in actionData
-      ? actionData.hideNews
-      : loaderData.hideNews;
+    const hideNewsCookie = Cookies.get("mv-hide-news");
+    if (hideNewsCookie === "true") {
+      setHideNews(true);
+    }
+  }, []);
 
   return (
     <>
@@ -577,35 +480,42 @@ function Dashboard() {
           </section>
         )}
       {loaderData.abilities["updates"].hasAccess ? (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
           <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
             <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
               {t("content.updates.headline")}
             </h2>
-            <hideUpdatesFetcher.Form
-              method="post"
-              className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline"
-            >
-              <input
-                type="hidden"
-                readOnly
-                name="hide"
-                defaultValue={hideUpdates === "true" ? "false" : "true"}
-              />
-              <button
-                type="submit"
-                name="intent"
-                value="hideUpdates"
-                className="mv-appearance-none mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline"
+            <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
+              <label
+                htmlFor="hide-updates"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
               >
-                {hideUpdates === "true"
-                  ? t("content.updates.show")
-                  : t("content.updates.hide")}
-              </button>
-            </hideUpdatesFetcher.Form>
+                {t("content.updates.show")}
+              </label>
+              <label
+                htmlFor="hide-updates"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
+              >
+                {t("content.updates.hide")}
+              </label>
+              <input
+                id="hide-updates"
+                type="checkbox"
+                onChange={() => {
+                  const hideUpdates =
+                    Cookies.get("mv-hide-updates") === "true" ? false : true;
+                  Cookies.set("mv-hide-updates", hideUpdates.toString(), {
+                    sameSite: "strict",
+                  });
+                  setHideUpdates(hideUpdates);
+                }}
+                defaultChecked={hideUpdates === true}
+                className="mv-w-0 mv-h-0 mv-opacity-0"
+              />
+            </div>
           </div>
-          {hideUpdates === "true" ? null : (
-            <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full">
+          {hideUpdates === false ? (
+            <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
               {Object.entries(updateTeasers).map(([key, value]) => {
                 return (
                   <TeaserCard
@@ -621,39 +531,46 @@ function Dashboard() {
                 );
               })}
             </ul>
-          )}
+          ) : null}
         </section>
       ) : null}
       {loaderData.abilities["news"].hasAccess ? (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
           <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
             <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
               {t("content.news.headline")}
             </h2>
-            <hideNewsFetcher.Form
-              method="post"
-              className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline"
-            >
-              <input
-                type="hidden"
-                readOnly
-                name="hide"
-                defaultValue={hideNews === "true" ? "false" : "true"}
-              />
-              <button
-                type="submit"
-                name="intent"
-                value="hideNews"
-                className="mv-appearance-none mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline"
+            <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
+              <label
+                htmlFor="hide-news"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
               >
-                {hideNews === "true"
-                  ? t("content.news.show")
-                  : t("content.news.hide")}
-              </button>
-            </hideNewsFetcher.Form>
+                {t("content.news.show")}
+              </label>
+              <label
+                htmlFor="hide-news"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
+              >
+                {t("content.news.hide")}
+              </label>
+              <input
+                id="hide-news"
+                type="checkbox"
+                onChange={() => {
+                  const hideNews =
+                    Cookies.get("mv-hide-news") === "true" ? false : true;
+                  Cookies.set("mv-hide-news", hideNews.toString(), {
+                    sameSite: "strict",
+                  });
+                  setHideNews(hideNews);
+                }}
+                className="mv-w-0 mv-h-0 mv-opacity-0"
+                defaultChecked={hideNews === true}
+              />
+            </div>
           </div>
-          {hideNews === "true" ? null : (
-            <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full">
+          {hideNews === false ? (
+            <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
               {Object.entries(newsTeasers).map(([key, value]) => {
                 return (
                   <TeaserCard
@@ -668,7 +585,7 @@ function Dashboard() {
                 );
               })}
             </ul>
-          )}
+          ) : null}
         </section>
       ) : null}
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">

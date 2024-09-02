@@ -1,4 +1,3 @@
-import { createCookie } from "@remix-run/node";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { getImageURL, GravityType } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
@@ -312,30 +311,4 @@ export async function getOrganizationsFromInvites(
   });
 
   return flat;
-}
-
-export function getHideUpdatesCookie() {
-  return createCookie("mv-hide-updates", {
-    httpOnly: true,
-    path: "/",
-    sameSite: "lax",
-    secrets:
-      process.env.NODE_ENV !== "test"
-        ? process.env.SESSION_SECRET.split(",")
-        : ["secret"],
-    secure: process.env.NODE_ENV === "production",
-  });
-}
-
-export function getHideNewsCookie() {
-  return createCookie("mv-hide-news", {
-    httpOnly: true,
-    path: "/",
-    sameSite: "lax",
-    secrets:
-      process.env.NODE_ENV !== "test"
-        ? process.env.SESSION_SECRET.split(",")
-        : ["secret"],
-    secure: process.env.NODE_ENV === "production",
-  });
 }
