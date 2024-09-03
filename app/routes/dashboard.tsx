@@ -507,9 +507,10 @@ function Dashboard() {
                   Cookies.set("mv-hide-updates", hideUpdates.toString(), {
                     sameSite: "strict",
                   });
+                  console.log("OnChange", hideUpdates);
                   setHideUpdates(hideUpdates);
                 }}
-                defaultChecked={hideUpdates === true}
+                checked={hideUpdates === true}
                 className="mv-w-0 mv-h-0 mv-opacity-0"
               />
             </div>
@@ -565,7 +566,7 @@ function Dashboard() {
                   setHideNews(hideNews);
                 }}
                 className="mv-w-0 mv-h-0 mv-opacity-0"
-                defaultChecked={hideNews === true}
+                checked={hideNews === true}
               />
             </div>
           </div>
