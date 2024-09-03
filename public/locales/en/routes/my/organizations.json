@@ -25,6 +25,9 @@
             "custom": "The data could not be saved. Please try again or contact the support team."
         }
     },
+    "requests": {
+        "headline": "Join Requests"
+    },
     "organizations": {
         "tabbar": {
             "teamMember": "Team Member",

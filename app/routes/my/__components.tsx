@@ -6,7 +6,7 @@ import {
   GetOrganizationsToAdd,
   loader as organizationsToAddLoader,
 } from "./organizations/get-organizations-to-add";
-import { action as requestToOrganizationToAddProfileAction } from "./organizations/create-request-to-organization-to-add-profile";
+import { action as requestToOrganizationToAddProfileAction } from "./organizations/requests";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
 import { useTranslation } from "react-i18next";
 import { i18nNS as organizationsI18nNS } from "./organizations";
@@ -83,6 +83,10 @@ export function AddOrganization(props: {
 
   const { t } = useTranslation(organizationsI18nNS);
 
+  const [searchQuery, setSearchQuery] = React.useState(
+    searchParams.get(GetOrganizationsToAdd.SearchParam) ?? ""
+  );
+
   const handleFormActions = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const input = event.currentTarget.querySelector(
@@ -92,9 +96,11 @@ export function AddOrganization(props: {
       return;
     }
     if (input.value.length > 3) {
+      setSearchQuery(input.value);
       getOrganizationsToAddFetcher.submit(event.currentTarget);
+    } else {
+      setData([]);
     }
-    return;
   };
 
   const [data, setData] = React.useState(organizations);
@@ -107,7 +113,7 @@ export function AddOrganization(props: {
     }
   }, [getOrganizationsToAddFetcher.data, organizations]);
 
-  const createRequestToOrganizationToAddProfileFetcher =
+  const createRequestFetcher =
     useFetcher<typeof requestToOrganizationToAddProfileAction>();
 
   return (
@@ -178,10 +184,10 @@ export function AddOrganization(props: {
                       </p>
                     </div>
                   </Link>
-                  <createRequestToOrganizationToAddProfileFetcher.Form
+                  <createRequestFetcher.Form
                     method="post"
                     className="mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
-                    action="/my/organizations/create-request-to-organization-to-add-profile"
+                    action="/my/organizations/requests"
                   >
                     <input
                       type="hidden"
@@ -190,10 +196,20 @@ export function AddOrganization(props: {
                       name="organizationId"
                       defaultValue={organization.id}
                     />
-                    <Button variant="outline" fullSize type="submit">
+                    <input
+                      type="hidden"
+                      name={GetOrganizationsToAdd.SearchParam}
+                      value={searchQuery}
+                    />
+                    <Button
+                      variant="outline"
+                      fullSize
+                      type="submit"
+                      disabled={createRequestFetcher.state === "submitting"}
+                    >
                       {t("addOrganization.createRequest")}
                     </Button>
-                  </createRequestToOrganizationToAddProfileFetcher.Form>
+                  </createRequestFetcher.Form>
                 </li>
               );
             })}
@@ -201,5 +217,46 @@ export function AddOrganization(props: {
         </>
       ) : null}
     </>
+  );
+}
+
+export function OrganizationListItem(props: {
+  organization: {
+    logo: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    types: {
+      organizationType: {
+        title: string;
+      };
+    }[];
+  };
+}) {
+  const { organization } = props;
+
+  return (
+    <li className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center">
+      <Link
+        to={`/organization/${organization.slug}`}
+        className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
+      >
+        <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
+          <Avatar size="full" {...organization} />
+        </div>
+        <div>
+          <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
+            {organization.name}
+          </p>
+          <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
+            {organization.types
+              .map((relation) => {
+                return relation.organizationType.title;
+              })
+              .join(", ")}
+          </p>
+        </div>
+      </Link>
+    </li>
   );
 }

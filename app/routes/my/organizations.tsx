@@ -32,7 +32,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { detectLanguage } from "~/root.server";
 import { Icon } from "../__components";
-import { AddOrganization, Section } from "./__components";
+import { AddOrganization, OrganizationListItem, Section } from "./__components";
 import {
   addImageUrlToInvites,
   addImageUrlToOrganizations,
@@ -44,6 +44,7 @@ import {
   updateOrganizationInvite,
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
+import { getRequestsToOrganizations } from "./organizations/requests.server";
 
 export const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -80,6 +81,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const invites = await getOrganizationInvitesForProfile(sessionUser.id);
   const enhancedInvites = addImageUrlToInvites(authClient, invites);
 
+  const requests = await getRequestsToOrganizations(sessionUser.id, authClient);
   const organizationsToAdd = await getOrganizationsToAdd(request, sessionUser);
 
   return json({
@@ -87,6 +89,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     invites: enhancedInvites,
     abilities,
     organizationsToAdd,
+    requests,
   });
 };
 
@@ -437,6 +440,20 @@ export default function MyOrganizations() {
             <Section.Headline>{t("addOrganization.headline")}</Section.Headline>
             <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
             <AddOrganization organizations={loaderData.organizationsToAdd} />
+            <hr />
+            <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
+              {t("requests.headline")}
+            </h4>
+            <ul className="mv-flex mv-flex-col mv-gap-4">
+              {loaderData.requests.map((organization) => {
+                return (
+                  <OrganizationListItem
+                    key={`request-${organization.id}`}
+                    organization={organization}
+                  />
+                );
+              })}
+            </ul>
           </Section>
         ) : null}
         {organizations.teamMember.organizations.length > 0 ||
