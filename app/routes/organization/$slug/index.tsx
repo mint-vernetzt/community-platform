@@ -55,13 +55,42 @@ export function links() {
   ];
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = (args) => {
+  const { matches, data } = args;
+  const parentMeta = matches.flatMap((match) => {
+    if (match.meta) {
+      return match.meta;
+    }
+    return [];
+  });
+
   return [
-    {
-      title: `MINTvernetzt Community Plattform${
-        data !== undefined ? ` | ${data.organization.name}` : ""
-      }`,
-    },
+    ...parentMeta,
+    data !== undefined
+      ? {
+          title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+        }
+      : {},
+    data !== undefined && data.organization.bio !== null
+      ? {
+          name: "description",
+          property: "og:description",
+          content: removeHtmlTags(data.organization.bio),
+        }
+      : {},
+    data !== undefined && data.organization.background !== null
+      ? {
+          name: "image",
+          property: "og:image",
+          content: data.organization.background,
+        }
+      : {},
+    data !== undefined && data.organization.background !== null
+      ? {
+          property: "og:image:secure_url",
+          content: data.organization.background,
+        }
+      : {},
   ];
 };
 

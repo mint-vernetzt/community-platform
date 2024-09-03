@@ -13,6 +13,7 @@ import {
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
+  MetaFunction,
   json,
 } from "@remix-run/node";
 import {
@@ -47,6 +48,45 @@ export function links() {
     { rel: "stylesheet", href: reactCropStyles },
   ];
 }
+
+export const meta: MetaFunction<typeof loader> = (args) => {
+  const { matches, data } = args;
+  const parentMeta = matches.flatMap((match) => {
+    if (match.meta) {
+      return match.meta;
+    }
+    return [];
+  });
+
+  return [
+    ...parentMeta,
+    data !== undefined
+      ? {
+          title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+        }
+      : {},
+    data !== undefined && data.project.excerpt !== null
+      ? {
+          name: "description",
+          property: "og:description",
+          content: data.project.excerpt,
+        }
+      : {},
+    data !== undefined && data.project.background !== null
+      ? {
+          name: "image",
+          property: "og:image",
+          content: data.project.background,
+        }
+      : {},
+    data !== undefined && data.project.background !== null
+      ? {
+          property: "og:image:secure_url",
+          content: data.project.background,
+        }
+      : {},
+  ];
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -95,6 +135,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       furtherRoomSituation: true,
       documents: true,
       images: true,
+      excerpt: true,
     },
     where: {
       slug,

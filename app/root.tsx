@@ -51,8 +51,37 @@ import { combineHeaders, deriveMode } from "./utils.server";
 
 // import newStyles from "../common/design/styles/styles.css";
 
-export const meta: MetaFunction = () => {
-  return [{ title: "MINTvernetzt Community Plattform" }];
+export const meta: MetaFunction<typeof loader> = (args) => {
+  const { data } = args;
+
+  return [
+    { title: "MINTvernetzt Community Plattform" },
+    {
+      name: "description",
+      property: "og:description",
+      content:
+        "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
+    },
+    data
+      ? {
+          name: "image",
+          property: "og:image",
+          content: data.meta.baseUrl + "/images/default-event-background.jpg",
+        }
+      : {},
+    data
+      ? {
+          property: "og:image:secure_url",
+          content: data.meta.baseUrl + "/images/default-event-background.jpg",
+        }
+      : {},
+    data
+      ? {
+          property: "og:url",
+          content: data.meta.url,
+        }
+      : {},
+  ];
 };
 
 export const links: LinksFunction = () => [
@@ -137,6 +166,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
       locale,
       env,
       mode,
+      meta: {
+        baseUrl: process.env.COMMUNITY_BASE_URL,
+        url: request.url,
+      },
     },
     { headers: combineHeaders(headers, alertHeaders) }
   );

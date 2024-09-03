@@ -93,35 +93,31 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 
   return [
     ...parentMeta,
-    {
-      title: `MINTvernetzt Community Plattform${
-        data !== undefined ? ` | ${data.event.name}` : ""
-      }`,
-    },
-    {
-      name: "description",
-      property: "og:description",
-      content: data?.event.description
-        ? removeHtmlTags(data.event.description)
-        : "",
-    },
-    {
-      name: "image",
-      property: "og:image",
-      content:
-        data?.event.background ||
-        data?.meta.baseUrl + "/images/default-event-background.jpg",
-    },
-    {
-      property: "og:image:secure_url",
-      content:
-        data?.event.background ||
-        data?.meta.baseUrl + "/images/default-event-background.jpg",
-    },
-    {
-      property: "og:url",
-      content: data?.meta.url,
-    },
+    data !== undefined
+      ? {
+          title: `MINTvernetzt Community Plattform | ${data.event.name}`,
+        }
+      : {},
+    data !== undefined && data.event.description !== null
+      ? {
+          name: "description",
+          property: "og:description",
+          content: removeHtmlTags(data.event.description),
+        }
+      : {},
+    data !== undefined && data.event.background !== null
+      ? {
+          name: "image",
+          property: "og:image",
+          content: data.event.background,
+        }
+      : {},
+    data !== undefined && data.event.background !== null
+      ? {
+          property: "og:image:secure_url",
+          content: data.event.background,
+        }
+      : {},
   ];
 };
 
@@ -286,10 +282,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     abilities,
     alreadyAbuseReported,
     abuseReportReasons,
-    meta: {
-      baseUrl: process.env.COMMUNITY_BASE_URL,
-      url: request.url,
-    },
   });
 };
 

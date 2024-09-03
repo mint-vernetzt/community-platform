@@ -1,6 +1,6 @@
 import { Button } from "@mint-vernetzt/components";
 import type { Profile } from "@prisma/client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -55,6 +55,45 @@ export function links() {
     { rel: "stylesheet", href: reactCropStyles },
   ];
 }
+
+export const meta: MetaFunction<typeof loader> = (args) => {
+  const { matches, data } = args;
+  const parentMeta = matches.flatMap((match) => {
+    if (match.meta) {
+      return match.meta;
+    }
+    return [];
+  });
+
+  return [
+    ...parentMeta,
+    data !== undefined
+      ? {
+          title: `MINTvernetzt Community Plattform | ${data.data.firstName} ${data.data.lastName}`,
+        }
+      : {},
+    data !== undefined && data.data.bio !== null
+      ? {
+          name: "description",
+          property: "og:description",
+          content: removeHtmlTags(data.data.bio),
+        }
+      : {},
+    data !== undefined && data.data.background !== null
+      ? {
+          name: "image",
+          property: "og:image",
+          content: data.data.background,
+        }
+      : {},
+    data !== undefined && data.data.background !== null
+      ? {
+          property: "og:image:secure_url",
+          content: data.data.background,
+        }
+      : {},
+  ];
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
