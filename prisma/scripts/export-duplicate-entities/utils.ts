@@ -57,78 +57,29 @@ export async function exportPossibleOrganizationDuplicates() {
     };
     possibleDuplicates: EnhancedPossibleDuplicates;
   }[] = [];
-  const transactionQueries = [];
-  for (const organization of organizations) {
-    for (const key in organization) {
-      const typedKey = key as keyof typeof organization;
-      if (
-        organization[typedKey] === null ||
-        typedKey === "id" ||
-        typedKey === "slug"
-      ) {
-        continue;
-      }
-      if (typedKey === "teamMembers" || typedKey === "admins") {
-        transactionQueries.push(
-          prismaClient.organization.findMany({
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            },
-            where: {
-              [typedKey]: {
-                some: {
-                  profileId: {
-                    in: organization[typedKey].map(
-                      (teamMember) => teamMember.profileId
-                    ),
-                  },
-                },
-              },
-              id: {
-                not: organization.id,
-              },
-            },
-          })
-        );
-      } else {
-        transactionQueries.push(
-          prismaClient.organization.findMany({
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            },
-            where: {
-              [typedKey]: {
-                contains: organization[typedKey],
-                mode: "insensitive",
-              },
-              id: {
-                not: organization.id,
-              },
-            },
-          })
-        );
-      }
-    }
-  }
-  const transactionResult = await prismaClient.$transaction(transactionQueries);
-  let index = 0;
-  for (const organization of organizations) {
+  for (const sample of organizations) {
     const enhancedPossibleDuplicates: EnhancedPossibleDuplicates = [];
-    for (const key in organization) {
-      const typedKey = key as keyof typeof organization;
+    for (const key in sample) {
+      const typedKey = key as keyof typeof sample;
       if (
-        organization[typedKey] === null ||
+        sample[typedKey] === null ||
         typedKey === "id" ||
         typedKey === "slug"
       ) {
         continue;
       }
       if (typedKey === "teamMembers" || typedKey === "admins") {
-        const possibleDuplicates = transactionResult[index];
+        const possibleDuplicates = organizations.filter((organization) => {
+          return organization[typedKey].some(({ profileId }) => {
+            return (
+              sample.id !== organization.id &&
+              sample[typedKey].some(
+                ({ profileId: sampleProfileId }) =>
+                  sampleProfileId === profileId
+              )
+            );
+          });
+        });
         for (const possibleDuplicate of possibleDuplicates) {
           if (
             duplicateOrganizations.some(
@@ -143,8 +94,40 @@ export async function exportPossibleOrganizationDuplicates() {
             });
           }
         }
+      } else if (
+        typedKey === "zipCode" ||
+        typedKey === "streetNumber" ||
+        typedKey === "street"
+      ) {
+        const possibleDuplicates = organizations.filter((organization) => {
+          return (
+            sample.id !== organization.id &&
+            organization.zipCode === sample.zipCode &&
+            organization.street === sample.street &&
+            organization.streetNumber === sample.streetNumber
+          );
+        });
+        for (const possibleDuplicate of possibleDuplicates) {
+          if (
+            duplicateOrganizations.some(
+              (duplicate) => duplicate.sample.id === possibleDuplicate.id
+            ) === false
+          ) {
+            enhancedPossibleDuplicates.push({
+              id: possibleDuplicate.id,
+              name: possibleDuplicate.name,
+              url: `${process.env.COMMUNITY_BASE_URL}/organization/${possibleDuplicate.slug}`,
+              reason: "Similar address",
+            });
+          }
+        }
       } else {
-        const possibleDuplicates = transactionResult[index];
+        const possibleDuplicates = organizations.filter((organization) => {
+          return (
+            sample.id !== organization.id &&
+            organization[typedKey] === sample[typedKey]
+          );
+        });
         for (const possibleDuplicate of possibleDuplicates) {
           if (
             duplicateOrganizations.some(
@@ -160,14 +143,13 @@ export async function exportPossibleOrganizationDuplicates() {
           }
         }
       }
-      index++;
     }
     if (enhancedPossibleDuplicates.length > 0) {
       duplicateOrganizations.push({
         sample: {
-          id: organization.id,
-          name: organization.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/organization/${organization.slug}`,
+          id: sample.id,
+          name: sample.name,
+          url: `${process.env.COMMUNITY_BASE_URL}/organization/${sample.slug}`,
         },
         possibleDuplicates: enhancedPossibleDuplicates,
       });
@@ -220,54 +202,23 @@ export async function exportPossibleProfileDuplicates() {
     };
     possibleDuplicates: EnhancedPossibleDuplicates;
   }[] = [];
-  const transactionQueries = [];
-  for (const profile of profiles) {
-    for (const key in profile) {
-      const typedKey = key as keyof typeof profile;
-
-      if (
-        profile[typedKey] === null ||
-        typedKey === "id" ||
-        typedKey === "username"
-      ) {
-        continue;
-      }
-      transactionQueries.push(
-        prismaClient.profile.findMany({
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            username: true,
-          },
-          where: {
-            [typedKey]: {
-              contains: profile[typedKey],
-              mode: "insensitive",
-            },
-            id: {
-              not: profile.id,
-            },
-          },
-        })
-      );
-    }
-  }
-  const transactionResult = await prismaClient.$transaction(transactionQueries);
-  let index = 0;
-  for (const profile of profiles) {
+  for (const sample of profiles) {
     const enhancedPossibleDuplicates: EnhancedPossibleDuplicates = [];
-    for (const key in profile) {
-      const typedKey = key as keyof typeof profile;
+    for (const key in sample) {
+      const typedKey = key as keyof typeof sample;
 
       if (
-        profile[typedKey] === null ||
+        sample[typedKey] === null ||
         typedKey === "id" ||
         typedKey === "username"
       ) {
         continue;
       }
-      const possibleDuplicates = transactionResult[index];
+      const possibleDuplicates = profiles.filter((profile) => {
+        return (
+          sample.id !== profile.id && profile[typedKey] === sample[typedKey]
+        );
+      });
       for (const possibleDuplicate of possibleDuplicates) {
         if (
           duplicateProfiles.some(
@@ -282,14 +233,13 @@ export async function exportPossibleProfileDuplicates() {
           });
         }
       }
-      index++;
     }
     if (enhancedPossibleDuplicates.length > 0) {
       duplicateProfiles.push({
         sample: {
-          id: profile.id,
-          name: `${profile.firstName} ${profile.lastName}`,
-          url: `${process.env.COMMUNITY_BASE_URL}/profile/${profile.username}`,
+          id: sample.id,
+          name: `${sample.firstName} ${sample.lastName}`,
+          url: `${process.env.COMMUNITY_BASE_URL}/profile/${sample.username}`,
         },
         possibleDuplicates: enhancedPossibleDuplicates,
       });
