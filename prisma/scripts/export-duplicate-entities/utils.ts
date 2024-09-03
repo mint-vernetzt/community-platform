@@ -82,9 +82,14 @@ export async function exportPossibleOrganizationDuplicates() {
         });
         for (const possibleDuplicate of possibleDuplicates) {
           if (
-            duplicateOrganizations.some(
-              (duplicate) => duplicate.sample.id === possibleDuplicate.id
-            ) === false
+            duplicateOrganizations.some((organization) => {
+              return (
+                organization.sample.id === possibleDuplicate.id ||
+                organization.possibleDuplicates.some(
+                  (duplicate) => duplicate.id === possibleDuplicate.id
+                )
+              );
+            }) === false
           ) {
             enhancedPossibleDuplicates.push({
               id: possibleDuplicate.id,
@@ -122,9 +127,14 @@ export async function exportPossibleOrganizationDuplicates() {
         });
         for (const possibleDuplicate of possibleDuplicates) {
           if (
-            duplicateOrganizations.some(
-              (duplicate) => duplicate.sample.id === possibleDuplicate.id
-            ) === false
+            duplicateOrganizations.some((organization) => {
+              return (
+                organization.sample.id === possibleDuplicate.id ||
+                organization.possibleDuplicates.some(
+                  (duplicate) => duplicate.id === possibleDuplicate.id
+                )
+              );
+            }) === false
           ) {
             enhancedPossibleDuplicates.push({
               id: possibleDuplicate.id,
@@ -147,9 +157,14 @@ export async function exportPossibleOrganizationDuplicates() {
         });
         for (const possibleDuplicate of possibleDuplicates) {
           if (
-            duplicateOrganizations.some(
-              (duplicate) => duplicate.sample.id === possibleDuplicate.id
-            ) === false
+            duplicateOrganizations.some((organization) => {
+              return (
+                organization.sample.id === possibleDuplicate.id ||
+                organization.possibleDuplicates.some(
+                  (duplicate) => duplicate.id === possibleDuplicate.id
+                )
+              );
+            }) === false
           ) {
             enhancedPossibleDuplicates.push({
               id: possibleDuplicate.id,
@@ -243,9 +258,14 @@ export async function exportPossibleProfileDuplicates() {
       });
       for (const possibleDuplicate of possibleDuplicates) {
         if (
-          duplicateProfiles.some(
-            (duplicate) => duplicate.sample.id === possibleDuplicate.id
-          ) === false
+          duplicateProfiles.some((profile) => {
+            return (
+              profile.sample.id === possibleDuplicate.id ||
+              profile.possibleDuplicates.some(
+                (duplicate) => duplicate.id === possibleDuplicate.id
+              )
+            );
+          }) === false
         ) {
           enhancedPossibleDuplicates.push({
             id: possibleDuplicate.id,
