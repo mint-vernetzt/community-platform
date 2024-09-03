@@ -145,7 +145,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     throw json(
       {
         message:
-          "Um den Kalender-Eintrag herunterzuladen musst du entweder Teammitglied, Speaker oder Teilnehmer der Veranstaltung sein.",
+          "Um den Kalender-Eintrag herunterzuladen musst Du entweder Teammitglied, Speaker oder Teilnehmer der Veranstaltung sein.",
       },
       { status: 403 }
     );

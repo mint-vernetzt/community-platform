@@ -26,7 +26,7 @@
   "section": {
     "changePassword1": {
       "headline": "Passwort oder E-Mail-Adresse ändern",
-      "intro": "Du nutzt die MINT-ID und kannst deshalb deine E-Mail-Adresse und dein Passwort nur auf <0>mint-id.org</0> ändern."
+      "intro": "Du nutzt die MINT-ID und kannst deshalb deine E-Mail-Adresse und Dein Passwort nur auf <0>mint-id.org</0> ändern."
     },
     "changePassword2": {
       "headline": "Passwort ändern",
@@ -47,7 +47,7 @@
     "changeEmail": {
       "headline": "E-Mail ändern",
       "feedback": "Ein Bestätigungslink wurde Dir zugesendet.",
-      "intro": "Hier kannst du Deine E-Mail-Adresse für die Anmeldung auf der Community-Plattform ändern.",
+      "intro": "Hier kannst Du Deine E-Mail-Adresse für die Anmeldung auf der Community-Plattform ändern.",
       "form": {
         "email": {
           "label": "Neue E-Mail"
