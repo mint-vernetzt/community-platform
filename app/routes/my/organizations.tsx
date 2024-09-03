@@ -440,20 +440,24 @@ export default function MyOrganizations() {
             <Section.Headline>{t("addOrganization.headline")}</Section.Headline>
             <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
             <AddOrganization organizations={loaderData.organizationsToAdd} />
-            <hr />
-            <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
-              {t("requests.headline")}
-            </h4>
-            <ul className="mv-flex mv-flex-col mv-gap-4">
-              {loaderData.requests.map((organization) => {
-                return (
-                  <OrganizationListItem
-                    key={`request-${organization.id}`}
-                    organization={organization}
-                  />
-                );
-              })}
-            </ul>
+            {loaderData.requests.length > 0 ? (
+              <>
+                <hr />
+                <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
+                  {t("requests.headline")}
+                </h4>
+                <ul className="mv-flex mv-flex-col mv-gap-4">
+                  {loaderData.requests.map((organization) => {
+                    return (
+                      <OrganizationListItem
+                        key={`request-${organization.id}`}
+                        organization={organization}
+                      />
+                    );
+                  })}
+                </ul>
+              </>
+            ) : null}
           </Section>
         ) : null}
         {organizations.teamMember.organizations.length > 0 ||
