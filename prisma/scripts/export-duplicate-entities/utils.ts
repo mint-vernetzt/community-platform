@@ -100,11 +100,24 @@ export async function exportPossibleOrganizationDuplicates() {
         typedKey === "street"
       ) {
         const possibleDuplicates = organizations.filter((organization) => {
+          if (
+            organization.zipCode === null ||
+            organization.street === null ||
+            organization.streetNumber === null ||
+            sample.zipCode === null ||
+            sample.street === null ||
+            sample.streetNumber === null
+          ) {
+            return false;
+          }
           return (
             sample.id !== organization.id &&
-            organization.zipCode === sample.zipCode &&
-            organization.street === sample.street &&
-            organization.streetNumber === sample.streetNumber
+            (organization.zipCode.includes(sample.zipCode) ||
+              sample.zipCode.includes(organization.zipCode)) &&
+            (organization.street.includes(sample.street) ||
+              sample.street.includes(organization.street)) &&
+            (organization.streetNumber.includes(sample.streetNumber) ||
+              sample.streetNumber.includes(organization.streetNumber))
           );
         });
         for (const possibleDuplicate of possibleDuplicates) {
@@ -123,9 +136,13 @@ export async function exportPossibleOrganizationDuplicates() {
         }
       } else {
         const possibleDuplicates = organizations.filter((organization) => {
+          if (organization[typedKey] === null || sample[typedKey] === null) {
+            return false;
+          }
           return (
             sample.id !== organization.id &&
-            organization[typedKey] === sample[typedKey]
+            (organization[typedKey].includes(sample[typedKey]) ||
+              sample[typedKey].includes(organization[typedKey]))
           );
         });
         for (const possibleDuplicate of possibleDuplicates) {
@@ -215,8 +232,13 @@ export async function exportPossibleProfileDuplicates() {
         continue;
       }
       const possibleDuplicates = profiles.filter((profile) => {
+        if (profile[typedKey] === null || sample[typedKey] === null) {
+          return false;
+        }
         return (
-          sample.id !== profile.id && profile[typedKey] === sample[typedKey]
+          sample.id !== profile.id &&
+          (profile[typedKey].includes(sample[typedKey]) ||
+            sample[typedKey].includes(profile[typedKey]))
         );
       });
       for (const possibleDuplicate of possibleDuplicates) {
