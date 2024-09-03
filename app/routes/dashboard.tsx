@@ -73,8 +73,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const abilities = await getFeatureAbilities(authClient, [
     "add-to-organization",
     "my_organizations",
-    "updates",
-    "news",
   ]);
 
   const numberOfProfiles = 4;
@@ -418,6 +416,7 @@ function Dashboard() {
 
   return (
     <>
+      {/* Welcome Section */}
       <section className="mv-w-full mv-mx-auto mv-m-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-px-4 @xl:mv-px-6">
           <h1 className="mv-text-primary mv-font-black mv-text-5xl @lg:mv-text-7xl mv-leading-tight mv-mb-2">
@@ -437,6 +436,7 @@ function Dashboard() {
           </p>
         </div>
       </section>
+      {/* Invites Section */}
       {loaderData.abilities["add-to-organization"].hasAccess &&
         loaderData.abilities["my_organizations"].hasAccess &&
         loaderData.organizationsFromInvites.length > 0 && (
@@ -479,116 +479,113 @@ function Dashboard() {
             </div>
           </section>
         )}
-      {loaderData.abilities["updates"].hasAccess ? (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
-          <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
-            <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
-              {t("content.updates.headline")}
-            </h2>
-            <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
-              <label
-                htmlFor="hide-updates"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
-              >
-                {t("content.updates.show")}
-              </label>
-              <label
-                htmlFor="hide-updates"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
-              >
-                {t("content.updates.hide")}
-              </label>
-              <input
-                id="hide-updates"
-                type="checkbox"
-                onChange={() => {
-                  const hideUpdates =
-                    Cookies.get("mv-hide-updates") === "true" ? false : true;
-                  Cookies.set("mv-hide-updates", hideUpdates.toString(), {
-                    sameSite: "strict",
-                  });
-                  console.log("OnChange", hideUpdates);
-                  setHideUpdates(hideUpdates);
-                }}
-                checked={hideUpdates === true}
-                className="mv-w-0 mv-h-0 mv-opacity-0"
-              />
-            </div>
+      {/* Updates Section */}
+      <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
+        <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
+          <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
+            {t("content.updates.headline")}
+          </h2>
+          <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
+            <label
+              htmlFor="hide-updates"
+              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
+            >
+              {t("content.updates.show")}
+            </label>
+            <label
+              htmlFor="hide-updates"
+              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
+            >
+              {t("content.updates.hide")}
+            </label>
+            <input
+              id="hide-updates"
+              type="checkbox"
+              onChange={() => {
+                const hideUpdates =
+                  Cookies.get("mv-hide-updates") === "true" ? false : true;
+                Cookies.set("mv-hide-updates", hideUpdates.toString(), {
+                  sameSite: "strict",
+                });
+                console.log("OnChange", hideUpdates);
+                setHideUpdates(hideUpdates);
+              }}
+              checked={hideUpdates === true}
+              className="mv-w-0 mv-h-0 mv-opacity-0"
+            />
           </div>
-          {hideUpdates === false ? (
-            <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
-              {Object.entries(updateTeasers).map(([key, value]) => {
-                return (
-                  <TeaserCard
-                    key={key}
-                    to={value.link}
-                    headline={t(`content.updates.${key}.headline`)}
-                    description={t(`content.updates.${key}.description`)}
-                    linkDescription={t(
-                      `content.updates.${key}.linkDescription`
-                    )}
-                    iconType={value.icon}
-                  />
-                );
-              })}
-            </ul>
-          ) : null}
-        </section>
-      ) : null}
-      {loaderData.abilities["news"].hasAccess ? (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
-          <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
-            <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
-              {t("content.news.headline")}
-            </h2>
-            <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
-              <label
-                htmlFor="hide-news"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
-              >
-                {t("content.news.show")}
-              </label>
-              <label
-                htmlFor="hide-news"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
-              >
-                {t("content.news.hide")}
-              </label>
-              <input
-                id="hide-news"
-                type="checkbox"
-                onChange={() => {
-                  const hideNews =
-                    Cookies.get("mv-hide-news") === "true" ? false : true;
-                  Cookies.set("mv-hide-news", hideNews.toString(), {
-                    sameSite: "strict",
-                  });
-                  setHideNews(hideNews);
-                }}
-                className="mv-w-0 mv-h-0 mv-opacity-0"
-                checked={hideNews === true}
-              />
-            </div>
+        </div>
+        {hideUpdates === false ? (
+          <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
+            {Object.entries(updateTeasers).map(([key, value]) => {
+              return (
+                <TeaserCard
+                  key={key}
+                  to={value.link}
+                  headline={t(`content.updates.${key}.headline`)}
+                  description={t(`content.updates.${key}.description`)}
+                  linkDescription={t(`content.updates.${key}.linkDescription`)}
+                  iconType={value.icon}
+                />
+              );
+            })}
+          </ul>
+        ) : null}
+      </section>
+      {/* News Section */}
+      <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
+        <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
+          <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
+            {t("content.news.headline")}
+          </h2>
+          <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
+            <label
+              htmlFor="hide-news"
+              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
+            >
+              {t("content.news.show")}
+            </label>
+            <label
+              htmlFor="hide-news"
+              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
+            >
+              {t("content.news.hide")}
+            </label>
+            <input
+              id="hide-news"
+              type="checkbox"
+              onChange={() => {
+                const hideNews =
+                  Cookies.get("mv-hide-news") === "true" ? false : true;
+                Cookies.set("mv-hide-news", hideNews.toString(), {
+                  sameSite: "strict",
+                });
+                setHideNews(hideNews);
+              }}
+              className="mv-w-0 mv-h-0 mv-opacity-0"
+              checked={hideNews === true}
+            />
           </div>
-          {hideNews === false ? (
-            <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
-              {Object.entries(newsTeasers).map(([key, value]) => {
-                return (
-                  <TeaserCard
-                    key={key}
-                    to={value.link}
-                    headline={t(`content.news.${key}.headline`)}
-                    description={t(`content.news.${key}.description`)}
-                    linkDescription={t(`content.news.${key}.linkDescription`)}
-                    iconType={value.icon}
-                    type="secondary"
-                  />
-                );
-              })}
-            </ul>
-          ) : null}
-        </section>
-      ) : null}
+        </div>
+        {hideNews === false ? (
+          <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
+            {Object.entries(newsTeasers).map(([key, value]) => {
+              return (
+                <TeaserCard
+                  key={key}
+                  to={value.link}
+                  headline={t(`content.news.${key}.headline`)}
+                  description={t(`content.news.${key}.description`)}
+                  linkDescription={t(`content.news.${key}.linkDescription`)}
+                  iconType={value.icon}
+                  type="secondary"
+                />
+              );
+            })}
+          </ul>
+        ) : null}
+      </section>
+      {/* Community Counter */}
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-flex-col mv-w-full mv-items-center mv-gap-6 mv-py-6 mv-bg-white mv-border mv-border-neutral-200 mv-rounded-lg">
           <h2 className="mv-appearance-none mv-w-full mv-text-primary mv-text-center mv-text-3xl mv-font-semibold mv-leading-7 @lg:mv-leading-8 mv-px-11 @lg:mv-px-6">
@@ -613,6 +610,7 @@ function Dashboard() {
           </ul>
         </div>
       </section>
+      {/* Profile Card Section */}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
@@ -634,6 +632,7 @@ function Dashboard() {
           </CardContainer>
         </div>
       </section>
+      {/* Organization Card Section */}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
@@ -660,6 +659,7 @@ function Dashboard() {
           </CardContainer>
         </div>
       </section>
+      {/* Project Card Section */}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
@@ -681,6 +681,7 @@ function Dashboard() {
           </CardContainer>
         </div>
       </section>
+      {/* Event Card Section */}
       <section className="mv-w-full mv-mb-12 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
@@ -725,6 +726,7 @@ function Dashboard() {
           </CardContainer>
         </div>
       </section>
+      {/* External Links Section */}
       <section className="mv-w-full mv-mb-24 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <h2 className="mv-appearance-none mv-w-full mv-mb-6 mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold">
           {t("content.externalLinks.headline")}
