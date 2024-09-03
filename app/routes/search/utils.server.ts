@@ -1592,9 +1592,17 @@ function getProjectWhereQueries(
               };
             }
           | {
-              [K in "awards" | "disciplines" | "targetGroups"]?: {
+              [K in
+                | "formats"
+                | "disciplines"
+                | "projectTargetGroups"
+                | "specialTargetGroups"]?: {
                 some: {
-                  [K in "award" | "discipline" | "targetGroup"]?: {
+                  [K in
+                    | "format"
+                    | "discipline"
+                    | "projectTargetGroup"
+                    | "specialTargetGroup"]?: {
                     [K in "title"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
@@ -1754,29 +1762,30 @@ function getProjectWhereQueries(
               : {},
           ],
         },
-        {
-          AND: [
-            {
-              awards: {
-                some: {
-                  award: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  projectVisibility: {
-                    awards: true,
-                  },
-                }
-              : {},
-          ],
-        },
+        // Legacy
+        // {
+        //   AND: [
+        //     {
+        //       awards: {
+        //         some: {
+        //           award: {
+        //             title: {
+        //               contains: word,
+        //               mode: "insensitive",
+        //             },
+        //           },
+        //         },
+        //       },
+        //     },
+        //     sessionUser === null
+        //       ? {
+        //           projectVisibility: {
+        //             awards: true,
+        //           },
+        //         }
+        //       : {},
+        //   ],
+        // },
         {
           AND: [
             {
@@ -1834,12 +1843,36 @@ function getProjectWhereQueries(
               : {},
           ],
         },
+        // Legacy
+        // {
+        //   AND: [
+        //     {
+        //       targetGroups: {
+        //         some: {
+        //           targetGroup: {
+        //             title: {
+        //               contains: word,
+        //               mode: "insensitive",
+        //             },
+        //           },
+        //         },
+        //       },
+        //     },
+        //     sessionUser === null
+        //       ? {
+        //           projectVisibility: {
+        //             targetGroups: true,
+        //           },
+        //         }
+        //       : {},
+        //   ],
+        // },
         {
           AND: [
             {
-              targetGroups: {
+              projectTargetGroups: {
                 some: {
-                  targetGroup: {
+                  projectTargetGroup: {
                     title: {
                       contains: word,
                       mode: "insensitive",
@@ -1851,7 +1884,53 @@ function getProjectWhereQueries(
             sessionUser === null
               ? {
                   projectVisibility: {
-                    targetGroups: true,
+                    projectTargetGroups: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              specialTargetGroups: {
+                some: {
+                  specialTargetGroup: {
+                    title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    specialTargetGroups: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              formats: {
+                some: {
+                  format: {
+                    title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    formats: true,
                   },
                 }
               : {},
