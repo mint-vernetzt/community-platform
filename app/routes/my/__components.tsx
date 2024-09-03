@@ -6,7 +6,7 @@ import {
   GetOrganizationsToAdd,
   loader as organizationsToAddLoader,
 } from "./organizations/get-organizations-to-add";
-import { action as requestToOrganizationToAddProfileAction } from "./organizations/requests";
+import { Request, action as requestsAction } from "./organizations/requests";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
 import { useTranslation } from "react-i18next";
 import { i18nNS as organizationsI18nNS } from "./organizations";
@@ -113,8 +113,7 @@ export function AddOrganization(props: {
     }
   }, [getOrganizationsToAddFetcher.data, organizations]);
 
-  const createRequestFetcher =
-    useFetcher<typeof requestToOrganizationToAddProfileAction>();
+  const createRequestFetcher = useFetcher<typeof requestsAction>();
 
   return (
     <>
@@ -201,6 +200,7 @@ export function AddOrganization(props: {
                       name={GetOrganizationsToAdd.SearchParam}
                       value={searchQuery}
                     />
+                    <input type="hidden" name="intent" value={Request.Create} />
                     <Button
                       variant="outline"
                       fullSize
@@ -234,6 +234,12 @@ export function OrganizationListItem(props: {
   };
 }) {
   const { organization } = props;
+  const { t } = useTranslation(organizationsI18nNS);
+
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get(GetOrganizationsToAdd.SearchParam) ?? "";
+
+  const fetcher = useFetcher<typeof requestsAction>();
 
   return (
     <li className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center">
@@ -257,6 +263,33 @@ export function OrganizationListItem(props: {
           </p>
         </div>
       </Link>
+      <fetcher.Form
+        method="post"
+        className="mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
+        action="/my/organizations/requests"
+      >
+        <input
+          type="hidden"
+          required
+          readOnly
+          name="organizationId"
+          defaultValue={organization.id}
+        />
+        <input
+          type="hidden"
+          name={GetOrganizationsToAdd.SearchParam}
+          value={searchQuery}
+        />
+        <input type="hidden" name="intent" value={Request.Cancel} />
+        <Button
+          variant="outline"
+          fullSize
+          type="submit"
+          disabled={fetcher.state === "submitting"}
+        >
+          {t("addOrganization.cancelRequest")}
+        </Button>
+      </fetcher.Form>
     </li>
   );
 }

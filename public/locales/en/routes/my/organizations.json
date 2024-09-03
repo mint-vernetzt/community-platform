@@ -19,6 +19,7 @@
             "organizationsFound": "Organizations with this name already exist. Ask if you can join an organization."
         },
         "createRequest": "Request to join",
+        "cancelRequest": "Cancel request to join",
         "errors": {
             "invalidRoute": "No valid route",
             "alreadyInRelation": "You have still requested to add this profile to this organization, have an invite or are already a member.",

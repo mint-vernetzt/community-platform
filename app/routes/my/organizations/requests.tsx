@@ -3,16 +3,23 @@ import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
-import { mailer } from "~/mailer.server";
-import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
-import { GetOrganizationsToAdd } from "./get-organizations-to-add.server";
 import { i18nNS } from "../organizations";
+import { GetOrganizationsToAdd } from "./get-organizations-to-add";
+import {
+  cancelRequestToOrganization,
+  createRequestToOrganization,
+} from "./requests.server";
+
+export const Request = {
+  Create: "createRequest",
+  Cancel: "cancelRequest",
+};
 
 export const schema = z.object({
   organizationId: z.string(),
-  [GetOrganizationsToAdd.SearchParam]: z.string(),
+  [GetOrganizationsToAdd.SearchParam]: z.string().optional(),
+  intent: z.enum([Request.Create, Request.Cancel]),
 });
 
 export async function action(args: ActionFunctionArgs) {
@@ -32,89 +39,35 @@ export async function action(args: ActionFunctionArgs) {
   const submission = parse(formData, { schema });
 
   if (typeof submission.value !== "undefined" && submission.value !== null) {
-    const organization = await prismaClient.organization.findFirst({
-      where: {
-        id: submission.value.organizationId,
-        AND: [
-          {
-            teamMembers: {
-              none: {
-                profileId: sessionUser.id,
-              },
-            },
-            admins: {
-              none: {
-                profileId: sessionUser.id,
-              },
-            },
-          },
-          {
-            profileJoinInvites: {
-              none: {
-                profileId: sessionUser.id,
-              },
-            },
-          },
-          {
-            profileJoinRequests: {
-              none: {
-                profileId: sessionUser.id,
-              },
-            },
-          },
-        ],
-      },
-      select: {
-        name: true,
-        admins: {
-          select: {
-            profile: {
-              select: {
-                email: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (organization === null) {
-      throw new Error(t("addOrganization.errors.alreadyInRelation"));
+    if (submission.value.intent === Request.Create) {
+      const error = await createRequestToOrganization(
+        submission.value.organizationId as string,
+        sessionUser.id
+      );
+      if (error !== null) {
+        throw new Error(t(error.message));
+      }
+    } else if (submission.value.intent === Request.Cancel) {
+      console.log("canceling request");
+      await cancelRequestToOrganization(
+        submission.value.organizationId as string,
+        sessionUser.id
+      );
     }
 
-    const result = await prismaClient.requestToOrganizationToAddProfile.create({
-      data: {
-        organizationId: submission.value.organizationId as string,
-        profileId: sessionUser.id,
-        status: "pending",
-      },
-      select: {
-        profile: {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-      },
-    });
-
-    const sender = process.env.SYSTEM_MAIL_SENDER;
-    const subject = `${result.profile.firstName} ${result.profile.lastName} send request to join organization`;
-    const recipient = organization.admins.map((admin) => {
-      return admin.profile.email;
-    });
-
-    const text = `Hi admins of ${organization.name}, ${result.profile.firstName} ${result.profile.lastName} has requested to join your organization. You can contact ${result.profile.firstName} ${result.profile.lastName} at ${result.profile.email}.`;
-    const html = text;
-
-    await mailer(mailerOptions, sender, recipient, subject, text, html);
-
-    return redirect(
-      `/my/organizations?${GetOrganizationsToAdd.SearchParam}=${
-        submission.value[GetOrganizationsToAdd.SearchParam]
-      }`
+    const redirectURL = new URL(
+      `${process.env.COMMUNITY_BASE_URL}/my/organizations`
     );
+    if (
+      typeof submission.value[GetOrganizationsToAdd.SearchParam] === "string"
+    ) {
+      redirectURL.searchParams.set(
+        GetOrganizationsToAdd.SearchParam,
+        submission.value[GetOrganizationsToAdd.SearchParam] as string
+      );
+    }
+
+    return redirect(redirectURL.toString());
   }
 
   return json(submission);
