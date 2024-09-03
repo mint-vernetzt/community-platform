@@ -246,33 +246,64 @@ export async function exportPossibleProfileDuplicates() {
       ) {
         continue;
       }
-      const possibleDuplicates = profiles.filter((profile) => {
-        if (profile[typedKey] === null || sample[typedKey] === null) {
-          return false;
+      if (typedKey === "firstName" || typedKey === "lastName") {
+        const possibleDuplicates = profiles.filter((profile) => {
+          const profileName = `${profile.firstName} ${profile.lastName}`.trim();
+          const sampleName = `${sample.firstName} ${sample.lastName}`.trim();
+          return (
+            sample.id !== profile.id &&
+            (profileName.includes(sampleName) ||
+              sampleName.includes(profileName))
+          );
+        });
+        for (const possibleDuplicate of possibleDuplicates) {
+          if (
+            duplicateProfiles.some((profile) => {
+              return (
+                profile.sample.id === possibleDuplicate.id ||
+                profile.possibleDuplicates.some(
+                  (duplicate) => duplicate.id === possibleDuplicate.id
+                )
+              );
+            }) === false
+          ) {
+            enhancedPossibleDuplicates.push({
+              id: possibleDuplicate.id,
+              name: `${possibleDuplicate.firstName} ${possibleDuplicate.lastName}`,
+              url: `${process.env.COMMUNITY_BASE_URL}/profile/${possibleDuplicate.username}`,
+              reason: "Similar Name",
+            });
+          }
         }
-        return (
-          sample.id !== profile.id &&
-          (profile[typedKey].includes(sample[typedKey]) ||
-            sample[typedKey].includes(profile[typedKey]))
-        );
-      });
-      for (const possibleDuplicate of possibleDuplicates) {
-        if (
-          duplicateProfiles.some((profile) => {
-            return (
-              profile.sample.id === possibleDuplicate.id ||
-              profile.possibleDuplicates.some(
-                (duplicate) => duplicate.id === possibleDuplicate.id
-              )
-            );
-          }) === false
-        ) {
-          enhancedPossibleDuplicates.push({
-            id: possibleDuplicate.id,
-            name: `${possibleDuplicate.firstName} ${possibleDuplicate.lastName}`,
-            url: `${process.env.COMMUNITY_BASE_URL}/profile/${possibleDuplicate.username}`,
-            reason: `Similar ${typedKey}`,
-          });
+      } else {
+        const possibleDuplicates = profiles.filter((profile) => {
+          if (profile[typedKey] === null || sample[typedKey] === null) {
+            return false;
+          }
+          return (
+            sample.id !== profile.id &&
+            (profile[typedKey].includes(sample[typedKey]) ||
+              sample[typedKey].includes(profile[typedKey]))
+          );
+        });
+        for (const possibleDuplicate of possibleDuplicates) {
+          if (
+            duplicateProfiles.some((profile) => {
+              return (
+                profile.sample.id === possibleDuplicate.id ||
+                profile.possibleDuplicates.some(
+                  (duplicate) => duplicate.id === possibleDuplicate.id
+                )
+              );
+            }) === false
+          ) {
+            enhancedPossibleDuplicates.push({
+              id: possibleDuplicate.id,
+              name: `${possibleDuplicate.firstName} ${possibleDuplicate.lastName}`,
+              url: `${process.env.COMMUNITY_BASE_URL}/profile/${possibleDuplicate.username}`,
+              reason: `Similar ${typedKey}`,
+            });
+          }
         }
       }
     }
