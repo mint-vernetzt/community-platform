@@ -10,30 +10,30 @@
       "headline": "Updates",
       "hide": "Hide updates",
       "show": "Show updates",
-      "addYourselfToOrganizations": {
-        "headline": "New feature",
-        "description": "You can now add yourself to organizations",
-        "linkDescription": "Try it out now"
-      },
       "faq": {
-        "headline": "New feature",
-        "description": "Questions and answers",
-        "linkDescription": "To the FAQ"
+        "headline": "Support",
+        "description": "New help page with answers to questions about the platform",
+        "linkDescription": "View now"
+      },
+      "createProject": {
+        "headline": "Share knowledge",
+        "description": "Create your own project or complete an existing draft",
+        "linkDescription": "Create now"
       }
     },
     "news": {
       "headline": "MINTvernetzt News",
       "hide": "Hide news",
       "show": "Show news",
-      "actionDaysProgramOutNow": {
+      "kiToolEvent": {
         "headline": "New event",
-        "description": "Program for the MINTvernetzt Action Days online",
+        "description": "Win fundings with AI tools with Mira Pape on 08.10.24",
         "linkDescription": "Register now"
       },
-      "annualConferenceDateSet": {
-        "headline": "Save the Date",
-        "description": "Date set for the MINTvernetzt annual conference",
-        "linkDescription": "To the event"
+      "shapeActionDays": {
+        "headline": "Submit actions now",
+        "description": "Help shape the program of the digital MINTvernetzt action days",
+        "linkDescription": "More information"
       }
     },
     "communityCounter": {

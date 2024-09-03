@@ -10,30 +10,30 @@
       "headline": "Updates",
       "hide": "Updates ausblenden",
       "show": "Updates einblenden",
-      "addYourselfToOrganizations": {
-        "headline": "Neue Funktion",
-        "description": "Du kannst dich jetzt selbst zu Organisationen hinzufügen",
-        "linkDescription": "Jetzt ausprobieren"
-      },
       "faq": {
-        "headline": "Neue Funktion",
-        "description": "Fragen und Antworten",
-        "linkDescription": "Zum FAQ"
+        "headline": "Support",
+        "description": "Neue Hilfeseite mit Antworten auf Fragen rund um die Plattform",
+        "linkDescription": "Jetzt ansehen"
+      },
+      "createProject": {
+        "headline": "Wissen teilen",
+        "description": "Eigenes Projekt anlegen oder bereits erstellten Entwurf fertigstellen",
+        "linkDescription": "Jetzt anlegen"
       }
     },
     "news": {
       "headline": "MINTvernetzt News",
       "hide": "News ausblenden",
       "show": "News einblenden",
-      "actionDaysProgramOutNow": {
-        "headline": "Neue Veranstaltung",
-        "description": "Programm für die MINTvernetzt-Aktionstage online",
+      "kiToolEvent": {
+        "headline": "Neues Event",
+        "description": "Fördermittel gewinnen mit KI-Tools mit Mira Pape am 08.10.24",
         "linkDescription": "Jetzt anmelden"
       },
-      "annualConferenceDateSet": {
-        "headline": "Save the Date",
-        "description": "Datum für die MINTvernetzt-Jahrestagung steht fest",
-        "linkDescription": "Zum Event"
+      "shapeActionDays": {
+        "headline": "Jetzt Aktionen einreichen",
+        "description": "Programm der digitalen MINTvernetzt Aktionstage mitgestalten",
+        "linkDescription": "Mehr Infos"
       }
     },
     "communityCounter": {

@@ -362,16 +362,16 @@ function getDataForExternalLinkTeasers() {
 
 function getDataForUpdateTeasers() {
   const teaserData: {
-    addYourselfToOrganizations: { link: string; icon: TeaserIconType };
+    createProject: { link: string; icon: TeaserIconType };
     faq: { link: string; icon: TeaserIconType };
   } = {
-    addYourselfToOrganizations: {
-      link: "/my/organizations",
-      icon: "Plus big",
-    },
     faq: {
       link: "/help",
-      icon: "search",
+      icon: "life-preserver-outline",
+    },
+    createProject: {
+      link: "/project/create",
+      icon: "Plus big",
     },
   };
   return teaserData;
@@ -379,15 +379,15 @@ function getDataForUpdateTeasers() {
 
 function getDataForNewsTeasers() {
   const teaserData: {
-    actionDaysProgramOutNow: { link: string; icon: TeaserIconType };
-    annualConferenceDateSet: { link: string; icon: TeaserIconType };
+    kiToolEvent: { link: string; icon: TeaserIconType };
+    shapeActionDays: { link: string; icon: TeaserIconType };
   } = {
-    actionDaysProgramOutNow: {
-      link: "/event/mintvernetztaktionstage2024-lxt2bw2l",
-      icon: "life-preserver-outline",
+    kiToolEvent: {
+      link: "/event/foerdermittelgewinnenmitkitools-lyiqmjqp",
+      icon: "lightning-charge",
     },
-    annualConferenceDateSet: {
-      link: "/event/mintvernetztjahrestagung2025-lxa5gke3",
+    shapeActionDays: {
+      link: "/event/mintvernetztaktionstage2024-lxt2bw2l",
       icon: "megaphone",
     },
   };
