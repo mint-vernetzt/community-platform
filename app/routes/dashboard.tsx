@@ -274,7 +274,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
-          resize: { type: "fill", width: 348, height: 160 },
+          resize: { type: "fill", width: 594, height: 396 },
         });
         blurredBackground = getImageURL(publicURL, {
           resize: { type: "fill", width: 18, height: 12 },
