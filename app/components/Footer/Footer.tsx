@@ -80,7 +80,7 @@ function Footer(props: FooterProps) {
                 </a>
               </li>
               <li>
-                Benötigst du Hilfe? Melde dich bei{" "}
+                Benötigst Du Hilfe? Melde dich bei{" "}
                 <a
                   href="mailto:support@mint-vernetzt.de"
                   className="hover:underline hover:text-primary"

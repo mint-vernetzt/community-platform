@@ -14,12 +14,12 @@
     },
     "invites": {
       "headline": "Einladungen",
-      "intro": "Hier siehst du alle Einladungen, die du bereits versendet hast.",
+      "intro": "Hier siehst Du alle Einladungen, die Du bereits versendet hast.",
       "cancel": "zurückziehen"
     },
     "current": {
       "headline": "Aktuelle Teammitglieder",
-      "intro": "Hier siehst du alle Teammitglieder auf einen Blick.",
+      "intro": "Hier siehst Du alle Teammitglieder auf einen Blick.",
       "remove": "entfernen"
     }
   }

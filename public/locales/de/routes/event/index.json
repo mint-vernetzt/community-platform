@@ -63,7 +63,7 @@
     }
   },
   "abuseReport": {
-      "title": "Warum möchstest du dieses Event melden?",
+      "title": "Warum möchstest Du dieses Event melden?",
       "description": "Um Deiner Meldung nachgehen zu  können, benötigen wir den Grund, warum Du dieses Event melden möchtest.",
       "otherReason": "Anderer Grund",
       "noReasons": "Bitte gib mindestens einen Grund an.",

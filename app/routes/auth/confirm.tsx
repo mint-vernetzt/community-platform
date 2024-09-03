@@ -108,8 +108,8 @@ export default function Confirm() {
                 <h1 className="mb-4">Passwort zurücksetzen</h1>
 
                 <p className="mb-6">
-                  Du hast dein Passwort vergessen? Klicke auf den untenstehenden
-                  Link, um dein Passwort zurückzusetzen:
+                  Du hast Dein Passwort vergessen? Klicke auf den untenstehenden
+                  Link, um Dein Passwort zurückzusetzen:
                 </p>
                 <a
                   href={loaderData.confirmationLink}
