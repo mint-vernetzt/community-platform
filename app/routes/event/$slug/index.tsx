@@ -91,36 +91,65 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     return [];
   });
 
+  if (data === undefined) {
+    return [...parentMeta];
+  }
+  if (data.event.description === null && data.event.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.event.name}`,
+      },
+    ];
+  }
+  if (data.event.description === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.event.name}`,
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content: data.event.background,
+      },
+      {
+        property: "og:image:secure_url",
+        content: data.event.background,
+      },
+    ];
+  }
+  if (data.event.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.event.name}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content: removeHtmlTags(data.event.description),
+      },
+    ];
+  }
   return [
     ...parentMeta,
     {
-      title: `MINTvernetzt Community Plattform${
-        data !== undefined ? ` | ${data.event.name}` : ""
-      }`,
+      title: `MINTvernetzt Community Plattform | ${data.event.name}`,
     },
     {
       name: "description",
       property: "og:description",
-      content: data?.event.description
-        ? removeHtmlTags(data.event.description)
-        : "",
+      content: removeHtmlTags(data.event.description),
     },
     {
       name: "image",
       property: "og:image",
-      content:
-        data?.event.background ||
-        data?.meta.baseUrl + "/images/default-event-background.jpg",
+      content: data.event.background,
     },
     {
       property: "og:image:secure_url",
-      content:
-        data?.event.background ||
-        data?.meta.baseUrl + "/images/default-event-background.jpg",
-    },
-    {
-      property: "og:url",
-      content: data?.meta.url,
+      content: data.event.background,
     },
   ];
 };
@@ -286,10 +315,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     abilities,
     alreadyAbuseReported,
     abuseReportReasons,
-    meta: {
-      baseUrl: process.env.COMMUNITY_BASE_URL,
-      url: request.url,
-    },
   });
 };
 

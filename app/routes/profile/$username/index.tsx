@@ -1,6 +1,6 @@
 import { Button } from "@mint-vernetzt/components";
 import type { Profile } from "@prisma/client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
@@ -55,6 +55,85 @@ export function links() {
     { rel: "stylesheet", href: reactCropStyles },
   ];
 }
+
+export const meta: MetaFunction<typeof loader> = (args) => {
+  const { matches, data } = args;
+  const parentMeta = matches.flatMap((match) => {
+    if (match.meta) {
+      return match.meta;
+    }
+    return [];
+  });
+  if (data === undefined) {
+    return [...parentMeta];
+  }
+  if (data.data.bio === null && data.data.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${
+          data.data.academicTitle ? `${data.data.academicTitle} ` : ""
+        }${data.data.firstName} ${data.data.lastName}`,
+      },
+    ];
+  }
+  if (data.data.bio === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${
+          data.data.academicTitle ? `${data.data.academicTitle} ` : ""
+        }${data.data.firstName} ${data.data.lastName}`,
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content: data.data.background,
+      },
+      {
+        property: "og:image:secure_url",
+        content: data.data.background,
+      },
+    ];
+  }
+  if (data.data.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${
+          data.data.academicTitle ? `${data.data.academicTitle} ` : ""
+        }${data.data.firstName} ${data.data.lastName}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content: removeHtmlTags(data.data.bio),
+      },
+    ];
+  }
+  return [
+    ...parentMeta,
+    {
+      title: `MINTvernetzt Community Plattform | ${
+        data.data.academicTitle ? `${data.data.academicTitle} ` : ""
+      }${data.data.firstName} ${data.data.lastName}`,
+    },
+    {
+      name: "description",
+      property: "og:description",
+      content: removeHtmlTags(data.data.bio),
+    },
+    {
+      name: "image",
+      property: "og:image",
+      content: data.data.background,
+    },
+    {
+      property: "og:image:secure_url",
+      content: data.data.background,
+    },
+  ];
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;

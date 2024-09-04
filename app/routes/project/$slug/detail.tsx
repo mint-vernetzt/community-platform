@@ -13,6 +13,7 @@ import {
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
+  MetaFunction,
   json,
 } from "@remix-run/node";
 import {
@@ -47,6 +48,78 @@ export function links() {
     { rel: "stylesheet", href: reactCropStyles },
   ];
 }
+
+export const meta: MetaFunction<typeof loader> = (args) => {
+  const { matches, data } = args;
+  const parentMeta = matches.flatMap((match) => {
+    if (match.meta) {
+      return match.meta;
+    }
+    return [];
+  });
+
+  if (data === undefined) {
+    return [...parentMeta];
+  }
+  if (data.project.excerpt === null && data.project.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+      },
+    ];
+  }
+  if (data.project.excerpt === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content: data.project.background,
+      },
+      {
+        property: "og:image:secure_url",
+        content: data.project.background,
+      },
+    ];
+  }
+  if (data.project.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content: data.project.excerpt,
+      },
+    ];
+  }
+  return [
+    ...parentMeta,
+    {
+      title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+    },
+    {
+      name: "description",
+      property: "og:description",
+      content: data.project.excerpt,
+    },
+    {
+      name: "image",
+      property: "og:image",
+      content: data.project.background,
+    },
+    {
+      property: "og:image:secure_url",
+      content: data.project.background,
+    },
+  ];
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -95,6 +168,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       furtherRoomSituation: true,
       documents: true,
       images: true,
+      excerpt: true,
     },
     where: {
       slug,

@@ -55,12 +55,74 @@ export function links() {
   ];
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = (args) => {
+  const { matches, data } = args;
+  const parentMeta = matches.flatMap((match) => {
+    if (match.meta) {
+      return match.meta;
+    }
+    return [];
+  });
+
+  if (data === undefined) {
+    return [...parentMeta];
+  }
+  if (data.organization.bio === null && data.organization.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+      },
+    ];
+  }
+  if (data.organization.bio === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content: data.organization.background,
+      },
+      {
+        property: "og:image:secure_url",
+        content: data.organization.background,
+      },
+    ];
+  }
+  if (data.organization.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content: removeHtmlTags(data.organization.bio),
+      },
+    ];
+  }
   return [
+    ...parentMeta,
     {
-      title: `MINTvernetzt Community Plattform${
-        data !== undefined ? ` | ${data.organization.name}` : ""
-      }`,
+      title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+    },
+    {
+      name: "description",
+      property: "og:description",
+      content: removeHtmlTags(data.organization.bio),
+    },
+    {
+      name: "image",
+      property: "og:image",
+      content: data.organization.background,
+    },
+    {
+      property: "og:image:secure_url",
+      content: data.organization.background,
     },
   ];
 };
