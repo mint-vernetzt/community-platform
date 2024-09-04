@@ -45,7 +45,6 @@ function HeaderLogo() {
         role="img"
         className="w-10 h-10 lg:w-auto lg:h-auto"
       >
-        <title id="mint-title-header">{t("root.logo")}</title>
         <g fill="none">
           <path
             fill="#154194"

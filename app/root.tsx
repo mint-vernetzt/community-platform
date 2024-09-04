@@ -54,6 +54,18 @@ import { combineHeaders, deriveMode } from "./utils.server";
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
 
+  if (data === undefined) {
+    return [
+      { title: "MINTvernetzt Community Plattform" },
+      {
+        name: "description",
+        property: "og:description",
+        content:
+          "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
+      },
+    ];
+  }
+
   return [
     { title: "MINTvernetzt Community Plattform" },
     {
@@ -62,25 +74,19 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       content:
         "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
     },
-    data
-      ? {
-          name: "image",
-          property: "og:image",
-          content: data.meta.baseUrl + "/images/default-event-background.jpg",
-        }
-      : {},
-    data
-      ? {
-          property: "og:image:secure_url",
-          content: data.meta.baseUrl + "/images/default-event-background.jpg",
-        }
-      : {},
-    data
-      ? {
-          property: "og:url",
-          content: data.meta.url,
-        }
-      : {},
+    {
+      name: "image",
+      property: "og:image",
+      content: data.meta.baseUrl + "/images/default-event-background.jpg",
+    },
+    {
+      property: "og:image:secure_url",
+      content: data.meta.baseUrl + "/images/default-event-background.jpg",
+    },
+    {
+      property: "og:url",
+      content: data.meta.url,
+    },
   ];
 };
 
