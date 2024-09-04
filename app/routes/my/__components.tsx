@@ -184,6 +184,7 @@ export function AddOrganization(props: {
                     </div>
                   </Link>
                   <createRequestFetcher.Form
+                    preventScrollReset
                     method="post"
                     className="mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
                     action="/my/organizations/requests"
@@ -264,6 +265,7 @@ export function OrganizationListItem(props: {
         </div>
       </Link>
       <fetcher.Form
+        preventScrollReset
         method="post"
         className="mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
         action="/my/organizations/requests"
