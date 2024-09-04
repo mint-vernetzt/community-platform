@@ -57,33 +57,59 @@ export function links() {
 }
 
 export const meta: MetaFunction<typeof loader> = (args) => {
-  const { matches, data } = args;
-  const parentMeta = matches.flatMap((match) => {
-    if (match.meta) {
-      return match.meta;
-    }
-    return [];
-  });
+  const { data } = args;
+
   if (data === undefined) {
-    return [...parentMeta];
+    return [
+      { title: "MINTvernetzt Community Plattform" },
+      {
+        name: "description",
+        property: "og:description",
+        content:
+          "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
+      },
+    ];
   }
   if (data.data.bio === null && data.data.background === null) {
     return [
-      ...parentMeta,
       {
         title: `MINTvernetzt Community Plattform | ${
           data.data.academicTitle ? `${data.data.academicTitle} ` : ""
         }${data.data.firstName} ${data.data.lastName}`,
       },
+      {
+        name: "description",
+        property: "og:description",
+        content:
+          "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+      },
+      {
+        property: "og:image:secure_url",
+        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+      },
+      {
+        property: "og:url",
+        content: data.meta.url,
+      },
     ];
   }
   if (data.data.bio === null) {
     return [
-      ...parentMeta,
       {
         title: `MINTvernetzt Community Plattform | ${
           data.data.academicTitle ? `${data.data.academicTitle} ` : ""
         }${data.data.firstName} ${data.data.lastName}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content:
+          "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
       },
       {
         name: "image",
@@ -94,11 +120,14 @@ export const meta: MetaFunction<typeof loader> = (args) => {
         property: "og:image:secure_url",
         content: data.data.background,
       },
+      {
+        property: "og:url",
+        content: data.meta.url,
+      },
     ];
   }
   if (data.data.background === null) {
     return [
-      ...parentMeta,
       {
         title: `MINTvernetzt Community Plattform | ${
           data.data.academicTitle ? `${data.data.academicTitle} ` : ""
@@ -109,10 +138,22 @@ export const meta: MetaFunction<typeof loader> = (args) => {
         property: "og:description",
         content: removeHtmlTags(data.data.bio),
       },
+      {
+        name: "image",
+        property: "og:image",
+        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+      },
+      {
+        property: "og:image:secure_url",
+        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+      },
+      {
+        property: "og:url",
+        content: data.meta.url,
+      },
     ];
   }
   return [
-    ...parentMeta,
     {
       title: `MINTvernetzt Community Plattform | ${
         data.data.academicTitle ? `${data.data.academicTitle} ` : ""
@@ -131,6 +172,10 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     {
       property: "og:image:secure_url",
       content: data.data.background,
+    },
+    {
+      property: "og:url",
+      content: data.meta.url,
     },
   ];
 };
@@ -254,6 +299,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     futureEvents: enhancedFutureEvents,
     pastEvents: enhancedPastEvents,
     userId: sessionUser?.id,
+    meta: {
+      baseUrl: process.env.COMMUNITY_BASE_URL,
+      url: request.url,
+    },
   });
 };
 
