@@ -18,7 +18,6 @@ import {
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
-import i18next from "~/i18next.server";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -27,10 +26,13 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { detectLanguage } from "~/root.server";
+import { Icon } from "../__components";
+import { AddOrganization, OrganizationListItem, Section } from "./__components";
 import {
   addImageUrlToInvites,
   addImageUrlToOrganizations,
@@ -41,17 +43,22 @@ import {
   sendOrganizationInviteUpdatedEmail,
   updateOrganizationInvite,
 } from "./organizations.server";
-import { Icon } from "../__components";
+import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
+import { getRequestsToOrganizations } from "./organizations/requests.server";
 
-const i18nNS = ["routes/my/organizations"];
+export const i18nNS = ["routes/my/organizations"];
 export const handle = {
   i18n: i18nNS,
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async (args: LoaderFunctionArgs) => {
+  const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  const abilities = await getFeatureAbilities(authClient, "my_organizations");
+  const abilities = await getFeatureAbilities(authClient, [
+    "my_organizations",
+    "add-to-organization",
+  ]);
   if (abilities.my_organizations.hasAccess === false) {
     return redirect("/");
   }
@@ -74,9 +81,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const invites = await getOrganizationInvitesForProfile(sessionUser.id);
   const enhancedInvites = addImageUrlToInvites(authClient, invites);
 
+  const requests = await getRequestsToOrganizations(sessionUser.id, authClient);
+  const organizationsToAdd = await getOrganizationsToAdd(request, sessionUser);
+
   return json({
     organizations: flattenedOrganizations,
     invites: enhancedInvites,
+    abilities,
+    organizationsToAdd,
+    requests,
   });
 };
 
@@ -422,9 +435,34 @@ export default function MyOrganizations() {
             })}
           </section>
         ) : null}
+        {loaderData.abilities["add-to-organization"].hasAccess ? (
+          <Section>
+            <Section.Headline>{t("addOrganization.headline")}</Section.Headline>
+            <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
+            <AddOrganization organizations={loaderData.organizationsToAdd} />
+            {loaderData.requests.length > 0 ? (
+              <>
+                <hr />
+                <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
+                  {t("requests.headline")}
+                </h4>
+                <ul className="mv-flex mv-flex-col mv-gap-4">
+                  {loaderData.requests.map((organization) => {
+                    return (
+                      <OrganizationListItem
+                        key={`request-${organization.id}`}
+                        organization={organization}
+                      />
+                    );
+                  })}
+                </ul>
+              </>
+            ) : null}
+          </Section>
+        ) : null}
         {organizations.teamMember.organizations.length > 0 ||
         organizations.admin.organizations.length > 0 ? (
-          <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-4 @lg:mv-px-6 @sm:mv-py-6 @sm:mv-gap-6 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">
+          <Section>
             <TabBar>
               {Object.entries(organizations).map(([key, value]) => {
                 return (
@@ -469,7 +507,7 @@ export default function MyOrganizations() {
                 ) : null;
               })}
             </div>
-          </section>
+          </Section>
         ) : null}
       </div>
     </div>

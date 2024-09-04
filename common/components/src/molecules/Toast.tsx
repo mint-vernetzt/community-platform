@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import React from "react";
 
-export type ToastLevel = "positive" | "attention" | "negative";
+export type ToastLevel = "neutral" | "positive" | "attention" | "negative";
 
 export type ToastProps = {
   level?: ToastLevel;
@@ -33,10 +33,11 @@ function Toast(props: React.PropsWithChildren<ToastProps>) {
     level === "positive" && "mv-bg-positive-200 mv-text-positive-900",
     level === "attention" && "mv-bg-attention-200 mv-text-attention-900",
     level === "negative" && "mv-bg-negative-100 mv-text-negative-900",
+    level === "neutral" && "mv-bg-primary-50 mv-text-primary-700",
     hide && "mv-hidden"
   );
 
-  return (
+  return hide ? null : (
     <div id={props.id}>
       <noscript>
         <div className={classes.replace(" mv-hidden", "")}>
