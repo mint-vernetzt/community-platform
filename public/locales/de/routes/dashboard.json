@@ -6,6 +6,36 @@
     "welcome": "Willkommen,",
     "community": "in Deiner MINTvernetzt-Community!",
     "myProfile": "Mein Profil besuchen",
+    "updates": {
+      "headline": "Updates",
+      "hide": "Updates ausblenden",
+      "show": "Updates einblenden",
+      "faq": {
+        "headline": "Support",
+        "description": "Neue Hilfeseite mit Antworten auf Fragen rund um die Plattform",
+        "linkDescription": "Jetzt ansehen"
+      },
+      "createProject": {
+        "headline": "Wissen teilen",
+        "description": "Eigenes Projekt anlegen oder bereits erstellten Entwurf fertigstellen",
+        "linkDescription": "Jetzt anlegen"
+      }
+    },
+    "news": {
+      "headline": "MINTvernetzt News",
+      "hide": "News ausblenden",
+      "show": "News einblenden",
+      "kiToolEvent": {
+        "headline": "Neues Event",
+        "description": "Fördermittel gewinnen mit KI-Tools mit Mira Pape am 08.10.24",
+        "linkDescription": "Jetzt anmelden"
+      },
+      "shapeActionDays": {
+        "headline": "Jetzt Aktionen einreichen",
+        "description": "Programm der digitalen MINTvernetzt Aktionstage mitgestalten",
+        "linkDescription": "Mehr Infos"
+      }
+    },
     "communityCounter": {
       "headline": "WIE UNSERE COMMUNITY WÄCHST",
       "profiles": "Profile",

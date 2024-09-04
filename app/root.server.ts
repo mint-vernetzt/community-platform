@@ -1,6 +1,5 @@
 import { prismaClient } from "~/prisma.server";
 import i18n from "./i18n";
-import { createCookie } from "@remix-run/node";
 
 export async function getProfileByUserId(id: string) {
   return await prismaClient.profile.findUnique({

@@ -6,6 +6,36 @@
     "welcome": "Welcome,",
     "community": "to your MINTvernetzt Community!",
     "myProfile": "View my profile",
+    "updates": {
+      "headline": "Updates",
+      "hide": "Hide updates",
+      "show": "Show updates",
+      "faq": {
+        "headline": "Support",
+        "description": "New help page with answers to questions about the platform",
+        "linkDescription": "View now"
+      },
+      "createProject": {
+        "headline": "Share knowledge",
+        "description": "Create your own project or complete an existing draft",
+        "linkDescription": "Create now"
+      }
+    },
+    "news": {
+      "headline": "MINTvernetzt News",
+      "hide": "Hide news",
+      "show": "Show news",
+      "kiToolEvent": {
+        "headline": "New event",
+        "description": "Win fundings with AI tools with Mira Pape on 08.10.24",
+        "linkDescription": "Register now"
+      },
+      "shapeActionDays": {
+        "headline": "Submit actions now",
+        "description": "Help shape the program of the digital MINTvernetzt action days",
+        "linkDescription": "More information"
+      }
+    },
     "communityCounter": {
       "headline": "HOW OUR COMMUNITY IS GROWING",
       "profiles": "Profiles",
