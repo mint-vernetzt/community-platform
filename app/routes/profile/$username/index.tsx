@@ -64,34 +64,74 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     }
     return [];
   });
-
+  if (data === undefined) {
+    return [...parentMeta];
+  }
+  if (data.data.bio === null && data.data.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${
+          data.data.academicTitle ? `${data.data.academicTitle} ` : ""
+        }${data.data.firstName} ${data.data.lastName}`,
+      },
+    ];
+  }
+  if (data.data.bio === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${
+          data.data.academicTitle ? `${data.data.academicTitle} ` : ""
+        }${data.data.firstName} ${data.data.lastName}`,
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content: data.data.background,
+      },
+      {
+        property: "og:image:secure_url",
+        content: data.data.background,
+      },
+    ];
+  }
+  if (data.data.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${
+          data.data.academicTitle ? `${data.data.academicTitle} ` : ""
+        }${data.data.firstName} ${data.data.lastName}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content: removeHtmlTags(data.data.bio),
+      },
+    ];
+  }
   return [
     ...parentMeta,
-    data !== undefined
-      ? {
-          title: `MINTvernetzt Community Plattform | ${data.data.firstName} ${data.data.lastName}`,
-        }
-      : {},
-    data !== undefined && data.data.bio !== null
-      ? {
-          name: "description",
-          property: "og:description",
-          content: removeHtmlTags(data.data.bio),
-        }
-      : {},
-    data !== undefined && data.data.background !== null
-      ? {
-          name: "image",
-          property: "og:image",
-          content: data.data.background,
-        }
-      : {},
-    data !== undefined && data.data.background !== null
-      ? {
-          property: "og:image:secure_url",
-          content: data.data.background,
-        }
-      : {},
+    {
+      title: `MINTvernetzt Community Plattform | ${
+        data.data.academicTitle ? `${data.data.academicTitle} ` : ""
+      }${data.data.firstName} ${data.data.lastName}`,
+    },
+    {
+      name: "description",
+      property: "og:description",
+      content: removeHtmlTags(data.data.bio),
+    },
+    {
+      name: "image",
+      property: "og:image",
+      content: data.data.background,
+    },
+    {
+      property: "og:image:secure_url",
+      content: data.data.background,
+    },
   ];
 };
 

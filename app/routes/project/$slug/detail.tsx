@@ -58,33 +58,66 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     return [];
   });
 
+  if (data === undefined) {
+    return [...parentMeta];
+  }
+  if (data.project.excerpt === null && data.project.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+      },
+    ];
+  }
+  if (data.project.excerpt === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content: data.project.background,
+      },
+      {
+        property: "og:image:secure_url",
+        content: data.project.background,
+      },
+    ];
+  }
+  if (data.project.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content: data.project.excerpt,
+      },
+    ];
+  }
   return [
     ...parentMeta,
-    data !== undefined
-      ? {
-          title: `MINTvernetzt Community Plattform | ${data.project.name}`,
-        }
-      : {},
-    data !== undefined && data.project.excerpt !== null
-      ? {
-          name: "description",
-          property: "og:description",
-          content: data.project.excerpt,
-        }
-      : {},
-    data !== undefined && data.project.background !== null
-      ? {
-          name: "image",
-          property: "og:image",
-          content: data.project.background,
-        }
-      : {},
-    data !== undefined && data.project.background !== null
-      ? {
-          property: "og:image:secure_url",
-          content: data.project.background,
-        }
-      : {},
+    {
+      title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+    },
+    {
+      name: "description",
+      property: "og:description",
+      content: data.project.excerpt,
+    },
+    {
+      name: "image",
+      property: "og:image",
+      content: data.project.background,
+    },
+    {
+      property: "og:image:secure_url",
+      content: data.project.background,
+    },
   ];
 };
 

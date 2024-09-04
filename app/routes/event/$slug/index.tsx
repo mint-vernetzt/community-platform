@@ -91,33 +91,66 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     return [];
   });
 
+  if (data === undefined) {
+    return [...parentMeta];
+  }
+  if (data.event.description === null && data.event.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.event.name}`,
+      },
+    ];
+  }
+  if (data.event.description === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.event.name}`,
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content: data.event.background,
+      },
+      {
+        property: "og:image:secure_url",
+        content: data.event.background,
+      },
+    ];
+  }
+  if (data.event.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.event.name}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content: removeHtmlTags(data.event.description),
+      },
+    ];
+  }
   return [
     ...parentMeta,
-    data !== undefined
-      ? {
-          title: `MINTvernetzt Community Plattform | ${data.event.name}`,
-        }
-      : {},
-    data !== undefined && data.event.description !== null
-      ? {
-          name: "description",
-          property: "og:description",
-          content: removeHtmlTags(data.event.description),
-        }
-      : {},
-    data !== undefined && data.event.background !== null
-      ? {
-          name: "image",
-          property: "og:image",
-          content: data.event.background,
-        }
-      : {},
-    data !== undefined && data.event.background !== null
-      ? {
-          property: "og:image:secure_url",
-          content: data.event.background,
-        }
-      : {},
+    {
+      title: `MINTvernetzt Community Plattform | ${data.event.name}`,
+    },
+    {
+      name: "description",
+      property: "og:description",
+      content: removeHtmlTags(data.event.description),
+    },
+    {
+      name: "image",
+      property: "og:image",
+      content: data.event.background,
+    },
+    {
+      property: "og:image:secure_url",
+      content: data.event.background,
+    },
   ];
 };
 

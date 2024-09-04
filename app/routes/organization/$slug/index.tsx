@@ -64,33 +64,66 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     return [];
   });
 
+  if (data === undefined) {
+    return [...parentMeta];
+  }
+  if (data.organization.bio === null && data.organization.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+      },
+    ];
+  }
+  if (data.organization.bio === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content: data.organization.background,
+      },
+      {
+        property: "og:image:secure_url",
+        content: data.organization.background,
+      },
+    ];
+  }
+  if (data.organization.background === null) {
+    return [
+      ...parentMeta,
+      {
+        title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content: removeHtmlTags(data.organization.bio),
+      },
+    ];
+  }
   return [
     ...parentMeta,
-    data !== undefined
-      ? {
-          title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
-        }
-      : {},
-    data !== undefined && data.organization.bio !== null
-      ? {
-          name: "description",
-          property: "og:description",
-          content: removeHtmlTags(data.organization.bio),
-        }
-      : {},
-    data !== undefined && data.organization.background !== null
-      ? {
-          name: "image",
-          property: "og:image",
-          content: data.organization.background,
-        }
-      : {},
-    data !== undefined && data.organization.background !== null
-      ? {
-          property: "og:image:secure_url",
-          content: data.organization.background,
-        }
-      : {},
+    {
+      title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+    },
+    {
+      name: "description",
+      property: "og:description",
+      content: removeHtmlTags(data.organization.bio),
+    },
+    {
+      name: "image",
+      property: "og:image",
+      content: data.organization.background,
+    },
+    {
+      property: "og:image:secure_url",
+      content: data.organization.background,
+    },
   ];
 };
 
