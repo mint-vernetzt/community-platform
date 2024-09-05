@@ -32,6 +32,7 @@ import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
 import {
   AcceptOrRejectInviteFetcher,
+  AcceptOrRejectRequestFetcher,
   AddOrganization,
   CancelRequestFetcher,
   ListContainer,
@@ -51,7 +52,10 @@ import {
   updateOrganizationInvite,
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
-import { type action as requestsAction } from "./organizations/requests";
+import {
+  AddToOrganizationRequest,
+  type action as requestsAction,
+} from "./organizations/requests";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
 
 export const i18nNS = ["routes/my/organizations"];
@@ -178,7 +182,6 @@ export default function MyOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
   const { t } = useTranslation(i18nNS);
   const [searchParams] = useSearchParams();
-  const inviteFetcher = useFetcher<typeof action>();
 
   // SearchParams as fallback when javascript is disabled (See <Links> in <TabBar>)
   const [activeOrganizationsTab, setActiveOrganizationsTab] = useState(
@@ -255,8 +258,34 @@ export default function MyOrganizations() {
     },
   };
 
+  // Effect to update the active tab after the optimistic ui has been applied
+  React.useEffect(() => {
+    if (loaderData.invites.teamMemberInvites.length > 0) {
+      setActiveInvitesTab("teamMember");
+    } else {
+      setActiveInvitesTab("admin");
+    }
+  }, [loaderData.invites.adminInvites, loaderData.invites.teamMemberInvites]);
+
+  React.useEffect(() => {
+    if (loaderData.adminOrganizationsWithPendingRequests.length > 0) {
+      setActiveRequestsTab(
+        loaderData.adminOrganizationsWithPendingRequests.find(
+          (organization) => {
+            return organization.profileJoinRequests.length > 0;
+          }
+        )?.name
+      );
+    }
+  }, [loaderData.adminOrganizationsWithPendingRequests]);
+
   // Optimistic UI when accepting or rejecting invites
-  if (inviteFetcher.formData?.has("intent")) {
+  const inviteFetcher = useFetcher<typeof action>();
+  const inviteIntent = inviteFetcher.formData?.get("intent");
+  if (
+    inviteFetcher.formData !== undefined &&
+    (inviteIntent === "accepted" || inviteIntent === "rejected")
+  ) {
     const organizationId = inviteFetcher.formData.get("organizationId");
     if (inviteFetcher.formData.get("role") === "admin") {
       loaderData.invites.adminInvites = loaderData.invites.adminInvites.filter(
@@ -273,8 +302,36 @@ export default function MyOrganizations() {
     }
   }
 
-  const cancelRequestFetcher = useFetcher<typeof requestsAction>();
+  // Optimistic UI when accepting or rejecting requests
+  const acceptOrRejectRequestFetcher = useFetcher<typeof requestsAction>();
+  const acceptOrRejectRequest =
+    acceptOrRejectRequestFetcher.formData?.get("intent");
+  if (
+    acceptOrRejectRequestFetcher.formData !== undefined &&
+    (acceptOrRejectRequest === AddToOrganizationRequest.Accept ||
+      acceptOrRejectRequest === AddToOrganizationRequest.Reject)
+  ) {
+    const organizationId =
+      acceptOrRejectRequestFetcher.formData.get("organizationId");
+    const profileId = acceptOrRejectRequestFetcher.formData.get("profileId");
+    loaderData.adminOrganizationsWithPendingRequests =
+      loaderData.adminOrganizationsWithPendingRequests.map((organization) => {
+        if (organization.id !== organizationId) {
+          return organization;
+        }
+        return {
+          ...organization,
+          profileJoinRequests: organization.profileJoinRequests.filter(
+            (request) => {
+              return request.profile.id !== profileId;
+            }
+          ),
+        };
+      });
+  }
+
   // Optimistic UI when canceling requests
+  const cancelRequestFetcher = useFetcher<typeof requestsAction>();
   if (
     cancelRequestFetcher.formData !== undefined &&
     cancelRequestFetcher.formData.get("organizationId") !== null
@@ -288,8 +345,8 @@ export default function MyOrganizations() {
     }
   }
 
-  const createRequestFetcher = useFetcher<typeof requestsAction>();
   // Optimistic UI when creating requests
+  const createRequestFetcher = useFetcher<typeof requestsAction>();
   if (
     createRequestFetcher.formData !== undefined &&
     createRequestFetcher.formData.get("organizationId") !== null
@@ -468,7 +525,12 @@ export default function MyOrganizations() {
                             listIndex={index}
                             entity={request.profile}
                           >
-                            {/* TODO: <AcceptOrRejectRequestFetcher> with optimistic UI + extend action inside ./requests.tsx */}
+                            <AcceptOrRejectRequestFetcher
+                              fetcher={acceptOrRejectRequestFetcher}
+                              organizationId={value.organization.id}
+                              profileId={request.profile.id}
+                              tabKey={key}
+                            />
                           </ListItem>
                         );
                       }

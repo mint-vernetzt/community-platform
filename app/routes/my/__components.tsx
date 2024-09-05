@@ -14,7 +14,7 @@ import {
 } from "./organizations/get-organizations-to-add";
 import { type getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
 import {
-  Request,
+  AddToOrganizationRequest,
   type action as requestsAction,
 } from "./organizations/requests";
 
@@ -193,7 +193,11 @@ export function AddOrganization(props: {
                       name={GetOrganizationsToAdd.SearchParam}
                       value={searchQuery}
                     />
-                    <input type="hidden" name="intent" value={Request.Create} />
+                    <input
+                      type="hidden"
+                      name="intent"
+                      value={AddToOrganizationRequest.Create}
+                    />
                     <Button
                       variant="outline"
                       fullSize
@@ -296,7 +300,11 @@ export function CancelRequestFetcher(props: {
         name={GetOrganizationsToAdd.SearchParam}
         value={searchQuery}
       />
-      <input type="hidden" name="intent" value={Request.Cancel} />
+      <input
+        type="hidden"
+        name="intent"
+        value={AddToOrganizationRequest.Cancel}
+      />
       <Button
         variant="outline"
         fullSize
@@ -304,6 +312,61 @@ export function CancelRequestFetcher(props: {
         disabled={fetcher.state === "submitting"}
       >
         {t("addOrganization.cancelRequest")}
+      </Button>
+    </fetcher.Form>
+  );
+}
+
+export function AcceptOrRejectRequestFetcher(props: {
+  fetcher: ReturnType<typeof useFetcher<typeof requestsAction>>;
+  profileId: string;
+  organizationId: string;
+  tabKey: string;
+}) {
+  const { fetcher, profileId, organizationId, tabKey } = props;
+  const { t } = useTranslation(organizationsI18nNS);
+
+  return (
+    <fetcher.Form
+      preventScrollReset
+      method="post"
+      className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
+      action="/my/organizations/requests"
+    >
+      <input
+        type="hidden"
+        required
+        readOnly
+        name="organizationId"
+        defaultValue={organizationId}
+      />
+      <input
+        type="hidden"
+        required
+        readOnly
+        name="profileId"
+        defaultValue={profileId}
+      />
+      <Button
+        id={`reject-request-${profileId}-${organizationId}`}
+        variant="outline"
+        fullSize
+        type="submit"
+        name="intent"
+        value={AddToOrganizationRequest.Reject}
+        aria-describedby={`requests-headline tab-description-${tabKey} reject-request-${profileId}-${organizationId} requests-subline`}
+      >
+        {t("requests.decline")}
+      </Button>
+      <Button
+        id={`accept-request-${profileId}-${organizationId}`}
+        fullSize
+        type="submit"
+        name="intent"
+        value={AddToOrganizationRequest.Accept}
+        aria-describedby={`requests-headline tab-description-${tabKey} accept-request-${profileId}-${organizationId} requests-subline`}
+      >
+        {t("requests.accept")}
       </Button>
     </fetcher.Form>
   );

@@ -31,8 +31,12 @@
         "headline": "Join Requests",
         "subline": "You have {{count}} new membership requests.",
         "singleCountSubline": "You have 1 new membership request.",
+        "decline": "Decline",
+        "accept": "Add",
         "createRequest": "You have requested to join {{organization}}. You will be notified as soon as an admin responds to your request.",
-        "cancelRequest": "You have withdrawn your membership request."
+        "cancelRequest": "You have withdrawn your membership request.",
+        "rejectRequest": "You have declined the membership request of {{academicTitle}}{{firstName}} {{lastName}}.",
+        "acceptRequest": "{{academicTitle}}{{firstName}} {{lastName}} has been added to your organization."
     },
     "organizations": {
         "tabbar": {

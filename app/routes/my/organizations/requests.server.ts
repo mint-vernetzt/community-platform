@@ -181,3 +181,83 @@ export async function cancelRequestToOrganization(
   });
   return result;
 }
+
+export async function rejectRequestFromProfile(
+  organizationId: string,
+  profileId: string
+) {
+  const result = await prismaClient.requestToOrganizationToAddProfile.update({
+    select: {
+      profile: {
+        select: {
+          academicTitle: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+    where: {
+      profileId_organizationId: {
+        organizationId,
+        profileId,
+      },
+      status: "pending",
+    },
+    data: {
+      status: "rejected",
+    },
+  });
+
+  return result;
+}
+
+export async function acceptRequestFromProfile(
+  organizationId: string,
+  profileId: string
+) {
+  const [result] = await prismaClient.$transaction([
+    prismaClient.requestToOrganizationToAddProfile.update({
+      select: {
+        profile: {
+          select: {
+            academicTitle: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      where: {
+        profileId_organizationId: {
+          organizationId,
+          profileId,
+        },
+        status: "pending",
+      },
+      data: {
+        status: "accepted",
+      },
+    }),
+    prismaClient.organization.update({
+      select: {
+        id: true,
+      },
+      where: {
+        id: organizationId,
+        teamMembers: {
+          none: {
+            profileId,
+          },
+        },
+      },
+      data: {
+        teamMembers: {
+          create: {
+            profileId,
+          },
+        },
+      },
+    }),
+  ]);
+
+  return result;
+}
