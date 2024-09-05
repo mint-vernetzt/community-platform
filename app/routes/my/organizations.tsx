@@ -45,8 +45,6 @@ import {
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
 import { getRequestsToOrganizations } from "./organizations/requests.server";
-import { ToastContainer } from "~/__toast.components";
-import { getToast } from "~/toast.server";
 
 export const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -86,15 +84,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const requests = await getRequestsToOrganizations(sessionUser.id, authClient);
   const organizationsToAdd = await getOrganizationsToAdd(request, sessionUser);
 
-  const { toast } = await getToast(request);
-
   return json({
     organizations: flattenedOrganizations,
     invites: enhancedInvites,
     abilities,
     organizationsToAdd,
     requests,
-    toast,
   });
 };
 
@@ -522,9 +517,6 @@ export default function MyOrganizations() {
           ) : null}
         </div>
       </div>
-      {loaderData.toast !== null ? (
-        <ToastContainer toast={loaderData.toast} />
-      ) : null}
     </>
   );
 }
