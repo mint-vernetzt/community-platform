@@ -1,15 +1,18 @@
 import { Avatar, Button, Toast } from "@mint-vernetzt/components";
 import { Link, useFetcher, useSearchParams } from "@remix-run/react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { i18nNS as organizationsI18nNS } from "./organizations";
 import {
   GetOrganizationsToAdd,
-  loader as organizationsToAddLoader,
+  type loader as organizationsToAddLoader,
 } from "./organizations/get-organizations-to-add";
-import { Request, action as requestsAction } from "./organizations/requests";
-import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
-import { useTranslation } from "react-i18next";
-import { i18nNS as organizationsI18nNS } from "./organizations";
+import { type getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
+import {
+  Request,
+  type action as requestsAction,
+} from "./organizations/requests";
 
 export function Section(props: { children: React.ReactNode }) {
   const validChildren = React.Children.toArray(props.children).filter(
@@ -73,8 +76,9 @@ Section.Subline = SectionSubline;
 
 export function AddOrganization(props: {
   organizations?: Awaited<ReturnType<typeof getOrganizationsToAdd>>;
+  createRequestFetcher: ReturnType<typeof useFetcher<typeof requestsAction>>;
 }) {
-  const { organizations = [] } = props;
+  const { organizations = [], createRequestFetcher } = props;
 
   const [searchParams] = useSearchParams();
   const getOrganizationsToAddFetcher =
@@ -112,8 +116,6 @@ export function AddOrganization(props: {
       setData(organizations);
     }
   }, [getOrganizationsToAddFetcher.data, organizations]);
-
-  const createRequestFetcher = useFetcher<typeof requestsAction>();
 
   return (
     <>
@@ -221,26 +223,65 @@ export function AddOrganization(props: {
   );
 }
 
-export function OrganizationListItem(props: {
-  organization: {
-    logo: string | null;
-    id: string;
-    name: string;
-    slug: string;
-    types: {
-      organizationType: {
-        title: string;
-      };
-    }[];
-  };
+export function CancelRequestFetcher(props: {
+  fetcher: ReturnType<typeof useFetcher<typeof requestsAction>>;
+  organizationId: string;
+  setHideListItem?: (hideListItem: boolean) => void;
 }) {
-  const { organization } = props;
+  const { fetcher, organizationId } = props;
   const { t } = useTranslation(organizationsI18nNS);
 
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get(GetOrganizationsToAdd.SearchParam) ?? "";
 
-  const fetcher = useFetcher<typeof requestsAction>();
+  return (
+    <fetcher.Form
+      preventScrollReset
+      method="post"
+      className="mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
+      action="/my/organizations/requests"
+    >
+      <input
+        type="hidden"
+        required
+        readOnly
+        name="organizationId"
+        defaultValue={organizationId}
+      />
+      <input
+        type="hidden"
+        name={GetOrganizationsToAdd.SearchParam}
+        value={searchQuery}
+      />
+      <input type="hidden" name="intent" value={Request.Cancel} />
+      <Button
+        variant="outline"
+        fullSize
+        type="submit"
+        disabled={fetcher.state === "submitting"}
+      >
+        {t("addOrganization.cancelRequest")}
+      </Button>
+    </fetcher.Form>
+  );
+}
+
+export function OrganizationListItem(
+  props: React.PropsWithChildren<{
+    organization: {
+      logo: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      types: {
+        organizationType: {
+          title: string;
+        };
+      }[];
+    };
+  }>
+) {
+  const { organization, children } = props;
 
   return (
     <li className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center">
@@ -264,34 +305,7 @@ export function OrganizationListItem(props: {
           </p>
         </div>
       </Link>
-      <fetcher.Form
-        preventScrollReset
-        method="post"
-        className="mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
-        action="/my/organizations/requests"
-      >
-        <input
-          type="hidden"
-          required
-          readOnly
-          name="organizationId"
-          defaultValue={organization.id}
-        />
-        <input
-          type="hidden"
-          name={GetOrganizationsToAdd.SearchParam}
-          value={searchQuery}
-        />
-        <input type="hidden" name="intent" value={Request.Cancel} />
-        <Button
-          variant="outline"
-          fullSize
-          type="submit"
-          disabled={fetcher.state === "submitting"}
-        >
-          {t("addOrganization.cancelRequest")}
-        </Button>
-      </fetcher.Form>
+      {children}
     </li>
   );
 }

@@ -32,7 +32,12 @@ import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { detectLanguage } from "~/root.server";
 import { Icon } from "../__components";
-import { AddOrganization, OrganizationListItem, Section } from "./__components";
+import {
+  CancelRequestFetcher,
+  AddOrganization,
+  OrganizationListItem,
+  Section,
+} from "./__components";
 import {
   addImageUrlToInvites,
   addImageUrlToOrganizations,
@@ -47,6 +52,7 @@ import {
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
+import { type action as requestsAction } from "./organizations/requests";
 
 export const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -248,7 +254,7 @@ export default function MyOrganizations() {
     }
   }, [loaderData]);
 
-  // Optimistic UI
+  // Optimistic UI when accepting or rejecting invites
   if (inviteFetcher.formData?.has("intent")) {
     const organizationId = inviteFetcher.formData.get("organizationId");
     if (inviteFetcher.formData.get("role") === "admin") {
@@ -263,6 +269,45 @@ export default function MyOrganizations() {
         loaderData.invites.teamMemberInvites.filter((invite) => {
           return invite.organizationId !== organizationId;
         });
+    }
+  }
+
+  const cancelRequestFetcher = useFetcher<typeof requestsAction>();
+  // Optimistic UI when canceling requests
+  if (
+    cancelRequestFetcher.formData !== undefined &&
+    cancelRequestFetcher.formData.get("organizationId") !== null
+  ) {
+    const organizationId = cancelRequestFetcher.formData.get("organizationId");
+    if (organizationId !== null) {
+      loaderData.pendingRequestsToOrganizations =
+        loaderData.pendingRequestsToOrganizations.filter((organization) => {
+          return organization.id !== organizationId;
+        });
+    }
+  }
+
+  const createRequestFetcher = useFetcher<typeof requestsAction>();
+  // Optimistic UI when creating requests
+  if (
+    createRequestFetcher.formData !== undefined &&
+    createRequestFetcher.formData.get("organizationId") !== null
+  ) {
+    const organizationId = createRequestFetcher.formData.get("organizationId");
+    if (organizationId !== null) {
+      const organizationToTransfer = loaderData.organizationsToAdd.find(
+        (organization) => {
+          return organization.id === organizationId;
+        }
+      );
+      loaderData.organizationsToAdd = loaderData.organizationsToAdd.filter(
+        (organization) => {
+          return organization.id !== organizationId;
+        }
+      );
+      if (organizationToTransfer !== undefined) {
+        loaderData.pendingRequestsToOrganizations.push(organizationToTransfer);
+      }
     }
   }
 
@@ -457,7 +502,10 @@ export default function MyOrganizations() {
                 {t("addOrganization.headline")}
               </Section.Headline>
               <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
-              <AddOrganization organizations={loaderData.organizationsToAdd} />
+              <AddOrganization
+                organizations={loaderData.organizationsToAdd}
+                createRequestFetcher={createRequestFetcher}
+              />
               {loaderData.pendingRequestsToOrganizations.length > 0 ? (
                 <>
                   <hr />
@@ -471,7 +519,12 @@ export default function MyOrganizations() {
                           <OrganizationListItem
                             key={`request-${organization.id}`}
                             organization={organization}
-                          />
+                          >
+                            <CancelRequestFetcher
+                              fetcher={cancelRequestFetcher}
+                              organizationId={organization.id}
+                            />
+                          </OrganizationListItem>
                         );
                       }
                     )}
