@@ -29,6 +29,8 @@
     },
     "requests": {
         "headline": "Beitrittsanfragen",
+        "subline": "Du hast {{count}} neue Beitrittsanfragen.",
+        "singleCountSubline": "Du hast 1 neue Beitrittsanfrage.",
         "createRequest": "Du hast den Beitritt bei der Organisation {{organization.name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
         "cancelRequest": "Du hast die Beitrittsanfrage zurückgezogen."
     },

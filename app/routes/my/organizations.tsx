@@ -206,6 +206,30 @@ export default function MyOrganizations() {
     },
   };
 
+  const [activeRequestsTab, setActiveRequestsTab] = useState(
+    searchParams.get("requests-tab") !== null &&
+      searchParams.get("requests-tab") !== ""
+      ? searchParams.get("requests-tab")
+      : loaderData.adminOrganizationsWithPendingRequests.find(
+          (organization) => {
+            return organization.profileJoinRequests.length > 0;
+          }
+        )?.name
+  );
+  let requestsCount = 0;
+  const requests = loaderData.adminOrganizationsWithPendingRequests.map(
+    (organization) => {
+      requestsCount += organization.profileJoinRequests.length;
+      return {
+        organization: organization,
+        active: activeRequestsTab === organization.name,
+        searchParams: extendSearchParams(searchParams, {
+          addOrReplace: { "requests-tab": organization.name },
+        }),
+      };
+    }
+  );
+
   const [activeInvitesTab, setActiveInvitesTab] = useState(
     searchParams.get("invites-tab") !== null &&
       searchParams.get("invites-tab") !== ""
@@ -378,6 +402,77 @@ export default function MyOrganizations() {
                         </ListItem>
                       );
                     })}
+                  </ListContainer>
+                ) : null;
+              })}
+            </section>
+          ) : null}
+          {requests.length > 0 ? (
+            <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
+              <div className="mv-flex mv-flex-col mv-gap-2">
+                <h2
+                  id="requests-headline"
+                  className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
+                >
+                  {t("requests.headline")}
+                </h2>
+                <p
+                  id="requests-subline"
+                  className="mv-text-sm mv-text-neutral-700"
+                >
+                  {requestsCount === 1
+                    ? t("requests.singleCountSubline")
+                    : t("requests.subline", { count: requestsCount })}
+                </p>
+              </div>
+              <TabBar>
+                {Object.entries(requests).map(([key, value]) => {
+                  return value.organization.profileJoinRequests.length > 0 ? (
+                    <TabBar.Item
+                      key={`${key}-requests-tab`}
+                      active={value.active}
+                    >
+                      <Link
+                        to={`?${value.searchParams.toString()}`}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setActiveRequestsTab(value.organization.name);
+                          return;
+                        }}
+                        preventScrollReset
+                      >
+                        <div
+                          id={`tab-description-${key}`}
+                          className="mv-flex mv-gap-1.5 mv-items-center"
+                        >
+                          <span>{value.organization.name}</span>
+                          <TabBar.Counter active={value.active}>
+                            {value.organization.profileJoinRequests.length}
+                          </TabBar.Counter>
+                        </div>
+                      </Link>
+                    </TabBar.Item>
+                  ) : null;
+                })}
+              </TabBar>
+
+              {Object.entries(requests).map(([key, value]) => {
+                return value.active &&
+                  value.organization.profileJoinRequests.length > 0 ? (
+                  <ListContainer key={key} listKey={`${key}-list`}>
+                    {value.organization.profileJoinRequests.map(
+                      (request, index) => {
+                        return (
+                          <ListItem
+                            key={`${key}-request-${request.profile.id}`}
+                            listIndex={index}
+                            entity={request.profile}
+                          >
+                            {/* TODO: <AcceptOrRejectRequestFetcher> with optimistic UI + extend action inside ./requests.tsx */}
+                          </ListItem>
+                        );
+                      }
+                    )}
                   </ListContainer>
                 ) : null;
               })}

@@ -527,6 +527,7 @@ export async function getAdminOrganizationsWithPendingRequests(id: string) {
           profile: {
             select: {
               id: true,
+              academicTitle: true,
               firstName: true,
               lastName: true,
               avatar: true,
