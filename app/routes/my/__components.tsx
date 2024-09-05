@@ -164,16 +164,16 @@ export function AddOrganization(props: {
           {/* <Toast level="neutral" delay={5000}>
             {t("addOrganization.toasts.organizationsFound")}
           </Toast> */}
-          <OrganizationListContainer listKey="send-request-to-organization">
+          <ListContainer listKey="send-request-to-organization">
             {data.map((organization, index) => {
               if (organization === null) {
                 return null;
               }
               return (
-                <OrganizationListItem
+                <ListItem
                   key={`send-request-to-${organization.id}`}
                   listIndex={index}
-                  organization={organization}
+                  entity={organization}
                 >
                   <createRequestFetcher.Form
                     preventScrollReset
@@ -203,10 +203,10 @@ export function AddOrganization(props: {
                       {t("addOrganization.createRequest")}
                     </Button>
                   </createRequestFetcher.Form>
-                </OrganizationListItem>
+                </ListItem>
               );
             })}
-          </OrganizationListContainer>
+          </ListContainer>
         </>
       ) : null}
     </>
@@ -309,9 +309,8 @@ export function CancelRequestFetcher(props: {
   );
 }
 
-export function OrganizationListItem(
-  props: React.PropsWithChildren<{
-    organization: {
+type Entity =
+  | {
       logo: string | null;
       id: string;
       name: string;
@@ -321,11 +320,24 @@ export function OrganizationListItem(
           title: string;
         };
       }[];
+    }
+  | {
+      avatar: string | null;
+      id: string;
+      academicTitle: string | null;
+      firstName: string;
+      lastName: string;
+      username: string;
+      position: string | null;
     };
+
+export function ListItem(
+  props: React.PropsWithChildren<{
+    entity: Entity;
     listIndex: number;
   }>
 ) {
-  const { organization, children, listIndex } = props;
+  const { entity, children, listIndex } = props;
 
   return (
     <li
@@ -334,22 +346,32 @@ export function OrganizationListItem(
       }`}
     >
       <Link
-        to={`/organization/${organization.slug}`}
+        to={
+          "academicTitle" in entity
+            ? `/profile/${entity.username}`
+            : `/organization/${entity.slug}`
+        }
         className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
       >
         <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
-          <Avatar size="full" {...organization} />
+          <Avatar size="full" {...entity} />
         </div>
         <div>
           <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
-            {organization.name}
+            {"academicTitle" in entity
+              ? `${entity.academicTitle ? `${entity.academicTitle} ` : ""}${
+                  entity.firstName
+                } ${entity.lastName}`
+              : entity.name}
           </p>
           <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
-            {organization.types
-              .map((relation) => {
-                return relation.organizationType.title;
-              })
-              .join(", ")}
+            {"academicTitle" in entity
+              ? entity.position
+              : entity.types
+                  .map((relation) => {
+                    return relation.organizationType.title;
+                  })
+                  .join(", ")}
           </p>
         </div>
       </Link>
@@ -358,7 +380,7 @@ export function OrganizationListItem(
   );
 }
 
-export function OrganizationListContainer(
+export function ListContainer(
   props: React.PropsWithChildren<{ listKey: string }>
 ) {
   const { children, listKey } = props;

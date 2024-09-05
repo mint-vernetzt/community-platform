@@ -34,8 +34,8 @@ import {
   AcceptOrRejectInviteFetcher,
   AddOrganization,
   CancelRequestFetcher,
-  OrganizationListContainer,
-  OrganizationListItem,
+  ListContainer,
+  ListItem,
   Section,
 } from "./__components";
 import {
@@ -362,23 +362,23 @@ export default function MyOrganizations() {
 
               {Object.entries(invites).map(([key, value]) => {
                 return value.active && value.invites.length > 0 ? (
-                  <OrganizationListContainer key={key} listKey={`${key}-list`}>
+                  <ListContainer key={key} listKey={`${key}-list`}>
                     {value.invites.map((invite, index) => {
                       return (
-                        <OrganizationListItem
+                        <ListItem
                           key={`${key}-invite-${invite.organizationId}`}
                           listIndex={index}
-                          organization={invite.organization}
+                          entity={invite.organization}
                         >
                           <AcceptOrRejectInviteFetcher
                             inviteFetcher={inviteFetcher}
                             organizationId={invite.organizationId}
                             tabKey={key}
                           />
-                        </OrganizationListItem>
+                        </ListItem>
                       );
                     })}
-                  </OrganizationListContainer>
+                  </ListContainer>
                 ) : null;
               })}
             </section>
@@ -399,24 +399,24 @@ export default function MyOrganizations() {
                   <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
                     {t("requests.headline")}
                   </h4>
-                  <OrganizationListContainer listKey="pending-requests-to-organizations">
+                  <ListContainer listKey="pending-requests-to-organizations">
                     {loaderData.pendingRequestsToOrganizations.map(
                       (organization, index) => {
                         return (
-                          <OrganizationListItem
+                          <ListItem
                             key={`cancel-request-from-${organization.id}`}
                             listIndex={index}
-                            organization={organization}
+                            entity={organization}
                           >
                             <CancelRequestFetcher
                               fetcher={cancelRequestFetcher}
                               organizationId={organization.id}
                             />
-                          </OrganizationListItem>
+                          </ListItem>
                         );
                       }
                     )}
-                  </OrganizationListContainer>
+                  </ListContainer>
                 </>
               ) : null}
             </Section>
