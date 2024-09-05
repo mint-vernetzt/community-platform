@@ -231,30 +231,6 @@ export default function MyOrganizations() {
     },
   };
 
-  // Effect to change tab after action when there are no more invites in the current tab
-  React.useEffect(() => {
-    if (
-      loaderData.invites.adminInvites.length === 0 ||
-      loaderData.invites.teamMemberInvites.length === 0
-    ) {
-      if (loaderData.invites.teamMemberInvites.length > 0) {
-        setActiveInvitesTab("teamMember");
-      } else {
-        setActiveInvitesTab("admin");
-      }
-    }
-    if (
-      loaderData.organizations.adminOrganizations.length === 0 ||
-      loaderData.organizations.teamMemberOrganizations.length === 0
-    ) {
-      if (loaderData.organizations.teamMemberOrganizations.length > 0) {
-        setActiveOrganizationsTab("teamMember");
-      } else {
-        setActiveOrganizationsTab("admin");
-      }
-    }
-  }, [loaderData]);
-
   // Optimistic UI when accepting or rejecting invites
   if (inviteFetcher.formData?.has("intent")) {
     const organizationId = inviteFetcher.formData.get("organizationId");
@@ -355,11 +331,10 @@ export default function MyOrganizations() {
               </div>
               <TabBar>
                 {Object.entries(invites).map(([key, value]) => {
-                  return (
+                  return value.invites.length > 0 ? (
                     <TabBar.Item
                       key={`${key}-invites-tab`}
                       active={value.active}
-                      disabled={value.invites.length === 0}
                     >
                       <Link
                         to={`?${value.searchParams.toString()}`}
@@ -381,7 +356,7 @@ export default function MyOrganizations() {
                         </div>
                       </Link>
                     </TabBar.Item>
-                  );
+                  ) : null;
                 })}
               </TabBar>
 
@@ -451,11 +426,10 @@ export default function MyOrganizations() {
             <Section>
               <TabBar>
                 {Object.entries(organizations).map(([key, value]) => {
-                  return (
+                  return value.organizations.length > 0 ? (
                     <TabBar.Item
                       key={`${key}-organizations-tab`}
                       active={value.active}
-                      disabled={value.organizations.length === 0}
                     >
                       <Link
                         to={`?${value.searchParams.toString()}`}
@@ -474,7 +448,7 @@ export default function MyOrganizations() {
                         </div>
                       </Link>
                     </TabBar.Item>
-                  );
+                  ) : null;
                 })}
               </TabBar>
               <div className="-mv-mx-4">

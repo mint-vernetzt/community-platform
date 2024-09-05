@@ -226,6 +226,7 @@ export function AcceptOrRejectInviteFetcher(props: {
       id={`invite-form-${organizationId}`}
       method="post"
       className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
+      preventScrollReset
     >
       <input
         type="hidden"
