@@ -1,5 +1,4 @@
-import { json } from "@remix-run/node";
-import { User } from "@supabase/supabase-js";
+import { type User } from "@supabase/supabase-js";
 import { createAuthClient } from "~/auth.server";
 import { getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
@@ -32,11 +31,13 @@ export async function getOrganizationsToAdd(
       profileJoinInvites: {
         none: {
           profileId: sessionUser.id,
+          status: "pending",
         },
       },
       profileJoinRequests: {
         none: {
           profileId: sessionUser.id,
+          status: "pending",
         },
       },
       name: {

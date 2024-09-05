@@ -1,4 +1,4 @@
-import { SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { getImageURL } from "~/images.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { mailer } from "~/mailer.server";
@@ -75,16 +75,12 @@ export async function createRequestToOrganization(
               profileId: profileId,
             },
           },
-          admins: {
-            none: {
-              profileId: profileId,
-            },
-          },
         },
         {
           profileJoinInvites: {
             none: {
               profileId: profileId,
+              status: "pending",
             },
           },
         },
@@ -92,6 +88,7 @@ export async function createRequestToOrganization(
           profileJoinRequests: {
             none: {
               profileId: profileId,
+              status: "pending",
             },
           },
         },
@@ -112,14 +109,23 @@ export async function createRequestToOrganization(
   });
 
   if (organization === null) {
-    return new Error("addOrganization.errors.alreadyInRelation");
+    return { error: new Error("addOrganization.errors.alreadyInRelation") };
   }
 
-  const result = await prismaClient.requestToOrganizationToAddProfile.create({
-    data: {
-      organizationId: organizationId as string,
+  const result = await prismaClient.requestToOrganizationToAddProfile.upsert({
+    create: {
+      organizationId: organizationId,
       profileId: profileId,
       status: "pending",
+    },
+    update: {
+      status: "pending",
+    },
+    where: {
+      profileId_organizationId: {
+        organizationId,
+        profileId,
+      },
     },
     select: {
       profile: {
@@ -127,6 +133,11 @@ export async function createRequestToOrganization(
           firstName: true,
           lastName: true,
           email: true,
+        },
+      },
+      organization: {
+        select: {
+          name: true,
         },
       },
     },
@@ -143,14 +154,14 @@ export async function createRequestToOrganization(
 
   await mailer(mailerOptions, sender, recipient, subject, text, html);
 
-  return null;
+  return { organization: result.organization };
 }
 
 export async function cancelRequestToOrganization(
   organizationId: string,
   profileId: string
 ) {
-  await prismaClient.requestToOrganizationToAddProfile.update({
+  const result = await prismaClient.requestToOrganizationToAddProfile.update({
     where: {
       profileId_organizationId: {
         organizationId,
@@ -160,5 +171,13 @@ export async function cancelRequestToOrganization(
     data: {
       status: "canceled",
     },
+    select: {
+      organization: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
+  return result;
 }
