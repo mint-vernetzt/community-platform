@@ -1,6 +1,5 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import {
-  Avatar,
   Button,
   CardContainer,
   OrganizationCard,
@@ -21,7 +20,6 @@ import {
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { redirectWithAlert } from "~/alert.server";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -31,12 +29,22 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { detectLanguage } from "~/root.server";
-import { Icon } from "../__components";
-import { AddOrganization, OrganizationListItem, Section } from "./__components";
+import { redirectWithToast } from "~/toast.server";
+import {
+  AcceptOrRejectInviteFetcher,
+  AcceptOrRejectRequestFetcher,
+  AddOrganization,
+  CancelRequestFetcher,
+  ListContainer,
+  ListItem,
+  Section,
+} from "./__components";
 import {
   addImageUrlToInvites,
   addImageUrlToOrganizations,
+  addImageUrlToRequests,
   flattenOrganizationRelations,
+  getAdminOrganizationsWithPendingRequests,
   getOrganizationInvitesForProfile,
   getOrganizationsFromProfile,
   getPendingOrganizationInvite,
@@ -44,7 +52,11 @@ import {
   updateOrganizationInvite,
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
-import { getRequestsToOrganizations } from "./organizations/requests.server";
+import {
+  AddToOrganizationRequest,
+  type action as requestsAction,
+} from "./organizations/requests";
+import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
 
 export const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -59,7 +71,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "my_organizations",
     "add-to-organization",
   ]);
-  if (abilities.my_organizations.hasAccess === false) {
+  if (
+    abilities["my_organizations"].hasAccess === false ||
+    abilities["add-to-organization"].hasAccess === false
+  ) {
     return redirect("/");
   }
 
@@ -81,15 +96,25 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const invites = await getOrganizationInvitesForProfile(sessionUser.id);
   const enhancedInvites = addImageUrlToInvites(authClient, invites);
 
-  const requests = await getRequestsToOrganizations(sessionUser.id, authClient);
+  const pendingRequestsToOrganizations =
+    await getPendingRequestsToOrganizations(sessionUser.id, authClient);
   const organizationsToAdd = await getOrganizationsToAdd(request, sessionUser);
+
+  const adminOrganizationsWithPendingRequests =
+    await getAdminOrganizationsWithPendingRequests(sessionUser.id);
+  const enhancedAdminOrganizationsWithPendingRequests = addImageUrlToRequests(
+    authClient,
+    adminOrganizationsWithPendingRequests
+  );
 
   return json({
     organizations: flattenedOrganizations,
     invites: enhancedInvites,
     abilities,
     organizationsToAdd,
-    requests,
+    pendingRequestsToOrganizations,
+    adminOrganizationsWithPendingRequests:
+      enhancedAdminOrganizationsWithPendingRequests,
   });
 };
 
@@ -144,7 +169,8 @@ export const action = async (args: ActionFunctionArgs) => {
     ...submission.value,
   });
   await sendOrganizationInviteUpdatedEmail(submission.value.intent, invite);
-  return redirectWithAlert(".", {
+  return redirectWithToast("/my/organizations", {
+    key: `${submission.value.intent}-${Date.now()}`,
     level: submission.value.intent === "accepted" ? "positive" : "negative",
     message: `${t(`alerts.${submission.value.intent}`, {
       organization: invite.organization.name,
@@ -156,7 +182,6 @@ export default function MyOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
   const { t } = useTranslation(i18nNS);
   const [searchParams] = useSearchParams();
-  const inviteFetcher = useFetcher();
 
   // SearchParams as fallback when javascript is disabled (See <Links> in <TabBar>)
   const [activeOrganizationsTab, setActiveOrganizationsTab] = useState(
@@ -184,6 +209,30 @@ export default function MyOrganizations() {
     },
   };
 
+  const [activeRequestsTab, setActiveRequestsTab] = useState(
+    searchParams.get("requests-tab") !== null &&
+      searchParams.get("requests-tab") !== ""
+      ? searchParams.get("requests-tab")
+      : loaderData.adminOrganizationsWithPendingRequests.find(
+          (organization) => {
+            return organization.profileJoinRequests.length > 0;
+          }
+        )?.name
+  );
+  let requestsCount = 0;
+  const requests = loaderData.adminOrganizationsWithPendingRequests.map(
+    (organization) => {
+      requestsCount += organization.profileJoinRequests.length;
+      return {
+        organization: organization,
+        active: activeRequestsTab === organization.name,
+        searchParams: extendSearchParams(searchParams, {
+          addOrReplace: { "requests-tab": organization.name },
+        }),
+      };
+    }
+  );
+
   const [activeInvitesTab, setActiveInvitesTab] = useState(
     searchParams.get("invites-tab") !== null &&
       searchParams.get("invites-tab") !== ""
@@ -209,32 +258,34 @@ export default function MyOrganizations() {
     },
   };
 
-  // Effect to change tab after action when there are no more invites in the current tab
+  // Effect to update the active tab after the optimistic ui has been applied
   React.useEffect(() => {
-    if (
-      loaderData.invites.adminInvites.length === 0 ||
-      loaderData.invites.teamMemberInvites.length === 0
-    ) {
-      if (loaderData.invites.teamMemberInvites.length > 0) {
-        setActiveInvitesTab("teamMember");
-      } else {
-        setActiveInvitesTab("admin");
-      }
+    if (loaderData.invites.teamMemberInvites.length > 0) {
+      setActiveInvitesTab("teamMember");
+    } else {
+      setActiveInvitesTab("admin");
     }
-    if (
-      loaderData.organizations.adminOrganizations.length === 0 ||
-      loaderData.organizations.teamMemberOrganizations.length === 0
-    ) {
-      if (loaderData.organizations.teamMemberOrganizations.length > 0) {
-        setActiveOrganizationsTab("teamMember");
-      } else {
-        setActiveOrganizationsTab("admin");
-      }
-    }
-  }, [loaderData]);
+  }, [loaderData.invites.adminInvites, loaderData.invites.teamMemberInvites]);
 
-  // Optimistic UI
-  if (inviteFetcher.formData?.has("intent")) {
+  React.useEffect(() => {
+    if (loaderData.adminOrganizationsWithPendingRequests.length > 0) {
+      setActiveRequestsTab(
+        loaderData.adminOrganizationsWithPendingRequests.find(
+          (organization) => {
+            return organization.profileJoinRequests.length > 0;
+          }
+        )?.name
+      );
+    }
+  }, [loaderData.adminOrganizationsWithPendingRequests]);
+
+  // Optimistic UI when accepting or rejecting invites
+  const inviteFetcher = useFetcher<typeof action>();
+  const inviteIntent = inviteFetcher.formData?.get("intent");
+  if (
+    inviteFetcher.formData !== undefined &&
+    (inviteIntent === "accepted" || inviteIntent === "rejected")
+  ) {
     const organizationId = inviteFetcher.formData.get("organizationId");
     if (inviteFetcher.formData.get("role") === "admin") {
       loaderData.invites.adminInvites = loaderData.invites.adminInvites.filter(
@@ -248,6 +299,73 @@ export default function MyOrganizations() {
         loaderData.invites.teamMemberInvites.filter((invite) => {
           return invite.organizationId !== organizationId;
         });
+    }
+  }
+
+  // Optimistic UI when accepting or rejecting requests
+  const acceptOrRejectRequestFetcher = useFetcher<typeof requestsAction>();
+  const acceptOrRejectRequest =
+    acceptOrRejectRequestFetcher.formData?.get("intent");
+  if (
+    acceptOrRejectRequestFetcher.formData !== undefined &&
+    (acceptOrRejectRequest === AddToOrganizationRequest.Accept ||
+      acceptOrRejectRequest === AddToOrganizationRequest.Reject)
+  ) {
+    const organizationId =
+      acceptOrRejectRequestFetcher.formData.get("organizationId");
+    const profileId = acceptOrRejectRequestFetcher.formData.get("profileId");
+    loaderData.adminOrganizationsWithPendingRequests =
+      loaderData.adminOrganizationsWithPendingRequests.map((organization) => {
+        if (organization.id !== organizationId) {
+          return organization;
+        }
+        return {
+          ...organization,
+          profileJoinRequests: organization.profileJoinRequests.filter(
+            (request) => {
+              return request.profile.id !== profileId;
+            }
+          ),
+        };
+      });
+  }
+
+  // Optimistic UI when canceling requests
+  const cancelRequestFetcher = useFetcher<typeof requestsAction>();
+  if (
+    cancelRequestFetcher.formData !== undefined &&
+    cancelRequestFetcher.formData.get("organizationId") !== null
+  ) {
+    const organizationId = cancelRequestFetcher.formData.get("organizationId");
+    if (organizationId !== null) {
+      loaderData.pendingRequestsToOrganizations =
+        loaderData.pendingRequestsToOrganizations.filter((organization) => {
+          return organization.id !== organizationId;
+        });
+    }
+  }
+
+  // Optimistic UI when creating requests
+  const createRequestFetcher = useFetcher<typeof requestsAction>();
+  if (
+    createRequestFetcher.formData !== undefined &&
+    createRequestFetcher.formData.get("organizationId") !== null
+  ) {
+    const organizationId = createRequestFetcher.formData.get("organizationId");
+    if (organizationId !== null) {
+      const organizationToTransfer = loaderData.organizationsToAdd.find(
+        (organization) => {
+          return organization.id === organizationId;
+        }
+      );
+      loaderData.organizationsToAdd = loaderData.organizationsToAdd.filter(
+        (organization) => {
+          return organization.id !== organizationId;
+        }
+      );
+      if (organizationToTransfer !== undefined) {
+        loaderData.pendingRequestsToOrganizations.push(organizationToTransfer);
+      }
     }
   }
 
@@ -294,11 +412,10 @@ export default function MyOrganizations() {
               </div>
               <TabBar>
                 {Object.entries(invites).map(([key, value]) => {
-                  return (
+                  return value.invites.length > 0 ? (
                     <TabBar.Item
                       key={`${key}-invites-tab`}
                       active={value.active}
-                      disabled={value.invites.length === 0}
                     >
                       <Link
                         to={`?${value.searchParams.toString()}`}
@@ -320,118 +437,105 @@ export default function MyOrganizations() {
                         </div>
                       </Link>
                     </TabBar.Item>
-                  );
+                  ) : null;
                 })}
               </TabBar>
 
               {Object.entries(invites).map(([key, value]) => {
                 return value.active && value.invites.length > 0 ? (
-                  <ul
-                    key={`${key}-list`}
-                    className="mv-flex mv-flex-col mv-gap-4 mv-group"
-                  >
+                  <ListContainer key={key} listKey={`${key}-list`}>
                     {value.invites.map((invite, index) => {
                       return (
-                        <li
+                        <ListItem
                           key={`${key}-invite-${invite.organizationId}`}
-                          className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center ${
-                            index > 2
-                              ? "mv-hidden group-has-[:checked]:mv-flex"
-                              : "mv-flex"
-                          }`}
+                          listIndex={index}
+                          entity={invite.organization}
                         >
-                          <Link
-                            to={`/organization/${invite.organization.slug}`}
-                            className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
-                          >
-                            <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
-                              <Avatar size="full" {...invite.organization} />
-                            </div>
-                            <div>
-                              <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
-                                {invite.organization.name}
-                              </p>
-                              <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
-                                {invite.organization.types
-                                  .map((relation) => {
-                                    return relation.organizationType.title;
-                                  })
-                                  .join(", ")}
-                              </p>
-                            </div>
-                          </Link>
-                          <inviteFetcher.Form
-                            id={`invite-form-${invite.organizationId}`}
-                            method="post"
-                            className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
-                          >
-                            <input
-                              type="hidden"
-                              required
-                              readOnly
-                              name="organizationId"
-                              defaultValue={invite.organizationId}
-                            />
-                            <input
-                              type="hidden"
-                              required
-                              readOnly
-                              name="role"
-                              defaultValue={
-                                key === "teamMember" ? "member" : "admin"
-                              }
-                            />
-                            <Button
-                              id={`reject-invite-${invite.organizationId}`}
-                              variant="outline"
-                              fullSize
-                              type="submit"
-                              name="intent"
-                              value="rejected"
-                              aria-describedby={`invites-headline tab-description-${key} reject-invite-${invite.organizationId} invites-subline`}
-                            >
-                              {t("invites.decline")}
-                            </Button>
-                            <Button
-                              id={`accept-invite-${invite.organizationId}`}
-                              fullSize
-                              type="submit"
-                              name="intent"
-                              value="accepted"
-                              aria-describedby={`invites-headline tab-description-${key} accept-invite-${invite.organizationId} invites-subline`}
-                            >
-                              {t("invites.accept")}
-                            </Button>
-                          </inviteFetcher.Form>
-                        </li>
+                          <AcceptOrRejectInviteFetcher
+                            inviteFetcher={inviteFetcher}
+                            organizationId={invite.organizationId}
+                            tabKey={key}
+                          />
+                        </ListItem>
                       );
                     })}
-                    {value.invites.length > 3 ? (
-                      <div
-                        key={`show-more-${key}-invites`}
-                        className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
+                  </ListContainer>
+                ) : null;
+              })}
+            </section>
+          ) : null}
+          {requests.length > 0 ? (
+            <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
+              <div className="mv-flex mv-flex-col mv-gap-2">
+                <h2
+                  id="requests-headline"
+                  className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
+                >
+                  {t("requests.headline")}
+                </h2>
+                <p
+                  id="requests-subline"
+                  className="mv-text-sm mv-text-neutral-700"
+                >
+                  {requestsCount === 1
+                    ? t("requests.singleCountSubline")
+                    : t("requests.subline", { count: requestsCount })}
+                </p>
+              </div>
+              <TabBar>
+                {Object.entries(requests).map(([key, value]) => {
+                  return value.organization.profileJoinRequests.length > 0 ? (
+                    <TabBar.Item
+                      key={`${key}-requests-tab`}
+                      active={value.active}
+                    >
+                      <Link
+                        to={`?${value.searchParams.toString()}`}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setActiveRequestsTab(value.organization.name);
+                          return;
+                        }}
+                        preventScrollReset
                       >
-                        <label
-                          htmlFor={`show-more-${key}-invites`}
-                          className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
+                        <div
+                          id={`tab-description-${key}`}
+                          className="mv-flex mv-gap-1.5 mv-items-center"
                         >
-                          <div>
-                            {t("invites.more", {
-                              count: value.invites.length - 3,
-                            })}
-                          </div>
-                          <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
-                            <Icon type="chevron-right" />
-                          </div>
-                        </label>
-                        <input
-                          id={`show-more-${key}-invites`}
-                          type="checkbox"
-                          className="mv-w-0 mv-h-0 mv-opacity-0"
-                        />
-                      </div>
-                    ) : null}
-                  </ul>
+                          <span>{value.organization.name}</span>
+                          <TabBar.Counter active={value.active}>
+                            {value.organization.profileJoinRequests.length}
+                          </TabBar.Counter>
+                        </div>
+                      </Link>
+                    </TabBar.Item>
+                  ) : null;
+                })}
+              </TabBar>
+
+              {Object.entries(requests).map(([key, value]) => {
+                return value.active &&
+                  value.organization.profileJoinRequests.length > 0 ? (
+                  <ListContainer key={key} listKey={`${key}-list`}>
+                    {value.organization.profileJoinRequests.map(
+                      (request, index) => {
+                        return (
+                          <ListItem
+                            key={`${key}-request-${request.profile.id}`}
+                            listIndex={index}
+                            entity={request.profile}
+                          >
+                            <AcceptOrRejectRequestFetcher
+                              fetcher={acceptOrRejectRequestFetcher}
+                              organizationId={value.organization.id}
+                              profileId={request.profile.id}
+                              tabKey={key}
+                            />
+                          </ListItem>
+                        );
+                      }
+                    )}
+                  </ListContainer>
                 ) : null;
               })}
             </section>
@@ -442,23 +546,34 @@ export default function MyOrganizations() {
                 {t("addOrganization.headline")}
               </Section.Headline>
               <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
-              <AddOrganization organizations={loaderData.organizationsToAdd} />
-              {loaderData.requests.length > 0 ? (
+              <AddOrganization
+                organizations={loaderData.organizationsToAdd}
+                createRequestFetcher={createRequestFetcher}
+              />
+              {loaderData.pendingRequestsToOrganizations.length > 0 ? (
                 <>
                   <hr />
                   <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
                     {t("requests.headline")}
                   </h4>
-                  <ul className="mv-flex mv-flex-col mv-gap-4">
-                    {loaderData.requests.map((organization) => {
-                      return (
-                        <OrganizationListItem
-                          key={`request-${organization.id}`}
-                          organization={organization}
-                        />
-                      );
-                    })}
-                  </ul>
+                  <ListContainer listKey="pending-requests-to-organizations">
+                    {loaderData.pendingRequestsToOrganizations.map(
+                      (organization, index) => {
+                        return (
+                          <ListItem
+                            key={`cancel-request-from-${organization.id}`}
+                            listIndex={index}
+                            entity={organization}
+                          >
+                            <CancelRequestFetcher
+                              fetcher={cancelRequestFetcher}
+                              organizationId={organization.id}
+                            />
+                          </ListItem>
+                        );
+                      }
+                    )}
+                  </ListContainer>
                 </>
               ) : null}
             </Section>
@@ -468,11 +583,10 @@ export default function MyOrganizations() {
             <Section>
               <TabBar>
                 {Object.entries(organizations).map(([key, value]) => {
-                  return (
+                  return value.organizations.length > 0 ? (
                     <TabBar.Item
                       key={`${key}-organizations-tab`}
                       active={value.active}
-                      disabled={value.organizations.length === 0}
                     >
                       <Link
                         to={`?${value.searchParams.toString()}`}
@@ -491,7 +605,7 @@ export default function MyOrganizations() {
                         </div>
                       </Link>
                     </TabBar.Item>
-                  );
+                  ) : null;
                 })}
               </TabBar>
               <div className="-mv-mx-4">

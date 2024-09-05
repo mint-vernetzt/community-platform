@@ -5,7 +5,7 @@ import { mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
-export async function getRequestsToOrganizations(
+export async function getPendingRequestsToOrganizations(
   profileId: string,
   authClient: SupabaseClient
 ) {
@@ -179,5 +179,85 @@ export async function cancelRequestToOrganization(
       },
     },
   });
+  return result;
+}
+
+export async function rejectRequestFromProfile(
+  organizationId: string,
+  profileId: string
+) {
+  const result = await prismaClient.requestToOrganizationToAddProfile.update({
+    select: {
+      profile: {
+        select: {
+          academicTitle: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+    where: {
+      profileId_organizationId: {
+        organizationId,
+        profileId,
+      },
+      status: "pending",
+    },
+    data: {
+      status: "rejected",
+    },
+  });
+
+  return result;
+}
+
+export async function acceptRequestFromProfile(
+  organizationId: string,
+  profileId: string
+) {
+  const [result] = await prismaClient.$transaction([
+    prismaClient.requestToOrganizationToAddProfile.update({
+      select: {
+        profile: {
+          select: {
+            academicTitle: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      where: {
+        profileId_organizationId: {
+          organizationId,
+          profileId,
+        },
+        status: "pending",
+      },
+      data: {
+        status: "accepted",
+      },
+    }),
+    prismaClient.organization.update({
+      select: {
+        id: true,
+      },
+      where: {
+        id: organizationId,
+        teamMembers: {
+          none: {
+            profileId,
+          },
+        },
+      },
+      data: {
+        teamMembers: {
+          create: {
+            profileId,
+          },
+        },
+      },
+    }),
+  ]);
+
   return result;
 }

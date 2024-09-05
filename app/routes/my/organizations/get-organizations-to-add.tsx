@@ -1,9 +1,11 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "react-router-dom";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getOrganizationsToAdd } from "./get-organizations-to-add.server";
 
-export const GetOrganizationsToAdd = { SearchParam: "add-organization" };
+export const GetOrganizationsToAdd: {
+  SearchParam: "add-organization";
+} = { SearchParam: "add-organization" };
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;

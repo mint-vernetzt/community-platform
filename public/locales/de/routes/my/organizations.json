@@ -10,7 +10,8 @@
         },
         "decline": "Ablehnen",
         "accept": "Annehmen",
-        "more": "{{count}} weitere anzeigen"
+        "more": "{{count}} weitere anzeigen",
+        "less": "{{count}} weniger anzeigen"
     },
     "addOrganization": {
         "headline": "Organisation hinzufügen",
@@ -28,8 +29,14 @@
     },
     "requests": {
         "headline": "Beitrittsanfragen",
+        "subline": "Du hast {{count}} neue Beitrittsanfragen.",
+        "singleCountSubline": "Du hast 1 neue Beitrittsanfrage.",
+        "decline": "Ablehnen",
+        "accept": "Hinzufügen",
         "createRequest": "Du hast den Beitritt bei der Organisation {{organization.name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
-        "cancelRequest": "Du hast die Beitrittsanfrage zurückgezogen."
+        "cancelRequest": "Du hast die Beitrittsanfrage zurückgezogen.",
+        "rejectRequest": "Du hast die Beitrittsanfrage von {{academicTitle}}{{firstName}} {{lastName}} abgelehnt.",
+        "acceptRequest": "{{academicTitle}}{{firstName}} {{lastName}} wurde zu Deiner Organisation hinzugefügt."
     },
     "organizations": {
         "tabbar": {

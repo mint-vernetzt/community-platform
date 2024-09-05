@@ -293,6 +293,7 @@ export async function getOrganizationInvitesForProfile(id: string) {
         organizationId: true,
         organization: {
           select: {
+            id: true,
             slug: true,
             name: true,
             logo: true,
@@ -325,6 +326,7 @@ export async function getOrganizationInvitesForProfile(id: string) {
         organizationId: true,
         organization: {
           select: {
+            id: true,
             slug: true,
             name: true,
             logo: true,
@@ -513,4 +515,80 @@ export async function sendOrganizationInviteUpdatedEmail(
   const html = text;
 
   await mailer(mailerOptions, sender, recipient, subject, text, html);
+}
+
+export async function getAdminOrganizationsWithPendingRequests(id: string) {
+  const organizations = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+      name: true,
+      profileJoinRequests: {
+        select: {
+          profile: {
+            select: {
+              id: true,
+              academicTitle: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+              position: true,
+              username: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      profileJoinRequests: {
+        some: {
+          status: "pending",
+        },
+      },
+      admins: {
+        some: {
+          profileId: id,
+        },
+      },
+    },
+  });
+
+  return organizations;
+}
+
+export function addImageUrlToRequests(
+  authClient: SupabaseClient,
+  organizationsWithRequests: Awaited<
+    ReturnType<typeof getAdminOrganizationsWithPendingRequests>
+  >
+) {
+  const enhancedOrganizations = organizationsWithRequests.map(
+    (organization) => {
+      const profileJoinRequests = organization.profileJoinRequests.map(
+        (relation) => {
+          let avatar = relation.profile.avatar;
+          if (avatar !== null) {
+            const publicURL = getPublicURL(authClient, avatar);
+            if (publicURL !== null) {
+              avatar = getImageURL(publicURL, {
+                resize: { type: "fill", width: 144, height: 144 },
+              });
+            }
+          }
+          return {
+            ...relation,
+            profile: {
+              ...relation.profile,
+              avatar,
+            },
+          };
+        }
+      );
+      return {
+        ...organization,
+        profileJoinRequests,
+      };
+    }
+  );
+
+  return enhancedOrganizations;
 }
