@@ -1,4 +1,4 @@
-import { SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { getImageURL } from "~/images.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { mailer } from "~/mailer.server";
@@ -75,16 +75,12 @@ export async function createRequestToOrganization(
               profileId: profileId,
             },
           },
-          admins: {
-            none: {
-              profileId: profileId,
-            },
-          },
         },
         {
           profileJoinInvites: {
             none: {
               profileId: profileId,
+              status: "pending",
             },
           },
         },
@@ -92,6 +88,7 @@ export async function createRequestToOrganization(
           profileJoinRequests: {
             none: {
               profileId: profileId,
+              status: "pending",
             },
           },
         },
@@ -115,11 +112,20 @@ export async function createRequestToOrganization(
     return { error: new Error("addOrganization.errors.alreadyInRelation") };
   }
 
-  const result = await prismaClient.requestToOrganizationToAddProfile.create({
-    data: {
-      organizationId: organizationId as string,
+  const result = await prismaClient.requestToOrganizationToAddProfile.upsert({
+    create: {
+      organizationId: organizationId,
       profileId: profileId,
       status: "pending",
+    },
+    update: {
+      status: "pending",
+    },
+    where: {
+      profileId_organizationId: {
+        organizationId,
+        profileId,
+      },
     },
     select: {
       profile: {
