@@ -40,8 +40,10 @@ import {
   getOrganizationInvitesForProfile,
   getOrganizationsFromProfile,
   getPendingOrganizationInvite,
+  getAdminOrganizationsWithPendingRequests,
   sendOrganizationInviteUpdatedEmail,
   updateOrganizationInvite,
+  addImageUrlToRequests,
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
@@ -84,18 +86,25 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const invites = await getOrganizationInvitesForProfile(sessionUser.id);
   const enhancedInvites = addImageUrlToInvites(authClient, invites);
 
-  const pendingRequests = await getPendingRequestsToOrganizations(
-    sessionUser.id,
-    authClient
-  );
+  const pendingRequestsToOrganizations =
+    await getPendingRequestsToOrganizations(sessionUser.id, authClient);
   const organizationsToAdd = await getOrganizationsToAdd(request, sessionUser);
+
+  const adminOrganizationsWithPendingRequests =
+    await getAdminOrganizationsWithPendingRequests(sessionUser.id);
+  const enhancedAdminOrganizationsWithPendingRequests = addImageUrlToRequests(
+    authClient,
+    adminOrganizationsWithPendingRequests
+  );
 
   return json({
     organizations: flattenedOrganizations,
     invites: enhancedInvites,
     abilities,
     organizationsToAdd,
-    pendingRequests,
+    pendingRequestsToOrganizations,
+    adminOrganizationsWithPendingRequests:
+      enhancedAdminOrganizationsWithPendingRequests,
   });
 };
 
@@ -449,21 +458,23 @@ export default function MyOrganizations() {
               </Section.Headline>
               <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
               <AddOrganization organizations={loaderData.organizationsToAdd} />
-              {loaderData.pendingRequests.length > 0 ? (
+              {loaderData.pendingRequestsToOrganizations.length > 0 ? (
                 <>
                   <hr />
                   <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
                     {t("requests.headline")}
                   </h4>
                   <ul className="mv-flex mv-flex-col mv-gap-4">
-                    {loaderData.pendingRequests.map((organization) => {
-                      return (
-                        <OrganizationListItem
-                          key={`request-${organization.id}`}
-                          organization={organization}
-                        />
-                      );
-                    })}
+                    {loaderData.pendingRequestsToOrganizations.map(
+                      (organization) => {
+                        return (
+                          <OrganizationListItem
+                            key={`request-${organization.id}`}
+                            organization={organization}
+                          />
+                        );
+                      }
+                    )}
                   </ul>
                 </>
               ) : null}
