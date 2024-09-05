@@ -10,6 +10,7 @@ import {
   cancelRequestToOrganization,
   createRequestToOrganization,
 } from "./requests.server";
+import { redirectWithToast } from "~/toast.server";
 
 export const Request = {
   Create: "createRequest",
@@ -38,21 +39,24 @@ export async function action(args: ActionFunctionArgs) {
   const formData = await request.formData();
   const submission = parse(formData, { schema });
 
+  let organization: { name: string } | null = null;
+
   if (typeof submission.value !== "undefined" && submission.value !== null) {
     if (submission.value.intent === Request.Create) {
-      const error = await createRequestToOrganization(
+      const result = await createRequestToOrganization(
         submission.value.organizationId as string,
         sessionUser.id
       );
-      if (error !== null) {
-        throw new Error(t(error.message));
+      if (typeof result.error !== "undefined") {
+        throw new Error(t(result.error.message));
       }
+      organization = result.organization;
     } else if (submission.value.intent === Request.Cancel) {
-      console.log("canceling request");
-      await cancelRequestToOrganization(
+      const result = await cancelRequestToOrganization(
         submission.value.organizationId as string,
         sessionUser.id
       );
+      organization = result.organization;
     }
 
     const redirectURL = new URL(
@@ -67,7 +71,14 @@ export async function action(args: ActionFunctionArgs) {
       );
     }
 
-    return redirect(redirectURL.toString());
+    return redirectWithToast(redirectURL.toString(), {
+      key: `${submission.value.intent}-${Date.now()}`,
+      level:
+        submission.value.intent === Request.Create ? "positive" : "negative",
+      message: t(`requests.${submission.value.intent}`, {
+        organization,
+      }),
+    });
   }
 
   return json(submission);

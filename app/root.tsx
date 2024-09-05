@@ -48,6 +48,8 @@ import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
 import legacyStyles from "./styles/legacy-styles.css";
 import { combineHeaders, deriveMode } from "./utils.server";
+import { getToast } from "./toast.server";
+import { ToastContainer } from "./__toast.components";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -153,6 +155,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   const { alert, headers: alertHeaders } = await getAlert(request);
+  const { toast, headers: toastHeaders } = await getToast(request);
 
   const mode = deriveMode(user);
 
@@ -169,6 +172,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       nextSessionUserInfo,
       abilities,
       alert,
+      toast,
       locale,
       env,
       mode,
@@ -177,7 +181,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         url: request.url,
       },
     },
-    { headers: combineHeaders(headers, alertHeaders) }
+    { headers: combineHeaders(headers, alertHeaders, toastHeaders) }
   );
 };
 
@@ -300,6 +304,7 @@ export default function App() {
     nextSessionUserInfo,
     abilities,
     alert,
+    toast,
     locale,
     env,
     mode,
@@ -373,6 +378,7 @@ export default function App() {
         </div>
       ) : null}
       <Outlet />
+      {toast !== null ? <ToastContainer toast={toast} /> : null}
     </main>
   );
 

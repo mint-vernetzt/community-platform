@@ -3,7 +3,7 @@ import { combineHeaders } from "./utils.server";
 import { type ToastLevel } from "@mint-vernetzt/components";
 import { ZodError, z } from "zod";
 
-type Toast = {
+export type Toast = {
   message: string;
   key: string;
   id?: string;
