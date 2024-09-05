@@ -293,6 +293,7 @@ export async function getOrganizationInvitesForProfile(id: string) {
         organizationId: true,
         organization: {
           select: {
+            id: true,
             slug: true,
             name: true,
             logo: true,
@@ -325,6 +326,7 @@ export async function getOrganizationInvitesForProfile(id: string) {
         organizationId: true,
         organization: {
           select: {
+            id: true,
             slug: true,
             name: true,
             logo: true,

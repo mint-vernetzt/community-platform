@@ -10,7 +10,8 @@
         },
         "decline": "Decline",
         "accept": "Accept",
-        "more": "Show {{count}} more"
+        "more": "Show {{count}} more",
+        "less": "Show {{count}} less"
     },
     "addOrganization": {
         "headline": "Add organization",

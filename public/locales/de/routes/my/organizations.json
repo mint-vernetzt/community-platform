@@ -10,7 +10,8 @@
         },
         "decline": "Ablehnen",
         "accept": "Annehmen",
-        "more": "{{count}} weitere anzeigen"
+        "more": "{{count}} weitere anzeigen",
+        "less": "{{count}} weniger anzeigen"
     },
     "addOrganization": {
         "headline": "Organisation hinzufügen",

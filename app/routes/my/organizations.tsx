@@ -1,6 +1,5 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import {
-  Avatar,
   Button,
   CardContainer,
   OrganizationCard,
@@ -21,7 +20,6 @@ import {
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { redirectWithAlert } from "~/alert.server";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -31,28 +29,30 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { detectLanguage } from "~/root.server";
-import { Icon } from "../__components";
+import { redirectWithToast } from "~/toast.server";
 import {
-  CancelRequestFetcher,
+  AcceptOrRejectInviteFetcher,
   AddOrganization,
+  CancelRequestFetcher,
+  OrganizationListContainer,
   OrganizationListItem,
   Section,
 } from "./__components";
 import {
   addImageUrlToInvites,
   addImageUrlToOrganizations,
+  addImageUrlToRequests,
   flattenOrganizationRelations,
+  getAdminOrganizationsWithPendingRequests,
   getOrganizationInvitesForProfile,
   getOrganizationsFromProfile,
   getPendingOrganizationInvite,
-  getAdminOrganizationsWithPendingRequests,
   sendOrganizationInviteUpdatedEmail,
   updateOrganizationInvite,
-  addImageUrlToRequests,
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
-import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
 import { type action as requestsAction } from "./organizations/requests";
+import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
 
 export const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -165,7 +165,8 @@ export const action = async (args: ActionFunctionArgs) => {
     ...submission.value,
   });
   await sendOrganizationInviteUpdatedEmail(submission.value.intent, invite);
-  return redirectWithAlert(".", {
+  return redirectWithToast("/my/organizations", {
+    key: `${submission.value.intent}-${Date.now()}`,
     level: submission.value.intent === "accepted" ? "positive" : "negative",
     message: `${t(`alerts.${submission.value.intent}`, {
       organization: invite.organization.name,
@@ -177,7 +178,7 @@ export default function MyOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
   const { t } = useTranslation(i18nNS);
   const [searchParams] = useSearchParams();
-  const inviteFetcher = useFetcher();
+  const inviteFetcher = useFetcher<typeof action>();
 
   // SearchParams as fallback when javascript is disabled (See <Links> in <TabBar>)
   const [activeOrganizationsTab, setActiveOrganizationsTab] = useState(
@@ -386,112 +387,23 @@ export default function MyOrganizations() {
 
               {Object.entries(invites).map(([key, value]) => {
                 return value.active && value.invites.length > 0 ? (
-                  <ul
-                    key={`${key}-list`}
-                    className="mv-flex mv-flex-col mv-gap-4 mv-group"
-                  >
+                  <OrganizationListContainer key={key} listKey={`${key}-list`}>
                     {value.invites.map((invite, index) => {
                       return (
-                        <li
+                        <OrganizationListItem
                           key={`${key}-invite-${invite.organizationId}`}
-                          className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center ${
-                            index > 2
-                              ? "mv-hidden group-has-[:checked]:mv-flex"
-                              : "mv-flex"
-                          }`}
+                          listIndex={index}
+                          organization={invite.organization}
                         >
-                          <Link
-                            to={`/organization/${invite.organization.slug}`}
-                            className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
-                          >
-                            <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
-                              <Avatar size="full" {...invite.organization} />
-                            </div>
-                            <div>
-                              <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
-                                {invite.organization.name}
-                              </p>
-                              <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
-                                {invite.organization.types
-                                  .map((relation) => {
-                                    return relation.organizationType.title;
-                                  })
-                                  .join(", ")}
-                              </p>
-                            </div>
-                          </Link>
-                          <inviteFetcher.Form
-                            id={`invite-form-${invite.organizationId}`}
-                            method="post"
-                            className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
-                          >
-                            <input
-                              type="hidden"
-                              required
-                              readOnly
-                              name="organizationId"
-                              defaultValue={invite.organizationId}
-                            />
-                            <input
-                              type="hidden"
-                              required
-                              readOnly
-                              name="role"
-                              defaultValue={
-                                key === "teamMember" ? "member" : "admin"
-                              }
-                            />
-                            <Button
-                              id={`reject-invite-${invite.organizationId}`}
-                              variant="outline"
-                              fullSize
-                              type="submit"
-                              name="intent"
-                              value="rejected"
-                              aria-describedby={`invites-headline tab-description-${key} reject-invite-${invite.organizationId} invites-subline`}
-                            >
-                              {t("invites.decline")}
-                            </Button>
-                            <Button
-                              id={`accept-invite-${invite.organizationId}`}
-                              fullSize
-                              type="submit"
-                              name="intent"
-                              value="accepted"
-                              aria-describedby={`invites-headline tab-description-${key} accept-invite-${invite.organizationId} invites-subline`}
-                            >
-                              {t("invites.accept")}
-                            </Button>
-                          </inviteFetcher.Form>
-                        </li>
+                          <AcceptOrRejectInviteFetcher
+                            inviteFetcher={inviteFetcher}
+                            organizationId={invite.organizationId}
+                            tabKey={key}
+                          />
+                        </OrganizationListItem>
                       );
                     })}
-                    {value.invites.length > 3 ? (
-                      <div
-                        key={`show-more-${key}-invites`}
-                        className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
-                      >
-                        <label
-                          htmlFor={`show-more-${key}-invites`}
-                          className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
-                        >
-                          <div>
-                            {t("invites.more", {
-                              count: value.invites.length - 3,
-                            })}
-                          </div>
-                          <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
-                            <Icon type="chevron-right" />
-                          </div>
-                        </label>
-                        <input
-                          id={`show-more-${key}-invites`}
-                          type="checkbox"
-                          className="mv-w-0 mv-h-0 mv-opacity-0"
-                        />
-                      </div>
-                    ) : null}
-                  </ul>
+                  </OrganizationListContainer>
                 ) : null;
               })}
             </section>
@@ -512,12 +424,13 @@ export default function MyOrganizations() {
                   <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
                     {t("requests.headline")}
                   </h4>
-                  <ul className="mv-flex mv-flex-col mv-gap-4">
+                  <OrganizationListContainer listKey="pending-requests-to-organizations">
                     {loaderData.pendingRequestsToOrganizations.map(
-                      (organization) => {
+                      (organization, index) => {
                         return (
                           <OrganizationListItem
-                            key={`request-${organization.id}`}
+                            key={`cancel-request-from-${organization.id}`}
+                            listIndex={index}
                             organization={organization}
                           >
                             <CancelRequestFetcher
@@ -528,7 +441,7 @@ export default function MyOrganizations() {
                         );
                       }
                     )}
-                  </ul>
+                  </OrganizationListContainer>
                 </>
               ) : null}
             </Section>
