@@ -38,6 +38,10 @@
         "rejectRequest": "Du hast die Beitrittsanfrage von {{academicTitle}}{{firstName}} {{lastName}} abgelehnt.",
         "acceptRequest": "{{academicTitle}}{{firstName}} {{lastName}} wurde zu Deiner Organisation hinzugefügt."
     },
+    "quit": {
+        "success": "Du hast die Organisation {{organization}} erfolgreich verlassen.",
+        "lastAdmin": "Du kannst die Organisation nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder die Organisation zu löschen."
+    },
     "organizations": {
         "tabbar": {
             "teamMember": "Teammitglied",
