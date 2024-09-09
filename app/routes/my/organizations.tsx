@@ -57,6 +57,7 @@ import {
   type action as requestsAction,
 } from "./organizations/requests";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
+import { type action as quitAction } from "./organizations/quit";
 
 export const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -369,6 +370,27 @@ export default function MyOrganizations() {
     }
   }
 
+  // Optimistic UI when quiting organizations
+  const quitOrganizationFetcher = useFetcher<typeof quitAction>();
+  if (
+    quitOrganizationFetcher.formData !== undefined &&
+    quitOrganizationFetcher.formData.get("slug") !== null
+  ) {
+    const slug = quitOrganizationFetcher.formData.get("slug");
+    if (slug !== null) {
+      loaderData.organizations.teamMemberOrganizations =
+        loaderData.organizations.teamMemberOrganizations.filter(
+          (organization) => {
+            return organization.slug !== slug;
+          }
+        );
+      loaderData.organizations.adminOrganizations =
+        loaderData.organizations.adminOrganizations.filter((organization) => {
+          return organization.slug !== slug;
+        });
+    }
+  }
+
   return (
     <>
       <div className="mv-w-full mv-flex mv-justify-center">
@@ -620,6 +642,10 @@ export default function MyOrganizations() {
                           <OrganizationCard
                             key={`${key}-organization-${organization.id}`}
                             organization={organization}
+                            menu={{
+                              mode: key === "admin" ? "admin" : "teamMember",
+                              quitOrganizationFetcher: quitOrganizationFetcher,
+                            }}
                           />
                         );
                       })}

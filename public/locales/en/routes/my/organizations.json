@@ -38,6 +38,10 @@
         "rejectRequest": "You have declined the membership request of {{academicTitle}}{{firstName}} {{lastName}}.",
         "acceptRequest": "{{academicTitle}}{{firstName}} {{lastName}} has been added to your organization."
     },
+    "quit": {
+        "success": "You have successfully left the organization {{organization}}.",
+        "lastAdmin": "You cannot leave the organization because you are the last admin. Press edit to appoint another admin or delete the organization."
+    },
     "organizations": {
         "tabbar": {
             "teamMember": "Team Member",

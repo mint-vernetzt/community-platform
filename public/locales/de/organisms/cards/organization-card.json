@@ -3,5 +3,7 @@
   "nonStated": "-nicht angegeben-",
   "match": "Match",
   "areasOfActivity": "Aktivitätsgebiete",
-  "focus": "Schwerpunkte"
+  "focus": "Schwerpunkte",
+  "edit": "Bearbeiten",
+  "quit": "Organisation Verlassen"
 }

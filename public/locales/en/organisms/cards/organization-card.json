@@ -3,5 +3,7 @@
   "nonStated": "-not specified-",
   "match": "Match",
   "areasOfActivity": "Areas of activity",
-  "focus": "Focuses"
+  "focus": "Focuses",
+  "edit": "Edit",
+  "quit": "Leave organization"
 }
