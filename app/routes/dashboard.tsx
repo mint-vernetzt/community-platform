@@ -34,6 +34,7 @@ import {
   getOrganizationsFromInvites,
   getProfileById,
   getProfilesForCards,
+  getProfilesFromRequests,
   getProjectsForCards,
 } from "./dashboard.server";
 import {
@@ -322,6 +323,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     sessionUser.id
   );
 
+  const profilesFromRequests = await getProfilesFromRequests(
+    authClient,
+    sessionUser.id
+  );
+
   return json({
     communityCounter,
     profiles,
@@ -332,6 +338,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     lastName: profile.lastName,
     username: profile.username,
     organizationsFromInvites,
+    profilesFromRequests,
     abilities,
   });
 };
@@ -436,7 +443,7 @@ function Dashboard() {
           </p>
         </div>
       </section>
-      {/* Invites Section */}
+      {/* Organization Invites Section */}
       {loaderData.abilities["add-to-organization"].hasAccess &&
         loaderData.abilities["my_organizations"].hasAccess &&
         loaderData.organizationsFromInvites.length > 0 && (
@@ -449,10 +456,14 @@ function Dashboard() {
                     .map((organization) => {
                       return (
                         <div
-                          key={organization.name}
+                          key={organization.slug}
                           className="mv-w-[73px] mv-h-[73px]"
                         >
-                          <Avatar size="full" {...organization} />
+                          <Avatar
+                            to={`/organization/${organization.slug}`}
+                            size="full"
+                            {...organization}
+                          />
                         </div>
                       );
                     })}
@@ -475,6 +486,53 @@ function Dashboard() {
               </div>
               <Button as="a" href="/my/organizations">
                 {t("content.invites.linkDescription")}
+              </Button>
+            </div>
+          </section>
+        )}
+      {/* Organization Requests Section */}
+      {loaderData.abilities["add-to-organization"].hasAccess &&
+        loaderData.abilities["my_organizations"].hasAccess &&
+        loaderData.profilesFromRequests.length > 0 && (
+          <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+            <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
+              <div className="mv-flex mv-items-center mv-gap-2">
+                <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+                  {loaderData.profilesFromRequests
+                    .slice(0, 3)
+                    .map((profile) => {
+                      return (
+                        <div
+                          key={profile.username}
+                          className="mv-w-[73px] mv-h-[73px]"
+                        >
+                          <Avatar
+                            to={`/profile/${profile.username}`}
+                            size="full"
+                            {...profile}
+                          />
+                        </div>
+                      );
+                    })}
+                </div>
+                {loaderData.profilesFromRequests.length > 3 && (
+                  <div className="mv-text-2xl mv-font-semibold mv-text-primary">
+                    +{loaderData.profilesFromRequests.length - 3}
+                  </div>
+                )}
+              </div>
+              <div className="mv-flex-1 mv-text-primary">
+                <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+                  {t("content.requests.headline", {
+                    count: loaderData.profilesFromRequests.length,
+                  })}
+                </h3>
+                <p className="mv-text-normal mv-text-sm">
+                  {t("content.requests.description")}
+                </p>
+              </div>
+              <Button as="a" href="/my/organizations">
+                {t("content.requests.linkDescription")}
               </Button>
             </div>
           </section>

@@ -74,6 +74,12 @@
       "headline_other": "Du hast {{count}} offene Einladungen.",
       "description": "Beantworte die Anfrage und werde damit als Teammitglied der Organisation sichtbar.",
       "linkDescription": "Zu meinen Organisationen"
+    },
+    "requests": {
+      "headline_one": "Du hast {{count}} offene Beitrittsanfrage.",
+      "headline_other": "Du hast {{count}} offene Beitrittsanfragen.",
+      "description": "Beantworte die Anfragen für Deine Organisationen.",
+      "linkDescription": "Zu meinen Organisationen"
     }
   }
 }
