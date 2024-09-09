@@ -74,6 +74,12 @@
       "headline_other": "You have received {{count}} invitations.",
       "description": "Answer the request and become visible as a team member of the organization.",
       "linkDescription": "To my organizations"
+    },
+    "requests": {
+      "headline_one": "You have {{count}} open membership request.",
+      "headline_other": "You have {{count}} open membership requests.",
+      "description": "Respond to membership requests for your organizations.",
+      "linkDescription": "To my organizations"
     }
   }
 }

@@ -282,6 +282,7 @@ export async function getOrganizationsFromInvites(
           select: {
             name: true,
             logo: true,
+            slug: true,
           },
         },
       },
@@ -307,6 +308,60 @@ export async function getOrganizationsFromInvites(
   const flat = enhancedOrganizations.map((relation) => {
     return {
       ...relation.organization,
+    };
+  });
+
+  return flat;
+}
+
+export async function getProfilesFromRequests(
+  authClient: SupabaseClient,
+  profileId: string
+) {
+  const profiles =
+    await prismaClient.requestToOrganizationToAddProfile.findMany({
+      where: {
+        organization: {
+          admins: {
+            some: {
+              profileId,
+            },
+          },
+        },
+        status: "pending",
+      },
+      select: {
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            username: true,
+          },
+        },
+      },
+    });
+
+  const enhancedProfiles = profiles.map((relation) => {
+    if (relation.profile.avatar !== null) {
+      const publicURL = getPublicURL(authClient, relation.profile.avatar);
+      if (publicURL !== null) {
+        const avatar = getImageURL(publicURL, {
+          resize: { type: "fill", width: 73, height: 73 },
+          gravity: GravityType.center,
+        });
+        return {
+          ...relation,
+          profile: { ...relation.profile, avatar },
+        };
+      }
+    }
+    return relation;
+  });
+
+  const flat = enhancedProfiles.map((relation) => {
+    return {
+      ...relation.profile,
     };
   });
 

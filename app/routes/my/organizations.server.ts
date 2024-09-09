@@ -535,6 +535,7 @@ export async function getAdminOrganizationsWithPendingRequests(id: string) {
               username: true,
             },
           },
+          status: true,
         },
       },
     },
@@ -550,9 +551,24 @@ export async function getAdminOrganizationsWithPendingRequests(id: string) {
         },
       },
     },
+    orderBy: {
+      name: "asc",
+    },
   });
 
-  return organizations;
+  const enhancedOrganizations = organizations.map((organization) => {
+    const profileJoinRequests = organization.profileJoinRequests.filter(
+      (relation) => {
+        return relation.status === "pending";
+      }
+    );
+    return {
+      ...organization,
+      profileJoinRequests,
+    };
+  });
+
+  return enhancedOrganizations;
 }
 
 export function addImageUrlToRequests(
