@@ -23,7 +23,7 @@ function FundingCard(props: { url: string; children: React.ReactNode }) {
   return (
     <li
       key={props.url}
-      className="mv-shadow-xl mv-rounded-3xl mv-px-6 mv-py-8 mv-flex mv-flex-col mv-gap-4 mv-bg-white"
+      className="mv-border mv-border-neutral-200 mv-rounded-3xl mv-px-6 mv-py-8 mv-flex mv-flex-col mv-gap-4 mv-bg-white"
     >
       {subtitle}
       {title}
@@ -35,7 +35,7 @@ function FundingCard(props: { url: string; children: React.ReactNode }) {
 
 function FundingCardContainer(props: { children: React.ReactNode }) {
   return (
-    <ul className="mv-grid mv-gap-x-6 mv-gap-y-8 mv-grid-cols-1 @lg:mv-grid-cols-2 ">
+    <ul className="mv-grid mv-gap-x-6 mv-gap-y-8 mv-grid-cols-1 @lg:mv-grid-cols-2">
       {props.children}
     </ul>
   );

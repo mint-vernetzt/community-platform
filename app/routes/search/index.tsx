@@ -3,12 +3,14 @@ import { redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import {
   countSearchedEvents,
+  countSearchedFundings,
   countSearchedOrganizations,
   countSearchedProfiles,
   countSearchedProjects,
   getQuerySearchParam,
   getQueryValueAsArrayOfWords,
 } from "./utils.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 // handle first tab with search results as default route
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -18,6 +20,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { authClient } = await createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
+
+  const abilities = await getFeatureAbilities(authClient, ["fundings"]);
 
   if (searchQuery !== null) {
     const profilesCount = await countSearchedProfiles(searchQuery, sessionUser);
@@ -42,6 +46,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const projectsCount = await countSearchedProjects(searchQuery, sessionUser);
     if (projectsCount !== 0) {
       return redirect(`/search/projects?query=${queryString || ""}`);
+    }
+    if (abilities["fundings"].hasAccess === true) {
+      // We have funding search results
+      const fundingsCount = await countSearchedFundings(searchQuery);
+      if (fundingsCount !== 0) {
+        return redirect(`/search/fundings?query=${queryString || ""}`);
+      }
     }
     // We have no search results
     return redirect(`/search/profiles?query=${queryString || ""}`);

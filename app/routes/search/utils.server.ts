@@ -9,6 +9,24 @@ import type { User } from "@supabase/supabase-js";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 
+export function getTakeParam(
+  request: Request,
+  options?: { itemsPerPage?: number; param?: string }
+) {
+  const { itemsPerPage = 12, param = "page" } = options || {};
+
+  const url = new URL(request.url);
+  const pageParam = url.searchParams.get(param) || "1";
+
+  let page = parseInt(pageParam);
+  if (Number.isNaN(page) || page < 1) {
+    page = 1;
+  }
+  const take = itemsPerPage * page;
+
+  return { take, page, itemsPerPage };
+}
+
 // **************
 // Prismas like filtering with where contains
 // - Performance: ~30 ms for full profile on search query 'Kontakt zu Unternehmen'
@@ -22,7 +40,6 @@ import { prismaClient } from "~/prisma.server";
 export async function searchProfilesViaLike(
   searchQuery: string[],
   sessionUser: User | null,
-  skip?: number,
   take?: number
 ) {
   if (searchQuery.length === 0) {
@@ -100,7 +117,6 @@ export async function searchProfilesViaLike(
     where: {
       AND: whereQueries,
     },
-    skip: skip,
     take: take,
     orderBy: [
       {
@@ -474,7 +490,6 @@ function getProfileWhereQueries(
 export async function searchOrganizationsViaLike(
   searchQuery: string[],
   sessionUser: User | null,
-  skip?: number,
   take?: number
 ) {
   if (searchQuery.length === 0) {
@@ -556,7 +571,6 @@ export async function searchOrganizationsViaLike(
     where: {
       AND: whereQueries,
     },
-    skip: skip,
     take: take,
     orderBy: [
       {
@@ -1024,7 +1038,6 @@ function getOrganizationWhereQueries(
 export async function searchEventsViaLike(
   searchQuery: string[],
   sessionUser: User | null,
-  skip?: number,
   take?: number
 ) {
   if (searchQuery.length === 0) {
@@ -1105,7 +1118,6 @@ export async function searchEventsViaLike(
     where: {
       AND: [{ published: true }, ...whereQueries],
     },
-    skip: skip,
     take: take,
     orderBy: {
       startTime: "desc",
@@ -1475,7 +1487,6 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
 export async function searchProjectsViaLike(
   searchQuery: string[],
   sessionUser: User | null,
-  skip?: number,
   take?: number
 ) {
   if (searchQuery.length === 0) {
@@ -1539,7 +1550,6 @@ export async function searchProjectsViaLike(
     where: {
       AND: [...whereQueries, { published: true }],
     },
-    skip: skip,
     take: take,
     orderBy: {
       name: "asc",
@@ -2026,6 +2036,247 @@ function getProjectWhereQueries(
                 }
               : {},
           ],
+        },
+      ],
+    };
+    whereQueries.push(contains);
+  }
+  return whereQueries;
+}
+
+export async function searchFundingsViaLike(
+  searchQuery: string[],
+  take?: number
+) {
+  if (searchQuery.length === 0) {
+    return [];
+  }
+  const whereQueries = getFundingWhereQueries(searchQuery);
+  const fundings = await prismaClient.funding.findMany({
+    select: {
+      title: true,
+      url: true,
+      funders: {
+        select: {
+          funder: {
+            select: {
+              slug: true,
+              title: true,
+            },
+          },
+        },
+      },
+      types: {
+        select: {
+          type: {
+            select: {
+              slug: true,
+              title: true,
+            },
+          },
+        },
+      },
+      areas: {
+        select: {
+          area: {
+            select: {
+              slug: true,
+              title: true,
+            },
+          },
+        },
+      },
+      eligibleEntities: {
+        select: {
+          entity: {
+            select: {
+              slug: true,
+              title: true,
+            },
+          },
+        },
+      },
+      regions: {
+        select: {
+          area: {
+            select: {
+              slug: true,
+              name: true,
+            },
+          },
+        },
+      },
+      sourceEntities: true,
+      sourceAreas: true,
+    },
+    where: {
+      AND: [...whereQueries],
+    },
+    take: take,
+    orderBy: {
+      title: "asc",
+    },
+  });
+  return fundings;
+}
+
+export async function countSearchedFundings(searchQuery: string[]) {
+  if (searchQuery.length === 0) {
+    return 0;
+  }
+  const whereQueries = getFundingWhereQueries(searchQuery);
+  const fundingCount = await prismaClient.funding.count({
+    where: {
+      AND: [...whereQueries],
+    },
+  });
+  return fundingCount;
+}
+
+function getFundingWhereQueries(searchQuery: string[]) {
+  const whereQueries = [];
+  for (const word of searchQuery) {
+    const contains: {
+      OR: (
+        | {
+            [K in "url" | "title"]?: {
+              contains: string;
+              mode: Prisma.QueryMode;
+            };
+          }
+        | {
+            [K in
+              | "sourceAreas"
+              | "sourceEntities"
+              | "sourceFunders"
+              | "sourceRegions"
+              | "sourceTypes"]?: {
+              has: string;
+            };
+          }
+        | {
+            [K in "regions"]?: {
+              some: {
+                [K in "area"]?: {
+                  [K in "name"]?: {
+                    contains: string;
+                    mode: Prisma.QueryMode;
+                  };
+                };
+              };
+            };
+          }
+        | {
+            [K in "funders" | "types" | "areas" | "eligibleEntities"]?: {
+              some: {
+                [K in "funder" | "type" | "area" | "entity"]?: {
+                  [K in "title"]?: {
+                    contains: string;
+                    mode: Prisma.QueryMode;
+                  };
+                };
+              };
+            };
+          }
+      )[];
+    } = {
+      OR: [
+        {
+          url: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          title: {
+            contains: word,
+            mode: "insensitive",
+          },
+        },
+        {
+          sourceAreas: {
+            has: word,
+          },
+        },
+        {
+          sourceEntities: {
+            has: word,
+          },
+        },
+        {
+          sourceFunders: {
+            has: word,
+          },
+        },
+        {
+          sourceRegions: {
+            has: word,
+          },
+        },
+        {
+          sourceTypes: {
+            has: word,
+          },
+        },
+        {
+          regions: {
+            some: {
+              area: {
+                name: {
+                  contains: word,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        },
+        {
+          funders: {
+            some: {
+              funder: {
+                title: {
+                  contains: word,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        },
+        {
+          types: {
+            some: {
+              type: {
+                title: {
+                  contains: word,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        },
+        {
+          areas: {
+            some: {
+              area: {
+                title: {
+                  contains: word,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        },
+        {
+          eligibleEntities: {
+            some: {
+              entity: {
+                title: {
+                  contains: word,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
         },
       ],
     };
