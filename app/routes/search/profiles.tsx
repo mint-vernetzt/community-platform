@@ -1,8 +1,13 @@
 import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
-import React from "react";
+import {
+  Link,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { GravityType, getImageURL } from "~/images.server";
 import {
@@ -10,12 +15,12 @@ import {
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { getPaginationValues } from "../explore/utils.server";
 import {
+  countSearchedProfiles,
   getQueryValueAsArrayOfWords,
+  getTakeParam,
   searchProfilesViaLike,
 } from "./utils.server";
-import { useTranslation } from "react-i18next";
 // import styles from "../../../common/design/styles/styles.css";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
@@ -29,14 +34,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
-  const { skip, take, page, itemsPerPage } = getPaginationValues(request);
+  const { take, page, itemsPerPage } = getTakeParam(request);
 
   const sessionUser = await getSessionUser(authClient);
+
+  const profilesCount = await countSearchedProfiles(searchQuery, sessionUser);
 
   const rawProfiles = await searchProfilesViaLike(
     searchQuery,
     sessionUser,
-    skip,
     take
   );
 
@@ -105,6 +111,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return json({
     profiles: enhancedProfiles,
+    count: profilesCount,
     isLoggedIn: sessionUser !== null,
     pagination: {
       page,
@@ -114,58 +121,24 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function Profiles() {
-  const loaderData = useLoaderData<typeof loader>();
-  const fetcher = useFetcher<typeof loader>();
-  const [searchParams] = useSearchParams();
-  const [items, setItems] = React.useState(loaderData.profiles);
-  const [shouldFetch, setShouldFetch] = React.useState(() => {
-    if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
-      return false;
-    }
-    return true;
-  });
-  const [page, setPage] = React.useState(() => {
-    const pageParam = searchParams.get("page");
-    if (pageParam !== null) {
-      return parseInt(pageParam);
-    }
-    return 1;
-  });
-
-  React.useEffect(() => {
-    if (fetcher.data !== undefined) {
-      setItems((profiles) => {
-        return fetcher.data !== undefined
-          ? [...profiles, ...fetcher.data.profiles]
-          : [...profiles];
-      });
-      setPage(fetcher.data.pagination.page);
-      if (fetcher.data.profiles.length < fetcher.data.pagination.itemsPerPage) {
-        setShouldFetch(false);
-      }
-    }
-  }, [fetcher.data]);
-
-  React.useEffect(() => {
-    if (loaderData.profiles.length < loaderData.pagination.itemsPerPage) {
-      setShouldFetch(false);
-    }
-    setItems(loaderData.profiles);
-  }, [loaderData.profiles, loaderData.pagination.itemsPerPage]);
-
-  const query = searchParams.get("query") ?? "";
-
   const { t } = useTranslation(i18nNS);
+  const loaderData = useLoaderData<typeof loader>();
+  const [searchParams] = useSearchParams();
+
+  const navigation = useNavigation();
+
+  const loadMoreSearchParams = new URLSearchParams(searchParams);
+  loadMoreSearchParams.set("page", `${loaderData.pagination.page + 1}`);
 
   return (
     <section
       id="search-results-profiles"
       className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl"
     >
-      {items.length > 0 ? (
+      {loaderData.profiles.length > 0 ? (
         <>
           <CardContainer type="multi row">
-            {items.map((profile) => {
+            {loaderData.profiles.map((profile) => {
               return (
                 <ProfileCard
                   key={`profile-${profile.id}`}
@@ -175,19 +148,22 @@ export default function Profiles() {
               );
             })}
           </CardContainer>
-          {shouldFetch && (
-            <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-              <fetcher.Form method="get">
-                <input key="query" type="hidden" name="query" value={query} />
-                <input key="page" type="hidden" name="page" value={page + 1} />
+          {loaderData.count > loaderData.profiles.length && (
+            <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
+              <Link
+                to={`?${loadMoreSearchParams.toString()}`}
+                preventScrollReset
+                replace
+              >
                 <Button
                   size="large"
                   variant="outline"
-                  loading={fetcher.state === "loading"}
+                  loading={navigation.state === "loading"}
+                  disabled={navigation.state === "loading"}
                 >
                   {t("more")}
                 </Button>
-              </fetcher.Form>
+              </Link>
             </div>
           )}
         </>

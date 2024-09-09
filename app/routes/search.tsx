@@ -12,6 +12,7 @@ import { H1 } from "~/components/Heading/Heading";
 import Search from "~/components/Search/Search";
 import {
   countSearchedEvents,
+  countSearchedFundings,
   countSearchedOrganizations,
   countSearchedProfiles,
   countSearchedProjects,
@@ -35,19 +36,27 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     organizations: 0,
     events: 0,
     projects: 0,
+    fundings: 0,
   };
   if (searchQuery !== null) {
-    const [profilesCount, organizationsCount, eventsCount, projectsCount] =
-      await Promise.all([
-        countSearchedProfiles(searchQuery, sessionUser),
-        countSearchedOrganizations(searchQuery, sessionUser),
-        countSearchedEvents(searchQuery, sessionUser),
-        countSearchedProjects(searchQuery, sessionUser),
-      ]);
+    const [
+      profilesCount,
+      organizationsCount,
+      eventsCount,
+      projectsCount,
+      fundingsCount,
+    ] = await Promise.all([
+      countSearchedProfiles(searchQuery, sessionUser),
+      countSearchedOrganizations(searchQuery, sessionUser),
+      countSearchedEvents(searchQuery, sessionUser),
+      countSearchedProjects(searchQuery, sessionUser),
+      countSearchedFundings(searchQuery),
+    ]);
     countData.profiles = profilesCount;
     countData.organizations = organizationsCount;
     countData.events = eventsCount;
     countData.projects = projectsCount;
+    countData.fundings = fundingsCount;
   }
 
   return json({
@@ -55,6 +64,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     organizationsCount: countData.organizations,
     eventsCount: countData.events,
     projectsCount: countData.projects,
+    fundingsCount: countData.fundings,
   });
 };
 
@@ -116,6 +126,14 @@ function SearchView() {
             preventScrollReset
           >
             {t("projects")} (<>{loaderData.projectsCount}</>)
+          </NavLink>
+          <NavLink
+            id="funding-tab"
+            className={({ isActive }) => getClassName(isActive)}
+            to={`fundings?query=${query}`}
+            preventScrollReset
+          >
+            {t("fundings")} (<>{loaderData.fundingsCount}</>)
           </NavLink>
         </ul>
       </section>
