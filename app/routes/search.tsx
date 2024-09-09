@@ -19,6 +19,7 @@ import {
   getQueryValueAsArrayOfWords,
 } from "./search/utils.server";
 import { useTranslation } from "react-i18next";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/search"];
 export const handle = {
@@ -31,6 +32,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = await createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
+  const abilities = await getFeatureAbilities(authClient, "fundings");
+
   const countData = {
     profiles: 0,
     organizations: 0,
@@ -39,24 +42,29 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     fundings: 0,
   };
   if (searchQuery !== null) {
+    const promises = [
+      countSearchedProfiles(searchQuery, sessionUser),
+      countSearchedOrganizations(searchQuery, sessionUser),
+      countSearchedEvents(searchQuery, sessionUser),
+      countSearchedProjects(searchQuery, sessionUser),
+    ];
+    if (abilities["fundings"].hasAccess) {
+      promises.push(countSearchedFundings(searchQuery));
+    }
     const [
       profilesCount,
       organizationsCount,
       eventsCount,
       projectsCount,
       fundingsCount,
-    ] = await Promise.all([
-      countSearchedProfiles(searchQuery, sessionUser),
-      countSearchedOrganizations(searchQuery, sessionUser),
-      countSearchedEvents(searchQuery, sessionUser),
-      countSearchedProjects(searchQuery, sessionUser),
-      countSearchedFundings(searchQuery),
-    ]);
+    ] = await Promise.all(promises);
     countData.profiles = profilesCount;
     countData.organizations = organizationsCount;
     countData.events = eventsCount;
     countData.projects = projectsCount;
-    countData.fundings = fundingsCount;
+    if (abilities["fundings"].hasAccess) {
+      countData.fundings = fundingsCount;
+    }
   }
 
   return json({
@@ -65,6 +73,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     eventsCount: countData.events,
     projectsCount: countData.projects,
     fundingsCount: countData.fundings,
+    abilities,
   });
 };
 
@@ -127,14 +136,16 @@ function SearchView() {
           >
             {t("projects")} (<>{loaderData.projectsCount}</>)
           </NavLink>
-          <NavLink
-            id="funding-tab"
-            className={({ isActive }) => getClassName(isActive)}
-            to={`fundings?query=${query}`}
-            preventScrollReset
-          >
-            {t("fundings")} (<>{loaderData.fundingsCount}</>)
-          </NavLink>
+          {loaderData.abilities["fundings"].hasAccess ? (
+            <NavLink
+              id="funding-tab"
+              className={({ isActive }) => getClassName(isActive)}
+              to={`fundings?query=${query}`}
+              preventScrollReset
+            >
+              {t("fundings")} (<>{loaderData.fundingsCount}</>)
+            </NavLink>
+          ) : null}
         </ul>
       </section>
       <Outlet />
