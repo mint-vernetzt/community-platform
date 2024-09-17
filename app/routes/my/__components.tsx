@@ -1,5 +1,5 @@
 import { Avatar, Button } from "@mint-vernetzt/components";
-import { Link, useFetcher, useSearchParams } from "@remix-run/react";
+import { Form, Link, useFetcher, useSearchParams } from "@remix-run/react";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useHydrated } from "remix-utils/use-hydrated";
@@ -103,8 +103,8 @@ export function AddOrganization(props: {
     if (input === null) {
       return;
     }
+    setSearchQuery(input.value);
     if (input.value.length > 3) {
-      setSearchQuery(input.value);
       getOrganizationsToAddFetcher.submit(event.currentTarget);
     } else {
       setData([]);
@@ -154,7 +154,10 @@ export function AddOrganization(props: {
           </div>
         </div>
       </getOrganizationsToAddFetcher.Form>
-      {data.length > 0 ? (
+      {searchQuery.length > 3 && Array.isArray(data) && data.length === 0 ? (
+        <CreateOrganization name={searchQuery} />
+      ) : null}
+      {Array.isArray(data) && data.length > 0 ? (
         <>
           {/* TODO: 
             Is this toast necessary? 
@@ -484,5 +487,27 @@ export function ListContainer(
         </div>
       ) : null}
     </ul>
+  );
+}
+
+export function CreateOrganization(props: { name: string }) {
+  const { t } = useTranslation(organizationsI18nNS);
+  return (
+    <div className="mv-flex mv-flex-col mv-gap-4 mv-group">
+      <div className="mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center mv-flex">
+        <div className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit">
+          <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
+            <Avatar size="full" name={props.name} />
+          </div>
+          <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
+            {props.name}
+          </p>
+        </div>
+        <Form method="get" action="/organization/create">
+          <input type="hidden" name="name" value={props.name} />
+          <Button type="submit">{t("addOrganization.create")}</Button>
+        </Form>
+      </div>
+    </div>
   );
 }

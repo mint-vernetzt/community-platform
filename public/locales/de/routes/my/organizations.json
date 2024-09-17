@@ -16,6 +16,7 @@
     "addOrganization": {
         "headline": "Organisation hinzufügen",
         "subline": "Suche Organisationen, füge Dich als Teammitglied hinzu oder lege eine Organisation an.",
+        "create": "Neue Organisation anlegen",
         "toasts": {
             "organizationsFound": "Es existieren bereits Organisationen mit diesem Namen. Frage an, ob Du einer Organisation beitreten kannst."
         },

@@ -353,7 +353,7 @@ export default function MyOrganizations() {
     createRequestFetcher.formData.get("organizationId") !== null
   ) {
     const organizationId = createRequestFetcher.formData.get("organizationId");
-    if (organizationId !== null) {
+    if (organizationId !== null && loaderData.organizationsToAdd !== null) {
       const organizationToTransfer = loaderData.organizationsToAdd.find(
         (organization) => {
           return organization.id === organizationId;
