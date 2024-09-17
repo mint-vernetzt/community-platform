@@ -504,7 +504,7 @@ export function CreateOrganization(props: { name: string }) {
           </p>
         </div>
         <Form method="get" action="/organization/create">
-          <input type="hidden" name="name" value={props.name} />
+          <input type="hidden" name="search" value={props.name} />
           <Button type="submit">{t("addOrganization.create")}</Button>
         </Form>
       </div>
