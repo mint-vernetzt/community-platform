@@ -16,6 +16,7 @@
     "addOrganization": {
         "headline": "Add organization",
         "subline": "Search for organizations, add yourself as a team member or create an organization.",
+        "create": "Create new organization",
         "toasts": {
             "organizationsFound": "Organizations with this name already exist. Ask if you can join an organization."
         },

@@ -18,7 +18,7 @@ export async function getOrganizationsToAdd(
   const query = searchParams.get(GetOrganizationsToAdd.SearchParam);
 
   if (query === null || query === "" || query.length < 3) {
-    return [];
+    return null;
   }
 
   const organizations = await prismaClient.organization.findMany({
