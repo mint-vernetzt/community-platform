@@ -99,7 +99,7 @@ export async function action(args: ActionFunctionArgs) {
           },
           button: {
             text: t("email.createRequest.button.text"),
-            url: `${process.env.COMMUNITY_BASE_URL}/my/organization`,
+            url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
           },
         };
         const text = getCompiledMailTemplate<typeof textTemplatePath>(

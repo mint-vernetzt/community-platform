@@ -200,7 +200,7 @@ export const action = async (args: ActionFunctionArgs) => {
             : "mail-templates/invites/profile-to-join-organization/accepted-html.hbs";
         subject =
           submission.value.role === "admin"
-            ? t("email.inviteAcceptedAsAdmin.subject")
+            ? t("email.inviteAsAdminAccepted.subject")
             : t("email.inviteAccepted.subject");
       } else {
         textTemplatePath =
@@ -213,7 +213,7 @@ export const action = async (args: ActionFunctionArgs) => {
             : "mail-templates/invites/profile-to-join-organization/rejected-html.hbs";
         subject =
           submission.value.role === "admin"
-            ? t("email.inviteRejectedAsAdmin.subject")
+            ? t("email.inviteAsAdminRejected.subject")
             : t("email.inviteRejected.subject");
       }
 
@@ -250,7 +250,6 @@ export const action = async (args: ActionFunctionArgs) => {
     })
   );
 
-  await sendOrganizationInviteUpdatedEmail(submission.value.intent, invite);
   return redirectWithToast("/my/organizations", {
     key: `${submission.value.intent}-${Date.now()}`,
     level: submission.value.intent === "accepted" ? "positive" : "negative",

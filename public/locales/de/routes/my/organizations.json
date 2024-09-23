@@ -54,7 +54,7 @@
         "rejected": "Du hast den Beitritt zur Organisation {{organization}} abgelehnt."
     },
     "email": {
-        "createRequst": {
+        "createRequest": {
             "subject": "Deine Organisation hat eine Mitgliedsanfrage erhalten.",
             "button": {
                 "text": "Zur Community Plattform"
