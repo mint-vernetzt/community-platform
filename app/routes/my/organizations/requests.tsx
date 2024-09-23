@@ -1,8 +1,14 @@
+import { parseWithZod } from "@conform-to/zod-v1";
 import { type ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
+import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
+import { invariantResponse } from "~/lib/utils/response";
+import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { detectLanguage } from "~/root.server";
+import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
+import { redirectWithToast } from "~/toast.server";
 import { i18nNS } from "../organizations";
 import { GetOrganizationsToAdd } from "./get-organizations-to-add";
 import {
@@ -11,10 +17,6 @@ import {
   createRequestToOrganization,
   rejectRequestFromProfile,
 } from "./requests.server";
-import { redirectWithToast } from "~/toast.server";
-import { parseWithZod } from "@conform-to/zod-v1";
-import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
-import { invariantResponse } from "~/lib/utils/response";
 
 export const AddToOrganizationRequest: {
   Create: "createRequest";
@@ -77,6 +79,49 @@ export async function action(args: ActionFunctionArgs) {
       throw new Error(t(result.error.message));
     }
     organization = result.organization;
+
+    const textTemplatePath =
+      "mail-templates/requests/organization-to-add-profile/text.hbs";
+    const htmlTemplatePath =
+      "mail-templates/requests/organization-to-add-profile/html.hbs";
+    const subject = t("email.createRequest.subject");
+    const sender = process.env.SYSTEM_MAIL_SENDER;
+    await Promise.all(
+      result.organization.admins.map(async (admin) => {
+        const content = {
+          firstName: admin.profile.firstName,
+          profile: {
+            firstName: result.profile.firstName,
+            lastName: result.profile.lastName,
+          },
+          organization: {
+            name: result.organization.name,
+          },
+          button: {
+            text: t("email.createRequest.button.text"),
+            url: `${process.env.COMMUNITY_BASE_URL}/my/organization`,
+          },
+        };
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          content,
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          content,
+          "html"
+        );
+        await mailer(
+          mailerOptions,
+          sender,
+          admin.profile.email,
+          subject,
+          text,
+          html
+        );
+      })
+    );
   } else if (submission.value.intent === AddToOrganizationRequest.Cancel) {
     const result = await cancelRequestToOrganization(
       submission.value.organizationId,
@@ -102,17 +147,71 @@ export async function action(args: ActionFunctionArgs) {
       { status: 400 }
     );
     let result;
+
+    let textTemplatePath:
+      | "mail-templates/requests/organization-to-add-profile/rejected-text.hbs"
+      | "mail-templates/requests/organization-to-add-profile/accepted-text.hbs";
+    let htmlTemplatePath:
+      | "mail-templates/requests/organization-to-add-profile/rejected-html.hbs"
+      | "mail-templates/requests/organization-to-add-profile/accepted-html.hbs";
+    let subject: string;
+
+    let content: {
+      firstName: string;
+      organization: { name: string };
+    };
+
     if (submission.value.intent === AddToOrganizationRequest.Reject) {
       result = await rejectRequestFromProfile(
         submission.value.organizationId,
         profileId
       );
+
+      content = {
+        firstName: result.profile.firstName,
+        organization: {
+          name: result.organization.name,
+        },
+      };
+      textTemplatePath =
+        "mail-templates/requests/organization-to-add-profile/rejected-text.hbs";
+      htmlTemplatePath =
+        "mail-templates/requests/organization-to-add-profile/rejected-html.hbs";
+      subject = t("email.rejectRequest.subject");
     } else {
       result = await acceptRequestFromProfile(
         submission.value.organizationId,
         profileId
       );
+
+      content = {
+        firstName: result.profile.firstName,
+        organization: {
+          name: result.organization.name,
+        },
+      };
+      textTemplatePath =
+        "mail-templates/requests/organization-to-add-profile/accepted-text.hbs";
+      htmlTemplatePath =
+        "mail-templates/requests/organization-to-add-profile/accepted-html.hbs";
+      subject = t("email.acceptRequest.subject");
     }
+
+    const text = getCompiledMailTemplate<typeof textTemplatePath>(
+      textTemplatePath,
+      content,
+      "text"
+    );
+    const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+      htmlTemplatePath,
+      content,
+      "html"
+    );
+
+    const sender = process.env.SYSTEM_MAIL_SENDER;
+    const recipient = result.profile.email;
+    await mailer(mailerOptions, sender, recipient, subject, text, html);
+
     profile = result.profile;
   }
 

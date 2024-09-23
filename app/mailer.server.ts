@@ -105,19 +105,11 @@ type RequestContent = {
     lastName: string;
   };
   organization: { name: string };
-  button: {
-    url: string;
-    text: string;
-  };
 };
 
 type RequestAcceptedOrRejectedContent = {
   firstName: string;
   organization: { name: string };
-  profile: {
-    firstName: string;
-    lastName: string;
-  };
 };
 
 type TemplatePath =
@@ -128,7 +120,25 @@ type TemplatePath =
   | "mail-templates/abuse-report-support/html.hbs"
   | "mail-templates/abuse-report-support/text.hbs"
   | "mail-templates/move-to-participants/html.hbs"
-  | "mail-templates/move-to-participants/text.hbs";
+  | "mail-templates/move-to-participants/text.hbs"
+  | "mail-templates/requests/organization-to-add-profile/html.hbs"
+  | "mail-templates/requests/organization-to-add-profile/text.hbs"
+  | "mail-templates/requests/organization-to-add-profile/accepted-html.hbs"
+  | "mail-templates/requests/organization-to-add-profile/accepted-text.hbs"
+  | "mail-templates/requests/organization-to-add-profile/rejected-html.hbs"
+  | "mail-templates/requests/organization-to-add-profile/rejected-text.hbs"
+  | "mail-templates/invites/profile-to-join-organization/html.hbs"
+  | "mail-templates/invites/profile-to-join-organization/text.hbs"
+  | "mail-templates/invites/profile-to-join-organization/as-admin-html.hbs"
+  | "mail-templates/invites/profile-to-join-organization/as-admin-text.hbs"
+  | "mail-templates/invites/profile-to-join-organization/accepted-html.hbs"
+  | "mail-templates/invites/profile-to-join-organization/accepted-text.hbs"
+  | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
+  | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
+  | "mail-templates/invites/profile-to-join-organization/rejected-html.hbs"
+  | "mail-templates/invites/profile-to-join-organization/rejected-text.hbs"
+  | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
+  | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -147,30 +157,30 @@ type TemplateContent<TemplatePath> = TemplatePath extends
       | "mail-templates/abuse-report-support/text.hbs"
   ? AbuseReportSupportContent
   : TemplatePath extends
-      | "mailer-templates/invites/profile-to-join-organization/html.hbs"
-      | "mailer-templates/invites/profile-to-join-organization/text.hbs"
-      | "mailer-templates/invites/profile-to-join-organization/as-admin-html.hbs"
-      | "mailer-templates/invites/profile-to-join-organization/as-admin-text.hbs"
+      | "mail-templates/invites/profile-to-join-organization/text.hbs"
+      | "mail-templates/invites/profile-to-join-organization/html.hbs"
+      | "mail-templates/invites/profile-to-join-organization/as-admin-text.hbs"
+      | "mail-templates/invites/profile-to-join-organization/as-admin-html.hbs"
   ? InviteContent
   : TemplatePath extends
-      | "mailer-templates/invites/profile-to-join-organization/accepted-html.hbs"
-      | "mailer-templates/invites/profile-to-join-organization/accepted-text.hbs"
-      | "mailer-templates/invites/profile-to-join-organization/rejected-html.hbs"
-      | "mailer-templates/invites/profile-to-join-organization/rejected-text.hbs"
-      | "mailer-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
-      | "mailer-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
-      | "mailer-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
-      | "mailer-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
+      | "mail-templates/invites/profile-to-join-organization/accepted-html.hbs"
+      | "mail-templates/invites/profile-to-join-organization/accepted-text.hbs"
+      | "mail-templates/invites/profile-to-join-organization/rejected-html.hbs"
+      | "mail-templates/invites/profile-to-join-organization/rejected-text.hbs"
+      | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
+      | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
+      | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
+      | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
   ? InviteAcceptedOrRejectedContent
   : TemplatePath extends
-      | "mailer-templates/requests/organization-to-add-profile/html.hbs"
-      | "mailer-templates/requests/organization-to-add-profile/text.hbs"
+      | "mail-templates/requests/organization-to-add-profile/html.hbs"
+      | "mail-templates/requests/organization-to-add-profile/text.hbs"
   ? RequestContent
   : TemplatePath extends
-      | "mailer-templates/requests/organization-to-add-profile/accepted-html.hbs"
-      | "mailer-templates/requests/organization-to-add-profile/accepted-text.hbs"
-      | "mailer-templates/requests/organization-to-add-profile/rejected-html.hbs"
-      | "mailer-templates/requests/organization-to-add-profile/rejected-text.hbs"
+      | "mail-templates/requests/organization-to-add-profile/accepted-html.hbs"
+      | "mail-templates/requests/organization-to-add-profile/accepted-text.hbs"
+      | "mail-templates/requests/organization-to-add-profile/rejected-html.hbs"
+      | "mail-templates/requests/organization-to-add-profile/rejected-text.hbs"
   ? RequestAcceptedOrRejectedContent
   : never;
 

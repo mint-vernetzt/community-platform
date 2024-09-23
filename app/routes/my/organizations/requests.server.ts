@@ -138,6 +138,16 @@ export async function createRequestToOrganization(
       organization: {
         select: {
           name: true,
+          admins: {
+            select: {
+              profile: {
+                select: {
+                  email: true,
+                  firstName: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -154,7 +164,7 @@ export async function createRequestToOrganization(
 
   await mailer(mailerOptions, sender, recipient, subject, text, html);
 
-  return { organization: result.organization };
+  return { ...result };
 }
 
 export async function cancelRequestToOrganization(
@@ -193,6 +203,12 @@ export async function rejectRequestFromProfile(
           academicTitle: true,
           firstName: true,
           lastName: true,
+          email: true,
+        },
+      },
+      organization: {
+        select: {
+          name: true,
         },
       },
     },
@@ -223,6 +239,12 @@ export async function acceptRequestFromProfile(
             academicTitle: true,
             firstName: true,
             lastName: true,
+            email: true,
+          },
+        },
+        organization: {
+          select: {
+            name: true,
           },
         },
       },

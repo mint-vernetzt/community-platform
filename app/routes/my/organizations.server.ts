@@ -442,6 +442,7 @@ export async function updateOrganizationInvite(options: {
             select: {
               profile: {
                 select: {
+                  firstName: true,
                   email: true,
                 },
               },

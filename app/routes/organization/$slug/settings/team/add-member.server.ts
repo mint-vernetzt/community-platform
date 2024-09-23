@@ -38,7 +38,13 @@ export async function getOrganizationBySlug(slug: string) {
 export async function inviteProfileToJoinOrganization(
   organizationId: string,
   profileId: string
-) {
+): Promise<{
+  error: Error | null;
+  value?: {
+    profile: { firstName: string; lastName: string; email: string };
+    organization: { name: string };
+  };
+}> {
   const profile = await prismaClient.profile.findFirst({
     where: {
       id: profileId,
@@ -60,7 +66,7 @@ export async function inviteProfileToJoinOrganization(
   });
 
   if (profile === null || organization === null) {
-    return new Error("Profile or organization not found");
+    return { error: new Error("Profile or organization not found") };
   }
 
   await prismaClient.inviteForProfileToJoinOrganization.upsert({
@@ -82,15 +88,7 @@ export async function inviteProfileToJoinOrganization(
     },
   });
 
-  const subject = "Invite to join organization";
-  const sender = process.env.SYSTEM_MAIL_SENDER;
-  const recipient = profile.email;
-  const text = `Hi ${profile.firstName} ${profile.lastName}, you have been invited to join the organization ${organization.name}.`;
-  const html = text;
-
-  await mailer(mailerOptions, sender, recipient, subject, text, html);
-
-  return null;
+  return { error: null, value: { profile, organization } };
 }
 
 export async function addTeamMemberToOrganization(

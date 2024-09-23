@@ -58,6 +58,9 @@ import {
 } from "./organizations/requests";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
 import { type action as quitAction } from "./organizations/quit";
+import { getCompiledMailTemplate, mailer } from "~/mailer.server";
+import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
+import { sub } from "date-fns";
 
 export const i18nNS = ["routes/my/organizations"];
 export const handle = {
@@ -169,6 +172,84 @@ export const action = async (args: ActionFunctionArgs) => {
     profileId: sessionUser.id,
     ...submission.value,
   });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  await Promise.all(
+    invite.organization.admins.map(async (admin) => {
+      let textTemplatePath:
+        | "mail-templates/invites/profile-to-join-organization/accepted-text.hbs"
+        | "mail-templates/invites/profile-to-join-organization/rejected-text.hbs"
+        | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
+        | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs";
+      let htmlTemplatePath:
+        | "mail-templates/invites/profile-to-join-organization/accepted-html.hbs"
+        | "mail-templates/invites/profile-to-join-organization/rejected-html.hbs"
+        | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
+        | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs";
+
+      let subject: string;
+
+      if (submission.value.intent === "accepted") {
+        textTemplatePath =
+          submission.value.role === "admin"
+            ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
+            : "mail-templates/invites/profile-to-join-organization/accepted-text.hbs";
+        htmlTemplatePath =
+          submission.value.role === "admin"
+            ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
+            : "mail-templates/invites/profile-to-join-organization/accepted-html.hbs";
+        subject =
+          submission.value.role === "admin"
+            ? t("email.inviteAcceptedAsAdmin.subject")
+            : t("email.inviteAccepted.subject");
+      } else {
+        textTemplatePath =
+          submission.value.role === "admin"
+            ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
+            : "mail-templates/invites/profile-to-join-organization/rejected-text.hbs";
+        htmlTemplatePath =
+          submission.value.role === "admin"
+            ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
+            : "mail-templates/invites/profile-to-join-organization/rejected-html.hbs";
+        subject =
+          submission.value.role === "admin"
+            ? t("email.inviteRejectedAsAdmin.subject")
+            : t("email.inviteRejected.subject");
+      }
+
+      const content = {
+        firstName: admin.profile.firstName,
+        organization: {
+          name: invite.organization.name,
+        },
+        profile: {
+          firstName: invite.profile.firstName,
+          lastName: invite.profile.lastName,
+        },
+      };
+
+      const text = getCompiledMailTemplate<typeof textTemplatePath>(
+        textTemplatePath,
+        content,
+        "text"
+      );
+      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+        htmlTemplatePath,
+        content,
+        "html"
+      );
+
+      await mailer(
+        mailerOptions,
+        sender,
+        admin.profile.email,
+        subject,
+        text,
+        html
+      );
+    })
+  );
+
   await sendOrganizationInviteUpdatedEmail(submission.value.intent, invite);
   return redirectWithToast("/my/organizations", {
     key: `${submission.value.intent}-${Date.now()}`,
