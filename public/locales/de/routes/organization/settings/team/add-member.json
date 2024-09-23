@@ -11,5 +11,11 @@
     "success": "Einladung wurde erfolgreich versendet.",
     "error": "Einladung konnte nicht versendet werden."
   },
+  "email": {
+    "subject": "Du hast eine Einladung erhalten!",
+    "button": {
+      "text": "Zur Community Plattform"
+    }
+  },
   "feedback": "Ein neues Teammitglied mit dem Namen \"{{firstName}} {{lastName}}\" wurde hinzugefügt."
 }

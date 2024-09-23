@@ -11,5 +11,11 @@
     "success": "Invitation was sent successfully.",
     "error": "Invitation could not be sent."
   },
+  "email": {
+    "subject": "You have received an invitation to become an admin!",
+    "button": {
+      "text": "To the community platform"
+    }
+  },
   "feedback": "\"{{firstName} {{lastName}}\" has been added as an administrator."
 }

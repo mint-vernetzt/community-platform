@@ -52,5 +52,19 @@
     "alerts": {
         "accepted": "You have successfully joined the {{organization}} organization.",
         "rejected": "You have declined to join the {{organization}} organization."
+    },
+    "email": {
+        "createRequst": {
+            "subject": "Deine Organisation hat eine Mitgliedsanfrage erhalten.",
+            "button": {
+                "text": "Zur Community Plattform"
+            }
+        },
+        "acceptRequest": {
+            "subject": "Deine Anfrage wurde bestätigt."
+        },
+        "rejectRequest": {
+            "subject": "Deine Anfrage wurde abgelehnt."
+        }
     }
 }

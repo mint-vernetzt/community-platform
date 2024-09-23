@@ -138,23 +138,22 @@ export async function createRequestToOrganization(
       organization: {
         select: {
           name: true,
+          admins: {
+            select: {
+              profile: {
+                select: {
+                  email: true,
+                  firstName: true,
+                },
+              },
+            },
+          },
         },
       },
     },
   });
 
-  const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = `${result.profile.firstName} ${result.profile.lastName} send request to join organization`;
-  const recipient = organization.admins.map((admin) => {
-    return admin.profile.email;
-  });
-
-  const text = `Hi admins of ${organization.name}, ${result.profile.firstName} ${result.profile.lastName} has requested to join your organization. You can contact ${result.profile.firstName} ${result.profile.lastName} at ${result.profile.email}.`;
-  const html = text;
-
-  await mailer(mailerOptions, sender, recipient, subject, text, html);
-
-  return { organization: result.organization };
+  return { ...result };
 }
 
 export async function cancelRequestToOrganization(
@@ -193,6 +192,12 @@ export async function rejectRequestFromProfile(
           academicTitle: true,
           firstName: true,
           lastName: true,
+          email: true,
+        },
+      },
+      organization: {
+        select: {
+          name: true,
         },
       },
     },
@@ -223,6 +228,12 @@ export async function acceptRequestFromProfile(
             academicTitle: true,
             firstName: true,
             lastName: true,
+            email: true,
+          },
+        },
+        organization: {
+          select: {
+            name: true,
           },
         },
       },

@@ -17,8 +17,10 @@ import i18next from "~/i18next.server";
 import { type TFunction } from "i18next";
 import { detectLanguage } from "~/root.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { getCompiledMailTemplate, mailer } from "~/mailer.server";
+import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 
-const i18nNS = ["routes/organization/settings/network/remove"];
+const i18nNS = ["routes/organization/settings/team/add-member"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -96,20 +98,50 @@ export const action = async (args: ActionFunctionArgs) => {
     let status: "error" | "success";
 
     if (abilities["add-to-organization"].hasAccess) {
-      const error = await inviteProfileToJoinOrganization(
+      const { error, value } = await inviteProfileToJoinOrganization(
         organization.id,
         result.data.profileId
       );
 
-      if (error !== null) {
-        message = t("invite.error");
-        status = "error";
-      } else {
+      if (error === null && typeof value !== "undefined") {
+        const sender = process.env.SYSTEM_MAIL_SENDER;
+        const subject = t("email.subject");
+        const recipient = value.profile.email;
+        const textTemplatePath =
+          "mail-templates/invites/profile-to-join-organization/text.hbs";
+        const htmlTemplatePath =
+          "mail-templates/invites/profile-to-join-organization/html.hbs";
+        const content = {
+          firstName: value.profile.firstName,
+          organization: {
+            name: value.organization.name,
+          },
+          button: {
+            url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
+            text: t("email.button.text"),
+          },
+        };
+
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          content,
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          content,
+          "html"
+        );
+
+        await mailer(mailerOptions, sender, recipient, subject, text, html);
         message = t("invite.success", {
           firstName: result.data.firstName,
           lastName: result.data.lastName,
         });
         status = "success";
+      } else {
+        message = t("invite.error");
+        status = "error";
       }
     } else {
       await addTeamMemberToOrganization(organization.id, result.data.profileId);
