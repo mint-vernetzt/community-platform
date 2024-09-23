@@ -153,17 +153,6 @@ export async function createRequestToOrganization(
     },
   });
 
-  const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = `${result.profile.firstName} ${result.profile.lastName} send request to join organization`;
-  const recipient = organization.admins.map((admin) => {
-    return admin.profile.email;
-  });
-
-  const text = `Hi admins of ${organization.name}, ${result.profile.firstName} ${result.profile.lastName} has requested to join your organization. You can contact ${result.profile.firstName} ${result.profile.lastName} at ${result.profile.email}.`;
-  const html = text;
-
-  await mailer(mailerOptions, sender, recipient, subject, text, html);
-
   return { ...result };
 }
 
