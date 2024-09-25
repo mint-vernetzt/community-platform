@@ -1,0 +1,9 @@
+{
+    "title": "My Events",
+    "create": "Create event",
+    "placeholder": {
+        "title": "You have not participated in any event yet.",
+        "description": "Explore events and get to know the community better.",
+        "cta": "Explore events"
+    }
+}

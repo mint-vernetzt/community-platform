@@ -266,7 +266,10 @@ function NavBarMenu(
                       props.abilities.my_organizations.hasAccess) ||
                     (location.pathname === "/organization/create" &&
                       props.abilities.my_organizations.hasAccess === false) ||
-                    location.pathname === "/event/create" ||
+                    (location.pathname === "/my/events" &&
+                      props.abilities.my_events.hasAccess) ||
+                    (location.pathname === "/event/create" &&
+                      props.abilities.my_events.hasAccess === false) ||
                     location.pathname === "/project/create" ? (
                       <Icon type="person" />
                     ) : (
@@ -300,14 +303,25 @@ function NavBarMenu(
                     </TopicItem>
                   )}
 
-                  {props.abilities.events?.hasAccess && (
-                    <TopicItem
-                      to={`/event/create`}
-                      openNavBarMenuKey={props.openNavBarMenuKey}
-                    >
-                      {t("root.menu.personalSpace.createEvent")}
-                    </TopicItem>
-                  )}
+                  {props.abilities.events?.hasAccess &&
+                    props.abilities.my_events.hasAccess === false && (
+                      <TopicItem
+                        to={`/event/create`}
+                        openNavBarMenuKey={props.openNavBarMenuKey}
+                      >
+                        {t("root.menu.personalSpace.createEvent")}
+                      </TopicItem>
+                    )}
+
+                  {props.abilities.events.hasAccess &&
+                    props.abilities.my_events.hasAccess && (
+                      <TopicItem
+                        to={`/my/events`}
+                        openNavBarMenuKey={props.openNavBarMenuKey}
+                      >
+                        {t("root.menu.personalSpace.myEvents")}
+                      </TopicItem>
+                    )}
 
                   <TopicItem
                     to={`/project/create`}
