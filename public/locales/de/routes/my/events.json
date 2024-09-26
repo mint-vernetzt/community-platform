@@ -4,6 +4,16 @@
     "placeholder": {
         "title": "Du hast bislang an keinem Event teilgenommen.",
         "description": "Erkunde Veranstaltungen und lerne die Community besser kennen.",
-        "cta": "Event erkunden"
+        "cta": "Events erkunden"
+    },
+    "upcoming": {
+        "title": "Bevorstehende Events"
+    },
+    "tabBar": {
+        "admin": "Admin",
+        "teamMember": "Teammitglied",
+        "speaker": "Speaker:in",
+        "participant": "Teilnehmer:in",
+        "waitingList": "Warteliste"
     }
 }

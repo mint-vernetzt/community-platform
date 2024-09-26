@@ -5,5 +5,15 @@
         "title": "You have not participated in any event yet.",
         "description": "Explore events and get to know the community better.",
         "cta": "Explore events"
+    },
+    "upcoming": {
+        "title": "Upcoming Events"
+    },
+    "tabBar": {
+        "admin": "Admin",
+        "teamMember": "Team Member",
+        "speaker": "Speaker",
+        "participant": "Participant",
+        "waitingList": "Waiting List"
     }
 }

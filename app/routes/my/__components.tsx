@@ -450,7 +450,7 @@ export function ListContainer(
   props: React.PropsWithChildren<{ listKey: string }>
 ) {
   const { children, listKey } = props;
-  const { t } = useTranslation(organizationsI18nNS);
+  const { t } = useTranslation("components");
   return (
     <ul className="mv-flex mv-flex-col mv-gap-4 mv-group">
       {children}
@@ -466,12 +466,12 @@ export function ListContainer(
             className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
           >
             <div className="group-has-[:checked]:mv-hidden">
-              {t("invites.more", {
+              {t("ListContainer.more", {
                 count: children.length - 3,
               })}
             </div>
             <div className="mv-hidden group-has-[:checked]:mv-block">
-              {t("invites.less", {
+              {t("ListContainer.less", {
                 count: children.length - 3,
               })}
             </div>
