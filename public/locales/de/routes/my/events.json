@@ -6,6 +6,12 @@
         "description": "Erkunde Veranstaltungen und lerne die Community besser kennen.",
         "cta": "Events erkunden"
     },
+    "canceled": {
+        "title_one": "Event abgesagt",
+        "title_other": "Events abgesagt",
+        "description_one": "Ein Event, zu dem Du Dich angemeldet hattest, wurde abgesagt.",
+        "description_other": "{{count}} Events, zu denen Du Dich angemeldet hattest, wurden abgesagt."
+    },
     "upcoming": {
         "title": "Bevorstehende Events"
     },

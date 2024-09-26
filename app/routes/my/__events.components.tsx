@@ -44,14 +44,23 @@ export function Section(props: { children: React.ReactNode }) {
   const title = validChildren.find((child) => {
     return (child as React.ReactElement).type === SectionTitle;
   });
+  const text = validChildren.find((child) => {
+    return (child as React.ReactElement).type === SectionText;
+  });
 
   const otherChildren = validChildren.filter((child) => {
-    return (child as React.ReactElement).type !== SectionTitle;
+    return (
+      (child as React.ReactElement).type !== SectionTitle &&
+      (child as React.ReactElement).type !== SectionText
+    );
   });
 
   return (
     <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
-      <div className="mv-flex mv-flex-col mv-gap-2">{title}</div>
+      <div className="mv-flex mv-flex-col mv-gap-2">
+        {title}
+        {text}
+      </div>
       {otherChildren}
     </section>
   );
@@ -68,6 +77,10 @@ function SectionTitle(props: SectionTitleProps) {
       {...props}
     />
   );
+}
+
+function SectionText(props: { children: React.ReactNode }) {
+  return <p className="mv-text-sm mv-text-neutral-700">{props.children}</p>;
 }
 
 // TODO: Integrate Counter into TabBar
@@ -95,6 +108,7 @@ export function TabBarTitle(props: { children: React.ReactNode }) {
 }
 
 Section.Title = SectionTitle;
+Section.Text = SectionText;
 Section.TabBar = TabBar;
 
 Container.Header = ContainerHeader;
@@ -327,8 +341,8 @@ function EventListItemContent(props: {
       participants: number;
       waitingList: number;
     };
-    canceled: boolean;
-    published: boolean;
+    canceled?: boolean;
+    published?: boolean;
   };
 }) {
   const { event } = props;

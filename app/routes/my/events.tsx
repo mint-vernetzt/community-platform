@@ -19,6 +19,7 @@ import { getEvents } from "./events.server";
 import { TabBar } from "@mint-vernetzt/components";
 import React from "react";
 import { ListContainer } from "./__components";
+import { ca } from "date-fns/locale";
 
 export const i18nNS = ["routes/my/events"];
 
@@ -48,8 +49,11 @@ export async function loader(args: LoaderFunctionArgs) {
     where: { endTime: { lt: new Date() } },
     orderBy: { endTime: "desc" },
   });
+  const canceledEvents = upcomingEvents.participant.filter((event) => {
+    return event.canceled;
+  });
 
-  return json({ upcomingEvents, pastEvents });
+  return json({ upcomingEvents, pastEvents, canceledEvents });
 }
 
 function MyEvents() {
@@ -93,13 +97,13 @@ function MyEvents() {
   React.useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("upcoming", upcoming);
-    setSearchParams(params);
+    setSearchParams(params, { preventScrollReset: true });
   }, [upcoming]);
 
   React.useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("past", past);
-    setSearchParams(params);
+    setSearchParams(params, { preventScrollReset: true });
   }, [past]);
 
   const hasUpcomingEvents = Object.values(loaderData.upcomingEvents.count).some(
@@ -108,6 +112,7 @@ function MyEvents() {
   const hasPastEvents = Object.values(loaderData.pastEvents.count).some(
     (count) => count > 0
   );
+  const hasCanceledEvents = loaderData.canceledEvents.length > 0;
 
   return (
     <Container>
@@ -128,6 +133,36 @@ function MyEvents() {
             <Link to="/explore/events">{t("placeholder.cta")}</Link>
           </Button>
         </Placeholder>
+      ) : null}
+      {hasCanceledEvents ? (
+        <Container.Section>
+          <Section.Title id="canceled">
+            {t("canceled.title", { count: loaderData.canceledEvents.length })}
+          </Section.Title>
+          <Section.Text>
+            {t("canceled.description", {
+              count: loaderData.canceledEvents.length,
+            })}
+          </Section.Text>
+          <ListContainer listKey="canceled">
+            {loaderData.canceledEvents.map((event, index) => {
+              return (
+                <ListItem.Event
+                  key={`canceled-${event.slug}`}
+                  to={`/event/${event.slug}`}
+                  listIndex={index}
+                >
+                  <ListItem.Event.Image
+                    src={event.background}
+                    blurredSrc={event.blurredBackground}
+                    alt={event.name}
+                  />
+                  <ListItem.Event.Content event={event} />
+                </ListItem.Event>
+              );
+            })}
+          </ListContainer>
+        </Container.Section>
       ) : null}
       {hasUpcomingEvents ? (
         <Container.Section>
