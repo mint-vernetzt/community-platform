@@ -7,13 +7,19 @@ import {
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
-export async function getUpcomingEvents(
-  profileId: string,
-  authClient: SupabaseClient
-) {
-  const whereBase = {
-    endTime: { gt: new Date() },
-  };
+export async function getEvents(options: {
+  profileId: string;
+  authClient: SupabaseClient;
+  where?: { [key: string]: any };
+  orderBy?: { [key: string]: "asc" | "desc" };
+}) {
+  const {
+    profileId,
+    where = { endTime: { gte: new Date() } },
+    orderBy = { startTime: "asc" },
+    authClient,
+  } = options;
+
   const selectBase = {
     name: true,
     slug: true,
@@ -41,7 +47,7 @@ export async function getUpcomingEvents(
     await prismaClient.$transaction([
       prismaClient.event.findMany({
         where: {
-          ...whereBase,
+          ...where,
           admins: {
             some: {
               profileId: profileId,
@@ -49,10 +55,11 @@ export async function getUpcomingEvents(
           },
         },
         select: { ...selectBase, published: true },
+        orderBy,
       }),
       prismaClient.event.findMany({
         where: {
-          ...whereBase,
+          ...where,
           teamMembers: {
             some: {
               profileId: profileId,
@@ -60,10 +67,11 @@ export async function getUpcomingEvents(
           },
         },
         select: { ...selectBase, published: true },
+        orderBy,
       }),
       prismaClient.event.findMany({
         where: {
-          ...whereBase,
+          ...where,
           speakers: {
             some: {
               profileId: profileId,
@@ -71,10 +79,11 @@ export async function getUpcomingEvents(
           },
         },
         select: { ...selectBase, published: true },
+        orderBy,
       }),
       prismaClient.event.findMany({
         where: {
-          ...whereBase,
+          ...where,
           participants: {
             some: {
               profileId: profileId,
@@ -82,10 +91,11 @@ export async function getUpcomingEvents(
           },
         },
         select: { ...selectBase },
+        orderBy,
       }),
       prismaClient.event.findMany({
         where: {
-          ...whereBase,
+          ...where,
           waitingList: {
             some: {
               profileId: profileId,
@@ -93,6 +103,7 @@ export async function getUpcomingEvents(
           },
         },
         select: { ...selectBase },
+        orderBy,
       }),
     ]);
 

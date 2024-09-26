@@ -9,6 +9,9 @@
     "upcoming": {
         "title": "Upcoming Events"
     },
+    "past": {
+        "title": "Past Events"
+    },
     "tabBar": {
         "admin": "Admin",
         "teamMember": "Team Member",
