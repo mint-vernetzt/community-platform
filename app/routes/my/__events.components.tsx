@@ -1,5 +1,12 @@
+import { TabBar } from "@mint-vernetzt/components";
+import { Link } from "@remix-run/react";
 import classNames from "classnames";
+import { utcToZonedTime } from "date-fns-tz";
 import React, { PropsWithChildren } from "react";
+import { useTranslation } from "react-i18next";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { getDuration } from "~/lib/utils/time";
 
 export function Container(props: { children: React.ReactNode }) {
   return (
@@ -27,8 +34,72 @@ export function ContainerTitle(props: { children: React.ReactNode }) {
   );
 }
 
+export function Section(props: { children: React.ReactNode }) {
+  const validChildren = React.Children.toArray(props.children).filter(
+    (child) => {
+      return React.isValidElement(child);
+    }
+  );
+
+  const title = validChildren.find((child) => {
+    return (child as React.ReactElement).type === SectionTitle;
+  });
+
+  const otherChildren = validChildren.filter((child) => {
+    return (child as React.ReactElement).type !== SectionTitle;
+  });
+
+  return (
+    <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
+      <div className="mv-flex mv-flex-col mv-gap-2">{title}</div>
+      {otherChildren}
+    </section>
+  );
+}
+
+type SectionTitleProps = PropsWithChildren<{
+  id?: string;
+}>;
+
+function SectionTitle(props: SectionTitleProps) {
+  return (
+    <h2
+      className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
+      {...props}
+    />
+  );
+}
+
+// TODO: Integrate Counter into TabBar
+export function TabBarTitle(props: { children: React.ReactNode }) {
+  const children = React.Children.toArray(props.children);
+
+  const counter = children.find((child) => {
+    return (child as React.ReactElement).type === TabBar.Counter;
+  });
+
+  const otherChildren = children.filter((child) => {
+    return (child as React.ReactElement).type !== TabBar.Counter;
+  });
+
+  if (counter) {
+    return (
+      <div className="mv-flex mv-gap-1.5 mv-items-center">
+        <span>{otherChildren}</span>
+        {counter}
+      </div>
+    );
+  }
+
+  return <>{props.children}</>;
+}
+
+Section.Title = SectionTitle;
+Section.TabBar = TabBar;
+
 Container.Header = ContainerHeader;
 Container.Title = ContainerTitle;
+Container.Section = Section;
 
 export function Placeholder(props: { children: React.ReactNode }) {
   const validChildren = React.Children.toArray(props.children).filter(
@@ -180,3 +251,161 @@ export function AddIcon() {
     </svg>
   );
 }
+
+function ListItemImage(props: {
+  src: string | null;
+  blurredSrc?: string;
+  alt: string;
+}) {
+  const isHydrated = useHydrated();
+
+  const baseClasses =
+    "mv-w-full mv-h-full mv-object-cover mv-absolute mv-inset-0";
+  const classes = classNames(
+    baseClasses,
+    isHydrated
+      ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
+      : "mv-opacity-0 mv-invisible"
+  );
+
+  return (
+    <div className="mv-hidden @lg:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
+      <div className="w-36 h-full relative">
+        <img
+          src={
+            props.blurredSrc || "/images/default-event-background-blurred.jpg" // TODO: Constant
+          }
+          alt=""
+          className="mv-w-full mv-h-full mv-object-cover"
+        />
+        <img
+          src={props.src || "/images/default-event-background.jpg"} // TODO: Constant
+          alt={props.alt}
+          className={classes}
+        />
+        <noscript>
+          <img
+            src={props.src || "/images/default-event-background.jpg"} // TODO: Constant
+            alt={props.alt}
+            className={baseClasses}
+          />
+        </noscript>
+      </div>
+    </div>
+  );
+}
+
+function EventListItemFlag(props: { canceled?: boolean; published?: boolean }) {
+  const { t } = useTranslation("components");
+
+  const classes = classNames(
+    "mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-pr-4 mv-py-6",
+    props.canceled
+      ? "mv-border-negative-500 mv-text-negative-500"
+      : !props.published
+      ? "mv-border-primary-300 mv-text-primary-300"
+      : ""
+  );
+
+  return typeof props.canceled === "boolean" && props.canceled ? (
+    <div className={classes}>{t("EventListItemFlag.canceled")}</div>
+  ) : typeof props.published === "boolean" && props.published === false ? (
+    <div className={classes}>{t("EventListItemFlag.draft")}</div>
+  ) : null;
+}
+
+function EventListItemContent(props: {
+  event: {
+    name: string;
+    subline: string | null;
+    description: string | null;
+    stage: { title: string } | null;
+    startTime: string;
+    endTime: string;
+    participantLimit: number | null;
+    _count: {
+      participants: number;
+      waitingList: number;
+    };
+    canceled: boolean;
+    published: boolean;
+  };
+}) {
+  const { event } = props;
+
+  const { t, i18n } = useTranslation("components");
+
+  const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+  const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+
+  return (
+    <>
+      <div className="mv-py-4 mv-px-4">
+        <p className="text-xs mb-1">
+          {event.stage !== null ? event.stage.title + " | " : ""}
+          {getDuration(startTime, endTime, i18n.language)}
+
+          {event.participantLimit === null &&
+            ` | ${t("EventListItemContent.unlimitedSeats")}`}
+          {event.participantLimit !== null &&
+            event.participantLimit - event._count.participants > 0 &&
+            ` | ${event.participantLimit - event._count.participants} / ${
+              event.participantLimit
+            } ${t("EventListItemContent.seatsFree")}`}
+
+          {event.participantLimit !== null &&
+          event.participantLimit - event._count.participants <= 0 ? (
+            <>
+              {" "}
+              |{" "}
+              <span>
+                {event._count.waitingList}{" "}
+                {t("EventListItemContent.onWaitingList")}
+              </span>
+            </>
+          ) : null}
+        </p>
+        <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
+          {event.name}
+        </h4>
+        {event.subline !== null ? (
+          <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
+            {event.subline}
+          </p>
+        ) : (
+          <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
+            {removeHtmlTags(event.description ?? "")}
+          </p>
+        )}
+      </div>
+      <EventListItemFlag
+        canceled={event.canceled}
+        published={event.published}
+      />
+    </>
+  );
+}
+
+function EventListItem(
+  props: PropsWithChildren<{ to: string; listIndex: number }>
+) {
+  const classes = classNames(
+    "mv-rounded-lg mv-bg-white mv-border mv-border-neutral-200 mv-overflow-hidden",
+    props.listIndex > 2 ? "mv-hidden group-has-[:checked]:mv-block" : "mv-block"
+  );
+
+  return (
+    <li className={classes}>
+      <Link to={props.to} className="mv-flex mv-items-stretch">
+        {props.children}
+      </Link>
+    </li>
+  );
+}
+
+EventListItem.Image = ListItemImage;
+EventListItem.Content = EventListItemContent;
+
+export const ListItem = {
+  Event: EventListItem,
+};

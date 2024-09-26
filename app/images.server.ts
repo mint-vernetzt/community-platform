@@ -19,6 +19,23 @@ const baseUrl = process.env.IMGPROXY_URL;
 const key = process.env.IMGPROXY_KEY;
 const salt = process.env.IMGPROXY_SALT;
 
+export const ImageSizes = {
+  Event: {
+    ListItem: {
+      width: 144,
+      height: 96,
+    },
+  },
+};
+
+export const BlurredBackgroundScale = 0.0625;
+export const DefaultImages = {
+  Event: {
+    Background: "/images/default-event-background.jpg",
+    BlurredBackground: "/images/default-event-background-blurred.jpg",
+  },
+};
+
 function encodeUrlCharacters(url: string) {
   const encodedUrl = url
     .replace(/=/g, "")

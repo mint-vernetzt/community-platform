@@ -1,0 +1,17 @@
+{
+  "EventListItem": {
+  },
+  "EventListItemContent": {
+    "onWaitingList": "auf der Warteliste",
+    "unlimitedSeats": "Unbegrenzte Plätze",
+    "seatsFree": "Plätzen frei"
+  },
+  "EventListItemFlag": {
+    "canceled": "Abgesagt",
+    "draft": "Entwurf"
+  },
+  "ListContainer": {
+    "more": "{{count}} weitere anzeigen",
+    "less": "{{count}} weniger anzeigen"
+  }
+}
