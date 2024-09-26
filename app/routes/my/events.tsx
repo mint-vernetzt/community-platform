@@ -97,13 +97,13 @@ function MyEvents() {
   React.useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("upcoming", upcoming);
-    setSearchParams(params);
+    setSearchParams(params, { preventScrollReset: true });
   }, [upcoming]);
 
   React.useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("past", past);
-    setSearchParams(params);
+    setSearchParams(params, { preventScrollReset: true });
   }, [past]);
 
   const hasUpcomingEvents = Object.values(loaderData.upcomingEvents.count).some(
