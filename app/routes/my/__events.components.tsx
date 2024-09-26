@@ -271,30 +271,56 @@ function ListItemImage(props: {
   blurredSrc?: string;
   alt: string;
 }) {
-  const isHydrated = useHydrated();
+  const imgRef = React.useRef<HTMLImageElement | null>(null);
+  const blurredImgRef = React.useRef<HTMLImageElement | null>(null);
+  const [imgLoaded, setImgLoaded] = React.useState(false);
+  const [blurredImgLoaded, setBlurredImgLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    if (imgRef.current !== null && imgRef.current.complete) {
+      setImgLoaded(true);
+    }
+    if (blurredImgRef.current !== null && blurredImgRef.current.complete) {
+      setBlurredImgLoaded(true);
+    }
+  }, []);
 
   const baseClasses =
     "mv-w-full mv-h-full mv-object-cover mv-absolute mv-inset-0";
-  const classes = classNames(
+  const blurredClasses = classNames(
     baseClasses,
-    isHydrated
+    blurredImgLoaded
       ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
       : "mv-opacity-0 mv-invisible"
   );
+  const classes = classNames(
+    baseClasses,
+    imgLoaded
+      ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
+      : "mv-opacity-0 mv-invisible mv-h-0 mv-w-0"
+  );
 
   return (
-    <div className="mv-hidden @lg:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
+    <div className="mv-hidden @lg:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2] mv-bg-neutral-200">
       <div className="w-36 h-full relative">
         <img
+          ref={blurredImgRef}
           src={
             props.blurredSrc || "/images/default-event-background-blurred.jpg" // TODO: Constant
           }
           alt=""
-          className="mv-w-full mv-h-full mv-object-cover"
+          onLoad={() => {
+            setBlurredImgLoaded(true);
+          }}
+          className={blurredClasses}
         />
         <img
+          ref={imgRef}
           src={props.src || "/images/default-event-background.jpg"} // TODO: Constant
           alt={props.alt}
+          onLoad={() => {
+            setImgLoaded(true);
+          }}
           className={classes}
         />
         <noscript>
