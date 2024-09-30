@@ -421,7 +421,7 @@ Dropdown.Legend = DropDownListLegend;
 Dropdown.Category = DropdownListCategory;
 
 export function ShowFiltersButton(props: React.PropsWithChildren) {
-  const { children, ...otherProps } = props;
+  const { children } = props;
 
   const [searchParams] = useSearchParams();
   searchParams.set("showFilters", "on");
@@ -610,12 +610,12 @@ export function Filters(props: FiltersProps) {
         defaultChecked={showFilters}
       />
       <div className={filterClasses}>
-        <div className="mv-flex mv-justify-between mv-items-center mv-py-5 @lg:mv-py-6 @lg:mv-hidden">
-          <h2 className="mv-mb-0 -mv-mr-[33px] mv-w-full @lg:mv-hidden mv-text-center mv-text-gray-700 mv-text-base">
+        <div className="mv-relative mv-flex mv-justify-between mv-items-center mv-py-5 @lg:mv-py-6 @lg:mv-hidden">
+          <h2 className="mv-mb-0 mv-w-full @lg:mv-hidden mv-text-center mv-text-gray-700 mv-text-base">
             {title}
           </h2>
           <Link
-            className="@lg:mv-hidden"
+            className="@lg:mv-hidden mv-absolute mv-top-0 mv-right-4"
             to={`./${location.search
               .replace("showFilters=on", "")
               .replace("&&", "&")
