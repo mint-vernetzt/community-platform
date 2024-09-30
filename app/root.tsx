@@ -449,39 +449,41 @@ export default function App() {
       </head>
 
       <body className={bodyClasses}>
-        <div id="top" className="flex flex-col mv-min-h-screen">
-          <div
-            className={`${
-              showFilters ? "mv-hidden container-lg:mv-block " : " "
-            }${isProjectSettings ? "mv-hidden container-md:mv-block" : ""}`}
-          >
-            <NavBar
-              sessionUserInfo={nextSessionUserInfo}
-              openNavBarMenuKey={openNavBarMenuKey}
-            />
-          </div>
+        <div className={bodyClasses}>
+          <div id="top" className="flex flex-col mv-min-h-screen">
+            <div
+              className={`${
+                showFilters ? "mv-hidden container-lg:mv-block " : " "
+              }${isProjectSettings ? "mv-hidden container-md:mv-block" : ""}`}
+            >
+              <NavBar
+                sessionUserInfo={nextSessionUserInfo}
+                openNavBarMenuKey={openNavBarMenuKey}
+              />
+            </div>
 
-          <div className="mv-flex mv-h-full mv-min-h-screen">
-            <NavBarMenu
-              mode={mode}
-              openNavBarMenuKey={openNavBarMenuKey}
-              username={currentUserInfo?.username}
-              abilities={abilities}
-            />
-            <div className="mv-flex-grow mv-@container">
-              {isIndexRoute === false && isNonAppBaseRoute === false && (
-                <LoginOrRegisterCTA isAnon={mode === "anon"} />
-              )}
-              <div className="flex flex-nowrap min-h-[calc(100dvh - 76px)] xl:min-h-[calc(100dvh - 80px)]">
-                {main}
-                {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
-                {scrollButton}
+            <div className="mv-flex mv-h-full mv-min-h-screen">
+              <NavBarMenu
+                mode={mode}
+                openNavBarMenuKey={openNavBarMenuKey}
+                username={currentUserInfo?.username}
+                abilities={abilities}
+              />
+              <div className="mv-flex-grow mv-@container">
+                {isIndexRoute === false && isNonAppBaseRoute === false && (
+                  <LoginOrRegisterCTA isAnon={mode === "anon"} />
+                )}
+                <div className="flex flex-nowrap min-h-[calc(100dvh - 76px)] xl:min-h-[calc(100dvh - 80px)]">
+                  {main}
+                  {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
+                  {scrollButton}
+                </div>
+                {isIndexRoute ? <Footer /> : null}
               </div>
-              {isIndexRoute ? <Footer /> : null}
             </div>
           </div>
+          <Modal.Root />
         </div>
-        <Modal.Root />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
