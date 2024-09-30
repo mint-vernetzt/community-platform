@@ -1,0 +1,9 @@
+{
+    "title": "My Projects",
+    "create": "Create project",
+    "placeholder": {
+        "title": "You haven't created any projects yet.",
+        "description": "Share your knowledge to inspire the community!",
+        "cta": "Create project now"
+    }
+}
