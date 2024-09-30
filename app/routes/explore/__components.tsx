@@ -615,7 +615,7 @@ export function Filters(props: FiltersProps) {
             {title}
           </h2>
           <Link
-            className="@lg:mv-hidden mv-absolute mv-top-0 mv-right-4"
+            className="@lg:mv-hidden mv-absolute mv-right-4"
             to={`./${location.search
               .replace("showFilters=on", "")
               .replace("&&", "&")
