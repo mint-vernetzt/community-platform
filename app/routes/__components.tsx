@@ -270,6 +270,11 @@ function NavBarMenu(
                       props.abilities.my_events.hasAccess) ||
                     (location.pathname === "/event/create" &&
                       props.abilities.my_events.hasAccess === false) ||
+                    location.pathname === "/project/create" ||
+                    (location.pathname === "/my/projects" &&
+                      props.abilities.my_projects.hasAccess) ||
+                    (location.pathname === "/project/create" &&
+                      props.abilities.my_projects.hasAccess === false) ||
                     location.pathname === "/project/create" ? (
                       <Icon type="person" />
                     ) : (
@@ -323,12 +328,21 @@ function NavBarMenu(
                       </TopicItem>
                     )}
 
-                  <TopicItem
-                    to={`/project/create`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
-                  >
-                    {t("root.menu.personalSpace.createProject")}
-                  </TopicItem>
+                  {props.abilities.my_projects.hasAccess ? (
+                    <TopicItem
+                      to={`/my/projects`}
+                      openNavBarMenuKey={props.openNavBarMenuKey}
+                    >
+                      {t("root.menu.personalSpace.myProjects")}
+                    </TopicItem>
+                  ) : (
+                    <TopicItem
+                      to={`/project/create`}
+                      openNavBarMenuKey={props.openNavBarMenuKey}
+                    >
+                      {t("root.menu.personalSpace.createProject")}
+                    </TopicItem>
+                  )}
 
                   {/* TODO: Link to event overview route when its implemented */}
                   {/* <TopicItem

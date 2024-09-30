@@ -110,6 +110,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "abuse_report",
     "my_organizations",
     "my_events",
+    "my_projects",
   ]);
 
   const user = await getSessionUser(authClient);

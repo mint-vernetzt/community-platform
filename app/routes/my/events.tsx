@@ -1,25 +1,24 @@
-import { useTranslation } from "react-i18next";
-import {
-  Container,
-  Placeholder,
-  Button,
-  AddIcon,
-  Section,
-  TabBarTitle,
-  ListItem,
-} from "./__events.components";
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import { TabBar } from "@mint-vernetzt/components";
 import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { getEvents } from "./events.server";
-import { TabBar } from "@mint-vernetzt/components";
-import React from "react";
 import { ListContainer } from "./__components";
-import { ca } from "date-fns/locale";
+import {
+  AddIcon,
+  Button,
+  Container,
+  ListItem,
+  Placeholder,
+  Section,
+  TabBarTitle,
+} from "./__events.components";
+import { getEvents } from "./events.server";
 
 export const i18nNS = ["routes/my/events"];
 

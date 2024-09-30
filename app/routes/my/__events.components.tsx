@@ -4,7 +4,6 @@ import classNames from "classnames";
 import { utcToZonedTime } from "date-fns-tz";
 import React, { PropsWithChildren } from "react";
 import { useTranslation } from "react-i18next";
-import { useHydrated } from "remix-utils/use-hydrated";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 
@@ -66,11 +65,7 @@ export function Section(props: { children: React.ReactNode }) {
   );
 }
 
-type SectionTitleProps = PropsWithChildren<{
-  id?: string;
-}>;
-
-function SectionTitle(props: SectionTitleProps) {
+function SectionTitle(props: PropsWithChildren<{ id?: string }>) {
   return (
     <h2
       className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
