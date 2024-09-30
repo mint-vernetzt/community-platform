@@ -1,8 +1,24 @@
 import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
+import {
+  createAuthClient,
+  getSessionUserOrRedirectPathToLogin,
+} from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { prismaClient } from "~/prisma.server";
 
-// handle "/organizations" as default route
-export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const username = getParamValueOrThrow(params, "username");
-  return redirect(`/my/${username}/organizations`);
+// handle "/profile/$username" as default route
+export const loader = async (args: LoaderFunctionArgs) => {
+  const { request } = args;
+  const { authClient } = createAuthClient(request);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  const profile = await prismaClient.profile.findUnique({
+    select: { username: true },
+    where: { id: sessionUser.id },
+  });
+  invariantResponse(profile !== null, "Profile not found", { status: 404 });
+  return redirect(`/profile/${profile.username}`);
 };
