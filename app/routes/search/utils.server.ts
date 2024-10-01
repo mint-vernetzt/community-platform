@@ -246,6 +246,23 @@ function getProfileWhereQueries(
         {
           AND: [
             {
+              email2: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    email2: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
               bio: {
                 contains: word,
                 mode: "insensitive",
