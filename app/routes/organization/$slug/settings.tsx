@@ -1,10 +1,12 @@
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { NavLink, Outlet } from "@remix-run/react";
+import { TextButton } from "@mint-vernetzt/components";
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 const i18nNS = ["routes/organization/settings"];
 export const handle = {
@@ -12,7 +14,7 @@ export const handle = {
 };
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request } = args;
+  const { request, params } = args;
   const { authClient } = createAuthClient(request);
 
   const { sessionUser, redirectPath } =
@@ -21,10 +23,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
-  return null;
+
+  const slug = getParamValueOrThrow(params, "slug");
+
+  return json({
+    slug,
+  });
 };
 
 function Settings() {
+  const loaderData = useLoaderData<typeof loader>();
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
@@ -33,7 +41,14 @@ function Settings() {
 
   return (
     <>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative mv-mt-10 @md:mv-mt-12 @lg:mv-mt-14">
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
+        <TextButton weight="thin" variant="neutral" arrowLeft>
+          <Link to={`/organization/${loaderData.slug}`} prefetch="intent">
+            {t("back")}
+          </Link>
+        </TextButton>
+      </section>
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
         <div className="flex flex-col @lg:mv-flex-row -mx-4 pt-10 @lg:mv-pt-0">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 @lg:mv-p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">

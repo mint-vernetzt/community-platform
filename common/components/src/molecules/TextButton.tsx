@@ -80,7 +80,7 @@ function TextButton(
   } = props;
 
   const classes = classNames(
-    "mv-flex mv-items-center mv-gap-1 hover:mv-underline active:mv-underline mv-underline-offset-4",
+    "mv-flex mv-w-fit mv-items-center mv-gap-1 hover:mv-underline active:mv-underline mv-underline-offset-4",
     variant === "primary" && "mv-text-primary",
     variant === "neutral" && "mv-text-neutral",
     variant === "dark" && "mv-text-neutral-700",
