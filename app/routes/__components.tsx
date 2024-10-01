@@ -766,7 +766,7 @@ function Opener(props: { openNavBarMenuKey: string }) {
   }
 
   return (
-    <Link to={`?${searchParams.toString()}`} preventScrollReset>
+    <Link to={`./?${searchParams.toString()}#top`}>
       <Icon type="menu" />
     </Link>
   );

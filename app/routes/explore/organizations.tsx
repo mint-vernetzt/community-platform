@@ -372,6 +372,7 @@ export default function ExploreOrganizations() {
           }}
         >
           <input name="page" defaultValue="1" hidden />
+          <input name="showFilters" defaultValue="on" hidden />
           <ShowFiltersButton>{t("filter.showFiltersLabel")}</ShowFiltersButton>
           <Filters
             showFilters={searchParams.get(fields.showFilters.name) === "on"}
