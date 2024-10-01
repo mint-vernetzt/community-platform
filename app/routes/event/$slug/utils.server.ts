@@ -218,7 +218,6 @@ export async function getEvent(slug: string) {
       stage: {
         select: {
           id: true,
-          title: true,
           slug: true,
         },
       },
@@ -249,7 +248,7 @@ export async function getEvent(slug: string) {
         select: {
           eventType: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -258,7 +257,7 @@ export async function getEvent(slug: string) {
         select: {
           tag: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -267,7 +266,7 @@ export async function getEvent(slug: string) {
         select: {
           focus: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -276,14 +275,14 @@ export async function getEvent(slug: string) {
         select: {
           eventTargetGroup: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
       },
       experienceLevel: {
         select: {
-          title: true,
+          slug: true,
         },
       },
       responsibleOrganizations: {
@@ -298,7 +297,7 @@ export async function getEvent(slug: string) {
                 select: {
                   organizationType: {
                     select: {
-                      title: true,
+                      slug: true,
                     },
                   },
                 },
@@ -369,7 +368,7 @@ export async function getEvent(slug: string) {
           participationFrom: true,
           stage: {
             select: {
-              title: true,
+              slug: true,
             },
           },
           _count: {
