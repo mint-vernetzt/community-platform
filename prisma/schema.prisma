@@ -14,6 +14,7 @@ model Profile {
   id                        String                               @id @default(uuid())
   username                  String                               @unique
   email                     String
+  email2                    String?
   phone                     String?
   website                   String?
   avatar                    String?
@@ -73,6 +74,7 @@ model ProfileVisibility {
   id                        String  @id @default(uuid())
   username                  Boolean @default(true)
   email                     Boolean @default(false)
+  email2                    Boolean @default(false)
   phone                     Boolean @default(false)
   website                   Boolean @default(false)
   avatar                    Boolean @default(true)

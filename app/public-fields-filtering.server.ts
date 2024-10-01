@@ -1,4 +1,4 @@
-import type { Organization, Profile } from "@prisma/client";
+import type { Profile } from "@prisma/client";
 import { json } from "@remix-run/server-runtime";
 import type { EntitySubset } from "./lib/utils/types";
 import { prismaClient } from "./prisma.server";
@@ -114,6 +114,7 @@ export async function filterProfileByVisibility<
       // All other fields in Profile that are optional (String? or Relation?)
       else if (
         key === "phone" ||
+        key === "email2" ||
         key === "website" ||
         key === "avatar" ||
         key === "background" ||
@@ -145,125 +146,4 @@ export async function filterProfileByVisibility<
   const filteredProfile: T = { ...profile, ...filteredFields };
 
   return filteredProfile;
-}
-
-type OrganizationWithRelations = Organization & {
-  areas: any;
-  focuses: any;
-  networkMembers: any;
-  memberOf: any;
-  teamMembers: any;
-  types: any;
-  responsibleForEvents: any;
-  responsibleForProject: any;
-  organizationVisibility: any;
-  admins: any;
-  backgroundImage: any;
-  abuseReports: any;
-  profileJoinRequests: any;
-  profileJoinInvites: any;
-};
-
-export async function filterOrganizationByVisibility<
-  T extends EntitySubset<OrganizationWithRelations, T>
->(organization: T) {
-  const organizationVisibility =
-    await prismaClient.organizationVisibility.findFirst({
-      where: {
-        organization: {
-          id: organization.id,
-        },
-      },
-    });
-
-  if (organizationVisibility === null) {
-    throw json(
-      { message: "Organization visibilities not found." },
-      { status: 404 }
-    );
-  }
-  for (const key in organization) {
-    if (!organizationVisibility.hasOwnProperty(key)) {
-      console.error(
-        `organization.${key} is not present in the organization visibilities.`
-      );
-    }
-  }
-  const filteredFields: { [key: string]: any } = {};
-  for (const key in organizationVisibility) {
-    if (key !== "id" && key !== "organizationId") {
-      // Fields in Organization with type String
-      if (key === "name" || key === "slug") {
-        filteredFields[key] =
-          organizationVisibility[key] === true ? organization[key] : "";
-      }
-      // Fields in Organization with type []
-      else if (
-        key === "supportedBy" ||
-        key === "areas" ||
-        key === "focuses" ||
-        key === "networkMembers" ||
-        key === "memberOf" ||
-        key === "teamMembers" ||
-        key === "types" ||
-        key === "responsibleForEvents" ||
-        key === "admins" ||
-        key === "abuseReports" ||
-        key === "profileJoinRequests" ||
-        key === "profileJoinInvites" ||
-        key === "responsibleForProject"
-      ) {
-        filteredFields[key] =
-          organizationVisibility[key] === true ? organization[key] : [];
-      }
-      // Fields in Organization with type DateTime
-      else if (key === "createdAt" || key === "updatedAt") {
-        filteredFields[key] =
-          organizationVisibility[key] === true
-            ? organization[key]
-            : new Date("1970-01-01T00:00:00.000Z");
-      }
-      // Fields in Organization with type Int
-      else if (key === "score") {
-        filteredFields[key] =
-          organizationVisibility[key] === true ? organization[key] : 0;
-      }
-      // All other fields in Organization that are optional (String? or Relation?)
-      else if (
-        key === "email" ||
-        key === "phone" ||
-        key === "street" ||
-        key === "city" ||
-        key === "website" ||
-        key === "logo" ||
-        key === "background" ||
-        key === "facebook" ||
-        key === "linkedin" ||
-        key === "twitter" ||
-        key === "xing" ||
-        key === "bio" ||
-        key === "quote" ||
-        key === "quoteAuthor" ||
-        key === "quoteAuthorInformation" ||
-        key === "streetNumber" ||
-        key === "zipCode" ||
-        key === "instagram" ||
-        key === "backgroundImage" ||
-        key === "backgroundImageId" ||
-        key === "youtube" ||
-        key == "mastodon" ||
-        key === "tiktok"
-      ) {
-        filteredFields[key] =
-          organizationVisibility[key] === true ? organization[key] : null;
-      } else {
-        console.error(
-          `The OrganizationVisibility key ${key} was not checked for public access as its not implemented in the filterProfileDataByVisibilitySettings() method.`
-        );
-      }
-    }
-  }
-  const filteredOrganization: T = { ...organization, ...filteredFields };
-
-  return filteredOrganization;
 }

@@ -95,6 +95,7 @@ export function filterProfileByVisibility<
       // All other fields in Profile that are optional (String? or Relation?)
       else if (
         key === "phone" ||
+        key === "email2" ||
         key === "website" ||
         key === "avatar" ||
         key === "background" ||
