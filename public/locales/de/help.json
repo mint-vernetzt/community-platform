@@ -1,6 +1,7 @@
 {
     "headline": "Hilfebereich",
-    "subline": "Hier findest Du Antworten auf Fragen rund um die Nutzung der Community-Plattform.",
+    "subline": "Hier beantworten wir Fragen rund um die Nutzung der Community-Plattform. ",
+    "subline2": "Findest Du keine Antwort auf Deine Frage? Schreibe uns gerne eine E-Mail an:",
     "faq": {
         "stemEducation": {
             "headline": "Informationen zum Thema MINT-Bildung",
@@ -93,7 +94,6 @@
         "headline": "Support",
         "subline": "Findest Du keine Antwort auf Deine Frage?",
         "ctaText": "Schreibe uns gerne eine E-Mail an:",
-        "email": "support@mint-vernetzt.de",
         "cta": "Support kontaktieren"
     }
 }
