@@ -1,0 +1,11 @@
+{
+  "public_funding_eu": "Öffentliche Fördermittel (EU)",
+  "public_funding_de": "Öffentliche Fördermittel (DE)",
+  "private_funding_companies": "Private Fördermittel (Unternehmen)",
+  "private_funding_foundations": "Private Fördermittel (Stiftungen)",
+  "private_funding_individuals": "Private Fördermittel (Privatpersonen)",
+  "private_funding_social_lottery": "Private Fördermittel (Soziallotterien)",
+  "self_funding": "Selbstfinanzierung",
+  "crowdfunding": "Crowdfunding",
+  "other": "Sonstige"
+}

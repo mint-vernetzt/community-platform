@@ -1,0 +1,11 @@
+{
+  "math": "Mathematics",
+  "computer_science": "Computer Science",
+  "biology": "Biology",
+  "chemistry": "Chemistry",
+  "physics": "Physics",
+  "astronomy": "Astronomy",
+  "technology": "Technology",
+  "all": "STEM total",
+  "natural_sciences": "Natural Sciences"
+}

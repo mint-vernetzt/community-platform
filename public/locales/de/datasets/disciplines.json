@@ -1,0 +1,11 @@
+{
+  "math": "Mathe",
+  "computer_science": "Informatik",
+  "biology": "Biologie",
+  "chemistry": "Chemie",
+  "physics": "Physik",
+  "astronomy": "Astronomie",
+  "technology": "Technik",
+  "all": "MINT gesamt",
+  "natural_sciences": "Naturwissenschaften"
+}

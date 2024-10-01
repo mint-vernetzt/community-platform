@@ -1,0 +1,11 @@
+{
+  "public_funding_eu": "Public Funding (EU)",
+  "public_funding_de": "Public Funding (DE)",
+  "private_funding_companies": "Private Funding (Companies)",
+  "private_funding_foundations": "Private Funding (Foundations)",
+  "private_funding_individuals": "Private Funding (Individuals)",
+  "private_funding_social_lottery": "Private Funding (Social Lotteries)",
+  "self_funding": "Self-financing",
+  "crowdfunding": "Crowdfunding",
+  "other": "Other"
+}
