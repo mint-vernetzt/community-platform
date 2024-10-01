@@ -306,10 +306,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
-function hasContactInformations(data: Pick<Profile, "email" | "phone">) {
+function hasContactInformations(
+  data: Pick<Profile, "email" | "email2" | "phone">
+) {
   const hasEmail = typeof data.email === "string" && data.email !== "";
+  const hasEmail2 = typeof data.email2 === "string" && data.email2 !== "";
   const hasPhone = typeof data.phone === "string" && data.phone !== "";
-  return hasEmail || hasPhone;
+  return hasEmail || hasEmail2 || hasPhone;
 }
 
 function notEmptyData(
@@ -526,6 +529,28 @@ export default function Index() {
                           </svg>
                         </span>
                         <span>{loaderData.data.email}</span>
+                      </a>
+                    </p>
+                  ) : null}
+                  {typeof loaderData.data.email2 === "string" &&
+                  loaderData.data.email2 !== "" ? (
+                    <p className="text-mb mb-2">
+                      <a
+                        href={`mailto:${loaderData.data.email2}`}
+                        className="flex items-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
+                      >
+                        <span className="icon w-6 mr-4">
+                          <svg
+                            width="24"
+                            height="19"
+                            viewBox="0 0 24 19"
+                            className="fill-current"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path d="M0 3.6a3 3 0 0 1 3-3h18a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3v-12Zm3-1.5a1.5 1.5 0 0 0-1.5 1.5v.325l10.5 6.3 10.5-6.3V3.6A1.5 1.5 0 0 0 21 2.1H3Zm19.5 3.574-7.062 4.238 7.062 4.345V5.675Zm-.051 10.314-8.46-5.206L12 11.975l-1.989-1.193-8.46 5.205A1.5 1.5 0 0 0 3 17.1h18a1.5 1.5 0 0 0 1.449-1.112ZM1.5 14.258l7.062-4.346L1.5 5.674v8.584Z" />
+                          </svg>
+                        </span>
+                        <span>{loaderData.data.email2}</span>
                       </a>
                     </p>
                   ) : null}
