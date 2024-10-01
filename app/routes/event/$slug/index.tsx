@@ -1,19 +1,13 @@
 import { useForm } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import { Button, Input } from "@mint-vernetzt/components";
+import { Button, Input, TextButton } from "@mint-vernetzt/components";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  useActionData,
-  useLoaderData,
-  useNavigate,
-} from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { type TFunction } from "i18next";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -521,16 +515,6 @@ function Index() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const navigate = useNavigate();
-
-  const [historyStateIndex, setHistoryStateIndex] = React.useState(0);
-
-  React.useEffect(() => {
-    if (window !== undefined && window.history !== undefined) {
-      setHistoryStateIndex(window.history.state.idx);
-    }
-  }, [loaderData.event.id]);
-
   const now = utcToZonedTime(new Date(), "Europe/Berlin");
 
   const startTime = utcToZonedTime(loaderData.event.startTime, "Europe/Berlin");
@@ -587,55 +571,24 @@ function Index() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <div className="font-semi text-neutral-500 flex flex-wrap items-center">
+        <div className="font-semi text-neutral-500 flex flex-wrap items-center mv-mb-4">
           {loaderData.event.parentEvent !== null ? (
             <>
-              <Link
-                className=""
-                to={`/event/${loaderData.event.parentEvent.slug}`}
-                reloadDocument
-              >
-                {loaderData.event.parentEvent.name}
-              </Link>
-              <span className="mx-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
-                  />
-                </svg>
+              <TextButton weight="thin" variant="neutral" arrowRight>
+                <Link to={`/event/${loaderData.event.parentEvent.slug}`}>
+                  {loaderData.event.parentEvent.name}
+                </Link>
+              </TextButton>
+              <span className="w-full @md:mv-w-auto mv-text-neutral mv-font-thin">
+                {loaderData.event.name}
               </span>
             </>
-          ) : null}
-          <span className="w-full @md:mv-w-auto">{loaderData.event.name}</span>
-        </div>
-        <div className="font-semi text-neutral-600 flex items-center">
-          {/* TODO: get back route from loader */}
-          {historyStateIndex > 0 ? (
-            <button onClick={() => navigate(-1)} className="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                className="h-auto w-6"
-                fill="currentColor"
-                viewBox="0 0 16 16"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
-                />
-              </svg>
-              <span className="ml-2">{t("content.back")}</span>
-            </button>
           ) : (
-            <div className="w-6 h-6"></div>
+            <TextButton weight="thin" variant="neutral" arrowLeft>
+              <Link to="/explore/events" prefetch="intent">
+                {t("content.back")}
+              </Link>
+            </TextButton>
           )}
         </div>
         {loaderData.abilities.abuse_report.hasAccess &&
