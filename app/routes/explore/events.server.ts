@@ -333,7 +333,6 @@ export async function getAllEvents(options: {
       published: true,
       stage: {
         select: {
-          title: true,
           slug: true,
         },
       },

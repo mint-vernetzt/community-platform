@@ -1076,7 +1076,6 @@ export async function searchEventsViaLike(
       published: true,
       stage: {
         select: {
-          title: true,
           slug: true,
         },
       },
