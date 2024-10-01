@@ -215,7 +215,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         return relation.organization;
       }),
       offers: enhancedProfile.offers.map((relation) => {
-        return relation.offer.title;
+        return relation.offer.slug;
       }),
       areas: enhancedProfile.areas.map((relation) => {
         return relation.area.name;

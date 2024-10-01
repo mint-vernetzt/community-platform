@@ -52,7 +52,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     let enhancedProfile = {
       ...profile,
       areas: profile.areas.map((item) => item.area.name),
-      offers: profile.offers.map((item) => item.offer.title),
+      offers: profile.offers.map((item) => item.offer.slug),
       memberOf: profile.memberOf.map((relation) => {
         return relation.organization;
       }),

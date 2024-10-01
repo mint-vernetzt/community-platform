@@ -91,7 +91,7 @@ export async function searchProfilesViaLike(
         select: {
           offer: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },

@@ -163,7 +163,7 @@ export async function getAllProfiles(options: {
         select: {
           offer: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
