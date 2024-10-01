@@ -1,5 +1,11 @@
 {
-  "promotional_event": "This is a promotional event.",
-  "inappropriate_pictures": "Inappropriate pictures are shown.",
-  "discriminatory_content": "It contains discriminatory content."
+  "promotional_event": {
+    "description": "This is a promotional event."
+  },
+  "inappropriate_pictures": {
+    "description": "Inappropriate pictures are shown."
+  },
+  "discriminatory_content": {
+    "description": "It contains discriminatory content."
+  }
 }

@@ -38,7 +38,6 @@ export async function getFocuses() {
     select: {
       id: true,
       slug: true,
-      title: true,
     },
   });
   return focuses;

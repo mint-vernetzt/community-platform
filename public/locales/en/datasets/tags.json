@@ -1,16 +1,58 @@
 {
-  "didactics": "Didactics",
-  "gender": "Gender",
-  "best-practice": "Best Practice",
-  "innovation": "Innovation",
-  "steam": "STEAM",
-  "mintvernetzt": "MINTvernetzt",
-  "transfer": "Transfer",
-  "networking": "Networking",
-  "foerderung": "Funding",
-  "diversitaet": "Diversity",
-  "buendnis-fuer-frauen": "Alliance for Woman",
-  "mint-cluster": "STEM Cluster",
-  "mint-regions": "STEM Regions",
-  "participation": "Social Inclusion"
+  "didactics": {
+    "title": "Didactics",
+    "description": null
+  },
+  "gender": {
+    "title": "Gender",
+    "description": null
+  },
+  "best-practice": {
+    "title": "Best Practice",
+    "description": null
+  },
+  "innovation": {
+    "title": "Innovation",
+    "description": null
+  },
+  "steam": {
+    "title": "STEAM",
+    "description": null
+  },
+  "mintvernetzt": {
+    "title": "MINTvernetzt",
+    "description": null
+  },
+  "transfer": {
+    "title": "Transfer",
+    "description": null
+  },
+  "networking": {
+    "title": "Networking",
+    "description": null
+  },
+  "foerderung": {
+    "title": "Funding",
+    "description": null
+  },
+  "diversitaet": {
+    "title": "Diversity",
+    "description": null
+  },
+  "buendnis-fuer-frauen": {
+    "title": "Alliance for Women",
+    "description": null
+  },
+  "mint-cluster": {
+    "title": "STEM Cluster",
+    "description": null
+  },
+  "mint-regions": {
+    "title": "STEM Regions",
+    "description": null
+  },
+  "participation": {
+    "title": "Social Inclusion",
+    "description": null
+  }
 }

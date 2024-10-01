@@ -1,7 +1,22 @@
 {
-  "entry-level": "Beginner Level",
-  "advanced": "Advanced Level",
-  "intermediate": "Intermediate Level",
-  "professional": "Professional Level",
-  "not-relevant": "Not relevant"
+  "entry-level": {
+    "title": "Beginner Level",
+    "description": null
+  },
+  "advanced": {
+    "title": "Advanced Level",
+    "description": null
+  },
+  "intermediate": {
+    "title": "Intermediate Level",
+    "description": null
+  },
+  "professional": {
+    "title": "Professional Level",
+    "description": null
+  },
+  "not-relevant": {
+    "title": "Not relevant",
+    "description": null
+  }
 }

@@ -1,22 +1,82 @@
 {
-  "networking": "Networking",
-  "digital_skills": "Digital Skills",
-  "volunteering": "Volunteering",
-  "contact_with_companies": "Contact with Companies",
-  "contact_with_schools": "Contact with Schools",
-  "contact_with_universities": "Contact with Universities / Colleges",
-  "contact_with_trainees": "Contact with Apprentices",
-  "contact_with_pupils": "Contact with Pupils",
-  "contact_with_students": "Contact with Students",
-  "lecturer_activities": "Lecturer Activities",
-  "good_practice_and_inspiration_for_courses": "Good Practice and Inspiration for Courses",
-  "support_in_the_field_of_financial_support": "Support in the Field of Financial Support",
-  "support_in_the_field_of_web_development": "Support in the Field of Web Development",
-  "support_in_the_field_of_girls_and_women_in_stem": "Support for girls and women in STEM",
-  "support_in_the_field_of_social_media": "Support in the Field of Social Media",
-  "support_in_the_field_of_public_relations_and_press": "Support in the Field of Public Relations / Press",
-  "support_in_the_field_of_community_management": "Support in the Field of Community Management",
-  "support_in_the_field_of_network_expansion": "Support in the Field of Network Expansion",
-  "support_in_the_field_of_target_group_addressing_and_participant_acquisition": "Support in the Field of Target Group Addressing / Participant Acquisition",
-  "support_in_the_field_of_effect_orientation_and_quality_development": "Support in the Field of Effect Orientation / Quality Development"
+  "networking": {
+    "title": "Networking",
+    "description": null
+  },
+  "digital_skills": {
+    "title": "Digital Skills",
+    "description": null
+  },
+  "volunteering": {
+    "title": "Volunteering",
+    "description": null
+  },
+  "contact_with_companies": {
+    "title": "Contact with Companies",
+    "description": null
+  },
+  "contact_with_schools": {
+    "title": "Contact with Schools",
+    "description": null
+  },
+  "contact_with_universities": {
+    "title": "Contact with Universities / Colleges",
+    "description": null
+  },
+  "contact_with_trainees": {
+    "title": "Contact with Apprentices",
+    "description": null
+  },
+  "contact_with_pupils": {
+    "title": "Contact with Pupils",
+    "description": null
+  },
+  "contact_with_students": {
+    "title": "Contact with Students",
+    "description": null
+  },
+  "lecturer_activities": {
+    "title": "Lecturer Activities",
+    "description": null
+  },
+  "good_practice_and_inspiration_for_courses": {
+    "title": "Good Practice and Inspiration for Courses",
+    "description": null
+  },
+  "support_in_the_field_of_financial_support": {
+    "title": "Support in the Field of Financial Support",
+    "description": null
+  },
+  "support_in_the_field_of_web_development": {
+    "title": "Support in the Field of Web Development",
+    "description": null
+  },
+  "support_in_the_field_of_girls_and_women_in_stem": {
+    "title": "Support for girls and women in STEM",
+    "description": null
+  },
+  "support_in_the_field_of_social_media": {
+    "title": "Support in the Field of Social Media",
+    "description": null
+  },
+  "support_in_the_field_of_public_relations_and_press": {
+    "title": "Support in the Field of Public Relations / Press",
+    "description": null
+  },
+  "support_in_the_field_of_community_management": {
+    "title": "Support in the Field of Community Management",
+    "description": null
+  },
+  "support_in_the_field_of_network_expansion": {
+    "title": "Support in the Field of Network Expansion",
+    "description": null
+  },
+  "support_in_the_field_of_target_group_addressing_and_participant_acquisition": {
+    "title": "Support in the Field of Target Group Addressing / Participant Acquisition",
+    "description": null
+  },
+  "support_in_the_field_of_effect_orientation_and_quality_development": {
+    "title": "Support in the Field of Effect Orientation / Quality Development",
+    "description": null
+  }
 }

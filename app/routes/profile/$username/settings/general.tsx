@@ -240,7 +240,7 @@ export default function Index() {
 
   const areaOptions = createAreaOptionFromData(areas);
   const offerOptions = offers.map((o) => ({
-    label: t(o.slug, { ns: "datasets/offers" }),
+    label: t(`${o.slug}.title`, { ns: "datasets/offers" }),
     value: o.id,
   }));
 
@@ -262,8 +262,8 @@ export default function Index() {
       ? offers
           .filter((offer) => profile.offers.includes(offer.id))
           .sort((a, b) =>
-            t(a.slug, { ns: "datasets/offers" }).localeCompare(
-              t(b.slug, { ns: "datasets/offers" })
+            t(`${a.slug}.title`, { ns: "datasets/offers" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/offers" })
             )
           )
       : [];
@@ -273,8 +273,8 @@ export default function Index() {
       ? offers
           .filter((offer) => profile.seekings.includes(offer.id))
           .sort((a, b) =>
-            t(a.slug, { ns: "datasets/offers" }).localeCompare(
-              t(b.slug, { ns: "datasets/offers" })
+            t(`${a.slug}.title`, { ns: "datasets/offers" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/offers" })
             )
           )
       : [];
@@ -498,7 +498,7 @@ export default function Index() {
                 name="offers"
                 label={t("offer.form.quote.label")}
                 entries={selectedOffers.map((offer) => ({
-                  label: t(offer.slug, { ns: "datasets/offers" }),
+                  label: t(`${offer.slug}.title`, { ns: "datasets/offers" }),
                   value: offer.id,
                 }))}
                 options={offerOptions.filter(
@@ -521,7 +521,7 @@ export default function Index() {
                 name="seekings"
                 label={t("lookingFor.form.seeking.label")}
                 entries={selectedSeekings.map((seeking) => ({
-                  label: t(seeking.slug, { ns: "datasets/offers" }),
+                  label: t(`${seeking.slug}.title`, { ns: "datasets/offers" }),
                   value: seeking.id,
                 }))}
                 options={offerOptions.filter(

@@ -718,7 +718,9 @@ export default function Index() {
                   {loaderData.data.offers.map((relation) => (
                     <Chip
                       key={`offer_${relation.offer.slug}`}
-                      title={t(relation.offer.slug, { ns: "datasets/offers" })}
+                      title={t(`${relation.offer.slug}.title`, {
+                        ns: "datasets/offers",
+                      })}
                       slug=""
                       isEnabled
                     />
@@ -735,7 +737,9 @@ export default function Index() {
                   {loaderData.data.seekings.map((relation) => (
                     <Chip
                       key={`seeking_${relation.offer.slug}`}
-                      title={t(relation.offer.slug, { ns: "datasets/offers" })}
+                      title={t(`${relation.offer.slug}.title`, {
+                        ns: "datasets/offers",
+                      })}
                       slug=""
                       isEnabled
                     />

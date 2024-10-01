@@ -680,7 +680,7 @@ function Index() {
                           </svg>
                         </div>
                         <span>
-                          {t(reason.slug, {
+                          {t(`${reason.slug}.description`, {
                             ns: "datasets/eventAbuseReportReasonSuggestions",
                           })}
                         </span>
@@ -980,7 +980,9 @@ function Index() {
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event.types
                       .map((item) =>
-                        t(item.eventType.slug, { ns: "datasets/eventTypes" })
+                        t(`${item.eventType.slug}.title`, {
+                          ns: "datasets/eventTypes",
+                        })
                       )
                       .join(" / ")}
                   </div>
@@ -1172,7 +1174,9 @@ function Index() {
                     {loaderData.event.focuses.map((item, index) => {
                       return (
                         <div key={`focus-${index}`} className="badge">
-                          {t(item.focus.slug, { ns: "datasets/focuses" })}
+                          {t(`${item.focus.slug}.title`, {
+                            ns: "datasets/focuses",
+                          })}
                         </div>
                       );
                     })}
@@ -1192,7 +1196,7 @@ function Index() {
                           key={`eventTargetGroups-${index}`}
                           className="badge"
                         >
-                          {t(item.eventTargetGroup.slug, {
+                          {t(`${item.eventTargetGroup.slug}.title`, {
                             ns: "datasets/eventTargetGroups",
                           })}
                         </div>
@@ -1209,7 +1213,7 @@ function Index() {
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
                     <div className="badge">
-                      {t(loaderData.event.experienceLevel.slug, {
+                      {t(`${loaderData.event.experienceLevel.slug}.title`, {
                         ns: "datasets/experienceLevels",
                       })}
                     </div>
@@ -1226,7 +1230,7 @@ function Index() {
                     {loaderData.event.tags.map((item, index) => {
                       return (
                         <div key={`tags-${index}`} className="badge">
-                          {t(item.tag.slug, { ns: "datasets/tags" })}
+                          {t(`${item.tag.slug}.title`, { ns: "datasets/tags" })}
                         </div>
                       );
                     })}
@@ -1366,7 +1370,7 @@ function Index() {
                             <p className="text-xs mb-1">
                               {/* TODO: Display icons (see figma) */}
                               {event.stage !== null
-                                ? t(event.stage.slug, {
+                                ? t(`${event.stage.slug}.title`, {
                                     ns: "datasets/stages",
                                   }) + " | "
                                 : ""}
@@ -1587,7 +1591,7 @@ function Index() {
                             <p className="text-sm m-0 mv-line-clamp-2">
                               {item.organization.types
                                 .map((item) =>
-                                  t(item.organizationType.slug, {
+                                  t(`${item.organizationType.slug}.title`, {
                                     ns: "datasets/organizationTypes",
                                   })
                                 )

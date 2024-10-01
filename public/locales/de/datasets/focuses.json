@@ -1,15 +1,54 @@
 {
-  "girls_and_women_in_stem": "Mädchen und Frauen in MINT",
-  "networking": "Netzwerkarbeit",
-  "social_media_management": "Social Media Management",
-  "good_practice": "Gute Praxis",
-  "stem_research": "MINT-Forschung",
-  "innovation": "Innovation",
-  "politics": "Politik",
-  "career_orientation": "Berufsorientierung",
-  "early_childhood_education": "Frühkindliche Bildung",
-  "school_stem_education": "Schulische MINT-Bildung",
-  "diversity": "Diversität",
-  "inclusion": "Inklusion",
-  "rural_area": "Ländlicher Raum"
+  "girls_and_women_in_stem": {
+    "title": "Mädchen und Frauen in MINT",
+    "description": null
+  },
+  "networking": {
+    "title": "Netzwerkarbeit",
+    "description": null
+  },
+  "social_media_management": {
+    "title": "Social Media Management",
+    "description": null
+  },
+  "good_practice": {
+    "title": "Gute Praxis",
+    "description": null
+  },
+  "stem_research": {
+    "title": "MINT-Forschung",
+    "description": null
+  },
+  "innovation": {
+    "title": "Innovation",
+    "description": null
+  },
+  "politics": {
+    "title": "Politik",
+    "description": null
+  },
+  "career_orientation": {
+    "title": "Berufsorientierung",
+    "description": null
+  },
+  "early_childhood_education": {
+    "title": "Frühkindliche Bildung",
+    "description": null
+  },
+  "school_stem_education": {
+    "title": "Schulische MINT-Bildung",
+    "description": null
+  },
+  "diversity": {
+    "title": "Diversität",
+    "description": null
+  },
+  "inclusion": {
+    "title": "Inklusion",
+    "description": null
+  },
+  "rural_area": {
+    "title": "Ländlicher Raum",
+    "description": null
+  }
 }
