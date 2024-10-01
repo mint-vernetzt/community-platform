@@ -1,6 +1,7 @@
 {
     "headline": "Help section",
-    "subline": "Here you will find answers to questions about using the community platform.",
+    "subline": "Here we answer questions about using the community platform.",
+    "subline2": "Can't find an answer to your question? Please send us an email:",
     "faq": {
         "stemEducation": {
             "headline": "Informations about STEM education",
@@ -93,7 +94,6 @@
         "headline": "Support",
         "subline": "Can't find an answer to your question?",
         "ctaText": "Please send us an e-mail:",
-        "email": "support@mint-vernetzt.de",
         "cta": "Contact support"
     }
 }

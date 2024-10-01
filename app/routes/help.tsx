@@ -2,15 +2,24 @@ import { useTranslation } from "react-i18next";
 import { faq } from "public/locales/en/help.json";
 import { RichText } from "~/components/Richtext/RichText";
 import { Accordion } from "./__help.components";
-import { Button } from "@mint-vernetzt/components";
+import { Link as StyledLink, Button } from "@mint-vernetzt/components";
+import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 
 const i18nNS = ["help"];
 export const handle = {
   i18n: i18nNS,
 };
 
+export const loader = async () => {
+  return json({
+    supportMail: process.env.SUPPORT_MAIL,
+  });
+};
+
 export default function Help() {
   const { t } = useTranslation(i18nNS);
+  const loaderData = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -19,7 +28,17 @@ export default function Help() {
           {t("headline")}
         </h1>
         <p className="mv-w-full mv-text-center mv-text-neutral-700 mv-leading-5">
-          {t("subline")}
+          <p className="mv-mb-1">{t("subline")}</p>
+          <p>
+            <span>{t("subline2")}</span>{" "}
+            <StyledLink
+              as="a"
+              to={`mailto:${loaderData.supportMail}`}
+              variant="primary"
+            >
+              {loaderData.supportMail}
+            </StyledLink>
+          </p>
         </p>
       </section>
       <section className="mv-w-full mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-px-4 @md:mv-px-6 @xl:mv-px-8 mv-py-6 mv-mb-6 @md:mv-mb-8 @xl:mv-mb-12">
@@ -87,14 +106,14 @@ export default function Help() {
             <p>{t("support.subline")}</p>
             <p>{t("support.ctaText")}</p>
             <p className="mv-w-fit mv-bg-secondary-200 mv-px-1">
-              {t("support.email")}
+              {loaderData.supportMail}
             </p>
           </div>
         </div>
         <div className="mv-w-fit">
           <Button
             as="a"
-            href="mailto:support@mint-vernetzt.de"
+            href={`mailto:${loaderData.supportMail}`}
             variant="outline"
           >
             {t("support.cta")}
