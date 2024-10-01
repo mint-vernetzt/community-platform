@@ -70,6 +70,7 @@ const createProfileSchema = (t: TFunction) => {
     firstName: string().required(t("validation.firstName.required")),
     lastName: string().required(t("validation.lastName.required")),
     email: string().email().required(),
+    email2: nullOrString(string().email()),
     phone: nullOrString(phone()),
     bio: nullOrString(multiline()),
     areas: array(string().required()).required(),
@@ -383,7 +384,7 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="flex flex-col @md:mv-flex-row -mx-4">
+            <div className="flex flex-col @md:mv-flex-row -mx-4 mv-flex-wrap">
               <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
                 <InputText
                   {...register("email")}
@@ -394,6 +395,17 @@ export default function Index() {
                   withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.email}
                   errorMessage={errors?.email?.message}
+                />
+              </div>
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
+                <InputText
+                  {...register("email2")}
+                  type="text"
+                  id="email2"
+                  label={t("general.form.email2.label")}
+                  withPublicPrivateToggle={true}
+                  isPublic={profileVisibilities.email2}
+                  errorMessage={errors?.email2?.message}
                 />
               </div>
               <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">

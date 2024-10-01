@@ -45,6 +45,7 @@ export async function getWholeProfileFromUsername(username: string) {
       firstName: true,
       lastName: true,
       email: true,
+      email2: true,
       phone: true,
       bio: true,
       skills: true,
