@@ -11,7 +11,7 @@
     "clock": "{{date}}, {{time}} o'clock",
     "backgroundImage": "Current background image",
     "borderOfImage": "Frame of the background image",
-    "back": "Back",
+    "back": "Explore events",
     "change": "Change background",
     "headline": "Background image",
     "event": {

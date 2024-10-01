@@ -178,18 +178,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 404,
   });
 
-  let username: string | null = null;
-
-  if (sessionUser !== null) {
-    const profile = await prismaClient.profile.findFirst({
-      where: { id: sessionUser.id },
-      select: { username: true },
-    });
-    if (profile !== null) {
-      username = profile.username;
-    }
-  }
-
   const mode = await deriveProjectMode(sessionUser, slug);
 
   const project = await prismaClient.project.findUnique({
@@ -266,7 +254,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 
   return json({
-    username,
     project: enhancedProject,
     mode,
     meta: {
@@ -345,22 +332,13 @@ function ProjectDetail() {
 
   return (
     <>
-      {loaderData.username !== null ? (
-        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-          <TextButton weight="thin" variant="neutral" arrowLeft>
-            <Link
-              to={`/profile/${loaderData.username}/#projects`}
-              prefetch="intent"
-            >
-              {t("content.title")}
-            </Link>
-          </TextButton>
-        </section>
-      ) : (
-        <div className="mv-w-full mv-mb-2 @md:mv-mb-4 @md:mv-mt-2 mv-h-6">
-          {" "}
-        </div>
-      )}
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
+        <TextButton weight="thin" variant="neutral" arrowLeft>
+          <Link to="/explore/projects" prefetch="intent">
+            {t("content.back")}
+          </Link>
+        </TextButton>
+      </section>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
         <Header>
           {mode === "admin" && project.published === false && (
