@@ -39,6 +39,9 @@
       "email": {
         "label": "Email"
       },
+      "email2": {
+        "label": "Additional email"
+      },
       "phone": {
         "label": "Phone"
       }
