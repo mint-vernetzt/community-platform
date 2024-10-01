@@ -1171,15 +1171,20 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
               };
             }
           | {
-              [K in "areas" | "types" | "focuses" | "tags" | "targetGroups"]?: {
+              [K in
+                | "areas"
+                | "types"
+                | "focuses"
+                | "tags"
+                | "eventTargetGroups"]?: {
                 some: {
                   [K in
                     | "area"
                     | "eventType"
                     | "focus"
                     | "tag"
-                    | "targetGroup"]?: {
-                    [K in "name" | "title"]?: {
+                    | "eventTargetGroup"]?: {
+                    [K in "name" | "title" | "slug"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -1189,7 +1194,7 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
             }
           | {
               [K in "experienceLevel" | "stage"]?: {
-                title: {
+                [K in "title" | "slug"]?: {
                   contains: string;
                   mode: Prisma.QueryMode;
                 };
@@ -1389,8 +1394,50 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
         {
           AND: [
             {
+              types: {
+                some: {
+                  eventType: {
+                    slug: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    types: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
               experienceLevel: {
                 title: {
+                  contains: word,
+                  mode: "insensitive",
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    experienceLevel: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              experienceLevel: {
+                slug: {
                   contains: word,
                   mode: "insensitive",
                 },
@@ -1427,10 +1474,52 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
         {
           AND: [
             {
+              stage: {
+                slug: {
+                  contains: word,
+                  mode: "insensitive",
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    stage: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
               focuses: {
                 some: {
                   focus: {
                     title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    focuses: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              focuses: {
+                some: {
+                  focus: {
+                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
@@ -1473,10 +1562,56 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
         {
           AND: [
             {
-              targetGroups: {
+              tags: {
                 some: {
-                  targetGroup: {
+                  tag: {
+                    slug: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    tags: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              eventTargetGroups: {
+                some: {
+                  eventTargetGroup: {
                     title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  eventVisibility: {
+                    targetGroups: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              eventTargetGroups: {
+                some: {
+                  eventTargetGroup: {
+                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
