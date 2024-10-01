@@ -44,7 +44,7 @@ import {
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
 
-const i18nNS = ["routes/profile/index"];
+const i18nNS = ["routes/profile/index", "datasets/offers"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -717,8 +717,8 @@ export default function Index() {
                 <div className="flex-auto">
                   {loaderData.data.offers.map((relation) => (
                     <Chip
-                      key={`offer_${relation.offer.title}`}
-                      title={relation.offer.title}
+                      key={`offer_${relation.offer.slug}`}
+                      title={t(relation.offer.slug, { ns: "datasets/offers" })}
                       slug=""
                       isEnabled
                     />
@@ -734,8 +734,8 @@ export default function Index() {
                 <div className="flex-auto">
                   {loaderData.data.seekings.map((relation) => (
                     <Chip
-                      key={`seeking_${relation.offer.title}`}
-                      title={relation.offer.title}
+                      key={`seeking_${relation.offer.slug}`}
+                      title={t(relation.offer.slug, { ns: "datasets/offers" })}
                       slug=""
                       isEnabled
                     />
