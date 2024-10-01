@@ -204,7 +204,7 @@ function NavBarMenu(
         isOpen !== null && isOpen !== "false"
           ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
           : "mv-hidden xl:mv-flex xl:mv-flex-col"
-      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-screen mv-sticky mv-top-0 xl:-mv-mt-28 mv-bg-white mv-z-10`}
+      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-dvh mv-max-h-dvh mv-sticky mv-top-0 xl:-mv-mt-28 mv-bg-white mv-z-10`}
     >
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
@@ -762,11 +762,11 @@ function TopicItem(
 function Opener(props: { openNavBarMenuKey: string }) {
   const [searchParams] = useSearchParams();
   if (!searchParams.has(props.openNavBarMenuKey)) {
-    searchParams.append(props.openNavBarMenuKey, "");
+    searchParams.append(props.openNavBarMenuKey, "true");
   }
 
   return (
-    <Link to={`./?${searchParams.toString()}#top`}>
+    <Link to={`?${searchParams.toString()}#top`}>
       <Icon type="menu" />
     </Link>
   );
