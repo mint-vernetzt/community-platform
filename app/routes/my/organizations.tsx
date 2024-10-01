@@ -25,9 +25,11 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import i18next from "~/i18next.server";
+import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
+import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
 import {
@@ -48,19 +50,15 @@ import {
   getOrganizationInvitesForProfile,
   getOrganizationsFromProfile,
   getPendingOrganizationInvite,
-  sendOrganizationInviteUpdatedEmail,
   updateOrganizationInvite,
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
+import { type action as quitAction } from "./organizations/quit";
 import {
   AddToOrganizationRequest,
   type action as requestsAction,
 } from "./organizations/requests";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
-import { type action as quitAction } from "./organizations/quit";
-import { getCompiledMailTemplate, mailer } from "~/mailer.server";
-import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
-import { sub } from "date-fns";
 
 export const i18nNS = ["routes/my/organizations"];
 export const handle = {

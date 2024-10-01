@@ -421,7 +421,7 @@ Dropdown.Legend = DropDownListLegend;
 Dropdown.Category = DropdownListCategory;
 
 export function ShowFiltersButton(props: React.PropsWithChildren) {
-  const { children, ...otherProps } = props;
+  const { children } = props;
 
   const [searchParams] = useSearchParams();
   searchParams.set("showFilters", "on");
@@ -430,7 +430,7 @@ export function ShowFiltersButton(props: React.PropsWithChildren) {
     <div className="@lg:mv-hidden mv-text-center">
       <Link
         className="mv-inline-flex mv-items-center mv-font-semibold mv-whitespace-nowrap mv-px-6 mv-py-2.5 mv-border mv-rounded-lg mv-border-primary-500 mv-gap-2 mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-cursor-pointer"
-        to={`./?${searchParams.toString()}`}
+        to={`./?${searchParams.toString()}#top`}
       >
         {children}
         <svg
@@ -610,12 +610,12 @@ export function Filters(props: FiltersProps) {
         defaultChecked={showFilters}
       />
       <div className={filterClasses}>
-        <div className="mv-flex mv-justify-between mv-items-center mv-py-5 @lg:mv-py-6 @lg:mv-hidden">
-          <h2 className="mv-mb-0 -mv-mr-[33px] mv-w-full @lg:mv-hidden mv-text-center mv-text-gray-700 mv-text-base">
+        <div className="mv-relative mv-flex mv-justify-between mv-items-center mv-py-5 @lg:mv-py-6 @lg:mv-hidden">
+          <h2 className="mv-mb-0 mv-w-full @lg:mv-hidden mv-text-center mv-text-gray-700 mv-text-base">
             {title}
           </h2>
           <Link
-            className="@lg:mv-hidden"
+            className="@lg:mv-hidden mv-absolute mv-right-4"
             to={`./${location.search
               .replace("showFilters=on", "")
               .replace("&&", "&")

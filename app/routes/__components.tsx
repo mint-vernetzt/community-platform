@@ -762,11 +762,11 @@ function TopicItem(
 function Opener(props: { openNavBarMenuKey: string }) {
   const [searchParams] = useSearchParams();
   if (!searchParams.has(props.openNavBarMenuKey)) {
-    searchParams.append(props.openNavBarMenuKey, "");
+    searchParams.append(props.openNavBarMenuKey, "true");
   }
 
   return (
-    <Link to={`?${searchParams.toString()}`}>
+    <Link to={`?${searchParams.toString()}#top`}>
       <Icon type="menu" />
     </Link>
   );
