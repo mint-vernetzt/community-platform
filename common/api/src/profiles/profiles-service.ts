@@ -18,6 +18,7 @@ async function getProfiles(request: Request, skip: number, take: number) {
       lastName: true,
       academicTitle: true,
       email: true,
+      email2: true,
       avatar: true,
       background: true,
       bio: true,
