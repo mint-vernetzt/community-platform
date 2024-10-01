@@ -15,7 +15,7 @@ export default function LocaleSwitch(props: { variant?: TextButtonVariants }) {
     <ul className="mv-flex mv-items-center">
       {languages.map((l: string, cnt: number) => (
         <li key={cnt} className="mv-flex mv-items-center">
-          {cnt > 0 ? <span className="mx-2">|</span> : ""}
+          {cnt > 0 ? <span className="mv-px-2">|</span> : ""}
           <span>
             <TextButton
               variant={variant}
