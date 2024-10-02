@@ -164,7 +164,7 @@ function getProfileWhereQueries(
               [K in "areas" | "offers" | "seekings"]?: {
                 some: {
                   [K in "area" | "offer"]?: {
-                    [K in "name" | "title"]?: {
+                    [K in "name" | "title" | "slug"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -443,10 +443,33 @@ function getProfileWhereQueries(
         {
           AND: [
             {
+              offers: {
+                some: {
+                  offer: {
+                    slug: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    offers: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
               seekings: {
                 some: {
                   offer: {
-                    title: {
+                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
@@ -635,7 +658,7 @@ function getOrganizationWhereQueries(
               [K in "areas" | "types" | "focuses"]?: {
                 some: {
                   [K in "area" | "organizationType" | "focus"]?: {
-                    [K in "name" | "title"]?: {
+                    [K in "name" | "title" | "slug"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -855,6 +878,29 @@ function getOrganizationWhereQueries(
         {
           AND: [
             {
+              focuses: {
+                some: {
+                  focus: {
+                    slug: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    focuses: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
               networkMembers: {
                 some: {
                   networkMember: {
@@ -995,6 +1041,29 @@ function getOrganizationWhereQueries(
                 some: {
                   organizationType: {
                     title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    types: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              types: {
+                some: {
+                  organizationType: {
+                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
@@ -1764,7 +1833,7 @@ function getProjectWhereQueries(
                     | "discipline"
                     | "projectTargetGroup"
                     | "specialTargetGroup"]?: {
-                    [K in "title"]?: {
+                    [K in "title" | "slug"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -1923,30 +1992,6 @@ function getProjectWhereQueries(
               : {},
           ],
         },
-        // Legacy
-        // {
-        //   AND: [
-        //     {
-        //       awards: {
-        //         some: {
-        //           award: {
-        //             title: {
-        //               contains: word,
-        //               mode: "insensitive",
-        //             },
-        //           },
-        //         },
-        //       },
-        //     },
-        //     sessionUser === null
-        //       ? {
-        //           projectVisibility: {
-        //             awards: true,
-        //           },
-        //         }
-        //       : {},
-        //   ],
-        // },
         {
           AND: [
             {
@@ -1954,6 +1999,29 @@ function getProjectWhereQueries(
                 some: {
                   discipline: {
                     title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    disciplines: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              disciplines: {
+                some: {
+                  discipline: {
+                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
@@ -2004,30 +2072,6 @@ function getProjectWhereQueries(
               : {},
           ],
         },
-        // Legacy
-        // {
-        //   AND: [
-        //     {
-        //       targetGroups: {
-        //         some: {
-        //           targetGroup: {
-        //             title: {
-        //               contains: word,
-        //               mode: "insensitive",
-        //             },
-        //           },
-        //         },
-        //       },
-        //     },
-        //     sessionUser === null
-        //       ? {
-        //           projectVisibility: {
-        //             targetGroups: true,
-        //           },
-        //         }
-        //       : {},
-        //   ],
-        // },
         {
           AND: [
             {
@@ -2035,6 +2079,29 @@ function getProjectWhereQueries(
                 some: {
                   projectTargetGroup: {
                     title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    projectTargetGroups: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              projectTargetGroups: {
+                some: {
+                  projectTargetGroup: {
+                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
@@ -2077,10 +2144,56 @@ function getProjectWhereQueries(
         {
           AND: [
             {
+              specialTargetGroups: {
+                some: {
+                  specialTargetGroup: {
+                    slug: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    specialTargetGroups: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
               formats: {
                 some: {
                   format: {
                     title: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    formats: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              formats: {
+                some: {
+                  format: {
+                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
