@@ -510,7 +510,7 @@ export async function getParentEventSuggestions(
       background: true,
       stage: {
         select: {
-          title: true,
+          slug: true,
         },
       },
       _count: {
@@ -609,7 +609,7 @@ export async function getChildEventSuggestions(
       background: true,
       stage: {
         select: {
-          title: true,
+          slug: true,
         },
       },
       _count: {

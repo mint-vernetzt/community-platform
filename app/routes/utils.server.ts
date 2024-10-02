@@ -65,7 +65,7 @@ export async function getOrganizationSuggestionsForAutocomplete(
         select: {
           organizationType: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },

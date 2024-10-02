@@ -21,7 +21,10 @@ import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/organization/settings/network/remove"];
+const i18nNS = [
+  "routes/organization/settings/network/remove",
+  "datasets/organizationTypes",
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -59,9 +62,7 @@ export const loader = async () => {
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/network/remove",
-  ]);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -121,7 +122,9 @@ export function NetworkMemberRemoveForm(
                 <p className="font-bold text-sm cursor-default">
                   {networkMember.types
                     .map((relation) => {
-                      return relation.organizationType.title;
+                      return t(`${relation.organizationType.slug}.title`, {
+                        ns: "datasets/organizationTypes",
+                      });
                     })
                     .join(" / ")}
                 </p>

@@ -434,7 +434,7 @@ export async function getNetworkMembersOfOrganization(
             select: {
               organizationType: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
             },

@@ -20,7 +20,7 @@ export async function getEventBySlug(slug: string) {
           description: true,
           stage: {
             select: {
-              title: true,
+              slug: true,
             },
           },
           _count: {
@@ -45,7 +45,7 @@ export async function getEventBySlug(slug: string) {
           description: true,
           stage: {
             select: {
-              title: true,
+              slug: true,
             },
           },
           _count: {

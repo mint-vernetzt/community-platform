@@ -14,7 +14,7 @@ export interface AutocompleteProps {
     | (Pick<Organization, "name" | "logo" | "id"> & {
         types: {
           organizationType: {
-            title: string;
+            slug: string;
           };
         }[];
       })[]
@@ -29,7 +29,7 @@ export interface AutocompleteProps {
         | "description"
       > & {
         stage: {
-          title: string;
+          slug: string;
         } | null;
         _count: {
           childEvents: number;
@@ -132,7 +132,10 @@ const Autocomplete = React.forwardRef(
       setActiveSuggestion(0);
     };
 
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation([
+      "datasets/stages",
+      "datasets/organizationTypes",
+    ]);
 
     return (
       <>
@@ -179,7 +182,9 @@ const Autocomplete = React.forwardRef(
                         <p className="font-bold text-sm text-left">
                           {suggestion.types
                             .map((item) => {
-                              return item.organizationType.title;
+                              return t(`${item.organizationType.slug}.title`, {
+                                ns: "datasets/organizationTypes",
+                              });
                             })
                             .join(" / ")}
                         </p>
@@ -250,7 +255,9 @@ const Autocomplete = React.forwardRef(
                       <p className="text-xs mb-1">
                         {/* TODO: Display icons (see figma) */}
                         {suggestion.stage !== null
-                          ? suggestion.stage.title + " | "
+                          ? t(`${suggestion.stage.slug}.title`, {
+                              ns: "datasets/stages",
+                            }) + " | "
                           : ""}
                         {getDuration(
                           eventStartTime,
