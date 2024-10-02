@@ -534,7 +534,7 @@ export async function searchOrganizationsViaLike(
         select: {
           organizationType: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -543,7 +543,7 @@ export async function searchOrganizationsViaLike(
         select: {
           focus: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },

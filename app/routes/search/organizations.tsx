@@ -59,8 +59,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     let enhancedOrganization = {
       ...organization,
       areas: organization.areas.map((relation) => relation.area.name),
-      focuses: organization.focuses.map((relation) => relation.focus.title),
-      types: organization.types.map((item) => item.organizationType.title),
+      focuses: organization.focuses.map((relation) => relation.focus.slug),
+      types: organization.types.map((item) => item.organizationType.slug),
       teamMembers: organization.teamMembers.map((relation) => {
         return relation.profile;
       }),

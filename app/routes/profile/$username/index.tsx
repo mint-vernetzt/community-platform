@@ -44,7 +44,7 @@ import {
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
 
-const i18nNS = ["routes/profile/index", "datasets/offers"];
+const i18nNS = ["routes/profile/index", "datasets/offers", "datasets/stages"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -1001,7 +1001,9 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? event.stage.title + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
                                     {getDuration(
                                       startTime,
@@ -1193,7 +1195,9 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? event.stage.title + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
                                     {getDuration(
                                       startTime,
@@ -1370,7 +1374,9 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? event.stage.title + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
                                     {getDuration(
                                       startTime,
@@ -1541,7 +1547,9 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? event.stage.title + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
                                     {getDuration(
                                       startTime,
@@ -1717,7 +1725,9 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? event.stage.title + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
                                     {getDuration(
                                       startTime,
@@ -1854,7 +1864,9 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? event.stage.title + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
                                     {getDuration(
                                       startTime,
@@ -1976,7 +1988,9 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? event.stage.title + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
                                     {getDuration(
                                       startTime,
@@ -2094,7 +2108,9 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? event.stage.title + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
                                     {getDuration(
                                       startTime,

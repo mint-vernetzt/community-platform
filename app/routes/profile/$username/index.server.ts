@@ -51,7 +51,7 @@ export async function getProfileByUsername(
                 select: {
                   organizationType: {
                     select: {
-                      title: true,
+                      slug: true,
                     },
                   },
                 },
@@ -154,7 +154,7 @@ export async function getProfileByUsername(
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,
@@ -211,7 +211,7 @@ export async function getProfileByUsername(
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,
@@ -269,7 +269,7 @@ export async function getProfileByUsername(
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,
@@ -327,7 +327,7 @@ export async function getProfileByUsername(
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,
@@ -385,7 +385,7 @@ export async function getProfileByUsername(
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,
