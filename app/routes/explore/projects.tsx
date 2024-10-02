@@ -62,7 +62,15 @@ import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-const i18nNS = ["routes/explore/projects"];
+const i18nNS = [
+  "routes/explore/projects",
+  "datasets/financings",
+  "datasets/disciplines",
+  "datasets/additionalDisciplines",
+  "datasets/projectTargetGroups",
+  "datasets/formats",
+  "datasets/specialTargetGroups",
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -298,15 +306,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
     return { ...discipline, vectorCount, isChecked };
   });
-  const selectedDisciplines = submission.value.filter.discipline.map((slug) => {
-    const disciplineMatch = disciplines.find((discipline) => {
-      return discipline.slug === slug;
-    });
-    return {
-      slug,
-      title: disciplineMatch?.title || null,
-    };
-  });
 
   const additionalDisciplines = await getAllAdditionalDisciplines();
   const enhancedAdditionalDisciplines = additionalDisciplines.map(
@@ -322,18 +321,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       return { ...additionalDiscipline, vectorCount, isChecked };
     }
   );
-  const selectedAdditionalDisciplines =
-    submission.value.filter.additionalDiscipline.map((slug) => {
-      const additionalDisciplineMatch = additionalDisciplines.find(
-        (additionalDiscipline) => {
-          return additionalDiscipline.slug === slug;
-        }
-      );
-      return {
-        slug,
-        title: additionalDisciplineMatch?.title || null,
-      };
-    });
 
   const targetGroups = await getAllProjectTargetGroups();
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
@@ -347,17 +334,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
     return { ...targetGroup, vectorCount, isChecked };
   });
-  const selectedTargetGroups = submission.value.filter.projectTargetGroup.map(
-    (slug) => {
-      const targetGroupMatch = targetGroups.find((targetGroup) => {
-        return targetGroup.slug === slug;
-      });
-      return {
-        slug,
-        title: targetGroupMatch?.title || null,
-      };
-    }
-  );
 
   const formats = await getAllFormats();
   const enhancedFormats = formats.map((format) => {
@@ -368,15 +344,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
     const isChecked = submission.value.filter.format.includes(format.slug);
     return { ...format, vectorCount, isChecked };
-  });
-  const selectedFormats = submission.value.filter.format.map((slug) => {
-    const formatMatch = formats.find((format) => {
-      return format.slug === slug;
-    });
-    return {
-      slug,
-      title: formatMatch?.title || null,
-    };
   });
 
   const specialTargetGroups = await getAllSpecialTargetGroups();
@@ -393,18 +360,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       return { ...specialTargetGroup, vectorCount, isChecked };
     }
   );
-  const selectedSpecialTargetGroups =
-    submission.value.filter.specialTargetGroup.map((slug) => {
-      const specialTargetGroupMatch = specialTargetGroups.find(
-        (specialTargetGroup) => {
-          return specialTargetGroup.slug === slug;
-        }
-      );
-      return {
-        slug,
-        title: specialTargetGroupMatch?.title || null,
-      };
-    });
 
   const financings = await getAllFinancings();
   const enhancedFinancings = financings.map((financing) => {
@@ -418,32 +373,23 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
     return { ...financing, vectorCount, isChecked };
   });
-  const selectedFinancings = submission.value.filter.financing.map((slug) => {
-    const financingMatch = financings.find((financing) => {
-      return financing.slug === slug;
-    });
-    return {
-      slug,
-      title: financingMatch?.title || null,
-    };
-  });
 
   return json({
     projects: enhancedProjects,
     disciplines: enhancedDisciplines,
-    selectedDisciplines,
+    selectedDisciplines: submission.value.filter.discipline,
     additionalDisciplines: enhancedAdditionalDisciplines,
-    selectedAdditionalDisciplines,
+    selectedAdditionalDisciplines: submission.value.filter.additionalDiscipline,
     targetGroups: enhancedTargetGroups,
-    selectedTargetGroups,
+    selectedTargetGroups: submission.value.filter.projectTargetGroup,
     areas: enhancedAreas,
     selectedAreas,
     formats: enhancedFormats,
-    selectedFormats,
+    selectedFormats: submission.value.filter.format,
     specialTargetGroups: enhancedSpecialTargetGroups,
-    selectedSpecialTargetGroups,
+    selectedSpecialTargetGroups: submission.value.filter.specialTargetGroup,
     financings: enhancedFinancings,
-    selectedFinancings,
+    selectedFinancings: submission.value.filter.financing,
     submission,
     filteredByVisibilityCount,
     projectsCount,
@@ -513,12 +459,16 @@ export default function ExploreProjects() {
                     <br />
                     {loaderData.selectedDisciplines
                       .map((discipline) => {
-                        return discipline.title;
+                        return t(`${discipline}.title`, {
+                          ns: "datasets/disciplines",
+                        });
                       })
                       .concat(
                         loaderData.selectedAdditionalDisciplines.map(
                           (additionalDiscipline) => {
-                            return additionalDiscipline.title;
+                            return t(`${additionalDiscipline}.title`, {
+                              ns: "datasets/additionalDisciplines",
+                            });
                           }
                         )
                       )
@@ -544,11 +494,17 @@ export default function ExploreProjects() {
                         }
                       >
                         <FormControl.Label>
-                          {discipline.title}
+                          {t(`${discipline.slug}.title`, {
+                            ns: "datasets/disciplines",
+                          })}
                         </FormControl.Label>
-                        {discipline.description !== null && (
+                        {t(`${discipline.slug}.description`, {
+                          ns: "datasets/disciplines",
+                        }) !== `${discipline.slug}.description` && (
                           <FormControl.Info id={discipline.slug}>
-                            {discipline.description}
+                            {t(`${discipline.slug}.description`, {
+                              ns: "datasets/disciplines",
+                            })}
                           </FormControl.Info>
                         )}
                         <FormControl.Counter>
@@ -581,11 +537,17 @@ export default function ExploreProjects() {
                           }
                         >
                           <FormControl.Label>
-                            {additionalDiscipline.title}
+                            {t(`${additionalDiscipline.slug}.title`, {
+                              ns: "datasets/additionalDisciplines",
+                            })}
                           </FormControl.Label>
-                          {additionalDiscipline.description !== null && (
+                          {t(`${additionalDiscipline.slug}.description`, {
+                            ns: "datasets/additionalDisciplines",
+                          }) !== `${additionalDiscipline.slug}.description` && (
                             <FormControl.Info id={additionalDiscipline.slug}>
-                              {additionalDiscipline.description}
+                              {t(`${additionalDiscipline.slug}.description`, {
+                                ns: "datasets/additionalDisciplines",
+                              })}
                             </FormControl.Info>
                           )}
                           <FormControl.Counter>
@@ -604,7 +566,9 @@ export default function ExploreProjects() {
                     <br />
                     {loaderData.selectedTargetGroups
                       .map((targetGroup) => {
-                        return targetGroup.title;
+                        return t(`${targetGroup}.title`, {
+                          ns: "datasets/projectTargetGroups",
+                        });
                       })
                       .join(", ")}
                   </span>
@@ -629,11 +593,17 @@ export default function ExploreProjects() {
                         }
                       >
                         <FormControl.Label>
-                          {targetGroup.title}
+                          {t(`${targetGroup.slug}.title`, {
+                            ns: "datasets/projectTargetGroups",
+                          })}
                         </FormControl.Label>
-                        {targetGroup.description !== null && (
+                        {t(`${targetGroup.slug}.description`, {
+                          ns: "datasets/projectTargetGroups",
+                        }) !== `${targetGroup.slug}.description` && (
                           <FormControl.Info id={targetGroup.slug}>
-                            {targetGroup.description}
+                            {t(`${targetGroup.slug}.description`, {
+                              ns: "datasets/projectTargetGroups",
+                            })}
                           </FormControl.Info>
                         )}
                         <FormControl.Counter>
@@ -823,7 +793,9 @@ export default function ExploreProjects() {
                     <br />
                     {loaderData.selectedFormats
                       .map((format) => {
-                        return format.title;
+                        return t(`${format}.title`, {
+                          ns: "datasets/formats",
+                        });
                       })
                       .join(", ")}
                   </span>
@@ -844,10 +816,18 @@ export default function ExploreProjects() {
                         readOnly
                         disabled={format.vectorCount === 0 && !format.isChecked}
                       >
-                        <FormControl.Label>{format.title}</FormControl.Label>
-                        {format.description !== null && (
+                        <FormControl.Label>
+                          {t(`${format.slug}.title`, {
+                            ns: "datasets/formats",
+                          })}
+                        </FormControl.Label>
+                        {t(`${format.slug}.description`, {
+                          ns: "datasets/formats",
+                        }) !== `${format.slug}.description` && (
                           <FormControl.Info id={format.slug}>
-                            {format.description}
+                            {t(`${format.slug}.description`, {
+                              ns: "datasets/formats",
+                            })}
                           </FormControl.Info>
                         )}
                         <FormControl.Counter>
@@ -865,7 +845,9 @@ export default function ExploreProjects() {
                     <br />
                     {loaderData.selectedSpecialTargetGroups
                       .map((targetGroup) => {
-                        return targetGroup.title;
+                        return t(`${targetGroup}.title`, {
+                          ns: "datasets/specialTargetGroups",
+                        });
                       })
                       .join(", ")}
                   </span>
@@ -890,11 +872,17 @@ export default function ExploreProjects() {
                         }
                       >
                         <FormControl.Label>
-                          {targetGroup.title}
+                          {t(`${targetGroup.slug}.title`, {
+                            ns: "datasets/specialTargetGroups",
+                          })}
                         </FormControl.Label>
-                        {targetGroup.description !== null && (
+                        {t(`${targetGroup.slug}.description`, {
+                          ns: "datasets/specialTargetGroups",
+                        }) !== `${targetGroup.slug}.description` && (
                           <FormControl.Info id={targetGroup.slug}>
-                            {targetGroup.description}
+                            {t(`${targetGroup.slug}.description`, {
+                              ns: "datasets/specialTargetGroups",
+                            })}
                           </FormControl.Info>
                         )}
                         <FormControl.Counter>
@@ -912,7 +900,9 @@ export default function ExploreProjects() {
                     <br />
                     {loaderData.selectedFinancings
                       .map((financing) => {
-                        return financing.title;
+                        return t(`${financing}.title`, {
+                          ns: "datasets/financings",
+                        });
                       })
                       .join(", ")}
                   </span>
@@ -935,10 +925,18 @@ export default function ExploreProjects() {
                           financing.vectorCount === 0 && !financing.isChecked
                         }
                       >
-                        <FormControl.Label>{financing.title}</FormControl.Label>
-                        {financing.description !== null && (
+                        <FormControl.Label>
+                          {t(`${financing.slug}.title`, {
+                            ns: "datasets/financings",
+                          })}
+                        </FormControl.Label>
+                        {t(`${financing.slug}.description`, {
+                          ns: "datasets/financings",
+                        }) !== `${financing.slug}.description` && (
                           <FormControl.Info id={financing.slug}>
-                            {financing.description}
+                            {t(`${financing.slug}.description`, {
+                              ns: "datasets/financings",
+                            })}
                           </FormControl.Info>
                         )}
                         <FormControl.Counter>
@@ -1025,11 +1023,13 @@ export default function ExploreProjects() {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
                   filter.discipline.name,
-                  selectedDiscipline.slug
+                  selectedDiscipline
                 );
-                return selectedDiscipline.title !== null ? (
-                  <Chip key={selectedDiscipline.slug} size="medium">
-                    {selectedDiscipline.title}
+                return (
+                  <Chip key={selectedDiscipline} size="medium">
+                    {t(`${selectedDiscipline}.title`, {
+                      ns: "datasets/disciplines",
+                    })}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -1041,18 +1041,20 @@ export default function ExploreProjects() {
                       </Link>
                     </Chip.Delete>
                   </Chip>
-                ) : null;
+                );
               })}
               {loaderData.selectedAdditionalDisciplines.map(
                 (selectedAdditionalDiscipline) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
                     filter.additionalDiscipline.name,
-                    selectedAdditionalDiscipline.slug
+                    selectedAdditionalDiscipline
                   );
-                  return selectedAdditionalDiscipline.title !== null ? (
-                    <Chip key={selectedAdditionalDiscipline.slug} size="medium">
-                      {selectedAdditionalDiscipline.title}
+                  return (
+                    <Chip key={selectedAdditionalDiscipline} size="medium">
+                      {t(`${selectedAdditionalDiscipline}.title`, {
+                        ns: "datasets/additionalDisciplines",
+                      })}
                       <Chip.Delete>
                         <Link
                           to={`${
@@ -1064,18 +1066,20 @@ export default function ExploreProjects() {
                         </Link>
                       </Chip.Delete>
                     </Chip>
-                  ) : null;
+                  );
                 }
               )}
               {loaderData.selectedTargetGroups.map((selectedTargetGroup) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
                   filter.projectTargetGroup.name,
-                  selectedTargetGroup.slug
+                  selectedTargetGroup
                 );
-                return selectedTargetGroup.title !== null ? (
-                  <Chip key={selectedTargetGroup.slug} size="medium">
-                    {selectedTargetGroup.title}
+                return (
+                  <Chip key={selectedTargetGroup} size="medium">
+                    {t(`${selectedTargetGroup}.title`, {
+                      ns: "datasets/projectTargetGroups",
+                    })}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -1087,7 +1091,7 @@ export default function ExploreProjects() {
                       </Link>
                     </Chip.Delete>
                   </Chip>
-                ) : null;
+                );
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
@@ -1110,13 +1114,12 @@ export default function ExploreProjects() {
               })}
               {loaderData.selectedFormats.map((selectedFormat) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  filter.format.name,
-                  selectedFormat.slug
-                );
-                return selectedFormat.title !== null ? (
-                  <Chip key={selectedFormat.slug} size="medium">
-                    {selectedFormat.title}
+                deleteSearchParams.delete(filter.format.name, selectedFormat);
+                return (
+                  <Chip key={selectedFormat} size="medium">
+                    {t(`${selectedFormat}.title`, {
+                      ns: "datasets/formats",
+                    })}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -1128,18 +1131,20 @@ export default function ExploreProjects() {
                       </Link>
                     </Chip.Delete>
                   </Chip>
-                ) : null;
+                );
               })}
               {loaderData.selectedSpecialTargetGroups.map(
                 (selectedSpecialTargetGroup) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
                     filter.specialTargetGroup.name,
-                    selectedSpecialTargetGroup.slug
+                    selectedSpecialTargetGroup
                   );
-                  return selectedSpecialTargetGroup.title !== null ? (
-                    <Chip key={selectedSpecialTargetGroup.slug} size="medium">
-                      {selectedSpecialTargetGroup.title}
+                  return (
+                    <Chip key={selectedSpecialTargetGroup} size="medium">
+                      {t(`${selectedSpecialTargetGroup}.title`, {
+                        ns: "datasets/specialTargetGroups",
+                      })}
                       <Chip.Delete>
                         <Link
                           to={`${
@@ -1151,18 +1156,20 @@ export default function ExploreProjects() {
                         </Link>
                       </Chip.Delete>
                     </Chip>
-                  ) : null;
+                  );
                 }
               )}
               {loaderData.selectedFinancings.map((selectedFinancing) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
                   filter.financing.name,
-                  selectedFinancing.slug
+                  selectedFinancing
                 );
-                return selectedFinancing.title !== null ? (
-                  <Chip key={selectedFinancing.slug} size="medium">
-                    {selectedFinancing.title}
+                return (
+                  <Chip key={selectedFinancing} size="medium">
+                    {t(`${selectedFinancing}.title`, {
+                      ns: "datasets/financings",
+                    })}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -1174,7 +1181,7 @@ export default function ExploreProjects() {
                       </Link>
                     </Chip.Delete>
                   </Chip>
-                ) : null;
+                );
               })}
             </div>
             <Link

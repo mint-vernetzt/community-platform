@@ -319,8 +319,6 @@ export async function getAllDisciplines() {
     },
     select: {
       id: true,
-      title: true,
-      description: true,
       slug: true,
     },
   });
@@ -333,8 +331,6 @@ export async function getAllAdditionalDisciplines() {
     },
     select: {
       id: true,
-      title: true,
-      description: true,
       slug: true,
     },
   });
@@ -347,8 +343,6 @@ export async function getAllProjectTargetGroups() {
     },
     select: {
       id: true,
-      title: true,
-      description: true,
       slug: true,
     },
   });
@@ -361,8 +355,6 @@ export async function getAllFormats() {
     },
     select: {
       id: true,
-      title: true,
-      description: true,
       slug: true,
     },
   });
@@ -375,8 +367,6 @@ export async function getAllSpecialTargetGroups() {
     },
     select: {
       id: true,
-      title: true,
-      description: true,
       slug: true,
     },
   });
@@ -389,8 +379,6 @@ export async function getAllFinancings() {
     },
     select: {
       id: true,
-      title: true,
-      description: true,
       slug: true,
     },
   });

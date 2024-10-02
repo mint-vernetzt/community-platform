@@ -26,7 +26,14 @@ import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/project/detail/about"];
+const i18nNS = [
+  "routes/project/detail/about",
+  "datasets/formats",
+  "datasets/disciplines",
+  "datasets/projectTargetGroups",
+  "datasets/specialTargetGroups",
+  "datasets/organizationTypes",
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -76,7 +83,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         select: {
           format: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -86,7 +93,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         select: {
           discipline: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -96,7 +103,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         select: {
           projectTargetGroup: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -105,7 +112,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         select: {
           specialTargetGroup: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -153,7 +160,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
                 select: {
                   organizationType: {
                     select: {
-                      title: true,
+                      slug: true,
                     },
                   },
                 },
@@ -251,8 +258,10 @@ function About() {
           <Chip.Container>
             {loaderData.project.formats.map((relation) => {
               return (
-                <Chip key={relation.format.title} color="primary">
-                  {relation.format.title}
+                <Chip key={relation.format.slug} color="primary">
+                  {t(`${relation.format.slug}.title`, {
+                    ns: "datasets/formats",
+                  })}
                 </Chip>
               );
             })}
@@ -283,8 +292,10 @@ function About() {
           <Chip.Container>
             {loaderData.project.disciplines.map((relation) => {
               return (
-                <Chip key={relation.discipline.title} color="primary">
-                  {relation.discipline.title}
+                <Chip key={relation.discipline.slug} color="primary">
+                  {t(`${relation.discipline.slug}.title`, {
+                    ns: "datasets/disciplines",
+                  })}
                 </Chip>
               );
             })}
@@ -313,8 +324,10 @@ function About() {
           <Chip.Container>
             {loaderData.project.projectTargetGroups.map((relation) => {
               return (
-                <Chip key={relation.projectTargetGroup.title} color="primary">
-                  {relation.projectTargetGroup.title}
+                <Chip key={relation.projectTargetGroup.slug} color="primary">
+                  {t(`${relation.projectTargetGroup.slug}.title`, {
+                    ns: "datasets/projectTargetGroups",
+                  })}
                 </Chip>
               );
             })}
@@ -329,8 +342,10 @@ function About() {
           <Chip.Container>
             {loaderData.project.specialTargetGroups.map((relation) => {
               return (
-                <Chip key={relation.specialTargetGroup.title} color="primary">
-                  {relation.specialTargetGroup.title}
+                <Chip key={relation.specialTargetGroup.slug} color="primary">
+                  {t(`${relation.specialTargetGroup.slug}.title`, {
+                    ns: "datasets/specialTargetGroups",
+                  })}
                 </Chip>
               );
             })}
@@ -521,7 +536,12 @@ function About() {
                       <List.Item.Subtitle>
                         {relation.organization.types
                           .map((relation) => {
-                            return relation.organizationType.title;
+                            return t(
+                              `${relation.organizationType.slug}.title`,
+                              {
+                                ns: "datasets/organizationTypes",
+                              }
+                            );
                           })
                           .join(", ")}
                       </List.Item.Subtitle>

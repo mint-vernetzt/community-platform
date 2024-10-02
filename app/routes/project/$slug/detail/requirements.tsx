@@ -8,7 +8,7 @@ import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/project/detail/requirements"];
+const i18nNS = ["routes/project/detail/requirements", "datasets/financings"];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -43,7 +43,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         select: {
           financing: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -143,8 +143,10 @@ function Requirements() {
               <Chip.Container>
                 {project.financings.map((relation) => {
                   return (
-                    <Chip key={relation.financing.title} color="primary">
-                      {relation.financing.title}
+                    <Chip key={relation.financing.slug} color="primary">
+                      {t(`${relation.financing.slug}.title`, {
+                        ns: "datasets/financings",
+                      })}
                     </Chip>
                   );
                 })}
