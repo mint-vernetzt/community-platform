@@ -126,7 +126,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
 
     extensions.offers = profile.offers.map((relation) => {
-      return relation.offer.title;
+      return relation.offer.slug;
     });
 
     return {
@@ -190,11 +190,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
 
     extensions.focuses = organization.focuses.map((relation) => {
-      return relation.focus.title;
+      return relation.focus.slug;
     });
 
     extensions.types = organization.types.map((relation) => {
-      return relation.organizationType.title;
+      return relation.organizationType.slug;
     });
     return {
       ...otherFields,
