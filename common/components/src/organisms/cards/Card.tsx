@@ -156,7 +156,7 @@ export type CardStatusProps = {
 export function CardStatus(props: CardStatusProps) {
   const { variant = "primary", inverted = false } = props;
   const classes = classNames(
-    "mv-text-center mv-px-4 mv-py-2 mv-font-base mv-leading-5 mv-font-semibold",
+    "mv-text-center mv-px-4 mv-py-3 mv-font-base mv-leading-5 mv-font-semibold",
     variant === "primary" && !inverted && "mv-text-primary mv-bg-primary-100",
     variant === "primary" && inverted && "mv-text-white mv-bg-primary-300",
     variant === "neutral" && "mv-text-white mv-bg-neutral",
