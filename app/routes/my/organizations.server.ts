@@ -20,7 +20,7 @@ export async function getOrganizationsFromProfile(id: string) {
             select: {
               organizationType: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
             },
@@ -29,7 +29,7 @@ export async function getOrganizationsFromProfile(id: string) {
             select: {
               focus: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
             },
@@ -82,7 +82,7 @@ export async function getOrganizationsFromProfile(id: string) {
             select: {
               organizationType: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
             },
@@ -91,7 +91,7 @@ export async function getOrganizationsFromProfile(id: string) {
             select: {
               focus: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
             },
@@ -249,10 +249,10 @@ export function flattenOrganizationRelations(
           return relation.profile;
         }),
         types: organization.types.map((relation) => {
-          return relation.organizationType.title;
+          return relation.organizationType.slug;
         }),
         focuses: organization.focuses.map((relation) => {
-          return relation.focus.title;
+          return relation.focus.slug;
         }),
         areas: organization.areas.map((relation) => {
           return relation.area.name;
@@ -269,10 +269,10 @@ export function flattenOrganizationRelations(
           return relation.profile;
         }),
         types: organization.types.map((relation) => {
-          return relation.organizationType.title;
+          return relation.organizationType.slug;
         }),
         focuses: organization.focuses.map((relation) => {
-          return relation.focus.title;
+          return relation.focus.slug;
         }),
         areas: organization.areas.map((relation) => {
           return relation.area.name;

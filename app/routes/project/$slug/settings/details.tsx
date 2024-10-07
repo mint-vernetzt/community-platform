@@ -48,7 +48,14 @@ import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/project/settings/details", "utils/schemas"];
+const i18nNS = [
+  "routes/project/settings/details",
+  "utils/schemas",
+  "datasets/disciplines",
+  "datasets/additionalDisciplines",
+  "datasets/projectTargetGroups",
+  "datasets/specialTargetGroups",
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -241,7 +248,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           discipline: {
             select: {
               id: true,
-              title: true,
+              slug: true,
             },
           },
         },
@@ -251,7 +258,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           additionalDiscipline: {
             select: {
               id: true,
-              title: true,
+              slug: true,
             },
           },
         },
@@ -261,7 +268,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           projectTargetGroup: {
             select: {
               id: true,
-              title: true,
+              slug: true,
             },
           },
         },
@@ -271,7 +278,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           specialTargetGroup: {
             select: {
               id: true,
-              title: true,
+              slug: true,
             },
           },
         },
@@ -288,7 +295,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const allDisciplines = await prismaClient.discipline.findMany({
     select: {
       id: true,
-      title: true,
+      slug: true,
     },
   });
 
@@ -296,7 +303,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     await prismaClient.additionalDiscipline.findMany({
       select: {
         id: true,
-        title: true,
+        slug: true,
       },
     });
 
@@ -304,7 +311,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     {
       select: {
         id: true,
-        title: true,
+        slug: true,
       },
     }
   );
@@ -313,8 +320,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     {
       select: {
         id: true,
-        title: true,
-        description: true,
+        slug: true,
       },
     }
   );
@@ -691,14 +697,18 @@ function Details() {
                           defaultValue: filteredDiscipline.id,
                         })}
                       >
-                        {filteredDiscipline.title}
+                        {t(`${filteredDiscipline.slug}.title`, {
+                          ns: "datasets/disciplines",
+                        })}
                       </button>
                       <option
                         key={filteredDiscipline.id}
                         value={filteredDiscipline.id}
                         className="my-2"
                       >
-                        {filteredDiscipline.title}
+                        {t(`${filteredDiscipline.slug}.title`, {
+                          ns: "datasets/disciplines",
+                        })}
                       </option>
                     </React.Fragment>
                   );
@@ -709,9 +719,16 @@ function Details() {
                 {disciplineList.map((listDiscipline, index) => {
                   return (
                     <Chip key={listDiscipline.key}>
-                      {allDisciplines.find((discipline) => {
-                        return discipline.id === listDiscipline.defaultValue;
-                      })?.title || "Not Found"}
+                      {t(
+                        `${
+                          allDisciplines.find((discipline) => {
+                            return (
+                              discipline.id === listDiscipline.defaultValue
+                            );
+                          })?.slug
+                        }.title`,
+                        { ns: "datasets/disciplines" }
+                      ) || "Not Found"}
                       <Input type="hidden" {...conform.input(listDiscipline)} />
                       <Chip.Delete>
                         <button
@@ -756,14 +773,18 @@ function Details() {
                           defaultValue: filteredAdditionalDiscipline.id,
                         })}
                       >
-                        {filteredAdditionalDiscipline.title}
+                        {t(`${filteredAdditionalDiscipline.slug}.title`, {
+                          ns: "datasets/additionalDisciplines",
+                        })}
                       </button>
                       <option
                         key={filteredAdditionalDiscipline.id}
                         value={filteredAdditionalDiscipline.id}
                         className="my-2"
                       >
-                        {filteredAdditionalDiscipline.title}
+                        {t(`${filteredAdditionalDiscipline.slug}.title`, {
+                          ns: "datasets/additionalDisciplines",
+                        })}
                       </option>
                     </React.Fragment>
                   );
@@ -775,14 +796,21 @@ function Details() {
                   (listAdditionalDiscipline, index) => {
                     return (
                       <Chip key={listAdditionalDiscipline.key}>
-                        {allAdditionalDisciplines.find(
-                          (additionalDiscipline) => {
-                            return (
-                              additionalDiscipline.id ===
-                              listAdditionalDiscipline.defaultValue
-                            );
+                        {t(
+                          `${
+                            allAdditionalDisciplines.find(
+                              (additionalDiscipline) => {
+                                return (
+                                  additionalDiscipline.id ===
+                                  listAdditionalDiscipline.defaultValue
+                                );
+                              }
+                            )?.slug
+                          }.title`,
+                          {
+                            ns: "datasets/additionalDisciplines",
                           }
-                        )?.title || t("error.notFound")}
+                        ) || t("error.notFound")}
                         <Input
                           type="hidden"
                           {...conform.input(listAdditionalDiscipline)}
@@ -895,14 +923,18 @@ function Details() {
                           defaultValue: filteredTargetGroup.id,
                         })}
                       >
-                        {filteredTargetGroup.title}
+                        {t(`${filteredTargetGroup.slug}.title`, {
+                          ns: "datasets/projectTargetGroups",
+                        })}
                       </button>
                       <option
                         key={filteredTargetGroup.id}
                         value={filteredTargetGroup.id}
                         className="my-2"
                       >
-                        {filteredTargetGroup.title}
+                        {t(`${filteredTargetGroup.slug}.title`, {
+                          ns: "datasets/projectTargetGroups",
+                        })}
                       </option>
                     </React.Fragment>
                   );
@@ -913,9 +945,18 @@ function Details() {
                 {targetGroupList.map((listTargetGroup, index) => {
                   return (
                     <Chip key={listTargetGroup.key}>
-                      {allProjectTargetGroups.find((targetGroup) => {
-                        return targetGroup.id === listTargetGroup.defaultValue;
-                      })?.title || t("error.notFound")}
+                      {t(
+                        `${
+                          allProjectTargetGroups.find((targetGroup) => {
+                            return (
+                              targetGroup.id === listTargetGroup.defaultValue
+                            );
+                          })?.slug
+                        }.title`,
+                        {
+                          ns: "datasets/projectTargetGroups",
+                        }
+                      ) || t("error.notFound")}
                       <Input
                         type="hidden"
                         {...conform.input(listTargetGroup)}
@@ -965,14 +1006,18 @@ function Details() {
                           defaultValue: filteredSpecialTargetGroup.id,
                         })}
                       >
-                        {filteredSpecialTargetGroup.title}
+                        {t(`${filteredSpecialTargetGroup.slug}.title`, {
+                          ns: "datasets/specialTargetGroups",
+                        })}
                       </button>
                       <option
                         key={filteredSpecialTargetGroup.id}
                         value={filteredSpecialTargetGroup.id}
                         className="my-2"
                       >
-                        {filteredSpecialTargetGroup.title}
+                        {t(`${filteredSpecialTargetGroup.slug}.title`, {
+                          ns: "datasets/specialTargetGroups",
+                        })}
                       </option>
                     </React.Fragment>
                   );
@@ -983,12 +1028,19 @@ function Details() {
                 {specialTargetGroupList.map((listSpecialTargetGroup, index) => {
                   return (
                     <Chip key={listSpecialTargetGroup.key}>
-                      {allSpecialTargetGroups.find((specialTargetGroup) => {
-                        return (
-                          specialTargetGroup.id ===
-                          listSpecialTargetGroup.defaultValue
-                        );
-                      })?.title || t("error.notFound")}
+                      {t(
+                        `${
+                          allSpecialTargetGroups.find((specialTargetGroup) => {
+                            return (
+                              specialTargetGroup.id ===
+                              listSpecialTargetGroup.defaultValue
+                            );
+                          })?.slug
+                        }.title`,
+                        {
+                          ns: "datasets/specialTargetGroups",
+                        }
+                      ) || t("error.notFound")}
                       <Input
                         type="hidden"
                         {...conform.input(listSpecialTargetGroup)}

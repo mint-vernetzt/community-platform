@@ -65,7 +65,7 @@ export async function getOrganizationSuggestionsForAutocomplete(
         select: {
           organizationType: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -183,12 +183,8 @@ export async function getProfileSuggestionsForAutocomplete(
 
 export async function getAllOffers() {
   return await prismaClient.offer.findMany({
-    orderBy: {
-      title: "asc",
-    },
     select: {
       id: true,
-      title: true,
       slug: true,
     },
   });

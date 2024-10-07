@@ -43,7 +43,12 @@ import {
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
 
-const i18nNS = ["routes/organization/index"];
+const i18nNS = [
+  "routes/organization/index",
+  "datasets/organizationTypes",
+  "datasets/focuses",
+  "datasets/stages",
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -438,7 +443,11 @@ export default function Index() {
                   {loaderData.organization.types.length > 0 ? (
                     <p className="font-bold text-sm mb-4">
                       {loaderData.organization.types
-                        .map((relation) => relation.organizationType.title)
+                        .map((relation) =>
+                          t(`${relation.organizationType.slug}.title`, {
+                            ns: "datasets/organizationTypes",
+                          })
+                        )
                         .join(", ")}
                     </p>
                   ) : null}
@@ -659,7 +668,11 @@ export default function Index() {
 
                 <div className="flex-auto">
                   {loaderData.organization.focuses
-                    .map((relation) => relation.focus.title)
+                    .map((relation) =>
+                      t(`${relation.focus.slug}.title`, {
+                        ns: "datasets/focuses",
+                      })
+                    )
                     .join(" / ")}
                 </div>
               </div>
@@ -911,7 +924,12 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {relation.event.stage !== null
-                                      ? relation.event.stage.title + " | "
+                                      ? t(
+                                          `${relation.event.stage.slug}.title`,
+                                          {
+                                            ns: "datasets/stages",
+                                          }
+                                        ) + " | "
                                       : ""}
                                     {getDuration(
                                       startTime,
@@ -1083,7 +1101,12 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {relation.event.stage !== null
-                                      ? relation.event.stage.title + " | "
+                                      ? t(
+                                          `${relation.event.stage.slug}.title`,
+                                          {
+                                            ns: "datasets/stages",
+                                          }
+                                        ) + " | "
                                       : ""}
                                     {getDuration(
                                       startTime,

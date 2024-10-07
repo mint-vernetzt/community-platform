@@ -91,7 +91,7 @@ export async function searchProfilesViaLike(
         select: {
           offer: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -534,7 +534,7 @@ export async function searchOrganizationsViaLike(
         select: {
           organizationType: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -543,7 +543,7 @@ export async function searchOrganizationsViaLike(
         select: {
           focus: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -1076,7 +1076,6 @@ export async function searchEventsViaLike(
       published: true,
       stage: {
         select: {
-          title: true,
           slug: true,
         },
       },
@@ -1172,14 +1171,19 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
               };
             }
           | {
-              [K in "areas" | "types" | "focuses" | "tags" | "targetGroups"]?: {
+              [K in
+                | "areas"
+                | "types"
+                | "focuses"
+                | "tags"
+                | "eventTargetGroups"]?: {
                 some: {
                   [K in
                     | "area"
                     | "eventType"
                     | "focus"
                     | "tag"
-                    | "targetGroup"]?: {
+                    | "eventTargetGroup"]?: {
                     [K in "name" | "title"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
@@ -1190,7 +1194,7 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
             }
           | {
               [K in "experienceLevel" | "stage"]?: {
-                title: {
+                [K in "title"]?: {
                   contains: string;
                   mode: Prisma.QueryMode;
                 };
@@ -1474,9 +1478,9 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
         {
           AND: [
             {
-              targetGroups: {
+              eventTargetGroups: {
                 some: {
-                  targetGroup: {
+                  eventTargetGroup: {
                     title: {
                       contains: word,
                       mode: "insensitive",
@@ -1789,30 +1793,6 @@ function getProjectWhereQueries(
               : {},
           ],
         },
-        // Legacy
-        // {
-        //   AND: [
-        //     {
-        //       awards: {
-        //         some: {
-        //           award: {
-        //             title: {
-        //               contains: word,
-        //               mode: "insensitive",
-        //             },
-        //           },
-        //         },
-        //       },
-        //     },
-        //     sessionUser === null
-        //       ? {
-        //           projectVisibility: {
-        //             awards: true,
-        //           },
-        //         }
-        //       : {},
-        //   ],
-        // },
         {
           AND: [
             {
@@ -1870,30 +1850,6 @@ function getProjectWhereQueries(
               : {},
           ],
         },
-        // Legacy
-        // {
-        //   AND: [
-        //     {
-        //       targetGroups: {
-        //         some: {
-        //           targetGroup: {
-        //             title: {
-        //               contains: word,
-        //               mode: "insensitive",
-        //             },
-        //           },
-        //         },
-        //       },
-        //     },
-        //     sessionUser === null
-        //       ? {
-        //           projectVisibility: {
-        //             targetGroups: true,
-        //           },
-        //         }
-        //       : {},
-        //   ],
-        // },
         {
           AND: [
             {

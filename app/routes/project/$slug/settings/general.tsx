@@ -40,7 +40,11 @@ import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/project/settings/general", "utils/schemas"];
+const i18nNS = [
+  "routes/project/settings/general",
+  "utils/schemas",
+  "datasets/formats",
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -155,7 +159,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           format: {
             select: {
               id: true,
-              title: true,
+              slug: true,
             },
           },
         },
@@ -182,7 +186,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const allFormats = await prismaClient.format.findMany({
     select: {
       id: true,
-      title: true,
+      slug: true,
     },
   });
 
@@ -439,7 +443,7 @@ function General() {
                 {t("content.formats.helper")}
               </Select.HelperText>
               <option selected hidden>
-                {t("content.formats.option")}
+                {t("content.formats.choose")}
               </option>
               {allFormats
                 .filter((format) => {
@@ -456,14 +460,18 @@ function General() {
                           defaultValue: filteredFormat.id,
                         })}
                       >
-                        {filteredFormat.title}
+                        {t(`${filteredFormat.slug}.title`, {
+                          ns: "datasets/formats",
+                        })}
                       </button>
                       <option
                         key={filteredFormat.id}
                         value={filteredFormat.id}
                         className="my-2"
                       >
-                        {filteredFormat.title}
+                        {t(`${filteredFormat.slug}.title`, {
+                          ns: "datasets/formats",
+                        })}
                       </option>
                     </React.Fragment>
                   );
@@ -475,9 +483,14 @@ function General() {
                   return (
                     <Chip key={listFormat.key}>
                       <Input type="hidden" {...conform.input(listFormat)} />
-                      {allFormats.find((format) => {
-                        return format.id === listFormat.defaultValue;
-                      })?.title || t("content.notFound")}
+                      {t(
+                        `${
+                          allFormats.find((format) => {
+                            return format.id === listFormat.defaultValue;
+                          })?.slug
+                        }.title`,
+                        { ns: "datasets/formats" }
+                      ) || t("content.notFound")}
                       <Chip.Delete>
                         <button
                           {...list.remove(fields.formats.name, { index })}

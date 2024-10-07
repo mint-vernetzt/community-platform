@@ -333,7 +333,6 @@ export async function getAllEvents(options: {
       published: true,
       stage: {
         select: {
-          title: true,
           slug: true,
         },
       },
@@ -630,20 +629,6 @@ export function getFilterCountForSlug(
   return filterCount;
 }
 
-export async function getAllEventTypes() {
-  return await prismaClient.eventType.findMany({
-    orderBy: {
-      title: "asc",
-    },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      slug: true,
-    },
-  });
-}
-
 export async function getAllStages() {
   return await prismaClient.stage.findMany({
     orderBy: {
@@ -651,8 +636,6 @@ export async function getAllStages() {
     },
     select: {
       id: true,
-      title: true,
-      description: true,
       slug: true,
     },
   });
@@ -665,8 +648,6 @@ export async function getAllFocuses() {
     },
     select: {
       id: true,
-      title: true,
-      description: true,
       slug: true,
     },
   });
@@ -679,8 +660,6 @@ export async function getAllEventTargetGroups() {
     },
     select: {
       id: true,
-      title: true,
-      description: true,
       slug: true,
     },
   });

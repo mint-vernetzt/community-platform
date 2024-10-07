@@ -58,7 +58,7 @@ import {
 } from "../utils.server";
 import { getProfileByUsername } from "./general.server";
 
-const i18nNS = ["routes/profile/settings/general"];
+const i18nNS = ["routes/profile/settings/general", "datasets/offers"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -240,7 +240,7 @@ export default function Index() {
 
   const areaOptions = createAreaOptionFromData(areas);
   const offerOptions = offers.map((o) => ({
-    label: o.title,
+    label: t(`${o.slug}.title`, { ns: "datasets/offers" }),
     value: o.id,
   }));
 
@@ -261,14 +261,22 @@ export default function Index() {
     profile.offers && offers
       ? offers
           .filter((offer) => profile.offers.includes(offer.id))
-          .sort((a, b) => a.title.localeCompare(b.title))
+          .sort((a, b) =>
+            t(`${a.slug}.title`, { ns: "datasets/offers" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/offers" })
+            )
+          )
       : [];
 
   const selectedSeekings =
     profile.seekings && offers
       ? offers
           .filter((offer) => profile.seekings.includes(offer.id))
-          .sort((a, b) => a.title.localeCompare(b.title))
+          .sort((a, b) =>
+            t(`${a.slug}.title`, { ns: "datasets/offers" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/offers" })
+            )
+          )
       : [];
 
   React.useEffect(() => {
@@ -489,9 +497,9 @@ export default function Index() {
               <SelectAdd
                 name="offers"
                 label={t("offer.form.quote.label")}
-                entries={selectedOffers.map((area) => ({
-                  label: area.title,
-                  value: area.id,
+                entries={selectedOffers.map((offer) => ({
+                  label: t(`${offer.slug}.title`, { ns: "datasets/offers" }),
+                  value: offer.id,
                 }))}
                 options={offerOptions.filter(
                   (o) => !profile.offers.includes(o.value)
@@ -512,9 +520,9 @@ export default function Index() {
               <SelectAdd
                 name="seekings"
                 label={t("lookingFor.form.seeking.label")}
-                entries={selectedSeekings.map((area) => ({
-                  label: area.title,
-                  value: area.id,
+                entries={selectedSeekings.map((seeking) => ({
+                  label: t(`${seeking.slug}.title`, { ns: "datasets/offers" }),
+                  value: seeking.id,
                 }))}
                 options={offerOptions.filter(
                   (o) => !profile.seekings.includes(o.value)

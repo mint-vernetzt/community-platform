@@ -69,6 +69,22 @@ import {
   type SpeakersQuery,
 } from "./utils.server";
 
+const i18nNS = [
+  "routes/event/index",
+  "datasets/stages",
+  "datasets/experienceLevels",
+  "datasets/focuses",
+  "datasets/eventTypes",
+  "datasets/eventTargetGroups",
+  "datasets/tags",
+  "datasets/eventAbuseReportReasonSuggestions",
+  "datasets/organizationTypes",
+];
+
+export const handle = {
+  i18n: i18nNS,
+};
+
 export function links() {
   return [
     { rel: "stylesheet", href: rcSliderStyles },
@@ -207,7 +223,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "abuse_report",
   ]);
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/event/index"]);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const sessionUser = await getSessionUser(authClient);
 
@@ -367,7 +383,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/event/index"]);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const formData = await request.formData();
   const submission = parseWithZod(formData, {
@@ -528,7 +544,7 @@ function Index() {
     "Europe/Berlin"
   );
 
-  const { t, i18n } = useTranslation(["routes/event/index"]);
+  const { t, i18n } = useTranslation(i18nNS);
 
   const beforeParticipationPeriod = now < participationFrom;
 
@@ -663,7 +679,11 @@ function Index() {
                             />
                           </svg>
                         </div>
-                        <span>{reason.description}</span>
+                        <span>
+                          {t(`${reason.slug}.description`, {
+                            ns: "datasets/eventAbuseReportReasonSuggestions",
+                          })}
+                        </span>
                       </label>
                     );
                   })}
@@ -959,7 +979,11 @@ function Index() {
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event.types
-                      .map((item) => item.eventType.title)
+                      .map((item) =>
+                        t(`${item.eventType.slug}.title`, {
+                          ns: "datasets/eventTypes",
+                        })
+                      )
                       .join(" / ")}
                   </div>
                 </>
@@ -1150,7 +1174,9 @@ function Index() {
                     {loaderData.event.focuses.map((item, index) => {
                       return (
                         <div key={`focus-${index}`} className="badge">
-                          {item.focus.title}
+                          {t(`${item.focus.slug}.title`, {
+                            ns: "datasets/focuses",
+                          })}
                         </div>
                       );
                     })}
@@ -1170,7 +1196,9 @@ function Index() {
                           key={`eventTargetGroups-${index}`}
                           className="badge"
                         >
-                          {item.eventTargetGroup.title}
+                          {t(`${item.eventTargetGroup.slug}.title`, {
+                            ns: "datasets/eventTargetGroups",
+                          })}
                         </div>
                       );
                     })}
@@ -1185,7 +1213,9 @@ function Index() {
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
                     <div className="badge">
-                      {loaderData.event.experienceLevel.title}
+                      {t(`${loaderData.event.experienceLevel.slug}.title`, {
+                        ns: "datasets/experienceLevels",
+                      })}
                     </div>
                   </div>
                 </>
@@ -1200,7 +1230,7 @@ function Index() {
                     {loaderData.event.tags.map((item, index) => {
                       return (
                         <div key={`tags-${index}`} className="badge">
-                          {item.tag.title}
+                          {t(`${item.tag.slug}.title`, { ns: "datasets/tags" })}
                         </div>
                       );
                     })}
@@ -1340,7 +1370,9 @@ function Index() {
                             <p className="text-xs mb-1">
                               {/* TODO: Display icons (see figma) */}
                               {event.stage !== null
-                                ? event.stage.title + " | "
+                                ? t(`${event.stage.slug}.title`, {
+                                    ns: "datasets/stages",
+                                  }) + " | "
                                 : ""}
                               {getDuration(
                                 eventStartTime,
@@ -1558,7 +1590,11 @@ function Index() {
 
                             <p className="text-sm m-0 mv-line-clamp-2">
                               {item.organization.types
-                                .map((item) => item.organizationType.title)
+                                .map((item) =>
+                                  t(`${item.organizationType.slug}.title`, {
+                                    ns: "datasets/organizationTypes",
+                                  })
+                                )
                                 .join(", ")}
                             </p>
                           </div>

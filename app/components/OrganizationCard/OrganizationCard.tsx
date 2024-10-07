@@ -1,5 +1,6 @@
 import type { OrganizationType } from "@prisma/client";
 import { Link } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { H3 } from "../Heading/Heading";
 
@@ -9,11 +10,12 @@ export interface OrganizationCardProps {
   name: string;
   image?: string | null;
   types?: {
-    organizationType: Pick<OrganizationType, "title">;
+    organizationType: Pick<OrganizationType, "slug">;
   }[];
 }
 
 function OrganizationCard(props: OrganizationCardProps) {
+  const { t } = useTranslation(["datasets/organizationTypes"]);
   return (
     <div
       key={props.id}
@@ -45,7 +47,11 @@ function OrganizationCard(props: OrganizationCardProps) {
             {props.types && props.types.length > 0 && (
               <p className="font-bold text-sm">
                 {props.types
-                  .map((relation) => relation.organizationType.title)
+                  .map((relation) =>
+                    t(`${relation.organizationType.slug}.title`, {
+                      ns: "datasets/organizationTypes",
+                    })
+                  )
                   .join(", ")}
               </p>
             )}

@@ -55,7 +55,7 @@ import {
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 // import styles from "../../../common/design/styles/styles.css";
 
-const i18nNS = ["routes/explore/profiles"];
+const i18nNS = ["routes/explore/profiles", "datasets/offers"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -215,7 +215,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         return relation.organization;
       }),
       offers: enhancedProfile.offers.map((relation) => {
-        return relation.offer.title;
+        return relation.offer.slug;
       }),
       areas: enhancedProfile.areas.map((relation) => {
         return relation.area.name;
@@ -277,15 +277,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const isChecked = submission.value.filter.offer.includes(offer.slug);
     return { ...offer, vectorCount, isChecked };
   });
-  const selectedOffers = submission.value.filter.offer.map((slug) => {
-    const offerMatch = offers.find((offer) => {
-      return offer.slug === slug;
-    });
-    return {
-      slug,
-      title: offerMatch?.title || null,
-    };
-  });
 
   return json({
     isLoggedIn,
@@ -293,7 +284,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     areas: enhancedAreas,
     selectedAreas,
     offers: enhancedOffers,
-    selectedOffers,
+    selectedOffers: submission.value.filter.offer,
     submission,
     filteredByVisibilityCount,
     profilesCount,
@@ -363,7 +354,7 @@ export default function ExploreProfiles() {
                     <br />
                     {loaderData.selectedOffers
                       .map((offer) => {
-                        return offer.title;
+                        return t(`${offer}.title`, { ns: "datasets/offers" });
                       })
                       .join(", ")}
                   </span>
@@ -385,9 +376,15 @@ export default function ExploreProfiles() {
                         disabled={offer.vectorCount === 0 && !offer.isChecked}
                       >
                         <FormControl.Label>
-                          {offer.title}
-                          {offer.description !== null ? (
-                            <p className="mv-text-sm">{offer.description}</p>
+                          {t(`${offer.slug}.title`, { ns: "datasets/offers" })}
+                          {t(`${offer.slug}.description`, {
+                            ns: "datasets/offers",
+                          }) !== `${offer.slug}.description` ? (
+                            <p className="mv-text-sm">
+                              {t(`${offer.slug}.description`, {
+                                ns: "datasets/offers",
+                              })}
+                            </p>
                           ) : null}
                         </FormControl.Label>
                         <FormControl.Counter>
@@ -639,13 +636,10 @@ export default function ExploreProfiles() {
             <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  filter.offer.name,
-                  selectedOffer.slug
-                );
-                return selectedOffer.title !== null ? (
-                  <Chip key={selectedOffer.slug} size="medium">
-                    {selectedOffer.title}
+                deleteSearchParams.delete(filter.offer.name, selectedOffer);
+                return (
+                  <Chip key={selectedOffer} size="medium">
+                    {t(`${selectedOffer}.title`, { ns: "datasets/offers" })}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -657,7 +651,7 @@ export default function ExploreProfiles() {
                       </Link>
                     </Chip.Delete>
                   </Chip>
-                ) : null;
+                );
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);

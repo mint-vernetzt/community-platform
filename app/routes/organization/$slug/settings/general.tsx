@@ -60,7 +60,11 @@ import { invariantResponse } from "~/lib/utils/response";
 import { detectLanguage } from "~/root.server";
 import { getOrganizationBySlug } from "./general.server";
 
-const i18nNS = ["routes/organization/settings/general"];
+const i18nNS = [
+  "routes/organization/settings/general",
+  "datasets/organizationTypes",
+  "datasets/focuses",
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -115,9 +119,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/general",
-  ]);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
@@ -169,9 +171,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
 
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/general",
-  ]);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
@@ -266,6 +266,8 @@ function Index() {
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
 
+  const { t } = useTranslation(i18nNS);
+
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = navigation.state === "submitting";
 
@@ -285,7 +287,7 @@ function Index() {
 
   const organizationTypesOptions = organizationTypes.map((type) => {
     return {
-      label: type.title,
+      label: t(`${type.slug}.title`, { ns: "datasets/organizationTypes" }),
       value: type.id,
     };
   });
@@ -294,7 +296,13 @@ function Index() {
     organization.types && organizationTypes
       ? organizationTypes
           .filter((type) => organization.types.includes(type.id))
-          .sort((a, b) => a.title.localeCompare(b.title))
+          .sort((a, b) =>
+            t(`${a.slug}.title`, {
+              ns: "datasets/organizationTypes",
+            }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/organizationTypes" })
+            )
+          )
       : [];
 
   const selectedAreas =
@@ -308,7 +316,7 @@ function Index() {
 
   const focusOptions = focuses.map((focus) => {
     return {
-      label: focus.title,
+      label: t(`${focus.slug}.title`, { ns: "datasets/focuses" }),
       value: focus.id,
     };
   });
@@ -317,7 +325,11 @@ function Index() {
     organization.focuses && focuses
       ? focuses
           .filter((focus) => organization.focuses.includes(focus.id))
-          .sort((a, b) => a.title.localeCompare(b.title))
+          .sort((a, b) =>
+            t(`${a.slug}.title`, { ns: "datasets/focuses" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/focuses" })
+            )
+          )
       : [];
 
   React.useEffect(() => {
@@ -353,7 +365,6 @@ function Index() {
   }, [actionData]);
 
   const isFormChanged = isDirty || actionData?.updated === false;
-  const { t } = useTranslation(i18nNS);
 
   return (
     <>
@@ -477,7 +488,9 @@ function Index() {
               name="types"
               label={t("form.organizationForm.label")}
               entries={selectedOrganizationTypes.map((type) => ({
-                label: type.title,
+                label: t(`${type.slug}.title`, {
+                  ns: "datasets/organizationTypes",
+                }),
                 value: type.id,
               }))}
               options={organizationTypesOptions.filter((option) => {
@@ -517,7 +530,7 @@ function Index() {
               label={t("form.focuses.label")}
               placeholder={t("form.focuses.placeholder")}
               entries={selectedFocuses.map((focus) => ({
-                label: focus.title,
+                label: t(`${focus.slug}.title`, { ns: "datasets/focuses" }),
                 value: focus.id,
               }))}
               options={focusOptions.filter((option) => {

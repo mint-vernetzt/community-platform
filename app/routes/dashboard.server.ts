@@ -26,7 +26,7 @@ export async function getProfilesForCards(take: number) {
       position: true,
       avatar: true,
       background: true,
-      offers: { select: { offer: { select: { title: true } } } },
+      offers: { select: { offer: { select: { slug: true } } } },
       areas: { select: { area: { select: { name: true } } } },
       memberOf: {
         select: {
@@ -64,9 +64,9 @@ export async function getOrganizationsForCards(take: number) {
       name: true,
       logo: true,
       background: true,
-      focuses: { select: { focus: { select: { title: true } } } },
+      focuses: { select: { focus: { select: { slug: true } } } },
       areas: { select: { area: { select: { name: true } } } },
-      types: { select: { organizationType: { select: { title: true } } } },
+      types: { select: { organizationType: { select: { slug: true } } } },
       teamMembers: {
         select: {
           profile: {
@@ -149,7 +149,6 @@ export async function getEventsForCards(take: number) {
       published: true,
       stage: {
         select: {
-          title: true,
           slug: true,
         },
       },

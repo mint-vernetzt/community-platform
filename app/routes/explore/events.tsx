@@ -59,7 +59,12 @@ import {
 } from "./events.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 
-const i18nNS = ["routes/explore/events"];
+const i18nNS = [
+  "routes/explore/events",
+  "datasets/focuses",
+  "datasets/stages",
+  "datasets/eventTargetGroups",
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -299,15 +304,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const isChecked = submission.value.filter.focus.includes(focus.slug);
     return { ...focus, vectorCount, isChecked };
   });
-  const selectedFocuses = submission.value.filter.focus.map((slug) => {
-    const focusMatch = focuses.find((focus) => {
-      return focus.slug === slug;
-    });
-    return {
-      slug,
-      title: focusMatch?.title || null,
-    };
-  });
 
   const targetGroups = await getAllEventTargetGroups();
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
@@ -321,17 +317,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
     return { ...targetGroup, vectorCount, isChecked };
   });
-  const selectedTargetGroups = submission.value.filter.eventTargetGroup.map(
-    (slug) => {
-      const targetGroupMatch = targetGroups.find((targetGroup) => {
-        return targetGroup.slug === slug;
-      });
-      return {
-        slug,
-        title: targetGroupMatch?.title || null,
-      };
-    }
-  );
 
   const stagesFromDB = await getAllStages();
   const stages = (
@@ -339,8 +324,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       {
         id: "0",
         slug: "all",
-        title: "All",
-        description: null,
       },
     ] as typeof stagesFromDB
   ).concat(stagesFromDB);
@@ -355,10 +338,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     areas: enhancedAreas,
     selectedAreas,
     focuses: enhancedFocuses,
-    selectedFocuses,
+    selectedFocuses: submission.value.filter.focus,
     targetGroups: enhancedTargetGroups,
     stages: enhancedStages,
-    selectedTargetGroups,
+    selectedTargetGroups: submission.value.filter.eventTargetGroup,
     submission,
     filteredByVisibilityCount,
     eventsCount,
@@ -428,13 +411,13 @@ export default function ExploreOrganizations() {
               <Dropdown>
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
-                    {t("filter.stage.label")}
+                    {t("filter.stage")}
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
-                    {t(
-                      `filter.stage.${loaderData.submission.value.filter.stage}`
-                    )}
+                    {t(`${loaderData.submission.value.filter.stage}.title`, {
+                      ns: "datasets/stages",
+                    })}
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
@@ -453,7 +436,7 @@ export default function ExploreOrganizations() {
                         readOnly
                       >
                         <FormControl.Label>
-                          {t(`filter.stage.${stage.slug}`)}
+                          {t(`${stage.slug}.title`, { ns: "datasets/stages" })}
                         </FormControl.Label>
                       </FormControl>
                     );
@@ -467,7 +450,7 @@ export default function ExploreOrganizations() {
                     <br />
                     {loaderData.selectedFocuses
                       .map((focus) => {
-                        return focus.title;
+                        return t(`${focus}.title`, { ns: "datasets/focuses" });
                       })
                       .join(", ")}
                   </span>
@@ -489,9 +472,15 @@ export default function ExploreOrganizations() {
                         disabled={focus.vectorCount === 0 && !focus.isChecked}
                       >
                         <FormControl.Label>
-                          {focus.title}
-                          {focus.description !== null ? (
-                            <p className="mv-text-sm">{focus.description}</p>
+                          {t(`${focus.slug}.title`, { ns: "datasets/focuses" })}
+                          {t(`${focus.slug}.description`, {
+                            ns: "datasets/focuses",
+                          }) !== `${focus.slug}.description` ? (
+                            <p className="mv-text-sm">
+                              {t(`${focus.slug}.description`, {
+                                ns: "datasets/focuses",
+                              })}
+                            </p>
                           ) : null}
                         </FormControl.Label>
                         <FormControl.Counter>
@@ -552,7 +541,9 @@ export default function ExploreOrganizations() {
                     <br />
                     {loaderData.selectedTargetGroups
                       .map((targetGroup) => {
-                        return targetGroup.title;
+                        return t(`${targetGroup}.title`, {
+                          ns: "datasets/eventTargetGroups",
+                        });
                       })
                       .join(", ")}
                   </span>
@@ -577,10 +568,16 @@ export default function ExploreOrganizations() {
                         }
                       >
                         <FormControl.Label>
-                          {targetGroup.title}
-                          {targetGroup.description !== null ? (
+                          {t(`${targetGroup.slug}.title`, {
+                            ns: "datasets/eventTargetGroups",
+                          })}
+                          {t(`${targetGroup}.description`, {
+                            ns: "datasets/eventTargetGroups",
+                          }) !== `${targetGroup}.description` ? (
                             <p className="mv-text-sm">
-                              {targetGroup.description}
+                              {t(`${targetGroup}.description`, {
+                                ns: "datasets/eventTargetGroups",
+                              })}
                             </p>
                           ) : null}
                         </FormControl.Label>
@@ -835,13 +832,12 @@ export default function ExploreOrganizations() {
             <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedFocuses.map((selectedFocus) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  filter.focus.name,
-                  selectedFocus.slug
-                );
-                return selectedFocus.title !== null ? (
-                  <Chip key={selectedFocus.slug} responsive>
-                    {selectedFocus.title}
+                deleteSearchParams.delete(filter.focus.name, selectedFocus);
+                return (
+                  <Chip key={selectedFocus} responsive>
+                    {t(`${selectedFocus}.title`, {
+                      ns: "datasets/focuses",
+                    })}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -853,17 +849,19 @@ export default function ExploreOrganizations() {
                       </Link>
                     </Chip.Delete>
                   </Chip>
-                ) : null;
+                );
               })}
               {loaderData.selectedTargetGroups.map((selectedTargetGroup) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
                   filter.eventTargetGroup.name,
-                  selectedTargetGroup.slug
+                  selectedTargetGroup
                 );
-                return selectedTargetGroup.title !== null ? (
-                  <Chip key={selectedTargetGroup.slug} responsive>
-                    {selectedTargetGroup.title}
+                return (
+                  <Chip key={selectedTargetGroup} responsive>
+                    {t(`${selectedTargetGroup}.title`, {
+                      ns: "datasets/eventTargetGroups",
+                    })}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -875,7 +873,7 @@ export default function ExploreOrganizations() {
                       </Link>
                     </Chip.Delete>
                   </Chip>
-                ) : null;
+                );
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);

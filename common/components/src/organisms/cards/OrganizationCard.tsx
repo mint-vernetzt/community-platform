@@ -43,7 +43,11 @@ function OrganizationCard(
 ) {
   const { organization, publicAccess = false, menu } = props;
 
-  const { t } = useTranslation(["organisms/cards/organization-card"]);
+  const { t } = useTranslation([
+    "organisms/cards/organization-card",
+    "datasets/focuses",
+    "datasets/organizationTypes",
+  ]);
 
   const emptyMessage = publicAccess
     ? t("nonPublic", "-nicht öffentlich-")
@@ -102,7 +106,13 @@ function OrganizationCard(
               <div className="mv-h-5 mv-overflow-hidden">
                 {organization.types.length > 0 && (
                   <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-font-bold mv-truncate">
-                    {organization.types.join("/")}
+                    {organization.types
+                      .map((type) => {
+                        return t(`${type}.title`, {
+                          ns: "datasets/organizationTypes",
+                        });
+                      })
+                      .join("/")}
                   </p>
                 )}
               </div>
@@ -120,7 +130,11 @@ function OrganizationCard(
             ) : (
               <ChipContainer maxRows={2}>
                 {organization.focuses.map((focus) => {
-                  return <Chip key={focus}>{focus}</Chip>;
+                  return (
+                    <Chip key={focus}>
+                      {t(`${focus}.title`, { ns: "datasets/focuses" })}
+                    </Chip>
+                  );
                 })}
               </ChipContainer>
             )}

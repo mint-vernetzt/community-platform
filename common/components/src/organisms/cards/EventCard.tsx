@@ -31,7 +31,7 @@ export type EventCardProps = {
     background?: string | null;
     blurredBackground?: string;
     participantLimit?: number | null;
-    stage?: { title: string; slug: string } | null;
+    stage?: { slug: string } | null;
     _count: {
       participants: number;
       waitingList: number;
@@ -100,7 +100,10 @@ function EventCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & EventCardProps
 ) {
   const { event } = props;
-  const { t, i18n } = useTranslation(["organisms/cards/event-card"]);
+  const { t, i18n } = useTranslation([
+    "organisms/cards/event-card",
+    "datasets/stages",
+  ]);
 
   const now = new Date();
 
@@ -195,19 +198,25 @@ function EventCard(
             {hasStage && event.stage?.slug === "on-site" && (
               <>
                 <IconOnSite />
-                <span className="mv-ml-1">{event.stage?.title}</span>
+                <span className="mv-ml-1">
+                  {t(`${event.stage?.slug}.title`, { ns: "datasets/stages" })}
+                </span>
               </>
             )}
             {hasStage && event.stage?.slug === "online" && (
               <>
                 <IconOnline />
-                <span className="mv-ml-1">{event.stage?.title}</span>
+                <span className="mv-ml-1">
+                  {t(`${event.stage?.slug}.title`, { ns: "datasets/stages" })}
+                </span>
               </>
             )}
             {hasStage && event.stage?.slug === "hybrid" && (
               <>
                 <IconHybrid />
-                <span className="mv-ml-1">{event.stage?.title}</span>
+                <span className="mv-ml-1">
+                  {t(`${event.stage?.slug}.title`, { ns: "datasets/stages" })}
+                </span>
               </>
             )}
           </span>

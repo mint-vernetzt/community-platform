@@ -47,7 +47,7 @@ export async function getOrganizationBySlug(slug: string) {
         select: {
           organizationType: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -56,7 +56,7 @@ export async function getOrganizationBySlug(slug: string) {
         select: {
           focus: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -105,7 +105,7 @@ export async function getOrganizationBySlug(slug: string) {
                 select: {
                   organizationType: {
                     select: {
-                      title: true,
+                      slug: true,
                     },
                   },
                 },
@@ -140,7 +140,7 @@ export async function getOrganizationBySlug(slug: string) {
                 select: {
                   organizationType: {
                     select: {
-                      title: true,
+                      slug: true,
                     },
                   },
                 },
@@ -249,7 +249,7 @@ export async function getOrganizationBySlug(slug: string) {
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,

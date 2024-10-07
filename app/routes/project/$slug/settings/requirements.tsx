@@ -47,7 +47,7 @@ import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/project/settings/requirements"];
+const i18nNS = ["routes/project/settings/requirements", "datasets/financings"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -250,7 +250,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
           financing: {
             select: {
               id: true,
-              title: true,
+              slug: true,
             },
           },
         },
@@ -267,7 +267,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const allFinancings = await prismaClient.financing.findMany({
     select: {
       id: true,
-      title: true,
+      slug: true,
     },
   });
 
@@ -563,14 +563,18 @@ function Requirements() {
                             defaultValue: filteredFinancing.id,
                           })}
                         >
-                          {filteredFinancing.title}
+                          {t(`${filteredFinancing.slug}.title`, {
+                            ns: "datasets/financings",
+                          })}
                         </button>
                         <option
                           key={filteredFinancing.id}
                           value={filteredFinancing.id}
                           className="my-2"
                         >
-                          {filteredFinancing.title}
+                          {t(`${filteredFinancing.slug}.title`, {
+                            ns: "datasets/financings",
+                          })}
                         </option>
                       </React.Fragment>
                     );
@@ -581,9 +585,18 @@ function Requirements() {
                   {financingList.map((listFinancing, index) => {
                     return (
                       <Chip key={listFinancing.key}>
-                        {allFinancings.find((financing) => {
-                          return financing.id === listFinancing.defaultValue;
-                        })?.title || t("content.notFound")}
+                        {t(
+                          `${
+                            allFinancings.find((financing) => {
+                              return (
+                                financing.id === listFinancing.defaultValue
+                              );
+                            })?.slug
+                          }.title`,
+                          {
+                            ns: "datasets/financings",
+                          }
+                        ) || t("content.notFound")}
                         <Input
                           type="hidden"
                           {...conform.input(listFinancing)}

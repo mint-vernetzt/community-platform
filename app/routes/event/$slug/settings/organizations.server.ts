@@ -14,7 +14,7 @@ export async function getOwnOrganizationsSuggestions(
         select: {
           organizationType: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },
@@ -57,7 +57,7 @@ export async function getEventBySlug(slug: string) {
                 select: {
                   organizationType: {
                     select: {
-                      title: true,
+                      slug: true,
                     },
                   },
                 },

@@ -72,6 +72,20 @@ import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
+const i18nNS = [
+  "routes/event/settings/general",
+  "datasets/stages",
+  "datasets/experienceLevels",
+  "datasets/focuses",
+  "datasets/eventTypes",
+  "datasets/eventTargetGroups",
+  "datasets/tags",
+];
+
+export const handle = {
+  i18n: i18nNS,
+};
+
 const createSchema = (t: TFunction) => {
   return object({
     name: string().required(t("validation.name.required")),
@@ -165,7 +179,7 @@ type FormType = InferType<SchemaType>;
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/event/settings/general"]);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -216,7 +230,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/event/settings/general"]);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -298,7 +312,7 @@ function General() {
 
   const publishFetcher = useFetcher<typeof publishAction>();
   const cancelFetcher = useFetcher<typeof cancelAction>();
-  const { t } = useTranslation(["routes/event/settings/general"]);
+  const { t } = useTranslation(i18nNS);
 
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
@@ -335,14 +349,16 @@ function General() {
 
   const experienceLevelOptions = experienceLevels.map((experienceLevel) => {
     return {
-      label: experienceLevel.title,
+      label: t(`${experienceLevel.slug}.title`, {
+        ns: "datasets/experienceLevels",
+      }),
       value: experienceLevel.id,
     };
   });
 
   const stageOptions = stages.map((item) => {
     return {
-      label: item.title,
+      label: t(`${item.slug}.title`, { ns: "datasets/stages" }),
       value: item.id,
     };
   });
@@ -353,7 +369,7 @@ function General() {
     })
     .map((item) => {
       return {
-        label: item.title,
+        label: t(`${item.slug}.title`, { ns: "datasets/focuses" }),
         value: item.id,
       };
     });
@@ -362,7 +378,11 @@ function General() {
     event.focuses && focuses
       ? focuses
           .filter((focus) => event.focuses.includes(focus.id))
-          .sort((a, b) => a.title.localeCompare(b.title))
+          .sort((a, b) =>
+            t(`${a.slug}.title`, { ns: "datasets/focuses" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/focuses" })
+            )
+          )
       : [];
 
   const typeOptions = types
@@ -371,7 +391,7 @@ function General() {
     })
     .map((type) => {
       return {
-        label: type.title,
+        label: t(`${type.slug}.title`, { ns: "datasets/eventTypes" }),
         value: type.id,
       };
     });
@@ -380,7 +400,11 @@ function General() {
     event.types && types
       ? types
           .filter((type) => event.types.includes(type.id))
-          .sort((a, b) => a.title.localeCompare(b.title))
+          .sort((a, b) =>
+            t(`${a.slug}.title`, { ns: "datasets/eventTypes" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/eventTypes" })
+            )
+          )
       : [];
 
   const eventTargetGroupOptions = eventTargetGroups
@@ -389,7 +413,9 @@ function General() {
     })
     .map((targetGroup) => {
       return {
-        label: targetGroup.title,
+        label: t(`${targetGroup.slug}.title`, {
+          ns: "datasets/eventTargetGroups",
+        }),
         value: targetGroup.id,
       };
     });
@@ -400,7 +426,13 @@ function General() {
           .filter((targetGroup) =>
             event.eventTargetGroups.includes(targetGroup.id)
           )
-          .sort((a, b) => a.title.localeCompare(b.title))
+          .sort((a, b) =>
+            t(`${a.slug}.title`, {
+              ns: "datasets/eventTargetGroups",
+            }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/eventTargetGroups" })
+            )
+          )
       : [];
 
   const tagOptions = tags
@@ -409,7 +441,7 @@ function General() {
     })
     .map((tag) => {
       return {
-        label: tag.title,
+        label: t(`${tag.slug}.title`, { ns: "datasets/tags" }),
         value: tag.id,
       };
     });
@@ -418,7 +450,11 @@ function General() {
     event.tags && tags
       ? tags
           .filter((tag) => event.tags.includes(tag.id))
-          .sort((a, b) => a.title.localeCompare(b.title))
+          .sort((a, b) =>
+            t(`${a.slug}.title`, { ns: "datasets/tags" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/tags" })
+            )
+          )
       : [];
 
   const areaOptions = createAreaOptionFromData(areas);
@@ -800,7 +836,7 @@ function General() {
               label={t("form.types.label")}
               placeholder={t("form.types.placeholder")}
               entries={selectedTypes.map((type) => ({
-                label: type.title,
+                label: t(`${type.slug}.title`, { ns: "datasets/eventTypes" }),
                 value: type.id,
               }))}
               options={typeOptions}
@@ -814,7 +850,7 @@ function General() {
               label={t("form.tags.label")}
               placeholder={t("form.tags.placeholder")}
               entries={selectedTags.map((tag) => ({
-                label: tag.title,
+                label: t(`${tag.slug}.title`, { ns: "datasets/tags" }),
                 value: tag.id,
               }))}
               options={tagOptions}
@@ -829,7 +865,9 @@ function General() {
               label={t("form.targetGroups.label")}
               placeholder={t("form.targetGroups.placeholder")}
               entries={selectedEventTargetGroups.map((targetGroup) => ({
-                label: targetGroup.title,
+                label: t(`${targetGroup.slug}.title`, {
+                  ns: "datasets/eventTargetGroups",
+                }),
                 value: targetGroup.id,
               }))}
               options={eventTargetGroupOptions}
@@ -855,7 +893,7 @@ function General() {
               label={t("form.focuses.label")}
               placeholder={t("form.focuses.placeholder")}
               entries={selectedFocuses.map((focus) => ({
-                label: focus.title,
+                label: t(`${focus.slug}.title`, { ns: "datasets/focuses" }),
                 value: focus.id,
               }))}
               options={focusOptions}

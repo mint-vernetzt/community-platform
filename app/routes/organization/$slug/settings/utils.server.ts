@@ -134,7 +134,12 @@ export async function getWholeOrganizationBySlug(slug: string) {
 }
 
 export async function getOrganizationTypes() {
-  const organizationTypes = await prismaClient.organizationType.findMany();
+  const organizationTypes = await prismaClient.organizationType.findMany({
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
   return organizationTypes;
 }
 
@@ -429,7 +434,7 @@ export async function getNetworkMembersOfOrganization(
             select: {
               organizationType: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
             },

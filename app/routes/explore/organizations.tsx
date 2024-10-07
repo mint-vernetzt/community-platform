@@ -222,10 +222,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
         return relation.profile;
       }),
       types: enhancedOrganization.types.map((relation) => {
-        return relation.organizationType.title;
+        return relation.organizationType.slug;
       }),
       focuses: enhancedOrganization.focuses.map((relation) => {
-        return relation.focus.title;
+        return relation.focus.slug;
       }),
       areas: enhancedOrganization.areas.map((relation) => {
         return relation.area.name;
@@ -283,15 +283,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const isChecked = submission.value.filter.type.includes(type.slug);
     return { ...type, vectorCount, isChecked };
   });
-  const selectedTypes = submission.value.filter.type.map((slug) => {
-    const typeMatch = types.find((type) => {
-      return type.slug === slug;
-    });
-    return {
-      slug,
-      title: typeMatch?.title || null,
-    };
-  });
 
   const focuses = await getAllFocuses();
   const enhancedFocuses = focuses.map((focus) => {
@@ -303,15 +294,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const isChecked = submission.value.filter.focus.includes(focus.slug);
     return { ...focus, vectorCount, isChecked };
   });
-  const selectedFocuses = submission.value.filter.focus.map((slug) => {
-    const focusMatch = focuses.find((focus) => {
-      return focus.slug === slug;
-    });
-    return {
-      slug,
-      title: focusMatch?.title || null,
-    };
-  });
 
   return json({
     isLoggedIn,
@@ -319,9 +301,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     areas: enhancedAreas,
     selectedAreas,
     focuses: enhancedFocuses,
-    selectedFocuses,
+    selectedFocuses: submission.value.filter.focus,
     types: enhancedTypes,
-    selectedTypes,
+    selectedTypes: submission.value.filter.type,
     submission,
     filteredByVisibilityCount,
     organizationsCount,
@@ -389,7 +371,9 @@ export default function ExploreOrganizations() {
                     <br />
                     {loaderData.selectedTypes
                       .map((type) => {
-                        return type.title;
+                        return t(`${type}.title`, {
+                          ns: "datasets/organizationTypes",
+                        });
                       })
                       .join(", ")}
                   </span>
@@ -411,9 +395,17 @@ export default function ExploreOrganizations() {
                         disabled={type.vectorCount === 0 && !type.isChecked}
                       >
                         <FormControl.Label>
-                          {type.title}
-                          {type.description !== null ? (
-                            <p className="mv-text-sm">{type.description}</p>
+                          {t(`${type.slug}.title`, {
+                            ns: "datasets/organizationTypes",
+                          })}
+                          {t(`${type.slug}.description`, {
+                            ns: "datasets/organizationTypes",
+                          }) !== `${type.slug}.description` ? (
+                            <p className="mv-text-sm">
+                              {t(`${type.slug}.description`, {
+                                ns: "datasets/organizationTypes",
+                              })}
+                            </p>
                           ) : null}
                         </FormControl.Label>
                         <FormControl.Counter>
@@ -431,7 +423,7 @@ export default function ExploreOrganizations() {
                     <br />
                     {loaderData.selectedFocuses
                       .map((focus) => {
-                        return focus.title;
+                        return t(`${focus}.title`, { ns: "datasets/focuses" });
                       })
                       .join(", ")}
                   </span>
@@ -453,9 +445,15 @@ export default function ExploreOrganizations() {
                         disabled={focus.vectorCount === 0 && !focus.isChecked}
                       >
                         <FormControl.Label>
-                          {focus.title}
-                          {focus.description !== null ? (
-                            <p className="mv-text-sm">{focus.description}</p>
+                          {t(`${focus.slug}.title`, { ns: "datasets/focuses" })}
+                          {t(`${focus.slug}.description`, {
+                            ns: "datasets/focuses",
+                          }) !== `${focus.slug}.description` ? (
+                            <p className="mv-text-sm">
+                              {t(`${focus.slug}.description`, {
+                                ns: "datasets/focuses",
+                              })}
+                            </p>
                           ) : null}
                         </FormControl.Label>
                         <FormControl.Counter>
@@ -708,10 +706,12 @@ export default function ExploreOrganizations() {
             <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedTypes.map((selectedType) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.type.name, selectedType.slug);
-                return selectedType.title !== null ? (
-                  <Chip key={selectedType.slug} size="medium">
-                    {selectedType.title}
+                deleteSearchParams.delete(filter.type.name, selectedType);
+                return (
+                  <Chip key={selectedType} size="medium">
+                    {t(`${selectedType}.title`, {
+                      ns: "datasets/organizationTypes",
+                    })}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -723,17 +723,14 @@ export default function ExploreOrganizations() {
                       </Link>
                     </Chip.Delete>
                   </Chip>
-                ) : null;
+                );
               })}
               {loaderData.selectedFocuses.map((selectedFocus) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  filter.focus.name,
-                  selectedFocus.slug
-                );
-                return selectedFocus.title !== null ? (
-                  <Chip key={selectedFocus.slug} size="medium">
-                    {selectedFocus.title}
+                deleteSearchParams.delete(filter.focus.name, selectedFocus);
+                return (
+                  <Chip key={selectedFocus} size="medium">
+                    {t(`${selectedFocus}.title`, { ns: "datasets/focuses" })}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -745,7 +742,7 @@ export default function ExploreOrganizations() {
                       </Link>
                     </Chip.Delete>
                   </Chip>
-                ) : null;
+                );
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);

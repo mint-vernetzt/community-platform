@@ -37,8 +37,8 @@ export async function getProfileByUsername(
       skills: true,
       interests: true,
       areas: { select: { area: { select: { name: true } } } },
-      offers: { select: { offer: { select: { title: true } } } },
-      seekings: { select: { offer: { select: { title: true } } } },
+      offers: { select: { offer: { select: { slug: true } } } },
+      seekings: { select: { offer: { select: { slug: true } } } },
       memberOf: {
         select: {
           organization: {
@@ -51,7 +51,7 @@ export async function getProfileByUsername(
                 select: {
                   organizationType: {
                     select: {
-                      title: true,
+                      slug: true,
                     },
                   },
                 },
@@ -154,7 +154,7 @@ export async function getProfileByUsername(
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,
@@ -211,7 +211,7 @@ export async function getProfileByUsername(
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,
@@ -269,7 +269,7 @@ export async function getProfileByUsername(
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,
@@ -327,7 +327,7 @@ export async function getProfileByUsername(
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,
@@ -385,7 +385,7 @@ export async function getProfileByUsername(
               participantLimit: true,
               stage: {
                 select: {
-                  title: true,
+                  slug: true,
                 },
               },
               canceled: true,

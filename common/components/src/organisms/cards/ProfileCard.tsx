@@ -39,7 +39,10 @@ function ProfileCard(
 ) {
   const { profile, publicAccess = false } = props;
 
-  const { t } = useTranslation(["organisms/cards/profile-card"]);
+  const { t } = useTranslation([
+    "organisms/cards/profile-card",
+    "datasets/offers",
+  ]);
 
   const fullName = getFullName(profile);
 
@@ -92,7 +95,7 @@ function ProfileCard(
               {profile.offers.map((offer) => {
                 return (
                   <Chip key={offer} color="secondary">
-                    {offer}
+                    {t(`${offer}.title`, { ns: "datasets/offers" })}
                   </Chip>
                 );
               })}

@@ -45,10 +45,15 @@ import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
+const i18nNS = ["routes/event/settings/events", "datasets/stages"];
+export const handle = {
+  i18n: i18nNS,
+};
+
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/event/settings/events"]);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
@@ -155,7 +160,7 @@ function Events() {
     "child_autocomplete_query"
   );
   const submit = useSubmit();
-  const { t, i18n } = useTranslation(["routes/event/settings/events"]);
+  const { t, i18n } = useTranslation(i18nNS);
 
   return (
     <>
@@ -265,7 +270,9 @@ function Events() {
                         <p className="text-xs mb-1">
                           {/* TODO: Display icons (see figma) */}
                           {loaderData.parentEvent.stage !== null
-                            ? loaderData.parentEvent.stage.title + " | "
+                            ? t(`${loaderData.parentEvent.stage.slug}.title`, {
+                                ns: "datasets/stages",
+                              }) + " | "
                             : ""}
                           {getDuration(
                             parentEventStartTime,
@@ -456,7 +463,9 @@ function Events() {
                             <p className="text-xs mb-1">
                               {/* TODO: Display icons (see figma) */}
                               {childEvent.stage !== null
-                                ? childEvent.stage.title + " | "
+                                ? t(`${childEvent.stage.slug}.title`, {
+                                    ns: "datasets/stages",
+                                  }) + " | "
                                 : ""}
                               {getDuration(
                                 eventStartTime,
