@@ -26,6 +26,30 @@ export const ImageSizes = {
       height: 96,
     },
   },
+  Project: {
+    ListItem: {
+      Logo: {
+        width: 136,
+        height: 136,
+      },
+      BlurredLogo: {
+        width: 17,
+        height: 17,
+      },
+      Background: {
+        width: 348,
+        height: 160,
+      },
+      BlurredBackground: {
+        width: 87, // TODO: make this smaller (must be an integer)
+        height: 40, // TODO: make this smaller (must be an integer)
+      },
+      ResponsibleOrganizationLogo: {
+        width: 64,
+        height: 64,
+      },
+    },
+  },
 };
 
 export const BlurredBackgroundScale = 0.0625;
@@ -33,6 +57,10 @@ export const DefaultImages = {
   Event: {
     Background: "/images/default-event-background.jpg",
     BlurredBackground: "/images/default-event-background-blurred.jpg",
+  },
+  Project: {
+    Background: "/images/default-project-background.jpg",
+    BlurredBackground: "/images/default-project-background-blurred.jpg",
   },
 };
 

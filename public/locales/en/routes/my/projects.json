@@ -5,5 +5,13 @@
         "title": "You haven't created any projects yet.",
         "description": "Share your knowledge to inspire the community!",
         "cta": "Create project now"
+    },
+    "tabBar": {
+        "admin": "Admin",
+        "teamMember": "Team Member"
+    },
+    "quit": {
+        "success": "You have successfully left the project {{project}}.",
+        "lastAdmin": "You cannot leave the project because you are the last admin."
     }
 }
