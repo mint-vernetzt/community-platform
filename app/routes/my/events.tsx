@@ -1,5 +1,5 @@
 import { TabBar } from "@mint-vernetzt/components";
-import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import React from "react";
 import { useTranslation } from "react-i18next";
