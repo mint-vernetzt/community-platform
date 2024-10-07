@@ -22,7 +22,7 @@
             },
             "isItFree": {
                 "question": "Is the platform free to use?",
-                "answer": "Yes, the platform is available free of charge."
+                "answer": "<p>Yes, the platform is available free of charge.</p>"
             },
             "whoOperatesThePlatform": {
                 "question": "Who operates the platform?",
@@ -33,7 +33,7 @@
             "headline": "Questions about registration and my profile",
             "benefitsOfRegistration": {
                 "question": "Why should I register? I can already see content.",
-                "answer": "<p>We aim to make many functions freely accessible so that you can view content easily. However, not all content is visible when you are not logged in, so we recommend registering. Additionally, profiles, organizations and projects can only be created after registration. You can also only register for events once you have created a profile. Other STEM stakeholders will only be able to find you if you can be found via your profile.<p>"
+                "answer": "<p>We aim to make many functions freely accessible so that you can view content easily. However, not all content is visible when you are not logged in, so we recommend registering. Additionally, profiles, organizations and projects can only be created after registration. You can also only register for events once you have created a profile. Other STEM stakeholders will only be able to find you if you can be found via your profile.</p>"
             },
             "mintId": {
                 "question": "What is the MINT-ID?",
