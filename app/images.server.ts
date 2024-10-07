@@ -25,6 +25,10 @@ export const ImageSizes = {
       width: 144,
       height: 96,
     },
+    NotificationListItem: {
+      width: 164,
+      height: 124,
+    },
   },
   Project: {
     ListItem: {

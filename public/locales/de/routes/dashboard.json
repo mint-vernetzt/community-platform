@@ -6,6 +6,15 @@
     "welcome": "Willkommen,",
     "community": "in Deiner MINTvernetzt-Community!",
     "myProfile": "Mein Profil besuchen",
+    "notifications": {
+      "headline": "Mitteilungen",
+      "hide": "Mitteilungen ausblenden",
+      "show": "Mitteilungen einblenden",
+      "canceled": "Veranstaltung abgesagt",
+      "cta": "Zu meinen Events",
+      "showMore": "Weitere anzeigen",
+      "showLess": "Weniger anzeigen"
+    },
     "updates": {
       "headline": "Updates",
       "hide": "Updates ausblenden",

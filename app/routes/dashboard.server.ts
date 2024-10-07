@@ -1,5 +1,10 @@
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
-import { getImageURL, GravityType } from "~/images.server";
+import {
+  BlurredBackgroundScale,
+  getImageURL,
+  GravityType,
+  ImageSizes,
+} from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -365,4 +370,57 @@ export async function getProfilesFromRequests(
   });
 
   return flat;
+}
+
+export async function getUpcomingCanceledEvents(
+  authClient: SupabaseClient,
+  sessionUser: User
+) {
+  const upcomingCanceledEvents = await prismaClient.event.findMany({
+    select: {
+      slug: true,
+      name: true,
+      background: true,
+    },
+    where: {
+      canceled: true,
+      startTime: { gte: new Date() },
+      participants: {
+        some: {
+          profileId: sessionUser.id,
+        },
+      },
+    },
+    orderBy: { startTime: "asc" },
+  });
+
+  const enhancedEvents = upcomingCanceledEvents.map((event) => {
+    let background = event.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      background = getImageURL(publicURL, {
+        resize: { type: "fill", ...ImageSizes.Event.NotificationListItem },
+      });
+      blurredBackground = getImageURL(publicURL, {
+        resize: {
+          type: "fill",
+          width:
+            ImageSizes.Event.NotificationListItem.width *
+            BlurredBackgroundScale,
+          height:
+            ImageSizes.Event.NotificationListItem.height *
+            BlurredBackgroundScale,
+        },
+        blur: 5,
+      });
+    }
+    return {
+      ...event,
+      background,
+      blurredBackground,
+    };
+  });
+
+  return enhancedEvents;
 }
