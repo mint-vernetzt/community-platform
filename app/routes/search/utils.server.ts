@@ -164,7 +164,7 @@ function getProfileWhereQueries(
               [K in "areas" | "offers" | "seekings"]?: {
                 some: {
                   [K in "area" | "offer"]?: {
-                    [K in "name" | "title" | "slug"]?: {
+                    [K in "name" | "title"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -443,33 +443,10 @@ function getProfileWhereQueries(
         {
           AND: [
             {
-              offers: {
-                some: {
-                  offer: {
-                    slug: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  profileVisibility: {
-                    offers: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
               seekings: {
                 some: {
                   offer: {
-                    slug: {
+                    title: {
                       contains: word,
                       mode: "insensitive",
                     },
@@ -658,7 +635,7 @@ function getOrganizationWhereQueries(
               [K in "areas" | "types" | "focuses"]?: {
                 some: {
                   [K in "area" | "organizationType" | "focus"]?: {
-                    [K in "name" | "title" | "slug"]?: {
+                    [K in "name" | "title"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -878,29 +855,6 @@ function getOrganizationWhereQueries(
         {
           AND: [
             {
-              focuses: {
-                some: {
-                  focus: {
-                    slug: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  organizationVisibility: {
-                    focuses: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
               networkMembers: {
                 some: {
                   networkMember: {
@@ -1041,29 +995,6 @@ function getOrganizationWhereQueries(
                 some: {
                   organizationType: {
                     title: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  organizationVisibility: {
-                    types: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
-              types: {
-                some: {
-                  organizationType: {
-                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
@@ -1253,7 +1184,7 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
                     | "focus"
                     | "tag"
                     | "eventTargetGroup"]?: {
-                    [K in "name" | "title" | "slug"]?: {
+                    [K in "name" | "title"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -1263,7 +1194,7 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
             }
           | {
               [K in "experienceLevel" | "stage"]?: {
-                [K in "title" | "slug"]?: {
+                [K in "title"]?: {
                   contains: string;
                   mode: Prisma.QueryMode;
                 };
@@ -1463,29 +1394,6 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
         {
           AND: [
             {
-              types: {
-                some: {
-                  eventType: {
-                    slug: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    types: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
               experienceLevel: {
                 title: {
                   contains: word,
@@ -1505,46 +1413,8 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
         {
           AND: [
             {
-              experienceLevel: {
-                slug: {
-                  contains: word,
-                  mode: "insensitive",
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    experienceLevel: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
               stage: {
                 title: {
-                  contains: word,
-                  mode: "insensitive",
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    stage: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
-              stage: {
-                slug: {
                   contains: word,
                   mode: "insensitive",
                 },
@@ -1566,29 +1436,6 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
                 some: {
                   focus: {
                     title: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    focuses: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
-              focuses: {
-                some: {
-                  focus: {
-                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
@@ -1631,56 +1478,10 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
         {
           AND: [
             {
-              tags: {
-                some: {
-                  tag: {
-                    slug: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    tags: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
               eventTargetGroups: {
                 some: {
                   eventTargetGroup: {
                     title: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    targetGroups: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
-              eventTargetGroups: {
-                some: {
-                  eventTargetGroup: {
-                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
@@ -1833,7 +1634,7 @@ function getProjectWhereQueries(
                     | "discipline"
                     | "projectTargetGroup"
                     | "specialTargetGroup"]?: {
-                    [K in "title" | "slug"]?: {
+                    [K in "title"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -2018,29 +1819,6 @@ function getProjectWhereQueries(
         {
           AND: [
             {
-              disciplines: {
-                some: {
-                  discipline: {
-                    slug: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  projectVisibility: {
-                    disciplines: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
               responsibleOrganizations: {
                 some: {
                   organization: {
@@ -2098,29 +1876,6 @@ function getProjectWhereQueries(
         {
           AND: [
             {
-              projectTargetGroups: {
-                some: {
-                  projectTargetGroup: {
-                    slug: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  projectVisibility: {
-                    projectTargetGroups: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
               specialTargetGroups: {
                 some: {
                   specialTargetGroup: {
@@ -2144,56 +1899,10 @@ function getProjectWhereQueries(
         {
           AND: [
             {
-              specialTargetGroups: {
-                some: {
-                  specialTargetGroup: {
-                    slug: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  projectVisibility: {
-                    specialTargetGroups: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
               formats: {
                 some: {
                   format: {
                     title: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  projectVisibility: {
-                    formats: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
-              formats: {
-                some: {
-                  format: {
-                    slug: {
                       contains: word,
                       mode: "insensitive",
                     },
