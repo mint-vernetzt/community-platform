@@ -17,7 +17,9 @@ const transformParts = (parts: DateTimeRangeFormatPart[]): string => {
     )
     .join("");
 
-  return mapped.replace(/(.*)(\d{4})(, )(\d{2}:\d{2})(.*)/, "$1$2 | $4$5");
+  return mapped
+    .replace(/(.*)(\d{4})(, )(\d{2}:\d{2})(.*)/, "$1$2 | $4$5")
+    .replace(/\u202F/g, "\u0020");
 };
 
 export const getDuration = (start: Date, end: Date, language: string) => {
@@ -188,7 +190,9 @@ export function getTimeDuration(
     .formatRange(startTime, endTime)
     .replaceAll(" a", " AM")
     .replaceAll(" p", " PM")
-    .replaceAll("–", " - ")
-    .replaceAll("  ", " ");
+    .replaceAll("–", "-")
+    .replaceAll(" - ", " - ")
+    .replaceAll(/\u202F/g, " ");
+
   return result.match(/^(.*)(Uhr|PM|AM)$/) ? result : `${result} Uhr`;
 }
