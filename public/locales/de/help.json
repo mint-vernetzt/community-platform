@@ -37,11 +37,11 @@
             },
             "mintId": {
                 "question": "Was ist die MINT-ID?",
-                "answer": "<p>Mit der MINT-ID könnt ihr Euch gleichzeitig für die MINTvernetzt-Community-Plattform und dem MINT-Campus registrieren. Ihr meldet Euch nur einmal an und könnt damit alle Funktionen und Angebote von beiden Plattformen nutzen. Der MINT-Campus ist die digitale Lernplattform für die MINT-Community mit frei zugänglichen Materialien und Lernangeboten für die Bildungs- und Projektarbeit.</p><p>Mit der MINT-ID spart Ihr also Zeit bei der Registrierung und habt anschließend die Möglichkeit, bequem zwischen den beiden Plattformen zu wechseln. Ihr könnt auch ohne eine MINT-ID weiterhin Euren MINTvernetzt-Account nutzen. Weitere Informationen zur MINT-ID findest Du hier:</p><a href=\"https://mintcampus.org/mint-id/\" target=\"_blank\" rel=\"noreferrer\">https://mintcampus.org/mint-id/</a>"
+                "answer": "<p>Mit der MINT-ID könnt ihr Euch gleichzeitig für die MINTvernetzt-Community-Plattform und dem MINT-Campus registrieren. Ihr meldet Euch nur einmal an und könnt damit alle Funktionen und Angebote von beiden Plattformen nutzen. Der MINT-Campus ist die digitale Lernplattform für die MINT-Community mit frei zugänglichen Materialien und Lernangeboten für die Bildungs- und Projektarbeit.</p><p>Mit der MINT-ID spart Ihr also Zeit bei der Registrierung und habt anschließend die Möglichkeit, bequem zwischen den beiden Plattformen zu wechseln. Ihr könnt auch ohne eine MINT-ID weiterhin Euren MINTvernetzt-Account nutzen.</p><p>Weitere Informationen zur MINT-ID findest Du hier: <a href=\"https://mintcampus.org/mint-id/\" target=\"_blank\" rel=\"noreferrer\">https://mintcampus.org/mint-id/</a></p>"
             },
             "registrationProblems": {
                 "question": "Ich habe Probleme mit der Registrierung oder Anmeldung. An wen kann ich mich wenden?",
-                "answer": "<p>Schreibt uns eine Nachricht an unseren technischen Support:</p><a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>"
+                "answer": "<p>Schreibt uns eine Nachricht an unseren technischen Support: <a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a></p>"
             },
             "addToOrganization": {
                 "question": "Wie kann ich mich als Team-Mitglied zu meiner Organisation hinzufügen?",
@@ -53,7 +53,7 @@
             },
             "emailChanged": {
                 "question": "Meine E-Mail-Adresse, mit der ich angemeldet bin, existiert nicht mehr, z.B. weil ich den Arbeitgeber gewechselt habe. Wie kann ich wieder auf mein Profil zugreifen?",
-                "answer": "<p>Wende Dich in dem Fall bitte an unseren Support:</p><a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>"
+                "answer": "<p>Wende Dich in dem Fall bitte an unseren Support unter <a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a></p>"
             }
         },
         "contentCreation": {
@@ -67,11 +67,11 @@
             "headline": "Fragen zu Veranstaltungen",
             "eventParticipation": {
                 "question": "Ich möchte an einer Veranstaltung teilnehmen. Wie kann ich mich anmelden?",
-                "answer": "<p>Klickt in der linken Navigation auf den Reiter „Veranstaltungen“ und wählt dort das gewünschte Event aus. Klickt dann auf „Teilnehmen“. Bitte beachtet, dass Ihr auf der Plattform angemeldet sein müsst, um Euch für ein Event anmelden zu können.</p><p>Ihr habt noch kein Profil auf der MINTvernetzt-Community-Plattform?</p><a href=\"/register\">Hier könnt Ihr Euch registrieren</a>."
+                "answer": "<p>Klickt in der linken Navigation auf den Reiter „Veranstaltungen“ und wählt dort das gewünschte Event aus. Klickt dann auf „Teilnehmen“. Bitte beachtet, dass Ihr auf der Plattform angemeldet sein müsst, um Euch für ein Event anmelden zu können. Ihr habt noch kein Profil auf der MINTvernetzt-Community-Plattform? Hier könnt Ihr Euch <a href=\"/register\">registrieren</a>.</p>"
             },
             "eventCreation": {
                 "question": "Ich möchte eine Veranstaltung erstellen. Was muss ich beachten?",
-                "answer": "<p>Aktuell stellen wir ausschließlich MINTvernetzt- und MINT-Campus-Events auf der Community-Plattform zur Verfügung. Im nächsten Schritt sollt Ihr auch die Möglichkeit haben, Eure eigenen Events mit der Community zu teilen und eigene Veranstaltungen zu erstellen.</p><p><span>Wichtig:</span> Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen etc. Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schülerlabor gehören hier nicht hin.</p>"
+                "answer": "<p>Aktuell stellen wir ausschließlich MINTvernetzt- und MINT-Campus-Events auf der Community-Plattform zur Verfügung. Im nächsten Schritt sollt Ihr auch die Möglichkeit haben, Eure eigenen Events mit der Community zu teilen und eigene Veranstaltungen zu erstellen.</p><p>Wichtig: Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen etc. Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schülerlabor gehören hier nicht hin.</p>"
             }
         },
         "furtherQuestions": {
