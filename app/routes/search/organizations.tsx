@@ -29,7 +29,11 @@ import {
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-const i18nNS = ["routes/search/organizations"];
+const i18nNS = [
+  "routes/search/organizations",
+  "datasets/organizationTypes",
+  "datasets/focuses",
+];
 export const handle = {
   i18n: i18nNS,
 };

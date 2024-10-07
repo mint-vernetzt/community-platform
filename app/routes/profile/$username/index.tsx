@@ -44,7 +44,12 @@ import {
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
 
-const i18nNS = ["routes/profile/index", "datasets/offers", "datasets/stages"];
+const i18nNS = [
+  "routes/profile/index",
+  "datasets/offers",
+  "datasets/stages",
+  "datasets/organizationTypes",
+];
 export const handle = {
   i18n: i18nNS,
 };
