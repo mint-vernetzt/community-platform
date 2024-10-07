@@ -32,7 +32,7 @@ export async function getEvents(options: {
     participantLimit: true,
     stage: {
       select: {
-        title: true,
+        slug: true,
       },
     },
     _count: {

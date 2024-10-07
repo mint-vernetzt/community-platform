@@ -354,7 +354,7 @@ function EventListItemContent(props: {
     name: string;
     subline: string | null;
     description: string | null;
-    stage: { title: string } | null;
+    stage: { slug: string } | null;
     startTime: string;
     endTime: string;
     participantLimit: number | null;
@@ -368,7 +368,7 @@ function EventListItemContent(props: {
 }) {
   const { event } = props;
 
-  const { t, i18n } = useTranslation("components");
+  const { t, i18n } = useTranslation(["components", "datasets/stages"]);
 
   const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
   const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
@@ -377,7 +377,9 @@ function EventListItemContent(props: {
     <>
       <div className="mv-py-4 mv-px-4">
         <p className="text-xs mb-1">
-          {event.stage !== null ? event.stage.title + " | " : ""}
+          {event.stage !== null
+            ? t(`${event.stage.slug}.title`, { ns: "datasets/stages" }) + " | "
+            : ""}
           {getDuration(startTime, endTime, i18n.language)}
 
           {event.participantLimit === null &&
