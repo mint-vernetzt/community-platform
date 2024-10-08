@@ -6,6 +6,15 @@
     "welcome": "Welcome,",
     "community": "to your MINTvernetzt Community!",
     "myProfile": "View my profile",
+    "notifications": {
+      "headline": "Notifications",
+      "hide": "Hide notifications",
+      "show": "Show notifications",
+      "canceled": "Event canceled",
+      "cta": "To my events",
+      "showMore": "Show more",
+      "showLess": "Show less"
+    },
     "updates": {
       "headline": "Updates",
       "hide": "Hide updates",

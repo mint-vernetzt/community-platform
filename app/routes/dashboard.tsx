@@ -3,6 +3,7 @@ import {
   Button,
   CardContainer,
   EventCard,
+  Image,
   Link as MVLink,
   OrganizationCard,
   ProfileCard,
@@ -36,6 +37,7 @@ import {
   getProfilesForCards,
   getProfilesFromRequests,
   getProjectsForCards,
+  getUpcomingCanceledEvents,
 } from "./dashboard.server";
 import {
   getEventCount,
@@ -43,6 +45,7 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
+import { Icon } from "./__components";
 
 const i18nNS = ["routes/dashboard"];
 export const handle = {
@@ -328,6 +331,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     sessionUser.id
   );
 
+  const upcomingCanceledEvents = await getUpcomingCanceledEvents(
+    authClient,
+    sessionUser
+  );
+
   return json({
     communityCounter,
     profiles,
@@ -339,6 +347,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     username: profile.username,
     organizationsFromInvites,
     profilesFromRequests,
+    upcomingCanceledEvents,
     abilities,
   });
 };
@@ -409,6 +418,7 @@ function Dashboard() {
 
   const [hideUpdates, setHideUpdates] = React.useState(false);
   const [hideNews, setHideNews] = React.useState(false);
+  const [hideNotifications, setHideNotifications] = React.useState(false);
 
   React.useEffect(() => {
     const hideUpdatesCookie = Cookies.get("mv-hide-updates");
@@ -418,6 +428,10 @@ function Dashboard() {
     const hideNewsCookie = Cookies.get("mv-hide-news");
     if (hideNewsCookie === "true") {
       setHideNews(true);
+    }
+    const hideNotificationsCookie = Cookies.get("mv-hide-notifications");
+    if (hideNotificationsCookie === "true") {
+      setHideNotifications(true);
     }
   }, []);
 
@@ -537,6 +551,122 @@ function Dashboard() {
             </div>
           </section>
         )}
+      {/* Notifications Section */}
+      {loaderData.upcomingCanceledEvents.length > 0 ? (
+        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+          <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end mv-group">
+            <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
+              {t("content.notifications.headline")}
+            </h2>
+            <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
+              <label
+                htmlFor="hide-notifications"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
+              >
+                {t("content.notifications.show")}
+              </label>
+              <label
+                htmlFor="hide-notifications"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
+              >
+                {t("content.notifications.hide")}
+              </label>
+              <input
+                id="hide-notifications"
+                type="checkbox"
+                onChange={() => {
+                  const hideNotifications =
+                    Cookies.get("mv-hide-notifications") === "true"
+                      ? false
+                      : true;
+                  Cookies.set(
+                    "mv-hide-notifications",
+                    hideNotifications.toString(),
+                    {
+                      sameSite: "strict",
+                    }
+                  );
+                  setHideNotifications(hideNotifications);
+                }}
+                checked={hideNotifications === true}
+                className="mv-w-0 mv-h-0 mv-opacity-0"
+              />
+            </div>
+          </div>
+          {hideNotifications === false ? (
+            <ul className="mv-flex mv-flex-col mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden mv-group">
+              {loaderData.upcomingCanceledEvents.map((event, index) => {
+                return (
+                  <li
+                    key={event.slug}
+                    className={`mv-w-full mv-min-h-[124px] mv-overflow-hidden p-4 @md:mv-p-0 @md:mv-pr-4 @lg:mv-pr-6 mv-bg-negative-50 mv-rounded-r-lg mv-rounded-l-lg @sm:mv-rounded-r-xl @md:mv-rounded-r-2xl mv-gap-4 @sm:mv-gap-6 mv-flex-col @sm:mv-flex-row @sm:mv-items-center ${
+                      index > 1
+                        ? "mv-hidden group-has-[:checked]:mv-flex"
+                        : "mv-flex"
+                    }`}
+                  >
+                    <div className="mv-hidden @md:mv-block mv-w-[164px] mv-h-[124px] mv-shrink-0 mv-bg-neutral-200">
+                      <Image
+                        alt={event.name}
+                        src={
+                          event.background ||
+                          "/images/default-event-background.jpg"
+                        }
+                        blurredSrc={
+                          event.blurredBackground ||
+                          "/images/default-event-background-blurred.jpg"
+                        }
+                      />
+                    </div>
+                    <div className="mv-flex mv-flex-col mv-gap-2 @sm:mv-grow">
+                      <h3 className="mv-text-negative-700 mv-text-xs mv-font-bold mv-leading-4">
+                        {t("content.notifications.canceled")}
+                      </h3>
+                      <p className="mv-line-clamp-2 mv-text-neutral-700 mv-text-2xl mv-font-bold mv-leading-[26px]">
+                        {event.name}
+                      </p>
+                    </div>
+                    <Button
+                      className="mv-w-full @sm:mv-shrink"
+                      as="a"
+                      href="/my/events"
+                      variant="outline"
+                    >
+                      {t("content.notifications.cta")}
+                    </Button>
+                  </li>
+                );
+              })}
+              {loaderData.upcomingCanceledEvents.length > 2 ? (
+                <div
+                  key="show-more-canceled-events-container"
+                  className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
+                >
+                  <label
+                    htmlFor="show-more-canceled-events"
+                    className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
+                  >
+                    <div className="group-has-[:checked]:mv-hidden">
+                      {t("content.notifications.showMore")}
+                    </div>
+                    <div className="mv-hidden group-has-[:checked]:mv-block">
+                      {t("content.notifications.showLess")}
+                    </div>
+                    <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
+                      <Icon type="chevron-right" />
+                    </div>
+                  </label>
+                  <input
+                    id="show-more-canceled-events"
+                    type="checkbox"
+                    className="mv-w-0 mv-h-0 mv-opacity-0"
+                  />
+                </div>
+              ) : null}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
       {/* Updates Section */}
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
         <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
@@ -565,7 +695,6 @@ function Dashboard() {
                 Cookies.set("mv-hide-updates", hideUpdates.toString(), {
                   sameSite: "strict",
                 });
-                console.log("OnChange", hideUpdates);
                 setHideUpdates(hideUpdates);
               }}
               checked={hideUpdates === true}
