@@ -105,12 +105,20 @@ function MyEvents() {
     setSearchParams(params, { preventScrollReset: true });
   }, [past]);
 
-  const hasUpcomingEvents = Object.values(loaderData.upcomingEvents.count).some(
-    (count) => count > 0
+  const upcomingEventsCount = Object.values(
+    loaderData.upcomingEvents.count
+  ).reduce((previousValue, currentValue) => {
+    return previousValue + currentValue;
+  }, 0);
+  const hasUpcomingEvents = upcomingEventsCount > 0;
+
+  const pastEventsCount = Object.values(loaderData.pastEvents.count).reduce(
+    (previousValue, currentValue) => {
+      return previousValue + currentValue;
+    },
+    0
   );
-  const hasPastEvents = Object.values(loaderData.pastEvents.count).some(
-    (count) => count > 0
-  );
+  const hasPastEvents = pastEventsCount > 0;
   const hasCanceledEvents = loaderData.canceledEvents.length > 0;
 
   return (
@@ -165,7 +173,11 @@ function MyEvents() {
       ) : null}
       {hasUpcomingEvents ? (
         <Container.Section>
-          <Section.Title id="upcoming">{t("upcoming.title")}</Section.Title>
+          <Section.Title id="upcoming">
+            {t("upcoming.title", {
+              count: upcomingEventsCount,
+            })}
+          </Section.Title>
           <Section.TabBar>
             {Object.entries(loaderData.upcomingEvents.count).map(
               ([key, value]) => {
@@ -225,7 +237,9 @@ function MyEvents() {
       ) : null}
       {hasPastEvents ? (
         <Container.Section>
-          <Section.Title id="past">{t("past.title")}</Section.Title>
+          <Section.Title id="past">
+            {t("past.title", { count: pastEventsCount })}
+          </Section.Title>
           <Section.TabBar>
             {Object.entries(loaderData.pastEvents.count).map(([key, value]) => {
               if (value === 0) {
