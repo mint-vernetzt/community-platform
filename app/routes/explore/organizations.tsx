@@ -58,7 +58,11 @@ import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-const i18nNS = ["routes/explore/organizations"];
+const i18nNS = [
+  "routes/explore/organizations",
+  "datasets/organizationTypes",
+  "datasets/focuses",
+];
 export const handle = {
   i18n: i18nNS,
 };

@@ -27,7 +27,7 @@ export default function Help() {
         <h1 className="mv-w-full mv-text-center mv-text-5xl @sm:mv-text-6xl @md:mv-text-7xl @xl:mv-text-8xl mv-font-[900] mv-leading-9 @sm:mv-leading-10 @md:mv-leading-[64px] @xl:mv-leading-[80px]">
           {t("headline")}
         </h1>
-        <p className="mv-w-full mv-text-center mv-text-neutral-700 mv-leading-5">
+        <div className="mv-w-full mv-text-center mv-text-neutral-700 mv-leading-5">
           <p className="mv-mb-1">{t("subline")}</p>
           <p>
             <span>{t("subline2")}</span>{" "}
@@ -39,7 +39,7 @@ export default function Help() {
               {loaderData.supportMail}
             </StyledLink>
           </p>
-        </p>
+        </div>
       </section>
       <section className="mv-w-full mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-px-4 @md:mv-px-6 @xl:mv-px-8 mv-py-6 mv-mb-6 @md:mv-mb-8 @xl:mv-mb-12">
         <Accordion>

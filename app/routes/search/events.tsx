@@ -25,7 +25,7 @@ import {
   searchEventsViaLike,
 } from "./utils.server";
 
-const i18nNS = ["routes/search/events"];
+const i18nNS = ["routes/search/events", "datasets/stages"];
 export const handle = {
   i18n: i18nNS,
 };
