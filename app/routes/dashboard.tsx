@@ -410,7 +410,7 @@ function getDataForNewsTeasers() {
       icon: "megaphone",
     },
     tableMedia: {
-      link: "https://table.media/aktion/mint-vernetzt",
+      link: "https://table.media/aktion/mint-vernetzt?utm_source=samail&utm_medium=email&utm_campaign=rt_mintvernetzt_koop_email_job&utm_content=lp_1",
       icon: "lightning-charge",
     },
   };
