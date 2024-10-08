@@ -149,7 +149,7 @@ export default function Index() {
                   {t("response.done.prefix")} {actionData.data.email}{" "}
                   {t("response.done.suffix")}
                 </p>
-                <p className="mb-4">{t("response.notice")}</p>
+                <p className="mb-4 mv-font-bold">{t("response.notice")}</p>
               </>
             ) : (
               <RemixFormsForm
