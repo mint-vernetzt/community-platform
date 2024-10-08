@@ -34,15 +34,15 @@
       "headline": "MINTvernetzt News",
       "hide": "News ausblenden",
       "show": "News einblenden",
-      "kiToolEvent": {
-        "headline": "Neues Event",
-        "description": "Fördermittel gewinnen mit KI-Tools mit Mira Pape am 08.10.24",
-        "linkDescription": "Jetzt anmelden"
-      },
       "shapeActionDays": {
         "headline": "Jetzt Aktionen einreichen",
         "description": "Programm der digitalen MINTvernetzt Aktionstage mitgestalten",
         "linkDescription": "Mehr Infos"
+      },
+      "tableMedia": {
+        "headline": "Neue Kooperation",
+        "description": "Angebot table.media-Abo für MINTvernetzt Community",
+        "linkDescription": "Jetzt mehr erfahren"
       }
     },
     "communityCounter": {
