@@ -7,16 +7,18 @@
         "cta": "Events erkunden"
     },
     "canceled": {
-        "title_one": "Event abgesagt",
-        "title_other": "Events abgesagt",
+        "title_one": "Abgesagtes Event",
+        "title_other": "Abgesagte Events",
         "description_one": "Ein Event, zu dem Du Dich angemeldet hattest, wurde abgesagt.",
         "description_other": "{{count}} Events, zu denen Du Dich angemeldet hattest, wurden abgesagt."
     },
     "upcoming": {
-        "title": "Bevorstehende Events"
+        "title_one": "Bevorstehendes Event",
+        "title_other": "Bevorstehende Events"
     },
     "past": {
-        "title": "Vergangene Events"
+        "title_one": "Vergangenes Event",
+        "title_other": "Vergangene Events"
     },
     "tabBar": {
         "admin": "Admin",
