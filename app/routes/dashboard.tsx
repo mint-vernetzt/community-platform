@@ -402,16 +402,16 @@ function getDataForUpdateTeasers() {
 
 function getDataForNewsTeasers() {
   const teaserData: {
-    kiToolEvent: { link: string; icon: TeaserIconType };
+    tableMedia: { link: string; icon: TeaserIconType };
     shapeActionDays: { link: string; icon: TeaserIconType };
   } = {
-    kiToolEvent: {
-      link: "/event/foerdermittelgewinnenmitkitools-lyiqmjqp",
-      icon: "lightning-charge",
-    },
     shapeActionDays: {
       link: "/event/mintvernetztaktionstage2024-lxt2bw2l",
       icon: "megaphone",
+    },
+    tableMedia: {
+      link: "https://table.media/aktion/mint-vernetzt",
+      icon: "lightning-charge",
     },
   };
   return teaserData;
