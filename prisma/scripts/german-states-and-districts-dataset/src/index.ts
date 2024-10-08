@@ -185,6 +185,12 @@ export function evaluateJsonObject(
   return { states: states, districts: districts };
 }
 
+function hashFunction(slug: string) {
+  const random = Math.floor(Math.random() * 1000000);
+  const stringFromRandom = random.toString(36);
+  return `${slug}-${stringFromRandom}`;
+}
+
 // @ts-ignore
 export function getAreas(districts, states, countries) {
   let areas: Area[] = [];
@@ -192,7 +198,7 @@ export function getAreas(districts, states, countries) {
   districts.forEach((district) => {
     const area = {
       name: district.name,
-      slug: generateValidSlug(district.name),
+      slug: generateValidSlug(district.name, { hashFunction }),
       type: "district",
       stateId: district.stateAgsPrefix,
     };
@@ -203,7 +209,7 @@ export function getAreas(districts, states, countries) {
   states.forEach((state) => {
     const area = {
       name: state.name,
-      slug: generateValidSlug(state.name),
+      slug: generateValidSlug(state.name, { hashFunction }),
       type: "state",
       stateId: state.agsPrefix,
     };
@@ -215,7 +221,7 @@ export function getAreas(districts, states, countries) {
   countries.forEach((country) => {
     const area = {
       name: country.name,
-      slug: generateValidSlug(country.name),
+      slug: generateValidSlug(country.name, { hashFunction }),
       type: "country",
       stateId: null,
     };
