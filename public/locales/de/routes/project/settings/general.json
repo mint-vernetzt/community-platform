@@ -36,7 +36,7 @@
       "headline": "Projektformat",
       "label": "In welchem Format findet das Projekt statt?",
       "helper": "Mehrfachnennungen sind möglich.",
-      "option": "Bitte auswählen"
+      "choose": "Bitte auswählen"
     },
     "furtherFormats": {
       "label": "Sonstige Formate",

@@ -10,13 +10,19 @@ const allowedTags = [
   "ol",
   "p",
   "li",
-  "h2",
-  "h3",
-  "h4",
   "br",
 ];
 const allowedAttributes = {
   a: ["href", "rel", "target"],
+  b: [],
+  i: [],
+  em: [],
+  strong: [],
+  ul: [],
+  ol: [],
+  p: [],
+  li: [],
+  br: [],
 };
 export function sanitizeUserHtml(
   html: string | null,
