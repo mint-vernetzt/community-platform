@@ -146,10 +146,11 @@ export default function Index() {
             actionData.data !== undefined ? (
               <>
                 <p className="mb-4">
-                  {t("response.done.prefix")} {actionData.data.email}{" "}
+                  {t("response.done.prefix")}{" "}
+                  <span className="mv-font-bold">{actionData.data.email}</span>{" "}
                   {t("response.done.suffix")}
                 </p>
-                <p className="mb-4 mv-font-bold">{t("response.notice")}</p>
+                <p className="mb-4">{t("response.notice")}</p>
               </>
             ) : (
               <RemixFormsForm
