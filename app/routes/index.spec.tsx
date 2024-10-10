@@ -10,6 +10,7 @@ import { prismaClient } from "~/__mocks__/prisma.server";
 import i18n from "./../../tests/i18n-for-tests";
 import { consoleError } from "./../../tests/setup/setup-test-env";
 import { default as LandingPageRoute, loader } from "./index";
+import { AuthError } from "@supabase/supabase-js";
 
 /* 
 
@@ -49,13 +50,13 @@ Functional tests:
 vi.mock("~/prisma.server");
 
 test("Landing page is rendered without errors", async () => {
-  createServerClient.auth.getSession.mockResolvedValue({
+  consoleError.mockImplementation(() => {});
+  createServerClient.auth.getUser.mockResolvedValue({
     data: {
-      session: null,
+      user: null,
     },
-    error: null,
+    error: new AuthError("No session or session user found"),
   });
-  consoleError.mockImplementationOnce(() => {});
   prismaClient.profile.count.mockResolvedValue(20);
   prismaClient.organization.count.mockResolvedValue(20);
   prismaClient.event.count.mockResolvedValue(20);

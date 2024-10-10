@@ -24,20 +24,7 @@ export const createAuthClient = (request: Request) => {
             return cookies[key];
           },
           set(key, value, options) {
-            // const enhancedOptions = {
-            //   ...options,
-            //   // maxAge gets overwritten by supabase-ssr because its hard coded to 1000 years.
-            //   // Theres a debate going on why this is not left to the developer to decide.
-            //   // see: https://github.com/supabase/ssr/issues/40
-
-            //   // This is the way to work arround this issue.
-            //   maxAge: 60 * 60,
-            // };
-            headers.append(
-              "Set-Cookie",
-              // serialize(key, value, enhancedOptions)
-              serialize(key, value, options)
-            );
+            headers.append("Set-Cookie", serialize(key, value, options));
           },
           remove(key, options) {
             headers.append("Set-Cookie", serialize(key, "", options));
@@ -49,10 +36,9 @@ export const createAuthClient = (request: Request) => {
           // but that doesn't work on localhost for Safari
           // https://web.dev/when-to-use-local-https/
           secure: process.env.NODE_ENV === "production",
-          // secrets: [process.env.SESSION_SECRET], -> Does not exist on type CookieOptions
           sameSite: "lax",
           path: "/",
-          // httpOnly: true,
+          httpOnly: true,
         },
         auth: {
           flowType: "pkce",
@@ -160,6 +146,15 @@ export const setSession = async (
   return { session, user };
 };
 
+// Note from the docs:
+/*
+  Returns the session, refreshing it if necessary.
+  This method retrieves the current local session (i.e local storage).
+  The session contains a signed JWT and unencoded session data.
+  Since the unencoded session data is retrieved from the local storage medium, do not rely on it as a source of trusted data on the server.
+  It could be tampered with by the sender. If you need verified, trustworthy user data, call getUser instead.
+  If the session has an expired access token, this method will use the refresh token to get a new session.
+*/
 export const getSession = async (authClient: SupabaseClient) => {
   const {
     data: { session },
@@ -180,10 +175,21 @@ export const getSessionOrThrow = async (authClient: SupabaseClient) => {
   return session;
 };
 
+// Note from the docs:
+/*
+  Gets the current user details if there is an existing session. This method performs a network request to the Supabase Auth server,
+  so the returned value is authentic and can be used to base authorization rules on.
+  This method fetches the user object from the database instead of local session.
+  This method is useful for checking if the user is authorized because it validates the user's access token JWT on the server.
+  Should always be used when checking for user authorization on the server. On the client, you can instead use getSession().session.user for faster results.
+  getSession is insecure on the server.
+*/
 export const getSessionUser = async (authClient: SupabaseClient) => {
-  const session = await getSession(authClient);
-  if (session !== null && session.user !== null) {
-    return session.user;
+  const {
+    data: { user },
+  } = await authClient.auth.getUser();
+  if (user !== null) {
+    return user;
   }
   return null;
 };

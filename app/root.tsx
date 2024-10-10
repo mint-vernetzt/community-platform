@@ -119,9 +119,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   let nextSessionUserInfo;
 
   if (user !== null) {
-    // Refresh session to reset the cookie max age
-    await authClient.auth.refreshSession();
-
     const profile = await getProfileByUserId(user.id);
 
     let avatar: string | undefined;

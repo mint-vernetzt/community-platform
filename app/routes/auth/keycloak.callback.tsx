@@ -1,5 +1,5 @@
 import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { createAuthClient, getSession } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
@@ -9,8 +9,8 @@ import { generateValidSlug } from "~/utils.server";
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient, headers } = createAuthClient(request);
-  const session = await getSession(authClient);
-  if (session !== null) {
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser !== null) {
     return redirect("/dashboard");
   }
   const url = new URL(request.url);
