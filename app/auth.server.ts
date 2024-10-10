@@ -24,20 +24,7 @@ export const createAuthClient = (request: Request) => {
             return cookies[key];
           },
           set(key, value, options) {
-            // const enhancedOptions = {
-            //   ...options,
-            //   // maxAge gets overwritten by supabase-ssr because its hard coded to 1000 years.
-            //   // Theres a debate going on why this is not left to the developer to decide.
-            //   // see: https://github.com/supabase/ssr/issues/40
-
-            //   // This is the way to work arround this issue.
-            //   maxAge: 60 * 60,
-            // };
-            headers.append(
-              "Set-Cookie",
-              // serialize(key, value, enhancedOptions)
-              serialize(key, value, options)
-            );
+            headers.append("Set-Cookie", serialize(key, value, options));
           },
           remove(key, options) {
             headers.append("Set-Cookie", serialize(key, "", options));
@@ -49,10 +36,9 @@ export const createAuthClient = (request: Request) => {
           // but that doesn't work on localhost for Safari
           // https://web.dev/when-to-use-local-https/
           secure: process.env.NODE_ENV === "production",
-          // secrets: [process.env.SESSION_SECRET], -> Does not exist on type CookieOptions
           sameSite: "lax",
           path: "/",
-          // httpOnly: true,
+          httpOnly: true,
         },
         auth: {
           flowType: "pkce",
@@ -181,9 +167,13 @@ export const getSessionOrThrow = async (authClient: SupabaseClient) => {
 };
 
 export const getSessionUser = async (authClient: SupabaseClient) => {
-  const session = await getSession(authClient);
-  if (session !== null && session.user !== null) {
-    return session.user;
+  // Use getUser instead of getSession on the Server
+  // Docs: https://supabase.com/docs/reference/javascript/auth-getuser
+  const {
+    data: { user },
+  } = await authClient.auth.getUser();
+  if (user !== null) {
+    return user;
   }
   return null;
 };
