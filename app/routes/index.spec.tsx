@@ -50,13 +50,13 @@ Functional tests:
 vi.mock("~/prisma.server");
 
 test("Landing page is rendered without errors", async () => {
+  consoleError.mockImplementation(() => {});
   createServerClient.auth.getUser.mockResolvedValue({
     data: {
       user: null,
     },
     error: new AuthError("No session or session user found"),
   });
-  consoleError.mockImplementationOnce(() => {});
   prismaClient.profile.count.mockResolvedValue(20);
   prismaClient.organization.count.mockResolvedValue(20);
   prismaClient.event.count.mockResolvedValue(20);
