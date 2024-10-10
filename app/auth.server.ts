@@ -24,18 +24,19 @@ export const createAuthClient = (request: Request) => {
             return cookies[key];
           },
           set(key, value, options) {
-            const enhancedOptions = {
-              ...options,
-              // maxAge gets overwritten by supabase-ssr because its hard coded to 1000 years.
-              // Theres a debate going on why this is not left to the developer to decide.
-              // see: https://github.com/supabase/ssr/issues/40
+            // const enhancedOptions = {
+            //   ...options,
+            //   // maxAge gets overwritten by supabase-ssr because its hard coded to 1000 years.
+            //   // Theres a debate going on why this is not left to the developer to decide.
+            //   // see: https://github.com/supabase/ssr/issues/40
 
-              // This is the way to work arround this issue.
-              maxAge: 60 * 60,
-            };
+            //   // This is the way to work arround this issue.
+            //   maxAge: 60 * 60,
+            // };
             headers.append(
               "Set-Cookie",
-              serialize(key, value, enhancedOptions)
+              // serialize(key, value, enhancedOptions)
+              serialize(key, value, options)
             );
           },
           remove(key, options) {
@@ -51,7 +52,7 @@ export const createAuthClient = (request: Request) => {
           // secrets: [process.env.SESSION_SECRET], -> Does not exist on type CookieOptions
           sameSite: "lax",
           path: "/",
-          httpOnly: true,
+          // httpOnly: true,
         },
         auth: {
           flowType: "pkce",
