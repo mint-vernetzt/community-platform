@@ -1,5 +1,6 @@
 import { Avatar, Button as LegacyButton } from "@mint-vernetzt/components";
 import { Form, Link, useFetcher, useSearchParams } from "@remix-run/react";
+import classNames from "classnames";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useHydrated } from "remix-utils/use-hydrated";
@@ -9,6 +10,10 @@ import {
   type action as invitesAction,
 } from "./organizations";
 import {
+  type addImageUrlToInvites,
+  type flattenOrganizationRelations,
+} from "./organizations.server";
+import {
   GetOrganizationsToAdd,
   type loader as organizationsToAddLoader,
 } from "./organizations/get-organizations-to-add";
@@ -17,7 +22,7 @@ import {
   AddToOrganizationRequest,
   type action as requestsAction,
 } from "./organizations/requests";
-import classNames from "classnames";
+import { type getPendingRequestsToOrganizations } from "./organizations/requests.server";
 
 export function Section(props: { children: React.ReactNode }) {
   const validChildren = React.Children.toArray(props.children).filter(
@@ -81,9 +86,20 @@ Section.Subline = SectionSubline;
 
 export function AddOrganization(props: {
   organizations?: Awaited<ReturnType<typeof getOrganizationsToAdd>>;
+  memberOrganizations: Awaited<ReturnType<typeof flattenOrganizationRelations>>;
+  pendingRequestsToOrganizations: Awaited<
+    ReturnType<typeof getPendingRequestsToOrganizations>
+  >;
+  invites: Awaited<ReturnType<typeof addImageUrlToInvites>>;
   createRequestFetcher: ReturnType<typeof useFetcher<typeof requestsAction>>;
 }) {
-  const { organizations = [], createRequestFetcher } = props;
+  const {
+    organizations = [],
+    createRequestFetcher,
+    memberOrganizations,
+    pendingRequestsToOrganizations,
+    invites,
+  } = props;
 
   const [searchParams] = useSearchParams();
   const getOrganizationsToAddFetcher =
@@ -155,7 +171,43 @@ export function AddOrganization(props: {
           </div>
         </div>
       </getOrganizationsToAddFetcher.Form>
-      {searchQuery.length > 3 && Array.isArray(data) && data.length === 0 ? (
+      {searchQuery.length > 3 &&
+      Array.isArray(data) &&
+      data.length === 0 &&
+      memberOrganizations.adminOrganizations.some((organization) => {
+        const searchQueryWords = searchQuery.split(" ");
+        return searchQueryWords.some((word) => {
+          return organization.name.toLowerCase().includes(word.toLowerCase());
+        });
+      }) === false &&
+      memberOrganizations.teamMemberOrganizations.some((organization) => {
+        const searchQueryWords = searchQuery.split(" ");
+        return searchQueryWords.some((word) => {
+          return organization.name.toLowerCase().includes(word.toLowerCase());
+        });
+      }) === false &&
+      pendingRequestsToOrganizations.some((organization) => {
+        const searchQueryWords = searchQuery.split(" ");
+        return searchQueryWords.some((word) => {
+          return organization.name.toLowerCase().includes(word.toLowerCase());
+        });
+      }) === false &&
+      invites.adminInvites.some((invite) => {
+        const searchQueryWords = searchQuery.split(" ");
+        return searchQueryWords.some((word) => {
+          return invite.organization.name
+            .toLowerCase()
+            .includes(word.toLowerCase());
+        });
+      }) === false &&
+      invites.teamMemberInvites.some((invite) => {
+        const searchQueryWords = searchQuery.split(" ");
+        return searchQueryWords.some((word) => {
+          return invite.organization.name
+            .toLowerCase()
+            .includes(word.toLowerCase());
+        });
+      }) === false ? (
         <CreateOrganization name={searchQuery} />
       ) : null}
       {Array.isArray(data) && data.length > 0 ? (

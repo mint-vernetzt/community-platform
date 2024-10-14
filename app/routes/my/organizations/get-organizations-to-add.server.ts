@@ -28,12 +28,18 @@ export async function getOrganizationsToAdd(
       contains: string;
       mode: Prisma.QueryMode;
     };
-  }[] = queryWords.map((word) => ({
-    name: {
-      contains: word,
-      mode: "insensitive",
-    },
-  }));
+  }[] = queryWords
+    .filter((word) => {
+      return word.length > 0;
+    })
+    .map((word) => {
+      return {
+        name: {
+          contains: word,
+          mode: "insensitive",
+        },
+      };
+    });
 
   const organizations = await prismaClient.organization.findMany({
     where: {
