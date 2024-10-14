@@ -38,7 +38,6 @@ export const createAuthClient = (request: Request) => {
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
           path: "/",
-          httpOnly: true,
         },
         auth: {
           flowType: "pkce",
