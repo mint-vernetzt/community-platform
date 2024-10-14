@@ -144,6 +144,7 @@ type OrganizationWithRelations = Organization & {
   abuseReports: any;
   profileJoinRequests: any;
   profileJoinInvites: any;
+  _count: any;
 };
 
 export function filterOrganizationByVisibility<
