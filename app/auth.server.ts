@@ -3,6 +3,7 @@ import { json } from "@remix-run/server-runtime";
 import { createServerClient, parse, serialize } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { prismaClient } from "./prisma.server";
+import * as Sentry from "@sentry/remix";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
 const SESSION_NAME = "sb2";
@@ -161,6 +162,7 @@ export const getSession = async (authClient: SupabaseClient) => {
     session = data.session;
   } catch (error) {
     console.error(error);
+    Sentry.captureException(error);
   }
   if (session !== undefined && session !== null) {
     return session;
@@ -197,6 +199,7 @@ export const getSessionUser = async (authClient: SupabaseClient) => {
     user = data.user;
   } catch (error) {
     console.error(error);
+    Sentry.captureException(error);
   }
   if (user !== undefined && user !== null) {
     return user;
@@ -226,6 +229,7 @@ export const getSessionUserOrRedirectPathToLogin = async (
     result = await getSessionUser(authClient);
   } catch (error) {
     console.error(error);
+    Sentry.captureException(error);
   }
   const url = new URL(request.url);
   url.searchParams.set("login_redirect", url.pathname);
