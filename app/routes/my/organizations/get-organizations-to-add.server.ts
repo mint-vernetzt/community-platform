@@ -1,3 +1,4 @@
+import { type Prisma } from "@prisma/client";
 import { type User } from "@supabase/supabase-js";
 import { createAuthClient } from "~/auth.server";
 import { getImageURL } from "~/images.server";
@@ -21,6 +22,19 @@ export async function getOrganizationsToAdd(
     return null;
   }
 
+  const queryWords = query.split(" ");
+  const whereQueries: {
+    name: {
+      contains: string;
+      mode: Prisma.QueryMode;
+    };
+  }[] = queryWords.map((word) => ({
+    name: {
+      contains: word,
+      mode: "insensitive",
+    },
+  }));
+
   const organizations = await prismaClient.organization.findMany({
     where: {
       teamMembers: {
@@ -40,10 +54,7 @@ export async function getOrganizationsToAdd(
           status: "pending",
         },
       },
-      name: {
-        contains: query,
-        mode: "insensitive",
-      },
+      OR: whereQueries,
     },
     select: {
       id: true,
