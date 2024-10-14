@@ -1,7 +1,7 @@
 import { Button, TextButton } from "@mint-vernetzt/components";
 import type { Organization } from "@prisma/client";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -42,6 +42,7 @@ import {
   splitEventsIntoFutureAndPast,
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = [
   "routes/organization/index",
@@ -183,6 +184,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
+  const abilities = await getFeatureAbilities(
+    authClient,
+    "next-organization-detail"
+  );
+  if (abilities["next-organization-detail"].hasAccess === true) {
+    return redirect(`/next/organization/${slug}/detail`);
+  }
   const mode = await deriveOrganizationMode(sessionUser, slug);
 
   const organization = await getOrganizationBySlug(slug);

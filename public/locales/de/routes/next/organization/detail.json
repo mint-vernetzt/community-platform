@@ -1,0 +1,9 @@
+{
+    "tabbar": {
+        "about": "Info",
+        "network": "Netzwerk",
+        "team": "Team",
+        "events": "Events",
+        "projects": "Projekte"
+    }
+}

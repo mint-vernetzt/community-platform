@@ -56,10 +56,12 @@ export function Section(props: { children: React.ReactNode }) {
 
   return (
     <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
-      <div className="mv-flex mv-flex-col mv-gap-2">
-        {title}
-        {text}
-      </div>
+      {title !== undefined || text !== undefined ? (
+        <div className="mv-flex mv-flex-col mv-gap-2">
+          {title || null}
+          {text || null}
+        </div>
+      ) : null}
       {otherChildren}
     </section>
   );

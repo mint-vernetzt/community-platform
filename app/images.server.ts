@@ -20,6 +20,22 @@ const key = process.env.IMGPROXY_KEY;
 const salt = process.env.IMGPROXY_SALT;
 
 export const ImageSizes = {
+  Organization: {
+    Detail: {
+      Background: {
+        width: 1076,
+        height: 196,
+        gravity: GravityType.north,
+        type: "fill" as ResizeType,
+      },
+      BlurredBackground: {
+        width: 108,
+        height: 20,
+        gravity: GravityType.north,
+        type: "fill" as ResizeType,
+      },
+    },
+  },
   Event: {
     ListItem: {
       width: 144,
