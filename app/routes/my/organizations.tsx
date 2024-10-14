@@ -648,6 +648,11 @@ export default function MyOrganizations() {
               <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
               <AddOrganization
                 organizations={loaderData.organizationsToAdd}
+                memberOrganizations={loaderData.organizations}
+                pendingRequestsToOrganizations={
+                  loaderData.pendingRequestsToOrganizations
+                }
+                invites={loaderData.invites}
                 createRequestFetcher={createRequestFetcher}
               />
               {loaderData.pendingRequestsToOrganizations.length > 0 ? (

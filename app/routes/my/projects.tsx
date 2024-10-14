@@ -1,14 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { AddIcon, Container, Placeholder, Button } from "./__components";
-import {
-  Link,
-  useFetcher,
-  useFetchers,
-  useLoaderData,
-  useSearchParams,
-} from "@remix-run/react";
+import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { Section, TabBarTitle } from "./__events.components";
-import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
