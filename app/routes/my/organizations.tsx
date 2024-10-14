@@ -267,23 +267,23 @@ export default function MyOrganizations() {
     searchParams.get("organizations-tab") !== null &&
       searchParams.get("organizations-tab") !== ""
       ? searchParams.get("organizations-tab")
-      : loaderData.organizations.teamMemberOrganizations.length > 0
-      ? "teamMember"
-      : "admin"
+      : loaderData.organizations.adminOrganizations.length > 0
+      ? "admin"
+      : "teamMember"
   );
   const organizations = {
-    teamMember: {
-      organizations: loaderData.organizations.teamMemberOrganizations,
-      active: activeOrganizationsTab === "teamMember",
-      searchParams: extendSearchParams(searchParams, {
-        addOrReplace: { "organizations-tab": "teamMember" },
-      }),
-    },
     admin: {
       organizations: loaderData.organizations.adminOrganizations,
       active: activeOrganizationsTab === "admin",
       searchParams: extendSearchParams(searchParams, {
         addOrReplace: { "organizations-tab": "admin" },
+      }),
+    },
+    teamMember: {
+      organizations: loaderData.organizations.teamMemberOrganizations,
+      active: activeOrganizationsTab === "teamMember",
+      searchParams: extendSearchParams(searchParams, {
+        addOrReplace: { "organizations-tab": "teamMember" },
       }),
     },
   };
@@ -316,18 +316,11 @@ export default function MyOrganizations() {
     searchParams.get("invites-tab") !== null &&
       searchParams.get("invites-tab") !== ""
       ? searchParams.get("invites-tab")
-      : loaderData.invites.teamMemberInvites.length > 0
-      ? "teamMember"
-      : "admin"
+      : loaderData.invites.adminInvites.length > 0
+      ? "admin"
+      : "teamMember"
   );
   const invites = {
-    teamMember: {
-      invites: loaderData.invites.teamMemberInvites,
-      active: activeInvitesTab === "teamMember",
-      searchParams: extendSearchParams(searchParams, {
-        addOrReplace: { "invites-tab": "teamMember" },
-      }),
-    },
     admin: {
       invites: loaderData.invites.adminInvites,
       active: activeInvitesTab === "admin",
@@ -335,14 +328,21 @@ export default function MyOrganizations() {
         addOrReplace: { "invites-tab": "admin" },
       }),
     },
+    teamMember: {
+      invites: loaderData.invites.teamMemberInvites,
+      active: activeInvitesTab === "teamMember",
+      searchParams: extendSearchParams(searchParams, {
+        addOrReplace: { "invites-tab": "teamMember" },
+      }),
+    },
   };
 
   // Effect to update the active tab after the optimistic ui has been applied
   React.useEffect(() => {
-    if (loaderData.invites.teamMemberInvites.length > 0) {
-      setActiveInvitesTab("teamMember");
-    } else {
+    if (loaderData.invites.adminInvites.length > 0) {
       setActiveInvitesTab("admin");
+    } else {
+      setActiveInvitesTab("teamMember");
     }
   }, [loaderData.invites.adminInvites, loaderData.invites.teamMemberInvites]);
 
