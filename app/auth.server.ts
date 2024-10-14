@@ -38,7 +38,6 @@ export const createAuthClient = (request: Request) => {
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
           path: "/",
-          httpOnly: true,
         },
         auth: {
           flowType: "pkce",
@@ -156,10 +155,17 @@ export const setSession = async (
   If the session has an expired access token, this method will use the refresh token to get a new session.
 */
 export const getSession = async (authClient: SupabaseClient) => {
-  const {
-    data: { session },
-  } = await authClient.auth.getSession();
-  return session;
+  let session;
+  try {
+    const { data } = await authClient.auth.getSession();
+    session = data.session;
+  } catch (error) {
+    console.error(error);
+  }
+  if (session !== undefined && session !== null) {
+    return session;
+  }
+  return null;
 };
 
 export const getSessionOrThrow = async (authClient: SupabaseClient) => {
@@ -185,10 +191,14 @@ export const getSessionOrThrow = async (authClient: SupabaseClient) => {
   getSession is insecure on the server.
 */
 export const getSessionUser = async (authClient: SupabaseClient) => {
-  const {
-    data: { user },
-  } = await authClient.auth.getUser();
-  if (user !== null) {
+  let user;
+  try {
+    const { data } = await authClient.auth.getUser();
+    user = data.user;
+  } catch (error) {
+    console.error(error);
+  }
+  if (user !== undefined && user !== null) {
     return user;
   }
   return null;
@@ -211,10 +221,15 @@ export const getSessionUserOrRedirectPathToLogin = async (
   authClient: SupabaseClient,
   request: Request
 ) => {
-  const result = await getSessionUser(authClient);
+  let result;
+  try {
+    result = await getSessionUser(authClient);
+  } catch (error) {
+    console.error(error);
+  }
   const url = new URL(request.url);
   url.searchParams.set("login_redirect", url.pathname);
-  if (result === null) {
+  if (result === null || result === undefined) {
     return {
       redirectPath: `/login?${url.searchParams.toString()}`,
       sessionUser: null,
