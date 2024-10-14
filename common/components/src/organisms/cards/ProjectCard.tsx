@@ -1,7 +1,6 @@
 import { Link, useFetcher } from "@remix-run/react";
 import Avatar from "../../molecules/Avatar";
 import { Card } from "./Card";
-import { action as quit } from "~/routes/my/projects/quit";
 import { useTranslation } from "react-i18next";
 import React from "react";
 
