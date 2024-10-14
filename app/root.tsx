@@ -56,7 +56,7 @@ import { ToastContainer } from "./__toast.components";
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
 
-  if (data === undefined) {
+  if (data === undefined || data.meta === null) {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
