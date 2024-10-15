@@ -389,9 +389,7 @@ function EventListItemContent(props: {
     <>
       <div className="mv-py-4 mv-px-4">
         <p className="text-xs mb-1">
-          {event.stage !== null
-            ? t(`${event.stage.slug}.title`, { ns: "datasets/stages" }) + " | "
-            : ""}
+          {event.stage !== null ? t(`${event.stage.slug}.title`) + " | " : ""}
           {getDuration(startTime, endTime, i18n.language)}
 
           {event.participantLimit === null &&

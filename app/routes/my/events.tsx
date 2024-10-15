@@ -20,7 +20,7 @@ import {
 } from "./__events.components";
 import { getEvents } from "./events.server";
 
-export const i18nNS = ["routes/my/events"];
+export const i18nNS = ["routes/my/events", "datasets/stages", "components"];
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
