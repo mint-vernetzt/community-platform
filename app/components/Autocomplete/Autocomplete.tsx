@@ -75,7 +75,11 @@ const Autocomplete = React.forwardRef(
     }, []);
 
     useEffect(() => {
-      if (suggestionsContainerRef.current !== null) {
+      if (
+        suggestionsContainerRef.current !== null &&
+        suggestionsContainerRef.current.getBoundingClientRect().bottom >
+          window.innerHeight
+      ) {
         suggestionsContainerRef.current.scrollIntoView({
           behavior: "smooth",
           block: "nearest",
@@ -92,6 +96,7 @@ const Autocomplete = React.forwardRef(
         submit(searchParams, {
           method: "get",
           action: suggestionsLoaderPath,
+          preventScrollReset: true,
         });
       } else {
         if (suggestionsQuery !== "") {
@@ -101,6 +106,7 @@ const Autocomplete = React.forwardRef(
           submit(searchParams, {
             method: "get",
             action: suggestionsLoaderPath,
+            preventScrollReset: true,
           });
         }
       }
@@ -119,7 +125,6 @@ const Autocomplete = React.forwardRef(
         setActiveSuggestion(activeSuggestion - 1);
       } else if (event.key === "Enter") {
         setSubmitValue(suggestions[activeSuggestion - 1].id);
-        setActiveSuggestion(0);
       }
     };
 
@@ -129,7 +134,6 @@ const Autocomplete = React.forwardRef(
 
     const handleClick = () => {
       setSubmitValue(suggestions[activeSuggestion - 1].id);
-      setActiveSuggestion(0);
     };
 
     const { i18n, t } = useTranslation([
