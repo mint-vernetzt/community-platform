@@ -12,6 +12,8 @@
         "controls": {
             "edit": "Edit",
             "background": "Change image",
+            "backgroundLong": "Change background",
+            "backgroundEdit": "Edit background",
             "logo": "Change logo"
         }
     },

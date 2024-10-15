@@ -1475,7 +1475,7 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
       : null;
 
   return createPortal(
-    <div className="mv-transition mv-fixed mv-inset-0 mv-bg-black mv-bg-opacity-50 mv-backdrop-blur-sm mv-flex mv-items-center mv-justify-center mv-z-20">
+    <div className="mv-transition mv-fixed mv-inset-0 mv-bg-black mv-bg-opacity-50 mv-backdrop-blur-sm mv-flex mv-items-center mv-justify-center mv-z-20 mv-px-4">
       <div
         id="modal"
         tabIndex={-1}
