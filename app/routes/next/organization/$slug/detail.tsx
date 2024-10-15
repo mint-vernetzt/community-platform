@@ -316,7 +316,7 @@ function ProjectDetail() {
       </Container.Section>
       {/* Header Section */}
       <Container.Section className="mv-relative mv-flex mv-flex-col mv-items-center mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl mv-overflow-hidden">
-        <div className="mv-w-full mv-h-[196px]">
+        <div className="mv-w-full mv-h-[196px] @sm:mv-h-[168px]">
           <Image
             alt={`${t("header.image.alt")} ${organization.name}`}
             src={organization.background || undefined}
@@ -324,38 +324,40 @@ function ProjectDetail() {
             resizeType="fill"
           />
         </div>
-        <div className="mv-px-4 mv-pt-9 mv-pb-6 mv-flex mv-flex-col mv-items-center mv-gap-10">
-          <div className="mv-flex mv-flex-col mv-items-center mv-gap-6">
-            <div className="mv-flex mv-flex-col mv-items-center mv-gap-2">
+        <div className="mv-w-full mv-px-4 @sm:mv-px-6 @md:mv-px-8 mv-pt-9 @sm:mv-pt-8 mv-pb-6 @sm:mv-pb-7 @md:mv-pb-8 mv-flex mv-flex-col @sm:mv-flex-row mv-items-center @sm:mv-items-start mv-gap-10 @sm:mv-gap-3 @sm:mv-justify-between">
+          <div className="mv-flex mv-flex-col mv-items-center @sm:mv-items-start mv-gap-6 @sm:mv-flex-grow @sm:mv-w-full">
+            <div className="mv-flex mv-flex-col mv-items-center @sm:mv-items-start mv-gap-2">
               {mode === "admin" ? (
-                <TextButton
-                  variant="primary"
-                  weight="thin"
-                  as="button"
-                  type="submit"
-                  form="modal-logo-form"
-                >
-                  <div>
-                    <div className="mv-cursor-pointer mv-flex mv-flex-nowrap mv-gap-1 mv-items-center">
-                      <svg
-                        width="17"
-                        height="16"
-                        viewBox="0 0 17 16"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                      >
-                        <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
-                      </svg>
-                      <span>{t("header.controls.logo")}</span>
+                <div className="@sm:mv-hidden">
+                  <TextButton
+                    variant="primary"
+                    weight="thin"
+                    as="button"
+                    type="submit"
+                    form="modal-logo-form"
+                  >
+                    <div>
+                      <div className="mv-cursor-pointer mv-flex mv-flex-nowrap mv-gap-1 mv-items-center">
+                        <svg
+                          width="17"
+                          height="16"
+                          viewBox="0 0 17 16"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                        >
+                          <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
+                        </svg>
+                        <span>{t("header.controls.logo")}</span>
+                      </div>
                     </div>
-                  </div>
-                </TextButton>
+                  </TextButton>
+                </div>
               ) : null}
-              <h1 className="mv-mb-0 mv-text-3xl mv-font-bold mv-leading-7">
+              <h1 className="mv-mb-0 mv-text-3xl @sm:mv-text-4xl @md:mv-text-5xl mv-font-bold mv-leading-7 @sm:mv-leading-8 @md:mv-leading-9">
                 {organization.name}
               </h1>
               {organization.types.length > 0 ? (
-                <p className="mv-px-8 mv-text-neutral-600 mv-text-lg mv-font-semibold mv-leading-6">
+                <p className="mv-px-8 @sm:mv-px-0 mv-text-neutral-600 mv-text-lg mv-font-semibold mv-leading-6">
                   {organization.types
                     .map((relation) => {
                       return t(`${relation.organizationType.slug}.title`, {
@@ -390,37 +392,40 @@ function ProjectDetail() {
             ) : null}
           </div>
           {mode === "admin" ? (
-            <div className="mv-w-full mv-grid mv-grid-rows-1 mv-grid-cols-2 mv-gap-2">
+            <div className="mv-w-full @sm:mv-w-fit mv-grid @sm:mv-flex mv-grid-rows-1 mv-grid-cols-2 mv-gap-2">
               <Button
                 as="a"
                 href={`/organization/${organization.slug}/settings`}
               >
                 {t("header.controls.edit")}
               </Button>
-              <Button
-                variant="outline"
-                type="submit"
-                form="modal-background-form"
-              >
-                <div className="mv-flex mv-flex-nowrap">
-                  <svg
-                    width="17"
-                    height="16"
-                    viewBox="0 0 17 16"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                  >
-                    <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
-                  </svg>
-                  <span className="ml-2 ">
-                    {t("header.controls.background")}
-                  </span>
-                </div>
-              </Button>
+              <div className="@sm:mv-hidden mv-w-full">
+                <Button
+                  variant="outline"
+                  type="submit"
+                  form="modal-background-form"
+                  fullSize
+                >
+                  <div className="mv-flex mv-flex-nowrap">
+                    <svg
+                      width="17"
+                      height="16"
+                      viewBox="0 0 17 16"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                    >
+                      <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
+                    </svg>
+                    <span className="ml-2 ">
+                      {t("header.controls.background")}
+                    </span>
+                  </div>
+                </Button>
+              </div>
             </div>
           ) : null}
         </div>
-        <div className="mv-absolute mv-top-14 mv-w-40 mv-h-40 mv-rounded-full mv-shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
+        <div className="mv-absolute mv-top-14 @sm:mv-top-8 @sm:mv-left-8 mv-w-40 mv-h-40 mv-rounded-full mv-shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
           <Avatar
             logo={organization.logo}
             name={organization.name}
