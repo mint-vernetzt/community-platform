@@ -1,4 +1,4 @@
-import { TabBar } from "@mint-vernetzt/components";
+import { TabBar, TextButton } from "@mint-vernetzt/components";
 import { type Organization } from "@prisma/client";
 import {
   type LoaderFunctionArgs,
@@ -260,7 +260,17 @@ function ProjectDetail() {
   const pathname = location.pathname;
 
   return (
-    <Container className="mv-w-full mv-h-full mv-flex mv-justify-center mv-bg-white @sm:mv-bg-transparent">
+    <Container
+      outerContainerClassName="mv-w-full mv-h-full mv-flex mv-justify-center mv-bg-white @sm:mv-bg-transparent"
+      innerContainerClassName="mv-w-full mv-py-4 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-4 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl"
+    >
+      <Container.Section className="">
+        <TextButton weight="thin" variant="neutral" arrowLeft>
+          <Link to="/explore/organizations" prefetch="intent">
+            {t("back")}
+          </Link>
+        </TextButton>
+      </Container.Section>
       {hasAboutData(organization) ||
       hasNetworkData(organization) ||
       hasTeamData(organization) ||
