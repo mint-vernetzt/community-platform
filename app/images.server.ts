@@ -25,14 +25,26 @@ export const ImageSizes = {
       Background: {
         width: 1076,
         height: 196,
-        gravity: GravityType.north,
-        type: "fill" as ResizeType,
       },
       BlurredBackground: {
         width: 108,
         height: 20,
-        gravity: GravityType.north,
-        type: "fill" as ResizeType,
+      },
+      Logo: {
+        width: 160,
+        height: 160,
+      },
+      BlurredLogo: {
+        width: 16,
+        height: 16,
+      },
+      NetworkLogo: {
+        width: 40,
+        height: 40,
+      },
+      BlurredNetworkLogo: {
+        width: 4,
+        height: 4,
       },
     },
   },

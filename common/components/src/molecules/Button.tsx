@@ -5,7 +5,7 @@ import React from "react";
 
 export type ButtonSize = "x-small" | "small" | "medium" | "large";
 export type ButtonVariant = "normal" | "outline" | "ghost";
-export type ButtonType = "button" | "a";
+export type ButtonType = "button" | "a" | "div";
 export type ButtonLevel =
   | "primary"
   // | "secondary"

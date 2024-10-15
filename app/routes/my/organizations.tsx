@@ -60,7 +60,11 @@ import {
 } from "./organizations/requests";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
 
-export const i18nNS = ["routes/my/organizations"];
+export const i18nNS = [
+  "routes/my/organizations",
+  "datasets/organizationTypes",
+  "datasets/focuses",
+];
 export const handle = {
   i18n: i18nNS,
 };

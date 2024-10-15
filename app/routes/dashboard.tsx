@@ -476,10 +476,10 @@ function Dashboard() {
                 <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
                   {loaderData.organizationsFromInvites
                     .slice(0, 3)
-                    .map((organization) => {
+                    .map((organization, index) => {
                       return (
                         <div
-                          key={organization.slug}
+                          key={`organization-invite-${organization.slug}-${index}`}
                           className="mv-w-[73px] mv-h-[73px]"
                         >
                           <Avatar
@@ -523,10 +523,10 @@ function Dashboard() {
                 <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
                   {loaderData.profilesFromRequests
                     .slice(0, 3)
-                    .map((profile) => {
+                    .map((profile, index) => {
                       return (
                         <div
-                          key={profile.username}
+                          key={`organization-request-${profile.username}-${index}`}
                           className="mv-w-[73px] mv-h-[73px]"
                         >
                           <Avatar
@@ -607,7 +607,7 @@ function Dashboard() {
               {loaderData.upcomingCanceledEvents.map((event, index) => {
                 return (
                   <li
-                    key={event.slug}
+                    key={`canceled-event-${event.slug}`}
                     className={`mv-w-full mv-min-h-[124px] mv-overflow-hidden p-4 @md:mv-p-0 @md:mv-pr-4 @lg:mv-pr-6 mv-bg-negative-50 mv-rounded-r-lg mv-rounded-l-lg @sm:mv-rounded-r-xl @md:mv-rounded-r-2xl mv-gap-4 @sm:mv-gap-6 mv-flex-col @sm:mv-flex-row @sm:mv-items-center ${
                       index > 1
                         ? "mv-hidden group-has-[:checked]:mv-flex"
@@ -716,7 +716,7 @@ function Dashboard() {
             {Object.entries(updateTeasers).map(([key, value]) => {
               return (
                 <TeaserCard
-                  key={key}
+                  key={`${key}-update-teaser`}
                   to={value.link}
                   headline={t(`content.updates.${key}.headline`)}
                   description={t(`content.updates.${key}.description`)}
@@ -768,7 +768,7 @@ function Dashboard() {
             {Object.entries(newsTeasers).map(([key, value]) => {
               return (
                 <TeaserCard
-                  key={key}
+                  key={`${key}-news-teaser`}
                   to={value.link}
                   headline={t(`content.news.${key}.headline`)}
                   description={t(`content.news.${key}.description`)}
@@ -791,7 +791,7 @@ function Dashboard() {
             {Object.entries(loaderData.communityCounter).map(([key, value]) => {
               return (
                 <li
-                  key={key}
+                  key={`${key}-counter`}
                   className="mv-grid mv-grid-cols-1 mv-grid-rows-2 mv-place-items-center mv-gap-2"
                 >
                   <div className="mv-text-5xl mv-font-bold mv-leading-10 mv-text-primary">
@@ -823,7 +823,12 @@ function Dashboard() {
         <div className="@xl:mv-px-2">
           <CardContainer>
             {loaderData.profiles.map((profile) => {
-              return <ProfileCard key={profile.username} profile={profile} />;
+              return (
+                <ProfileCard
+                  key={`newest-profile-card-${profile.username}`}
+                  profile={profile}
+                />
+              );
             })}
           </CardContainer>
         </div>
@@ -847,7 +852,7 @@ function Dashboard() {
             {loaderData.organizations.map((organization) => {
               return (
                 <OrganizationCard
-                  key={organization.slug}
+                  key={`newest-organization-card-${organization.slug}`}
                   organization={organization}
                 />
               );
@@ -872,7 +877,12 @@ function Dashboard() {
         <div className="@xl:mv-px-2">
           <CardContainer>
             {loaderData.projects.map((project) => {
-              return <ProjectCard key={project.slug} project={project} />;
+              return (
+                <ProjectCard
+                  key={`newest-project-card-${project.slug}`}
+                  project={project}
+                />
+              );
             })}
           </CardContainer>
         </div>
@@ -905,7 +915,7 @@ function Dashboard() {
               );
               return (
                 <EventCard
-                  key={event.slug}
+                  key={`newest-event-card-${event.slug}`}
                   event={{
                     ...event,
                     startTime,
@@ -932,7 +942,7 @@ function Dashboard() {
             return (
               <TeaserCard
                 to={value.link}
-                key={key}
+                key={`${key}-external-link-teaser`}
                 headline={t(`content.externalLinks.${key}.headline`)}
                 description={t(`content.externalLinks.${key}.description`)}
                 linkDescription={t(

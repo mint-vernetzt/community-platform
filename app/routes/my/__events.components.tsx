@@ -2,15 +2,38 @@ import { TabBar } from "@mint-vernetzt/components";
 import { Link } from "@remix-run/react";
 import classNames from "classnames";
 import { utcToZonedTime } from "date-fns-tz";
-import React, { PropsWithChildren } from "react";
+import React, { type PropsWithChildren } from "react";
 import { useTranslation } from "react-i18next";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 
-export function Container(props: { children: React.ReactNode }) {
+export function Container(props: {
+  children: React.ReactNode;
+  outerContainerClassName: Pick<
+    React.HTMLProps<HTMLDivElement>,
+    "className"
+  >["className"];
+  innerContainerClassName: Pick<
+    React.HTMLProps<HTMLDivElement>,
+    "className"
+  >["className"];
+}) {
+  const { outerContainerClassName, innerContainerClassName } = props;
   return (
-    <div className="mv-w-full mv-h-full mv-flex mv-justify-center">
-      <div className="mv-w-full mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl">
+    <div
+      className={`${
+        outerContainerClassName !== undefined
+          ? outerContainerClassName
+          : "mv-w-full mv-h-full mv-flex mv-justify-center"
+      }`}
+    >
+      <div
+        className={`${
+          innerContainerClassName !== undefined
+            ? innerContainerClassName
+            : "mv-w-full mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl"
+        }`}
+      >
         {props.children}
       </div>
     </div>
@@ -33,7 +56,13 @@ export function ContainerTitle(props: { children: React.ReactNode }) {
   );
 }
 
-export function Section(props: { children: React.ReactNode }) {
+export function Section(
+  props: { children: React.ReactNode } & Pick<
+    React.HTMLProps<HTMLElement>,
+    "className"
+  >
+) {
+  const { className } = props;
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
       return React.isValidElement(child);
@@ -55,7 +84,13 @@ export function Section(props: { children: React.ReactNode }) {
   });
 
   return (
-    <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
+    <section
+      className={`${
+        className !== undefined
+          ? className
+          : "mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl"
+      }`}
+    >
       {title !== undefined || text !== undefined ? (
         <div className="mv-flex mv-flex-col mv-gap-2">
           {title || null}
@@ -379,9 +414,7 @@ function EventListItemContent(props: {
     <>
       <div className="mv-py-4 mv-px-4">
         <p className="text-xs mb-1">
-          {event.stage !== null
-            ? t(`${event.stage.slug}.title`, { ns: "datasets/stages" }) + " | "
-            : ""}
+          {event.stage !== null ? t(`${event.stage.slug}.title`) + " | " : ""}
           {getDuration(startTime, endTime, i18n.language)}
 
           {event.participantLimit === null &&
