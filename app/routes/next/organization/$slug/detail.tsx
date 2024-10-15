@@ -260,14 +260,13 @@ function ProjectDetail() {
   const pathname = location.pathname;
 
   return (
-    <Container>
+    <Container className="mv-bg-white @sm:mv-bg-none">
       {hasAboutData(organization) ||
       hasNetworkData(organization) ||
       hasTeamData(organization) ||
       hasEventsData(organization) ||
       hasProjectsData(organization) ? (
         // TODO: Section should have no border on mobile. Have we already got a <Section> component for this case?
-        // TODO: Background color changes on mobile. Have we already got a <Container> component for this case?
         <Container.Section>
           <TabBar>
             {hasAboutData(organization) ? (

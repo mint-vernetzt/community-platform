@@ -2,14 +2,24 @@ import { TabBar } from "@mint-vernetzt/components";
 import { Link } from "@remix-run/react";
 import classNames from "classnames";
 import { utcToZonedTime } from "date-fns-tz";
-import React, { PropsWithChildren } from "react";
+import React, { type PropsWithChildren } from "react";
 import { useTranslation } from "react-i18next";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 
-export function Container(props: { children: React.ReactNode }) {
+export function Container(
+  props: { children: React.ReactNode } & Pick<
+    React.HTMLProps<HTMLDivElement>,
+    "className"
+  >
+) {
+  const { className } = props;
   return (
-    <div className="mv-w-full mv-h-full mv-flex mv-justify-center">
+    <div
+      className={`mv-w-full mv-h-full mv-flex mv-justify-center${
+        className !== undefined ? ` ${className}` : ""
+      }`}
+    >
       <div className="mv-w-full mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl">
         {props.children}
       </div>
