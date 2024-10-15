@@ -88,8 +88,8 @@ function TabBar(props: TabBarProps) {
 
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
-  const [showScrollLeft, setShowScrollLeft] = React.useState(false);
-  const [showScrollRight, setShowScrollRight] = React.useState(false);
+  const [showScrollLeft, setShowScrollLeft] = React.useState(true);
+  const [showScrollRight, setShowScrollRight] = React.useState(true);
 
   const validChildren = children.filter((child) => {
     return React.isValidElement(child) && child.type === Item;
@@ -133,6 +133,10 @@ function TabBar(props: TabBarProps) {
         scrollContainerRef.current.clientWidth
       ) {
         setShowScrollRight(true);
+        setShowScrollLeft(false);
+      } else {
+        setShowScrollRight(false);
+        setShowScrollLeft(false);
       }
     }
   }, []);
