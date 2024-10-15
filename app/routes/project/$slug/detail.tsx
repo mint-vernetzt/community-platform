@@ -42,6 +42,10 @@ import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/detail"];
 
+export const handle = {
+  i18n: i18nNS,
+};
+
 export function links() {
   return [
     { rel: "stylesheet", href: rcSliderStyles },

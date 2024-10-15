@@ -1,5 +1,28 @@
 {
+    "server": {
+        "error": {
+            "organizationNotFound": "Organisation nicht gefunden"
+        }
+    },
     "back": "Organisationen entdecken",
+    "header": {
+        "image": {
+            "alt": "Hintergrundbild der Organisation"
+        },
+        "controls": {
+            "edit": "Bearbeiten",
+            "background": "Bild ändern",
+            "logo": "Logo ändern"
+        }
+    },
+    "cropper": {
+        "background": {
+            "headline": "Hintergrundbild"
+        },
+        "logo": {
+            "headline": "Logo"
+        }
+    },
     "tabbar": {
         "about": "Info",
         "network": "Netzwerk",

@@ -1,5 +1,6 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { getImageURL, ImageSizes } from "~/images.server";
+import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -7,9 +8,11 @@ export async function getOrganization(slug: string) {
   const organization = await prismaClient.organization.findUnique({
     select: {
       id: true,
+      slug: true,
       name: true,
       bio: true,
       background: true,
+      logo: true,
       email: true,
       phone: true,
       website: true,
@@ -26,6 +29,35 @@ export async function getOrganization(slug: string) {
       mastodon: true,
       tiktok: true,
       supportedBy: true,
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+      networkMembers: {
+        select: {
+          networkMember: {
+            select: {
+              id: true,
+              slug: true,
+              logo: true,
+              name: true,
+              organizationVisibility: {
+                select: {
+                  id: true,
+                  slug: true,
+                  logo: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
       _count: {
         select: {
           areas: true,
@@ -52,8 +84,10 @@ export async function getOrganization(slug: string) {
       organizationVisibility: {
         select: {
           name: true,
+          slug: true,
           bio: true,
           background: true,
+          logo: true,
           email: true,
           phone: true,
           website: true,
@@ -70,6 +104,8 @@ export async function getOrganization(slug: string) {
           mastodon: true,
           tiktok: true,
           supportedBy: true,
+          types: true,
+          networkMembers: true,
         },
       },
     },
@@ -80,39 +116,90 @@ export async function getOrganization(slug: string) {
   return organization;
 }
 
+export function filterOrganization(
+  organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
+) {
+  const filteredOrganization = filterOrganizationByVisibility(organization);
+  const networkMembers = filteredOrganization.networkMembers.map((relation) => {
+    const filteredNetworkMember = filterOrganizationByVisibility<
+      typeof relation.networkMember
+    >(relation.networkMember);
+    return {
+      ...relation,
+      networkMember: filteredNetworkMember,
+    };
+  });
+  return {
+    ...filteredOrganization,
+    networkMembers,
+  };
+}
+
 export function addImgUrls(
   authClient: SupabaseClient,
   organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 ) {
   let background = organization.background;
   let blurredBackground;
-  const { height, width, type, gravity } =
-    ImageSizes.Organization.Detail.Background;
-  const {
-    height: blurredHeight,
-    width: blurredWidth,
-    type: blurredType,
-    gravity: blurredGravity,
-  } = ImageSizes.Organization.Detail.BlurredBackground;
   if (background !== null) {
     const publicURL = getPublicURL(authClient, background);
     background = getImageURL(publicURL, {
-      resize: { type, height, width },
-      gravity,
+      resize: { type: "fill", ...ImageSizes.Organization.Detail.Background },
     });
     blurredBackground = getImageURL(publicURL, {
       resize: {
-        type: blurredType,
-        width: blurredWidth,
-        height: blurredHeight,
+        type: "fill",
+        ...ImageSizes.Organization.Detail.BlurredBackground,
       },
-      gravity: blurredGravity,
       blur: 5,
     });
   }
+  let logo = organization.logo;
+  let blurredLogo;
+  if (logo !== null) {
+    const publicURL = getPublicURL(authClient, logo);
+    logo = getImageURL(publicURL, {
+      resize: { type: "fill", ...ImageSizes.Organization.Detail.Logo },
+    });
+    blurredLogo = getImageURL(publicURL, {
+      resize: {
+        type: "fill",
+        ...ImageSizes.Organization.Detail.BlurredLogo,
+      },
+      blur: 5,
+    });
+  }
+  const networkMembers = organization.networkMembers.map((relation) => {
+    let logo = relation.networkMember.logo;
+    let blurredLogo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      logo = getImageURL(publicURL, {
+        resize: { type: "fill", ...ImageSizes.Organization.Detail.NetworkLogo },
+      });
+      blurredLogo = getImageURL(publicURL, {
+        resize: {
+          type: "fill",
+          ...ImageSizes.Organization.Detail.BlurredNetworkLogo,
+        },
+        blur: 5,
+      });
+    }
+    return {
+      ...relation,
+      networkMember: {
+        ...relation.networkMember,
+        logo,
+        blurredLogo,
+      },
+    };
+  });
   return {
     ...organization,
+    networkMembers,
     background,
     blurredBackground,
+    logo,
+    blurredLogo,
   };
 }

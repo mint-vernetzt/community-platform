@@ -49,7 +49,7 @@ function Avatar(props: AvatarProps) {
         textSize === "sm" ||
         textSize === "xs",
     },
-    "mv-bg-primary mv-border-gray-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0",
+    "mv-bg-primary mv-border-neutral-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0",
     "mv-text-white mv-font-normal	mv-flex mv-items-center mv-justify-center",
     props.to &&
       "hover:mv-border-0 active:mv-border-0 focus:mv-border-0 hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
