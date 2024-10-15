@@ -16,8 +16,10 @@ export function Container(
   const { className } = props;
   return (
     <div
-      className={`mv-w-full mv-h-full mv-flex mv-justify-center${
-        className !== undefined ? ` ${className}` : ""
+      className={`${
+        className !== undefined
+          ? className
+          : "mv-w-full mv-h-full mv-flex mv-justify-center"
       }`}
     >
       <div className="mv-w-full mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl">
@@ -43,7 +45,13 @@ export function ContainerTitle(props: { children: React.ReactNode }) {
   );
 }
 
-export function Section(props: { children: React.ReactNode }) {
+export function Section(
+  props: { children: React.ReactNode } & Pick<
+    React.HTMLProps<HTMLElement>,
+    "className"
+  >
+) {
+  const { className } = props;
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
       return React.isValidElement(child);
@@ -65,7 +73,13 @@ export function Section(props: { children: React.ReactNode }) {
   });
 
   return (
-    <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
+    <section
+      className={`${
+        className
+          ? className
+          : "mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl"
+      }`}
+    >
       {title !== undefined || text !== undefined ? (
         <div className="mv-flex mv-flex-col mv-gap-2">
           {title || null}

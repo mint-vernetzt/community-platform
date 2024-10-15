@@ -260,14 +260,13 @@ function ProjectDetail() {
   const pathname = location.pathname;
 
   return (
-    <Container className="mv-bg-white @sm:mv-bg-none">
+    <Container className="mv-w-full mv-h-full mv-flex mv-justify-center mv-bg-white @sm:mv-bg-transparent">
       {hasAboutData(organization) ||
       hasNetworkData(organization) ||
       hasTeamData(organization) ||
       hasEventsData(organization) ||
       hasProjectsData(organization) ? (
-        // TODO: Section should have no border on mobile. Have we already got a <Section> component for this case?
-        <Container.Section>
+        <Container.Section className="mv-py-6 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 @sm:mv-border @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-2xl">
           <TabBar>
             {hasAboutData(organization) ? (
               <TabBar.Item active={pathname.endsWith("/about")}>
