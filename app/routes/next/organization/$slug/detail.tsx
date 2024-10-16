@@ -438,16 +438,12 @@ function ProjectDetail() {
           ) : null}
         </div>
         {mode === "admin" ? (
-          <button
-            type="submit"
-            form="modal-background-form"
-            className="mv-grid mv-absolute mv-top-0 mv-w-full mv-h-[196px] @lg:mv-h-[168px] mv-opacity-0 hover:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
-          >
+          <div className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-[196px] @lg:mv-h-[168px] mv-opacity-0 hover:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center">
             <div className="mv-flex mv-flex-col mv-items-center mv-gap-4">
               <p className="mv-text-white mv-text-lg mv-font-bold">
                 {t("header.controls.backgroundLong")}
               </p>
-              <Button as="div">
+              <Button type="submit" form="modal-background-form">
                 <div className="mv-flex mv-flex-nowrap">
                   <svg
                     width="17"
@@ -464,7 +460,7 @@ function ProjectDetail() {
                 </div>
               </Button>
             </div>
-          </button>
+          </div>
         ) : null}
         <div className="mv-absolute mv-top-14 @lg:mv-top-8 @lg:mv-left-8 mv-w-40 mv-h-40 mv-rounded-full mv-shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
           <div className="mv-relative mv-w-full mv-full">
@@ -478,7 +474,7 @@ function ProjectDetail() {
               <button
                 type="submit"
                 form="modal-logo-form"
-                className="mv-grid mv-absolute mv-top-0 mv-w-full mv-h-full mv-rounded-full mv-opacity-0 hover:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
+                className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-full mv-rounded-full mv-opacity-0 hover:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
               >
                 <div className="mv-flex mv-flex-col mv-items-center mv-gap-1">
                   <div className="mv-w-8 mv-h-8 mv-rounded-full mv-bg-neutral-50 mv-flex mv-items-center mv-justify-center mv-border mv-border-primary mv-bg-opacity-100">
