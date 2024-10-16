@@ -1,0 +1,14 @@
+{
+    "server": {
+        "error": {
+            "organizationNotFound": "Organisation nicht gefunden"
+        }
+    },
+    "headlines": {
+        "bio": "Über uns",
+        "areas": "Aktivitätsgebiete",
+        "focuses": "Schwerpunkte",
+        "supportedBy": "Unterstützt und gefördert von",
+        "contact": "Kontakt"
+    }
+}

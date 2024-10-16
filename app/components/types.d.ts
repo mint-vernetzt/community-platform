@@ -1,4 +1,4 @@
-import { Organization, Profile } from "@prisma/client";
+import { type Organization, type Profile } from "@prisma/client";
 
 export interface Image {
   src: string;
