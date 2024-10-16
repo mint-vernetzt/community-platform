@@ -12,7 +12,7 @@ import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
 import { useTranslation } from "react-i18next";
 import { RemixFormsForm } from "../RemixFormsForm/RemixFormsForm";
-import { Form, SubmitFunction, useSubmit } from "@remix-run/react";
+import { Form, type SubmitFunction, useSubmit } from "@remix-run/react";
 import { Button } from "@mint-vernetzt/components";
 
 export interface ImageCropperProps {

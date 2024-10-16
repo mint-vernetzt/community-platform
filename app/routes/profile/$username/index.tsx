@@ -49,6 +49,7 @@ const i18nNS = [
   "datasets/offers",
   "datasets/stages",
   "datasets/organizationTypes",
+  "components/image-cropper",
 ];
 export const handle = {
   i18n: i18nNS,
@@ -386,7 +387,7 @@ export default function Index() {
         {background !== null ? (
           <img src={background} alt={t("images.currentBackground")} />
         ) : (
-          <div className="w-[336px] min-h-[108px]" />
+          <div className="w-[300px] min-h-[108px]" />
         )}
       </div>
     ),

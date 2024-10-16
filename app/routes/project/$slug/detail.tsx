@@ -40,7 +40,7 @@ import { deriveProjectMode } from "../utils.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/project/detail"];
+const i18nNS = ["routes/project/detail", "components/image-cropper"];
 
 export const handle = {
   i18n: i18nNS,
@@ -466,7 +466,7 @@ function ProjectDetail() {
                     blurredSrc={project.blurredBackground || undefined}
                   />
                 ) : (
-                  <div className="mv-w-[336px] mv-min-h-[108px] mv-bg-attention-400" />
+                  <div className="mv-w-[300px] mv-min-h-[108px] mv-bg-attention-400 mv-rounded-md" />
                 )}
               </ImageCropper>
             </Modal.Section>
