@@ -304,7 +304,7 @@ function ProjectDetail() {
   return (
     <Container
       outerContainerClassName="mv-w-full mv-h-full mv-flex mv-justify-center mv-bg-white @sm:mv-bg-transparent"
-      innerContainerClassName="mv-w-full mv-py-4 mv-px-4 @lg:mv-py-8 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-4 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl"
+      innerContainerClassName="mv-w-full mv-py-4 mv-px-4 @lg:mv-py-8 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-4 @md:mv-gap-6 @lg:mv-gap-8 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl"
     >
       {/* Back Button Section */}
       <Container.Section className="">
