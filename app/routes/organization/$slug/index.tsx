@@ -1,7 +1,7 @@
 import { Button, TextButton } from "@mint-vernetzt/components";
 import type { Organization } from "@prisma/client";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css";
@@ -188,9 +188,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     authClient,
     "next-organization-detail"
   );
-  if (abilities["next-organization-detail"].hasAccess === true) {
-    return redirect(`/next/organization/${slug}/detail`);
-  }
   const mode = await deriveOrganizationMode(sessionUser, slug);
 
   const organization = await getOrganizationBySlug(slug);
@@ -237,6 +234,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 
   return json({
+    abilities,
     organization: organizationWithoutEvents,
     futureEvents: enhancedFutureEvents,
     pastEvents: enhancedPastEvents,
@@ -340,6 +338,17 @@ export default function Index() {
 
   return (
     <>
+      {loaderData.abilities["next-organization-detail"].hasAccess === true ? (
+        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
+          <TextButton weight="thin" variant="neutral" arrowRight>
+            <Link
+              to={`/next/organization/${loaderData.organization.slug}/detail`}
+            >
+              Hier gehts zur neuen Detailseite
+            </Link>
+          </TextButton>
+        </section>
+      ) : null}
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
         <TextButton weight="thin" variant="neutral" arrowLeft>
           <Link to="/explore/organizations" prefetch="intent">
