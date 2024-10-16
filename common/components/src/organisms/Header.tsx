@@ -33,7 +33,7 @@ export function Header(props: HeaderProps) {
   }
 
   return (
-    <div className="mv-relative mv-w-full mv-border mv-rounded-none @md:mv-rounded-3xl mv-overflow-hidden mv-bg-white">
+    <div className="mv-relative mv-w-full mv-border mv-border-neutral-200 mv-rounded-2xl mv-overflow-hidden mv-bg-white">
       <div className="mv-relative mv-w-full mv-aspect-[3/2] @md:mv-aspect-[2/1] @lg:mv-aspect-[31/10] mv-bg-attention-400">
         {image || null}
         {status !== undefined && (
