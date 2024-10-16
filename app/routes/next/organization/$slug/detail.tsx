@@ -516,6 +516,7 @@ function ProjectDetail() {
             method="get"
             action={location.pathname}
             preventScrollReset
+            hidden
           >
             <input hidden name="modal-background" defaultValue="true" />
           </Form>
@@ -553,6 +554,7 @@ function ProjectDetail() {
             method="get"
             action={location.pathname}
             preventScrollReset
+            hidden
           >
             <input hidden name="modal-logo" defaultValue="true" />
           </Form>
