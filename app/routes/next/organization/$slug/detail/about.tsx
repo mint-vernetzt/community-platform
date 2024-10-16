@@ -51,6 +51,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
+function hasGeneralInformation(organization: {
+  bio: string | null;
+  areas: Array<{ area: { slug: string; name: string } }>;
+  focuses: Array<{ focus: { slug: string } }>;
+  supportedBy: string[];
+}) {
+  return (
+    organization.bio !== null ||
+    organization.areas.length > 0 ||
+    organization.focuses.length > 0 ||
+    organization.supportedBy.length > 0
+  );
+}
+
 function hasContactOrSoMeInformation(organization: {
   email: string | null;
   phone: string | null;
@@ -149,67 +163,76 @@ function About() {
 
   return (
     <>
-      <Container.Section className="-mv-mt-4 @md:-mv-mt-6 @lg:-mv-mt-8 mv-pt-10 @sm:mv-pt-0 @sm:mv-py-10 @lg:mv-py-8 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-6 @sm:mv-border-b @sm:mv-border-x @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-b-2xl">
-        {organization.bio !== null ? (
-          <div className="mv-flex mv-flex-col mv-gap-4">
-            <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
-              {t("headlines.bio")}
-            </h2>
-            <div>
-              <RichText
-                html={organization.bio}
-                additionalClassNames="mv-text-neutral-600 mv-text-lg"
-              />
+      {hasGeneralInformation(organization) ? (
+        <Container.Section className="-mv-mt-4 @md:-mv-mt-6 @lg:-mv-mt-8 mv-pt-10 @sm:mv-pt-0 @sm:mv-py-10 @lg:mv-py-8 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-6 @sm:mv-border-b @sm:mv-border-x @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-b-2xl">
+          {organization.bio !== null ? (
+            <div className="mv-flex mv-flex-col mv-gap-4">
+              <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
+                {t("headlines.bio")}
+              </h2>
+              <div>
+                <RichText
+                  html={organization.bio}
+                  additionalClassNames="mv-text-neutral-600 mv-text-lg"
+                />
+              </div>
             </div>
-          </div>
-        ) : null}
-        {organization.areas.length > 0 ? (
-          <div className="mv-flex mv-flex-col mv-gap-2">
-            <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
-              {t("headlines.areas")}
-            </h3>
-            <Chip.Container>
-              {organization.areas.map((relation) => {
-                return (
-                  <Chip key={relation.area.slug} color="primary">
-                    {relation.area.name}
-                  </Chip>
-                );
-              })}
-            </Chip.Container>
-          </div>
-        ) : null}
-        {organization.focuses.length > 0 ? (
-          <div className="mv-flex mv-flex-col mv-gap-2">
-            <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
-              {t("headlines.focuses")}
-            </h3>
-            <Chip.Container>
-              {organization.focuses.map((relation) => {
-                return (
-                  <Chip key={relation.focus.slug} color="primary">
-                    {t(`${relation.focus.slug}.title`, {
-                      ns: "datasets/focuses",
-                    })}
-                  </Chip>
-                );
-              })}
-            </Chip.Container>
-          </div>
-        ) : null}
-        {organization.supportedBy.length > 0 ? (
-          <div className="mv-flex mv-flex-col mv-gap-2">
-            <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
-              {t("headlines.supportedBy")}
-            </h3>
-            <p className="mv-text-neutral-700 mv-text-lg mv-leading-6">
-              {organization.supportedBy.join(" / ")}
-            </p>
-          </div>
-        ) : null}
-      </Container.Section>
+          ) : null}
+          {organization.areas.length > 0 ? (
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
+                {t("headlines.areas")}
+              </h3>
+              <Chip.Container>
+                {organization.areas.map((relation) => {
+                  return (
+                    <Chip key={relation.area.slug} color="primary">
+                      {relation.area.name}
+                    </Chip>
+                  );
+                })}
+              </Chip.Container>
+            </div>
+          ) : null}
+          {organization.focuses.length > 0 ? (
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
+                {t("headlines.focuses")}
+              </h3>
+              <Chip.Container>
+                {organization.focuses.map((relation) => {
+                  return (
+                    <Chip key={relation.focus.slug} color="primary">
+                      {t(`${relation.focus.slug}.title`, {
+                        ns: "datasets/focuses",
+                      })}
+                    </Chip>
+                  );
+                })}
+              </Chip.Container>
+            </div>
+          ) : null}
+          {organization.supportedBy.length > 0 ? (
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
+                {t("headlines.supportedBy")}
+              </h3>
+              <p className="mv-text-neutral-700 mv-text-lg mv-leading-6">
+                {organization.supportedBy.join(" / ")}
+              </p>
+            </div>
+          ) : null}
+        </Container.Section>
+      ) : null}
+
       {hasContactOrSoMeInformation(organization) ? (
-        <Container.Section className="mv-py-6 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-6 @sm:mv-border @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-2xl mv-mb-4">
+        <Container.Section
+          className={`@sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-6 @sm:mv-border-neutral-200 mv-bg-white ${
+            hasGeneralInformation(organization)
+              ? "mv-py-6 @sm:mv-border @sm:mv-rounded-2xl"
+              : "-mv-mt-4 @md:-mv-mt-6 @lg:-mv-mt-8 mv-pt-10 mv-pb-6 @sm:mv-pt-0 @sm:mv-pb-0 @sm:mv-py-10 @lg:mv-py-8 @sm:mv-border-b @sm:mv-border-x @sm:mv-rounded-b-2xl"
+          }`}
+        >
           <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
             {t("headlines.contact")}
           </h3>
