@@ -155,9 +155,12 @@ function About() {
             <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
               {t("headlines.bio")}
             </h2>
-            <p className="mv-text-neutral-600 mv-text-lg">
-              <RichText html={organization.bio} />
-            </p>
+            <div>
+              <RichText
+                html={organization.bio}
+                additionalClassNames="mv-text-neutral-600 mv-text-lg"
+              />
+            </div>
           </div>
         ) : null}
         {organization.areas.length > 0 ? (
