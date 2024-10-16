@@ -1,5 +1,5 @@
 import { Chip } from "@mint-vernetzt/components";
-import { Organization } from "@prisma/client";
+import { type Organization } from "@prisma/client";
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { filterOrganization, getOrganization } from "./about.server";
+import { Container } from "~/routes/my/__events.components";
 
 const i18nNS = ["routes/next/organization/detail/about", "datasets/focuses"];
 
@@ -130,51 +131,52 @@ function About() {
 
   return (
     <>
-      {organization.bio !== null ? (
-        <>
-          <h2>{t("headlines.bio")}</h2>
-          <p>{organization.bio}</p>
-        </>
-      ) : null}
-      {organization.areas.length > 0 ? (
-        <>
-          <h3>{t("headlines.areas")}</h3>
-          <Chip.Container>
-            {organization.areas.map((relation) => {
-              return (
-                <Chip key={relation.area.slug} color="primary">
-                  {relation.area.name}
-                </Chip>
-              );
-            })}
-          </Chip.Container>
-        </>
-      ) : null}
-      {organization.focuses.length > 0 ? (
-        <>
-          <h3>{t("headlines.focuses")}</h3>
-          <Chip.Container>
-            {organization.focuses.map((relation) => {
-              return (
-                <Chip key={relation.focus.slug} color="primary">
-                  {t(`${relation.focus.slug}.title`, {
-                    ns: "datasets/focuses",
-                  })}
-                </Chip>
-              );
-            })}
-          </Chip.Container>
-        </>
-      ) : null}
-      {organization.supportedBy.length > 0 ? (
-        <>
-          <h3>{t("headlines.supportedBy")}</h3>
-          <p>{organization.supportedBy.join(" / ")}</p>
-        </>
-      ) : null}
-      {/* TODO: This should be in its own section. Find out how to handle Outlet in parent route */}
+      <Container.Section className="-mv-mt-4 mv-py-10 @lg:mv-py-8 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 @sm:mv-border-b @sm:mv-border-x @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-b-2xl">
+        {organization.bio !== null ? (
+          <>
+            <h2>{t("headlines.bio")}</h2>
+            <p>{organization.bio}</p>
+          </>
+        ) : null}
+        {organization.areas.length > 0 ? (
+          <>
+            <h3>{t("headlines.areas")}</h3>
+            <Chip.Container>
+              {organization.areas.map((relation) => {
+                return (
+                  <Chip key={relation.area.slug} color="primary">
+                    {relation.area.name}
+                  </Chip>
+                );
+              })}
+            </Chip.Container>
+          </>
+        ) : null}
+        {organization.focuses.length > 0 ? (
+          <>
+            <h3>{t("headlines.focuses")}</h3>
+            <Chip.Container>
+              {organization.focuses.map((relation) => {
+                return (
+                  <Chip key={relation.focus.slug} color="primary">
+                    {t(`${relation.focus.slug}.title`, {
+                      ns: "datasets/focuses",
+                    })}
+                  </Chip>
+                );
+              })}
+            </Chip.Container>
+          </>
+        ) : null}
+        {organization.supportedBy.length > 0 ? (
+          <>
+            <h3>{t("headlines.supportedBy")}</h3>
+            <p>{organization.supportedBy.join(" / ")}</p>
+          </>
+        ) : null}
+      </Container.Section>
       {hasContactData(organization) ? (
-        <>
+        <Container.Section className="mv-py-6 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 @sm:mv-border @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-2xl">
           <h3>{t("headlines.contact")}</h3>
           <address>
             {organization.email !== null ? (
@@ -238,7 +240,7 @@ function About() {
               </ul>
             ) : null}
           </address>
-        </>
+        </Container.Section>
       ) : null}
     </>
   );
