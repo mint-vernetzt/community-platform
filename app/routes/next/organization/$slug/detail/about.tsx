@@ -62,6 +62,11 @@ function About() {
   const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
   const { organization } = loaderData;
+  const numberOfSocialServices = Object.entries(ExternalServiceIcons).filter(
+    ([key]) => {
+      return organization[key as keyof typeof ExternalServiceIcons] !== null;
+    }
+  ).length;
 
   return (
     <>
@@ -200,7 +205,15 @@ function About() {
               </div>
             ) : null}
             {hasSocialService(organization) ? (
-              <ul className="mv-w-full mv-grid mv-grid-cols-2 @md:mv-grid-cols-3 mv-grid-flow-row mv-auto-rows-min mv-gap-2">
+              <ul
+                className={`mv-w-full mv-grid ${
+                  numberOfSocialServices === 1
+                    ? "mv-grid-cols-1"
+                    : numberOfSocialServices === 2
+                    ? "mv-grid-cols-2"
+                    : "mv-grid-cols-2 @md:mv-grid-cols-3"
+                } mv-grid-flow-row mv-auto-rows-min mv-gap-2`}
+              >
                 {Object.entries(ExternalServiceIcons).map(([key, value]) => {
                   const typedKey = key as keyof typeof ExternalServiceIcons;
                   if (organization[typedKey] !== null) {
