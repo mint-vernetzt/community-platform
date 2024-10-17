@@ -1,7 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { getImageURL } from "~/images.server";
-import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
-import { mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -26,7 +24,7 @@ export async function getPendingRequestsToOrganizations(
               select: {
                 organizationType: {
                   select: {
-                    title: true,
+                    slug: true,
                   },
                 },
               },

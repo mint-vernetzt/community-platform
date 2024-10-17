@@ -554,6 +554,7 @@ export default function MyOrganizations() {
                           key={`${key}-invite-${invite.organizationId}`}
                           listIndex={index}
                           entity={invite.organization}
+                          hideAfter={3}
                         >
                           <AcceptOrRejectInviteFetcher
                             inviteFetcher={inviteFetcher}
@@ -620,7 +621,11 @@ export default function MyOrganizations() {
               {Object.entries(requests).map(([key, value]) => {
                 return value.active &&
                   value.organization.profileJoinRequests.length > 0 ? (
-                  <ListContainer key={key} listKey={`${key}-list`}>
+                  <ListContainer
+                    key={key}
+                    listKey={`${key}-list`}
+                    hideAfter={3}
+                  >
                     {value.organization.profileJoinRequests.map(
                       (request, index) => {
                         return (
@@ -628,6 +633,7 @@ export default function MyOrganizations() {
                             key={`${key}-request-${request.profile.id}`}
                             listIndex={index}
                             entity={request.profile}
+                            hideAfter={3}
                           >
                             <AcceptOrRejectRequestFetcher
                               fetcher={acceptOrRejectRequestFetcher}
@@ -665,7 +671,10 @@ export default function MyOrganizations() {
                   <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
                     {t("requests.headline")}
                   </h4>
-                  <ListContainer listKey="pending-requests-to-organizations">
+                  <ListContainer
+                    listKey="pending-requests-to-organizations"
+                    hideAfter={3}
+                  >
                     {loaderData.pendingRequestsToOrganizations.map(
                       (organization, index) => {
                         return (
@@ -673,6 +682,7 @@ export default function MyOrganizations() {
                             key={`cancel-request-from-${organization.id}`}
                             listIndex={index}
                             entity={organization}
+                            hideAfter={3}
                           >
                             <CancelRequestFetcher
                               fetcher={cancelRequestFetcher}

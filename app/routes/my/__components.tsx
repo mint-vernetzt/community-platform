@@ -436,7 +436,7 @@ type Entity =
       slug: string;
       types: {
         organizationType: {
-          title: string;
+          slug: string;
         };
       }[];
     }
@@ -454,14 +454,18 @@ export function ListItem(
   props: React.PropsWithChildren<{
     entity: Entity;
     listIndex: number;
+    hideAfter?: number;
   }>
 ) {
-  const { entity, children, listIndex } = props;
+  const { entity, children, listIndex, hideAfter } = props;
+  const { t } = useTranslation(organizationsI18nNS);
 
   return (
     <li
       className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center ${
-        listIndex > 2 ? "mv-hidden group-has-[:checked]:mv-flex" : "mv-flex"
+        hideAfter !== undefined && listIndex > hideAfter - 1
+          ? "mv-hidden group-has-[:checked]:mv-flex"
+          : "mv-flex"
       }`}
     >
       <Link
@@ -488,7 +492,9 @@ export function ListItem(
               ? entity.position
               : entity.types
                   .map((relation) => {
-                    return relation.organizationType.title;
+                    return t(`${relation.organizationType.slug}.title`, {
+                      ns: "datasets/organizationTypes",
+                    });
                   })
                   .join(", ")}
           </p>
@@ -500,16 +506,17 @@ export function ListItem(
 }
 
 export function ListContainer(
-  props: React.PropsWithChildren<{ listKey: string }>
+  props: React.PropsWithChildren<{ listKey: string; hideAfter?: number }>
 ) {
-  const { children, listKey } = props;
+  const { children, listKey, hideAfter } = props;
   const { t } = useTranslation("components");
   return (
-    <ul className="mv-flex mv-flex-col mv-gap-4 mv-group">
+    <ul className="mv-flex mv-flex-col mv-gap-4 @lg:mv-gap-6 mv-group">
       {children}
       {children !== undefined &&
       Array.isArray(children) &&
-      children.length > 3 ? (
+      hideAfter !== undefined &&
+      children.length > hideAfter ? (
         <div
           key={`show-more-${listKey}-container`}
           className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
