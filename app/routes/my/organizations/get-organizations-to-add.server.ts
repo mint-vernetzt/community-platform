@@ -71,7 +71,7 @@ export async function getOrganizationsToAdd(
         select: {
           organizationType: {
             select: {
-              title: true,
+              slug: true,
             },
           },
         },

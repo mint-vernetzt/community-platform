@@ -1,1 +1,6 @@
-{}
+{
+    "headlines": {
+        "memberOf": "Part of the network",
+        "networkMembers": "Member organizations"
+    }
+}
