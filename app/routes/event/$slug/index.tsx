@@ -760,8 +760,8 @@ function Index() {
                         uploadKey="background"
                         image={loaderData.event.background || undefined}
                         aspect={3 / 2}
-                        minCropWidth={72}
-                        minCropHeight={48}
+                        minCropWidth={60}
+                        minCropHeight={40}
                         maxTargetWidth={720}
                         maxTargetHeight={480}
                         slug={loaderData.event.slug}

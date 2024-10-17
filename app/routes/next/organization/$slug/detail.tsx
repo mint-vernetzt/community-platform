@@ -529,8 +529,8 @@ function ProjectDetail() {
                 uploadKey="background"
                 image={organization.background || undefined}
                 aspect={31 / 10}
-                minCropWidth={620}
-                minCropHeight={62}
+                minCropWidth={124}
+                minCropHeight={40}
                 maxTargetWidth={1488}
                 maxTargetHeight={480}
                 slug={organization.slug}
@@ -574,6 +574,7 @@ function ProjectDetail() {
                 slug={organization.slug}
                 redirect={pathname}
                 modalSearchParam="modal-logo"
+                circularCrop={true}
               >
                 <Avatar
                   name={organization.name}

@@ -441,8 +441,8 @@ export default function Index() {
                             aspect={1 / 1}
                             minCropWidth={100}
                             minCropHeight={100}
-                            maxTargetHeight={1488}
-                            maxTargetWidth={1488}
+                            maxTargetWidth={288}
+                            maxTargetHeight={288}
                             redirect={uploadRedirect}
                             circularCrop={true}
                             modalSearchParam="modal-logo"

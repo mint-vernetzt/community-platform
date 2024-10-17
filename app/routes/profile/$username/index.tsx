@@ -437,8 +437,8 @@ export default function Index() {
                     uploadKey="background"
                     image={background || undefined}
                     aspect={31 / 10}
-                    minCropWidth={50}
-                    minCropHeight={50}
+                    minCropWidth={124}
+                    minCropHeight={40}
                     maxTargetWidth={1488}
                     maxTargetHeight={480}
                     redirect={uploadRedirect}
