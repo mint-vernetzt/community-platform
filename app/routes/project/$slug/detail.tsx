@@ -40,7 +40,7 @@ import { deriveProjectMode } from "../utils.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/project/detail"];
+const i18nNS = ["routes/project/detail", "components/image-cropper"];
 
 export const handle = {
   i18n: i18nNS,
@@ -451,8 +451,8 @@ function ProjectDetail() {
                 uploadKey="background"
                 image={project.background || undefined}
                 aspect={31 / 10}
-                minCropWidth={620}
-                minCropHeight={62}
+                minCropWidth={124}
+                minCropHeight={40}
                 maxTargetWidth={1488}
                 maxTargetHeight={480}
                 slug={project.slug}
@@ -466,7 +466,7 @@ function ProjectDetail() {
                     blurredSrc={project.blurredBackground || undefined}
                   />
                 ) : (
-                  <div className="mv-w-[336px] mv-min-h-[108px] mv-bg-attention-400" />
+                  <div className="mv-w-[300px] mv-min-h-[108px] mv-bg-attention-400 mv-rounded-md" />
                 )}
               </ImageCropper>
             </Modal.Section>
@@ -487,6 +487,7 @@ function ProjectDetail() {
                 slug={project.slug}
                 redirect={pathname}
                 modalSearchParam="modal-logo"
+                circularCrop={true}
               >
                 <Avatar
                   name={project.name}

@@ -23,28 +23,28 @@ export const ImageSizes = {
   Organization: {
     Detail: {
       Background: {
-        width: 1076,
-        height: 196,
+        width: 1488,
+        height: 480,
       },
       BlurredBackground: {
-        width: 108,
-        height: 20,
+        width: 186,
+        height: 60,
       },
       Logo: {
-        width: 160,
-        height: 160,
+        width: 288,
+        height: 288,
       },
       BlurredLogo: {
-        width: 16,
-        height: 16,
+        width: 36,
+        height: 36,
       },
       NetworkLogo: {
-        width: 40,
-        height: 40,
+        width: 288,
+        height: 288,
       },
       BlurredNetworkLogo: {
-        width: 4,
-        height: 4,
+        width: 36,
+        height: 36,
       },
     },
   },

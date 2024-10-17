@@ -119,7 +119,8 @@ export async function getOrganization(slug: string) {
 export function filterOrganization(
   organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 ) {
-  const filteredOrganization = filterOrganizationByVisibility(organization);
+  const filteredOrganization =
+    filterOrganizationByVisibility<typeof organization>(organization);
   const networkMembers = filteredOrganization.networkMembers.map((relation) => {
     const filteredNetworkMember = filterOrganizationByVisibility<
       typeof relation.networkMember

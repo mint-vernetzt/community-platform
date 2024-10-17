@@ -79,6 +79,7 @@ const i18nNS = [
   "datasets/tags",
   "datasets/eventAbuseReportReasonSuggestions",
   "datasets/organizationTypes",
+  "components/image-cropper",
 ];
 
 export const handle = {
@@ -570,7 +571,7 @@ function Index() {
           <img
             src={"/images/default-event-background.jpg"}
             alt={t("content.backgroundImage")}
-            className="w-full h-full"
+            className="mv-w-[300px] mv-min-h-[108px]"
           />
         )}
       </div>
@@ -759,8 +760,8 @@ function Index() {
                         uploadKey="background"
                         image={loaderData.event.background || undefined}
                         aspect={3 / 2}
-                        minCropWidth={72}
-                        minCropHeight={48}
+                        minCropWidth={60}
+                        minCropHeight={40}
                         maxTargetWidth={720}
                         maxTargetHeight={480}
                         slug={loaderData.event.slug}

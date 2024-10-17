@@ -1,3 +1,4 @@
+import { Link } from "@remix-run/react";
 import { ExternalService } from "../types";
 
 export interface ExternalServiceProps {
@@ -62,8 +63,8 @@ function ExternalServiceIcon(props: ExternalServiceProps) {
   const { url, service, width = "20", height = "20", scaleFactor = 1 } = props;
   return (
     <>
-      <a
-        href={url}
+      <Link
+        to={url}
         className="flex items-center justify-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
         target="_blank"
         rel="noreferrer"
@@ -74,7 +75,7 @@ function ExternalServiceIcon(props: ExternalServiceProps) {
           height={height}
           scaleFactor={scaleFactor}
         />
-      </a>
+      </Link>
     </>
   );
 }
