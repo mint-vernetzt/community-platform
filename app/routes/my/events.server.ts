@@ -1,9 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import {
-  BlurredBackgroundScale,
-  getImageURL,
-  ImageSizes,
-} from "~/images.server";
+import { getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -114,13 +110,13 @@ export async function getEvents(options: {
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       background = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Event.ListItem },
+        resize: { type: "fill", ...ImageSizes.Event.ListItem.Background },
       });
       blurredBackground = getImageURL(publicURL, {
         resize: {
           type: "fill",
-          width: ImageSizes.Event.ListItem.width * BlurredBackgroundScale,
-          height: ImageSizes.Event.ListItem.height * BlurredBackgroundScale,
+          width: ImageSizes.Event.ListItem.BlurredBackground.width,
+          height: ImageSizes.Event.ListItem.BlurredBackground.height,
         },
         blur: 5,
       });
@@ -137,13 +133,13 @@ export async function getEvents(options: {
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       background = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Event.ListItem },
+        resize: { type: "fill", ...ImageSizes.Event.ListItem.Background },
       });
       blurredBackground = getImageURL(publicURL, {
         resize: {
           type: "fill",
-          width: ImageSizes.Event.ListItem.width * BlurredBackgroundScale,
-          height: ImageSizes.Event.ListItem.height * BlurredBackgroundScale,
+          width: ImageSizes.Event.ListItem.BlurredBackground.width,
+          height: ImageSizes.Event.ListItem.BlurredBackground.height,
         },
         blur: 5,
       });
@@ -160,13 +156,13 @@ export async function getEvents(options: {
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       background = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Event.ListItem },
+        resize: { type: "fill", ...ImageSizes.Event.ListItem.Background },
       });
       blurredBackground = getImageURL(publicURL, {
         resize: {
           type: "fill",
-          width: ImageSizes.Event.ListItem.width * BlurredBackgroundScale,
-          height: ImageSizes.Event.ListItem.height * BlurredBackgroundScale,
+          width: ImageSizes.Event.ListItem.BlurredBackground.width,
+          height: ImageSizes.Event.ListItem.BlurredBackground.height,
         },
         blur: 5,
       });
@@ -183,13 +179,13 @@ export async function getEvents(options: {
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       background = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Event.ListItem },
+        resize: { type: "fill", ...ImageSizes.Event.ListItem.Background },
       });
       blurredBackground = getImageURL(publicURL, {
         resize: {
           type: "fill",
-          width: ImageSizes.Event.ListItem.width * BlurredBackgroundScale,
-          height: ImageSizes.Event.ListItem.height * BlurredBackgroundScale,
+          width: ImageSizes.Event.ListItem.BlurredBackground.width,
+          height: ImageSizes.Event.ListItem.BlurredBackground.height,
         },
         blur: 5,
       });
@@ -206,13 +202,13 @@ export async function getEvents(options: {
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       background = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Event.ListItem },
+        resize: { type: "fill", ...ImageSizes.Event.ListItem.Background },
       });
       blurredBackground = getImageURL(publicURL, {
         resize: {
           type: "fill",
-          width: ImageSizes.Event.ListItem.width * BlurredBackgroundScale,
-          height: ImageSizes.Event.ListItem.height * BlurredBackgroundScale,
+          width: ImageSizes.Event.ListItem.BlurredBackground.width,
+          height: ImageSizes.Event.ListItem.BlurredBackground.height,
         },
         blur: 5,
       });

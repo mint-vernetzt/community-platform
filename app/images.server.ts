@@ -50,6 +50,14 @@ export const ImageSizes = {
   },
   Event: {
     ListItem: {
+      Background: {
+        width: 144,
+        height: 96,
+      },
+      BlurredBackground: {
+        width: 18,
+        height: 12,
+      },
       width: 144,
       height: 96,
     },
