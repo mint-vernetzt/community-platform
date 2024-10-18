@@ -20,7 +20,15 @@ const key = process.env.IMGPROXY_KEY;
 const salt = process.env.IMGPROXY_SALT;
 
 export const ImageSizes = {
+  Profile: {
+    ListItem: {
+      Avatar: { width: 72, height: 72 },
+    },
+  },
   Organization: {
+    ListItem: {
+      Logo: { width: 72, height: 72 },
+    },
     Detail: {
       Background: {
         width: 1488,
@@ -31,20 +39,12 @@ export const ImageSizes = {
         height: 60,
       },
       Logo: {
-        width: 288,
-        height: 288,
-      },
-      BlurredLogo: {
-        width: 36,
-        height: 36,
+        width: 160,
+        height: 160,
       },
       NetworkLogo: {
-        width: 288,
-        height: 288,
-      },
-      BlurredNetworkLogo: {
-        width: 36,
-        height: 36,
+        width: 40,
+        height: 40,
       },
     },
   },

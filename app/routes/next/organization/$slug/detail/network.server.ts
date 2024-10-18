@@ -132,18 +132,10 @@ export function addImgUrls(
 ) {
   const networkMembers = organization.networkMembers.map((relation) => {
     let logo = relation.networkMember.logo;
-    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       logo = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Organization.Detail.NetworkLogo },
-      });
-      blurredLogo = getImageURL(publicURL, {
-        resize: {
-          type: "fill",
-          ...ImageSizes.Organization.Detail.BlurredNetworkLogo,
-        },
-        blur: 5,
+        resize: { type: "fill", ...ImageSizes.Organization.ListItem.Logo },
       });
     }
     return {
@@ -151,25 +143,16 @@ export function addImgUrls(
       networkMember: {
         ...relation.networkMember,
         logo,
-        blurredLogo,
       },
     };
   });
 
   const memberOf = organization.memberOf.map((relation) => {
     let logo = relation.network.logo;
-    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       logo = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Organization.Detail.NetworkLogo },
-      });
-      blurredLogo = getImageURL(publicURL, {
-        resize: {
-          type: "fill",
-          ...ImageSizes.Organization.Detail.BlurredNetworkLogo,
-        },
-        blur: 5,
+        resize: { type: "fill", ...ImageSizes.Organization.ListItem.Logo },
       });
     }
     return {
@@ -177,7 +160,6 @@ export function addImgUrls(
       network: {
         ...relation.network,
         logo,
-        blurredLogo,
       },
     };
   });

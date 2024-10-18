@@ -156,34 +156,18 @@ export function addImgUrls(
     });
   }
   let logo = organization.logo;
-  let blurredLogo;
   if (logo !== null) {
     const publicURL = getPublicURL(authClient, logo);
     logo = getImageURL(publicURL, {
       resize: { type: "fill", ...ImageSizes.Organization.Detail.Logo },
     });
-    blurredLogo = getImageURL(publicURL, {
-      resize: {
-        type: "fill",
-        ...ImageSizes.Organization.Detail.BlurredLogo,
-      },
-      blur: 5,
-    });
   }
   const networkMembers = organization.networkMembers.map((relation) => {
     let logo = relation.networkMember.logo;
-    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       logo = getImageURL(publicURL, {
         resize: { type: "fill", ...ImageSizes.Organization.Detail.NetworkLogo },
-      });
-      blurredLogo = getImageURL(publicURL, {
-        resize: {
-          type: "fill",
-          ...ImageSizes.Organization.Detail.BlurredNetworkLogo,
-        },
-        blur: 5,
       });
     }
     return {
@@ -191,7 +175,6 @@ export function addImgUrls(
       networkMember: {
         ...relation.networkMember,
         logo,
-        blurredLogo,
       },
     };
   });
@@ -201,6 +184,5 @@ export function addImgUrls(
     background,
     blurredBackground,
     logo,
-    blurredLogo,
   };
 }
