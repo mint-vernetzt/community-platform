@@ -20,7 +20,15 @@ const key = process.env.IMGPROXY_KEY;
 const salt = process.env.IMGPROXY_SALT;
 
 export const ImageSizes = {
+  Profile: {
+    ListItem: {
+      Avatar: { width: 72, height: 72 },
+    },
+  },
   Organization: {
+    ListItem: {
+      Logo: { width: 72, height: 72 },
+    },
     Detail: {
       Background: {
         width: 1488,
@@ -31,25 +39,25 @@ export const ImageSizes = {
         height: 60,
       },
       Logo: {
-        width: 288,
-        height: 288,
-      },
-      BlurredLogo: {
-        width: 36,
-        height: 36,
+        width: 160,
+        height: 160,
       },
       NetworkLogo: {
-        width: 288,
-        height: 288,
-      },
-      BlurredNetworkLogo: {
-        width: 36,
-        height: 36,
+        width: 40,
+        height: 40,
       },
     },
   },
   Event: {
     ListItem: {
+      Background: {
+        width: 144,
+        height: 96,
+      },
+      BlurredBackground: {
+        width: 18,
+        height: 12,
+      },
       width: 144,
       height: 96,
     },
@@ -60,25 +68,21 @@ export const ImageSizes = {
   },
   Project: {
     ListItem: {
-      Logo: {
-        width: 136,
-        height: 136,
-      },
-      BlurredLogo: {
-        width: 17,
-        height: 17,
-      },
+      Logo: { width: 72, height: 72 },
+    },
+    Card: {
+      Logo: { width: 136, height: 136 },
       Background: {
-        width: 348,
-        height: 160,
+        width: 620,
+        height: 200,
       },
       BlurredBackground: {
-        width: 87, // TODO: make this smaller (must be an integer)
-        height: 40, // TODO: make this smaller (must be an integer)
+        width: 62,
+        height: 20,
       },
       ResponsibleOrganizationLogo: {
-        width: 64,
-        height: 64,
+        width: 36,
+        height: 36,
       },
     },
   },

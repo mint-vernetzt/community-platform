@@ -151,7 +151,7 @@ function MyEvents() {
               count: loaderData.canceledEvents.length,
             })}
           </Section.Text>
-          <ListContainer listKey="canceled" hideAfter={3}>
+          <ListContainer listKey="canceled">
             {loaderData.canceledEvents.map((event, index) => {
               return (
                 <ListItem.Event
@@ -221,6 +221,7 @@ function MyEvents() {
                     key={`upcoming-${event.slug}`}
                     to={`/event/${event.slug}`}
                     listIndex={index}
+                    hideAfter={3}
                   >
                     <ListItem.Event.Image
                       src={event.background}
@@ -277,6 +278,7 @@ function MyEvents() {
                   key={`past-${event.slug}`}
                   to={`/event/${event.slug}`}
                   listIndex={index}
+                  hideAfter={3}
                 >
                   <ListItem.Event.Image
                     src={event.background}

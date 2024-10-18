@@ -9,11 +9,11 @@ import { getDuration } from "~/lib/utils/time";
 
 export function Container(props: {
   children: React.ReactNode;
-  outerContainerClassName: Pick<
+  outerContainerClassName?: Pick<
     React.HTMLProps<HTMLDivElement>,
     "className"
   >["className"];
-  innerContainerClassName: Pick<
+  innerContainerClassName?: Pick<
     React.HTMLProps<HTMLDivElement>,
     "className"
   >["className"];
@@ -414,7 +414,9 @@ function EventListItemContent(props: {
     <>
       <div className="mv-py-4 mv-px-4">
         <p className="text-xs mb-1">
-          {event.stage !== null ? t(`${event.stage.slug}.title`) + " | " : ""}
+          {event.stage !== null
+            ? t(`${event.stage.slug}.title`, { ns: "datasets/stages" }) + " | "
+            : ""}
           {getDuration(startTime, endTime, i18n.language)}
 
           {event.participantLimit === null &&
@@ -459,11 +461,17 @@ function EventListItemContent(props: {
 }
 
 function EventListItem(
-  props: PropsWithChildren<{ to: string; listIndex: number }>
+  props: PropsWithChildren<{
+    to: string;
+    listIndex: number;
+    hideAfter?: number;
+  }>
 ) {
   const classes = classNames(
     "mv-rounded-lg mv-bg-white mv-border mv-border-neutral-200 mv-overflow-hidden",
-    props.listIndex > 2 ? "mv-hidden group-has-[:checked]:mv-block" : "mv-block"
+    props.hideAfter !== undefined && props.listIndex > props.hideAfter - 1
+      ? "mv-hidden group-has-[:checked]:mv-block"
+      : "mv-block"
   );
 
   return (
