@@ -67,14 +67,13 @@ function Network() {
           <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
             {t("headlines.futureEvents")}
           </h2>
-          <ListContainer listKey="future-events" hideAfter={3}>
+          <ListContainer listKey="future-events">
             {organization.futureEvents.map((relation, index) => {
               return (
                 <ListItem.Event
                   key={`future-event-${relation.event.slug}`}
                   to={`/event/${relation.event.slug}`}
                   listIndex={index}
-                  hideAfter={3}
                 >
                   <ListItem.Event.Image
                     src={relation.event.background}
