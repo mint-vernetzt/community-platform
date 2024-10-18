@@ -60,25 +60,21 @@ export const ImageSizes = {
   },
   Project: {
     ListItem: {
-      Logo: {
-        width: 136,
-        height: 136,
-      },
-      BlurredLogo: {
-        width: 17,
-        height: 17,
-      },
+      Logo: { width: 72, height: 72 },
+    },
+    Card: {
+      Logo: { width: 136, height: 136 },
       Background: {
-        width: 348,
-        height: 160,
+        width: 620,
+        height: 200,
       },
       BlurredBackground: {
-        width: 87, // TODO: make this smaller (must be an integer)
-        height: 40, // TODO: make this smaller (must be an integer)
+        width: 62,
+        height: 20,
       },
       ResponsibleOrganizationLogo: {
-        width: 64,
-        height: 64,
+        width: 36,
+        height: 36,
       },
     },
   },

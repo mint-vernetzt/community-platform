@@ -1,4 +1,4 @@
-import { SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -66,30 +66,22 @@ export async function getProjects(options: {
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       background = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Project.ListItem.Background },
+        resize: { type: "fill", ...ImageSizes.Project.Card.Background },
       });
       blurredBackground = getImageURL(publicURL, {
         resize: {
           type: "fill",
-          ...ImageSizes.Project.ListItem.BlurredBackground,
+          ...ImageSizes.Project.Card.BlurredBackground,
         },
         blur: 5,
       });
     }
 
     let logo = project.logo;
-    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       logo = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Project.ListItem.Logo },
-      });
-      blurredLogo = getImageURL(publicURL, {
-        resize: {
-          type: "fill",
-          ...ImageSizes.Project.ListItem.BlurredLogo,
-        },
-        blur: 5,
+        resize: { type: "fill", ...ImageSizes.Project.Card.Logo },
       });
     }
 
@@ -101,7 +93,7 @@ export async function getProjects(options: {
           logo = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              ...ImageSizes.Project.ListItem.ResponsibleOrganizationLogo,
+              ...ImageSizes.Project.Card.ResponsibleOrganizationLogo,
             },
           });
         }
@@ -119,7 +111,6 @@ export async function getProjects(options: {
       ...project,
       responsibleOrganizations,
       logo,
-      blurredLogo,
       background,
       blurredBackground,
     };
@@ -132,30 +123,22 @@ export async function getProjects(options: {
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       background = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Project.ListItem.Background },
+        resize: { type: "fill", ...ImageSizes.Project.Card.Background },
       });
       blurredBackground = getImageURL(publicURL, {
         resize: {
           type: "fill",
-          ...ImageSizes.Project.ListItem.BlurredBackground,
+          ...ImageSizes.Project.Card.BlurredBackground,
         },
         blur: 5,
       });
     }
 
     let logo = project.logo;
-    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       logo = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Project.ListItem.Logo },
-      });
-      blurredLogo = getImageURL(publicURL, {
-        resize: {
-          type: "fill",
-          ...ImageSizes.Project.ListItem.BlurredLogo,
-        },
-        blur: 5,
+        resize: { type: "fill", ...ImageSizes.Project.Card.Logo },
       });
     }
 
@@ -167,7 +150,7 @@ export async function getProjects(options: {
           logo = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              ...ImageSizes.Project.ListItem.ResponsibleOrganizationLogo,
+              ...ImageSizes.Project.Card.ResponsibleOrganizationLogo,
             },
           });
         }
@@ -185,7 +168,6 @@ export async function getProjects(options: {
       ...project,
       responsibleOrganizations,
       logo,
-      blurredLogo,
       background,
       blurredBackground,
     };

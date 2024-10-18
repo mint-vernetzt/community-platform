@@ -63,7 +63,7 @@ function Team() {
           <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
             {t("headlines.teamMembers")}
           </h2>
-          <ListContainer listKey="member-of-networks">
+          <ListContainer listKey="team-members">
             {organization.teamMembers.map((relation, index) => {
               return (
                 <ListItem

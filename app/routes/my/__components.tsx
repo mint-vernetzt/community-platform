@@ -428,27 +428,39 @@ export function AcceptOrRejectRequestFetcher(props: {
   );
 }
 
-type Entity =
-  | {
-      logo: string | null;
-      id: string;
+type ListOrganization = {
+  logo: string | null;
+  name: string;
+  slug: string;
+  types: {
+    organizationType: {
+      slug: string;
+    };
+  }[];
+};
+
+type ListProfile = {
+  avatar: string | null;
+  academicTitle: string | null;
+  firstName: string;
+  lastName: string;
+  username: string;
+  position: string | null;
+};
+
+type ListProject = {
+  logo: string | null;
+  name: string;
+  slug: string;
+  responsibleOrganizations: {
+    organization: {
       name: string;
       slug: string;
-      types: {
-        organizationType: {
-          slug: string;
-        };
-      }[];
-    }
-  | {
-      avatar: string | null;
-      id: string;
-      academicTitle: string | null;
-      firstName: string;
-      lastName: string;
-      username: string;
-      position: string | null;
     };
+  }[];
+};
+
+type Entity = ListOrganization | ListProfile | ListProject;
 
 export function ListItem(
   props: React.PropsWithChildren<{
@@ -472,6 +484,8 @@ export function ListItem(
         to={
           "academicTitle" in entity
             ? `/profile/${entity.username}`
+            : "responsibleOrganizations" in entity
+            ? `/project/${entity.slug}`
             : `/organization/${entity.slug}`
         }
         className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
@@ -490,6 +504,10 @@ export function ListItem(
           <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
             {"academicTitle" in entity
               ? entity.position
+              : "responsibleOrganizations" in entity
+              ? entity.responsibleOrganizations
+                  .map((relation) => relation.organization.name)
+                  .join(", ")
               : entity.types
                   .map((relation) => {
                     return t(`${relation.organizationType.slug}.title`, {
