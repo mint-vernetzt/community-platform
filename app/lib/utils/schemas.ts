@@ -19,11 +19,10 @@ export const createPhoneSchema = (t: TFunction) =>
     );
 
 function addProtocolToUrl(url: string) {
-  let validUrl = url.trim();
-  if (validUrl !== "" && validUrl.search(/^https?:\/\//) === -1) {
-    validUrl = `https://${validUrl}`;
+  if (url.search(/^https?:\/\//) === -1) {
+    url = `https://${url}`;
   }
-  return validUrl;
+  return url;
 }
 
 export const createWebsiteSchema = (t: TFunction) =>
@@ -40,7 +39,11 @@ export const createWebsiteSchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      return addProtocolToUrl(value);
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return addProtocolToUrl(trimmedValue);
     });
 
 export const createFacebookSchema = (t: TFunction) =>
@@ -54,7 +57,11 @@ export const createFacebookSchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      return addProtocolToUrl(value);
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return addProtocolToUrl(trimmedValue);
     });
 
 export const createLinkedinSchema = (t: TFunction) =>
@@ -68,7 +75,11 @@ export const createLinkedinSchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      return addProtocolToUrl(value);
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return addProtocolToUrl(trimmedValue);
     });
 
 export const createXingSchema = (t: TFunction) =>
@@ -82,7 +93,11 @@ export const createXingSchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      return addProtocolToUrl(value);
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return addProtocolToUrl(trimmedValue);
     });
 
 export const createTwitterSchema = (t: TFunction) =>
@@ -96,7 +111,11 @@ export const createTwitterSchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      return addProtocolToUrl(value);
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return addProtocolToUrl(trimmedValue);
     });
 
 export const createMastodonSchema = (t: TFunction) =>
@@ -113,7 +132,11 @@ export const createMastodonSchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      return addProtocolToUrl(value);
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return addProtocolToUrl(trimmedValue);
     });
 
 export const createBlueskySchema = (t: TFunction) =>
@@ -127,7 +150,11 @@ export const createBlueskySchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      return addProtocolToUrl(value);
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return addProtocolToUrl(trimmedValue);
     });
 
 export const createTiktokSchema = (t: TFunction) =>
@@ -141,7 +168,11 @@ export const createTiktokSchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      return addProtocolToUrl(value);
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return addProtocolToUrl(trimmedValue);
     });
 
 export const createInstagramSchema = (t: TFunction) =>
@@ -155,7 +186,11 @@ export const createInstagramSchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      return addProtocolToUrl(value);
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return addProtocolToUrl(trimmedValue);
     });
 
 export const createYoutubeSchema = (t: TFunction) =>
@@ -169,7 +204,11 @@ export const createYoutubeSchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      return addProtocolToUrl(value);
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return addProtocolToUrl(trimmedValue);
     });
 
 export const createYoutubeEmbedSchema = (t: TFunction) =>
@@ -180,14 +219,18 @@ export const createYoutubeEmbedSchema = (t: TFunction) =>
       if (value === undefined) {
         return null;
       }
-      let embedLink = value;
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      let embedLink = trimmedValue;
       // IFrame: <iframe ... src="https://www.youtube.com/embed/<videoCode>?si=k6KomOnFdKtnSGGP" ... </iframe>
-      if (value.startsWith("<iframe")) {
-        embedLink = value.split('src="')[1].split('" ')[0];
+      if (trimmedValue.startsWith("<iframe")) {
+        embedLink = trimmedValue.split('src="')[1].split('" ')[0];
       } else {
         let url;
         let videoCodeParam;
-        const enhancedValue = addProtocolToUrl(value);
+        const enhancedValue = addProtocolToUrl(trimmedValue);
         try {
           url = new URL(enhancedValue);
         } catch (e: unknown) {
@@ -201,14 +244,17 @@ export const createYoutubeEmbedSchema = (t: TFunction) =>
           }
         }
         // Watch Link: https://www.youtube.com/watch?v=<videoCode>
-        if (value.includes("youtube.com/watch")) {
+        if (trimmedValue.includes("youtube.com/watch")) {
           videoCodeParam = url.searchParams.get("v");
           url.searchParams.delete("v");
           embedLink = `https://www.youtube.com/embed/${videoCodeParam}${url.search}`;
         }
         // Share Link: https://www.youtu.be/<videoCode> || https://www.youtube.com/live/<videoCode>
-        if (value.includes("youtu.be") || value.includes("youtube.com/live")) {
-          if (value.includes("youtu.be")) {
+        if (
+          trimmedValue.includes("youtu.be") ||
+          trimmedValue.includes("youtube.com/live")
+        ) {
+          if (trimmedValue.includes("youtu.be")) {
             videoCodeParam = url.pathname;
           } else {
             videoCodeParam = url.pathname.split("/live")[1];
@@ -222,8 +268,8 @@ export const createYoutubeEmbedSchema = (t: TFunction) =>
         }
         // Embed Link: https://www.youtube.com/embed/<videoCode> || https://www.youtube-nocookie.com/embed/<videoCode>
         if (
-          value.includes("youtube.com/embed") ||
-          value.includes("youtube-nocookie.com/embed")
+          trimmedValue.includes("youtube.com/embed") ||
+          trimmedValue.includes("youtube-nocookie.com/embed")
         ) {
           embedLink = enhancedValue;
         }
