@@ -33,11 +33,13 @@ const createEmailSchema = (t: TFunction) => {
     email: z
       .string()
       .min(1, t("validation.email.min"))
-      .email(t("validation.email.email")),
+      .email(t("validation.email.email"))
+      .transform((value) => value.trim()),
     confirmEmail: z
       .string()
       .min(1, t("validation.confirmEmail.min"))
-      .email(t("validation.confirmEmail.email")),
+      .email(t("validation.confirmEmail.email"))
+      .transform((value) => value.trim()),
     submittedForm: z.string(),
   });
 };
@@ -209,11 +211,14 @@ export default function Security() {
               ns={i18nNS}
               components={[
                 <a
+                  key="change-password"
                   href="https://mint-id.org"
                   target="_blank"
                   rel="noreferrer"
                   className="text-primary hover:underline"
-                />,
+                >
+                  {" "}
+                </a>,
               ]}
             />
           </p>
