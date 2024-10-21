@@ -5,7 +5,6 @@ import {
   TabBar,
   TextButton,
 } from "@mint-vernetzt/components";
-import { type Organization } from "@prisma/client";
 import {
   type LoaderFunctionArgs,
   type MetaFunction,
@@ -37,6 +36,13 @@ import { Modal } from "~/routes/__components";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import rcSliderStyles from "rc-slider/assets/index.css";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
+import {
+  hasAboutData,
+  hasEventsData,
+  hasNetworkData,
+  hasProjectsData,
+  hasTeamData,
+} from "./__detail.shared";
 
 const i18nNS = [
   "routes/next/organization/detail",
@@ -209,91 +215,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   } as const);
 };
-
-function hasAboutData(
-  organization: Pick<
-    Organization,
-    | "bio"
-    | "email"
-    | "phone"
-    | "website"
-    | "city"
-    | "street"
-    | "streetNumber"
-    | "zipCode"
-    | "facebook"
-    | "linkedin"
-    | "twitter"
-    | "xing"
-    | "instagram"
-    | "youtube"
-    | "mastodon"
-    | "tiktok"
-    | "supportedBy"
-  > & {
-    _count: {
-      areas: number;
-      focuses: number;
-    };
-  }
-) {
-  return (
-    organization.bio !== null ||
-    organization.email !== null ||
-    organization.phone !== null ||
-    organization.website !== null ||
-    organization.city !== null ||
-    organization.street !== null ||
-    organization.streetNumber !== null ||
-    organization.zipCode !== null ||
-    organization.facebook !== null ||
-    organization.linkedin !== null ||
-    organization.twitter !== null ||
-    organization.xing !== null ||
-    organization.instagram !== null ||
-    organization.youtube !== null ||
-    organization.mastodon !== null ||
-    organization.tiktok !== null ||
-    organization._count.areas > 0 ||
-    organization._count.focuses > 0 ||
-    organization.supportedBy.length > 0
-  );
-}
-
-function hasNetworkData(organization: {
-  _count: {
-    networkMembers: number;
-    memberOf: number;
-  };
-}) {
-  return (
-    organization._count.networkMembers > 0 || organization._count.memberOf > 0
-  );
-}
-
-function hasTeamData(organization: {
-  _count: {
-    teamMembers: number;
-  };
-}) {
-  return organization._count.teamMembers > 0;
-}
-
-function hasEventsData(organization: {
-  _count: {
-    responsibleForEvents: number;
-  };
-}) {
-  return organization._count.responsibleForEvents > 0;
-}
-
-function hasProjectsData(organization: {
-  _count: {
-    responsibleForProject: number;
-  };
-}) {
-  return organization._count.responsibleForProject > 0;
-}
 
 function ProjectDetail() {
   const { t } = useTranslation(i18nNS);
