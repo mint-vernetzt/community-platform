@@ -28,6 +28,11 @@
         "headline": "Wissen teilen",
         "description": "Eigenes Projekt anlegen oder bereits erstellten Entwurf veröffentlichen",
         "linkDescription": "Jetzt anlegen"
+      },
+      "addToOrganization": {
+        "headline": "Neue Funktion",
+        "description": "Füge Dich zu Organisationen hinzu",
+        "linkDescription": "Jetzt ausprobieren"
       }
     },
     "news": {

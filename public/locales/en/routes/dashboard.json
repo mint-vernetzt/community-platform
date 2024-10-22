@@ -28,6 +28,11 @@
         "headline": "Share knowledge",
         "description": "Create your own project or publish an existing draft",
         "linkDescription": "Create now"
+      },
+      "addToOrganization": {
+        "headline": "New functionality",
+        "description": "Add yourself to organizations",
+        "linkDescription": "Try now"
       }
     },
     "news": {
