@@ -21,10 +21,8 @@ export function hasAboutData(
     | "tiktok"
     | "supportedBy"
   > & {
-    _count: {
-      areas: number;
-      focuses: number;
-    };
+    areas: any[];
+    focuses: any[];
   }
 ) {
   return (
@@ -76,43 +74,31 @@ export function hasAboutData(
     (organization.tiktok !== null &&
       organization.tiktok.trim() !== "" &&
       organization.tiktok.trim() !== "<p></p>") ||
-    organization._count.areas > 0 ||
-    organization._count.focuses > 0 ||
+    organization.areas.length > 0 ||
+    organization.focuses.length > 0 ||
     organization.supportedBy.length > 0
   );
 }
 
 export function hasNetworkData(organization: {
-  _count: {
-    networkMembers: number;
-    memberOf: number;
-  };
+  networkMembers: any[];
+  memberOf: any[];
 }) {
   return (
-    organization._count.networkMembers > 0 || organization._count.memberOf > 0
+    organization.networkMembers.length > 0 || organization.memberOf.length > 0
   );
 }
 
-export function hasTeamData(organization: {
-  _count: {
-    teamMembers: number;
-  };
-}) {
-  return organization._count.teamMembers > 0;
+export function hasTeamData(organization: { teamMembers: any[] }) {
+  return organization.teamMembers.length > 0;
 }
 
-export function hasEventsData(organization: {
-  _count: {
-    responsibleForEvents: number;
-  };
-}) {
-  return organization._count.responsibleForEvents > 0;
+export function hasEventsData(organization: { responsibleForEvents: any[] }) {
+  return organization.responsibleForEvents.length > 0;
 }
 
 export function hasProjectsData(organization: {
-  _count: {
-    responsibleForProject: number;
-  };
+  responsibleForProject: any[];
 }) {
-  return organization._count.responsibleForProject > 0;
+  return organization.responsibleForProject.length > 0;
 }

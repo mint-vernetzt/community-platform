@@ -17,25 +17,20 @@ import {
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
+import rcSliderStyles from "rc-slider/assets/index.css";
 import { useTranslation } from "react-i18next";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import ImageCropper from "~/components/ImageCropper/ImageCropper";
+import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { detectLanguage } from "~/root.server";
+import { Modal } from "~/routes/__components";
 import { Container } from "~/routes/my/__events.components";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
-import {
-  addImgUrls,
-  filterOrganization,
-  getOrganization,
-} from "./detail.server";
-import { detectLanguage } from "~/root.server";
-import i18next from "~/i18next.server";
-import { Modal } from "~/routes/__components";
-import ImageCropper from "~/components/ImageCropper/ImageCropper";
-import rcSliderStyles from "rc-slider/assets/index.css";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import {
   hasAboutData,
   hasEventsData,
@@ -43,6 +38,11 @@ import {
   hasProjectsData,
   hasTeamData,
 } from "./__detail.shared";
+import {
+  addImgUrls,
+  filterOrganization,
+  getOrganization,
+} from "./detail.server";
 
 const i18nNS = [
   "routes/next/organization/detail",

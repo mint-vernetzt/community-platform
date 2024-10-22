@@ -58,26 +58,43 @@ export async function getOrganization(slug: string) {
           },
         },
       },
-      _count: {
+      areas: {
         select: {
-          areas: true,
-          focuses: true,
-          networkMembers: true,
-          memberOf: true,
-          teamMembers: true,
-          responsibleForEvents: {
-            where: {
-              event: {
-                published: true,
-              },
-            },
+          areaId: true,
+        },
+      },
+      focuses: {
+        select: {
+          focusId: true,
+        },
+      },
+      memberOf: {
+        select: {
+          networkId: true,
+        },
+      },
+      teamMembers: {
+        select: {
+          profileId: true,
+        },
+      },
+      responsibleForEvents: {
+        select: {
+          eventId: true,
+        },
+        where: {
+          event: {
+            published: true,
           },
-          responsibleForProject: {
-            where: {
-              project: {
-                published: true,
-              },
-            },
+        },
+      },
+      responsibleForProject: {
+        select: {
+          projectId: true,
+        },
+        where: {
+          project: {
+            published: true,
           },
         },
       },
@@ -105,6 +122,12 @@ export async function getOrganization(slug: string) {
           tiktok: true,
           supportedBy: true,
           types: true,
+          areas: true,
+          focuses: true,
+          memberOf: true,
+          responsibleForEvents: true,
+          responsibleForProject: true,
+          teamMembers: true,
           networkMembers: true,
         },
       },
