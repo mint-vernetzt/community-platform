@@ -385,15 +385,18 @@ function getDataForExternalLinkTeasers() {
 
 function getDataForUpdateTeasers() {
   const teaserData: {
-    createProject: { link: string; icon: TeaserIconType };
-    faq: { link: string; icon: TeaserIconType };
+    [key: string]: { link: string; icon: TeaserIconType };
   } = {
     faq: {
       link: "/help",
       icon: "life-preserver-outline",
     },
-    createProject: {
-      link: "/project/create",
+    // createProject: {
+    //   link: "/project/create",
+    //   icon: "Plus big",
+    // },
+    addToOrganization: {
+      link: "/my/organizations",
       icon: "Plus big",
     },
   };
