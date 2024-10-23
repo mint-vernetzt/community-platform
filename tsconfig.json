@@ -18,7 +18,8 @@
     "noEmit": true,
     "types": ["node"],
     "allowJs": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"]
