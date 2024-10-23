@@ -22,6 +22,7 @@ import {
   useLocation,
   useMatches,
   useRouteError,
+  useRouteLoaderData,
   useSearchParams,
 } from "@remix-run/react";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
@@ -195,6 +196,7 @@ export const handle = {
 export const ErrorBoundary = () => {
   const error = useRouteError();
   captureRemixErrorBoundaryError(error);
+  const rootLoaderData = useRouteLoaderData<typeof loader>("root");
 
   const { i18n } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -236,15 +238,26 @@ export const ErrorBoundary = () => {
       <body className={bodyClasses}>
         <div id="top" className="flex flex-col min-h-screen">
           <NavBar
-            sessionUserInfo={undefined}
+            sessionUserInfo={
+              rootLoaderData !== undefined
+                ? rootLoaderData.nextSessionUserInfo
+                : undefined
+            }
             openNavBarMenuKey={openNavBarMenuKey}
           />
           <div className="mv-flex mv-h-full min-h-screen">
             <NavBarMenu
-              mode={"anon"}
+              mode={rootLoaderData !== undefined ? rootLoaderData.mode : "anon"}
               openNavBarMenuKey={openNavBarMenuKey}
-              username={undefined}
-              abilities={{}}
+              username={
+                rootLoaderData !== undefined &&
+                rootLoaderData.nextSessionUserInfo !== undefined
+                  ? rootLoaderData.nextSessionUserInfo.username
+                  : undefined
+              }
+              abilities={
+                rootLoaderData !== undefined ? rootLoaderData.abilities : {}
+              }
             />
             <div className="mv-flex-grow mv-@container min-h-screen">
               <div className="mv-min-h-screen">
@@ -282,6 +295,13 @@ export const ErrorBoundary = () => {
           </div>
         </div>
         <ScrollRestoration />
+        {rootLoaderData !== undefined ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.ENV = ${JSON.stringify(ENV)}`,
+            }}
+          />
+        ) : null}
         <Scripts />
         <LiveReload />
       </body>
