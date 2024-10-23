@@ -22,6 +22,12 @@ import { getEnv, init } from "./env.server";
 init();
 global.ENV = getEnv();
 
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1,
+  environment: ENV.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
+});
+
 export function handleError(
   error: unknown,
   { request }: LoaderFunctionArgs | ActionFunctionArgs
