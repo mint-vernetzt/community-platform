@@ -10,7 +10,9 @@ export function hasGeneralInformation(organization: {
   supportedBy: string[];
 }) {
   return (
-    organization.bio !== null ||
+    (organization.bio !== null &&
+      organization.bio.trim() !== "" &&
+      organization.bio.trim() !== "<p></p>") ||
     organization.areas.length > 0 ||
     organization.focuses.length > 0 ||
     organization.supportedBy.length > 0
@@ -34,7 +36,10 @@ export function hasContactOrSoMeInformation(organization: {
   tiktok: string | null;
   xing: string | null;
 }) {
-  return Object.values(organization).some((value) => value !== null);
+  return Object.values(organization).some(
+    (value) =>
+      value !== null && value.trim() !== "" && value.trim() !== "<p></p>"
+  );
 }
 
 export function hasContactInformation(organization: {
@@ -47,9 +52,15 @@ export function hasContactInformation(organization: {
   zipCode: string | null;
 }) {
   return (
-    organization.email !== null ||
-    organization.phone !== null ||
-    organization.website !== null ||
+    (organization.email !== null &&
+      organization.email.trim() !== "" &&
+      organization.email.trim() !== "<p></p>") ||
+    (organization.phone !== null &&
+      organization.phone.trim() !== "" &&
+      organization.phone.trim() !== "<p></p>") ||
+    (organization.website !== null &&
+      organization.website.trim() !== "" &&
+      organization.website.trim() !== "<p></p>") ||
     hasAddress(organization)
   );
 }
@@ -61,15 +72,27 @@ export function hasAddress(organization: {
   zipCode: string | null;
 }) {
   return (
-    organization.city !== null ||
-    organization.street !== null ||
-    organization.streetNumber !== null ||
-    organization.zipCode !== null
+    (organization.city !== null &&
+      organization.city.trim() !== "" &&
+      organization.city.trim() !== "<p></p>") ||
+    (organization.street !== null &&
+      organization.street.trim() !== "" &&
+      organization.street.trim() !== "<p></p>") ||
+    (organization.streetNumber !== null &&
+      organization.streetNumber.trim() !== "" &&
+      organization.streetNumber.trim() !== "<p></p>") ||
+    (organization.zipCode !== null &&
+      organization.zipCode.trim() !== "" &&
+      organization.zipCode.trim() !== "<p></p>")
   );
 }
 
 export function hasStreet(organization: { street: string | null }) {
-  return organization.street !== null;
+  return (
+    organization.street !== null &&
+    organization.street.trim() !== "" &&
+    organization.street.trim() !== "<p></p>"
+  );
 }
 
 export function hasSocialService(organization: {
@@ -82,7 +105,10 @@ export function hasSocialService(organization: {
   tiktok: string | null;
   xing: string | null;
 }) {
-  return Object.values(organization).some((value) => value !== null);
+  return Object.values(organization).some(
+    (value) =>
+      value !== null && value.trim() !== "" && value.trim() !== "<p></p>"
+  );
 }
 
 export const ContactInformationIcons = {

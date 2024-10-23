@@ -5,7 +5,6 @@ import {
   TabBar,
   TextButton,
 } from "@mint-vernetzt/components";
-import { type Organization } from "@prisma/client";
 import {
   type LoaderFunctionArgs,
   type MetaFunction,
@@ -18,25 +17,32 @@ import {
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
+import rcSliderStyles from "rc-slider/assets/index.css";
 import { useTranslation } from "react-i18next";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import ImageCropper from "~/components/ImageCropper/ImageCropper";
+import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { detectLanguage } from "~/root.server";
+import { Modal } from "~/routes/__components";
 import { Container } from "~/routes/my/__events.components";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
+import {
+  hasAboutData,
+  hasEventsData,
+  hasNetworkData,
+  hasProjectsData,
+  hasTeamData,
+} from "./__detail.shared";
 import {
   addImgUrls,
   filterOrganization,
   getOrganization,
 } from "./detail.server";
-import { detectLanguage } from "~/root.server";
-import i18next from "~/i18next.server";
-import { Modal } from "~/routes/__components";
-import ImageCropper from "~/components/ImageCropper/ImageCropper";
-import rcSliderStyles from "rc-slider/assets/index.css";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 
 const i18nNS = [
   "routes/next/organization/detail",
@@ -210,91 +216,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   } as const);
 };
 
-function hasAboutData(
-  organization: Pick<
-    Organization,
-    | "bio"
-    | "email"
-    | "phone"
-    | "website"
-    | "city"
-    | "street"
-    | "streetNumber"
-    | "zipCode"
-    | "facebook"
-    | "linkedin"
-    | "twitter"
-    | "xing"
-    | "instagram"
-    | "youtube"
-    | "mastodon"
-    | "tiktok"
-    | "supportedBy"
-  > & {
-    _count: {
-      areas: number;
-      focuses: number;
-    };
-  }
-) {
-  return (
-    organization.bio !== null ||
-    organization.email !== null ||
-    organization.phone !== null ||
-    organization.website !== null ||
-    organization.city !== null ||
-    organization.street !== null ||
-    organization.streetNumber !== null ||
-    organization.zipCode !== null ||
-    organization.facebook !== null ||
-    organization.linkedin !== null ||
-    organization.twitter !== null ||
-    organization.xing !== null ||
-    organization.instagram !== null ||
-    organization.youtube !== null ||
-    organization.mastodon !== null ||
-    organization.tiktok !== null ||
-    organization._count.areas > 0 ||
-    organization._count.focuses > 0 ||
-    organization.supportedBy.length > 0
-  );
-}
-
-function hasNetworkData(organization: {
-  _count: {
-    networkMembers: number;
-    memberOf: number;
-  };
-}) {
-  return (
-    organization._count.networkMembers > 0 || organization._count.memberOf > 0
-  );
-}
-
-function hasTeamData(organization: {
-  _count: {
-    teamMembers: number;
-  };
-}) {
-  return organization._count.teamMembers > 0;
-}
-
-function hasEventsData(organization: {
-  _count: {
-    responsibleForEvents: number;
-  };
-}) {
-  return organization._count.responsibleForEvents > 0;
-}
-
-function hasProjectsData(organization: {
-  _count: {
-    responsibleForProject: number;
-  };
-}) {
-  return organization._count.responsibleForProject > 0;
-}
-
 function ProjectDetail() {
   const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
@@ -439,7 +360,7 @@ function ProjectDetail() {
           ) : null}
         </div>
         {mode === "admin" ? (
-          <div className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-[196px] @lg:mv-h-[168px] mv-opacity-0 hover:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center">
+          <div className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-[196px] @lg:mv-h-[168px] mv-opacity-0 hover:mv-opacity-100 focus-within:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 focus-within:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center">
             <div className="mv-flex mv-flex-col mv-items-center mv-gap-4">
               <p className="mv-text-white mv-text-lg mv-font-bold">
                 {t("header.controls.backgroundLong")}
@@ -475,7 +396,7 @@ function ProjectDetail() {
               <button
                 type="submit"
                 form="modal-logo-form"
-                className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-full mv-rounded-full mv-opacity-0 hover:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
+                className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-full mv-rounded-full mv-opacity-0 hover:mv-opacity-100 focus-within:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 focus-within:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
               >
                 <div className="mv-flex mv-flex-col mv-items-center mv-gap-1">
                   <div className="mv-w-8 mv-h-8 mv-rounded-full mv-bg-neutral-50 mv-flex mv-items-center mv-justify-center mv-border mv-border-primary mv-bg-opacity-100">

@@ -1,0 +1,7 @@
+{
+    "server": {
+        "error": {
+            "organizationNotFound": "Organisation nicht gefunden"
+        }
+    }
+}

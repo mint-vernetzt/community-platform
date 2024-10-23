@@ -60,60 +60,96 @@ const createGeneralSchema = (t: TFunction) =>
       .string()
       .max(90, t("validation.subline.max"))
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     formats: z.array(z.string().uuid()),
-    furtherFormats: z.array(z.string()),
+    furtherFormats: z.array(z.string().transform((value) => value.trim())),
     areas: z.array(z.string().uuid()),
     email: z
       .string()
       .email(t("validation.email.email"))
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     phone: createPhoneSchema(t)
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     contactName: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     street: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     streetNumber: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     streetNumberAddition: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     zipCode: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     city: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
   });
 
 export const loader = async (args: LoaderFunctionArgs) => {

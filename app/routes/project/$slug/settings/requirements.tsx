@@ -57,9 +57,13 @@ const createRequirementsSchema = (t: TFunction) =>
     timeframe: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -74,9 +78,13 @@ const createRequirementsSchema = (t: TFunction) =>
     jobFillings: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -91,9 +99,13 @@ const createRequirementsSchema = (t: TFunction) =>
     furtherJobFillings: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -109,16 +121,24 @@ const createRequirementsSchema = (t: TFunction) =>
       .string()
       .max(80, t("validation.yearlyBudget.max"))
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     financings: z.array(z.string().uuid()),
     furtherFinancings: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -133,9 +153,13 @@ const createRequirementsSchema = (t: TFunction) =>
     technicalRequirements: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -150,9 +174,13 @@ const createRequirementsSchema = (t: TFunction) =>
     furtherTechnicalRequirements: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -167,9 +195,13 @@ const createRequirementsSchema = (t: TFunction) =>
     roomSituation: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -184,9 +216,13 @@ const createRequirementsSchema = (t: TFunction) =>
     furtherRoomSituation: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (

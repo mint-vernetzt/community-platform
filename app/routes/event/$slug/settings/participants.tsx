@@ -55,8 +55,21 @@ const createParticipantLimitSchema = (t: TFunction) => {
     participantLimit: z
       .string({ invalid_type_error: t("validation.participantLimit.type") })
       .regex(/^\d+$/)
-      .transform(Number)
-      .optional(),
+      .optional()
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        if (trimmedValue === "") {
+          return null;
+        }
+        const parsedValue = parseInt(trimmedValue, 10);
+        if (parsedValue === 0) {
+          return null;
+        }
+        return parsedValue;
+      }),
   });
 };
 
@@ -149,12 +162,8 @@ const createMutation = (t: TFunction) => {
     createParticipantLimitSchema(t),
     environmentSchema
   )(async (values, environment) => {
-    const participantLimit =
-      values.participantLimit === undefined || values.participantLimit <= 0
-        ? null
-        : values.participantLimit;
-    if (participantLimit) {
-      if (environment.participantsCount > participantLimit) {
+    if (values.participantLimit !== null) {
+      if (environment.participantsCount > values.participantLimit) {
         throw new InputError(t("error.inputError"), "participantLimit");
       }
     }

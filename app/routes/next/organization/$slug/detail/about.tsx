@@ -143,7 +143,7 @@ function About() {
           <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
             {t("headlines.contact")}
           </h3>
-          <address className="mv-w-full mv-flex mv-flex-col @md:mv-flex-row mv-gap-4 @md:mv-gap-6 mv-text-neutral-600 mv-leading-5">
+          <address className="mv-not-italic mv-w-full mv-flex mv-flex-col @md:mv-flex-row mv-gap-4 @md:mv-gap-6 mv-text-neutral-600 mv-leading-5">
             {hasContactInformation(organization) ? (
               <div className="mv-w-full mv-grid mv-grid-flow-row mv-auto-rows-min mv-gap-2">
                 {Object.entries(ContactInformationIcons).map(([key, value]) => {

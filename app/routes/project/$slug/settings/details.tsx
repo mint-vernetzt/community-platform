@@ -64,35 +64,51 @@ const createDetailSchema = (t: TFunction) =>
   z.object({
     disciplines: z.array(z.string().uuid()),
     additionalDisciplines: z.array(z.string().uuid()),
-    furtherDisciplines: z.array(z.string()),
+    furtherDisciplines: z.array(z.string().transform((value) => value.trim())),
     participantLimit: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     projectTargetGroups: z.array(z.string().uuid()),
     specialTargetGroups: z.array(z.string().uuid()),
     targetGroupAdditions: z
       .string()
       .max(200, t("validation.targetGroupAdditions.max"))
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     excerpt: z
       .string()
       .max(250, t("validation.targetGroupAdditions.excerpt"))
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
     idea: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -107,9 +123,13 @@ const createDetailSchema = (t: TFunction) =>
     goals: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -124,9 +144,13 @@ const createDetailSchema = (t: TFunction) =>
     implementation: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -141,9 +165,13 @@ const createDetailSchema = (t: TFunction) =>
     furtherDescription: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -158,9 +186,13 @@ const createDetailSchema = (t: TFunction) =>
     targeting: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -175,9 +207,13 @@ const createDetailSchema = (t: TFunction) =>
     hints: z
       .string()
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      )
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      })
       .refine(
         (value) => {
           return (
@@ -194,9 +230,13 @@ const createDetailSchema = (t: TFunction) =>
       .string()
       .max(80, t("validation.videoSubline.max"))
       .optional()
-      .transform((value) =>
-        value === undefined || value === "" ? null : value
-      ),
+      .transform((value) => {
+        if (value === undefined) {
+          return null;
+        }
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+      }),
   });
 
 export const links: LinksFunction = () => [

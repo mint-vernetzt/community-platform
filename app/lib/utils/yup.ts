@@ -79,7 +79,12 @@ const socialValidation = {
 
 export const nullOrString = (schema: StringSchema) =>
   schema
-    .transform((value: string) => (value === "" ? null : value))
+    .transform((value: string) => {
+      const trimmedValue = value.trim();
+      return trimmedValue === "" || trimmedValue === "<p></p>"
+        ? null
+        : trimmedValue;
+    })
     .nullable()
     .defined();
 
