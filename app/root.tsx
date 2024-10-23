@@ -44,12 +44,12 @@ import {
   Footer,
   NavBar,
 } from "./routes/__components";
-import { initializeSentry } from "./sentry.client";
 import { getPublicURL } from "./storage.server";
 import legacyStyles from "./styles/legacy-styles.css";
 import { combineHeaders, deriveMode } from "./utils.server";
 import { getToast } from "./toast.server";
 import { ToastContainer } from "./__toast.components";
+import { getEnv } from "./env.server";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -158,11 +158,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const mode = deriveMode(user);
 
-  const env = {
-    baseUrl: process.env.COMMUNITY_BASE_URL,
-    sentryDsn: process.env.SENTRY_DSN,
-  };
-
   return json(
     {
       matomoUrl: process.env.MATOMO_URL,
@@ -173,7 +168,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       alert,
       toast,
       locale,
-      env,
+      ENV: getEnv(),
       mode,
       meta: {
         baseUrl: process.env.COMMUNITY_BASE_URL,
@@ -305,13 +300,9 @@ export default function App() {
     alert,
     toast,
     locale,
-    env,
     mode,
+    ENV,
   } = useLoaderData<typeof loader>();
-
-  React.useEffect(() => {
-    initializeSentry({ baseUrl: env.baseUrl, dsn: env.sentryDsn });
-  }, [env.baseUrl, env.sentryDsn]);
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
@@ -482,6 +473,11 @@ export default function App() {
           <Modal.Root />
         </div>
         <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(ENV)}`,
+          }}
+        />
         <Scripts />
         <LiveReload />
       </body>

@@ -64,6 +64,7 @@ export function init() {
 export function getEnv() {
   return {
     MODE: process.env.NODE_ENV,
+    COMMUNITY_BASE_URL: process.env.COMMUNITY_BASE_URL,
     SENTRY_DSN: process.env.SENTRY_DSN,
   };
 }

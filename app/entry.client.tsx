@@ -9,6 +9,10 @@ import { getInitialNamespaces } from "remix-i18next";
 import i18n from "./i18n";
 import { localesUrl, requestOptions } from "./lib/no-cache";
 
+if (ENV.MODE === "production" && ENV.SENTRY_DSN) {
+  void import("./sentry.client").then(({ init }) => init());
+}
+
 async function hydrate() {
   await i18next
     .use(initReactI18next)

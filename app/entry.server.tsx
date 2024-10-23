@@ -17,19 +17,28 @@ import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18nConfig from "~/i18n";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "./root.server";
+import { getEnv, init } from "./env.server";
+
+init();
+global.ENV = getEnv();
 
 export function handleError(
   error: unknown,
   { request }: LoaderFunctionArgs | ActionFunctionArgs
-) {
-  Sentry.captureRemixServerException(error, "remix.server", request);
+): void {
+  // Skip capturing if the request is aborted as Remix docs suggest
+  // Ref: https://remix.run/docs/en/main/file-conventions/entry.server#handleerror
+  if (request.signal.aborted) {
+    return;
+  }
+  if (error instanceof Error) {
+    console.error(error.stack);
+    void Sentry.captureRemixServerException(error, "remix.server", request);
+  } else {
+    console.error(error);
+    Sentry.captureException(error);
+  }
 }
-
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 1,
-  environment: new URL(process.env.COMMUNITY_BASE_URL).host,
-});
 
 const ABORT_DELAY = 5_000;
 
@@ -43,10 +52,10 @@ export default async function handleRequest(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadContext: AppLoadContext
 ) {
+  // i18n
   const i18nInstance = createInstance();
   const lng = detectLanguage(request);
   const ns = i18next.getRouteNamespaces(remixContext);
-
   await i18nInstance
     .use(initReactI18next)
     .use(Backend)
@@ -65,6 +74,11 @@ export default async function handleRequest(
         excludeCacheFor: ["cimode"],
       },
     });
+
+  // Sentry
+  if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
+    responseHeaders.append("Document-Policy", "js-profiling");
+  }
 
   return isbot(request.headers.get("user-agent"))
     ? handleBotRequest(
