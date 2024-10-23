@@ -22,39 +22,27 @@ export async function getOrganization(slug: string) {
       mastodon: true,
       tiktok: true,
       supportedBy: true,
-      areas: {
+      _count: {
         select: {
-          areaId: true,
-        },
-      },
-      focuses: {
-        select: {
-          focusId: true,
-        },
-      },
-      networkMembers: {
-        select: {
-          networkMemberId: true,
-        },
-      },
-      memberOf: {
-        select: {
-          networkId: true,
-        },
-      },
-      teamMembers: {
-        select: {
-          profileId: true,
-        },
-      },
-      responsibleForEvents: {
-        select: {
-          eventId: true,
-        },
-      },
-      responsibleForProject: {
-        select: {
-          projectId: true,
+          areas: true,
+          focuses: true,
+          networkMembers: true,
+          memberOf: true,
+          teamMembers: true,
+          responsibleForEvents: {
+            where: {
+              event: {
+                published: true,
+              },
+            },
+          },
+          responsibleForProject: {
+            where: {
+              project: {
+                published: true,
+              },
+            },
+          },
         },
       },
       organizationVisibility: {
@@ -76,14 +64,6 @@ export async function getOrganization(slug: string) {
           mastodon: true,
           tiktok: true,
           supportedBy: true,
-          types: true,
-          areas: true,
-          focuses: true,
-          memberOf: true,
-          responsibleForEvents: true,
-          responsibleForProject: true,
-          teamMembers: true,
-          networkMembers: true,
         },
       },
     },
