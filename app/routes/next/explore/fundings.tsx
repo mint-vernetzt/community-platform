@@ -217,6 +217,11 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const fundingTypes = await prismaClient.fundingType.findMany({
+    where: {
+      fundings: {
+        some: {},
+      },
+    },
     select: {
       slug: true,
       title: true,
@@ -256,6 +261,11 @@ export async function loader(args: LoaderFunctionArgs) {
     };
   });
   const fundingAreas = await prismaClient.fundingArea.findMany({
+    where: {
+      fundings: {
+        some: {},
+      },
+    },
     select: {
       slug: true,
       title: true,
@@ -295,6 +305,11 @@ export async function loader(args: LoaderFunctionArgs) {
     };
   });
   const eligibleEntities = await prismaClient.fundingEligibleEntity.findMany({
+    where: {
+      fundings: {
+        some: {},
+      },
+    },
     select: {
       slug: true,
       title: true,
