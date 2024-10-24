@@ -81,11 +81,6 @@ export default async function handleRequest(
       },
     });
 
-  // Sentry
-  if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
-    responseHeaders.append("Document-Policy", "js-profiling");
-  }
-
   return isbot(request.headers.get("user-agent"))
     ? handleBotRequest(
         request,
