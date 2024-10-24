@@ -17,170 +17,34 @@ import { I18nextProvider, initReactI18next } from "react-i18next";
 import i18nConfig from "~/i18n";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "./root.server";
+import { getEnv, init } from "./env.server";
 
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      SUPABASE_ANON_KEY: string;
-      SESSION_SECRET: string;
-      SUPABASE_URL: string;
-      HASH_SECRET: string;
-      IMGPROXY_URL: string;
-      IMGPROXY_KEY: string;
-      IMGPROXY_SALT: string;
-      COMMUNITY_BASE_URL: string;
-      DATABASE_URL: string;
-      SERVICE_ROLE_KEY: string;
-      MATOMO_URL: string;
-      MATOMO_SITE_ID: string;
-      MAILER_HOST: string;
-      MAILER_PORT: string;
-      MAILER_USER: string;
-      MAILER_PASS: string;
-      SYSTEM_MAIL_SENDER: string;
-      SUBMISSION_SENDER: string;
-      NEWSSUBMISSION_RECIPIENT: string;
-      NEWSSUBMISSION_SUBJECT: string;
-      EVENTSUBMISSION_RECIPIENT: string;
-      EVENTSUBMISSION_SUBJECT: string;
-      PAKTSUBMISSION_RECIPIENT: string;
-      PAKTSUBMISSION_SUBJECT: string;
-      FEATURE_FLAGS: string;
-      SENTRY_DSN: string;
-      SENTRY_ORGANIZATION_NAME: string;
-      SENTRY_PROJECT_NAME: string;
-      SUPPORT_MAIL: string;
-    }
-  }
-}
-if (process.env.SESSION_SECRET === undefined) {
-  throw new Error("'SESSION_SECRET' must be set.");
-}
-
-if (process.env.SUPABASE_URL === undefined) {
-  throw new Error("'SUPABASE_URL' is required");
-}
-
-if (process.env.SUPABASE_ANON_KEY === undefined) {
-  throw new Error("'SUPABASE_ANON_KEY' is required");
-}
-
-if (process.env.HASH_SECRET === undefined) {
-  throw new Error("'HASH_SECRET' is required");
-}
-
-if (process.env.IMGPROXY_URL === undefined) {
-  throw new Error("'IMGPROXY_URL' is required");
-}
-
-if (process.env.IMGPROXY_KEY === undefined) {
-  throw new Error("'IMGPROXY_KEY' is required");
-}
-
-if (process.env.IMGPROXY_SALT === undefined) {
-  throw new Error("'IMGPROXY_SALT' is required");
-}
-
-if (process.env.COMMUNITY_BASE_URL === undefined) {
-  throw new Error("'COMMUNITY_BASE_URL' is required");
-}
-
-if (process.env.DATABASE_URL === undefined) {
-  throw new Error("'DATABASE_URL' is required");
-}
-
-if (process.env.SERVICE_ROLE_KEY === undefined) {
-  throw new Error("'SERVICE_ROLE_KEY' is required");
-}
-
-if (process.env.MATOMO_URL === undefined) {
-  throw new Error("'MATOMO_URL' is required");
-}
-
-if (process.env.MATOMO_SITE_ID === undefined) {
-  throw new Error("'MATOMO_SITE_ID' is required");
-}
-
-if (process.env.MAILER_HOST === undefined) {
-  throw new Error("'MAILER_HOST' is required");
-}
-
-if (process.env.MAILER_PORT === undefined) {
-  throw new Error("'MAILER_PORT' is required");
-}
-
-if (process.env.MAILER_USER === undefined) {
-  throw new Error("'MAILER_USER' is required");
-}
-
-if (process.env.MAILER_PASS === undefined) {
-  throw new Error("'MAILER_PASS' is required");
-}
-
-if (process.env.SYSTEM_MAIL_SENDER === undefined) {
-  throw new Error("'SYSTEM_MAIL_SENDER' is required");
-}
-
-if (process.env.SUBMISSION_SENDER === undefined) {
-  throw new Error("'SUBMISSION_SENDER' is required");
-}
-
-if (process.env.NEWSSUBMISSION_RECIPIENT === undefined) {
-  throw new Error("'NEWSSUBMISSION_RECIPIENT' is required");
-}
-
-if (process.env.NEWSSUBMISSION_SUBJECT === undefined) {
-  throw new Error("'NEWSSUBMISSION_SUBJECT' is required");
-}
-
-if (process.env.EVENTSUBMISSION_RECIPIENT === undefined) {
-  throw new Error("'EVENTSUBMISSION_RECIPIENT' is required");
-}
-
-if (process.env.EVENTSUBMISSION_SUBJECT === undefined) {
-  throw new Error("'EVENTSUBMISSION_SUBJECT' is required");
-}
-
-if (process.env.PAKTSUBMISSION_RECIPIENT === undefined) {
-  throw new Error("'PAKTSUBMISSION_RECIPIENT' is required");
-}
-
-if (process.env.PAKTSUBMISSION_SUBJECT === undefined) {
-  throw new Error("'PAKTSUBMISSION_SUBJECT' is required");
-}
-
-if (process.env.FEATURE_FLAGS === undefined) {
-  throw new Error("'FEATURE_FLAGS' is required");
-}
-
-if (process.env.SENTRY_DSN === undefined) {
-  throw new Error("'SENTRY_DSN' is required");
-}
-
-if (process.env.SENTRY_ORGANIZATION_NAME === undefined) {
-  throw new Error("'SENTRY_ORGANIZATION_NAME' is required");
-}
-
-if (process.env.SENTRY_PROJECT_NAME === undefined) {
-  throw new Error("'SENTRY_PROJECT_NAME' is required");
-}
-
-if (process.env.SUPPORT_MAIL === undefined) {
-  throw new Error("'SUPPORT_MAIL' is required");
-}
-
-export function handleError(
-  error: unknown,
-  { request }: LoaderFunctionArgs | ActionFunctionArgs
-) {
-  Sentry.captureRemixServerException(error, "remix.server", request);
-}
+init();
+global.ENV = getEnv();
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   tracesSampleRate: 1,
-  environment: new URL(process.env.COMMUNITY_BASE_URL).host,
+  environment: process.env.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
 });
+
+export function handleError(
+  error: unknown,
+  { request }: LoaderFunctionArgs | ActionFunctionArgs
+): void {
+  // Skip capturing if the request is aborted as Remix docs suggest
+  // Ref: https://remix.run/docs/en/main/file-conventions/entry.server#handleerror
+  if (request.signal.aborted) {
+    return;
+  }
+  if (error instanceof Error) {
+    console.error(error.stack);
+    void Sentry.captureRemixServerException(error, "remix.server", request);
+  } else {
+    console.error(error);
+    Sentry.captureException(error);
+  }
+}
 
 const ABORT_DELAY = 5_000;
 
@@ -194,10 +58,10 @@ export default async function handleRequest(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadContext: AppLoadContext
 ) {
+  // i18n
   const i18nInstance = createInstance();
   const lng = detectLanguage(request);
   const ns = i18next.getRouteNamespaces(remixContext);
-
   await i18nInstance
     .use(initReactI18next)
     .use(Backend)
