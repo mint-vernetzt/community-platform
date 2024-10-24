@@ -6,7 +6,6 @@ import {
   Controls,
   Input,
   Section,
-  Select,
 } from "@mint-vernetzt/components";
 import {
   json,
@@ -28,7 +27,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { createPhoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
-import { BackButton } from "./__components";
+import { BackButton, ButtonSelect } from "./__components";
 import { createAreaOptions } from "./general.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
@@ -392,19 +391,6 @@ function General() {
   ) => {
     setFurtherFormat(event.currentTarget.value);
   };
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    for (const child of event.currentTarget.children) {
-      const value = child.getAttribute("value");
-      if (
-        child.localName === "button" &&
-        value !== null &&
-        value.includes(event.currentTarget.value)
-      ) {
-        const button = child as HTMLButtonElement;
-        button.click();
-      }
-    }
-  };
 
   const [isDirty, setIsDirty] = React.useState(false);
   const blocker = useBlocker(
@@ -471,16 +457,16 @@ function General() {
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.formats.headline")}
             </h2>
-            <Select onChange={handleSelectChange}>
-              <Select.Label htmlFor={fields.formats.id}>
+            <ButtonSelect
+              id={fields.formats.id}
+              cta={t("content.formats.choose")}
+            >
+              <ButtonSelect.Label htmlFor={fields.formats.id}>
                 {t("content.formats.label")}
-              </Select.Label>
-              <Select.HelperText>
+              </ButtonSelect.Label>
+              <ButtonSelect.HelperText>
                 {t("content.formats.helper")}
-              </Select.HelperText>
-              <option selected hidden>
-                {t("content.formats.choose")}
-              </option>
+              </ButtonSelect.HelperText>
               {allFormats
                 .filter((format) => {
                   return !formatList.some((listFormat) => {
@@ -489,30 +475,20 @@ function General() {
                 })
                 .map((filteredFormat) => {
                   return (
-                    <React.Fragment key={`${filteredFormat.id}-fragment`}>
-                      <button
-                        hidden
-                        {...list.insert(fields.formats.name, {
-                          defaultValue: filteredFormat.id,
-                        })}
-                      >
-                        {t(`${filteredFormat.slug}.title`, {
-                          ns: "datasets/formats",
-                        })}
-                      </button>
-                      <option
-                        key={filteredFormat.id}
-                        value={filteredFormat.id}
-                        className="my-2"
-                      >
-                        {t(`${filteredFormat.slug}.title`, {
-                          ns: "datasets/formats",
-                        })}
-                      </option>
-                    </React.Fragment>
+                    <button
+                      key={filteredFormat.id}
+                      {...list.insert(fields.formats.name, {
+                        defaultValue: filteredFormat.id,
+                      })}
+                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                    >
+                      {t(`${filteredFormat.slug}.title`, {
+                        ns: "datasets/formats",
+                      })}
+                    </button>
                   );
                 })}
-            </Select>
+            </ButtonSelect>
             {formatList.length > 0 && (
               <Chip.Container>
                 {formatList.map((listFormat, index) => {
@@ -587,16 +563,13 @@ function General() {
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.areas.headline")}
             </h2>
-            <Select onChange={handleSelectChange}>
-              <Select.Label htmlFor={fields.areas.id}>
+            <ButtonSelect id={fields.areas.id} cta={t("content.areas.option")}>
+              <ButtonSelect.Label htmlFor={fields.areas.id}>
                 {t("content.areas.label")}
-              </Select.Label>
-              <Select.HelperText>{t("content.areas.helper")}</Select.HelperText>
-
-              {/* This is the default option used as placeholder. */}
-              <option selected hidden>
-                {t("content.areas.option")}
-              </option>
+              </ButtonSelect.Label>
+              <ButtonSelect.HelperText>
+                {t("content.areas.helper")}
+              </ButtonSelect.HelperText>
               {areaOptions
                 .filter((option) => {
                   // All options that have a value should only be shown if they are not inside the current selected area list
@@ -614,38 +587,30 @@ function General() {
                   // All options that have a value are created as options with a hidden add button thats clicked by the select onChange handler
                   if (filteredOption.value !== undefined) {
                     return (
-                      <React.Fragment key={`${filteredOption.value}-fragment`}>
-                        <button
-                          key={`${filteredOption.value}-button`}
-                          hidden
-                          {...list.insert(fields.areas.name, {
-                            defaultValue: filteredOption.value,
-                          })}
-                        >
-                          {filteredOption.label}
-                        </button>
-                        <option
-                          key={filteredOption.value}
-                          value={filteredOption.value}
-                        >
-                          {filteredOption.label}
-                        </option>
-                      </React.Fragment>
+                      <button
+                        key={`${filteredOption.value}`}
+                        {...list.insert(fields.areas.name, {
+                          defaultValue: filteredOption.value,
+                        })}
+                        className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                      >
+                        {filteredOption.label}
+                      </button>
                     );
                   }
                   // Divider, that have no value are shown as a disabled option. Is this styleable? Is there a better way of doing this?
                   else {
                     return (
-                      <option
+                      <div
                         key={`${filteredOption.label}-${index}-divider`}
-                        disabled
+                        className="mv-text-start mv-w-full mv-cursor-default mv-text-neutral-500 mv-py-1 mv-px-2"
                       >
                         {filteredOption.label}
-                      </option>
+                      </div>
                     );
                   }
                 })}
-            </Select>
+            </ButtonSelect>
             {areaList.length > 0 && (
               <Chip.Container>
                 {areaList.map((listArea, index) => {

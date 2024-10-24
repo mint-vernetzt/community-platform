@@ -7,7 +7,6 @@ import {
   Controls,
   Input,
   Section,
-  Select,
 } from "@mint-vernetzt/components";
 import {
   json,
@@ -37,7 +36,7 @@ import {
 import { createYoutubeEmbedSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
-import { BackButton } from "./__components";
+import { BackButton, ButtonSelect } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
@@ -650,19 +649,6 @@ function Details() {
   ) => {
     setFurtherDiscipline(event.currentTarget.value);
   };
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    for (const child of event.currentTarget.children) {
-      const value = child.getAttribute("value");
-      if (
-        child.localName === "button" &&
-        value !== null &&
-        value.includes(event.currentTarget.value)
-      ) {
-        const button = child as HTMLButtonElement;
-        button.click();
-      }
-    }
-  };
   const [isDirty, setIsDirty] = React.useState(false);
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -712,16 +698,16 @@ function Details() {
               {t("content.disciplines.headline")}
             </h2>
 
-            <Select onChange={handleSelectChange}>
-              <Select.Label htmlFor={fields.disciplines.id}>
+            <ButtonSelect
+              id={fields.disciplines.id}
+              cta={t("content.disciplines.choose")}
+            >
+              <ButtonSelect.Label htmlFor={fields.disciplines.id}>
                 {t("content.disciplines.intro")}
-              </Select.Label>
-              <Select.HelperText>
+              </ButtonSelect.Label>
+              <ButtonSelect.HelperText>
                 {t("content.disciplines.helper")}
-              </Select.HelperText>
-              <option selected hidden>
-                {t("content.disciplines.choose")}
-              </option>
+              </ButtonSelect.HelperText>
               {allDisciplines
                 .filter((discipline) => {
                   return !disciplineList.some((listDiscipline) => {
@@ -730,30 +716,20 @@ function Details() {
                 })
                 .map((filteredDiscipline) => {
                   return (
-                    <React.Fragment key={`${filteredDiscipline.id}-fragment`}>
-                      <button
-                        hidden
-                        {...list.insert(fields.disciplines.name, {
-                          defaultValue: filteredDiscipline.id,
-                        })}
-                      >
-                        {t(`${filteredDiscipline.slug}.title`, {
-                          ns: "datasets/disciplines",
-                        })}
-                      </button>
-                      <option
-                        key={filteredDiscipline.id}
-                        value={filteredDiscipline.id}
-                        className="my-2"
-                      >
-                        {t(`${filteredDiscipline.slug}.title`, {
-                          ns: "datasets/disciplines",
-                        })}
-                      </option>
-                    </React.Fragment>
+                    <button
+                      key={filteredDiscipline.id}
+                      {...list.insert(fields.disciplines.name, {
+                        defaultValue: filteredDiscipline.id,
+                      })}
+                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                    >
+                      {t(`${filteredDiscipline.slug}.title`, {
+                        ns: "datasets/disciplines",
+                      })}
+                    </button>
                   );
                 })}
-            </Select>
+            </ButtonSelect>
             {disciplineList.length > 0 && (
               <Chip.Container>
                 {disciplineList.map((listDiscipline, index) => {
@@ -781,16 +757,16 @@ function Details() {
               </Chip.Container>
             )}
 
-            <Select onChange={handleSelectChange}>
-              <Select.Label htmlFor={fields.additionalDisciplines.id}>
+            <ButtonSelect
+              id={fields.additionalDisciplines.id}
+              cta={t("content.additionalDisciplines.choose")}
+            >
+              <ButtonSelect.Label htmlFor={fields.additionalDisciplines.id}>
                 {t("content.additionalDisciplines.headline")}
-              </Select.Label>
-              <Select.HelperText>
+              </ButtonSelect.Label>
+              <ButtonSelect.HelperText>
                 {t("content.additionalDisciplines.helper")}
-              </Select.HelperText>
-              <option selected hidden>
-                {t("content.additionalDisciplines.choose")}
-              </option>
+              </ButtonSelect.HelperText>
               {allAdditionalDisciplines
                 .filter((additionalDiscipline) => {
                   return !additionalDisciplineList.some(
@@ -804,32 +780,20 @@ function Details() {
                 })
                 .map((filteredAdditionalDiscipline) => {
                   return (
-                    <React.Fragment
-                      key={`${filteredAdditionalDiscipline.id}-fragment`}
+                    <button
+                      key={filteredAdditionalDiscipline.id}
+                      {...list.insert(fields.additionalDisciplines.name, {
+                        defaultValue: filteredAdditionalDiscipline.id,
+                      })}
+                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
-                      <button
-                        hidden
-                        {...list.insert(fields.additionalDisciplines.name, {
-                          defaultValue: filteredAdditionalDiscipline.id,
-                        })}
-                      >
-                        {t(`${filteredAdditionalDiscipline.slug}.title`, {
-                          ns: "datasets/additionalDisciplines",
-                        })}
-                      </button>
-                      <option
-                        key={filteredAdditionalDiscipline.id}
-                        value={filteredAdditionalDiscipline.id}
-                        className="my-2"
-                      >
-                        {t(`${filteredAdditionalDiscipline.slug}.title`, {
-                          ns: "datasets/additionalDisciplines",
-                        })}
-                      </option>
-                    </React.Fragment>
+                      {t(`${filteredAdditionalDiscipline.slug}.title`, {
+                        ns: "datasets/additionalDisciplines",
+                      })}
+                    </button>
                   );
                 })}
-            </Select>
+            </ButtonSelect>
             {additionalDisciplineList.length > 0 && (
               <Chip.Container>
                 {additionalDisciplineList.map(
@@ -938,16 +902,16 @@ function Details() {
               </Input.HelperText>
             </Input>
 
-            <Select onChange={handleSelectChange}>
-              <Select.Label htmlFor={fields.projectTargetGroups.id}>
+            <ButtonSelect
+              id={fields.projectTargetGroups.id}
+              cta={t("content.projectTargetGroups.choose")}
+            >
+              <ButtonSelect.Label htmlFor={fields.projectTargetGroups.id}>
                 {t("content.projectTargetGroups.intro")}
-              </Select.Label>
-              <Select.HelperText>
+              </ButtonSelect.Label>
+              <ButtonSelect.HelperText>
                 {t("content.projectTargetGroups.helper")}
-              </Select.HelperText>
-              <option selected hidden>
-                {t("content.projectTargetGroups.choose")}
-              </option>
+              </ButtonSelect.HelperText>
               {allProjectTargetGroups
                 .filter((targetGroup) => {
                   return !targetGroupList.some((listTargetGroup) => {
@@ -956,30 +920,20 @@ function Details() {
                 })
                 .map((filteredTargetGroup) => {
                   return (
-                    <React.Fragment key={`${filteredTargetGroup.id}-fragment`}>
-                      <button
-                        hidden
-                        {...list.insert(fields.projectTargetGroups.name, {
-                          defaultValue: filteredTargetGroup.id,
-                        })}
-                      >
-                        {t(`${filteredTargetGroup.slug}.title`, {
-                          ns: "datasets/projectTargetGroups",
-                        })}
-                      </button>
-                      <option
-                        key={filteredTargetGroup.id}
-                        value={filteredTargetGroup.id}
-                        className="my-2"
-                      >
-                        {t(`${filteredTargetGroup.slug}.title`, {
-                          ns: "datasets/projectTargetGroups",
-                        })}
-                      </option>
-                    </React.Fragment>
+                    <button
+                      key={filteredTargetGroup.id}
+                      {...list.insert(fields.projectTargetGroups.name, {
+                        defaultValue: filteredTargetGroup.id,
+                      })}
+                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                    >
+                      {t(`${filteredTargetGroup.slug}.title`, {
+                        ns: "datasets/projectTargetGroups",
+                      })}
+                    </button>
                   );
                 })}
-            </Select>
+            </ButtonSelect>
             {targetGroupList.length > 0 && (
               <Chip.Container>
                 {targetGroupList.map((listTargetGroup, index) => {
@@ -1014,16 +968,16 @@ function Details() {
               </Chip.Container>
             )}
 
-            <Select onChange={handleSelectChange}>
-              <Select.Label htmlFor={fields.specialTargetGroups.id}>
+            <ButtonSelect
+              id={fields.specialTargetGroups.id}
+              cta={t("content.specialTargetGroups.choose")}
+            >
+              <ButtonSelect.Label htmlFor={fields.specialTargetGroups.id}>
                 {t("content.specialTargetGroups.intro")}
-              </Select.Label>
-              <Select.HelperText>
+              </ButtonSelect.Label>
+              <ButtonSelect.HelperText>
                 {t("content.specialTargetGroups.helper")}
-              </Select.HelperText>
-              <option selected hidden>
-                {t("content.specialTargetGroups.choose")}
-              </option>
+              </ButtonSelect.HelperText>
               {allSpecialTargetGroups
                 .filter((specialTargetGroup) => {
                   return !specialTargetGroupList.some(
@@ -1037,32 +991,20 @@ function Details() {
                 })
                 .map((filteredSpecialTargetGroup) => {
                   return (
-                    <React.Fragment
-                      key={`${filteredSpecialTargetGroup.id}-fragment`}
+                    <button
+                      key={filteredSpecialTargetGroup.id}
+                      {...list.insert(fields.specialTargetGroups.name, {
+                        defaultValue: filteredSpecialTargetGroup.id,
+                      })}
+                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
-                      <button
-                        hidden
-                        {...list.insert(fields.specialTargetGroups.name, {
-                          defaultValue: filteredSpecialTargetGroup.id,
-                        })}
-                      >
-                        {t(`${filteredSpecialTargetGroup.slug}.title`, {
-                          ns: "datasets/specialTargetGroups",
-                        })}
-                      </button>
-                      <option
-                        key={filteredSpecialTargetGroup.id}
-                        value={filteredSpecialTargetGroup.id}
-                        className="my-2"
-                      >
-                        {t(`${filteredSpecialTargetGroup.slug}.title`, {
-                          ns: "datasets/specialTargetGroups",
-                        })}
-                      </option>
-                    </React.Fragment>
+                      {t(`${filteredSpecialTargetGroup.slug}.title`, {
+                        ns: "datasets/specialTargetGroups",
+                      })}
+                    </button>
                   );
                 })}
-            </Select>
+            </ButtonSelect>
             {specialTargetGroupList.length > 0 && (
               <Chip.Container>
                 {specialTargetGroupList.map((listSpecialTargetGroup, index) => {
