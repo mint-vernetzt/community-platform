@@ -7,7 +7,6 @@ import {
   Controls,
   Input,
   Section,
-  Select,
 } from "@mint-vernetzt/components";
 import {
   json,
@@ -23,11 +22,14 @@ import {
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
+import { type TFunction } from "i18next";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import quillStyles from "react-quill/dist/quill.snow.css";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   removeHtmlTags,
@@ -35,17 +37,14 @@ import {
   sanitizeUserHtml,
 } from "~/lib/utils/sanitizeUserHtml";
 import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
-import { BackButton } from "./__components";
+import { BackButton, ButtonSelect } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/settings/requirements", "datasets/financings"];
 export const handle = {
@@ -455,20 +454,6 @@ function Requirements() {
   });
   const financingList = useFieldList(form.ref, fields.financings);
 
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    for (const child of event.currentTarget.children) {
-      const value = child.getAttribute("value");
-      if (
-        child.localName === "button" &&
-        value !== null &&
-        value.includes(event.currentTarget.value)
-      ) {
-        const button = child as HTMLButtonElement;
-        button.click();
-      }
-    }
-  };
-
   const [isDirty, setIsDirty] = React.useState(false);
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -574,16 +559,16 @@ function Requirements() {
                 </Input.HelperText>
               </Input>
 
-              <Select onChange={handleSelectChange}>
-                <Select.Label htmlFor={fields.financings.id}>
+              <ButtonSelect
+                id={fields.financings.id}
+                cta={t("form.budget.financings.option")}
+              >
+                <ButtonSelect.Label htmlFor={fields.financings.id}>
                   {t("form.budget.financings.label")}
-                </Select.Label>
-                <Select.HelperText>
+                </ButtonSelect.Label>
+                <ButtonSelect.HelperText>
                   {t("form.budget.financings.helper")}
-                </Select.HelperText>
-                <option selected hidden>
-                  {t("form.budget.financings.option")}
-                </option>
+                </ButtonSelect.HelperText>
                 {allFinancings
                   .filter((financing) => {
                     return !financingList.some((listFinancing) => {
@@ -592,30 +577,20 @@ function Requirements() {
                   })
                   .map((filteredFinancing) => {
                     return (
-                      <React.Fragment key={`${filteredFinancing.id}-fragment`}>
-                        <button
-                          hidden
-                          {...list.insert(fields.financings.name, {
-                            defaultValue: filteredFinancing.id,
-                          })}
-                        >
-                          {t(`${filteredFinancing.slug}.title`, {
-                            ns: "datasets/financings",
-                          })}
-                        </button>
-                        <option
-                          key={filteredFinancing.id}
-                          value={filteredFinancing.id}
-                          className="my-2"
-                        >
-                          {t(`${filteredFinancing.slug}.title`, {
-                            ns: "datasets/financings",
-                          })}
-                        </option>
-                      </React.Fragment>
+                      <button
+                        key={filteredFinancing.id}
+                        {...list.insert(fields.financings.name, {
+                          defaultValue: filteredFinancing.id,
+                        })}
+                        className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                      >
+                        {t(`${filteredFinancing.slug}.title`, {
+                          ns: "datasets/financings",
+                        })}
+                      </button>
                     );
                   })}
-              </Select>
+              </ButtonSelect>
               {financingList.length > 0 && (
                 <Chip.Container>
                   {financingList.map((listFinancing, index) => {
