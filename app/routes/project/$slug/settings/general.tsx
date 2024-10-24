@@ -643,7 +643,7 @@ function General() {
                 <Input.Error>{fields.email.error}</Input.Error>
               )}
             </Input>
-            <Input {...conform.input(fields.phone)}>
+            <Input {...conform.input(fields.phone)} pattern={undefined}>
               <Input.Label htmlFor={fields.phone.id}>
                 {t("content.contact.phone.label")}
               </Input.Label>
@@ -675,7 +675,7 @@ function General() {
                   )}
                 </Input>
               </div>
-              <div className="mv-flex mv-flex mv-w-full @lg:mv-w-2/3 mv-gap-4 mv-mt-4 @lg:mv-mt-0">
+              <div className="mv-flex mv-w-full @lg:mv-w-2/3 mv-gap-4 mv-mt-4 @lg:mv-mt-0">
                 <div className="mv-flex-1">
                   <Input {...conform.input(fields.streetNumber)}>
                     <Input.Label htmlFor={fields.streetNumber.id}>
