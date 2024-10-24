@@ -33,6 +33,7 @@ const schema = z.array(
       fundingArea: z.array(z.string()),
       eligibleEntities: z.array(z.string()),
     }),
+    createdAt: z.coerce.date(),
   })
 );
 
@@ -198,6 +199,7 @@ async function main() {
         sourceRegions: funding.source.fundingRegion,
         sourceAreas: funding.source.fundingArea,
         sourceEntities: funding.source.eligibleEntities,
+        createdAt: funding.createdAt,
       },
     });
 
