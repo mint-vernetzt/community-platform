@@ -643,7 +643,7 @@ function General() {
                 <Input.Error>{fields.email.error}</Input.Error>
               )}
             </Input>
-            <Input {...conform.input(fields.phone)} pattern={undefined}>
+            <Input {...conform.input(fields.phone)}>
               <Input.Label htmlFor={fields.phone.id}>
                 {t("content.contact.phone.label")}
               </Input.Label>
