@@ -466,6 +466,7 @@ function Fundings() {
               {...getFieldsetProps(fields.filter)}
               showMore={t("filter.showMore")}
               showLess={t("filter.showLess")}
+              hideAfter={4}
             >
               <Dropdown>
                 <Dropdown.Label>
