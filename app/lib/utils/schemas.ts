@@ -11,12 +11,12 @@ export const fileUploadSchema = z.object({
 });
 
 export const createPhoneSchema = (t: TFunction) =>
-  z
-    .string()
-    .regex(
-      /^$|^(\+?[0-9\s-()]{3,}\/?[0-9\s-()]{4,})$/,
-      t("validation.phone.regex", { ns: i18nNS })
-    );
+  z.string().regex(
+    // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
+    // eslint-disable-next-line no-useless-escape
+    /^$|^(\+?[0-9 \-\(\)]{3,}\/?[0-9 \-\(\)]{4,})$/,
+    t("validation.phone.regex", { ns: i18nNS })
+  );
 
 function addProtocolToUrl(url: string) {
   if (url.search(/^https?:\/\//) === -1) {
@@ -29,7 +29,9 @@ export const createWebsiteSchema = (t: TFunction) =>
   z
     .string()
     .regex(
-      /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,9}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi,
+      // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
+      // eslint-disable-next-line no-useless-escape
+      /^(https?:\/\/)?(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
       {
         message: t("validation.website.regex", { ns: i18nNS }),
       }
@@ -122,7 +124,9 @@ export const createMastodonSchema = (t: TFunction) =>
   z
     .string()
     .regex(
-      /^(https?:\/\/)?([a-z0-9]+\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\/@.+$|^$/,
+      // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
+      // eslint-disable-next-line no-useless-escape
+      /^(https?:\/\/)?([a-z0-9]+\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,6}\/@.+$|^$/,
       {
         message: t("validation.mastodon.regex", { ns: i18nNS }),
       }

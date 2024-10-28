@@ -247,7 +247,6 @@ function WebSocial() {
             </h2>
             <Input
               {...conform.input(fields.website)}
-              pattern={undefined}
               placeholder={t("form.website.url.placeholder")}
             >
               <Input.Label htmlFor={fields.website.id}>
@@ -264,7 +263,6 @@ function WebSocial() {
             </h2>
             <Input
               {...conform.input(fields.facebook)}
-              pattern={undefined}
               placeholder={t("form.socialNetworks.facebook.placeholder")}
             >
               <Input.Label htmlFor={fields.facebook.id}>
@@ -276,7 +274,6 @@ function WebSocial() {
             </Input>
             <Input
               {...conform.input(fields.linkedin)}
-              pattern={undefined}
               placeholder={t("form.socialNetworks.linkedin.placeholder")} // TODO: Regex does not fit with this placeholder
             >
               <Input.Label htmlFor={fields.linkedin.id}>
@@ -288,7 +285,6 @@ function WebSocial() {
             </Input>
             <Input
               {...conform.input(fields.xing)}
-              pattern={undefined}
               placeholder={t("form.socialNetworks.xing.placeholder")} // TODO: Regex does not fit with this placeholder
             >
               <Input.Label htmlFor={fields.xing.id}>
@@ -300,7 +296,6 @@ function WebSocial() {
             </Input>
             <Input
               {...conform.input(fields.twitter)}
-              pattern={undefined}
               placeholder={t("form.socialNetworks.twitter.placeholder")}
             >
               <Input.Label htmlFor={fields.twitter.id}>
@@ -312,7 +307,6 @@ function WebSocial() {
             </Input>
             <Input
               {...conform.input(fields.mastodon)}
-              pattern={undefined}
               placeholder={t("form.socialNetworks.mastodon.placeholder")} // TODO: Regex does not fit with this placeholder
             >
               <Input.Label htmlFor={fields.mastodon.id}>
@@ -324,7 +318,6 @@ function WebSocial() {
             </Input>
             <Input
               {...conform.input(fields.tiktok)}
-              pattern={undefined}
               placeholder={t("form.socialNetworks.tiktok.placeholder")}
             >
               <Input.Label>{t("form.socialNetworks.tiktok.label")}</Input.Label>
@@ -334,7 +327,6 @@ function WebSocial() {
             </Input>
             <Input
               {...conform.input(fields.instagram)}
-              pattern={undefined}
               placeholder={t("form.socialNetworks.instagram.placeholder")}
             >
               <Input.Label htmlFor={fields.instagram.id}>
@@ -346,7 +338,6 @@ function WebSocial() {
             </Input>
             <Input
               {...conform.input(fields.youtube)}
-              pattern={undefined}
               placeholder={t("form.socialNetworks.youtube.placeholder")}
             >
               <Input.Label htmlFor={fields.youtube.id}>
