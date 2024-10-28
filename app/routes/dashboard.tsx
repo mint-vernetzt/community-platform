@@ -391,10 +391,6 @@ function getDataForUpdateTeasers() {
       link: "/help",
       icon: "life-preserver-outline",
     },
-    // createProject: {
-    //   link: "/project/create",
-    //   icon: "Plus big",
-    // },
     addToOrganization: {
       link: "/my/organizations",
       icon: "Plus big",
@@ -406,15 +402,15 @@ function getDataForUpdateTeasers() {
 function getDataForNewsTeasers() {
   const teaserData: {
     tableMedia: { link: string; icon: TeaserIconType };
-    shapeActionDays: { link: string; icon: TeaserIconType };
+    mintPitch: { link: string; icon: TeaserIconType };
   } = {
-    shapeActionDays: {
-      link: "/event/mintvernetztaktionstage2024-lxt2bw2l",
-      icon: "megaphone",
-    },
     tableMedia: {
       link: "https://table.media/aktion/mint-vernetzt?utm_source=samail&utm_medium=email&utm_campaign=rt_mintvernetzt_koop_email_job&utm_content=lp_1",
       icon: "lightning-charge",
+    },
+    mintPitch: {
+      link: "https://www.mint-vernetzt.de/news/mint-pitch-jahrestagung/",
+      icon: "megaphone",
     },
   };
   return teaserData;

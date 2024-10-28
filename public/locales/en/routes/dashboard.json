@@ -39,15 +39,15 @@
       "headline": "MINTvernetzt News",
       "hide": "Hide news",
       "show": "Show news",
-      "shapeActionDays": {
-        "headline": "Submit actions now",
-        "description": "Help shape the program of the digital MINTvernetzt action days",
-        "linkDescription": "More information"
-      },
       "tableMedia": {
         "headline": "New cooperation",
         "description": "Offer: table.media subscription for MINTvernetzt Community",
         "linkDescription": "Learn more now"
+      },
+      "mintPitch": {
+        "headline": "Apply now",
+        "description": "STEM-Pitch: Your project presentation in front of investors from the economy",
+        "linkDescription": "More info"
       }
     },
     "communityCounter": {

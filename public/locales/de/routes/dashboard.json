@@ -39,15 +39,15 @@
       "headline": "MINTvernetzt News",
       "hide": "News ausblenden",
       "show": "News einblenden",
-      "shapeActionDays": {
-        "headline": "Jetzt Aktionen einreichen",
-        "description": "Programm der digitalen MINTvernetzt Aktionstage mitgestalten",
-        "linkDescription": "Mehr Infos"
-      },
       "tableMedia": {
         "headline": "Neue Kooperation",
         "description": "Angebot: table.media-Abo für MINTvernetzt Community",
         "linkDescription": "Jetzt mehr erfahren"
+      },
+      "mintPitch": {
+        "headline": "Jetzt bewerben",
+        "description": "MINT-Pitch: Eure Projektpräsentation vor Investor:innen aus der Wirtschaft",
+        "linkDescription": "Mehr Infos"
       }
     },
     "communityCounter": {
