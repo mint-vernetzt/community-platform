@@ -402,14 +402,14 @@ function getDataForUpdateTeasers() {
 function getDataForNewsTeasers() {
   const teaserData: {
     tableMedia: { link: string; icon: TeaserIconType };
-    actionDays: { link: string; icon: TeaserIconType };
+    mintPitch: { link: string; icon: TeaserIconType };
   } = {
     tableMedia: {
       link: "https://table.media/aktion/mint-vernetzt?utm_source=samail&utm_medium=email&utm_campaign=rt_mintvernetzt_koop_email_job&utm_content=lp_1",
       icon: "lightning-charge",
     },
-    actionDays: {
-      link: "/event/mintvernetztaktionstage2024-lxt2bw2l",
+    mintPitch: {
+      link: "https://www.mint-vernetzt.de/news/mint-pitch-jahrestagung/",
       icon: "megaphone",
     },
   };

@@ -44,10 +44,10 @@
         "description": "Angebot: table.media-Abo für MINTvernetzt Community",
         "linkDescription": "Jetzt mehr erfahren"
       },
-      "actionDays": {
-        "headline": "MINTvernetzt Aktionstage 2024",
-        "description": "Melde Dich jetzt zu den Online-Aktionstagen an",
-        "linkDescription": "Zum Event"
+      "mintPitch": {
+        "headline": "Jetzt bewerben",
+        "description": "MINT-Pitch: Eure Projektpräsentation vor Investor:innen aus der Wirtschaft",
+        "linkDescription": "Mehr Infos"
       }
     },
     "communityCounter": {

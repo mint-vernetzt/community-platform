@@ -44,10 +44,10 @@
         "description": "Offer: table.media subscription for MINTvernetzt Community",
         "linkDescription": "Learn more now"
       },
-      "actionDays": {
-        "headline": "MINTvernetzt Action Days 2024",
-        "description": "Sign up now for the online action days",
-        "linkDescription": "To the event"
+      "mintPitch": {
+        "headline": "Apply now",
+        "description": "STEM-Pitch: Your project presentation in front of investors from the economy",
+        "linkDescription": "More info"
       }
     },
     "communityCounter": {
