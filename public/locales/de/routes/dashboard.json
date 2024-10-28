@@ -39,15 +39,15 @@
       "headline": "MINTvernetzt News",
       "hide": "News ausblenden",
       "show": "News einblenden",
-      "shapeActionDays": {
-        "headline": "Jetzt Aktionen einreichen",
-        "description": "Programm der digitalen MINTvernetzt Aktionstage mitgestalten",
-        "linkDescription": "Mehr Infos"
-      },
       "tableMedia": {
         "headline": "Neue Kooperation",
         "description": "Angebot: table.media-Abo für MINTvernetzt Community",
         "linkDescription": "Jetzt mehr erfahren"
+      },
+      "actionDays": {
+        "headline": "MINTvernetzt Aktionstage 2024",
+        "description": "Melde Dich jetzt zu den Online-Aktionstagen an",
+        "linkDescription": "Zum Event"
       }
     },
     "communityCounter": {

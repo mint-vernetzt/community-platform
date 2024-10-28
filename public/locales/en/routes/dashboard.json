@@ -39,15 +39,15 @@
       "headline": "MINTvernetzt News",
       "hide": "Hide news",
       "show": "Show news",
-      "shapeActionDays": {
-        "headline": "Submit actions now",
-        "description": "Help shape the program of the digital MINTvernetzt action days",
-        "linkDescription": "More information"
-      },
       "tableMedia": {
         "headline": "New cooperation",
         "description": "Offer: table.media subscription for MINTvernetzt Community",
         "linkDescription": "Learn more now"
+      },
+      "actionDays": {
+        "headline": "MINTvernetzt Action Days 2024",
+        "description": "Sign up now for the online action days",
+        "linkDescription": "To the event"
       }
     },
     "communityCounter": {
