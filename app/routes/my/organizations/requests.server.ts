@@ -1,5 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { getImageURL } from "~/images.server";
+import { getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -42,17 +42,31 @@ export async function getPendingRequestsToOrganizations(
 
   const enhancedRequests = requests.map((request) => {
     let logo = request.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 144 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.Logo.width,
+            height: ImageSizes.Organization.ListItem.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+            height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+          },
+          blur: 5,
         });
       }
     }
     return {
       ...request,
       logo,
+      blurredLogo,
     };
   });
 

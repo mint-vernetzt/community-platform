@@ -1,5 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { getImageURL } from "~/images.server";
+import { getImageURL, ImageSizes } from "~/images.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
@@ -364,11 +364,24 @@ export function addImageUrlToInvites(
 ) {
   const adminInvites = invites.adminInvites.map((invite) => {
     let logo = invite.organization.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 144 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.Logo.width,
+            height: ImageSizes.Organization.ListItem.Logo.width,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+            height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+          },
+          blur: 5,
         });
       }
     }
@@ -377,17 +390,31 @@ export function addImageUrlToInvites(
       organization: {
         ...invite.organization,
         logo,
+        blurredLogo,
       },
     };
   });
 
   const teamMemberInvites = invites.teamMemberInvites.map((invite) => {
     let logo = invite.organization.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 144 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.Logo.width,
+            height: ImageSizes.Organization.ListItem.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+            height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+          },
+          blur: 5,
         });
       }
     }
@@ -396,6 +423,7 @@ export function addImageUrlToInvites(
       organization: {
         ...invite.organization,
         logo,
+        blurredLogo,
       },
     };
   });
@@ -583,11 +611,24 @@ export function addImageUrlToRequests(
       const profileJoinRequests = organization.profileJoinRequests.map(
         (relation) => {
           let avatar = relation.profile.avatar;
+          let blurredAvatar;
           if (avatar !== null) {
             const publicURL = getPublicURL(authClient, avatar);
             if (publicURL !== null) {
               avatar = getImageURL(publicURL, {
-                resize: { type: "fill", width: 144, height: 144 },
+                resize: {
+                  type: "fill",
+                  width: ImageSizes.Profile.ListItem.Avatar.width,
+                  height: ImageSizes.Profile.ListItem.Avatar.height,
+                },
+              });
+              blurredAvatar = getImageURL(publicURL, {
+                resize: {
+                  type: "fill",
+                  width: ImageSizes.Profile.ListItem.BlurredAvatar.width,
+                  height: ImageSizes.Profile.ListItem.BlurredAvatar.height,
+                },
+                blur: 5,
               });
             }
           }
@@ -596,6 +637,7 @@ export function addImageUrlToRequests(
             profile: {
               ...relation.profile,
               avatar,
+              blurredAvatar,
             },
           };
         }

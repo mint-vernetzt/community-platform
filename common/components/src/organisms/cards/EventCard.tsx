@@ -6,18 +6,17 @@ import {
   CardBody,
   CardFooter,
   CardHeader,
-  CardImage,
   CardInfo,
   CardInfoOverlay,
   CardStatus,
 } from "./Card";
 import { useTranslation } from "react-i18next";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
+import { Image } from "@mint-vernetzt/components";
 
 export type EventCardProps = {
   match?: number;
   publicAccess?: boolean;
-  isHydrated?: boolean;
   event: {
     name: string;
     slug: string;
@@ -123,11 +122,10 @@ function EventCard(
     <Card to={`/event/${event.slug}`}>
       <CardHeader cardType="event">
         {event.background && (
-          <CardImage
+          <Image
+            alt={event.name}
             src={event.background}
-            blurSrc={event.blurredBackground}
-            isHydrated={props.isHydrated}
-            cardType="event"
+            blurredSrc={event.blurredBackground}
           />
         )}
         {props.match !== undefined && (

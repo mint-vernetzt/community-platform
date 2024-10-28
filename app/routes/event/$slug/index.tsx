@@ -1,6 +1,12 @@
 import { useForm } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import { Button, Input, TextButton } from "@mint-vernetzt/components";
+import {
+  Avatar,
+  Button,
+  Image,
+  Input,
+  TextButton,
+} from "@mint-vernetzt/components";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -14,7 +20,6 @@ import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import {
   createEventAbuseReport,
@@ -315,13 +320,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   // Hiding conference link when session user is not participating (participant, speaker, teamMember) or when its not known yet
   if (
-    !canUserAccessConferenceLink(
-      // TODO: Fix type issue
+    canUserAccessConferenceLink(
       eventWithParticipationStatus,
       isParticipant,
       isSpeaker,
       isTeamMember
-    )
+    ) === false
   ) {
     eventWithParticipationStatus.conferenceLink = null;
     eventWithParticipationStatus.conferenceCode = null;
@@ -558,32 +562,20 @@ function Index() {
   const duration = getDuration(startTime, endTime, i18n.language);
 
   const background = loaderData.event.background;
+  const blurredBackground = loaderData.event.blurredBackground;
+  const name = loaderData.event.name;
   const Background = React.useCallback(
     () => (
       <div className="w-full rounded-md overflow-hidden aspect-[3/2]">
-        {background ? (
-          <img
-            src={background}
-            alt={t("content.backgroundImage")}
-            className="w-full h-full"
-          />
-        ) : (
-          <img
-            src={"/images/default-event-background.jpg"}
-            alt={t("content.backgroundImage")}
-            className="mv-w-[300px] mv-min-h-[108px]"
-          />
-        )}
+        <Image alt={name} src={background} blurredSrc={blurredBackground} />
       </div>
     ),
-    [background]
+    [background, blurredBackground, name]
   );
 
   const [abuseReportForm, abuseReportFields] = useForm({
     lastResult: actionData,
   });
-
-  const isHydrated = useHydrated();
 
   return (
     <>
@@ -710,39 +702,11 @@ function Index() {
         <div className="@md:mv-rounded-3xl overflow-hidden w-full relative">
           <div className="hidden @md:mv-block">
             <div className="relative overflow-hidden w-full aspect-[31/10]">
-              <div className="w-full h-full relative">
-                <img
-                  src={
-                    loaderData.event.blurredBackground ||
-                    "/images/default-event-background-blurred.jpg"
-                  }
-                  alt={t("content.borderOfImage")}
-                  className="w-full h-full object-cover"
-                />
-                <img
-                  id="background"
-                  src={
-                    loaderData.event.background ||
-                    "/images/default-event-background.jpg"
-                  }
-                  alt={loaderData.event.name}
-                  className={`w-full h-full object-contain absolute inset-0 ${
-                    isHydrated
-                      ? "opacity-100 transition-opacity duration-200 ease-in"
-                      : "opacity-0 invisible"
-                  }`}
-                />
-                <noscript>
-                  <img
-                    src={
-                      loaderData.event.background ||
-                      "/images/default-event-background.jpg"
-                    }
-                    alt={loaderData.event.name}
-                    className={`w-full h-full object-contain absolute inset-0`}
-                  />
-                </noscript>
-              </div>
+              <Image
+                alt={name}
+                src={background}
+                blurredSrc={blurredBackground}
+              />
               {loaderData.mode === "admin" &&
               loaderData.abilities.events.hasAccess ? (
                 <div className="absolute bottom-6 right-6">
@@ -1275,11 +1239,12 @@ function Index() {
                           <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                             {profile.avatar !== null &&
                             profile.avatar !== "" ? (
-                              <img
-                                src={profile.avatar}
-                                alt={`${profile.academicTitle || ""} ${
-                                  profile.firstName
-                                } ${profile.lastName}`.trimStart()}
+                              <Avatar
+                                size="full"
+                                firstName={profile.firstName}
+                                lastName={profile.lastName}
+                                avatar={profile.avatar}
+                                blurredAvatar={profile.blurredAvatar}
                               />
                             ) : (
                               getInitials(profile)
@@ -1335,36 +1300,11 @@ function Index() {
                         >
                           <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                             <div className="w-36 h-full relative">
-                              <img
-                                src={
-                                  event.blurredBackground ||
-                                  "/images/default-event-background-blurred.jpg"
-                                }
-                                alt={t("content.borderOfImage")}
-                                className="w-full h-full object-cover"
-                              />
-                              <img
-                                src={
-                                  event.background ||
-                                  "/images/default-event-background.jpg"
-                                }
+                              <Image
                                 alt={event.name}
-                                className={`w-full h-full object-cover absolute inset-0 ${
-                                  isHydrated
-                                    ? "opacity-100 transition-opacity duration-200 ease-in"
-                                    : "opacity-0 invisible"
-                                }`}
+                                src={event.background}
+                                blurredSrc={event.blurredBackground}
                               />
-                              <noscript>
-                                <img
-                                  src={
-                                    event.background ||
-                                    "/images/default-event-background.jpg"
-                                  }
-                                  alt={event.name}
-                                  className={`w-full h-full object-cover absolute inset-0`}
-                                />
-                              </noscript>
                             </div>
                           </div>
                           <div className="px-4 py-4">
@@ -1527,11 +1467,12 @@ function Index() {
                           <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                             {member.profile.avatar !== null &&
                             member.profile.avatar !== "" ? (
-                              <img
-                                src={member.profile.avatar}
-                                alt={`${member.profile.academicTitle || ""} ${
-                                  member.profile.firstName
-                                } ${member.profile.lastName}`.trimStart()}
+                              <Avatar
+                                size="full"
+                                firstName={member.profile.firstName}
+                                lastName={member.profile.lastName}
+                                avatar={member.profile.avatar}
+                                blurredAvatar={member.profile.blurredAvatar}
                               />
                             ) : (
                               getInitials(member.profile)
@@ -1574,9 +1515,11 @@ function Index() {
                           {item.organization.logo !== null &&
                           item.organization.logo !== "" ? (
                             <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
-                              <img
-                                src={item.organization.logo}
-                                alt={item.organization.name}
+                              <Avatar
+                                size="full"
+                                name={item.organization.name}
+                                logo={item.organization.logo}
+                                blurredLogo={item.organization.blurredLogo}
                               />
                             </div>
                           ) : (
@@ -1625,11 +1568,12 @@ function Index() {
                           <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                             {profile.avatar !== null &&
                             profile.avatar !== "" ? (
-                              <img
-                                src={profile.avatar}
-                                alt={`${profile.academicTitle || ""} ${
-                                  profile.firstName
-                                } ${profile.lastName}`.trimStart()}
+                              <Avatar
+                                size="full"
+                                firstName={profile.firstName}
+                                lastName={profile.lastName}
+                                avatar={profile.avatar}
+                                blurredAvatar={profile.blurredAvatar}
                               />
                             ) : (
                               getInitials(profile)

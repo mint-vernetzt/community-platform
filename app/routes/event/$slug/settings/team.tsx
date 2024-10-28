@@ -17,7 +17,7 @@ import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import i18next from "~/i18next.server";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -36,6 +36,7 @@ import {
   removeMemberSchema,
   type action as removeMemberAction,
 } from "./team/remove-member";
+import { Avatar } from "@mint-vernetzt/components";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -59,16 +60,28 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const enhancedTeamMembers = event.teamMembers.map((relation) => {
     let avatar = relation.profile.avatar;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.Avatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return { ...relation.profile, avatar };
+    return { ...relation.profile, avatar, blurredAvatar };
   });
 
   const url = new URL(request.url);
@@ -182,7 +195,13 @@ function Team() {
             >
               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                 {teamMember.avatar !== null && teamMember.avatar !== "" ? (
-                  <img src={teamMember.avatar} alt={initials} />
+                  <Avatar
+                    size="full"
+                    firstName={teamMember.firstName}
+                    lastName={teamMember.lastName}
+                    avatar={teamMember.avatar}
+                    blurredAvatar={teamMember.blurredAvatar}
+                  />
                 ) : (
                   <>{initials}</>
                 )}

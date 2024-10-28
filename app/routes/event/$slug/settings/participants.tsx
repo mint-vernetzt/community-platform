@@ -10,6 +10,8 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
@@ -21,11 +23,13 @@ import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import InputText from "~/components/FormElements/InputText/InputText";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { GravityType, getImageURL } from "~/images.server";
+import i18next from "~/i18next.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -45,10 +49,7 @@ import {
   type action as removeParticipantAction,
   removeParticipantSchema,
 } from "./participants/remove-participant";
-import i18next from "~/i18next.server";
-import { type TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
+import { Avatar } from "@mint-vernetzt/components";
 
 const createParticipantLimitSchema = (t: TFunction) => {
   return z.object({
@@ -101,16 +102,29 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const participants = getParticipantsDataFromEvent(event);
   const enhancedParticipants = participants.participants.map((participant) => {
-    if (participant.avatar !== null) {
-      const publicURL = getPublicURL(authClient, participant.avatar);
+    let avatar = participant.avatar;
+    let blurredAvatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
-        participant.avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+        avatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.Avatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return participant;
+    return { ...participant, avatar, blurredAvatar };
   });
 
   const url = new URL(request.url);
@@ -359,7 +373,13 @@ function Participants() {
             >
               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                 {participant.avatar !== null && participant.avatar !== "" ? (
-                  <img src={participant.avatar} alt={initials} />
+                  <Avatar
+                    size="full"
+                    firstName={participant.firstName}
+                    lastName={participant.lastName}
+                    avatar={participant.avatar}
+                    blurredAvatar={participant.blurredAvatar}
+                  />
                 ) : (
                   <>{initials}</>
                 )}

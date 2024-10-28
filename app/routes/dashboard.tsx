@@ -22,7 +22,12 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { GravityType, getImageURL } from "~/images.server";
+import {
+  BlurFactor,
+  DefaultImages,
+  ImageSizes,
+  getImageURL,
+} from "~/images.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
@@ -101,36 +106,75 @@ export const loader = async (args: LoaderFunctionArgs) => {
     } = { memberOf: [], areas: [], offers: [] };
 
     let avatarImage: string | null = null;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatarImage = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.Card.Avatar.width,
+            height: ImageSizes.Profile.Card.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.Card.BlurredAvatar.width,
+            height: ImageSizes.Profile.Card.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
 
     let backgroundImage: string | null = null;
+    let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
-          resize: { type: "fill", width: 348, height: 160 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.Card.Background.width,
+            height: ImageSizes.Profile.Card.Background.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.Card.BlurredBackground.width,
+            height: ImageSizes.Profile.Card.BlurredBackground.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
 
-    extensions.memberOf = memberOf.map((relation, index) => {
+    extensions.memberOf = memberOf.map((relation) => {
       let logoImage: string | null = null;
+      let blurredLogo;
       if (relation.organization.logo !== null) {
         const publicURL = getPublicURL(authClient, relation.organization.logo);
         if (publicURL !== null) {
           logoImage = getImageURL(publicURL, {
-            resize: { type: "fill", width: 36, height: 36 },
+            resize: {
+              type: "fill",
+              width: ImageSizes.Profile.Card.MemberLogo.width,
+              height: ImageSizes.Profile.Card.MemberLogo.height,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Profile.Card.BlurredMemberLogo.width,
+              height: ImageSizes.Profile.Card.BlurredMemberLogo.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return { ...relation.organization, logo: logoImage };
+      return { ...relation.organization, logo: logoImage, blurredLogo };
     });
 
     extensions.areas = profile.areas.map((relation) => {
@@ -145,7 +189,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       ...otherFields,
       ...extensions,
       avatar: avatarImage,
+      blurredAvatar,
       background: backgroundImage,
+      blurredBackground,
     };
   });
   const numberOfOrganizations = 4;
@@ -165,36 +211,75 @@ export const loader = async (args: LoaderFunctionArgs) => {
     } = { teamMembers: [], focuses: [], areas: [], types: [] };
 
     let logoImage: string | null = null;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logoImage = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.Logo.width,
+            height: ImageSizes.Organization.Card.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.BlurredLogo.width,
+            height: ImageSizes.Organization.Card.BlurredLogo.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
 
     let backgroundImage: string | null = null;
+    let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
-          resize: { type: "fill", width: 348, height: 160 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.Background.width,
+            height: ImageSizes.Organization.Card.Background.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.BlurredBackground.width,
+            height: ImageSizes.Organization.Card.BlurredBackground.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
 
-    extensions.teamMembers = teamMembers.map((relation, index) => {
+    extensions.teamMembers = teamMembers.map((relation) => {
       let avatar: string | null = null;
+      let blurredAvatar;
       if (relation.profile.avatar !== null) {
         const publicURL = getPublicURL(authClient, relation.profile.avatar);
         if (publicURL !== null) {
           avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 36, height: 36 },
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.Card.MemberAvatar.width,
+              height: ImageSizes.Organization.Card.MemberAvatar.height,
+            },
+          });
+          blurredAvatar = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.Card.BlurredMemberAvatar.width,
+              height: ImageSizes.Organization.Card.BlurredMemberAvatar.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return { ...relation.profile, avatar: avatar };
+      return { ...relation.profile, avatar: avatar, blurredAvatar };
     });
 
     extensions.areas = organization.areas.map((relation) => {
@@ -212,7 +297,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       ...otherFields,
       ...extensions,
       logo: logoImage,
+      blurredLogo,
       background: backgroundImage,
+      blurredBackground,
     };
   });
 
@@ -228,21 +315,47 @@ export const loader = async (args: LoaderFunctionArgs) => {
     } = { responsibleOrganizations: [] };
 
     let logoImage: string | null = null;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logoImage = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Project.Card.Logo.width,
+            height: ImageSizes.Project.Card.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Project.Card.BlurredLogo.width,
+            height: ImageSizes.Project.Card.BlurredLogo.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
 
     let backgroundImage: string | null = null;
+    let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
-          resize: { type: "fill", width: 348, height: 160 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Project.Card.Background.width,
+            height: ImageSizes.Project.Card.Background.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Project.Card.BlurredBackground.width,
+            height: ImageSizes.Project.Card.BlurredBackground.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
@@ -250,6 +363,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     extensions.responsibleOrganizations = responsibleOrganizations.map(
       (relation) => {
         let logoImage: string | null = null;
+        let blurredLogo;
         if (relation.organization.logo !== null) {
           const publicURL = getPublicURL(
             authClient,
@@ -257,18 +371,44 @@ export const loader = async (args: LoaderFunctionArgs) => {
           );
           if (publicURL !== null) {
             logoImage = getImageURL(publicURL, {
-              resize: { type: "fill", width: 36, height: 36 },
+              resize: {
+                type: "fill",
+                width:
+                  ImageSizes.Project.Card.ResponsibleOrganizationLogo.width,
+                height:
+                  ImageSizes.Project.Card.ResponsibleOrganizationLogo.height,
+              },
+            });
+            blurredLogo = getImageURL(publicURL, {
+              resize: {
+                type: "fill",
+                width:
+                  ImageSizes.Project.Card.BlurredResponsibleOrganizationLogo
+                    .width,
+                height:
+                  ImageSizes.Project.Card.BlurredResponsibleOrganizationLogo
+                    .height,
+              },
+              blur: BlurFactor,
             });
           }
         }
-        return { organization: { ...relation.organization, logo: logoImage } };
+        return {
+          organization: {
+            ...relation.organization,
+            logo: logoImage,
+            blurredLogo,
+          },
+        };
       }
     );
     return {
       ...otherFields,
       ...extensions,
       logo: logoImage,
+      blurredLogo,
       background: backgroundImage,
+      blurredBackground,
     };
   });
 
@@ -287,31 +427,58 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
-          resize: { type: "fill", width: 594, height: 396 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.Card.Background.width,
+            height: ImageSizes.Event.Card.Background.height,
+          },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 18, height: 12 },
-          blur: 5,
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.Card.BlurredBackground.width,
+            height: ImageSizes.Event.Card.BlurredBackground.height,
+          },
+          blur: BlurFactor,
         });
       }
     } else {
-      backgroundImage = "/images/default-event-background.jpg";
-      blurredBackground = "/images/default-event-background-blurred.jpg";
+      backgroundImage = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
 
     const enhancedResponsibleOrganizations = responsibleOrganizations.map(
       (relation) => {
         let logo = relation.organization.logo;
+        let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-              gravity: GravityType.center,
+              resize: {
+                type: "fill",
+                width: ImageSizes.Event.Card.ResponsibleOrganizationLogo.width,
+                height:
+                  ImageSizes.Event.Card.ResponsibleOrganizationLogo.height,
+              },
+            });
+            blurredLogo = getImageURL(publicURL, {
+              resize: {
+                type: "fill",
+                width:
+                  ImageSizes.Event.Card.BlurredResponsibleOrganizationLogo
+                    .width,
+                height:
+                  ImageSizes.Event.Card.BlurredResponsibleOrganizationLogo
+                    .height,
+              },
+              blur: BlurFactor,
             });
           }
         }
-        return { organization: { ...relation.organization, logo } };
+        return {
+          organization: { ...relation.organization, logo, blurredLogo },
+        };
       }
     );
 
@@ -483,7 +650,7 @@ function Dashboard() {
                       return (
                         <div
                           key={`organization-invite-${organization.slug}-${index}`}
-                          className="mv-w-[73px] mv-h-[73px]"
+                          className="mv-w-[72px] mv-h-[72px]"
                         >
                           <Avatar
                             to={`/organization/${organization.slug}`}
@@ -530,7 +697,7 @@ function Dashboard() {
                       return (
                         <div
                           key={`organization-request-${profile.username}-${index}`}
-                          className="mv-w-[73px] mv-h-[73px]"
+                          className="mv-w-[72px] mv-h-[72px]"
                         >
                           <Avatar
                             to={`/profile/${profile.username}`}
@@ -611,23 +778,17 @@ function Dashboard() {
                 return (
                   <li
                     key={`canceled-event-${event.slug}`}
-                    className={`mv-w-full mv-min-h-[124px] mv-overflow-hidden p-4 @md:mv-p-0 @md:mv-pr-4 @lg:mv-pr-6 mv-bg-negative-50 mv-rounded-r-lg mv-rounded-l-lg @sm:mv-rounded-r-xl @md:mv-rounded-r-2xl mv-gap-4 @sm:mv-gap-6 mv-flex-col @sm:mv-flex-row @sm:mv-items-center ${
+                    className={`mv-w-full mv-min-h-[110px] mv-overflow-hidden p-4 @md:mv-p-0 @md:mv-pr-4 @lg:mv-pr-6 mv-bg-negative-50 mv-rounded-r-lg mv-rounded-l-lg @sm:mv-rounded-r-xl @md:mv-rounded-r-2xl mv-gap-4 @sm:mv-gap-6 mv-flex-col @sm:mv-flex-row @sm:mv-items-center ${
                       index > 1
                         ? "mv-hidden group-has-[:checked]:mv-flex"
                         : "mv-flex"
                     }`}
                   >
-                    <div className="mv-hidden @md:mv-block mv-w-[164px] mv-h-[124px] mv-shrink-0 mv-bg-neutral-200">
+                    <div className="mv-hidden @md:mv-block mv-w-[165px] mv-h-[110px] mv-shrink-0 mv-bg-neutral-200">
                       <Image
                         alt={event.name}
-                        src={
-                          event.background ||
-                          "/images/default-event-background.jpg"
-                        }
-                        blurredSrc={
-                          event.blurredBackground ||
-                          "/images/default-event-background-blurred.jpg"
-                        }
+                        src={event.background}
+                        blurredSrc={event.blurredBackground}
                       />
                     </div>
                     <div className="mv-flex mv-flex-col mv-gap-2 @sm:mv-grow">

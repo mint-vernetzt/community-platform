@@ -7,11 +7,11 @@ import {
   CardBodySection,
   CardFooter,
   CardHeader,
-  CardImage,
   CardStatus,
 } from "./Card";
 import { getFullName } from "../../utils";
 import { useTranslation } from "react-i18next";
+import { Image } from "@mint-vernetzt/components";
 
 export type ProfileCardProps = {
   match?: number;
@@ -23,7 +23,9 @@ export type ProfileCardProps = {
     lastName: string;
     position?: string | null;
     avatar?: string | null;
+    blurredAvatar?: string;
     background?: string | null;
+    blurredBackground?: string;
     memberOf: {
       name: string;
       slug: string;
@@ -54,7 +56,13 @@ function ProfileCard(
     <Card to={`/profile/${profile.username}`}>
       <CardHeader>
         <Avatar {...profile} size="xl" />
-        {profile.background && <CardImage src={profile.background} />}
+        {profile.background && (
+          <Image
+            alt={fullName}
+            src={profile.background}
+            blurredSrc={profile.blurredBackground}
+          />
+        )}
         {props.match !== undefined && (
           <CardStatus>
             {props.match}% {t("match")}

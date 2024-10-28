@@ -1,6 +1,7 @@
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import {
-  BlurredBackgroundScale,
+  BlurFactor,
+  DefaultImages,
   getImageURL,
   GravityType,
   ImageSizes,
@@ -297,12 +298,24 @@ export async function getOrganizationsFromInvites(
       const publicURL = getPublicURL(authClient, relation.organization.logo);
       if (publicURL !== null) {
         const logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 73, height: 73 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.Logo.width,
+            height: ImageSizes.Organization.ListItem.Logo.height,
+          },
           gravity: GravityType.center,
+        });
+        const blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+            height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+          },
+          blur: BlurFactor,
         });
         return {
           ...relation,
-          organization: { ...relation.organization, logo },
+          organization: { ...relation.organization, logo, blurredLogo },
         };
       }
     }
@@ -351,12 +364,24 @@ export async function getProfilesFromRequests(
       const publicURL = getPublicURL(authClient, relation.profile.avatar);
       if (publicURL !== null) {
         const avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 73, height: 73 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItem.Avatar.width,
+            height: ImageSizes.Profile.ListItem.Avatar.height,
+          },
           gravity: GravityType.center,
+        });
+        const blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItem.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItem.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
         return {
           ...relation,
-          profile: { ...relation.profile, avatar },
+          profile: { ...relation.profile, avatar, blurredAvatar },
         };
       }
     }
@@ -400,20 +425,23 @@ export async function getUpcomingCanceledEvents(
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       background = getImageURL(publicURL, {
-        resize: { type: "fill", ...ImageSizes.Event.NotificationListItem },
+        resize: {
+          type: "fill",
+          ...ImageSizes.Event.NotificationListItem.Background,
+        },
       });
       blurredBackground = getImageURL(publicURL, {
         resize: {
           type: "fill",
-          width:
-            ImageSizes.Event.NotificationListItem.width *
-            BlurredBackgroundScale,
+          width: ImageSizes.Event.NotificationListItem.BlurredBackground.width,
           height:
-            ImageSizes.Event.NotificationListItem.height *
-            BlurredBackgroundScale,
+            ImageSizes.Event.NotificationListItem.BlurredBackground.height,
         },
-        blur: 5,
+        blur: BlurFactor,
       });
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...event,

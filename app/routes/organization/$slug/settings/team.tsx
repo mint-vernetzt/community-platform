@@ -41,6 +41,7 @@ import {
   type action as removeMemberAction,
 } from "./team/remove-member";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { Avatar } from "@mint-vernetzt/components";
 
 const i18nNS = ["routes/organization/settings/team"];
 export const handle = {
@@ -72,9 +73,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(organization, t("error.notFound"), { status: 404 });
 
   const members = await getMembersOfOrganization(authClient, organization.id);
-  const enhancedMembers = members.map((relation) => {
-    return relation.profile;
-  });
 
   const invitedProfiles = await getInvitedProfilesOfOrganization(
     authClient,
@@ -87,7 +85,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   let memberSuggestions;
   if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
     const query = suggestionsQuery.split(" ");
-    const profileIdsToFilter = [...enhancedMembers, ...invitedProfiles].map(
+    const profileIdsToFilter = [...members, ...invitedProfiles].map(
       (profile) => {
         return profile.id;
       }
@@ -105,7 +103,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   return json({
-    members: enhancedMembers,
+    members,
     invitedProfiles,
     memberSuggestions,
     organizationId: organization.id,
@@ -208,7 +206,13 @@ function Index() {
               >
                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                   {profile.avatar !== null && profile.avatar !== "" ? (
-                    <img src={profile.avatar} alt={initials} />
+                    <Avatar
+                      size="full"
+                      firstName={profile.firstName}
+                      lastName={profile.lastName}
+                      avatar={profile.avatar}
+                      blurredAvatar={profile.blurredAvatar}
+                    />
                   ) : (
                     <>{initials}</>
                   )}
@@ -285,7 +289,13 @@ function Index() {
             >
               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                 {profile.avatar !== null && profile.avatar !== "" ? (
-                  <img src={profile.avatar} alt={initials} />
+                  <Avatar
+                    size="full"
+                    firstName={profile.firstName}
+                    lastName={profile.lastName}
+                    avatar={profile.avatar}
+                    blurredAvatar={profile.blurredAvatar}
+                  />
                 ) : (
                   <>{initials}</>
                 )}

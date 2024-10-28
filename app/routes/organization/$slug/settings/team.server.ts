@@ -1,5 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -30,21 +30,30 @@ export async function getMembersOfOrganization(
     },
   });
 
-  const enhancedMembers = members.map((item) => {
-    if (item.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, item.profile.avatar);
+  const enhancedMembers = members.map((relation) => {
+    let avatar = relation.profile.avatar;
+    let blurredAvatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
-        const avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+        avatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.Avatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.Avatar.height,
+          },
         });
-        return {
-          ...item,
-          profile: { ...item.profile, avatar },
-        };
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
+        });
       }
     }
-    return item;
+    return { ...relation.profile, avatar, blurredAvatar };
   });
 
   return enhancedMembers;
@@ -92,25 +101,30 @@ export async function getInvitedProfilesOfOrganization(
     });
 
   const enhancedMembers = profiles.map((relation) => {
-    if (relation.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, relation.profile.avatar);
+    let avatar = relation.profile.avatar;
+    let blurredAvatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
-        const avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+        avatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.Avatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.Avatar.height,
+          },
         });
-        return {
-          ...relation,
-          profile: { ...relation.profile, avatar },
-        };
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
+        });
       }
     }
-    return relation;
+    return { ...relation.profile, avatar, blurredAvatar };
   });
 
-  const flat = enhancedMembers.map((relation) => {
-    return relation.profile;
-  });
-
-  return flat;
+  return enhancedMembers;
 }

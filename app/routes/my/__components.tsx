@@ -23,6 +23,7 @@ import {
   type action as requestsAction,
 } from "./organizations/requests";
 import { type getPendingRequestsToOrganizations } from "./organizations/requests.server";
+import { Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 
 export function Section(props: { children: React.ReactNode }) {
   const validChildren = React.Children.toArray(props.children).filter(
@@ -90,7 +91,7 @@ export function AddOrganization(props: {
   pendingRequestsToOrganizations: Awaited<
     ReturnType<typeof getPendingRequestsToOrganizations>
   >;
-  invites: Awaited<ReturnType<typeof addImageUrlToInvites>>;
+  invites: Jsonify<ReturnType<typeof addImageUrlToInvites>>;
   createRequestFetcher: ReturnType<typeof useFetcher<typeof requestsAction>>;
 }) {
   const {

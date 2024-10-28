@@ -1,3 +1,4 @@
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -15,7 +16,7 @@ import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import i18next from "~/i18next.server";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -34,7 +35,7 @@ import {
   type action as removeAdminAction,
 } from "./admins/remove-admin";
 import { publishSchema, type action as publishAction } from "./events/publish";
-import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { Avatar } from "@mint-vernetzt/components";
 
 const i18nNS = ["routes/event/settings/admins"];
 export const handle = {
@@ -65,16 +66,28 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const enhancedAdmins = event.admins.map((relation) => {
     let avatar = relation.profile.avatar;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.Avatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return { ...relation.profile, avatar };
+    return { ...relation.profile, avatar, blurredAvatar };
   });
 
   const url = new URL(request.url);
@@ -191,7 +204,13 @@ function Admins() {
             >
               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                 {admin.avatar !== null && admin.avatar !== "" ? (
-                  <img src={admin.avatar} alt={initials} />
+                  <Avatar
+                    size="full"
+                    firstName={admin.firstName}
+                    lastName={admin.lastName}
+                    avatar={admin.avatar}
+                    blurredAvatar={admin.blurredAvatar}
+                  />
                 ) : (
                   <>{initials}</>
                 )}

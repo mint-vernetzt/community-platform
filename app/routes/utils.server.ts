@@ -1,6 +1,6 @@
 import { type Organization, type Prisma, type Profile } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -90,16 +90,28 @@ export async function getOrganizationSuggestionsForAutocomplete(
   const enhancedOrganizationSuggestions = organizationSuggestions.map(
     (organization) => {
       let logo = organization.logo;
+      let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fit", width: 64, height: 64 },
-            gravity: GravityType.center,
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.ListItemLegacy.Logo.width,
+              height: ImageSizes.Organization.ListItemLegacy.Logo.height,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.ListItemLegacy.BlurredLogo.width,
+              height: ImageSizes.Organization.ListItemLegacy.BlurredLogo.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return { ...organization, logo };
+      return { ...organization, logo, blurredLogo };
     }
   );
 
@@ -167,16 +179,28 @@ export async function getProfileSuggestionsForAutocomplete(
 
   const enhancedProfileSuggestions = profileSuggestions.map((profile) => {
     let avatar = profile.avatar;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
-          gravity: GravityType.center,
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.Avatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return { ...profile, avatar };
+    return { ...profile, avatar, blurredAvatar };
   });
   return enhancedProfileSuggestions;
 }

@@ -3,6 +3,7 @@ import Avatar from "../../molecules/Avatar";
 import { Card } from "./Card";
 import { useTranslation } from "react-i18next";
 import React from "react";
+import { Image } from "@mint-vernetzt/components";
 
 export type ProjectCardProps = {
   project: {
@@ -11,7 +12,9 @@ export type ProjectCardProps = {
     excerpt?: string | null;
     subline?: string | null;
     background?: string | null;
+    blurredBackground?: string;
     logo?: string | null;
+    blurredLogo?: string;
     published?: boolean;
     responsibleOrganizations: {
       organization: {
@@ -69,7 +72,13 @@ function ProjectCard(props: ProjectCardProps) {
               </Card.Status>
             )}
           <Avatar {...project} size="xl" />
-          {project.background && <Card.Image src={project.background} />}
+          {project.background && (
+            <Image
+              alt={project.name}
+              src={project.background}
+              blurredSrc={project.blurredBackground}
+            />
+          )}
         </Card.Header>
         <Card.Body>
           <div className="mv-mt-[30px] mv-max-h-10 mv-overflow-hidden">

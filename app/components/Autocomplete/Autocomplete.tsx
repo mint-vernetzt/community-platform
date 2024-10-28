@@ -7,26 +7,27 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDuration } from "~/lib/utils/time";
 import { H3 } from "../Heading/Heading";
 import { useTranslation } from "react-i18next";
+import { Avatar, Image } from "@mint-vernetzt/components";
 
 export interface AutocompleteProps {
   suggestions:
-    | Pick<Profile, "firstName" | "lastName" | "id" | "avatar" | "position">[]
+    | Array<
+        Pick<
+          Profile,
+          "firstName" | "lastName" | "id" | "avatar" | "position"
+        > & { blurredAvatar?: string }
+      >
     | (Pick<Organization, "name" | "logo" | "id"> & {
         types: {
           organizationType: {
             slug: string;
           };
         }[];
+        blurredLogo?: string;
       })[]
     | (Pick<
         Event,
-        | "id"
-        | "name"
-        | "slug"
-        | "background"
-        | "participantLimit"
-        | "subline"
-        | "description"
+        "id" | "name" | "slug" | "participantLimit" | "subline" | "description"
       > & {
         stage: {
           slug: string;
@@ -38,6 +39,8 @@ export interface AutocompleteProps {
         };
         startTime: string;
         endTime: string;
+        background: string;
+        blurredBackground?: string;
       })[];
   suggestionsLoaderPath: string;
   defaultValue: string;
@@ -173,7 +176,12 @@ const Autocomplete = React.forwardRef(
                   >
                     <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                       {suggestion.logo !== null && suggestion.logo !== "" ? (
-                        <img src={suggestion.logo} alt={suggestion.name} />
+                        <Avatar
+                          size="full"
+                          name={suggestion.name}
+                          logo={suggestion.logo}
+                          blurredLogo={suggestion.blurredLogo}
+                        />
                       ) : (
                         <>{initials}</>
                       )}
@@ -210,7 +218,13 @@ const Autocomplete = React.forwardRef(
                     <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                       {suggestion.avatar !== null &&
                       suggestion.avatar !== "" ? (
-                        <img src={suggestion.avatar} alt={initials} />
+                        <Avatar
+                          size="full"
+                          firstName={suggestion.firstName}
+                          lastName={suggestion.lastName}
+                          avatar={suggestion.avatar}
+                          blurredAvatar={suggestion.blurredAvatar}
+                        />
                       ) : (
                         <>{initials}</>
                       )}
@@ -246,13 +260,10 @@ const Autocomplete = React.forwardRef(
                     }w-full text-left border-b border-neutral-400 p-1 flex items-stretch overflow-hidden`}
                   >
                     <div className="hidden @xl:mv-block w-40 shrink-0">
-                      <img
-                        src={
-                          suggestion.background ||
-                          "/images/default-event-background.jpg"
-                        }
+                      <Image
                         alt={suggestion.name}
-                        className="object-cover w-full h-full"
+                        src={suggestion.background}
+                        blurredSrc={suggestion.blurredBackground}
                       />
                     </div>
                     <div className="px-4 py-6">

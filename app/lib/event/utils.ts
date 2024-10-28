@@ -152,9 +152,12 @@ export function conferenceLinkExists(event: Pick<Event, "conferenceLink">) {
   return event.conferenceLink !== null && event.conferenceLink !== "";
 }
 
-function conferenceLinkToBeAnnounced(
-  event: Pick<EventWithRelations, "conferenceLink" | "stage">
-) {
+function conferenceLinkToBeAnnounced(event: {
+  conferenceLink: string | null;
+  stage: {
+    slug: string;
+  } | null;
+}) {
   return (
     !conferenceLinkExists(event) &&
     event.stage !== null &&
@@ -163,7 +166,12 @@ function conferenceLinkToBeAnnounced(
 }
 
 export function canUserAccessConferenceLink(
-  event: Pick<EventWithRelations, "conferenceLink" | "stage" | "_count">,
+  event: {
+    conferenceLink: string | null;
+    stage: {
+      slug: string;
+    } | null;
+  },
   isParticipant: boolean,
   isSpeaker: boolean,
   isTeamMember: boolean

@@ -30,12 +30,10 @@ import classNames from "classnames";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useChangeLanguage } from "remix-i18next";
-import { getFullName } from "~/lib/profile/getFullName";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import { H1, H2 } from "./components/Heading/Heading";
-import { getImageURL } from "./images.server";
-import { getInitials } from "./lib/profile/getInitials";
+import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { detectLanguage, getProfileByUserId } from "./root.server";
 import {
@@ -117,8 +115,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const user = await getSessionUser(authClient);
 
   let sessionUserInfo;
-  let nextSessionUserInfo;
-
   if (user !== null) {
     const profile = await getProfileByUserId(user.id);
 
@@ -129,25 +125,33 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (profile.termsAccepted === false && url.pathname !== "/accept-terms") {
         return redirect(`/accept-terms?redirect_to=${url.pathname}`);
       }
+      let blurredAvatar;
       if (profile.avatar) {
         const publicURL = getPublicURL(authClient, profile.avatar);
         if (publicURL) {
           avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
+            resize: {
+              type: "fill",
+              width: ImageSizes.Profile.NavBar.Avatar.width,
+              height: ImageSizes.Profile.NavBar.Avatar.height,
+            },
+          });
+          blurredAvatar = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Profile.NavBar.BlurredAvatar.width,
+              height: ImageSizes.Profile.NavBar.BlurredAvatar.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
       sessionUserInfo = {
         username: profile.username,
-        initials: getInitials(profile),
-        name: getFullName(profile),
-        avatar,
-      };
-      nextSessionUserInfo = {
-        username: profile.username,
         firstName: profile.firstName,
         lastName: profile.lastName,
         avatar,
+        blurredAvatar,
       };
     } else {
       throw json({ message: "profile not found." }, { status: 404 });
@@ -164,7 +168,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       sessionUserInfo,
-      nextSessionUserInfo,
       abilities,
       alert,
       toast,
@@ -240,7 +243,7 @@ export const ErrorBoundary = () => {
           <NavBar
             sessionUserInfo={
               rootLoaderData !== undefined
-                ? rootLoaderData.nextSessionUserInfo
+                ? rootLoaderData.sessionUserInfo
                 : undefined
             }
             openNavBarMenuKey={openNavBarMenuKey}
@@ -251,8 +254,8 @@ export const ErrorBoundary = () => {
               openNavBarMenuKey={openNavBarMenuKey}
               username={
                 rootLoaderData !== undefined &&
-                rootLoaderData.nextSessionUserInfo !== undefined
-                  ? rootLoaderData.nextSessionUserInfo.username
+                rootLoaderData.sessionUserInfo !== undefined
+                  ? rootLoaderData.sessionUserInfo.username
                   : undefined
               }
               abilities={
@@ -314,8 +317,7 @@ export default function App() {
   const {
     matomoUrl,
     matomoSiteId,
-    sessionUserInfo: currentUserInfo,
-    nextSessionUserInfo,
+    sessionUserInfo,
     abilities,
     alert,
     toast,
@@ -465,7 +467,7 @@ export default function App() {
               }${isProjectSettings ? "mv-hidden container-md:mv-block" : ""}`}
             >
               <NavBar
-                sessionUserInfo={nextSessionUserInfo}
+                sessionUserInfo={sessionUserInfo}
                 openNavBarMenuKey={openNavBarMenuKey}
               />
             </div>
@@ -474,7 +476,7 @@ export default function App() {
               <NavBarMenu
                 mode={mode}
                 openNavBarMenuKey={openNavBarMenuKey}
-                username={currentUserInfo?.username}
+                username={sessionUserInfo?.username}
                 abilities={abilities}
               />
               <div className="mv-flex-grow mv-@container">

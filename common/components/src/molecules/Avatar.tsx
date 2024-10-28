@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { getFullName, getInitials } from "../utils";
 import React from "react";
+import Image from "./Image";
 
 function Avatar(props: AvatarProps) {
   const { size = "md", textSize = "md" } = props;
@@ -8,15 +9,18 @@ function Avatar(props: AvatarProps) {
   let displayName = "";
   let initials = getInitials(props);
   let src;
+  let blurredSrc;
   if ("name" in props) {
     displayName = props.name;
     src = props.logo;
+    blurredSrc = props.blurredLogo;
   } else if ("firstName" in props) {
     displayName = getFullName({
       firstName: props.firstName,
       lastName: props.lastName,
     });
     src = props.avatar;
+    blurredSrc = props.blurredAvatar;
   }
 
   const classes = classNames(
@@ -54,8 +58,12 @@ function Avatar(props: AvatarProps) {
     props.to &&
       "hover:mv-border-0 active:mv-border-0 focus:mv-border-0 hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
-
-  const child = src ? <img src={src} alt={displayName} /> : <>{initials}</>;
+  // const child = src ? <img src={src} alt={displayName} /> : <>{initials}</>;
+  const child = src ? (
+    <Image alt={displayName} src={src} blurredSrc={blurredSrc} />
+  ) : (
+    <>{initials}</>
+  );
 
   return (
     <div className={classes}>
@@ -145,11 +153,13 @@ export type AvatarProps = {
   | {
       name: string;
       logo?: string | null;
+      blurredLogo?: string;
     }
   | {
       firstName: string;
       lastName: string;
       avatar?: string | null;
+      blurredAvatar?: string;
     }
 );
 

@@ -17,7 +17,7 @@ import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import i18next from "~/i18next.server";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -44,6 +44,7 @@ import {
   removeFromWaitingListSchema,
   type action as removeFromWaitingListAction,
 } from "./waiting-list/remove-from-waiting-list";
+import { Avatar } from "@mint-vernetzt/components";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -70,16 +71,29 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const participants = getParticipantsDataFromEvent(event);
   const enhancedWaitingParticipants = participants.waitingList.map(
     (waitingParticipant) => {
-      if (waitingParticipant.avatar !== null) {
-        const publicURL = getPublicURL(authClient, waitingParticipant.avatar);
+      let avatar = waitingParticipant.avatar;
+      let blurredAvatar;
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
         if (publicURL !== null) {
-          waitingParticipant.avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+          avatar = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Profile.ListItemLegacy.Avatar.width,
+              height: ImageSizes.Profile.ListItemLegacy.Avatar.height,
+            },
+          });
+          blurredAvatar = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.width,
+              height: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return waitingParticipant;
+      return { ...waitingParticipant, avatar, blurredAvatar };
     }
   );
 
@@ -251,7 +265,13 @@ function Participants() {
                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                   {waitingParticipant.avatar !== null &&
                   waitingParticipant.avatar !== "" ? (
-                    <img src={waitingParticipant.avatar} alt={initials} />
+                    <Avatar
+                      size="full"
+                      firstName={waitingParticipant.firstName}
+                      lastName={waitingParticipant.lastName}
+                      avatar={waitingParticipant.avatar}
+                      blurredAvatar={waitingParticipant.blurredAvatar}
+                    />
                   ) : (
                     <>{initials}</>
                   )}
