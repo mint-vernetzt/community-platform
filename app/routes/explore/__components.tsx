@@ -497,24 +497,33 @@ function ShowMoreButton(props: { showMore: string; showLess: string }) {
 }
 
 export function FiltersFieldset(
-  props: { showMore?: string; showLess?: string } & React.PropsWithChildren &
-    React.FieldsetHTMLAttributes<HTMLFieldSetElement>
+  props: {
+    showMore?: string;
+    showLess?: string;
+    hideAfter?: number;
+  } & React.PropsWithChildren &
+    React.HTMLAttributes<HTMLFieldSetElement>
 ) {
   const {
     children,
     className,
     showMore = "Show more",
     showLess = "Show less",
+    hideAfter = 3,
     ...otherProps
   } = props;
 
   const childrenArray = React.Children.toArray(children);
-  if (childrenArray.length < 4) {
-    return <fieldset {...props} />;
+  if (childrenArray.length < hideAfter + 1) {
+    return (
+      <fieldset {...otherProps} className={className}>
+        {children}
+      </fieldset>
+    );
   }
 
-  const firstChildren = childrenArray.slice(0, 3);
-  const restChildren = childrenArray.slice(3);
+  const firstChildren = childrenArray.slice(0, hideAfter);
+  const restChildren = childrenArray.slice(hideAfter);
 
   const classes = classNames(className, "mv-flex mv-flex-col @lg:mv-flex-row");
 
