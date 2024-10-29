@@ -86,6 +86,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const abilities = await getFeatureAbilities(authClient, [
     "add-to-organization",
     "my_organizations",
+    "fundings",
   ]);
 
   const numberOfProfiles = 4;
@@ -394,6 +395,10 @@ function getDataForUpdateTeasers() {
     addToOrganization: {
       link: "/my/organizations",
       icon: "Plus big",
+    },
+    crawler: {
+      link: "/next/explore/fundings",
+      icon: "piggy-bank",
     },
   };
   return teaserData;
@@ -712,18 +717,27 @@ function Dashboard() {
         </div>
         {hideUpdates === false ? (
           <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
-            {Object.entries(updateTeasers).map(([key, value]) => {
-              return (
-                <TeaserCard
-                  key={`${key}-update-teaser`}
-                  to={value.link}
-                  headline={t(`content.updates.${key}.headline`)}
-                  description={t(`content.updates.${key}.description`)}
-                  linkDescription={t(`content.updates.${key}.linkDescription`)}
-                  iconType={value.icon}
-                />
-              );
-            })}
+            {Object.entries(updateTeasers)
+              .filter(([key]) => {
+                if (loaderData.abilities["fundings"].hasAccess) {
+                  return key !== "faq";
+                }
+                return key !== "crawler";
+              })
+              .map(([key, value]) => {
+                return (
+                  <TeaserCard
+                    key={`${key}-update-teaser`}
+                    to={value.link}
+                    headline={t(`content.updates.${key}.headline`)}
+                    description={t(`content.updates.${key}.description`)}
+                    linkDescription={t(
+                      `content.updates.${key}.linkDescription`
+                    )}
+                    iconType={value.icon}
+                  />
+                );
+              })}
           </ul>
         ) : null}
       </section>
