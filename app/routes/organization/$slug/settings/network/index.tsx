@@ -20,7 +20,12 @@ import {
 import Add from "./add";
 import { NetworkMemberRemoveForm } from "./remove";
 
-const i18nNS = ["routes/organization/settings/network/index"];
+const i18nNS = [
+  "routes/organization/settings/network/index",
+  "routes/organization/settings/network/add",
+  "datasets/organizationTypes",
+];
+
 export const handle = {
   i18n: i18nNS,
 };
