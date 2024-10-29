@@ -438,7 +438,6 @@ function Events() {
                         defaultValue={childEventSuggestionsQuery || ""}
                         {...register("childEventId")}
                         searchParameter="child_autocomplete_query"
-                        autoFocus={false}
                       />
                       <Errors />
                     </>

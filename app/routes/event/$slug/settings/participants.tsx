@@ -257,7 +257,6 @@ function Participants() {
                       label={t("content.limit.label")}
                       defaultValue={loaderData.participantLimit || undefined}
                       type="number"
-                      autoFocus
                     />
                     <Errors />
                   </>
@@ -322,7 +321,6 @@ function Participants() {
                             defaultValue={suggestionsQuery || ""}
                             {...register("profileId")}
                             searchParameter="autocomplete_query"
-                            autoFocus={false}
                           />
                         </>
                       )}

@@ -45,7 +45,6 @@ export interface AutocompleteProps {
   suggestionsLoaderPath: string;
   defaultValue: string;
   searchParameter: string;
-  autoFocus?: boolean;
 }
 
 const Autocomplete = React.forwardRef(
@@ -58,7 +57,6 @@ const Autocomplete = React.forwardRef(
       suggestionsLoaderPath,
       defaultValue,
       searchParameter,
-      autoFocus,
       ...rest
     } = props;
 
@@ -153,7 +151,6 @@ const Autocomplete = React.forwardRef(
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           autoComplete="off"
-          autoFocus={autoFocus !== undefined ? autoFocus : true}
         />
         <input {...rest} hidden value={submitValue} />
         {suggestions.length > 0 ? (
