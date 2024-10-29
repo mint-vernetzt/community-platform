@@ -425,8 +425,6 @@ function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
   const { t } = useTranslation(i18nNS);
 
-  console.log(loaderData.abilities);
-
   const externalLinkTeasers = getDataForExternalLinkTeasers();
   const updateTeasers = getDataForUpdateTeasers();
   const newsTeasers = getDataForNewsTeasers();
