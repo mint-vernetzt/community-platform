@@ -81,15 +81,23 @@ export const loader = async (args: LoaderFunctionArgs) => {
         logo = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Organization.ListItemLegacy.Logo.width,
-            height: ImageSizes.Organization.ListItemLegacy.Logo.height,
+            width:
+              ImageSizes.Organization.ListItemEventAndOrganizationSettings.Logo
+                .width,
+            height:
+              ImageSizes.Organization.ListItemEventAndOrganizationSettings.Logo
+                .height,
           },
         });
         blurredLogo = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Organization.ListItemLegacy.BlurredLogo.width,
-            height: ImageSizes.Organization.ListItemLegacy.BlurredLogo.height,
+            width:
+              ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                .BlurredLogo.width,
+            height:
+              ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                .BlurredLogo.height,
           },
           blur: BlurFactor,
         });
@@ -119,15 +127,23 @@ export const loader = async (args: LoaderFunctionArgs) => {
           logo = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              width: ImageSizes.Organization.ListItemLegacy.Logo.width,
-              height: ImageSizes.Organization.ListItemLegacy.Logo.height,
+              width:
+                ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                  .Logo.width,
+              height:
+                ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                  .Logo.height,
             },
           });
           blurredLogo = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              width: ImageSizes.Organization.ListItemLegacy.BlurredLogo.width,
-              height: ImageSizes.Organization.ListItemLegacy.BlurredLogo.height,
+              width:
+                ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                  .BlurredLogo.width,
+              height:
+                ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                  .BlurredLogo.height,
             },
             blur: BlurFactor,
           });

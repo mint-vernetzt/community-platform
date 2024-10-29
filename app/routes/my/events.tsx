@@ -48,7 +48,7 @@ export async function loader(args: LoaderFunctionArgs) {
     where: { endTime: { lt: new Date() } },
     orderBy: { endTime: "desc" },
   });
-  const canceledEvents = upcomingEvents.participant.filter((event) => {
+  const canceledEvents = upcomingEvents.participantEvents.filter((event) => {
     return event.canceled;
   });
 
@@ -63,12 +63,12 @@ function MyEvents() {
     ([_, value]) => {
       return value > 0;
     }
-  ) || ["admin", 0];
+  ) || ["adminEvents", 0];
   const firstPast = Object.entries(loaderData.pastEvents.count).find(
     ([_, value]) => {
       return value > 0;
     }
-  ) || ["admin", 0];
+  ) || ["adminEvents", 0];
 
   const [upcoming, setUpcoming] = React.useState(firstUpcoming[0]);
   const [past, setPast] = React.useState(firstPast[0]);
@@ -136,7 +136,7 @@ function MyEvents() {
         <Placeholder>
           <Placeholder.Title>{t("placeholder.title")}</Placeholder.Title>
           <Placeholder.Text>{t("placeholder.description")}</Placeholder.Text>
-          <Button style="secondary">
+          <Button variant="secondary">
             <Link to="/explore/events">{t("placeholder.cta")}</Link>
           </Button>
         </Placeholder>
@@ -184,6 +184,8 @@ function MyEvents() {
                 if (value === 0) {
                   return null;
                 }
+                const typedKey =
+                  key as keyof typeof loaderData.upcomingEvents.count;
 
                 const searchParamsCopy = new URLSearchParams(searchParams);
                 searchParamsCopy.set("upcoming", key);
@@ -204,7 +206,7 @@ function MyEvents() {
                       <TabBarTitle>
                         {t(`tabBar.${key}`)}
                         <TabBar.Counter active={upcoming === key}>
-                          {loaderData.upcomingEvents.count[key as "admin"]}
+                          {loaderData.upcomingEvents.count[typedKey]}
                         </TabBar.Counter>
                       </TabBarTitle>
                     </Link>
@@ -214,7 +216,7 @@ function MyEvents() {
             )}
           </Section.TabBar>
           <ListContainer listKey="upcoming" hideAfter={3}>
-            {loaderData.upcomingEvents[upcoming as "admin"].map(
+            {loaderData.upcomingEvents[upcoming as "adminEvents"].map(
               (event, index) => {
                 return (
                   <ListItem.Event
@@ -246,6 +248,7 @@ function MyEvents() {
               if (value === 0) {
                 return null;
               }
+              const typedKey = key as keyof typeof loaderData.pastEvents.count;
 
               const searchParamsCopy = new URLSearchParams(searchParams);
               searchParamsCopy.set("past", key);
@@ -263,7 +266,7 @@ function MyEvents() {
                     <TabBarTitle>
                       {t(`tabBar.${key}`)}
                       <TabBar.Counter active={past === key}>
-                        {loaderData.pastEvents.count[key as "admin"]}
+                        {loaderData.pastEvents.count[typedKey]}
                       </TabBar.Counter>
                     </TabBarTitle>
                   </Link>
@@ -272,23 +275,25 @@ function MyEvents() {
             })}
           </Section.TabBar>
           <ListContainer listKey="past" hideAfter={3}>
-            {loaderData.pastEvents[past as "admin"].map((event, index) => {
-              return (
-                <ListItem.Event
-                  key={`past-${event.slug}`}
-                  to={`/event/${event.slug}`}
-                  listIndex={index}
-                  hideAfter={3}
-                >
-                  <ListItem.Event.Image
-                    src={event.background}
-                    blurredSrc={event.blurredBackground}
-                    alt={event.name}
-                  />
-                  <ListItem.Event.Content event={event} />
-                </ListItem.Event>
-              );
-            })}
+            {loaderData.pastEvents[past as "adminEvents"].map(
+              (event, index) => {
+                return (
+                  <ListItem.Event
+                    key={`past-${event.slug}`}
+                    to={`/event/${event.slug}`}
+                    listIndex={index}
+                    hideAfter={3}
+                  >
+                    <ListItem.Event.Image
+                      src={event.background}
+                      blurredSrc={event.blurredBackground}
+                      alt={event.name}
+                    />
+                    <ListItem.Event.Content event={event} />
+                  </ListItem.Event>
+                );
+              }
+            )}
           </ListContainer>
         </Container.Section>
       ) : null}

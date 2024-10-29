@@ -110,15 +110,23 @@ export const loader = async (args: LoaderFunctionArgs) => {
         avatar = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Profile.ListItemLegacy.Avatar.width,
-            height: ImageSizes.Profile.ListItemLegacy.Avatar.height,
+            width:
+              ImageSizes.Profile.ListItemEventAndOrganizationSettings.Avatar
+                .width,
+            height:
+              ImageSizes.Profile.ListItemEventAndOrganizationSettings.Avatar
+                .height,
           },
         });
         blurredAvatar = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.width,
-            height: ImageSizes.Profile.ListItemLegacy.BlurredAvatar.height,
+            width:
+              ImageSizes.Profile.ListItemEventAndOrganizationSettings
+                .BlurredAvatar.width,
+            height:
+              ImageSizes.Profile.ListItemEventAndOrganizationSettings
+                .BlurredAvatar.height,
           },
           blur: BlurFactor,
         });

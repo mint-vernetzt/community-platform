@@ -4,7 +4,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
@@ -81,15 +81,30 @@ export async function loader(args: LoaderFunctionArgs) {
     status: 404,
   });
 
-  project.images = project.images.map((relation) => {
+  const images = project.images.map((relation) => {
     const publicURL = getPublicURL(authClient, relation.image.path);
     const thumbnail = getImageURL(publicURL, {
-      resize: { type: "fill", width: 144, height: 96 },
+      resize: { type: "fill", ...ImageSizes.Project.Detail.MaterialThumbnail },
     });
-    return { ...relation, image: { ...relation.image, thumbnail } };
+    const blurredThumbnail = getImageURL(publicURL, {
+      resize: {
+        type: "fill",
+        ...ImageSizes.Project.Detail.BlurredMaterialThumbnail,
+      },
+      blur: BlurFactor,
+    });
+    return {
+      ...relation,
+      image: { ...relation.image, thumbnail, blurredThumbnail },
+    };
   });
 
-  return json({ project, mode });
+  const enhancedProject = {
+    ...project,
+    images,
+  };
+
+  return json({ project: enhancedProject, mode });
 }
 
 function Attachments() {
@@ -176,15 +191,11 @@ function Attachments() {
               {loaderData.project.images.map((relation) => {
                 return (
                   <MaterialList.Item key={relation.image.id}>
-                    {/* TODO: fix type issue */}
-                    {/* @ts-ignore */}
-                    {typeof relation.image.thumbnail !== "undefined" && (
-                      <Image
-                        // @ts-ignore
-                        src={relation.image.thumbnail}
-                        alt={relation.image.description || ""}
-                      />
-                    )}
+                    <Image
+                      src={relation.image.thumbnail}
+                      blurredSrc={relation.image.blurredThumbnail}
+                      alt={relation.image.description || ""}
+                    />
                     <MaterialList.Item.Title>
                       {relation.image.title !== null
                         ? relation.image.title

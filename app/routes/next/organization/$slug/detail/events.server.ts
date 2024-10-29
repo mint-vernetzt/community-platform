@@ -1,5 +1,10 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { DefaultImages, getImageURL, ImageSizes } from "~/images.server";
+import {
+  BlurFactor,
+  DefaultImages,
+  getImageURL,
+  ImageSizes,
+} from "~/images.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
@@ -213,7 +218,11 @@ export function addImgUrls(
           type: "fill",
           ...ImageSizes.Event.ListItem.BlurredBackground,
         },
+        blur: BlurFactor,
       });
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...relation,
@@ -241,6 +250,7 @@ export function addImgUrls(
           type: "fill",
           ...ImageSizes.Event.ListItem.BlurredBackground,
         },
+        blur: BlurFactor,
       });
     } else {
       background = DefaultImages.Event.Background;

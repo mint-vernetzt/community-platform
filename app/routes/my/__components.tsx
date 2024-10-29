@@ -23,7 +23,7 @@ import {
   type action as requestsAction,
 } from "./organizations/requests";
 import { type getPendingRequestsToOrganizations } from "./organizations/requests.server";
-import { Jsonify } from "@remix-run/server-runtime/dist/jsonify";
+import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 
 export function Section(props: { children: React.ReactNode }) {
   const validChildren = React.Children.toArray(props.children).filter(
@@ -86,10 +86,10 @@ Section.Headline = SectionHeadline;
 Section.Subline = SectionSubline;
 
 export function AddOrganization(props: {
-  organizations?: Awaited<ReturnType<typeof getOrganizationsToAdd>>;
+  organizations?: Jsonify<Awaited<ReturnType<typeof getOrganizationsToAdd>>>;
   memberOrganizations: Awaited<ReturnType<typeof flattenOrganizationRelations>>;
-  pendingRequestsToOrganizations: Awaited<
-    ReturnType<typeof getPendingRequestsToOrganizations>
+  pendingRequestsToOrganizations: Jsonify<
+    Awaited<ReturnType<typeof getPendingRequestsToOrganizations>>
   >;
   invites: Jsonify<ReturnType<typeof addImageUrlToInvites>>;
   createRequestFetcher: ReturnType<typeof useFetcher<typeof requestsAction>>;
@@ -213,14 +213,6 @@ export function AddOrganization(props: {
       ) : null}
       {Array.isArray(data) && data.length > 0 ? (
         <>
-          {/* TODO: 
-            Is this toast necessary? 
-            - When i find organizations i already see a list of organizations which makes this toast obsolete.
-            - It creates a layout shift when the toast is shown/hidden for elements that want to be clicked
-          */}
-          {/* <Toast level="neutral" delay={5000}>
-            {t("addOrganization.toasts.organizationsFound")}
-          </Toast> */}
           <ListContainer listKey="send-request-to-organization">
             {data.map((organization, index) => {
               if (organization === null) {
@@ -624,20 +616,20 @@ Container.Title = ContainerTitle;
 
 type ButtonProps = React.PropsWithChildren<{
   children: React.ReactNode;
-  style?: "primary" | "secondary";
+  variant?: "primary" | "secondary";
 }>;
 
 export function Button(props: ButtonProps) {
-  const { style = "primary" } = props;
+  const { variant = "primary" } = props;
 
   const classes = classNames(
     "mv-font-semibold",
     "mv-inline-flex mv-rounded-lg mv-shrink-0 mv-cursor-pointer mv-user-select-none mv-flex-wrap mv-align-center mv-justify-center mv-px-4 mv-text-sm mv-text-center mv-leading-5",
     "mv-whitespace-nowrap",
     "mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border",
-    style === "primary" &&
+    variant === "primary" &&
       "mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-border-transparent",
-    style === "secondary" &&
+    variant === "secondary" &&
       "mv-bg-neutral-50 mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-100 active:mv-bg-primary-100 mv-border-primary",
     "mv-gap-2"
   );

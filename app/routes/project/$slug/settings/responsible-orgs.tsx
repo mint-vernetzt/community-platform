@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
@@ -119,26 +119,42 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
+  invariantResponse(profile !== null, t("error.notFound"), {
+    status: 404,
+  });
+
   // enhance organizations with logo
-  project.responsibleOrganizations = project.responsibleOrganizations.map(
+  const responsibleOrganizations = project.responsibleOrganizations.map(
     (relation) => {
       let logo = relation.organization.logo;
+      let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItemProjectDetailAndSettings.Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItemProjectDetailAndSettings
+                .BlurredLogo,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return { organization: { ...relation.organization, logo } };
+      return { organization: { ...relation.organization, logo, blurredLogo } };
     }
   );
 
-  invariantResponse(profile !== null, t("error.notFound"), {
-    status: 404,
-  });
+  const enhancedProject = {
+    ...project,
+    responsibleOrganizations,
+  };
 
   // get organizations where user is member or admin that are not already responsible organizations
   const organizations = [
@@ -146,7 +162,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     ...profile.administeredOrganizations,
   ];
 
-  let notResponsibleOrganizations = organizations.filter(
+  const notResponsibleOrganizations = organizations.filter(
     (organization, index) => {
       // find index of first occurrence of organization
       const firstIndex = organizations.findIndex((org) => {
@@ -165,19 +181,32 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
-  notResponsibleOrganizations = notResponsibleOrganizations.map((relation) => {
-    let logo = relation.organization.logo;
-    if (logo !== null) {
-      const publicURL = getPublicURL(authClient, logo);
-      if (publicURL !== null) {
-        logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
-        });
+  const enhancedNotResponsibleOrganizations = notResponsibleOrganizations.map(
+    (relation) => {
+      let logo = relation.organization.logo;
+      let blurredLogo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItemProjectDetailAndSettings.Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItemProjectDetailAndSettings
+                .BlurredLogo,
+            },
+            blur: BlurFactor,
+          });
+        }
       }
+      return { organization: { ...relation.organization, logo, blurredLogo } };
     }
-    return { organization: { ...relation.organization, logo } };
-  });
+  );
 
   // get search query
   const url = new URL(request.url);
@@ -186,7 +215,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     typeof queryString !== "undefined" ? queryString.split(" ") : [];
 
   // get organizations that match search query
-  let searchResult: { name: string; slug: string; logo: string | null }[] = [];
+  let searchResult: {
+    name: string;
+    slug: string;
+    logo: string | null;
+    blurredLogo?: string;
+  }[] = [];
 
   if (
     query.length > 0 &&
@@ -240,16 +274,27 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
     searchResult = searchResult.map((relation) => {
       let logo = relation.logo;
+      let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItemProjectDetailAndSettings.Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItemProjectDetailAndSettings
+                .BlurredLogo,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return { ...relation, logo };
+      return { ...relation, logo, blurredLogo };
     });
   }
 
@@ -257,8 +302,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   return json(
     {
-      project,
-      ownOrganizations: notResponsibleOrganizations,
+      project: enhancedProject,
+      ownOrganizations: enhancedNotResponsibleOrganizations,
       searchResult,
       toast,
     },

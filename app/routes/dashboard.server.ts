@@ -427,15 +427,14 @@ export async function getUpcomingCanceledEvents(
       background = getImageURL(publicURL, {
         resize: {
           type: "fill",
-          ...ImageSizes.Event.NotificationListItem.Background,
+          ...ImageSizes.Event.ListItemDashboard.Background,
         },
       });
       blurredBackground = getImageURL(publicURL, {
         resize: {
           type: "fill",
-          width: ImageSizes.Event.NotificationListItem.BlurredBackground.width,
-          height:
-            ImageSizes.Event.NotificationListItem.BlurredBackground.height,
+          width: ImageSizes.Event.ListItemDashboard.BlurredBackground.width,
+          height: ImageSizes.Event.ListItemDashboard.BlurredBackground.height,
         },
         blur: BlurFactor,
       });

@@ -1,4 +1,9 @@
-import { Button, TextButton } from "@mint-vernetzt/components";
+import {
+  Button,
+  TextButton,
+  Image,
+  Avatar as MVAvatar,
+} from "@mint-vernetzt/components";
 import type { Profile } from "@prisma/client";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -8,11 +13,10 @@ import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
-import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
-import { H3, H4 } from "~/components/Heading/Heading";
+import { H3 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { RichText } from "~/components/Richtext/RichText";
@@ -371,32 +375,49 @@ export default function Index() {
   const fullName = getFullName(loaderData.data);
 
   const avatar = loaderData.data.avatar;
+  const blurredAvatar = loaderData.data.blurredAvatar;
+  const firstName = loaderData.data.firstName;
+  const lastName = loaderData.data.lastName;
   const Avatar = React.useCallback(
     () => (
       <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center overflow-hidden rounded-full border">
-        {avatar !== null ? <img src={avatar} alt={fullName} /> : initials}
+        {avatar !== null ? (
+          <MVAvatar
+            avatar={avatar}
+            blurredAvatar={blurredAvatar}
+            firstName={firstName}
+            lastName={lastName}
+            size="full"
+            textSize="xl"
+          />
+        ) : (
+          initials
+        )}
       </div>
     ),
-    [avatar, fullName, initials]
+    [avatar, blurredAvatar, firstName, lastName, initials]
   );
 
   const background = loaderData.data.background;
+  const blurredBackground = loaderData.data.blurredBackground;
   const Background = React.useCallback(
     () => (
       <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
         {background !== null ? (
-          <img src={background} alt={t("images.currentBackground")} />
+          <Image
+            src={background}
+            alt={t("images.currentBackground")}
+            blurredSrc={blurredBackground}
+          />
         ) : (
           <div className="w-[300px] min-h-[108px]" />
         )}
       </div>
     ),
-    [background]
+    [background, blurredBackground, t]
   );
 
   const uploadRedirect = `/profile/${loaderData.data.username}`;
-
-  const isHydrated = useHydrated();
 
   return (
     <>
@@ -411,10 +432,10 @@ export default function Index() {
         <div className="rounded-3xl relative overflow-hidden bg-yellow-500 w-full aspect-[31/10]">
           <div className="w-full h-full">
             {background !== null ? (
-              <img
+              <Image
                 src={background}
                 alt={fullName}
-                className="object-cover w-full h-full"
+                blurredSrc={blurredBackground}
               />
             ) : null}
           </div>
@@ -787,6 +808,7 @@ export default function Index() {
                         name={relation.organization.name}
                         types={relation.organization.types}
                         image={relation.organization.logo}
+                        blurredImage={relation.organization.blurredLogo}
                       />
                     ))}
                   </div>
@@ -834,10 +856,11 @@ export default function Index() {
                             {relation.project.logo !== "" &&
                             relation.project.logo !== null ? (
                               <div className="h-16 w-16 flex flex-initial items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                <img
-                                  className="max-w-full w-auto max-h-16 h-auto"
-                                  src={relation.project.logo}
-                                  alt={relation.project.name}
+                                <MVAvatar
+                                  logo={relation.project.logo}
+                                  blurredLogo={relation.project.blurredLogo}
+                                  name={relation.project.name}
+                                  size="full"
                                 />
                               </div>
                             ) : (
@@ -860,52 +883,6 @@ export default function Index() {
                                 </p>
                               ) : null}
                             </div>
-
-                            {relation.project.awards.length > 0 ? (
-                              <div className="@md:mv-pr-4 flex gap-4 -mt-4 flex-initial self-start">
-                                {relation.project.awards.map((relation) => {
-                                  const date = utcToZonedTime(
-                                    relation.award.date,
-                                    "Europe/Berlin"
-                                  );
-                                  return (
-                                    <div
-                                      key={`award-${relation.award.id}`}
-                                      className="mv-awards-bg bg-[url('/images/award_bg.svg')] -mt-0.5 bg-cover bg-no-repeat bg-left-top drop-shadow-lg aspect-[11/17]"
-                                    >
-                                      <div className="flex flex-col items-center justify-center min-w-[57px] min-h-[88px] h-full pt-2">
-                                        <div className="h-8 w-8 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-                                          {relation.award.logo !== null &&
-                                          relation.award.logo !== "" ? (
-                                            <img
-                                              src={relation.award.logo}
-                                              alt={relation.award.title}
-                                            />
-                                          ) : (
-                                            getInitialsOfName(
-                                              relation.award.title
-                                            )
-                                          )}
-                                        </div>
-                                        <div className="px-2 pt-1 mb-4">
-                                          {relation.award.shortTitle ? (
-                                            <H4
-                                              like="h4"
-                                              className="text-xxs mb-0 text-center text-neutral-600 font-bold leading-none"
-                                            >
-                                              {relation.award.shortTitle}
-                                            </H4>
-                                          ) : null}
-                                          <p className="text-xxs text-center leading-none">
-                                            {date.getFullYear()}
-                                          </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            ) : null}
                             <div className="hidden @md:mv-flex items-center flex-initial">
                               <button className="btn btn-primary">
                                 {t("section.projects.to")}
@@ -971,36 +948,11 @@ export default function Index() {
                               >
                                 <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
-                                    <img
-                                      src={
-                                        event.blurredBackground ||
-                                        "/images/default-event-background-blurred.jpg"
-                                      }
-                                      alt={t("images.blurredBackground")}
-                                      className="w-full h-full object-cover"
-                                    />
-                                    <img
-                                      src={
-                                        event.background ||
-                                        "/images/default-event-background.jpg"
-                                      }
+                                    <Image
+                                      src={event.background}
                                       alt={event.name}
-                                      className={`w-full h-full object-cover absolute inset-0 ${
-                                        isHydrated
-                                          ? "opacity-100 transition-opacity duration-200 ease-in"
-                                          : "opacity-0 invisible"
-                                      }`}
+                                      blurredSrc={event.blurredBackground}
                                     />
-                                    <noscript>
-                                      <img
-                                        src={
-                                          event.background ||
-                                          "/images/default-event-background.jpg"
-                                        }
-                                        alt={event.name}
-                                        className={`w-full h-full object-cover absolute inset-0`}
-                                      />
-                                    </noscript>
                                   </div>
                                 </div>
                                 <div className="px-4 py-4">
@@ -1165,36 +1117,11 @@ export default function Index() {
                               >
                                 <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
-                                    <img
-                                      src={
-                                        event.blurredBackground ||
-                                        "/images/default-event-background-blurred.jpg"
-                                      }
-                                      alt={t("images.blurredBackground")}
-                                      className="w-full h-full object-cover"
-                                    />
-                                    <img
-                                      src={
-                                        event.background ||
-                                        "/images/default-event-background.jpg"
-                                      }
+                                    <Image
+                                      src={event.background}
                                       alt={event.name}
-                                      className={`w-full h-full object-cover absolute inset-0 ${
-                                        isHydrated
-                                          ? "opacity-100 transition-opacity duration-200 ease-in"
-                                          : "opacity-0 invisible"
-                                      }`}
+                                      blurredSrc={event.blurredBackground}
                                     />
-                                    <noscript>
-                                      <img
-                                        src={
-                                          event.background ||
-                                          "/images/default-event-background.jpg"
-                                        }
-                                        alt={event.name}
-                                        className={`w-full h-full object-cover absolute inset-0`}
-                                      />
-                                    </noscript>
                                   </div>
                                 </div>
                                 <div className="px-4 py-4">
@@ -1344,36 +1271,11 @@ export default function Index() {
                               >
                                 <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
-                                    <img
-                                      src={
-                                        event.blurredBackground ||
-                                        "/images/default-event-background-blurred.jpg"
-                                      }
-                                      alt={t("images.blurredBackground")}
-                                      className="w-full h-full object-cover"
-                                    />
-                                    <img
-                                      src={
-                                        event.background ||
-                                        "/images/default-event-background.jpg"
-                                      }
+                                    <Image
+                                      src={event.background}
                                       alt={event.name}
-                                      className={`w-full h-full object-cover absolute inset-0 ${
-                                        isHydrated
-                                          ? "opacity-100 transition-opacity duration-200 ease-in"
-                                          : "opacity-0 invisible"
-                                      }`}
+                                      blurredSrc={event.blurredBackground}
                                     />
-                                    <noscript>
-                                      <img
-                                        src={
-                                          event.background ||
-                                          "/images/default-event-background.jpg"
-                                        }
-                                        alt={event.name}
-                                        className={`w-full h-full object-cover absolute inset-0`}
-                                      />
-                                    </noscript>
                                   </div>
                                 </div>
                                 <div className="px-4 py-4">
@@ -1517,36 +1419,11 @@ export default function Index() {
                               >
                                 <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
-                                    <img
-                                      src={
-                                        event.blurredBackground ||
-                                        "/images/default-event-background-blurred.jpg"
-                                      }
-                                      alt={t("images.blurredBackground")}
-                                      className="w-full h-full object-cover"
-                                    />
-                                    <img
-                                      src={
-                                        event.background ||
-                                        "/images/default-event-background.jpg"
-                                      }
+                                    <Image
+                                      src={event.background}
                                       alt={event.name}
-                                      className={`w-full h-full object-cover absolute inset-0 ${
-                                        isHydrated
-                                          ? "opacity-100 transition-opacity duration-200 ease-in"
-                                          : "opacity-0 invisible"
-                                      }`}
+                                      blurredSrc={event.blurredBackground}
                                     />
-                                    <noscript>
-                                      <img
-                                        src={
-                                          event.background ||
-                                          "/images/default-event-background.jpg"
-                                        }
-                                        alt={event.name}
-                                        className={`w-full h-full object-cover absolute inset-0`}
-                                      />
-                                    </noscript>
                                   </div>
                                 </div>
                                 <div className="px-4 py-4">
@@ -1695,36 +1572,11 @@ export default function Index() {
                               >
                                 <div className="hidden @xl:mv-block mv-w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
-                                    <img
-                                      src={
-                                        event.blurredBackground ||
-                                        "/images/default-event-background-blurred.jpg"
-                                      }
-                                      alt={t("images.blurredBackground")}
-                                      className="w-full h-full object-cover"
-                                    />
-                                    <img
-                                      src={
-                                        event.background ||
-                                        "/images/default-event-background.jpg"
-                                      }
+                                    <Image
+                                      src={event.background}
                                       alt={event.name}
-                                      className={`w-full h-full object-cover absolute inset-0 ${
-                                        isHydrated
-                                          ? "opacity-100 transition-opacity duration-200 ease-in"
-                                          : "opacity-0 invisible"
-                                      }`}
+                                      blurredSrc={event.blurredBackground}
                                     />
-                                    <noscript>
-                                      <img
-                                        src={
-                                          event.background ||
-                                          "/images/default-event-background.jpg"
-                                        }
-                                        alt={event.name}
-                                        className={`w-full h-full object-cover absolute inset-0`}
-                                      />
-                                    </noscript>
                                   </div>
                                 </div>
                                 <div className="px-4 py-4">
@@ -1834,36 +1686,11 @@ export default function Index() {
                               >
                                 <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
-                                    <img
-                                      src={
-                                        event.blurredBackground ||
-                                        "/images/default-event-background-blurred.jpg"
-                                      }
-                                      alt={t("images.blurredBackground")}
-                                      className="w-full h-full object-cover"
-                                    />
-                                    <img
-                                      src={
-                                        event.background ||
-                                        "/images/default-event-background.jpg"
-                                      }
+                                    <Image
+                                      src={event.background}
                                       alt={event.name}
-                                      className={`w-full h-full object-cover absolute inset-0 ${
-                                        isHydrated
-                                          ? "opacity-100 transition-opacity duration-200 ease-in"
-                                          : "opacity-0 invisible"
-                                      }`}
+                                      blurredSrc={event.blurredBackground}
                                     />
-                                    <noscript>
-                                      <img
-                                        src={
-                                          event.background ||
-                                          "/images/default-event-background.jpg"
-                                        }
-                                        alt={event.name}
-                                        className={`w-full h-full object-cover absolute inset-0`}
-                                      />
-                                    </noscript>
                                   </div>
                                 </div>
                                 <div className="px-4 py-4">
@@ -1958,36 +1785,11 @@ export default function Index() {
                               >
                                 <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
-                                    <img
-                                      src={
-                                        event.blurredBackground ||
-                                        "/images/default-event-background-blurred.jpg"
-                                      }
-                                      alt={t("images.blurredBackground")}
-                                      className="w-full h-full object-cover"
-                                    />
-                                    <img
-                                      src={
-                                        event.background ||
-                                        "/images/default-event-background.jpg"
-                                      }
+                                    <Image
+                                      src={event.background}
                                       alt={event.name}
-                                      className={`w-full h-full object-cover absolute inset-0 ${
-                                        isHydrated
-                                          ? "opacity-100 transition-opacity duration-200 ease-in"
-                                          : "opacity-0 invisible"
-                                      }`}
+                                      blurredSrc={event.blurredBackground}
                                     />
-                                    <noscript>
-                                      <img
-                                        src={
-                                          event.background ||
-                                          "/images/default-event-background.jpg"
-                                        }
-                                        alt={event.name}
-                                        className={`w-full h-full object-cover absolute inset-0`}
-                                      />
-                                    </noscript>
                                   </div>
                                 </div>
                                 <div className="px-4 py-4">
@@ -2078,36 +1880,11 @@ export default function Index() {
                               >
                                 <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
                                   <div className="w-36 h-full relative">
-                                    <img
-                                      src={
-                                        event.blurredBackground ||
-                                        "/images/default-event-background-blurred.jpg"
-                                      }
-                                      alt={t("images.blurredBackground")}
-                                      className="w-full h-full object-cover"
-                                    />
-                                    <img
-                                      src={
-                                        event.background ||
-                                        "/images/default-event-background.jpg"
-                                      }
+                                    <Image
+                                      src={event.background}
                                       alt={event.name}
-                                      className={`w-full h-full object-cover absolute inset-0 ${
-                                        isHydrated
-                                          ? "opacity-100 transition-opacity duration-200 ease-in"
-                                          : "opacity-0 invisible"
-                                      }`}
+                                      blurredSrc={event.blurredBackground}
                                     />
-                                    <noscript>
-                                      <img
-                                        src={
-                                          event.background ||
-                                          "/images/default-event-background.jpg"
-                                        }
-                                        alt={event.name}
-                                        className={`w-full h-full object-cover absolute inset-0`}
-                                      />
-                                    </noscript>
                                   </div>
                                 </div>
                                 <div className="px-4 py-4">

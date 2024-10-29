@@ -767,15 +767,15 @@ export function addImgUrls(
         avatar = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Profile.ListItemEvent.Avatar.width,
-            height: ImageSizes.Profile.ListItemEvent.Avatar.height,
+            width: ImageSizes.Profile.ListItemEventDetail.Avatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.Avatar.height,
           },
         });
         blurredAvatar = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Profile.ListItemEvent.BlurredAvatar.width,
-            height: ImageSizes.Profile.ListItemEvent.BlurredAvatar.height,
+            width: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.height,
           },
           blur: BlurFactor,
         });
@@ -796,15 +796,15 @@ export function addImgUrls(
         avatar = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Profile.ListItemEvent.Avatar.width,
-            height: ImageSizes.Profile.ListItemEvent.Avatar.height,
+            width: ImageSizes.Profile.ListItemEventDetail.Avatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.Avatar.height,
           },
         });
         blurredAvatar = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Profile.ListItemEvent.BlurredAvatar.width,
-            height: ImageSizes.Profile.ListItemEvent.BlurredAvatar.height,
+            width: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.height,
           },
           blur: BlurFactor,
         });
@@ -825,15 +825,15 @@ export function addImgUrls(
         avatar = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Profile.ListItemEvent.Avatar.width,
-            height: ImageSizes.Profile.ListItemEvent.Avatar.height,
+            width: ImageSizes.Profile.ListItemEventDetail.Avatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.Avatar.height,
           },
         });
         blurredAvatar = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Profile.ListItemEvent.BlurredAvatar.width,
-            height: ImageSizes.Profile.ListItemEvent.BlurredAvatar.height,
+            width: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.height,
           },
           blur: BlurFactor,
         });
@@ -888,15 +888,17 @@ export function addImgUrls(
           logo = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              width: ImageSizes.Organization.ListItemEvent.Logo.width,
-              height: ImageSizes.Organization.ListItemEvent.Logo.height,
+              width: ImageSizes.Organization.ListItemEventDetail.Logo.width,
+              height: ImageSizes.Organization.ListItemEventDetail.Logo.height,
             },
           });
           blurredLogo = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              width: ImageSizes.Organization.ListItemEvent.BlurredLogo.width,
-              height: ImageSizes.Organization.ListItemEvent.BlurredLogo.height,
+              width:
+                ImageSizes.Organization.ListItemEventDetail.BlurredLogo.width,
+              height:
+                ImageSizes.Organization.ListItemEventDetail.BlurredLogo.height,
             },
             blur: BlurFactor,
           });

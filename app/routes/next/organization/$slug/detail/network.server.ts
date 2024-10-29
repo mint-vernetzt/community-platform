@@ -1,5 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { getImageURL, ImageSizes } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -132,10 +132,18 @@ export function addImgUrls(
 ) {
   const networkMembers = organization.networkMembers.map((relation) => {
     let logo = relation.networkMember.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       logo = getImageURL(publicURL, {
         resize: { type: "fill", ...ImageSizes.Organization.ListItem.Logo },
+      });
+      blurredLogo = getImageURL(publicURL, {
+        resize: {
+          type: "fill",
+          ...ImageSizes.Organization.ListItem.BlurredLogo,
+        },
+        blur: BlurFactor,
       });
     }
     return {
@@ -143,16 +151,25 @@ export function addImgUrls(
       networkMember: {
         ...relation.networkMember,
         logo,
+        blurredLogo,
       },
     };
   });
 
   const memberOf = organization.memberOf.map((relation) => {
     let logo = relation.network.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       logo = getImageURL(publicURL, {
         resize: { type: "fill", ...ImageSizes.Organization.ListItem.Logo },
+      });
+      blurredLogo = getImageURL(publicURL, {
+        resize: {
+          type: "fill",
+          ...ImageSizes.Organization.ListItem.BlurredLogo,
+        },
+        blur: BlurFactor,
       });
     }
     return {
@@ -160,6 +177,7 @@ export function addImgUrls(
       network: {
         ...relation.network,
         logo,
+        blurredLogo,
       },
     };
   });

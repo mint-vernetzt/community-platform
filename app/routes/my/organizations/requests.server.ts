@@ -1,5 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { getImageURL, ImageSizes } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -59,7 +59,7 @@ export async function getPendingRequestsToOrganizations(
             width: ImageSizes.Organization.ListItem.BlurredLogo.width,
             height: ImageSizes.Organization.ListItem.BlurredLogo.height,
           },
-          blur: 5,
+          blur: BlurFactor,
         });
       }
     }

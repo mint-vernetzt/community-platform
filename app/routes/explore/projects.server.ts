@@ -129,19 +129,6 @@ export async function getAllProjects(options: {
       background: true,
       excerpt: true,
       subline: true,
-      awards: {
-        select: {
-          award: {
-            select: {
-              id: true,
-              title: true,
-              shortTitle: true,
-              date: true,
-              logo: true,
-            },
-          },
-        },
-      },
       responsibleOrganizations: {
         select: {
           organization: {
@@ -171,7 +158,6 @@ export async function getAllProjects(options: {
           background: true,
           excerpt: true,
           subline: true,
-          awards: true,
           responsibleOrganizations: true,
         },
       },

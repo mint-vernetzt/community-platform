@@ -9,9 +9,13 @@ import {
 } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { useTranslation } from "react-i18next";
-import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { GravityType, getImageURL } from "~/images.server";
+import {
+  BlurFactor,
+  DefaultImages,
+  ImageSizes,
+  getImageURL,
+} from "~/images.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
@@ -63,43 +67,57 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
 
     // Add images from image proxy
+    let background = enhancedEvent.background;
     let blurredBackground;
-    if (enhancedEvent.background !== null) {
-      const publicURL = getPublicURL(authClient, enhancedEvent.background);
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
-        enhancedEvent.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 594, height: 396 },
+        background = getImageURL(publicURL, {
+          resize: { type: "fill", ...ImageSizes.Event.Card.Background },
         });
       }
       blurredBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 18, height: 12 },
-        blur: 5,
+        resize: { type: "fill", ...ImageSizes.Event.Card.BlurredBackground },
+        blur: BlurFactor,
       });
     } else {
-      enhancedEvent.background = "/images/default-event-background.jpg";
-      blurredBackground = "/images/default-event-background-blurred.jpg";
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
 
-    enhancedEvent.responsibleOrganizations =
-      enhancedEvent.responsibleOrganizations.map((relation) => {
+    const responsibleOrganizations = enhancedEvent.responsibleOrganizations.map(
+      (relation) => {
         let logo = relation.organization.logo;
+        let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 36, height: 36 },
-              gravity: GravityType.center,
+              resize: {
+                type: "fill",
+                ...ImageSizes.Organization.CardFooter.Logo,
+              },
+            });
+            blurredLogo = getImageURL(publicURL, {
+              resize: {
+                type: "fill",
+                ...ImageSizes.Organization.CardFooter.BlurredLogo,
+              },
+              blur: BlurFactor,
             });
           }
         }
         return {
           ...relation,
-          organization: { ...relation.organization, logo },
+          organization: { ...relation.organization, logo, blurredLogo },
         };
-      });
+      }
+    );
 
     const imageEnhancedEvent = {
       ...enhancedEvent,
+      responsibleOrganizations,
+      background,
       blurredBackground,
     };
 
@@ -129,7 +147,6 @@ export default function SearchView() {
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
   loadMoreSearchParams.set("page", `${loaderData.pagination.page + 1}`);
-  const isHydrated = useHydrated();
 
   return (
     <>
@@ -155,7 +172,6 @@ export default function SearchView() {
                     <EventCard
                       key={event.id}
                       publicAccess={typeof loaderData.userId === "undefined"}
-                      isHydrated={isHydrated}
                       event={{
                         ...event,
                         startTime,
@@ -163,8 +179,7 @@ export default function SearchView() {
                         participationUntil,
                         responsibleOrganizations:
                           event.responsibleOrganizations.map(
-                            // TODO: fix any type
-                            (item: any) => item.organization
+                            (relation) => relation.organization
                           ),
                       }}
                     />

@@ -90,19 +90,6 @@ export async function getProfileByUsername(
               slug: true,
               logo: true,
               name: true,
-              awards: {
-                select: {
-                  award: {
-                    select: {
-                      id: true,
-                      title: true,
-                      shortTitle: true,
-                      date: true,
-                      logo: true,
-                    },
-                  },
-                },
-              },
               responsibleOrganizations: {
                 select: {
                   organization: {
@@ -125,7 +112,6 @@ export async function getProfileByUsername(
                   slug: true,
                   logo: true,
                   name: true,
-                  awards: true,
                   responsibleOrganizations: true,
                 },
               },

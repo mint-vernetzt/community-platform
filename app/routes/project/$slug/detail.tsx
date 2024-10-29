@@ -31,7 +31,7 @@ import { H1 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import { Modal } from "~/routes/__components";
 import i18next from "~/i18next.server";
-import { getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValue } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
@@ -226,12 +226,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const publicURL = getPublicURL(authClient, project.background);
     if (publicURL) {
       background = getImageURL(publicURL, {
-        resize: { type: "fill", width: 1488, height: 480 },
+        resize: { type: "fill", ...ImageSizes.Project.Detail.Background },
       });
     }
     blurredBackground = getImageURL(publicURL, {
-      resize: { type: "fill", width: 31, height: 10 },
-      blur: 5,
+      resize: { type: "fill", ...ImageSizes.Project.Detail.BlurredBackground },
+      blur: BlurFactor,
     });
   }
   let logo;
@@ -240,12 +240,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const publicURL = getPublicURL(authClient, project.logo);
     if (publicURL) {
       logo = getImageURL(publicURL, {
-        resize: { type: "fill", width: 244, height: 244 },
+        resize: { type: "fill", ...ImageSizes.Project.Detail.Logo },
       });
     }
     blurredLogo = getImageURL(publicURL, {
-      resize: { type: "fill", width: 61, height: 61 },
-      blur: 5,
+      resize: { type: "fill", ...ImageSizes.Project.Detail.BlurredLogo },
+      blur: BlurFactor,
     });
   }
 
@@ -350,12 +350,13 @@ function ProjectDetail() {
           )}
           <Image
             src={project.background}
-            alt=""
-            blurredSrc={project.blurredBackground || undefined}
+            alt={project.name}
+            blurredSrc={project.blurredBackground}
           />
           <Avatar
             name={project.name}
             logo={project.logo}
+            blurredLogo={project.blurredLogo}
             size="full"
             textSize="xl"
           />
@@ -462,8 +463,8 @@ function ProjectDetail() {
                 {project.background !== undefined ? (
                   <Image
                     src={project.background}
-                    alt=""
-                    blurredSrc={project.blurredBackground || undefined}
+                    alt={project.name}
+                    blurredSrc={project.blurredBackground}
                   />
                 ) : (
                   <div className="mv-w-[300px] mv-min-h-[108px] mv-bg-attention-400 mv-rounded-md" />
@@ -492,6 +493,7 @@ function ProjectDetail() {
                 <Avatar
                   name={project.name}
                   logo={project.logo}
+                  blurredLogo={project.blurredLogo}
                   size="xl"
                   textSize="xl"
                 />

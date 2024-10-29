@@ -76,7 +76,7 @@ type SessionUserInfo = {
   username: string;
   firstName: string;
   lastName: string;
-  avatar?: string;
+  avatar: string | null;
   blurredAvatar?: string;
 };
 

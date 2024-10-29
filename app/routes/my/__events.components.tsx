@@ -254,20 +254,20 @@ Placeholder.Text = PlaceholderText;
 
 type ButtonProps = PropsWithChildren<{
   children: React.ReactNode;
-  style?: "primary" | "secondary";
+  variant?: "primary" | "secondary";
 }>;
 
 export function Button(props: ButtonProps) {
-  const { style = "primary" } = props;
+  const { variant = "primary" } = props;
 
   const classes = classNames(
     "mv-font-semibold",
     "mv-inline-flex mv-rounded-lg mv-shrink-0 mv-cursor-pointer mv-user-select-none mv-flex-wrap mv-align-center mv-justify-center mv-px-4 mv-text-sm mv-text-center mv-leading-5",
     "mv-whitespace-nowrap",
     "mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border",
-    style === "primary" &&
+    variant === "primary" &&
       "mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-border-transparent",
-    style === "secondary" &&
+    variant === "secondary" &&
       "mv-bg-neutral-50 mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-100 active:mv-bg-primary-100 mv-border-primary",
     "mv-gap-2"
   );

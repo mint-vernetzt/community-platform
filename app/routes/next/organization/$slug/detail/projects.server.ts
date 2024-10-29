@@ -1,5 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { getImageURL, ImageSizes } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
@@ -92,10 +92,15 @@ export function addImgUrls(
   const responsibleForProject = organization.responsibleForProject.map(
     (relation) => {
       let logo = relation.project.logo;
+      let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         logo = getImageURL(publicURL, {
           resize: { type: "fill", ...ImageSizes.Project.ListItem.Logo },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: { type: "fill", ...ImageSizes.Project.ListItem.BlurredLogo },
+          blur: BlurFactor,
         });
       }
       return {
@@ -103,6 +108,7 @@ export function addImgUrls(
         project: {
           ...relation.project,
           logo,
+          blurredLogo,
         },
       };
     }

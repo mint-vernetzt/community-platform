@@ -21,24 +21,48 @@ const salt = process.env.IMGPROXY_SALT;
 
 export const ImageSizes = {
   Profile: {
+    Detail: {
+      Background: {
+        width: 1488,
+        height: 480,
+      },
+      BlurredBackground: {
+        width: 31,
+        height: 10,
+      },
+      Avatar: {
+        width: 144,
+        height: 144,
+      },
+      BlurredAvatar: {
+        width: 4,
+        height: 4,
+      },
+    },
     Card: {
+      Background: { width: 589, height: 190 },
+      BlurredBackground: { width: 31, height: 10 },
       Avatar: { width: 136, height: 136 },
       BlurredAvatar: { width: 4, height: 4 },
-      Background: { width: 341, height: 110 },
-      BlurredBackground: { width: 31, height: 10 },
-      MemberLogo: { width: 36, height: 36 },
-      BlurredMemberLogo: { width: 4, height: 4 },
+    },
+    CardFooter: {
+      Avatar: { width: 36, height: 36 },
+      BlurredAvatar: { width: 4, height: 4 },
     },
     ListItem: {
       Avatar: { width: 72, height: 72 },
       BlurredAvatar: { width: 4, height: 4 },
     },
-    ListItemLegacy: {
+    ListItemEventAndOrganizationSettings: {
       Avatar: { width: 64, height: 64 },
       BlurredAvatar: { width: 4, height: 4 },
     },
-    ListItemEvent: {
+    ListItemEventDetail: {
       Avatar: { width: 44, height: 44 },
+      BlurredAvatar: { width: 4, height: 4 },
+    },
+    ListItemProjectDetailAndSettings: {
+      Avatar: { width: 40, height: 40 },
       BlurredAvatar: { width: 4, height: 4 },
     },
     NavBar: {
@@ -47,26 +71,6 @@ export const ImageSizes = {
     },
   },
   Organization: {
-    Card: {
-      Logo: { width: 136, height: 136 },
-      BlurredLogo: { width: 4, height: 4 },
-      Background: { width: 341, height: 110 },
-      BlurredBackground: { width: 31, height: 10 },
-      MemberAvatar: { width: 36, height: 36 },
-      BlurredMemberAvatar: { width: 4, height: 4 },
-    },
-    ListItem: {
-      Logo: { width: 72, height: 72 },
-      BlurredLogo: { width: 4, height: 4 },
-    },
-    ListItemLegacy: {
-      Logo: { width: 64, height: 64 },
-      BlurredLogo: { width: 4, height: 4 },
-    },
-    ListItemEvent: {
-      Logo: { width: 44, height: 44 },
-      BlurredLogo: { width: 4, height: 4 },
-    },
     Detail: {
       Background: {
         width: 1488,
@@ -80,10 +84,52 @@ export const ImageSizes = {
         width: 160,
         height: 160,
       },
+      BlurredLogo: {
+        width: 4,
+        height: 4,
+      },
       NetworkLogo: {
         width: 40,
         height: 40,
       },
+      BlurredNetworkLogo: {
+        width: 4,
+        height: 4,
+      },
+    },
+    Card: {
+      Background: { width: 589, height: 190 },
+      BlurredBackground: { width: 31, height: 10 },
+      Logo: { width: 136, height: 136 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    CardFooter: {
+      Logo: { width: 36, height: 36 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItem: {
+      Logo: { width: 72, height: 72 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemEventAndOrganizationSettings: {
+      Logo: { width: 64, height: 64 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemProfileDetail: {
+      Logo: { width: 64, height: 64 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemCreateOrganization: {
+      Logo: { width: 40, height: 40 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemEventDetail: {
+      Logo: { width: 44, height: 44 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemProjectDetailAndSettings: {
+      Logo: { width: 40, height: 40 },
+      BlurredLogo: { width: 4, height: 4 },
     },
   },
   Event: {
@@ -99,19 +145,11 @@ export const ImageSizes = {
     },
     Card: {
       Background: {
-        width: 366,
-        height: 244,
+        width: 567,
+        height: 378,
       },
       BlurredBackground: {
         width: 6,
-        height: 4,
-      },
-      ResponsibleOrganizationLogo: {
-        width: 36,
-        height: 36,
-      },
-      BlurredResponsibleOrganizationLogo: {
-        width: 4,
         height: 4,
       },
     },
@@ -125,7 +163,17 @@ export const ImageSizes = {
         height: 4,
       },
     },
-    NotificationListItem: {
+    ListItemEventSettings: {
+      Background: {
+        width: 162,
+        height: 108,
+      },
+      BlurredBackground: {
+        width: 6,
+        height: 4,
+      },
+    },
+    ListItemDashboard: {
       Background: {
         width: 165,
         height: 110,
@@ -137,22 +185,53 @@ export const ImageSizes = {
     },
   },
   Project: {
-    ListItem: {
-      Logo: { width: 72, height: 72 },
-    },
-    Card: {
-      Logo: { width: 136, height: 136 },
-      BlurredLogo: { width: 4, height: 4 },
-      Background: { width: 341, height: 110 },
-      BlurredBackground: { width: 31, height: 10 },
-      ResponsibleOrganizationLogo: {
-        width: 36,
-        height: 36,
+    Detail: {
+      Background: {
+        width: 1488,
+        height: 480,
       },
-      BlurredResponsibleOrganizationLogo: {
+      BlurredBackground: {
+        width: 31,
+        height: 10,
+      },
+      Logo: {
+        width: 248,
+        height: 248,
+      },
+      BlurredLogo: {
         width: 4,
         height: 4,
       },
+      ContactLogo: {
+        width: 256,
+        height: 256,
+      },
+      BlurredContactLogo: {
+        width: 4,
+        height: 4,
+      },
+      MaterialThumbnail: {
+        width: 144,
+        height: 96,
+      },
+      BlurredMaterialThumbnail: {
+        width: 6,
+        height: 4,
+      },
+    },
+    Card: {
+      Background: { width: 589, height: 190 },
+      BlurredBackground: { width: 31, height: 10 },
+      Logo: { width: 136, height: 136 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItem: {
+      Logo: { width: 72, height: 72 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemProfileDetail: {
+      Logo: { width: 64, height: 64 },
+      BlurredLogo: { width: 4, height: 4 },
     },
   },
 };

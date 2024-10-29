@@ -160,15 +160,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
           logoImage = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              width: ImageSizes.Profile.Card.MemberLogo.width,
-              height: ImageSizes.Profile.Card.MemberLogo.height,
+              width: ImageSizes.Organization.CardFooter.Logo.width,
+              height: ImageSizes.Organization.CardFooter.Logo.height,
             },
           });
           blurredLogo = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              width: ImageSizes.Profile.Card.BlurredMemberLogo.width,
-              height: ImageSizes.Profile.Card.BlurredMemberLogo.height,
+              width: ImageSizes.Organization.CardFooter.BlurredLogo.width,
+              height: ImageSizes.Organization.CardFooter.BlurredLogo.height,
             },
             blur: BlurFactor,
           });
@@ -265,15 +265,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
           avatar = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              width: ImageSizes.Organization.Card.MemberAvatar.width,
-              height: ImageSizes.Organization.Card.MemberAvatar.height,
+              width: ImageSizes.Profile.CardFooter.Avatar.width,
+              height: ImageSizes.Profile.CardFooter.Avatar.height,
             },
           });
           blurredAvatar = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              width: ImageSizes.Organization.Card.BlurredMemberAvatar.width,
-              height: ImageSizes.Organization.Card.BlurredMemberAvatar.height,
+              width: ImageSizes.Profile.CardFooter.BlurredAvatar.width,
+              height: ImageSizes.Profile.CardFooter.BlurredAvatar.height,
             },
             blur: BlurFactor,
           });
@@ -373,21 +373,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
             logoImage = getImageURL(publicURL, {
               resize: {
                 type: "fill",
-                width:
-                  ImageSizes.Project.Card.ResponsibleOrganizationLogo.width,
-                height:
-                  ImageSizes.Project.Card.ResponsibleOrganizationLogo.height,
+                width: ImageSizes.Organization.CardFooter.Logo.width,
+                height: ImageSizes.Organization.CardFooter.Logo.height,
               },
             });
             blurredLogo = getImageURL(publicURL, {
               resize: {
                 type: "fill",
-                width:
-                  ImageSizes.Project.Card.BlurredResponsibleOrganizationLogo
-                    .width,
-                height:
-                  ImageSizes.Project.Card.BlurredResponsibleOrganizationLogo
-                    .height,
+                width: ImageSizes.Organization.CardFooter.BlurredLogo.width,
+                height: ImageSizes.Organization.CardFooter.BlurredLogo.height,
               },
               blur: BlurFactor,
             });
@@ -457,20 +451,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
             logo = getImageURL(publicURL, {
               resize: {
                 type: "fill",
-                width: ImageSizes.Event.Card.ResponsibleOrganizationLogo.width,
-                height:
-                  ImageSizes.Event.Card.ResponsibleOrganizationLogo.height,
+                width: ImageSizes.Organization.CardFooter.Logo.width,
+                height: ImageSizes.Organization.CardFooter.Logo.height,
               },
             });
             blurredLogo = getImageURL(publicURL, {
               resize: {
                 type: "fill",
-                width:
-                  ImageSizes.Event.Card.BlurredResponsibleOrganizationLogo
-                    .width,
-                height:
-                  ImageSizes.Event.Card.BlurredResponsibleOrganizationLogo
-                    .height,
+                width: ImageSizes.Organization.CardFooter.BlurredLogo.width,
+                height: ImageSizes.Organization.CardFooter.BlurredLogo.height,
               },
               blur: BlurFactor,
             });

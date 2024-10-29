@@ -1,5 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { getImageURL, ImageSizes } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -83,10 +83,15 @@ export function addImgUrls(
 ) {
   const teamMembers = organization.teamMembers.map((relation) => {
     let avatar = relation.profile.avatar;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       avatar = getImageURL(publicURL, {
         resize: { type: "fill", ...ImageSizes.Profile.ListItem.Avatar },
+      });
+      blurredAvatar = getImageURL(publicURL, {
+        resize: { type: "fill", ...ImageSizes.Profile.ListItem.BlurredAvatar },
+        blur: BlurFactor,
       });
     }
     return {
@@ -94,6 +99,7 @@ export function addImgUrls(
       profile: {
         ...relation.profile,
         avatar,
+        blurredAvatar,
       },
     };
   });

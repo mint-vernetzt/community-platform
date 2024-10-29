@@ -29,7 +29,7 @@ import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import {
@@ -201,55 +201,91 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
 
     // Add images from image proxy
-    if (enhancedProject.background !== null) {
-      const publicURL = getPublicURL(authClient, enhancedProject.background);
+    let background = enhancedProject.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
-        enhancedProject.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 348, height: 160 },
+        background = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Project.Card.Background.width,
+            height: ImageSizes.Project.Card.Background.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Project.Card.BlurredBackground.width,
+            height: ImageSizes.Project.Card.BlurredBackground.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+    let logo = enhancedProject.logo;
+    let blurredLogo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL) {
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Project.Card.Logo.width,
+            height: ImageSizes.Project.Card.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Project.Card.BlurredLogo.width,
+            height: ImageSizes.Project.Card.BlurredLogo.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
 
-    if (enhancedProject.logo !== null) {
-      const publicURL = getPublicURL(authClient, enhancedProject.logo);
-      if (publicURL) {
-        enhancedProject.logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
-        });
-      }
-    }
-
-    enhancedProject.awards = enhancedProject.awards.map((relation) => {
-      let logo = relation.award.logo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 36, height: 36 },
-          });
-        }
-      }
-      return { ...relation, award: { ...relation.award, logo } };
-    });
-
-    enhancedProject.responsibleOrganizations =
+    const responsibleOrganizations =
       enhancedProject.responsibleOrganizations.map((relation) => {
         let logo = relation.organization.logo;
+        let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 36, height: 36 },
+              resize: {
+                type: "fill",
+                width: ImageSizes.Organization.CardFooter.Logo.width,
+                height: ImageSizes.Organization.CardFooter.Logo.height,
+              },
+            });
+            blurredLogo = getImageURL(publicURL, {
+              resize: {
+                type: "fill",
+                width: ImageSizes.Organization.CardFooter.BlurredLogo.width,
+                height: ImageSizes.Organization.CardFooter.BlurredLogo.height,
+              },
+              blur: BlurFactor,
             });
           }
         }
         return {
           ...relation,
-          organization: { ...relation.organization, logo },
+          organization: { ...relation.organization, logo, blurredLogo },
         };
       });
 
-    enhancedProjects.push(enhancedProject);
+    const imageEnhancedProject = {
+      ...enhancedProject,
+      background,
+      blurredBackground,
+      logo,
+      blurredLogo,
+      responsibleOrganizations,
+    };
+
+    enhancedProjects.push(imageEnhancedProject);
   }
 
   const filterVector = await getProjectFilterVector({

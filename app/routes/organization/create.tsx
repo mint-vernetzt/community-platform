@@ -19,7 +19,7 @@ import {
   getSessionUserOrThrow,
 } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
@@ -65,16 +65,34 @@ export async function loader(args: LoaderFunctionArgs) {
     searchResult = await searchForOrganizationsByName(queryString);
     searchResult = searchResult.map((relation) => {
       let logo = relation.logo;
+      let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+            resize: {
+              type: "fill",
+              width:
+                ImageSizes.Organization.ListItemCreateOrganization.Logo.width,
+              height:
+                ImageSizes.Organization.ListItemCreateOrganization.Logo.height,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width:
+                ImageSizes.Organization.ListItemCreateOrganization.BlurredLogo
+                  .width,
+              height:
+                ImageSizes.Organization.ListItemCreateOrganization.BlurredLogo
+                  .height,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return { ...relation, logo };
+      return { ...relation, logo, blurredLogo };
     });
   }
 

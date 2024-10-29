@@ -7,8 +7,8 @@
         "cta": "Jetzt Projekt anlegen"
     },
     "tabBar": {
-        "admin": "Admin",
-        "teamMember": "Teammitglied"
+        "adminProjects": "Admin",
+        "teamMemberProjects": "Teammitglied"
     },
     "quit": {
         "success": "Du hast das Projekt {{project}} erfolgreich verlassen.",

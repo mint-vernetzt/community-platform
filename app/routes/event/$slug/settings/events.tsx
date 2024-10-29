@@ -85,15 +85,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
         background = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Event.ListItem.Background.width,
-            height: ImageSizes.Event.ListItem.Background.height,
+            width: ImageSizes.Event.ListItemEventSettings.Background.width,
+            height: ImageSizes.Event.ListItemEventSettings.Background.height,
           },
         });
         blurredBackground = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Event.ListItem.BlurredBackground.width,
-            height: ImageSizes.Event.ListItem.BlurredBackground.height,
+            width:
+              ImageSizes.Event.ListItemEventSettings.BlurredBackground.width,
+            height:
+              ImageSizes.Event.ListItemEventSettings.BlurredBackground.height,
           },
           blur: BlurFactor,
         });

@@ -26,7 +26,7 @@ import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
@@ -97,19 +97,32 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   // enhance admins with avatar
-  project.admins = project.admins.map((relation) => {
+  const admins = project.admins.map((relation) => {
     let avatar = relation.profile.avatar;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.ListItemProjectDetailAndSettings.Avatar,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.ListItemProjectDetailAndSettings
+              .BlurredAvatar,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return { profile: { ...relation.profile, avatar } };
+    return { profile: { ...relation.profile, avatar, blurredAvatar } };
   });
+
+  const enhancedProject = { ...project, admins };
 
   // get search query
   const url = new URL(request.url);
@@ -164,23 +177,34 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
     searchResult = searchResult.map((relation) => {
       let avatar = relation.avatar;
+      let blurredAvatar;
       if (avatar !== null) {
         const publicURL = getPublicURL(authClient, avatar);
         if (publicURL !== null) {
           avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+            resize: {
+              type: "fill",
+              ...ImageSizes.Profile.ListItemProjectDetailAndSettings.Avatar,
+            },
+          });
+          blurredAvatar = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Profile.ListItemProjectDetailAndSettings
+                .BlurredAvatar,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return { ...relation, avatar };
+      return { ...relation, avatar, blurredAvatar };
     });
   }
 
   const { toast, headers: toastHeaders } = await getToast(request);
 
   return json(
-    { project, searchResult, toast },
+    { project: enhancedProject, searchResult, toast },
     {
       headers: toastHeaders || undefined,
     }
