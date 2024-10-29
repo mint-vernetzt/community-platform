@@ -33,6 +33,11 @@
         "headline": "Neue Funktion",
         "description": "Füge Dich zu Organisationen hinzu",
         "linkDescription": "Jetzt ausprobieren"
+      },
+      "crawler": {
+        "headline": "Neue Beta-Funktion",
+        "description": "Teste nun unsere Fördersuche",
+        "linkDescription": "Jetzt ausprobieren"
       }
     },
     "news": {
