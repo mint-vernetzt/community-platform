@@ -299,8 +299,8 @@ export function AddIcon() {
 }
 
 function ListItemImage(props: {
-  src: string | null;
-  blurredSrc?: string;
+  src: string;
+  blurredSrc: string;
   alt: string;
 }) {
   const imgRef = React.useRef<HTMLImageElement | null>(null);
@@ -337,9 +337,7 @@ function ListItemImage(props: {
       <div className="w-36 h-full relative">
         <img
           ref={blurredImgRef}
-          src={
-            props.blurredSrc || "/images/default-event-background-blurred.jpg" // TODO: Constant
-          }
+          src={props.blurredSrc}
           alt=""
           onLoad={() => {
             setBlurredImgLoaded(true);
@@ -348,7 +346,7 @@ function ListItemImage(props: {
         />
         <img
           ref={imgRef}
-          src={props.src || "/images/default-event-background.jpg"} // TODO: Constant
+          src={props.src}
           alt={props.alt}
           onLoad={() => {
             setImgLoaded(true);
@@ -356,11 +354,7 @@ function ListItemImage(props: {
           className={classes}
         />
         <noscript>
-          <img
-            src={props.src || "/images/default-event-background.jpg"} // TODO: Constant
-            alt={props.alt}
-            className={baseClasses}
-          />
+          <img src={props.src} alt={props.alt} className={baseClasses} />
         </noscript>
       </div>
     </div>
@@ -368,7 +362,11 @@ function ListItemImage(props: {
 }
 
 function EventListItemFlag(props: { canceled?: boolean; published?: boolean }) {
-  const { t } = useTranslation("components");
+  const { t } = useTranslation([
+    "routes/my/events",
+    "components",
+    "datasets/stages",
+  ]);
 
   const classes = classNames(
     "mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-pr-4 mv-py-6",
@@ -380,9 +378,13 @@ function EventListItemFlag(props: { canceled?: boolean; published?: boolean }) {
   );
 
   return typeof props.canceled === "boolean" && props.canceled ? (
-    <div className={classes}>{t("EventListItemFlag.canceled")}</div>
+    <div className={classes}>
+      {t("EventListItemFlag.canceled", { ns: "components" })}
+    </div>
   ) : typeof props.published === "boolean" && props.published === false ? (
-    <div className={classes}>{t("EventListItemFlag.draft")}</div>
+    <div className={classes}>
+      {t("EventListItemFlag.draft", { ns: "components" })}
+    </div>
   ) : null;
 }
 
@@ -405,7 +407,11 @@ function EventListItemContent(props: {
 }) {
   const { event } = props;
 
-  const { t, i18n } = useTranslation(["components", "datasets/stages"]);
+  const { t, i18n } = useTranslation([
+    "routes/my/events",
+    "components",
+    "datasets/stages",
+  ]);
 
   const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
   const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
@@ -420,12 +426,14 @@ function EventListItemContent(props: {
           {getDuration(startTime, endTime, i18n.language)}
 
           {event.participantLimit === null &&
-            ` | ${t("EventListItemContent.unlimitedSeats")}`}
+            ` | ${t("EventListItemContent.unlimitedSeats", {
+              ns: "components",
+            })}`}
           {event.participantLimit !== null &&
             event.participantLimit - event._count.participants > 0 &&
             ` | ${event.participantLimit - event._count.participants} / ${
               event.participantLimit
-            } ${t("EventListItemContent.seatsFree")}`}
+            } ${t("EventListItemContent.seatsFree", { ns: "components" })}`}
 
           {event.participantLimit !== null &&
           event.participantLimit - event._count.participants <= 0 ? (
@@ -434,7 +442,7 @@ function EventListItemContent(props: {
               |{" "}
               <span>
                 {event._count.waitingList}{" "}
-                {t("EventListItemContent.onWaitingList")}
+                {t("EventListItemContent.onWaitingList", { ns: "components" })}
               </span>
             </>
           ) : null}

@@ -22,6 +22,10 @@ import { getEvents } from "./events.server";
 
 export const i18nNS = ["routes/my/events", "datasets/stages", "components"];
 
+export const handle = {
+  i18n: i18nNS,
+};
+
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
