@@ -66,7 +66,7 @@ export const ImageSizes = {
       BlurredAvatar: { width: 4, height: 4 },
     },
     NavBar: {
-      Avatar: { width: 36, height: 36 },
+      Avatar: { width: 24, height: 24 },
       BlurredAvatar: { width: 4, height: 4 },
     },
   },
