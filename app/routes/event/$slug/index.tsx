@@ -706,6 +706,7 @@ function Index() {
                 alt={name}
                 src={background}
                 blurredSrc={blurredBackground}
+                resizeType="fit"
               />
               {loaderData.mode === "admin" &&
               loaderData.abilities.events.hasAccess ? (
