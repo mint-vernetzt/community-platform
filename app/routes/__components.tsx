@@ -427,7 +427,12 @@ function NavBarMenu(
                   to="/next/explore/fundings"
                   openNavBarMenuKey={props.openNavBarMenuKey}
                 >
-                  {t("root.menu.explore.fundings")}
+                  <div className="mv-w-full mv-flex mv-justify-between">
+                    {t("root.menu.explore.fundings")}
+                    <span className="mv-text-white mv-text-xs mv-pt-[2px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[18px]">
+                      BETA
+                    </span>
+                  </div>
                 </TopicItem>
               )}
             </Topic>
@@ -733,13 +738,18 @@ function TopicItem(
 ) {
   const external = props.to.startsWith("http");
   const children = React.Children.toArray(props.children);
+
+  const classes = classNames(
+    "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50 hover:mv-text-primary-500"
+  );
+
   return external ? (
-    <Link
-      to={`${props.to}`}
-      target="_blank"
-      className="mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50 hover:mv-text-primary-500"
-    >
-      {children}
+    <Link to={`${props.to}`} target="_blank" className={classes}>
+      {children.length < 2 && typeof children[0] === "string" ? (
+        children
+      ) : (
+        <span>{children}</span>
+      )}
     </Link>
   ) : (
     <NavLink
