@@ -2,9 +2,7 @@ import { createAuthClient } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
-const { authClient, response } = createAuthClient(
-  new Request("http://localhost/")
-);
+const { authClient } = createAuthClient(new Request("http://localhost/"));
 
 type AllowedEntities = "profile" | "organization" | "event" | "project";
 async function migrateImageForEntity(entityName: AllowedEntities) {

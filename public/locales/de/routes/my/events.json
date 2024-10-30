@@ -21,10 +21,10 @@
         "title_other": "Vergangene Events"
     },
     "tabBar": {
-        "admin": "Admin",
-        "teamMember": "Teammitglied",
-        "speaker": "Speaker:in",
-        "participant": "Teilnehmer:in",
-        "waitingList": "Warteliste"
+        "adminEvents": "Admin",
+        "teamMemberEvents": "Teammitglied",
+        "speakerEvents": "Speaker:in",
+        "participantEvents": "Teilnehmer:in",
+        "waitingListEvents": "Warteliste"
     }
 }

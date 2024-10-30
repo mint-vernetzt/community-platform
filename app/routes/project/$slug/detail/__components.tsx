@@ -1,3 +1,4 @@
+import { Image } from "@mint-vernetzt/components";
 import classNames from "classnames";
 
 export function Envelope() {
@@ -252,11 +253,13 @@ export type AvatarProps = {
   | {
       name: string;
       logo?: string | null;
+      blurredLogo?: string;
     }
   | {
       firstName: string;
       lastName: string;
       avatar?: string | null;
+      blurredAvatar?: string;
     }
 );
 
@@ -264,15 +267,18 @@ export function Avatar(props: AvatarProps) {
   let displayName = "";
   const initials = getInitials(props);
   let src;
+  let blurredSrc;
   if ("name" in props) {
     displayName = props.name;
     src = props.logo;
+    blurredSrc = props.blurredLogo;
   } else if ("firstName" in props) {
     displayName = getFullName({
       firstName: props.firstName,
       lastName: props.lastName,
     });
     src = props.avatar;
+    blurredSrc = props.blurredAvatar;
   }
 
   const classes = classNames(
@@ -284,7 +290,7 @@ export function Avatar(props: AvatarProps) {
   );
 
   const child = src ? (
-    <img src={src} alt={displayName} />
+    <Image src={src} blurredSrc={blurredSrc} alt={displayName} />
   ) : (
     <svg width="80%" height="80%" viewBox="0 0 24 24">
       <text

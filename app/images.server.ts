@@ -21,74 +21,222 @@ const salt = process.env.IMGPROXY_SALT;
 
 export const ImageSizes = {
   Profile: {
-    ListItem: {
-      Avatar: { width: 72, height: 72 },
-    },
-  },
-  Organization: {
-    ListItem: {
-      Logo: { width: 72, height: 72 },
-    },
     Detail: {
       Background: {
         width: 1488,
         height: 480,
       },
       BlurredBackground: {
-        width: 186,
-        height: 60,
+        width: 31,
+        height: 10,
+      },
+      Avatar: {
+        width: 144,
+        height: 144,
+      },
+      BlurredAvatar: {
+        width: 4,
+        height: 4,
+      },
+    },
+    Card: {
+      Background: { width: 589, height: 190 },
+      BlurredBackground: { width: 31, height: 10 },
+      Avatar: { width: 136, height: 136 },
+      BlurredAvatar: { width: 4, height: 4 },
+    },
+    CardFooter: {
+      Avatar: { width: 36, height: 36 },
+      BlurredAvatar: { width: 4, height: 4 },
+    },
+    ListItem: {
+      Avatar: { width: 72, height: 72 },
+      BlurredAvatar: { width: 4, height: 4 },
+    },
+    ListItemEventAndOrganizationSettings: {
+      Avatar: { width: 64, height: 64 },
+      BlurredAvatar: { width: 4, height: 4 },
+    },
+    ListItemEventDetail: {
+      Avatar: { width: 44, height: 44 },
+      BlurredAvatar: { width: 4, height: 4 },
+    },
+    ListItemProjectDetailAndSettings: {
+      Avatar: { width: 40, height: 40 },
+      BlurredAvatar: { width: 4, height: 4 },
+    },
+    NavBar: {
+      Avatar: { width: 36, height: 36 },
+      BlurredAvatar: { width: 4, height: 4 },
+    },
+  },
+  Organization: {
+    Detail: {
+      Background: {
+        width: 1488,
+        height: 480,
+      },
+      BlurredBackground: {
+        width: 31,
+        height: 10,
       },
       Logo: {
         width: 160,
         height: 160,
       },
+      BlurredLogo: {
+        width: 4,
+        height: 4,
+      },
       NetworkLogo: {
         width: 40,
         height: 40,
       },
+      BlurredNetworkLogo: {
+        width: 4,
+        height: 4,
+      },
+    },
+    Card: {
+      Background: { width: 589, height: 190 },
+      BlurredBackground: { width: 31, height: 10 },
+      Logo: { width: 136, height: 136 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    CardFooter: {
+      Logo: { width: 36, height: 36 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItem: {
+      Logo: { width: 72, height: 72 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemEventAndOrganizationSettings: {
+      Logo: { width: 64, height: 64 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemProfileDetail: {
+      Logo: { width: 64, height: 64 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemCreateOrganization: {
+      Logo: { width: 40, height: 40 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemEventDetail: {
+      Logo: { width: 44, height: 44 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemProjectDetailAndSettings: {
+      Logo: { width: 40, height: 40 },
+      BlurredLogo: { width: 4, height: 4 },
     },
   },
   Event: {
+    Detail: {
+      Background: {
+        width: 720,
+        height: 480,
+      },
+      BlurredBackground: {
+        width: 6,
+        height: 4,
+      },
+    },
+    Card: {
+      Background: {
+        width: 567,
+        height: 378,
+      },
+      BlurredBackground: {
+        width: 6,
+        height: 4,
+      },
+    },
     ListItem: {
       Background: {
         width: 144,
         height: 96,
       },
       BlurredBackground: {
-        width: 18,
-        height: 12,
+        width: 6,
+        height: 4,
       },
-      width: 144,
-      height: 96,
     },
-    NotificationListItem: {
-      width: 164,
-      height: 124,
+    ListItemEventSettings: {
+      Background: {
+        width: 162,
+        height: 108,
+      },
+      BlurredBackground: {
+        width: 6,
+        height: 4,
+      },
+    },
+    ListItemDashboard: {
+      Background: {
+        width: 165,
+        height: 110,
+      },
+      BlurredBackground: {
+        width: 6,
+        height: 4,
+      },
     },
   },
   Project: {
-    ListItem: {
-      Logo: { width: 72, height: 72 },
-    },
-    Card: {
-      Logo: { width: 136, height: 136 },
+    Detail: {
       Background: {
-        width: 620,
-        height: 200,
+        width: 1488,
+        height: 480,
       },
       BlurredBackground: {
-        width: 62,
-        height: 20,
+        width: 31,
+        height: 10,
       },
-      ResponsibleOrganizationLogo: {
-        width: 36,
-        height: 36,
+      Logo: {
+        width: 248,
+        height: 248,
       },
+      BlurredLogo: {
+        width: 4,
+        height: 4,
+      },
+      ContactLogo: {
+        width: 256,
+        height: 256,
+      },
+      BlurredContactLogo: {
+        width: 4,
+        height: 4,
+      },
+      MaterialThumbnail: {
+        width: 144,
+        height: 96,
+      },
+      BlurredMaterialThumbnail: {
+        width: 6,
+        height: 4,
+      },
+    },
+    Card: {
+      Background: { width: 589, height: 190 },
+      BlurredBackground: { width: 31, height: 10 },
+      Logo: { width: 136, height: 136 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItem: {
+      Logo: { width: 72, height: 72 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
+    ListItemProfileDetail: {
+      Logo: { width: 64, height: 64 },
+      BlurredLogo: { width: 4, height: 4 },
     },
   },
 };
 
-export const BlurredBackgroundScale = 0.0625;
+export const BlurFactor = 5;
 export const DefaultImages = {
   Event: {
     Background: "/images/default-event-background.jpg",

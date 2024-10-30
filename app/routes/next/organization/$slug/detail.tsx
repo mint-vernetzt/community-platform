@@ -301,6 +301,7 @@ function ProjectDetail() {
                         size="md"
                         name={relation.networkMember.name}
                         logo={relation.networkMember.logo}
+                        blurredLogo={relation.networkMember.blurredLogo}
                       />
                     );
                   })}
@@ -388,6 +389,7 @@ function ProjectDetail() {
           <div className="mv-relative mv-w-full mv-full">
             <Avatar
               logo={organization.logo}
+              blurredLogo={organization.blurredLogo}
               name={organization.name}
               size="full"
               textSize="xl"
@@ -500,6 +502,7 @@ function ProjectDetail() {
                 <Avatar
                   name={organization.name}
                   logo={organization.logo}
+                  blurredLogo={organization.blurredLogo}
                   size="xl"
                   textSize="xl"
                 />

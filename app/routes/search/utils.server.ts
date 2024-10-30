@@ -1522,19 +1522,6 @@ export async function searchProjectsViaLike(
       logo: true,
       background: true,
       excerpt: true,
-      awards: {
-        select: {
-          award: {
-            select: {
-              id: true,
-              title: true,
-              shortTitle: true,
-              date: true,
-              logo: true,
-            },
-          },
-        },
-      },
       responsibleOrganizations: {
         select: {
           organization: {
@@ -1563,7 +1550,6 @@ export async function searchProjectsViaLike(
           logo: true,
           background: true,
           excerpt: true,
-          awards: true,
           responsibleOrganizations: true,
         },
       },

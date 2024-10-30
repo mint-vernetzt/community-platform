@@ -29,7 +29,7 @@ import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import {
@@ -186,52 +186,100 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
 
     // Add images from image proxy
-    if (enhancedOrganization.logo !== null) {
-      const publicURL = getPublicURL(authClient, enhancedOrganization.logo);
+    let logo = enhancedOrganization.logo;
+    let blurredLogo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
-        enhancedOrganization.logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.Logo.width,
+            height: ImageSizes.Organization.Card.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.BlurredLogo.width,
+            height: ImageSizes.Organization.Card.BlurredLogo.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
 
-    if (enhancedOrganization.background !== null) {
-      const publicURL = getPublicURL(
-        authClient,
-        enhancedOrganization.background
-      );
+    let background = enhancedOrganization.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
-        enhancedOrganization.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 348, height: 160 },
+        background = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.Background.width,
+            height: ImageSizes.Organization.Card.Background.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.BlurredBackground.width,
+            height: ImageSizes.Organization.Card.BlurredBackground.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
 
-    enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
-      (relation) => {
-        let avatar = relation.profile.avatar;
-        if (avatar !== null) {
-          const publicURL = getPublicURL(authClient, avatar);
-          avatar = getImageURL(publicURL, {
-            resize: { type: "fill", width: 36, height: 36 },
-          });
-        }
-        return { ...relation, profile: { ...relation.profile, avatar } };
+    const teamMembers = enhancedOrganization.teamMembers.map((relation) => {
+      let avatar = relation.profile.avatar;
+      let blurredAvatar;
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
+        avatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.CardFooter.Avatar.width,
+            height: ImageSizes.Profile.CardFooter.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.CardFooter.BlurredAvatar.width,
+            height: ImageSizes.Profile.CardFooter.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
+        });
       }
-    );
+      return {
+        ...relation,
+        profile: { ...relation.profile, avatar, blurredAvatar },
+      };
+    });
+
+    const imageEnhancedOrganization = {
+      ...enhancedOrganization,
+      logo,
+      blurredLogo,
+      background,
+      blurredBackground,
+      teamMembers,
+    };
 
     const transformedOrganization = {
-      ...enhancedOrganization,
-      teamMembers: enhancedOrganization.teamMembers.map((relation) => {
+      ...imageEnhancedOrganization,
+      teamMembers: imageEnhancedOrganization.teamMembers.map((relation) => {
         return relation.profile;
       }),
-      types: enhancedOrganization.types.map((relation) => {
+      types: imageEnhancedOrganization.types.map((relation) => {
         return relation.organizationType.slug;
       }),
-      focuses: enhancedOrganization.focuses.map((relation) => {
+      focuses: imageEnhancedOrganization.focuses.map((relation) => {
         return relation.focus.slug;
       }),
-      areas: enhancedOrganization.areas.map((relation) => {
+      areas: imageEnhancedOrganization.areas.map((relation) => {
         return relation.area.name;
       }),
     };

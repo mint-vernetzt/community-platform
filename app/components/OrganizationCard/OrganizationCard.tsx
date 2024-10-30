@@ -3,12 +3,14 @@ import { Link } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { H3 } from "../Heading/Heading";
+import { Avatar } from "@mint-vernetzt/components";
 
 export interface OrganizationCardProps {
   id: string;
   link: string;
   name: string;
   image?: string | null;
+  blurredImage?: string;
   types?: {
     organizationType: Pick<OrganizationType, "slug">;
   }[];
@@ -29,10 +31,11 @@ function OrganizationCard(props: OrganizationCardProps) {
         <div className="w-full flex items-center flex-row">
           {props.image !== "" && props.image !== null ? (
             <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
-              <img
-                className="max-w-full w-auto max-h-16 h-auto"
-                src={props.image}
-                alt={props.name}
+              <Avatar
+                logo={props.image}
+                blurredLogo={props.blurredImage}
+                name={props.name}
+                size="full"
               />
             </div>
           ) : (

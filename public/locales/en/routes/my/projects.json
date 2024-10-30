@@ -7,8 +7,8 @@
         "cta": "Create project now"
     },
     "tabBar": {
-        "admin": "Admin",
-        "teamMember": "Team Member"
+        "adminProjects": "Admin",
+        "teamMemberProjects": "Team Member"
     },
     "quit": {
         "success": "You have successfully left the project {{project}}.",

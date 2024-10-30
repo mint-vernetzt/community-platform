@@ -31,7 +31,7 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
@@ -188,15 +188,30 @@ export const loader = async (args: LoaderFunctionArgs) => {
   //   }
   //   return relation;
   // });
-  project.images = project.images.map((relation) => {
+  const images = project.images.map((relation) => {
     const publicURL = getPublicURL(authClient, relation.image.path);
     const thumbnail = getImageURL(publicURL, {
-      resize: { type: "fill", width: 144 },
+      resize: { type: "fill", ...ImageSizes.Project.Detail.MaterialThumbnail },
     });
-    return { ...relation, image: { ...relation.image, thumbnail } };
+    const blurredThumbnail = getImageURL(publicURL, {
+      resize: {
+        type: "fill",
+        ...ImageSizes.Project.Detail.BlurredMaterialThumbnail,
+      },
+      blur: BlurFactor,
+    });
+    return {
+      ...relation,
+      image: { ...relation.image, thumbnail, blurredThumbnail },
+    };
   });
 
-  return json(project);
+  const enhancedProject = {
+    ...project,
+    images,
+  };
+
+  return json({ project: enhancedProject });
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -544,10 +559,10 @@ function Attachments() {
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.document.current")}
             </h2>
-            {loaderData !== null && loaderData.documents.length > 0 ? (
+            {loaderData.project.documents.length > 0 ? (
               <>
                 <MaterialList>
-                  {loaderData.documents.map((relation) => {
+                  {loaderData.project.documents.map((relation) => {
                     return (
                       <div key={`document-${relation.document.id}`}>
                         <Modal searchParam={`modal-${relation.document.id}`}>
@@ -804,10 +819,10 @@ function Attachments() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.image.current")}
           </h2>
-          {loaderData !== null && loaderData.images.length > 0 ? (
+          {loaderData.project.images.length > 0 ? (
             <>
               <MaterialList>
-                {loaderData.images.map((relation) => {
+                {loaderData.project.images.map((relation) => {
                   return (
                     <div key={`image-${relation.image.id}`}>
                       <Modal searchParam={`modal-${relation.image.id}`}>
@@ -899,15 +914,11 @@ function Attachments() {
                       <MaterialList.Item
                         id={`material-list-image-item-${relation.image.id}`}
                       >
-                        {/* TODO: fix type issue */}
-                        {/* @ts-ignore */}
-                        {typeof relation.image.thumbnail !== "undefined" && (
-                          <Image
-                            // @ts-ignore
-                            src={relation.image.thumbnail}
-                            alt={relation.image.description || ""}
-                          />
-                        )}
+                        <Image
+                          src={relation.image.thumbnail}
+                          blurredSrc={relation.image.blurredThumbnail}
+                          alt={relation.image.description || ""}
+                        />
                         <MaterialList.Item.Title>
                           {relation.image.title !== null
                             ? relation.image.title

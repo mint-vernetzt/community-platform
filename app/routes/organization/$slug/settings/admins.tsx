@@ -17,8 +17,9 @@ import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import i18next from "~/i18next.server";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
+import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
@@ -41,7 +42,7 @@ import {
   removeAdminSchema,
   type action as removeAdminAction,
 } from "./admins/remove-admin";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import { Avatar } from "@mint-vernetzt/components";
 
 const i18nNS = ["routes/organization/settings/admins"];
 export const handle = {
@@ -69,16 +70,36 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const enhancedAdmins = organization.admins.map((relation) => {
     let avatar = relation.profile.avatar;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+          resize: {
+            type: "fill",
+            width:
+              ImageSizes.Profile.ListItemEventAndOrganizationSettings.Avatar
+                .width,
+            height:
+              ImageSizes.Profile.ListItemEventAndOrganizationSettings.Avatar
+                .height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width:
+              ImageSizes.Profile.ListItemEventAndOrganizationSettings
+                .BlurredAvatar.width,
+            height:
+              ImageSizes.Profile.ListItemEventAndOrganizationSettings
+                .BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return { ...relation.profile, avatar };
+    return { ...relation.profile, avatar, blurredAvatar };
   });
 
   const invitedProfiles = await getInvitedProfilesOfOrganization(
@@ -208,7 +229,13 @@ function Admins() {
               >
                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                   {profile.avatar !== null && profile.avatar !== "" ? (
-                    <img src={profile.avatar} alt={initials} />
+                    <Avatar
+                      size="full"
+                      firstName={profile.firstName}
+                      lastName={profile.lastName}
+                      avatar={profile.avatar}
+                      blurredAvatar={profile.blurredAvatar}
+                    />
                   ) : (
                     <>{initials}</>
                   )}
@@ -287,7 +314,13 @@ function Admins() {
             >
               <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                 {admin.avatar !== null && admin.avatar !== "" ? (
-                  <img src={admin.avatar} alt={initials} />
+                  <Avatar
+                    size="full"
+                    firstName={admin.firstName}
+                    lastName={admin.lastName}
+                    avatar={admin.avatar}
+                    blurredAvatar={admin.blurredAvatar}
+                  />
                 ) : (
                   <>{initials}</>
                 )}

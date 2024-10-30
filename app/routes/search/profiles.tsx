@@ -9,7 +9,7 @@ import {
 } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
@@ -75,38 +75,68 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
 
     // Add imgUrls for imgproxy call on client
-    if (enhancedProfile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
+    let avatar = enhancedProfile.avatar;
+    let blurredAvatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
-        enhancedProfile.avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
-          gravity: GravityType.center,
+        avatar = getImageURL(publicURL, {
+          resize: { type: "fill", ...ImageSizes.Profile.Card.Avatar },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: { type: "fill", ...ImageSizes.Profile.Card.BlurredAvatar },
+          blur: BlurFactor,
         });
       }
     }
 
-    if (enhancedProfile.background !== null) {
-      const publicURL = getPublicURL(authClient, enhancedProfile.background);
+    let background = enhancedProfile.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
-        enhancedProfile.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 348, height: 160 },
-          gravity: GravityType.center,
+        background = getImageURL(publicURL, {
+          resize: { type: "fill", ...ImageSizes.Profile.Card.Background },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.Card.BlurredBackground,
+          },
+          blur: BlurFactor,
         });
       }
     }
 
-    enhancedProfile.memberOf = enhancedProfile.memberOf.map((organization) => {
+    const memberOf = enhancedProfile.memberOf.map((organization) => {
       let logo = organization.logo;
+      let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 36, height: 36 },
+          resize: { type: "fit", ...ImageSizes.Organization.CardFooter.Logo },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fit",
+            ...ImageSizes.Organization.CardFooter.BlurredLogo,
+          },
+          blur: BlurFactor,
         });
       }
-      return { ...organization, logo };
+      return { ...organization, logo, blurredLogo };
     });
 
-    enhancedProfiles.push(enhancedProfile);
+    const imageEnhancedProfile = {
+      ...enhancedProfile,
+      avatar,
+      blurredAvatar,
+      background,
+      blurredBackground,
+      memberOf,
+    };
+
+    enhancedProfiles.push(imageEnhancedProfile);
   }
 
   return json({

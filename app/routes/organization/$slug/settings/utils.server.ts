@@ -1,7 +1,7 @@
 import type { Organization } from "@prisma/client";
 import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { GravityType, getImageURL } from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { triggerEntityScore } from "~/utils.server";
@@ -452,21 +452,33 @@ export async function getNetworkMembersOfOrganization(
     },
   });
 
-  const enhancedNetworkMembers = networkMembers.map((item) => {
-    if (item.networkMember.logo !== null) {
-      const publicURL = getPublicURL(authClient, item.networkMember.logo);
+  const enhancedNetworkMembers = networkMembers.map((relation) => {
+    let logo = relation.networkMember.logo;
+    let blurredLogo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
-        const logo = getImageURL(publicURL, {
-          resize: { type: "fit", width: 64, height: 64 },
-          gravity: GravityType.center,
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Organization.ListItemEventAndOrganizationSettings
+              .Logo,
+          },
         });
-        return {
-          ...item,
-          networkMember: { ...item.networkMember, logo },
-        };
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Organization.ListItemEventAndOrganizationSettings
+              .BlurredLogo,
+          },
+          blur: BlurFactor,
+        });
       }
     }
-    return item;
+    return {
+      ...relation,
+      networkMember: { ...relation.networkMember, logo, blurredLogo },
+    };
   });
 
   return enhancedNetworkMembers;

@@ -1,5 +1,10 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { getImageURL, ImageSizes } from "~/images.server";
+import {
+  BlurFactor,
+  DefaultImages,
+  getImageURL,
+  ImageSizes,
+} from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -39,72 +44,77 @@ export async function getEvents(options: {
     },
   };
 
-  const [admin, teamMember, speaker, participant, waitingList] =
-    await prismaClient.$transaction([
-      prismaClient.event.findMany({
-        where: {
-          ...where,
-          admins: {
-            some: {
-              profileId: profileId,
-            },
+  const [
+    adminEvents,
+    teamMemberEvents,
+    speakerEvents,
+    participantEvents,
+    waitingListEvents,
+  ] = await prismaClient.$transaction([
+    prismaClient.event.findMany({
+      where: {
+        ...where,
+        admins: {
+          some: {
+            profileId: profileId,
           },
         },
-        select: { ...selectBase, published: true },
-        orderBy,
-      }),
-      prismaClient.event.findMany({
-        where: {
-          ...where,
-          teamMembers: {
-            some: {
-              profileId: profileId,
-            },
+      },
+      select: { ...selectBase, published: true },
+      orderBy,
+    }),
+    prismaClient.event.findMany({
+      where: {
+        ...where,
+        teamMembers: {
+          some: {
+            profileId: profileId,
           },
         },
-        select: { ...selectBase, published: true },
-        orderBy,
-      }),
-      prismaClient.event.findMany({
-        where: {
-          ...where,
-          speakers: {
-            some: {
-              profileId: profileId,
-            },
+      },
+      select: { ...selectBase, published: true },
+      orderBy,
+    }),
+    prismaClient.event.findMany({
+      where: {
+        ...where,
+        speakers: {
+          some: {
+            profileId: profileId,
           },
         },
-        select: { ...selectBase, published: true },
-        orderBy,
-      }),
-      prismaClient.event.findMany({
-        where: {
-          ...where,
-          participants: {
-            some: {
-              profileId: profileId,
-            },
+      },
+      select: { ...selectBase, published: true },
+      orderBy,
+    }),
+    prismaClient.event.findMany({
+      where: {
+        ...where,
+        participants: {
+          some: {
+            profileId: profileId,
           },
         },
-        select: { ...selectBase },
-        orderBy,
-      }),
-      prismaClient.event.findMany({
-        where: {
-          ...where,
-          waitingList: {
-            some: {
-              profileId: profileId,
-            },
+      },
+      select: { ...selectBase },
+      orderBy,
+    }),
+    prismaClient.event.findMany({
+      where: {
+        ...where,
+        waitingList: {
+          some: {
+            profileId: profileId,
           },
         },
-        select: { ...selectBase },
-        orderBy,
-      }),
-    ]);
+      },
+      select: { ...selectBase },
+      orderBy,
+    }),
+  ]);
 
   // TODO: generate general utils function for this (had ts problems)
-  const enhancedAdmin = admin.map((event) => {
+  const enhancedAdminEvents = adminEvents.map((event) => {
     let background = event.background;
     let blurredBackground;
     if (background !== null) {
@@ -118,8 +128,11 @@ export async function getEvents(options: {
           width: ImageSizes.Event.ListItem.BlurredBackground.width,
           height: ImageSizes.Event.ListItem.BlurredBackground.height,
         },
-        blur: 5,
+        blur: BlurFactor,
       });
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...event,
@@ -127,7 +140,7 @@ export async function getEvents(options: {
       blurredBackground,
     };
   });
-  const enhancedTeamMembers = teamMember.map((event) => {
+  const enhancedTeamMemberEvents = teamMemberEvents.map((event) => {
     let background = event.background;
     let blurredBackground;
     if (background !== null) {
@@ -141,8 +154,11 @@ export async function getEvents(options: {
           width: ImageSizes.Event.ListItem.BlurredBackground.width,
           height: ImageSizes.Event.ListItem.BlurredBackground.height,
         },
-        blur: 5,
+        blur: BlurFactor,
       });
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...event,
@@ -150,7 +166,7 @@ export async function getEvents(options: {
       blurredBackground,
     };
   });
-  const enhancedSpeaker = speaker.map((event) => {
+  const enhancedSpeakerEvents = speakerEvents.map((event) => {
     let background = event.background;
     let blurredBackground;
     if (background !== null) {
@@ -164,8 +180,11 @@ export async function getEvents(options: {
           width: ImageSizes.Event.ListItem.BlurredBackground.width,
           height: ImageSizes.Event.ListItem.BlurredBackground.height,
         },
-        blur: 5,
+        blur: BlurFactor,
       });
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...event,
@@ -173,7 +192,7 @@ export async function getEvents(options: {
       blurredBackground,
     };
   });
-  const enhancedParticipant = participant.map((event) => {
+  const enhancedParticipantEvents = participantEvents.map((event) => {
     let background = event.background;
     let blurredBackground;
     if (background !== null) {
@@ -187,8 +206,11 @@ export async function getEvents(options: {
           width: ImageSizes.Event.ListItem.BlurredBackground.width,
           height: ImageSizes.Event.ListItem.BlurredBackground.height,
         },
-        blur: 5,
+        blur: BlurFactor,
       });
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...event,
@@ -196,7 +218,7 @@ export async function getEvents(options: {
       blurredBackground,
     };
   });
-  const enhancedWaitingList = waitingList.map((event) => {
+  const enhancedWaitingListEvents = waitingListEvents.map((event) => {
     let background = event.background;
     let blurredBackground;
     if (background !== null) {
@@ -210,8 +232,11 @@ export async function getEvents(options: {
           width: ImageSizes.Event.ListItem.BlurredBackground.width,
           height: ImageSizes.Event.ListItem.BlurredBackground.height,
         },
-        blur: 5,
+        blur: BlurFactor,
       });
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...event,
@@ -221,17 +246,17 @@ export async function getEvents(options: {
   });
 
   return {
-    admin: enhancedAdmin,
-    teamMember: enhancedTeamMembers,
-    speaker: enhancedSpeaker,
-    participant: enhancedParticipant,
-    waitingList: enhancedWaitingList,
+    adminEvents: enhancedAdminEvents,
+    teamMemberEvents: enhancedTeamMemberEvents,
+    speakerEvents: enhancedSpeakerEvents,
+    participantEvents: enhancedParticipantEvents,
+    waitingListEvents: enhancedWaitingListEvents,
     count: {
-      admin: admin.length,
-      teamMember: teamMember.length,
-      speaker: speaker.length,
-      participant: participant.length,
-      waitingList: waitingList.length,
+      adminEvents: adminEvents.length,
+      teamMemberEvents: teamMemberEvents.length,
+      speakerEvents: speakerEvents.length,
+      participantEvents: participantEvents.length,
+      waitingListEvents: waitingListEvents.length,
     },
   };
 }

@@ -27,11 +27,15 @@ import { utcToZonedTime } from "date-fns-tz";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
-import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { GravityType, getImageURL } from "~/images.server";
+import {
+  BlurFactor,
+  DefaultImages,
+  ImageSizes,
+  getImageURL,
+} from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import {
@@ -206,44 +210,68 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
 
     // Add images from image proxy
+    let background = enhancedEvent.background;
     let blurredBackground;
-    if (enhancedEvent.background !== null) {
-      const publicURL = getPublicURL(authClient, enhancedEvent.background);
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
-        enhancedEvent.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 594, height: 396 },
+        background = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.Card.Background.width,
+            height: ImageSizes.Event.Card.Background.height,
+          },
         });
       }
       blurredBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 18, height: 12 },
-        blur: 5,
+        resize: {
+          type: "fill",
+          width: ImageSizes.Event.Card.BlurredBackground.width,
+          height: ImageSizes.Event.Card.BlurredBackground.height,
+        },
+        blur: BlurFactor,
       });
     } else {
-      enhancedEvent.background = "/images/default-event-background.jpg";
-      blurredBackground = "/images/default-event-background-blurred.jpg";
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
 
-    enhancedEvent.responsibleOrganizations =
-      enhancedEvent.responsibleOrganizations.map((relation) => {
+    const responsibleOrganizations = enhancedEvent.responsibleOrganizations.map(
+      (relation) => {
         let logo = relation.organization.logo;
+        let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
           if (publicURL) {
             logo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 36, height: 36 },
-              gravity: GravityType.center,
+              resize: {
+                type: "fill",
+                width: ImageSizes.Organization.CardFooter.Logo.width,
+                height: ImageSizes.Organization.CardFooter.Logo.height,
+              },
+            });
+            blurredLogo = getImageURL(publicURL, {
+              resize: {
+                type: "fill",
+                width: ImageSizes.Organization.CardFooter.BlurredLogo.width,
+                height: ImageSizes.Organization.CardFooter.BlurredLogo.height,
+              },
+              blur: BlurFactor,
             });
           }
         }
         return {
           ...relation,
-          organization: { ...relation.organization, logo },
+          organization: { ...relation.organization, logo, blurredLogo },
         };
-      });
+      }
+    );
 
     const imageEnhancedEvent = {
       ...enhancedEvent,
+      background,
       blurredBackground,
+      responsibleOrganizations,
     };
 
     enhancedEvents.push(imageEnhancedEvent);
@@ -368,9 +396,6 @@ export default function ExploreOrganizations() {
   const [searchQuery, setSearchQuery] = React.useState(
     loaderData.submission.value.search
   );
-
-  // TODO: Remove this and add new <Image> Component to <EventCard>
-  const isHydrated = useHydrated();
 
   return (
     <>
@@ -948,7 +973,6 @@ export default function ExploreOrganizations() {
                   <EventCard
                     key={event.id}
                     publicAccess={!loaderData.isLoggedIn}
-                    isHydrated={isHydrated}
                     event={{
                       ...event,
                       startTime,

@@ -14,6 +14,10 @@ import React from "react";
 
 export const i18nNS = ["routes/my/projects"];
 
+export const handle = {
+  i18n: i18nNS,
+};
+
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
@@ -85,7 +89,7 @@ function MyProjects() {
         <Placeholder>
           <Placeholder.Title>{t("placeholder.title")}</Placeholder.Title>
           <Placeholder.Text>{t("placeholder.description")}</Placeholder.Text>
-          <Button style="secondary">
+          <Button variant="secondary">
             <Link to="/project/create">{t("placeholder.cta")}</Link>
           </Button>
         </Placeholder>
@@ -96,6 +100,7 @@ function MyProjects() {
               if (value === 0) {
                 return null;
               }
+              const typedKey = key as keyof typeof loaderData.projects.count;
 
               const searchParamsCopy = new URLSearchParams(searchParams);
               searchParamsCopy.set("projects", key);
@@ -113,7 +118,7 @@ function MyProjects() {
                     <TabBarTitle>
                       {t(`tabBar.${key}`)}
                       <TabBar.Counter active={projects === key}>
-                        {loaderData.projects.count[key as "admin"]}
+                        {loaderData.projects.count[typedKey]}
                       </TabBar.Counter>
                     </TabBarTitle>
                   </Link>
@@ -123,15 +128,19 @@ function MyProjects() {
           </Section.TabBar>
           <div className="mv-mt-2 mv--mx-4 mv--mb-8">
             <CardContainer key={`projects`} type="multi row">
-              {loaderData.projects[projects as "admin"].map((project) => {
-                return (
-                  <ProjectCard
-                    key={project.slug}
-                    project={project}
-                    mode={projects as "admin"}
-                  />
-                );
-              })}
+              {loaderData.projects[projects as "adminProjects"].map(
+                (project) => {
+                  return (
+                    <ProjectCard
+                      key={project.slug}
+                      project={project}
+                      mode={
+                        projects === "adminProjects" ? "admin" : "teamMember"
+                      }
+                    />
+                  );
+                }
+              )}
             </CardContainer>
           </div>
         </Section>

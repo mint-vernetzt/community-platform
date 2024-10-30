@@ -68,15 +68,16 @@ function HeaderLogo() {
 }
 
 type NextNavBarProps = {
-  sessionUserInfo?: NextSessionUserInfo;
+  sessionUserInfo?: SessionUserInfo;
   openNavBarMenuKey: string;
 };
 
-type NextSessionUserInfo = {
+type SessionUserInfo = {
   username: string;
   firstName: string;
   lastName: string;
-  avatar?: string;
+  avatar: string | null;
+  blurredAvatar?: string;
 };
 
 function NavBar(props: NextNavBarProps) {
@@ -118,6 +119,7 @@ function NavBar(props: NextNavBarProps) {
               firstName={props.sessionUserInfo.firstName}
               lastName={props.sessionUserInfo.lastName}
               avatar={props.sessionUserInfo.avatar}
+              blurredAvatar={props.sessionUserInfo.blurredAvatar}
               to={
                 props.sessionUserInfo !== undefined
                   ? `/profile/${props.sessionUserInfo.username}`
@@ -147,6 +149,7 @@ function NavBar(props: NextNavBarProps) {
                 firstName={props.sessionUserInfo.firstName}
                 lastName={props.sessionUserInfo.lastName}
                 avatar={props.sessionUserInfo.avatar}
+                blurredAvatar={props.sessionUserInfo.blurredAvatar}
                 to={
                   props.sessionUserInfo !== undefined
                     ? `/profile/${props.sessionUserInfo.username}`

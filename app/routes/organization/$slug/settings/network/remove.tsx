@@ -20,9 +20,12 @@ import i18next from "~/i18next.server";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { Avatar } from "@mint-vernetzt/components";
+import { Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 
 const i18nNS = [
-  "routes/organization/settings/network/remove",
+  "routes/organization/settings/network/index",
+  "routes/organization/settings/network/add",
   "datasets/organizationTypes",
 ];
 export const handle = {
@@ -82,7 +85,7 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 export function NetworkMemberRemoveForm(
-  props: NetworkMember & { slug: string }
+  props: Jsonify<NetworkMember & { slug: string }>
 ) {
   const fetcher = useFetcher<typeof action>();
   const { t } = useTranslation(i18nNS);
@@ -104,7 +107,12 @@ export function NetworkMemberRemoveForm(
           <div className="w-full flex items-center flex-row flex-nowrap border-b border-neutral-400 py-4 @md:mv-px-4">
             <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
               {networkMember.logo !== null && networkMember.logo !== "" ? (
-                <img src={networkMember.logo} alt={networkMember.name} />
+                <Avatar
+                  name={networkMember.name}
+                  logo={networkMember.logo}
+                  blurredLogo={networkMember.blurredLogo}
+                  size="full"
+                />
               ) : (
                 <>{initials}</>
               )}

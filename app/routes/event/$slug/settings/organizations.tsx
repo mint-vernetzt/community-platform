@@ -1,3 +1,4 @@
+import { Avatar } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -8,6 +9,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -15,11 +17,13 @@ import {
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { GravityType, getImageURL } from "~/images.server";
+import i18next from "~/i18next.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { detectLanguage } from "~/root.server";
 import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -37,9 +41,6 @@ import {
   type action as removeOrganizationAction,
   removeOrganizationSchema,
 } from "./organizations/remove-organization";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
 
 const i18nNS = [
   "routes/event/settings/organizations",
@@ -72,16 +73,37 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const organizations = getResponsibleOrganizationDataFromEvent(event);
 
   const enhancedOrganizations = organizations.map((organization) => {
-    if (organization.logo !== null) {
-      const publicURL = getPublicURL(authClient, organization.logo);
+    let logo = organization.logo;
+    let blurredLogo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
-        organization.logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
-          gravity: GravityType.center,
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width:
+              ImageSizes.Organization.ListItemEventAndOrganizationSettings.Logo
+                .width,
+            height:
+              ImageSizes.Organization.ListItemEventAndOrganizationSettings.Logo
+                .height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width:
+              ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                .BlurredLogo.width,
+            height:
+              ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                .BlurredLogo.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return organization;
+    return { ...organization, logo, blurredLogo };
   });
 
   const alreadyResponsibleOrganizationSlugs = organizations.map(
@@ -97,16 +119,37 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const enhancedOwnOrganizations = ownOrganizationsSuggestions.map(
     (organization) => {
-      if (organization.logo !== null) {
-        const publicURL = getPublicURL(authClient, organization.logo);
+      let logo = organization.logo;
+      let blurredLogo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
-          organization.logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
-            gravity: GravityType.center,
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width:
+                ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                  .Logo.width,
+              height:
+                ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                  .Logo.height,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width:
+                ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                  .BlurredLogo.width,
+              height:
+                ImageSizes.Organization.ListItemEventAndOrganizationSettings
+                  .BlurredLogo.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return organization;
+      return { ...organization, logo, blurredLogo };
     }
   );
 
@@ -227,7 +270,12 @@ function Organizations() {
                     <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                       {organization.logo !== null &&
                       organization.logo !== "" ? (
-                        <img src={organization.logo} alt={organization.name} />
+                        <Avatar
+                          size="full"
+                          name={organization.name}
+                          logo={organization.logo}
+                          blurredLogo={organization.blurredLogo}
+                        />
                       ) : (
                         <>{initials}</>
                       )}
@@ -306,7 +354,12 @@ function Organizations() {
               >
                 <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                   {organization.logo !== null && organization.logo !== "" ? (
-                    <img src={organization.logo} alt={organization.name} />
+                    <Avatar
+                      size="full"
+                      name={organization.name}
+                      logo={organization.logo}
+                      blurredLogo={organization.blurredLogo}
+                    />
                   ) : (
                     <>{initials}</>
                   )}

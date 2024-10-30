@@ -2,7 +2,12 @@ import type { Event, Prisma } from "@prisma/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
-import { getImageURL } from "~/images.server";
+import {
+  BlurFactor,
+  DefaultImages,
+  getImageURL,
+  ImageSizes,
+} from "~/images.server";
 import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
 import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma.server";
@@ -559,15 +564,34 @@ export async function getParentEventSuggestions(
 
   const enhancedParentEventSuggestions = parentEventSuggestions.map(
     (parentEvent) => {
-      if (parentEvent.background !== null) {
-        const publicURL = getPublicURL(authClient, parentEvent.background);
+      let background = parentEvent.background;
+      let blurredBackground;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
         if (publicURL !== null) {
-          parentEvent.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
+          background = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Event.ListItemEventSettings.Background.width,
+              height: ImageSizes.Event.ListItemEventSettings.Background.height,
+            },
+          });
+          blurredBackground = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width:
+                ImageSizes.Event.ListItemEventSettings.BlurredBackground.width,
+              height:
+                ImageSizes.Event.ListItemEventSettings.BlurredBackground.height,
+            },
+            blur: BlurFactor,
           });
         }
+      } else {
+        background = DefaultImages.Event.Background;
+        blurredBackground = DefaultImages.Event.BlurredBackground;
       }
-      return parentEvent;
+      return { ...parentEvent, background, blurredBackground };
     }
   );
   return enhancedParentEventSuggestions;
@@ -658,15 +682,34 @@ export async function getChildEventSuggestions(
 
   const enhancedChildEventSuggestions = childEventSuggestions.map(
     (childEvent) => {
-      if (childEvent.background !== null) {
-        const publicURL = getPublicURL(authClient, childEvent.background);
+      let background = childEvent.background;
+      let blurredBackground;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
         if (publicURL !== null) {
-          childEvent.background = getImageURL(publicURL, {
-            resize: { type: "fit", width: 160, height: 160 },
+          background = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Event.ListItemEventSettings.Background.width,
+              height: ImageSizes.Event.ListItemEventSettings.Background.height,
+            },
+          });
+          blurredBackground = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width:
+                ImageSizes.Event.ListItemEventSettings.BlurredBackground.width,
+              height:
+                ImageSizes.Event.ListItemEventSettings.BlurredBackground.height,
+            },
+            blur: BlurFactor,
           });
         }
+      } else {
+        background = DefaultImages.Event.Background;
+        blurredBackground = DefaultImages.Event.BlurredBackground;
       }
-      return childEvent;
+      return { ...childEvent, background, blurredBackground };
     }
   );
   return enhancedChildEventSuggestions;

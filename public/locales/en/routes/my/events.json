@@ -19,10 +19,10 @@
         "title": "Past Events"
     },
     "tabBar": {
-        "admin": "Admin",
-        "teamMember": "Team Member",
-        "speaker": "Speaker",
-        "participant": "Participant",
-        "waitingList": "Waiting List"
+        "adminEvents": "Admin",
+        "teamMemberEvents": "Team Member",
+        "speakerEvents": "Speaker",
+        "participantEvents": "Participant",
+        "waitingListEvents": "Waiting List"
     }
 }

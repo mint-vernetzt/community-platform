@@ -1,7 +1,7 @@
 import { type Prisma } from "@prisma/client";
 import { type User } from "@supabase/supabase-js";
 import { createAuthClient } from "~/auth.server";
-import { getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -81,17 +81,31 @@ export async function getOrganizationsToAdd(
 
   const withImage = organizations.map((organization) => {
     let logo = organization.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 144 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.Logo.width,
+            height: ImageSizes.Organization.ListItem.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+            height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
     return {
       ...organization,
       logo,
+      blurredLogo,
     };
   });
 

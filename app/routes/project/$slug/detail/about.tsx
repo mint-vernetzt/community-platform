@@ -3,7 +3,7 @@ import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
-import { getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -176,44 +176,91 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 404,
   });
 
-  if (project.logo !== null) {
-    const publicURL = getPublicURL(authClient, project.logo);
+  let logo = project.logo;
+  let blurredLogo;
+  if (logo !== null) {
+    const publicURL = getPublicURL(authClient, logo);
     if (publicURL) {
-      const logo = getImageURL(publicURL, {
-        resize: { type: "fill", width: 256, height: 256 },
+      logo = getImageURL(publicURL, {
+        resize: { type: "fill", ...ImageSizes.Project.Detail.ContactLogo },
       });
-      project.logo = logo;
+      blurredLogo = getImageURL(publicURL, {
+        resize: {
+          type: "fill",
+          ...ImageSizes.Project.Detail.BlurredContactLogo,
+        },
+        blur: BlurFactor,
+      });
     }
   }
 
-  project.teamMembers = project.teamMembers.map((relation) => {
+  const teamMembers = project.teamMembers.map((relation) => {
     let avatar = relation.profile.avatar;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 38, height: 38 },
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.ListItemProjectDetailAndSettings.Avatar,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.ListItemProjectDetailAndSettings
+              .BlurredAvatar,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return { ...relation, profile: { ...relation.profile, avatar } };
+    return {
+      ...relation,
+      profile: { ...relation.profile, avatar, blurredAvatar },
+    };
   });
-  project.responsibleOrganizations = project.responsibleOrganizations.map(
+
+  const responsibleOrganizations = project.responsibleOrganizations.map(
     (relation) => {
       let logo = relation.organization.logo;
+      let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 38, height: 38 },
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItemProjectDetailAndSettings.Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItemProjectDetailAndSettings
+                .BlurredLogo,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return { ...relation, organization: { ...relation.organization, logo } };
+      return {
+        ...relation,
+        organization: { ...relation.organization, logo, blurredLogo },
+      };
     }
   );
 
-  return json({ project });
+  const enhancedProject = {
+    ...project,
+    logo,
+    blurredLogo,
+    teamMembers,
+    responsibleOrganizations,
+  };
+
+  return json({ project: enhancedProject });
 };
 
 function About() {
@@ -507,6 +554,7 @@ function About() {
                       firstName={relation.profile.firstName}
                       lastName={relation.profile.lastName}
                       avatar={relation.profile.avatar}
+                      blurredAvatar={relation.profile.blurredAvatar}
                     />
                   </Link>
                 </List.Item>
@@ -550,6 +598,7 @@ function About() {
                     <Avatar
                       name={relation.organization.name}
                       logo={relation.organization.logo}
+                      blurredLogo={relation.organization.blurredLogo}
                     />
                   </Link>
                 </List.Item>
@@ -563,6 +612,7 @@ function About() {
           <div className="mv-w-64 mv-aspect-[1]">
             <AvatarIcon
               logo={loaderData.project.logo}
+              blurredLogo={loaderData.project.blurredLogo}
               name={loaderData.project.name}
             />
           </div>

@@ -2,6 +2,7 @@ import classNames from "classnames";
 import React from "react";
 import Avatar from "../../molecules/Avatar";
 import { ChipContainer } from "../../molecules/Chip";
+import { Image } from "@mint-vernetzt/components";
 
 export type CardProps = {
   children?: React.ReactNode;
@@ -62,7 +63,7 @@ export function CardHeader(props: CardHeaderProps) {
     return (child as React.ReactElement).type === CardStatus;
   });
   const image = validChildren.find((child) => {
-    return (child as React.ReactElement).type === CardImage;
+    return (child as React.ReactElement).type === Image;
   });
   const avatar = validChildren.find((child) => {
     return (child as React.ReactElement).type === Avatar;

@@ -1,7 +1,12 @@
 import type { Profile } from "@prisma/client";
 import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import { getImageURL } from "~/images.server";
+import {
+  BlurFactor,
+  DefaultImages,
+  getImageURL,
+  ImageSizes,
+} from "~/images.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
@@ -209,65 +214,88 @@ export async function updateFilterVectorOfProfile(profileId: string) {
 }
 
 export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
-  let avatar = null;
-  if (profile.avatar !== null) {
-    const publicURL = getPublicURL(authClient, profile.avatar);
+  let avatar = profile.avatar;
+  let blurredAvatar;
+  if (avatar !== null) {
+    const publicURL = getPublicURL(authClient, avatar);
     if (publicURL !== null) {
       avatar = getImageURL(publicURL, {
-        resize: { type: "fill", width: 144, height: 144 },
+        resize: { type: "fill", ...ImageSizes.Profile.Detail.Avatar },
+      });
+      blurredAvatar = getImageURL(publicURL, {
+        resize: { type: "fill", ...ImageSizes.Profile.Detail.BlurredAvatar },
+        blur: BlurFactor,
       });
     }
   }
-  let background = null;
-  if (profile.background !== null) {
-    const publicURL = getPublicURL(authClient, profile.background);
+  let background = profile.background;
+  let blurredBackground;
+  if (background !== null) {
+    const publicURL = getPublicURL(authClient, background);
     if (publicURL !== null) {
       background = getImageURL(publicURL, {
-        resize: { type: "fill", width: 1488, height: 480 },
+        resize: { type: "fill", ...ImageSizes.Profile.Detail.Background },
+      });
+      blurredBackground = getImageURL(publicURL, {
+        resize: {
+          type: "fill",
+          ...ImageSizes.Profile.Detail.BlurredBackground,
+        },
+        blur: BlurFactor,
       });
     }
   }
   const memberOf = profile.memberOf.map((relation) => {
     let logo = relation.organization.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 64, height: 64 },
+          resize: {
+            type: "fill",
+            ...ImageSizes.Organization.ListItemProfileDetail.Logo,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Organization.ListItemProfileDetail.BlurredLogo,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return { ...relation, organization: { ...relation.organization, logo } };
+    return {
+      ...relation,
+      organization: { ...relation.organization, logo, blurredLogo },
+    };
   });
   const teamMemberOfProjects = profile.teamMemberOfProjects.map(
     (projectRelation) => {
       let projectLogo = projectRelation.project.logo;
+      let blurredLogo;
       if (projectLogo !== null) {
         const publicURL = getPublicURL(authClient, projectLogo);
         if (publicURL !== null) {
           projectLogo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 64, height: 64 },
+            resize: {
+              type: "fill",
+              ...ImageSizes.Project.ListItemProfileDetail.Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Project.ListItemProfileDetail.BlurredLogo,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      const awards = projectRelation.project.awards.map((awardRelation) => {
-        let awardLogo = awardRelation.award.logo;
-        if (awardLogo !== null) {
-          const publicURL = getPublicURL(authClient, awardLogo);
-          if (publicURL !== null) {
-            awardLogo = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
-            });
-          }
-        }
-        return {
-          ...awardRelation,
-          award: { ...awardRelation.award, logo: awardLogo },
-        };
-      });
       return {
         ...projectRelation,
-        project: { ...projectRelation.project, awards, logo: projectLogo },
+        project: { ...projectRelation.project, logo: projectLogo, blurredLogo },
       };
     }
   );
@@ -279,13 +307,22 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
         background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 96 },
+          resize: {
+            type: "fill",
+            ...ImageSizes.Event.ListItem.Background,
+          },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 9, height: 6 },
-          blur: 5,
+          resize: {
+            type: "fill",
+            ...ImageSizes.Event.ListItem.BlurredBackground,
+          },
+          blur: BlurFactor,
         });
       }
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...relation,
@@ -300,13 +337,22 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
         background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 96 },
+          resize: {
+            type: "fill",
+            ...ImageSizes.Event.ListItem.Background,
+          },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 9, height: 6 },
-          blur: 5,
+          resize: {
+            type: "fill",
+            ...ImageSizes.Event.ListItem.BlurredBackground,
+          },
+          blur: BlurFactor,
         });
       }
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...relation,
@@ -321,13 +367,22 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
         background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 96 },
+          resize: {
+            type: "fill",
+            ...ImageSizes.Event.ListItem.Background,
+          },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 9, height: 6 },
-          blur: 5,
+          resize: {
+            type: "fill",
+            ...ImageSizes.Event.ListItem.BlurredBackground,
+          },
+          blur: BlurFactor,
         });
       }
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...relation,
@@ -342,13 +397,22 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
         background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 96 },
+          resize: {
+            type: "fill",
+            ...ImageSizes.Event.ListItem.Background,
+          },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 9, height: 6 },
-          blur: 5,
+          resize: {
+            type: "fill",
+            ...ImageSizes.Event.ListItem.BlurredBackground,
+          },
+          blur: BlurFactor,
         });
       }
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...relation,
@@ -363,13 +427,22 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
         background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 96 },
+          resize: {
+            type: "fill",
+            ...ImageSizes.Event.ListItem.Background,
+          },
         });
         blurredBackground = getImageURL(publicURL, {
-          resize: { type: "fill", width: 9, height: 6 },
-          blur: 5,
+          resize: {
+            type: "fill",
+            ...ImageSizes.Event.ListItem.BlurredBackground,
+          },
+          blur: BlurFactor,
         });
       }
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...relation,
@@ -380,7 +453,9 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   return {
     ...profile,
     avatar,
+    blurredAvatar,
     background,
+    blurredBackground,
     memberOf,
     teamMemberOfProjects,
     teamMemberOfEvents,

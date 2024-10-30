@@ -25,8 +25,13 @@ import { useTranslation } from "react-i18next";
 import i18next from "~/i18next.server";
 import { type TFunction } from "i18next";
 import { detectLanguage } from "~/root.server";
+import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 
-const i18nNS = ["routes/organization/settings/network/add"];
+const i18nNS = [
+  "routes/organization/settings/network/index",
+  "routes/organization/settings/network/add",
+  "datasets/organizationTypes",
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -89,9 +94,7 @@ export const loader = async () => {
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/network/add",
-  ]);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -116,7 +119,7 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 type NetworkMemberProps = {
-  networkMemberSuggestions: NetworkMemberSuggestions;
+  networkMemberSuggestions: Jsonify<NetworkMemberSuggestions> | undefined;
 };
 
 function Add(props: NetworkMemberProps) {
@@ -149,7 +152,9 @@ function Add(props: NetworkMemberProps) {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="name" className="label">
-                    {t("content.label")}
+                    {t("content.label", {
+                      ns: "routes/organization/settings/network/add",
+                    })}
                   </label>
                 </div>
               </div>

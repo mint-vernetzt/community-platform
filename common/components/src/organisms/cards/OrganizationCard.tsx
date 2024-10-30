@@ -7,12 +7,12 @@ import {
   CardBodySection,
   CardFooter,
   CardHeader,
-  CardImage,
   CardStatus,
 } from "./Card";
 import { useTranslation } from "react-i18next";
 import { Link, type useFetcher } from "@remix-run/react";
 import { type action as quitAction } from "~/routes/my/organizations/quit";
+import { Image } from "@mint-vernetzt/components";
 
 export type OrganizationCardProps = {
   match?: number;
@@ -25,7 +25,9 @@ export type OrganizationCardProps = {
     slug: string;
     name: string;
     logo?: string | null;
+    blurredLogo?: string;
     background?: string | null;
+    blurredBackground?: string;
     focuses: string[];
     areas: string[];
     types: string[];
@@ -87,7 +89,11 @@ function OrganizationCard(
         <CardHeader>
           <Avatar {...organization} size="xl" />
           {organization.background && (
-            <CardImage src={organization.background} />
+            <Image
+              alt={organization.name}
+              src={organization.background}
+              blurredSrc={organization.blurredBackground}
+            />
           )}
           {props.match !== undefined && (
             <CardStatus>

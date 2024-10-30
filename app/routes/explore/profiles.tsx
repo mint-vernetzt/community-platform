@@ -29,7 +29,7 @@ import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import { getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import {
@@ -182,42 +182,95 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
 
     // Add image urls for image proxy
-    if (enhancedProfile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, enhancedProfile.avatar);
+    let avatar = enhancedProfile.avatar;
+    let blurredAvatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
-        enhancedProfile.avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 136, height: 136 },
+        avatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.Card.Avatar.width,
+            height: ImageSizes.Profile.Card.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.Card.BlurredAvatar.width,
+            height: ImageSizes.Profile.Card.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    if (enhancedProfile.background !== null) {
-      const publicURL = getPublicURL(authClient, enhancedProfile.background);
+    let background = enhancedProfile.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
-        enhancedProfile.background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 348, height: 160 },
+        background = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.Card.Background.width,
+            height: ImageSizes.Profile.Card.Background.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.Card.BlurredBackground.width,
+            height: ImageSizes.Profile.Card.BlurredBackground.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    enhancedProfile.memberOf = enhancedProfile.memberOf.map((relation) => {
+    const memberOf = enhancedProfile.memberOf.map((relation) => {
       let logo = relation.organization.logo;
+      let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 36, height: 36 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.CardFooter.Logo.width,
+            height: ImageSizes.Organization.CardFooter.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.CardFooter.BlurredLogo.width,
+            height: ImageSizes.Organization.CardFooter.BlurredLogo.height,
+          },
+          blur: BlurFactor,
         });
       }
-      return { ...relation, organization: { ...relation.organization, logo } };
+      return {
+        ...relation,
+        organization: { ...relation.organization, logo, blurredLogo },
+      };
     });
 
-    const transformedProfile = {
+    const imageEnhancedProfile = {
       ...enhancedProfile,
-      memberOf: enhancedProfile.memberOf.map((relation) => {
+      avatar,
+      blurredAvatar,
+      background,
+      blurredBackground,
+      memberOf,
+    };
+
+    const transformedProfile = {
+      ...imageEnhancedProfile,
+      memberOf: imageEnhancedProfile.memberOf.map((relation) => {
         return relation.organization;
       }),
-      offers: enhancedProfile.offers.map((relation) => {
+      offers: imageEnhancedProfile.offers.map((relation) => {
         return relation.offer.slug;
       }),
-      areas: enhancedProfile.areas.map((relation) => {
+      areas: imageEnhancedProfile.areas.map((relation) => {
         return relation.area.name;
       }),
     };

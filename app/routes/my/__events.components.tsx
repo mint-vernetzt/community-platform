@@ -254,20 +254,20 @@ Placeholder.Text = PlaceholderText;
 
 type ButtonProps = PropsWithChildren<{
   children: React.ReactNode;
-  style?: "primary" | "secondary";
+  variant?: "primary" | "secondary";
 }>;
 
 export function Button(props: ButtonProps) {
-  const { style = "primary" } = props;
+  const { variant = "primary" } = props;
 
   const classes = classNames(
     "mv-font-semibold",
     "mv-inline-flex mv-rounded-lg mv-shrink-0 mv-cursor-pointer mv-user-select-none mv-flex-wrap mv-align-center mv-justify-center mv-px-4 mv-text-sm mv-text-center mv-leading-5",
     "mv-whitespace-nowrap",
     "mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border",
-    style === "primary" &&
+    variant === "primary" &&
       "mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-border-transparent",
-    style === "secondary" &&
+    variant === "secondary" &&
       "mv-bg-neutral-50 mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-100 active:mv-bg-primary-100 mv-border-primary",
     "mv-gap-2"
   );
@@ -299,8 +299,8 @@ export function AddIcon() {
 }
 
 function ListItemImage(props: {
-  src: string | null;
-  blurredSrc?: string;
+  src: string;
+  blurredSrc: string;
   alt: string;
 }) {
   const imgRef = React.useRef<HTMLImageElement | null>(null);
@@ -337,9 +337,7 @@ function ListItemImage(props: {
       <div className="w-36 h-full relative">
         <img
           ref={blurredImgRef}
-          src={
-            props.blurredSrc || "/images/default-event-background-blurred.jpg" // TODO: Constant
-          }
+          src={props.blurredSrc}
           alt=""
           onLoad={() => {
             setBlurredImgLoaded(true);
@@ -348,7 +346,7 @@ function ListItemImage(props: {
         />
         <img
           ref={imgRef}
-          src={props.src || "/images/default-event-background.jpg"} // TODO: Constant
+          src={props.src}
           alt={props.alt}
           onLoad={() => {
             setImgLoaded(true);
@@ -356,11 +354,7 @@ function ListItemImage(props: {
           className={classes}
         />
         <noscript>
-          <img
-            src={props.src || "/images/default-event-background.jpg"} // TODO: Constant
-            alt={props.alt}
-            className={baseClasses}
-          />
+          <img src={props.src} alt={props.alt} className={baseClasses} />
         </noscript>
       </div>
     </div>
@@ -368,7 +362,11 @@ function ListItemImage(props: {
 }
 
 function EventListItemFlag(props: { canceled?: boolean; published?: boolean }) {
-  const { t } = useTranslation("components");
+  const { t } = useTranslation([
+    "routes/my/events",
+    "components",
+    "datasets/stages",
+  ]);
 
   const classes = classNames(
     "mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-pr-4 mv-py-6",
@@ -380,9 +378,13 @@ function EventListItemFlag(props: { canceled?: boolean; published?: boolean }) {
   );
 
   return typeof props.canceled === "boolean" && props.canceled ? (
-    <div className={classes}>{t("EventListItemFlag.canceled")}</div>
+    <div className={classes}>
+      {t("EventListItemFlag.canceled", { ns: "components" })}
+    </div>
   ) : typeof props.published === "boolean" && props.published === false ? (
-    <div className={classes}>{t("EventListItemFlag.draft")}</div>
+    <div className={classes}>
+      {t("EventListItemFlag.draft", { ns: "components" })}
+    </div>
   ) : null;
 }
 
@@ -405,7 +407,11 @@ function EventListItemContent(props: {
 }) {
   const { event } = props;
 
-  const { t, i18n } = useTranslation(["components", "datasets/stages"]);
+  const { t, i18n } = useTranslation([
+    "routes/my/events",
+    "components",
+    "datasets/stages",
+  ]);
 
   const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
   const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
@@ -420,12 +426,14 @@ function EventListItemContent(props: {
           {getDuration(startTime, endTime, i18n.language)}
 
           {event.participantLimit === null &&
-            ` | ${t("EventListItemContent.unlimitedSeats")}`}
+            ` | ${t("EventListItemContent.unlimitedSeats", {
+              ns: "components",
+            })}`}
           {event.participantLimit !== null &&
             event.participantLimit - event._count.participants > 0 &&
             ` | ${event.participantLimit - event._count.participants} / ${
               event.participantLimit
-            } ${t("EventListItemContent.seatsFree")}`}
+            } ${t("EventListItemContent.seatsFree", { ns: "components" })}`}
 
           {event.participantLimit !== null &&
           event.participantLimit - event._count.participants <= 0 ? (
@@ -434,7 +442,7 @@ function EventListItemContent(props: {
               |{" "}
               <span>
                 {event._count.waitingList}{" "}
-                {t("EventListItemContent.onWaitingList")}
+                {t("EventListItemContent.onWaitingList", { ns: "components" })}
               </span>
             </>
           ) : null}

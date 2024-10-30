@@ -30,11 +30,11 @@ export async function storeDocument(
     return result.error;
   }
 
-  // validate persisency in storage
+  // validate persistency in storage
   const publicURL = getPublicURL(authClient, "documents", path);
 
   if (publicURL === null) {
-    return new Error("Persisency check failed.");
+    return new Error("Persistency check failed.");
   }
 
   await prismaClient.project.update({
@@ -89,11 +89,11 @@ export async function storeImage(
     return result.error;
   }
 
-  // validate persisency in storage
+  // validate persistency in storage
   const publicURL = getPublicURL(authClient, "images", path);
 
   if (publicURL === null) {
-    return new Error("Persisency check failed.");
+    return new Error("Persistency check failed.");
   }
 
   await prismaClient.project.update({

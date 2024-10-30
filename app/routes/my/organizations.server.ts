@@ -1,5 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
@@ -144,12 +144,26 @@ export function addImageUrlToOrganizations(
   const adminOrganizations = organizations.adminOrganizations.map(
     (organization) => {
       let background = organization.background;
+      let blurredBackground;
       let logo = organization.logo;
+      let blurredLogo;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL !== null) {
           background = getImageURL(publicURL, {
-            resize: { type: "fill", width: 348, height: 160 },
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.Card.Background.width,
+              height: ImageSizes.Organization.Card.Background.height,
+            },
+          });
+          blurredBackground = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.Card.BlurredBackground.width,
+              height: ImageSizes.Organization.Card.BlurredBackground.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
@@ -157,17 +171,42 @@ export function addImageUrlToOrganizations(
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 136, height: 136 },
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.Card.Logo.width,
+              height: ImageSizes.Organization.Card.Logo.height,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.Card.BlurredLogo.width,
+              height: ImageSizes.Organization.Card.BlurredLogo.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
       const teamMembers = organization.teamMembers.map((relation) => {
         let avatar = relation.profile.avatar;
+        let blurredAvatar;
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
           if (publicURL !== null) {
             avatar = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
+              resize: {
+                type: "fill",
+                width: ImageSizes.Profile.CardFooter.Avatar.width,
+                height: ImageSizes.Profile.CardFooter.Avatar.height,
+              },
+            });
+            blurredAvatar = getImageURL(publicURL, {
+              resize: {
+                type: "fill",
+                width: ImageSizes.Profile.CardFooter.BlurredAvatar.width,
+                height: ImageSizes.Profile.CardFooter.BlurredAvatar.height,
+              },
+              blur: BlurFactor,
             });
           }
         }
@@ -176,13 +215,16 @@ export function addImageUrlToOrganizations(
           profile: {
             ...relation.profile,
             avatar,
+            blurredAvatar,
           },
         };
       });
       return {
         ...organization,
         logo,
+        blurredLogo,
         background,
+        blurredBackground,
         teamMembers,
       };
     }
@@ -191,12 +233,26 @@ export function addImageUrlToOrganizations(
   const teamMemberOrganizations = organizations.teamMemberOrganizations.map(
     (organization) => {
       let background = organization.background;
+      let blurredBackground;
       let logo = organization.logo;
+      let blurredLogo;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL !== null) {
           background = getImageURL(publicURL, {
-            resize: { type: "fill", width: 348, height: 160 },
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.Card.Background.width,
+              height: ImageSizes.Organization.Card.Background.height,
+            },
+          });
+          blurredBackground = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.Card.BlurredBackground.width,
+              height: ImageSizes.Organization.Card.BlurredBackground.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
@@ -204,17 +260,42 @@ export function addImageUrlToOrganizations(
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 136, height: 136 },
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.Card.Logo.width,
+              height: ImageSizes.Organization.Card.Logo.height,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.Card.BlurredLogo.width,
+              height: ImageSizes.Organization.Card.BlurredLogo.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
       const teamMembers = organization.teamMembers.map((relation) => {
         let avatar = relation.profile.avatar;
+        let blurredAvatar;
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
           if (publicURL !== null) {
             avatar = getImageURL(publicURL, {
-              resize: { type: "fill", width: 64, height: 64 },
+              resize: {
+                type: "fill",
+                width: ImageSizes.Profile.CardFooter.Avatar.width,
+                height: ImageSizes.Profile.CardFooter.Avatar.height,
+              },
+            });
+            blurredAvatar = getImageURL(publicURL, {
+              resize: {
+                type: "fill",
+                width: ImageSizes.Profile.CardFooter.BlurredAvatar.width,
+                height: ImageSizes.Profile.CardFooter.BlurredAvatar.height,
+              },
+              blur: BlurFactor,
             });
           }
         }
@@ -223,13 +304,16 @@ export function addImageUrlToOrganizations(
           profile: {
             ...relation.profile,
             avatar,
+            blurredAvatar,
           },
         };
       });
       return {
         ...organization,
         logo,
+        blurredLogo,
         background,
+        blurredBackground,
         teamMembers,
       };
     }
@@ -364,11 +448,24 @@ export function addImageUrlToInvites(
 ) {
   const adminInvites = invites.adminInvites.map((invite) => {
     let logo = invite.organization.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 144 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.Logo.width,
+            height: ImageSizes.Organization.ListItem.Logo.width,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+            height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
@@ -377,17 +474,31 @@ export function addImageUrlToInvites(
       organization: {
         ...invite.organization,
         logo,
+        blurredLogo,
       },
     };
   });
 
   const teamMemberInvites = invites.teamMemberInvites.map((invite) => {
     let logo = invite.organization.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logo = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 144 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.Logo.width,
+            height: ImageSizes.Organization.ListItem.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+            height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
@@ -396,6 +507,7 @@ export function addImageUrlToInvites(
       organization: {
         ...invite.organization,
         logo,
+        blurredLogo,
       },
     };
   });
@@ -583,11 +695,24 @@ export function addImageUrlToRequests(
       const profileJoinRequests = organization.profileJoinRequests.map(
         (relation) => {
           let avatar = relation.profile.avatar;
+          let blurredAvatar;
           if (avatar !== null) {
             const publicURL = getPublicURL(authClient, avatar);
             if (publicURL !== null) {
               avatar = getImageURL(publicURL, {
-                resize: { type: "fill", width: 144, height: 144 },
+                resize: {
+                  type: "fill",
+                  width: ImageSizes.Profile.ListItem.Avatar.width,
+                  height: ImageSizes.Profile.ListItem.Avatar.height,
+                },
+              });
+              blurredAvatar = getImageURL(publicURL, {
+                resize: {
+                  type: "fill",
+                  width: ImageSizes.Profile.ListItem.BlurredAvatar.width,
+                  height: ImageSizes.Profile.ListItem.BlurredAvatar.height,
+                },
+                blur: BlurFactor,
               });
             }
           }
@@ -596,6 +721,7 @@ export function addImageUrlToRequests(
             profile: {
               ...relation.profile,
               avatar,
+              blurredAvatar,
             },
           };
         }

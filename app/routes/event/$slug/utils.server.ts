@@ -1,17 +1,22 @@
 import type { Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
-import type { SupabaseClient, User } from "@supabase/supabase-js";
-import { prismaClient } from "~/prisma.server";
-import type { ArrayElement } from "~/lib/utils/types";
 import { json } from "@remix-run/server-runtime";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
+import {
+  BlurFactor,
+  DefaultImages,
+  ImageSizes,
+  getImageURL,
+} from "~/images.server";
+import type { ArrayElement } from "~/lib/utils/types";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
+import { prismaClient } from "~/prisma.server";
 import { filterProfileByVisibility as legacy_filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { GravityType, getImageURL } from "~/images.server";
 
 export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
   const result = await prismaClient.eventVisibility.findFirst({
@@ -527,7 +532,8 @@ export async function enhanceChildEventsWithParticipationStatus(
   sessionUser: User | null,
   childEvents: Array<
     ArrayElement<Pick<EventQuery, "childEvents">["childEvents"]> & {
-      blurredBackground: string | null;
+      blurredBackground?: string;
+      background: string;
     }
   >
 ) {
@@ -726,76 +732,144 @@ export function addImgUrls(
     participants: ParticipantsQuery | FullDepthProfilesQuery;
   } & { speakers: SpeakersQuery | FullDepthProfilesQuery }
 ) {
-  let blurredBackground = null;
-  let background = null;
-  if (event.background !== null) {
-    const publicURL = getPublicURL(authClient, event.background);
+  let blurredBackground;
+  let background = event.background;
+  if (background !== null) {
+    const publicURL = getPublicURL(authClient, background);
     if (publicURL) {
       background = getImageURL(publicURL, {
-        resize: { type: "fit", width: 1488, height: 480 },
+        resize: {
+          type: "fill",
+          width: ImageSizes.Event.Detail.Background.width,
+          height: ImageSizes.Event.Detail.Background.height,
+        },
       });
       blurredBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 31, height: 10 },
-        blur: 5,
+        resize: {
+          type: "fill",
+          width: ImageSizes.Event.Detail.BlurredBackground.width,
+          height: ImageSizes.Event.Detail.BlurredBackground.height,
+        },
+        blur: BlurFactor,
       });
     }
+  } else {
+    background = DefaultImages.Event.Background;
+    blurredBackground = DefaultImages.Event.BlurredBackground;
   }
 
   const speakers = event.speakers.map((relation) => {
     let avatar = relation.profile.avatar;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 42, height: 42 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemEventDetail.Avatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return { ...relation, profile: { ...relation.profile, avatar } };
+    return {
+      ...relation,
+      profile: { ...relation.profile, avatar, blurredAvatar },
+    };
   });
 
   const teamMembers = event.teamMembers.map((relation) => {
     let avatar = relation.profile.avatar;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 42, height: 42 },
-          gravity: GravityType.center,
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemEventDetail.Avatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return { ...relation, profile: { ...relation.profile, avatar } };
+    return {
+      ...relation,
+      profile: { ...relation.profile, avatar, blurredAvatar },
+    };
   });
 
   const participants = event.participants.map((relation) => {
     let avatar = relation.profile.avatar;
+    let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatar = getImageURL(publicURL, {
-          resize: { type: "fill", width: 42, height: 42 },
-          gravity: GravityType.center,
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemEventDetail.Avatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.width,
+            height: ImageSizes.Profile.ListItemEventDetail.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
         });
       }
     }
-    return { ...relation, profile: { ...relation.profile, avatar } };
+    return {
+      ...relation,
+      profile: { ...relation.profile, avatar, blurredAvatar },
+    };
   });
 
   const childEvents = event.childEvents.map((relation) => {
     let background = relation.background;
-    let blurredBackground = null;
+    let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
         background = getImageURL(publicURL, {
-          resize: { type: "fill", width: 144, height: 96 },
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.ListItem.Background.width,
+            height: ImageSizes.Event.ListItem.Background.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.ListItem.BlurredBackground.width,
+            height: ImageSizes.Event.ListItem.BlurredBackground.height,
+          },
+          blur: BlurFactor,
         });
       }
-      blurredBackground = getImageURL(publicURL, {
-        resize: { type: "fill", width: 9, height: 6 },
-        blur: 5,
-      });
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
     return {
       ...relation,
@@ -807,15 +881,37 @@ export function addImgUrls(
   const responsibleOrganizations = event.responsibleOrganizations.map(
     (relation) => {
       let logo = relation.organization.logo;
+      let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
-        if (publicURL) {
+        if (publicURL !== null) {
           logo = getImageURL(publicURL, {
-            resize: { type: "fill", width: 42, height: 42 },
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.ListItemEventDetail.Logo.width,
+              height: ImageSizes.Organization.ListItemEventDetail.Logo.height,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width:
+                ImageSizes.Organization.ListItemEventDetail.BlurredLogo.width,
+              height:
+                ImageSizes.Organization.ListItemEventDetail.BlurredLogo.height,
+            },
+            blur: BlurFactor,
           });
         }
       }
-      return { ...relation, organization: { ...relation.organization, logo } };
+      return {
+        ...relation,
+        organization: {
+          ...relation.organization,
+          logo,
+          blurredLogo,
+        },
+      };
     }
   );
 

@@ -14,7 +14,12 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
-import { getImageURL } from "~/images.server";
+import {
+  BlurFactor,
+  DefaultImages,
+  getImageURL,
+  ImageSizes,
+} from "~/images.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -44,6 +49,7 @@ import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { Image } from "@mint-vernetzt/components";
 
 const i18nNS = ["routes/event/settings/events", "datasets/stages"];
 export const handle = {
@@ -71,23 +77,67 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const enhancedChildEvents = event.childEvents.map((childEvent) => {
-    if (childEvent.background !== null) {
-      const publicURL = getPublicURL(authClient, childEvent.background);
+    let background = childEvent.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL) {
-        childEvent.background = getImageURL(publicURL, {
-          resize: { type: "fit", width: 160, height: 160 },
+        background = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.ListItemEventSettings.Background.width,
+            height: ImageSizes.Event.ListItemEventSettings.Background.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width:
+              ImageSizes.Event.ListItemEventSettings.BlurredBackground.width,
+            height:
+              ImageSizes.Event.ListItemEventSettings.BlurredBackground.height,
+          },
+          blur: BlurFactor,
         });
       }
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
-    return childEvent;
+    return { ...childEvent, background, blurredBackground };
   });
-  if (event.parentEvent !== null && event.parentEvent.background !== null) {
-    const publicURL = getPublicURL(authClient, event.parentEvent.background);
-    if (publicURL) {
-      event.parentEvent.background = getImageURL(publicURL, {
-        resize: { type: "fit", width: 160, height: 160 },
-      });
+  let enhancedParentEvent = null;
+  if (event.parentEvent !== null) {
+    let background = event.parentEvent.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL) {
+        background = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.ListItem.BlurredBackground.width,
+            height: ImageSizes.Event.ListItem.BlurredBackground.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.ListItem.BlurredBackground.width,
+            height: ImageSizes.Event.ListItem.BlurredBackground.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
     }
+    enhancedParentEvent = {
+      ...event.parentEvent,
+      background,
+      blurredBackground,
+    };
   }
 
   const url = new URL(request.url);
@@ -125,7 +175,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   return json({
-    parentEvent: event.parentEvent,
+    parentEvent: enhancedParentEvent,
     parentEventSuggestions,
     childEvents: enhancedChildEvents,
     childEventSuggestions,
@@ -257,13 +307,10 @@ function Events() {
                       to={`/event/${loaderData.parentEvent.slug}`}
                     >
                       <div className="hidden @xl:mv-block w-40 shrink-0">
-                        <img
-                          src={
-                            loaderData.parentEvent.background ||
-                            "/images/default-event-background.jpg"
-                          }
+                        <Image
                           alt={loaderData.parentEvent.name}
-                          className="object-cover w-full h-full"
+                          src={loaderData.parentEvent.background}
+                          blurredSrc={loaderData.parentEvent.blurredBackground}
                         />
                       </div>
                       <div className="px-4 py-6">
@@ -391,7 +438,6 @@ function Events() {
                         defaultValue={childEventSuggestionsQuery || ""}
                         {...register("childEventId")}
                         searchParameter="child_autocomplete_query"
-                        autoFocus={false}
                       />
                       <Errors />
                     </>
@@ -450,13 +496,10 @@ function Events() {
                       <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden">
                         <Link className="flex" to={`/event/${childEvent.slug}`}>
                           <div className="hidden @xl:mv-block w-40 shrink-0">
-                            <img
-                              src={
-                                childEvent.background ||
-                                "/images/default-event-background.jpg"
-                              }
+                            <Image
                               alt={childEvent.name}
-                              className="object-cover w-full h-full"
+                              src={childEvent.background}
+                              blurredSrc={childEvent.blurredBackground}
                             />
                           </div>
                           <div className="px-4 py-6">

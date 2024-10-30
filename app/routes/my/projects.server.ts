@@ -1,5 +1,5 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { getImageURL, ImageSizes } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
@@ -30,7 +30,7 @@ export async function getProjects(options: {
     },
   };
 
-  const [admin, teamMember] = await prismaClient.$transaction([
+  const [adminProjects, teamMemberProjects] = await prismaClient.$transaction([
     prismaClient.project.findMany({
       where: {
         admins: {
@@ -59,7 +59,7 @@ export async function getProjects(options: {
     }),
   ]);
 
-  const enhancedAdmin = admin.map((project) => {
+  const enhancedAdminProjects = adminProjects.map((project) => {
     let background = project.background;
     let blurredBackground;
 
@@ -73,28 +73,41 @@ export async function getProjects(options: {
           type: "fill",
           ...ImageSizes.Project.Card.BlurredBackground,
         },
-        blur: 5,
+        blur: BlurFactor,
       });
     }
 
     let logo = project.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       logo = getImageURL(publicURL, {
         resize: { type: "fill", ...ImageSizes.Project.Card.Logo },
+      });
+      blurredLogo = getImageURL(publicURL, {
+        resize: { type: "fill", ...ImageSizes.Project.Card.BlurredLogo },
+        blur: BlurFactor,
       });
     }
 
     const responsibleOrganizations = project.responsibleOrganizations.map(
       (responsibleOrganization) => {
         let logo = responsibleOrganization.organization.logo;
+        let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
           logo = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              ...ImageSizes.Project.Card.ResponsibleOrganizationLogo,
+              ...ImageSizes.Organization.CardFooter.Logo,
             },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.CardFooter.BlurredLogo,
+            },
+            blur: BlurFactor,
           });
         }
         return {
@@ -102,6 +115,7 @@ export async function getProjects(options: {
           organization: {
             ...responsibleOrganization.organization,
             logo,
+            blurredLogo,
           },
         };
       }
@@ -111,12 +125,13 @@ export async function getProjects(options: {
       ...project,
       responsibleOrganizations,
       logo,
+      blurredLogo,
       background,
       blurredBackground,
     };
   });
 
-  const enhancedTeamMembers = teamMember.map((project) => {
+  const enhancedTeamMemberProjects = teamMemberProjects.map((project) => {
     let background = project.background;
     let blurredBackground;
 
@@ -130,28 +145,41 @@ export async function getProjects(options: {
           type: "fill",
           ...ImageSizes.Project.Card.BlurredBackground,
         },
-        blur: 5,
+        blur: BlurFactor,
       });
     }
 
     let logo = project.logo;
+    let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
       logo = getImageURL(publicURL, {
         resize: { type: "fill", ...ImageSizes.Project.Card.Logo },
+      });
+      blurredLogo = getImageURL(publicURL, {
+        resize: { type: "fill", ...ImageSizes.Project.Card.BlurredLogo },
+        blur: BlurFactor,
       });
     }
 
     const responsibleOrganizations = project.responsibleOrganizations.map(
       (responsibleOrganization) => {
         let logo = responsibleOrganization.organization.logo;
+        let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
           logo = getImageURL(publicURL, {
             resize: {
               type: "fill",
-              ...ImageSizes.Project.Card.ResponsibleOrganizationLogo,
+              ...ImageSizes.Organization.CardFooter.Logo,
             },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.CardFooter.BlurredLogo,
+            },
+            blur: BlurFactor,
           });
         }
         return {
@@ -159,6 +187,7 @@ export async function getProjects(options: {
           organization: {
             ...responsibleOrganization.organization,
             logo,
+            blurredLogo,
           },
         };
       }
@@ -168,17 +197,18 @@ export async function getProjects(options: {
       ...project,
       responsibleOrganizations,
       logo,
+      blurredLogo,
       background,
       blurredBackground,
     };
   });
 
   return {
-    admin: enhancedAdmin,
-    teamMember: enhancedTeamMembers,
+    adminProjects: enhancedAdminProjects,
+    teamMemberProjects: enhancedTeamMemberProjects,
     count: {
-      admin: admin.length,
-      teamMember: teamMember.length,
+      adminProjects: adminProjects.length,
+      teamMemberProjects: teamMemberProjects.length,
     },
   };
 }
