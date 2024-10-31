@@ -55,7 +55,14 @@ import { getEnv } from "./env.server";
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
 
-  if (data === undefined || data === null) {
+  if (
+    typeof data === "undefined" ||
+    data === undefined ||
+    data === null ||
+    typeof data.meta === "undefined" ||
+    data.meta === undefined ||
+    data.meta === null
+  ) {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
