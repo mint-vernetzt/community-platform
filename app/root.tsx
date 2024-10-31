@@ -198,6 +198,10 @@ export const ErrorBoundary = () => {
   const error = useRouteError();
   captureRemixErrorBoundaryError(error);
   const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
+  const hasRootLoaderData =
+    typeof rootLoaderData !== "undefined" &&
+    rootLoaderData !== null &&
+    rootLoaderData !== undefined;
 
   const { i18n } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -240,32 +244,23 @@ export const ErrorBoundary = () => {
         <div id="top" className="flex flex-col min-h-screen">
           <NavBar
             sessionUserInfo={
-              rootLoaderData !== undefined && rootLoaderData !== null
-                ? rootLoaderData.sessionUserInfo
-                : undefined
+              hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
             }
             openNavBarMenuKey={openNavBarMenuKey}
           />
           <div className="mv-flex mv-h-full min-h-screen">
             <NavBarMenu
-              mode={
-                rootLoaderData !== undefined && rootLoaderData !== null
-                  ? rootLoaderData.mode
-                  : "anon"
-              }
+              mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
               openNavBarMenuKey={openNavBarMenuKey}
               username={
                 rootLoaderData !== undefined &&
                 rootLoaderData !== null &&
+                typeof rootLoaderData.sessionUserInfo !== "undefined" &&
                 rootLoaderData.sessionUserInfo !== undefined
                   ? rootLoaderData.sessionUserInfo.username
                   : undefined
               }
-              abilities={
-                rootLoaderData !== undefined && rootLoaderData !== null
-                  ? rootLoaderData.abilities
-                  : {}
-              }
+              abilities={hasRootLoaderData ? rootLoaderData.abilities : {}}
             />
             <div className="mv-flex-grow mv-@container min-h-screen">
               <div className="mv-min-h-screen">
