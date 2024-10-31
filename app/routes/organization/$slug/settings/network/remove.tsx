@@ -21,7 +21,7 @@ import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { Avatar } from "@mint-vernetzt/components";
-import { Jsonify } from "@remix-run/server-runtime/dist/jsonify";
+import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 
 const i18nNS = [
   "routes/organization/settings/network/index",

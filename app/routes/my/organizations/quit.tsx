@@ -13,6 +13,10 @@ export const schema = z.object({
   slug: z.string(),
 });
 
+export const handle = {
+  i18n: i18nNS,
+};
+
 export async function action(args: ActionFunctionArgs) {
   const { request } = args;
 

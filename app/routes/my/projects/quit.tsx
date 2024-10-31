@@ -9,6 +9,10 @@ import { redirectWithToast } from "~/toast.server";
 import { i18nNS } from "../projects";
 import { invariantResponse } from "~/lib/utils/response";
 
+export const handle = {
+  i18n: i18nNS,
+};
+
 export const schema = z.object({
   slug: z.string(),
   as: z.enum(["admin", "teamMember"]),

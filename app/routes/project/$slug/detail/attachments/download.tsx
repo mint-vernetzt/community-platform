@@ -8,6 +8,10 @@ import { detectLanguage } from "~/root.server";
 
 const i18nNS = ["routes/project/detail/attachments/download"];
 
+export const handle = {
+  i18n: i18nNS,
+};
+
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);

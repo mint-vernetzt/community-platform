@@ -15,6 +15,10 @@ import {
   hasTeamData,
 } from "../__detail.shared";
 
+export const handle = {
+  i18n: i18nNS,
+};
+
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
