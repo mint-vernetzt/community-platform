@@ -430,12 +430,10 @@ function NavBarMenu(
                   to="/next/explore/fundings"
                   openNavBarMenuKey={props.openNavBarMenuKey}
                 >
-                  <div className="mv-w-full mv-flex mv-justify-between">
-                    {t("root.menu.explore.fundings")}
-                    <span className="mv-text-white mv-text-xs mv-pt-[2px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[18px]">
-                      BETA
-                    </span>
-                  </div>
+                  {t("root.menu.explore.fundings")}
+                  <span className="mv-text-white mv-text-xs mv-pt-[2px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[18px] mv-absolute mv-top-2 mv-right-2">
+                    BETA
+                  </span>
                 </TopicItem>
               )}
             </Topic>
@@ -748,11 +746,7 @@ function TopicItem(
 
   return external ? (
     <Link to={`${props.to}`} target="_blank" className={classes}>
-      {children.length < 2 && typeof children[0] === "string" ? (
-        children
-      ) : (
-        <span>{children}</span>
-      )}
+      {children}
     </Link>
   ) : (
     <NavLink
