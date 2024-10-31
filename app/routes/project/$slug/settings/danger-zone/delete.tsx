@@ -156,7 +156,7 @@ function Delete() {
           values={{
             name: loaderData.project.name,
           }}
-          components={[<strong />]}
+          components={[<strong key="delete-project-confirmation" />]}
         />
       </p>
       <p>{t("content.explanation")}</p>
