@@ -197,7 +197,7 @@ export const handle = {
 export const ErrorBoundary = () => {
   const error = useRouteError();
   captureRemixErrorBoundaryError(error);
-  const rootLoaderData = useRouteLoaderData<typeof loader>("root");
+  const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
 
   const { i18n } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -240,7 +240,7 @@ export const ErrorBoundary = () => {
         <div id="top" className="flex flex-col min-h-screen">
           <NavBar
             sessionUserInfo={
-              rootLoaderData !== undefined
+              rootLoaderData !== undefined && rootLoaderData !== null
                 ? rootLoaderData.sessionUserInfo
                 : undefined
             }
@@ -248,16 +248,23 @@ export const ErrorBoundary = () => {
           />
           <div className="mv-flex mv-h-full min-h-screen">
             <NavBarMenu
-              mode={rootLoaderData !== undefined ? rootLoaderData.mode : "anon"}
+              mode={
+                rootLoaderData !== undefined && rootLoaderData !== null
+                  ? rootLoaderData.mode
+                  : "anon"
+              }
               openNavBarMenuKey={openNavBarMenuKey}
               username={
                 rootLoaderData !== undefined &&
+                rootLoaderData !== null &&
                 rootLoaderData.sessionUserInfo !== undefined
                   ? rootLoaderData.sessionUserInfo.username
                   : undefined
               }
               abilities={
-                rootLoaderData !== undefined ? rootLoaderData.abilities : {}
+                rootLoaderData !== undefined && rootLoaderData !== null
+                  ? rootLoaderData.abilities
+                  : {}
               }
             />
             <div className="mv-flex-grow mv-@container min-h-screen">
