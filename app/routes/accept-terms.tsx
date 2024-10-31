@@ -167,17 +167,23 @@ function AcceptTerms() {
                           ns={i18nNS}
                           components={[
                             <a
+                              key="terms-of-use-confirmation"
                               href="https://mint-vernetzt.de/terms-of-use-community-platform"
                               target="_blank"
                               rel="noreferrer"
                               className="text-primary font-bold hover:underline"
-                            />,
+                            >
+                              {" "}
+                            </a>,
                             <a
+                              key="privacy-policy-confirmation"
                               href="https://mint-vernetzt.de/privacy-policy-community-platform"
                               target="_blank"
                               rel="noreferrer"
                               className="text-primary font-bold hover:underline"
-                            />,
+                            >
+                              {" "}
+                            </a>,
                           ]}
                         />
                       </span>
