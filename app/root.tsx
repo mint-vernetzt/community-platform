@@ -57,10 +57,8 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 
   if (
     typeof data === "undefined" ||
-    data === undefined ||
     data === null ||
     typeof data.meta === "undefined" ||
-    data.meta === undefined ||
     data.meta === null
   ) {
     return [
