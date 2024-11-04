@@ -43,7 +43,7 @@ import {
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.server";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 
 const i18nNS = [
   "routes/organization/index",

@@ -31,14 +31,8 @@ import { H1 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import { Modal } from "~/routes/__components";
 import i18next from "~/i18next.server";
-import {
-  BlurFactor,
-  getImageURL,
-  ImageAspects,
-  ImageSizes,
-  MaxImageSizes,
-  MinCropSizes,
-} from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValue } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";

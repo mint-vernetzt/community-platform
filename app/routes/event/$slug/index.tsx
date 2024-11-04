@@ -73,7 +73,7 @@ import {
   type ParticipantsQuery,
   type SpeakersQuery,
 } from "./utils.server";
-import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.server";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 
 const i18nNS = [
   "routes/event/index",

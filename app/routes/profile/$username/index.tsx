@@ -47,7 +47,7 @@ import {
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
-import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.server";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 
 const i18nNS = [
   "routes/profile/index",
