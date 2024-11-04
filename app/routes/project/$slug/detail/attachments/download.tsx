@@ -207,7 +207,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       });
     } else {
       // TODO: no compression. maybe use different library
-      const filename = `${project.slug}ğ_images.zip`;
+      const filename = `${project.slug}_images.zip`;
       const zip = new JSZip();
       let index = 0;
       for (const relation of project.images) {
