@@ -34,6 +34,7 @@ const i18nNS = [
   "datasets/specialTargetGroups",
   "datasets/organizationTypes",
 ];
+
 export const handle = {
   i18n: i18nNS,
 };

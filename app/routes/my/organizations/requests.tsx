@@ -18,6 +18,10 @@ import {
   rejectRequestFromProfile,
 } from "./requests.server";
 
+export const handle = {
+  i18n: i18nNS,
+};
+
 export const AddToOrganizationRequest: {
   Create: "createRequest";
   Cancel: "cancelRequest";

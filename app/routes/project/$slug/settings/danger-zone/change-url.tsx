@@ -190,7 +190,7 @@ function ChangeURL() {
           i18nKey="content.reach"
           ns={i18nNS}
           components={[
-            <span className="mv-break-all">
+            <span key="current-project-url" className="mv-break-all">
               {loaderData.baseURL}/project/<strong>{loaderData.slug}</strong>
             </span>,
           ]}
