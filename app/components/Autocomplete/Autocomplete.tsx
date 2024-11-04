@@ -134,10 +134,7 @@ const Autocomplete = React.forwardRef(
     };
 
     const handleClick = () => {
-      if (
-        typeof suggestions[activeSuggestion - 1] !== "undefined" &&
-        suggestions[activeSuggestion - 1] !== undefined
-      ) {
+      if (typeof suggestions[activeSuggestion - 1] !== "undefined") {
         setSubmitValue(suggestions[activeSuggestion - 1].id);
       }
     };
