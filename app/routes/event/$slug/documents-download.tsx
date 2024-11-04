@@ -31,8 +31,23 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const documentId = url.searchParams.get("document_id");
   let documents;
   if (documentId === null) {
-    documents = event.documents.map((wrapper) => {
-      return wrapper.document;
+    documents = event.documents.map((relation, index) => {
+      if (
+        event.documents.some((otherRelation) => {
+          return (
+            (relation.document.title !== null &&
+              relation.document.title === otherRelation.document.title) ||
+            relation.document.filename === otherRelation.document.filename
+          );
+        })
+      ) {
+        return {
+          ...relation.document,
+          title: `${relation.document.title} (${index + 1})`,
+          filename: `${relation.document.filename} (${index + 1})`,
+        };
+      }
+      return relation.document;
     });
   } else {
     const document = await getDocumentById(documentId);
