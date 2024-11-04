@@ -62,12 +62,21 @@ function Avatar(props: AvatarProps) {
   const child = src ? (
     <Image alt={displayName} src={src} blurredSrc={blurredSrc} />
   ) : (
-    <>{initials}</>
+    <div>{initials}</div>
   );
 
   return (
     <div className={classes}>
-      {props.to ? <a href={props.to}>{child}</a> : <>{child}</>}
+      {props.to ? (
+        <a
+          href={props.to}
+          className="mv-w-full mv-h-full mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center"
+        >
+          {child}
+        </a>
+      ) : (
+        <>{child}</>
+      )}
     </div>
   );
 }
