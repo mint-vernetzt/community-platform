@@ -8,7 +8,6 @@ import type { UploadHandler } from "@remix-run/node";
 import { fileTypeFromBuffer } from "file-type";
 import JSZip from "jszip";
 import { createHashFromString } from "./utils.server";
-import { escapeFilenameSpecialChars } from "./lib/string/escapeFilenameSpecialChars";
 import { type SupabaseClient } from "@supabase/supabase-js";
 
 const uploadKeys = ["avatar", "background", "logo", "document"];
@@ -258,7 +257,7 @@ export async function download(
 
 export async function getDownloadDocumentsResponse(
   authClient: SupabaseClient,
-  documents: Pick<Document, "title" | "filename" | "path">[],
+  documents: Pick<Document, "filename" | "path">[],
   zipFilename = "Dokumente.zip"
 ) {
   if (documents.length === 0) {
@@ -275,7 +274,7 @@ export async function getDownloadDocumentsResponse(
     documents.map(async (document) => {
       const blob = await download(authClient, document.path);
       const file = {
-        name: document.title || document.filename,
+        name: document.filename,
         content: await blob.arrayBuffer(),
         type: blob.type,
       };
@@ -300,8 +299,6 @@ export async function getDownloadDocumentsResponse(
     contentType = "application/zip";
     filename = `${zipFilename}`;
   }
-
-  filename = escapeFilenameSpecialChars(filename);
 
   // TODO: Check for missing headers
   return new Response(file, {

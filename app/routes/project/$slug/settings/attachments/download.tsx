@@ -62,7 +62,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         slug: params.slug,
       },
       select: {
-        name: true,
+        slug: true,
         documents: {
           select: {
             document: {
@@ -114,7 +114,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       });
     } else {
       // TODO: no compression. maybe use different library
-      const filename = `${project.name}_documents.zip`;
+      const filename = `${project.slug}_documents.zip`;
       const zip = new JSZip();
       let index = 0;
       for (const relation of project.documents) {
@@ -130,7 +130,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
               );
             })
           ) {
-            zip.file(`${relation.document.filename} ${index + 1}`, arrayBuffer);
+            zip.file(`${index + 1}_${relation.document.filename}`, arrayBuffer);
           }
           zip.file(relation.document.filename, arrayBuffer);
         }
@@ -152,7 +152,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         slug: params.slug,
       },
       select: {
-        name: true,
+        slug: true,
         images: {
           select: {
             image: {
@@ -205,7 +205,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       });
     } else {
       // TODO: no compression. maybe use different library
-      const filename = `${project.name}_images.zip`;
+      const filename = `${project.slug}_images.zip`;
       const zip = new JSZip();
       let index = 0;
       for (const relation of project.images) {
@@ -219,7 +219,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
               return relation.image.filename === otherRelation.image.filename;
             })
           ) {
-            zip.file(`${relation.image.filename} ${index + 1}`, arrayBuffer);
+            zip.file(`${index + 1}_${relation.image.filename}`, arrayBuffer);
           }
           zip.file(relation.image.filename, arrayBuffer);
         }

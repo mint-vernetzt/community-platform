@@ -34,17 +34,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     documents = event.documents.map((relation, index) => {
       if (
         event.documents.some((otherRelation) => {
-          return (
-            (relation.document.title !== null &&
-              relation.document.title === otherRelation.document.title) ||
-            relation.document.filename === otherRelation.document.filename
-          );
+          return relation.document.filename === otherRelation.document.filename;
         })
       ) {
         return {
           ...relation.document,
-          title: `${relation.document.title} (${index + 1})`,
-          filename: `${relation.document.filename} (${index + 1})`,
+          filename: `${index + 1}_${relation.document.filename}`,
         };
       }
       return relation.document;
@@ -61,7 +56,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
     documents = [document];
   }
-  const zipFilename = `${event.name}_Dokumente.zip`;
+  const zipFilename = `${event.slug}_documents.zip`;
   const documentResponse = getDownloadDocumentsResponse(
     authClient,
     documents,
