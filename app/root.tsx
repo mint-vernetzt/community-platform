@@ -199,9 +199,7 @@ export const ErrorBoundary = () => {
   captureRemixErrorBoundaryError(error);
   const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
   const hasRootLoaderData =
-    typeof rootLoaderData !== "undefined" &&
-    rootLoaderData !== null &&
-    rootLoaderData !== undefined;
+    typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
 
   const { i18n } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -253,10 +251,8 @@ export const ErrorBoundary = () => {
               mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
               openNavBarMenuKey={openNavBarMenuKey}
               username={
-                rootLoaderData !== undefined &&
-                rootLoaderData !== null &&
-                typeof rootLoaderData.sessionUserInfo !== "undefined" &&
-                rootLoaderData.sessionUserInfo !== undefined
+                hasRootLoaderData &&
+                typeof rootLoaderData.sessionUserInfo !== "undefined"
                   ? rootLoaderData.sessionUserInfo.username
                   : undefined
               }
@@ -298,7 +294,7 @@ export const ErrorBoundary = () => {
           </div>
         </div>
         <ScrollRestoration />
-        {rootLoaderData !== undefined ? (
+        {hasRootLoaderData ? (
           <script
             dangerouslySetInnerHTML={{
               __html: `window.ENV = ${JSON.stringify(ENV)}`,
