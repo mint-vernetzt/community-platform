@@ -54,7 +54,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         slug: params.slug,
       },
       select: {
-        slug: true,
+        name: true,
         documents: {
           select: {
             document: {
@@ -112,7 +112,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       });
     } else {
       // TODO: no compression. maybe use different library
-      const filename = `${project.slug}_documents.zip`;
+      const filename = `${project.name}_documents.zip`;
       const zip = new JSZip();
       let index = 0;
       for (const relation of project.documents) {
@@ -150,7 +150,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         slug: params.slug,
       },
       select: {
-        slug: true,
+        name: true,
         images: {
           select: {
             image: {
@@ -207,7 +207,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       });
     } else {
       // TODO: no compression. maybe use different library
-      const filename = `${project.slug}_images.zip`;
+      const filename = `${project.name}_images.zip`;
       const zip = new JSZip();
       let index = 0;
       for (const relation of project.images) {
