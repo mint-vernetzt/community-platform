@@ -34,15 +34,19 @@ export const loader = async (args: LoaderFunctionArgs) => {
     documents = event.documents.map((relation, index) => {
       if (
         event.documents.some((otherRelation) => {
-          return relation.document.filename === otherRelation.document.filename;
+          return (
+            relation.document.id !== otherRelation.document.id &&
+            relation.document.filename === otherRelation.document.filename
+          );
         })
       ) {
         return {
           ...relation.document,
           filename: `${index + 1}_${relation.document.filename}`,
         };
+      } else {
+        return relation.document;
       }
-      return relation.document;
     });
   } else {
     const document = await getDocumentById(documentId);

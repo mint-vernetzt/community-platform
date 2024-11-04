@@ -124,13 +124,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
           if (
             project.documents.some((otherRelation) => {
               return (
+                relation.document.id !== otherRelation.document.id &&
                 relation.document.filename === otherRelation.document.filename
               );
             })
           ) {
             zip.file(`${index + 1}_${relation.document.filename}`, arrayBuffer);
+          } else {
+            zip.file(relation.document.filename, arrayBuffer);
           }
-          zip.file(relation.document.filename, arrayBuffer);
         }
         index++;
       }
@@ -218,12 +220,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
           const arrayBuffer = await result.data.arrayBuffer();
           if (
             project.images.some((otherRelation) => {
-              return relation.image.filename === otherRelation.image.filename;
+              return (
+                relation.image.id !== otherRelation.image.id &&
+                relation.image.filename === otherRelation.image.filename
+              );
             })
           ) {
             zip.file(`${index + 1}_${relation.image.filename}`, arrayBuffer);
+          } else {
+            zip.file(relation.image.filename, arrayBuffer);
           }
-          zip.file(relation.image.filename, arrayBuffer);
         }
         index++;
       }

@@ -23,6 +23,7 @@ export async function getEventBySlug(slug: string) {
         select: {
           document: {
             select: {
+              id: true,
               path: true,
               filename: true,
             },
