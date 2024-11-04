@@ -15,7 +15,6 @@ import {
   unstable_parseMultipartFormData,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-  type NodeOnDiskFile,
 } from "@remix-run/node";
 import {
   Form,
@@ -61,46 +60,39 @@ export function getExtension(filename: string) {
 
 const createDocumentUploadSchema = (t: TFunction) =>
   z.object({
-    filename: z
-      .string()
-      .transform((filename) => {
-        const extension = getExtension(filename);
-        return `${filename
-          .replace(`.${extension}`, "")
-          .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
-      })
-      .optional(),
+    filename: z.string().transform((filename) => {
+      const extension = getExtension(filename);
+      return `${filename
+        .replace(`.${extension}`, "")
+        .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
+    }),
     document: z
-      .any()
+      .instanceof(File)
       .refine((file) => {
         return file.size <= MAX_UPLOAD_SIZE;
       }, t("validation.document.size"))
       .refine((file) => {
         return file.type === "application/pdf" || file.type === "image/jpeg";
-      }, t("validation.document.type"))
-      .optional(),
+      }, t("validation.document.type")),
   });
 
 const createImageUploadSchema = (t: TFunction) =>
   z.object({
-    filename: z
-      .string()
-      .transform((filename) => {
-        const extension = getExtension(filename);
-        return `${filename
-          .replace(`.${extension}`, "")
-          .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
-      })
-      .optional(),
+    filename: z.string().transform((filename) => {
+      const extension = getExtension(filename);
+      return `${filename
+        .replace(`.${extension}`, "")
+        .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
+    }),
     image: z
-      .any()
+      .instanceof(File)
       .refine((file) => {
+        console.log(typeof file);
         return file.size <= MAX_UPLOAD_SIZE;
       }, t("validation.image.size"))
       .refine((file) => {
         return file.type === "image/png" || file.type === "image/jpeg";
-      }, t("validation.image.type"))
-      .optional(),
+      }, t("validation.image.type")),
   });
 
 const actionSchema = z.object({
@@ -248,15 +240,16 @@ export const action = async (args: ActionFunctionArgs) => {
     uploadHandler
   );
 
-  const intent = formData.get(conform.INTENT) as string;
+  const intent = formData.get(conform.INTENT);
 
   invariantResponse(
-    intent === "upload_document" ||
-      intent === "upload_image" ||
-      intent === "delete_document" ||
-      intent === "delete_image" ||
-      intent === "validate/document" ||
-      intent === "validate/image",
+    intent !== null &&
+      (intent === "upload_document" ||
+        intent === "upload_image" ||
+        intent === "delete_document" ||
+        intent === "delete_image" ||
+        intent === "validate/document" ||
+        intent === "validate/image"),
     t("error.invalidAction"),
     {
       status: 400,
@@ -281,8 +274,8 @@ export const action = async (args: ActionFunctionArgs) => {
       return json({ status: "idle", submission } as const);
     }
 
-    const filename = submission.value.filename as string;
-    const document = submission.value.document as NodeOnDiskFile;
+    const filename = submission.value.filename;
+    const document = submission.value.document;
     const error = await storeDocument(authClient, {
       slug: params.slug,
       filename,
@@ -307,15 +300,14 @@ export const action = async (args: ActionFunctionArgs) => {
       return json({ status: "idle", submission } as const);
     }
 
-    const filename = submission.value.filename as string;
-    const image = submission.value.image as NodeOnDiskFile;
+    const filename = submission.value.filename;
+    const image = submission.value.image;
 
     const error = await storeImage(authClient, {
       slug: params.slug,
       filename,
       image,
     });
-    console.log(error);
 
     invariantResponse(error === null, t("error.onStoring"), {
       status: 400,
@@ -331,7 +323,7 @@ export const action = async (args: ActionFunctionArgs) => {
       { status: 400 }
     );
 
-    const id = submission.value.id as string;
+    const id = submission.value.id;
     await prismaClient.document.delete({
       where: {
         id,
@@ -348,7 +340,7 @@ export const action = async (args: ActionFunctionArgs) => {
       { status: 400 }
     );
 
-    const id = submission.value.id as string;
+    const id = submission.value.id;
     await prismaClient.image.delete({
       where: {
         id,
