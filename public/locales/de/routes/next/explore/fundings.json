@@ -30,5 +30,10 @@
         "area": "Was wird gefördert?",
         "toFunding": "Zur Förderung",
         "notProvided": "-nicht angegeben-"
+    },
+    "survey": {
+      "title": "Umfrage zum Fördertool",
+      "description": "Hilf uns die Fördermittelsuche zu verbessern. Teste Dich durch die Beta-Variante und fülle unsere Umfrage mit Deinen Erkenntnissen aus. Alternativ kannst Du uns auch eine Mail an <link1>community@mint-vernetzt.de</link1> senden",
+      "link": "Zur Umfrage"
     }
 }
