@@ -818,7 +818,7 @@ function Index() {
                                   className="btn btn-primary"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                                 >
-                                  {t("content.loginToRegister")}
+                                  {t("content.event.loginToRegister")}
                                 </Link>
                               ) : null}
                               {loaderData.mode !== "anon" &&
