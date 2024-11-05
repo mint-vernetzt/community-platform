@@ -45,15 +45,24 @@ function Button(
   const isDisabled = "disabled" in props && props.disabled;
 
   const classes = classnames(
-    "mv-btn",
-    "mv-btn-sm",
+    "mv-appearance-none",
     "mv-font-semibold",
     "mv-whitespace-nowrap",
+    "mv-flex",
+    "mv-items-center",
+    "mv-justify-center",
+    "mv-align-middle",
+    "mv-text-center",
+    "mv-rounded-lg",
     // button size
-    size === "x-small" && "mv-text-xs mv-border mv-p-2",
-    size === "small" && "mv-text-xs mv-px-4 mv-py-2 mv-border",
-    size === "medium" && "mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border",
-    size === "large" && "mv-h-12 mv-text-base mv-px-6 mv-py-2.5 mv-border-2",
+    size === "x-small" && "mv-text-xs mv-p-2 mv-leading-4",
+    size === "small" && "mv-text-xs mv-px-4 mv-py-2 mv-leading-4",
+    size === "medium" && "mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5",
+    size === "large" &&
+      "mv-h-12 mv-text-base mv-px-6 mv-py-2.5 mv-leading-[22px]",
+    // button border
+    variant === "outline" && size !== "large" && "mv-border",
+    variant === "outline" && size === "large" && "mv-border-2",
     // button full size
     fullSize && "mv-w-full",
     // button primary disabled
