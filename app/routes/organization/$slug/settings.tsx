@@ -57,7 +57,7 @@ function Settings() {
                 <ul>
                   <li>
                     <NavLink
-                      to="general"
+                      to="general#settings"
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
@@ -66,7 +66,7 @@ function Settings() {
                   </li>
                   <li>
                     <NavLink
-                      to="admins"
+                      to="admins#settings"
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
@@ -75,7 +75,7 @@ function Settings() {
                   </li>
                   <li>
                     <NavLink
-                      to="team"
+                      to="team#settings"
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
@@ -84,7 +84,7 @@ function Settings() {
                   </li>
                   <li>
                     <NavLink
-                      to="network"
+                      to="network#settings"
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
@@ -95,7 +95,7 @@ function Settings() {
                 <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
                 <div>
                   <NavLink
-                    to="./delete"
+                    to="./delete#settings"
                     className={({ isActive }) => getClassName(isActive)}
                     preventScrollReset
                   >
@@ -151,7 +151,7 @@ function Settings() {
               </p>
             </div>
           </div>
-          <div className="basis-6/12 px-4 pb-24">
+          <div id="settings" className="basis-6/12 px-4 pb-24">
             <main>
               <Outlet />
             </main>

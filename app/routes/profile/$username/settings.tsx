@@ -58,7 +58,7 @@ function Index() {
                 <ul>
                   <li>
                     <NavLink
-                      to="general"
+                      to="general#settings"
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
@@ -67,7 +67,7 @@ function Index() {
                   </li>
                   <li>
                     <NavLink
-                      to="notifications"
+                      to="notifications#settings"
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
@@ -76,7 +76,7 @@ function Index() {
                   </li>
                   <li>
                     <NavLink
-                      to="security"
+                      to="security#settings"
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
@@ -87,7 +87,7 @@ function Index() {
                 <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
                 <div>
                   <NavLink
-                    to="delete"
+                    to="delete#settings"
                     className={({ isActive }) => getClassName(isActive)}
                     preventScrollReset
                   >
@@ -143,7 +143,7 @@ function Index() {
               </p>
             </div>
           </div>
-          <div className="basis-6/12 px-4 pb-24">
+          <div id="settings" className="basis-6/12 px-4 pb-24">
             <main>
               <Outlet />
             </main>
