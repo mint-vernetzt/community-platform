@@ -34,7 +34,6 @@ import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import { H1, H2 } from "./components/Heading/Heading";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
-import { getFeatureAbilities } from "./lib/utils/application";
 import { detectLanguage, getProfileByUserId } from "./root.server";
 import {
   LoginOrRegisterCTA,
@@ -106,17 +105,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { authClient, headers } = createAuthClient(request);
 
-  const abilities = await getFeatureAbilities(authClient, [
-    "events",
-    "projects",
-    "dashboard",
-    "fundings",
-    "abuse_report",
-    "my_organizations",
-    "my_events",
-    "my_projects",
-  ]);
-
   const user = await getSessionUser(authClient);
 
   let sessionUserInfo;
@@ -171,7 +159,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       sessionUserInfo,
-      abilities,
       alert,
       toast,
       locale,
@@ -261,7 +248,6 @@ export const ErrorBoundary = () => {
                   ? rootLoaderData.sessionUserInfo.username
                   : undefined
               }
-              abilities={hasRootLoaderData ? rootLoaderData.abilities : {}}
             />
             <div className="mv-flex-grow mv-@container min-h-screen">
               <div className="mv-min-h-screen">
@@ -319,7 +305,6 @@ export default function App() {
     matomoUrl,
     matomoSiteId,
     sessionUserInfo,
-    abilities,
     alert,
     toast,
     locale,
@@ -478,7 +463,6 @@ export default function App() {
                 mode={mode}
                 openNavBarMenuKey={openNavBarMenuKey}
                 username={sessionUserInfo?.username}
-                abilities={abilities}
               />
               <div className="mv-flex-grow mv-@container">
                 {isIndexRoute === false && isNonAppBaseRoute === false && (
