@@ -28,10 +28,10 @@ import {
   ImageSizes,
   getImageURL,
 } from "~/images.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css";
+import { Icon } from "./__components";
 import { TeaserCard, type TeaserIconType } from "./__dashboard.components";
 import {
   enhanceEventsWithParticipationStatus,
@@ -50,7 +50,6 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { Icon } from "./__components";
 
 const i18nNS = [
   "routes/dashboard",
@@ -87,12 +86,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (profile === null) {
     throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
-
-  const abilities = await getFeatureAbilities(authClient, [
-    "add-to-organization",
-    "my_organizations",
-    "fundings",
-  ]);
 
   const numberOfProfiles = 4;
   const profileTake = numberOfProfiles;
@@ -514,7 +507,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organizationsFromInvites,
     profilesFromRequests,
     upcomingCanceledEvents,
-    abilities,
   });
 };
 
@@ -544,10 +536,6 @@ function getDataForUpdateTeasers() {
   const teaserData: {
     [key: string]: { link: string; icon: TeaserIconType };
   } = {
-    faq: {
-      link: "/help",
-      icon: "life-preserver-outline",
-    },
     addToOrganization: {
       link: "/my/organizations",
       icon: "Plus big",
@@ -625,99 +613,95 @@ function Dashboard() {
         </div>
       </section>
       {/* Organization Invites Section */}
-      {loaderData.abilities["add-to-organization"].hasAccess &&
-        loaderData.abilities["my_organizations"].hasAccess &&
-        loaderData.organizationsFromInvites.length > 0 && (
-          <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-            <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
-              <div className="mv-flex mv-items-center mv-gap-2">
-                <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
-                  {loaderData.organizationsFromInvites
-                    .slice(0, 3)
-                    .map((organization, index) => {
-                      return (
-                        <div
-                          key={`organization-invite-${organization.slug}-${index}`}
-                          className="mv-w-[72px] mv-h-[72px]"
-                        >
-                          <Avatar
-                            to={`/organization/${organization.slug}`}
-                            size="full"
-                            {...organization}
-                          />
-                        </div>
-                      );
-                    })}
-                </div>
-                {loaderData.organizationsFromInvites.length > 3 && (
-                  <div className="mv-text-2xl mv-font-semibold mv-text-primary">
-                    +{loaderData.organizationsFromInvites.length - 3}
-                  </div>
-                )}
-              </div>
-              <div className="mv-flex-1 mv-text-primary">
-                <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
-                  {t("content.invites.headline", {
-                    count: loaderData.organizationsFromInvites.length,
+      {loaderData.organizationsFromInvites.length > 0 && (
+        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
+            <div className="mv-flex mv-items-center mv-gap-2">
+              <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+                {loaderData.organizationsFromInvites
+                  .slice(0, 3)
+                  .map((organization, index) => {
+                    return (
+                      <div
+                        key={`organization-invite-${organization.slug}-${index}`}
+                        className="mv-w-[72px] mv-h-[72px]"
+                      >
+                        <Avatar
+                          to={`/organization/${organization.slug}`}
+                          size="full"
+                          {...organization}
+                        />
+                      </div>
+                    );
                   })}
-                </h3>
-                <p className="mv-text-normal mv-text-sm">
-                  {t("content.invites.description")}
-                </p>
               </div>
-              <Button as="a" href="/my/organizations">
-                {t("content.invites.linkDescription")}
-              </Button>
+              {loaderData.organizationsFromInvites.length > 3 && (
+                <div className="mv-text-2xl mv-font-semibold mv-text-primary">
+                  +{loaderData.organizationsFromInvites.length - 3}
+                </div>
+              )}
             </div>
-          </section>
-        )}
+            <div className="mv-flex-1 mv-text-primary">
+              <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+                {t("content.invites.headline", {
+                  count: loaderData.organizationsFromInvites.length,
+                })}
+              </h3>
+              <p className="mv-text-normal mv-text-sm">
+                {t("content.invites.description")}
+              </p>
+            </div>
+            <Button as="a" href="/my/organizations">
+              {t("content.invites.linkDescription")}
+            </Button>
+          </div>
+        </section>
+      )}
       {/* Organization Requests Section */}
-      {loaderData.abilities["add-to-organization"].hasAccess &&
-        loaderData.abilities["my_organizations"].hasAccess &&
-        loaderData.profilesFromRequests.length > 0 && (
-          <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-            <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
-              <div className="mv-flex mv-items-center mv-gap-2">
-                <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
-                  {loaderData.profilesFromRequests
-                    .slice(0, 3)
-                    .map((profile, index) => {
-                      return (
-                        <div
-                          key={`organization-request-${profile.username}-${index}`}
-                          className="mv-w-[72px] mv-h-[72px]"
-                        >
-                          <Avatar
-                            to={`/profile/${profile.username}`}
-                            size="full"
-                            {...profile}
-                          />
-                        </div>
-                      );
-                    })}
-                </div>
-                {loaderData.profilesFromRequests.length > 3 && (
-                  <div className="mv-text-2xl mv-font-semibold mv-text-primary">
-                    +{loaderData.profilesFromRequests.length - 3}
-                  </div>
-                )}
-              </div>
-              <div className="mv-flex-1 mv-text-primary">
-                <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
-                  {t("content.requests.headline", {
-                    count: loaderData.profilesFromRequests.length,
+      {loaderData.profilesFromRequests.length > 0 && (
+        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
+            <div className="mv-flex mv-items-center mv-gap-2">
+              <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+                {loaderData.profilesFromRequests
+                  .slice(0, 3)
+                  .map((profile, index) => {
+                    return (
+                      <div
+                        key={`organization-request-${profile.username}-${index}`}
+                        className="mv-w-[72px] mv-h-[72px]"
+                      >
+                        <Avatar
+                          to={`/profile/${profile.username}`}
+                          size="full"
+                          {...profile}
+                        />
+                      </div>
+                    );
                   })}
-                </h3>
-                <p className="mv-text-normal mv-text-sm">
-                  {t("content.requests.description")}
-                </p>
               </div>
-              <Button as="a" href="/my/organizations">
-                {t("content.requests.linkDescription")}
-              </Button>
+              {loaderData.profilesFromRequests.length > 3 && (
+                <div className="mv-text-2xl mv-font-semibold mv-text-primary">
+                  +{loaderData.profilesFromRequests.length - 3}
+                </div>
+              )}
             </div>
-          </section>
-        )}
+            <div className="mv-flex-1 mv-text-primary">
+              <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+                {t("content.requests.headline", {
+                  count: loaderData.profilesFromRequests.length,
+                })}
+              </h3>
+              <p className="mv-text-normal mv-text-sm">
+                {t("content.requests.description")}
+              </p>
+            </div>
+            <Button as="a" href="/my/organizations">
+              {t("content.requests.linkDescription")}
+            </Button>
+          </div>
+        </section>
+      )}
       {/* Notifications Section */}
       {loaderData.upcomingCanceledEvents.length > 0 ? (
         <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
@@ -865,27 +849,18 @@ function Dashboard() {
         </div>
         {hideUpdates === false ? (
           <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
-            {Object.entries(updateTeasers)
-              .filter(([key]) => {
-                if (loaderData.abilities["fundings"].hasAccess) {
-                  return key !== "faq";
-                }
-                return key !== "crawler";
-              })
-              .map(([key, value]) => {
-                return (
-                  <TeaserCard
-                    key={`${key}-update-teaser`}
-                    to={value.link}
-                    headline={t(`content.updates.${key}.headline`)}
-                    description={t(`content.updates.${key}.description`)}
-                    linkDescription={t(
-                      `content.updates.${key}.linkDescription`
-                    )}
-                    iconType={value.icon}
-                  />
-                );
-              })}
+            {Object.entries(updateTeasers).map(([key, value]) => {
+              return (
+                <TeaserCard
+                  key={`${key}-update-teaser`}
+                  to={value.link}
+                  headline={t(`content.updates.${key}.headline`)}
+                  description={t(`content.updates.${key}.description`)}
+                  linkDescription={t(`content.updates.${key}.linkDescription`)}
+                  iconType={value.icon}
+                />
+              );
+            })}
           </ul>
         ) : null}
       </section>
