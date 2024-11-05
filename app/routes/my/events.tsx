@@ -1,4 +1,4 @@
-import { TabBar } from "@mint-vernetzt/components";
+import { TabBar, Button } from "@mint-vernetzt/components";
 import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import React from "react";
@@ -11,7 +11,6 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { ListContainer } from "./__components";
 import {
   AddIcon,
-  Button,
   Container,
   ListItem,
   Placeholder,
@@ -30,7 +29,10 @@ export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  const abilities = await getFeatureAbilities(authClient, ["my_events"]);
+  const abilities = await getFeatureAbilities(authClient, [
+    "my_events",
+    "events",
+  ]);
 
   if (abilities.my_events.hasAccess === false) {
     return redirect("/");
@@ -56,7 +58,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return event.canceled;
   });
 
-  return json({ upcomingEvents, pastEvents, canceledEvents });
+  return json({ upcomingEvents, pastEvents, canceledEvents, abilities });
 }
 
 function MyEvents() {
@@ -129,19 +131,19 @@ function MyEvents() {
     <Container>
       <Container.Header>
         <Container.Title>{t("title")}</Container.Title>
-        <Button>
-          <Link to="/event/create">
+        {loaderData.abilities["events"].hasAccess ? (
+          <Button as="a" href="/event/create">
             <AddIcon />
             {t("create")}
-          </Link>
-        </Button>
+          </Button>
+        ) : null}
       </Container.Header>
       {hasUpcomingEvents === false && hasPastEvents === false ? (
         <Placeholder>
           <Placeholder.Title>{t("placeholder.title")}</Placeholder.Title>
           <Placeholder.Text>{t("placeholder.description")}</Placeholder.Text>
-          <Button variant="secondary">
-            <Link to="/explore/events">{t("placeholder.cta")}</Link>
+          <Button as="a" href="/explore/events" variant="outline">
+            {t("placeholder.cta")}
           </Button>
         </Placeholder>
       ) : null}
