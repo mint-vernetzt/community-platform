@@ -1,5 +1,3 @@
-import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
-import { mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 
 export async function getProfileById(id: string) {
@@ -89,16 +87,4 @@ export async function inviteProfileToJoinOrganization(
   });
 
   return { error: null, value: { profile, organization } };
-}
-
-export async function addTeamMemberToOrganization(
-  organizationId: string,
-  profileId: string
-) {
-  await prismaClient.memberOfOrganization.create({
-    data: {
-      profileId,
-      organizationId,
-    },
-  });
 }
