@@ -615,15 +615,13 @@ function Dashboard() {
             {loaderData.firstName} {loaderData.lastName}
           </h1>
           <p className="mv-font-semibold mv-mb-6">{t("content.community")}</p>
-          <p>
-            <Button
-              variant="outline"
-              as="a"
-              href={`/profile/${loaderData.username}`}
-            >
-              {t("content.myProfile")}
-            </Button>
-          </p>
+          <Button
+            variant="outline"
+            as="a"
+            href={`/profile/${loaderData.username}`}
+          >
+            {t("content.myProfile")}
+          </Button>
         </div>
       </section>
       {/* Organization Invites Section */}

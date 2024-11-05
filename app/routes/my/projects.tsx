@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { AddIcon, Container, Placeholder, Button } from "./__components";
+import { AddIcon, Container, Placeholder } from "./__components";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { Section, TabBarTitle } from "./__events.components";
 import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
@@ -9,7 +9,12 @@ import {
 } from "~/auth.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getProjects } from "./projects.server";
-import { CardContainer, ProjectCard, TabBar } from "@mint-vernetzt/components";
+import {
+  CardContainer,
+  ProjectCard,
+  TabBar,
+  Button,
+} from "@mint-vernetzt/components";
 import React from "react";
 
 export const i18nNS = ["routes/my/projects"];
@@ -78,19 +83,17 @@ function MyProjects() {
     <Container>
       <Container.Header>
         <Container.Title>{t("title")}</Container.Title>
-        <Button>
-          <Link to="/project/create">
-            <AddIcon />
-            {t("create")}
-          </Link>
+        <Button as="a" href="/project/create">
+          <AddIcon />
+          {t("create")}
         </Button>
       </Container.Header>
       {hasProjects === false ? (
         <Placeholder>
           <Placeholder.Title>{t("placeholder.title")}</Placeholder.Title>
           <Placeholder.Text>{t("placeholder.description")}</Placeholder.Text>
-          <Button variant="secondary">
-            <Link to="/project/create">{t("placeholder.cta")}</Link>
+          <Button as="a" href="/project/create" variant="outline">
+            {t("placeholder.cta")}
           </Button>
         </Placeholder>
       ) : (

@@ -494,12 +494,15 @@ function Requirements() {
               setIsDirty(true);
             }
           }}
+          onSubmit={() => {
+            setIsDirty(false);
+          }}
           onReset={() => {
             setIsDirty(false);
           }}
         >
           {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
-          <Button type="submit" hidden />
+          <button type="submit" hidden />
           <Input id="deep" defaultValue="true" type="hidden" />
           <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
             <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
