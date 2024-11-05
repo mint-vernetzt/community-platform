@@ -43,6 +43,7 @@ import {
   filterOrganization,
   getOrganization,
 } from "./detail.server";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 
 const i18nNS = [
   "routes/next/organization/detail",
@@ -451,11 +452,11 @@ function ProjectDetail() {
                 id="modal-background-upload"
                 uploadKey="background"
                 image={organization.background || undefined}
-                aspect={31 / 10}
-                minCropWidth={124}
-                minCropHeight={40}
-                maxTargetWidth={1488}
-                maxTargetHeight={480}
+                aspect={ImageAspects.Background}
+                minCropWidth={MinCropSizes.Background.width}
+                minCropHeight={MinCropSizes.Background.height}
+                maxTargetWidth={MaxImageSizes.Background.width}
+                maxTargetHeight={MaxImageSizes.Background.height}
                 slug={organization.slug}
                 redirect={pathname}
                 modalSearchParam="modal-background"
@@ -489,11 +490,11 @@ function ProjectDetail() {
                 id="modal-logo-upload"
                 uploadKey="logo"
                 image={organization.logo || undefined}
-                aspect={1}
-                minCropWidth={100}
-                minCropHeight={100}
-                maxTargetWidth={288}
-                maxTargetHeight={288}
+                aspect={ImageAspects.AvatarAndLogo}
+                minCropWidth={MinCropSizes.AvatarAndLogo.width}
+                minCropHeight={MinCropSizes.AvatarAndLogo.height}
+                maxTargetWidth={MaxImageSizes.AvatarAndLogo.width}
+                maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
                 slug={organization.slug}
                 redirect={pathname}
                 modalSearchParam="modal-logo"

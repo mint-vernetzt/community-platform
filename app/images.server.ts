@@ -237,6 +237,7 @@ export const ImageSizes = {
 };
 
 export const BlurFactor = 5;
+
 export const DefaultImages = {
   Event: {
     Background: "/images/default-event-background.jpg",

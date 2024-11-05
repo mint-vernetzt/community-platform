@@ -43,6 +43,7 @@ import {
 } from "./index.server";
 import { deriveOrganizationMode } from "./utils.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 
 const i18nNS = [
   "routes/organization/index",
@@ -382,11 +383,11 @@ export default function Index() {
                     id="modal-background-upload"
                     uploadKey="background"
                     image={background || undefined}
-                    aspect={31 / 10}
-                    minCropWidth={620}
-                    minCropHeight={62}
-                    maxTargetWidth={1488}
-                    maxTargetHeight={480}
+                    aspect={ImageAspects.Background}
+                    minCropWidth={MinCropSizes.Background.width}
+                    minCropHeight={MinCropSizes.Background.height}
+                    maxTargetWidth={MaxImageSizes.Background.width}
+                    maxTargetHeight={MaxImageSizes.Background.height}
                     slug={loaderData.organization.slug}
                     redirect={uploadRedirect}
                     modalSearchParam="modal-background"
@@ -438,11 +439,11 @@ export default function Index() {
                             slug={loaderData.organization.slug}
                             uploadKey="logo"
                             image={logo || undefined}
-                            aspect={1 / 1}
-                            minCropWidth={100}
-                            minCropHeight={100}
-                            maxTargetWidth={288}
-                            maxTargetHeight={288}
+                            aspect={ImageAspects.AvatarAndLogo}
+                            minCropWidth={MinCropSizes.AvatarAndLogo.width}
+                            minCropHeight={MinCropSizes.AvatarAndLogo.height}
+                            maxTargetWidth={MaxImageSizes.AvatarAndLogo.width}
+                            maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
                             redirect={uploadRedirect}
                             circularCrop={true}
                             modalSearchParam="modal-logo"

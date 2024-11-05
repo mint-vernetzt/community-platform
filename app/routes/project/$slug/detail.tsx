@@ -32,6 +32,7 @@ import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import { Modal } from "~/routes/__components";
 import i18next from "~/i18next.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValue } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
@@ -451,11 +452,11 @@ function ProjectDetail() {
                 id="modal-background-upload"
                 uploadKey="background"
                 image={project.background || undefined}
-                aspect={31 / 10}
-                minCropWidth={124}
-                minCropHeight={40}
-                maxTargetWidth={1488}
-                maxTargetHeight={480}
+                aspect={ImageAspects.Background}
+                minCropWidth={MinCropSizes.Background.width}
+                minCropHeight={MinCropSizes.Background.height}
+                maxTargetWidth={MaxImageSizes.Background.width}
+                maxTargetHeight={MaxImageSizes.Background.height}
                 slug={project.slug}
                 redirect={pathname}
                 modalSearchParam="modal-background"
@@ -480,11 +481,11 @@ function ProjectDetail() {
                 id="modal-logo-upload"
                 uploadKey="logo"
                 image={project.logo || undefined}
-                aspect={1}
-                minCropWidth={100}
-                minCropHeight={100}
-                maxTargetWidth={288}
-                maxTargetHeight={288}
+                aspect={ImageAspects.AvatarAndLogo}
+                minCropWidth={MinCropSizes.AvatarAndLogo.width}
+                minCropHeight={MinCropSizes.AvatarAndLogo.height}
+                maxTargetWidth={MaxImageSizes.AvatarAndLogo.width}
+                maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
                 slug={project.slug}
                 redirect={pathname}
                 modalSearchParam="modal-logo"
