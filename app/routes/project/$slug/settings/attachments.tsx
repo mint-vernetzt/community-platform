@@ -289,7 +289,7 @@ export const action = async (args: ActionFunctionArgs) => {
     invariantResponse(mimeTypeIsValid, t("error.onStoring"), {
       status: 400,
     });
-
+        
     const filename = submission.value.filename;
     const document = submission.value.document;
     const error = await storeDocument(authClient, {
@@ -444,7 +444,11 @@ function Attachments() {
   });
 
   const handleDocumentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files !== null) {
+    if (
+      event.target.files !== null &&
+      event.target.files.length > 0 &&
+      event.target.files[0] instanceof Blob
+    ) {
       const file = event.target.files[0];
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -456,7 +460,11 @@ function Attachments() {
     }
   };
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files !== null) {
+    if (
+      event.target.files !== null &&
+      event.target.files.length > 0 &&
+      event.target.files[0] instanceof Blob
+    ) {
       const file = event.target.files[0];
       const reader = new FileReader();
       reader.onloadend = () => {

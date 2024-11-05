@@ -55,7 +55,12 @@ import { getEnv } from "./env.server";
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
 
-  if (data === undefined || data === null) {
+  if (
+    typeof data === "undefined" ||
+    data === null ||
+    typeof data.meta === "undefined" ||
+    data.meta === null
+  ) {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
@@ -197,7 +202,9 @@ export const handle = {
 export const ErrorBoundary = () => {
   const error = useRouteError();
   captureRemixErrorBoundaryError(error);
-  const rootLoaderData = useRouteLoaderData<typeof loader>("root");
+  const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
+  const hasRootLoaderData =
+    typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
 
   const { i18n } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -240,25 +247,21 @@ export const ErrorBoundary = () => {
         <div id="top" className="flex flex-col min-h-screen">
           <NavBar
             sessionUserInfo={
-              rootLoaderData !== undefined
-                ? rootLoaderData.sessionUserInfo
-                : undefined
+              hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
             }
             openNavBarMenuKey={openNavBarMenuKey}
           />
           <div className="mv-flex mv-h-full min-h-screen">
             <NavBarMenu
-              mode={rootLoaderData !== undefined ? rootLoaderData.mode : "anon"}
+              mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
               openNavBarMenuKey={openNavBarMenuKey}
               username={
-                rootLoaderData !== undefined &&
-                rootLoaderData.sessionUserInfo !== undefined
+                hasRootLoaderData &&
+                typeof rootLoaderData.sessionUserInfo !== "undefined"
                   ? rootLoaderData.sessionUserInfo.username
                   : undefined
               }
-              abilities={
-                rootLoaderData !== undefined ? rootLoaderData.abilities : {}
-              }
+              abilities={hasRootLoaderData ? rootLoaderData.abilities : {}}
             />
             <div className="mv-flex-grow mv-@container min-h-screen">
               <div className="mv-min-h-screen">
@@ -296,7 +299,7 @@ export const ErrorBoundary = () => {
           </div>
         </div>
         <ScrollRestoration />
-        {rootLoaderData !== undefined ? (
+        {hasRootLoaderData ? (
           <script
             dangerouslySetInnerHTML={{
               __html: `window.ENV = ${JSON.stringify(ENV)}`,
