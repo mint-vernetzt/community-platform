@@ -3,6 +3,15 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { createHashFromString } from "~/utils.server";
 import { getExtension } from "./attachments";
+import { fileTypeFromBuffer } from "file-type";
+
+export async function hasValidMimeType(file: File, allowedTypes: string[]) {
+  const buffer = await file.arrayBuffer();
+  const fileTypeResult = await fileTypeFromBuffer(buffer);
+  return (
+    fileTypeResult !== undefined && allowedTypes.includes(fileTypeResult.mime)
+  );
+}
 
 // TODO: DRY
 

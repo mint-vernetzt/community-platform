@@ -37,7 +37,11 @@ import { detectLanguage } from "~/root.server";
 import { Modal } from "~/routes/__components";
 import { getPublicURL } from "~/storage.server";
 import { BackButton, MaterialList } from "./__components";
-import { storeDocument, storeImage } from "./attachments.server";
+import {
+  hasValidMimeType,
+  storeDocument,
+  storeImage,
+} from "./attachments.server";
 import {
   documentSchema,
   imageSchema,
@@ -58,6 +62,8 @@ export function getExtension(filename: string) {
   return filename.substring(filename.lastIndexOf(".") + 1, filename.length);
 }
 
+const documentMimeTypes = ["application/pdf", "image/jpeg"];
+
 const createDocumentUploadSchema = (t: TFunction) =>
   z.object({
     filename: z.string().transform((filename) => {
@@ -72,9 +78,11 @@ const createDocumentUploadSchema = (t: TFunction) =>
         return file.size <= MAX_UPLOAD_SIZE;
       }, t("validation.document.size"))
       .refine((file) => {
-        return file.type === "application/pdf" || file.type === "image/jpeg";
+        return documentMimeTypes.includes(file.type);
       }, t("validation.document.type")),
   });
+
+const imageMimeTypes = ["image/png", "image/jpeg"];
 
 const createImageUploadSchema = (t: TFunction) =>
   z.object({
@@ -91,7 +99,7 @@ const createImageUploadSchema = (t: TFunction) =>
         return file.size <= MAX_UPLOAD_SIZE;
       }, t("validation.image.size"))
       .refine((file) => {
-        return file.type === "image/png" || file.type === "image/jpeg";
+        return imageMimeTypes.includes(file.type);
       }, t("validation.image.type")),
   });
 
@@ -274,6 +282,14 @@ export const action = async (args: ActionFunctionArgs) => {
       return json({ status: "idle", submission } as const);
     }
 
+    const mimeTypeIsValid = await hasValidMimeType(
+      submission.value.document,
+      documentMimeTypes
+    );
+    invariantResponse(mimeTypeIsValid, t("error.onStoring"), {
+      status: 400,
+    });
+        
     const filename = submission.value.filename;
     const document = submission.value.document;
     const error = await storeDocument(authClient, {
@@ -299,6 +315,14 @@ export const action = async (args: ActionFunctionArgs) => {
     if (intent === "validate/image") {
       return json({ status: "idle", submission } as const);
     }
+
+    const mimeTypeIsValid = await hasValidMimeType(
+      submission.value.image,
+      imageMimeTypes
+    );
+    invariantResponse(mimeTypeIsValid, t("error.onStoring"), {
+      status: 400,
+    });
 
     const filename = submission.value.filename;
     const image = submission.value.image;
@@ -501,7 +525,7 @@ function Attachments() {
                   id={documentUploadFields.document.id}
                   name={documentUploadFields.document.name}
                   type="file"
-                  accept="application/pdf,image/jpeg"
+                  accept={documentMimeTypes.join(",")}
                   onChange={handleDocumentChange}
                   hidden
                 />
@@ -762,7 +786,7 @@ function Attachments() {
                   id={imageUploadFields.image.id}
                   name={imageUploadFields.image.name}
                   type="file"
-                  accept="image/png,image/jpeg"
+                  accept={imageMimeTypes.join(",")}
                   onChange={handleImageChange}
                   hidden
                 />
