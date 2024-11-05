@@ -64,7 +64,7 @@ function Button(
     variant === "outline" && size !== "large" && "mv-border",
     variant === "outline" && size === "large" && "mv-border-2",
     // button full size
-    fullSize && "mv-w-full",
+    fullSize ? "mv-w-full" : "mv-w-fit",
     // button primary disabled
     isDisabled &&
       variant === "normal" &&

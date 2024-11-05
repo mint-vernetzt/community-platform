@@ -421,7 +421,7 @@ function ProjectDetail() {
           {mode === "admin" && (
             <Header.Footer>
               <Controls>
-                <Button as="a" href="./../settings">
+                <Button as="a" href="./../settings" fullSize>
                   {t("content.edit")}
                 </Button>
                 <Button
@@ -430,6 +430,7 @@ function ProjectDetail() {
                   value={`${project.published ? "unpublish" : "publish"}`}
                   type="submit"
                   form="publish-form"
+                  fullSize
                 >
                   {t(`content.publish.${project.published ? "hide" : "show"}`)}
                 </Button>
