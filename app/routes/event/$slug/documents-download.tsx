@@ -31,8 +31,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const documentId = url.searchParams.get("document_id");
   let documents;
   if (documentId === null) {
-    documents = event.documents.map((wrapper) => {
-      return wrapper.document;
+    documents = event.documents.map((relation, index) => {
+      if (
+        event.documents.some((otherRelation) => {
+          return (
+            relation.document.id !== otherRelation.document.id &&
+            relation.document.filename === otherRelation.document.filename
+          );
+        })
+      ) {
+        return {
+          ...relation.document,
+          filename: `${index + 1}_${relation.document.filename}`,
+        };
+      } else {
+        return relation.document;
+      }
     });
   } else {
     const document = await getDocumentById(documentId);
@@ -46,7 +60,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
     documents = [document];
   }
-  const zipFilename = `${event.name}_Dokumente.zip`;
+  const zipFilename = `${event.slug}_documents.zip`;
   const documentResponse = getDownloadDocumentsResponse(
     authClient,
     documents,

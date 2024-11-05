@@ -116,14 +116,27 @@ export const loader = async (args: LoaderFunctionArgs) => {
       // TODO: no compression. maybe use different library
       const filename = `${project.slug}_documents.zip`;
       const zip = new JSZip();
+      let index = 0;
       for (const relation of project.documents) {
         const result = await authClient.storage
           .from("documents")
           .download(relation.document.path);
         if (result.error === null) {
           const arrayBuffer = await result.data.arrayBuffer();
-          zip.file(relation.document.filename, arrayBuffer);
+          if (
+            project.documents.some((otherRelation) => {
+              return (
+                relation.document.id !== otherRelation.document.id &&
+                relation.document.filename === otherRelation.document.filename
+              );
+            })
+          ) {
+            zip.file(`${index + 1}_${relation.document.filename}`, arrayBuffer);
+          } else {
+            zip.file(relation.document.filename, arrayBuffer);
+          }
         }
+        index++;
       }
       const content = await zip.generateAsync({ type: "arraybuffer" });
       return new Response(content, {
@@ -196,14 +209,27 @@ export const loader = async (args: LoaderFunctionArgs) => {
       // TODO: no compression. maybe use different library
       const filename = `${project.slug}_images.zip`;
       const zip = new JSZip();
+      let index = 0;
       for (const relation of project.images) {
         const result = await authClient.storage
           .from("images")
           .download(relation.image.path);
         if (result.error === null) {
           const arrayBuffer = await result.data.arrayBuffer();
-          zip.file(relation.image.filename, arrayBuffer);
+          if (
+            project.images.some((otherRelation) => {
+              return (
+                relation.image.id !== otherRelation.image.id &&
+                relation.image.filename === otherRelation.image.filename
+              );
+            })
+          ) {
+            zip.file(`${index + 1}_${relation.image.filename}`, arrayBuffer);
+          } else {
+            zip.file(relation.image.filename, arrayBuffer);
+          }
         }
+        index++;
       }
       const content = await zip.generateAsync({ type: "arraybuffer" });
       return new Response(content, {

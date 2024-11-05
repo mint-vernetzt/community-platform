@@ -716,7 +716,7 @@ function Attachments() {
                               <MaterialList.Item.Controls.Edit />
                             </Link>
                             <Link
-                              to={`./download?type=document&id=${relation.document.id}`}
+                              to={`./attachments/download?type=document&id=${relation.document.id}`}
                               reloadDocument
                             >
                               <MaterialList.Item.Controls.Download />
@@ -730,7 +730,7 @@ function Attachments() {
                 <div className="mv-w-full @md:mv-max-w-fit">
                   <Button
                     as="a"
-                    href={`./download?type=documents`}
+                    href={`./attachments/download?type=documents`}
                     variant="outline"
                     fullSize
                   >
@@ -990,7 +990,7 @@ function Attachments() {
                             <MaterialList.Item.Controls.Edit />
                           </Link>
                           <Link
-                            to={`./download?type=image&id=${relation.image.id}`}
+                            to={`./attachments/download?type=image&id=${relation.image.id}`}
                             reloadDocument
                           >
                             <MaterialList.Item.Controls.Download />
