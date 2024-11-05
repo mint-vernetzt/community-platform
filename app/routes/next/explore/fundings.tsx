@@ -462,7 +462,7 @@ function Fundings() {
               />
             </p>
             <Link
-              className="mv-flex mv-items-baseline mv-gap-2 mv-group"
+              className="mv-flex mv-items-baseline mv-gap-2 mv-group mv-w-fit"
               to="https://survey.lamapoll.de/Foerdermittel-Suche-auf-der-MINTvernetzt-Community-Plattform"
               target="_blank"
               referrerPolicy="no-referrer"
