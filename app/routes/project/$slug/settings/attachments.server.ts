@@ -8,7 +8,7 @@ import { getExtension } from "./attachments";
 
 export async function storeDocument(
   authClient: SupabaseClient,
-  options: { slug: string; filename: string; document: any }
+  options: { slug: string; filename: string; document: File }
 ) {
   const { slug, filename, document } = options;
 
