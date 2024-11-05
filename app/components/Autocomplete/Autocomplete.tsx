@@ -134,7 +134,9 @@ const Autocomplete = React.forwardRef(
     };
 
     const handleClick = () => {
-      setSubmitValue(suggestions[activeSuggestion - 1].id);
+      if (typeof suggestions[activeSuggestion - 1] !== "undefined") {
+        setSubmitValue(suggestions[activeSuggestion - 1].id);
+      }
     };
 
     const { i18n, t } = useTranslation([
