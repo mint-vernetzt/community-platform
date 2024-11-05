@@ -766,7 +766,7 @@ function Index() {
 
           {loaderData.mode !== "admin" && loaderData.event.canceled ? (
             <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
-              {t("event.cancelled")}
+              {t("content.event.cancelled")}
             </div>
           ) : null}
           {loaderData.mode !== "admin" ? (
