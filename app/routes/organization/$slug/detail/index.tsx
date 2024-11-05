@@ -43,16 +43,16 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   }
 
   if (hasAboutData(filteredOrganization)) {
-    return redirect(`/next/organization/${slug}/detail/about`);
+    return redirect(`/organization/${slug}/detail/about`);
   }
   const redirectPath = hasNetworkData(filteredOrganization)
-    ? `/next/organization/${slug}/detail/network`
+    ? `/organization/${slug}/detail/network`
     : hasTeamData(filteredOrganization)
-    ? `/next/organization/${slug}/detail/team`
+    ? `/organization/${slug}/detail/team`
     : hasEventsData(filteredOrganization)
-    ? `/next/organization/${slug}/detail/events`
+    ? `/organization/${slug}/detail/events`
     : hasProjectsData(filteredOrganization)
-    ? `/next/organization/${slug}/detail/projects`
-    : `/next/organization/${slug}/detail`;
+    ? `/organization/${slug}/detail/projects`
+    : `/organization/${slug}/detail`;
   return redirect(redirectPath);
 };

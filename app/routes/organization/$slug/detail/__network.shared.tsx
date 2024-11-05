@@ -1,4 +1,4 @@
 export const i18nNS = [
-  "routes/next/organization/detail/network",
+  "routes/organization/detail/network",
   "datasets/organizationTypes",
 ];
