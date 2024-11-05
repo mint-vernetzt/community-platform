@@ -19,7 +19,6 @@ import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import i18next from "~/i18next.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
@@ -125,16 +124,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  const abilities = await getFeatureAbilities(
-    authClient,
-    "add-to-organization"
-  );
-
   return json({
     admins: enhancedAdmins,
     invitedProfiles,
     adminSuggestions,
-    abilities,
   });
 };
 
@@ -213,8 +206,7 @@ function Admins() {
           {addAdminFetcher.data.message}
         </div>
       ) : null}
-      {loaderData.abilities["add-to-organization"].hasAccess &&
-      loaderData.invitedProfiles.length > 0 ? (
+      {loaderData.invitedProfiles.length > 0 ? (
         <>
           <h4 className="mb-4 mt-16 font-semibold">
             {t("content.invites.headline")}
