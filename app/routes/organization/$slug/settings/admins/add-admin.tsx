@@ -8,7 +8,6 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveOrganizationMode } from "../../utils.server";
 import {
-  addAdminToOrganization,
   getOrganizationBySlug,
   getProfileById,
   inviteProfileToJoinOrganization,
@@ -16,7 +15,6 @@ import {
 import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 
@@ -83,68 +81,54 @@ export const action = async (args: ActionFunctionArgs) => {
     const organization = await getOrganizationBySlug(slug);
     invariantResponse(organization, t("error.notFound"), { status: 404 });
 
-    const abilities = await getFeatureAbilities(
-      authClient,
-      "add-to-organization"
-    );
-
     let message: string;
     let status: "error" | "success";
 
-    if (abilities["add-to-organization"].hasAccess) {
-      const { error, value } = await inviteProfileToJoinOrganization(
-        organization.id,
-        result.data.profileId
+    const { error, value } = await inviteProfileToJoinOrganization(
+      organization.id,
+      result.data.profileId
+    );
+
+    if (error === null && typeof value !== "undefined") {
+      const sender = process.env.SYSTEM_MAIL_SENDER;
+      const subject = t("email.subject");
+      const recipient = value.profile.email;
+      const textTemplatePath =
+        "mail-templates/invites/profile-to-join-organization/as-admin-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/invites/profile-to-join-organization/as-admin-html.hbs";
+      const content = {
+        firstName: value.profile.firstName,
+        organization: {
+          name: value.organization.name,
+        },
+        button: {
+          url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
+          text: t("email.button.text"),
+        },
+      };
+
+      const text = getCompiledMailTemplate<typeof textTemplatePath>(
+        textTemplatePath,
+        content,
+        "text"
+      );
+      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+        htmlTemplatePath,
+        content,
+        "html"
       );
 
-      if (error === null && typeof value !== "undefined") {
-        const sender = process.env.SYSTEM_MAIL_SENDER;
-        const subject = t("email.subject");
-        const recipient = value.profile.email;
-        const textTemplatePath =
-          "mail-templates/invites/profile-to-join-organization/as-admin-text.hbs";
-        const htmlTemplatePath =
-          "mail-templates/invites/profile-to-join-organization/as-admin-html.hbs";
-        const content = {
-          firstName: value.profile.firstName,
-          organization: {
-            name: value.organization.name,
-          },
-          button: {
-            url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-            text: t("email.button.text"),
-          },
-        };
+      await mailer(mailerOptions, sender, recipient, subject, text, html);
 
-        const text = getCompiledMailTemplate<typeof textTemplatePath>(
-          textTemplatePath,
-          content,
-          "text"
-        );
-        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-          htmlTemplatePath,
-          content,
-          "html"
-        );
-
-        await mailer(mailerOptions, sender, recipient, subject, text, html);
-
-        message = t("invite.success", {
-          firstName: result.data.firstName,
-          lastName: result.data.lastName,
-        });
-        status = "success";
-      } else {
-        message = t("invite.error");
-        status = "error";
-      }
-    } else {
-      await addAdminToOrganization(organization.id, result.data.profileId);
-      message = t("feedback", {
+      message = t("invite.success", {
         firstName: result.data.firstName,
         lastName: result.data.lastName,
       });
       status = "success";
+    } else {
+      message = t("invite.error");
+      status = "error";
     }
 
     return json({
