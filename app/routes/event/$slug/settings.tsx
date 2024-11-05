@@ -49,63 +49,63 @@ function Settings() {
               <h3 className="font-bold mb-7">{t("content.headline")}</h3>
               <menu>
                 <NavLink
-                  to="general"
+                  to="general#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
                   {t("content.general")}
                 </NavLink>
                 <NavLink
-                  to="events"
+                  to="events#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
                   {t("content.linkedEvents")}
                 </NavLink>
                 <NavLink
-                  to="admins"
+                  to="admins#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
                   {t("content.administrators")}
                 </NavLink>
                 <NavLink
-                  to="team"
+                  to="team#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
                   {t("content.team")}
                 </NavLink>
                 <NavLink
-                  to="speakers"
+                  to="speakers#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
                   {t("content.speakers")}
                 </NavLink>
                 <NavLink
-                  to="participants"
+                  to="participants#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
                   {t("content.participants")}
                 </NavLink>
                 <NavLink
-                  to="waiting-list"
+                  to="waiting-list#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
                   {t("content.waitingList")}
                 </NavLink>
                 <NavLink
-                  to="organizations"
+                  to="organizations#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
                   {t("content.organizations")}
                 </NavLink>
                 <NavLink
-                  to="documents"
+                  to="documents#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
@@ -113,7 +113,7 @@ function Settings() {
                 </NavLink>
                 <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
                 <NavLink
-                  to="delete"
+                  to="delete#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
@@ -122,7 +122,7 @@ function Settings() {
               </menu>
             </div>
           </div>
-          <div className="basis-6/12 px-4 pb-24 mv-mb-8">
+          <div id="settings" className="basis-6/12 px-4 pb-24 mv-mb-8">
             <main>
               <Outlet />
             </main>

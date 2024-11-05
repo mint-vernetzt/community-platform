@@ -16,9 +16,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { H1 } from "~/components/Heading/Heading";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import {
@@ -33,6 +31,8 @@ import {
   getFundingFilterVector,
   getKeys,
 } from "./fundings.server";
+import { Trans, useTranslation } from "react-i18next";
+import { H1 } from "~/components/Heading/Heading";
 
 const sortValues = ["title-asc", "title-desc", "createdAt-desc"] as const;
 
@@ -429,10 +429,81 @@ function Fundings() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
-        <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {t("title")}
-        </H1>
-        <p>{t("intro")}</p>
+        <div className="mv-flex mv-flex-col mv-justify-center mv-gap-8">
+          <div>
+            <span className="mv-text-white mv-text-xs mv-pt-[2px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[18px]">
+              BETA
+            </span>
+            <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
+              {t("title")}
+            </H1>
+            <p>{t("intro")}</p>
+          </div>
+          <div className="mv-p-4 @lg:mv-pr-12 mv-bg-primary-50 mv-rounded-lg mv-text-left mv-flex mv-flex-col mv-gap-2.5">
+            <p className="mv-font-bold">{t("survey.title")}</p>
+            <p>
+              <Trans
+                ns={i18nNS}
+                i18nKey="survey.description"
+                components={{
+                  link1: (
+                    <Link
+                      to="mailto:community@mint-vernetzt.de"
+                      className="mv-font-semibold hover:mv-underline"
+                    >
+                      {" "}
+                    </Link>
+                  ),
+                }}
+              />
+            </p>
+            <Link
+              className="mv-flex mv-items-baseline mv-gap-2 mv-group mv-w-fit"
+              to="https://survey.lamapoll.de/Foerdermittel-Suche-auf-der-MINTvernetzt-Community-Plattform"
+              target="_blank"
+              referrerPolicy="no-referrer"
+            >
+              <span className="mv-font-semibold group-hover:mv-underline">
+                {t("survey.link")}
+              </span>
+              <svg
+                width="14"
+                height="13"
+                viewBox="0 0 14 13"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g id="box-arrow-up-right">
+                  <g id="box-arrow-bg-45">
+                    <path
+                      id="box-arrow-bg-45 (Stroke)"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M7.47727 3.125C7.47727 2.91789 7.30938 2.75 7.10227 2.75H2.125C1.50368 2.75 1 3.25368 1 3.875V11.375C1 11.9963 1.50368 12.5 2.125 12.5H9.625C10.2463 12.5 10.75 11.9963 10.75 11.375V6.39773C10.75 6.19062 10.5821 6.02273 10.375 6.02273C10.1679 6.02273 10 6.19062 10 6.39773V11.375C10 11.5821 9.83211 11.75 9.625 11.75H2.125C1.91789 11.75 1.75 11.5821 1.75 11.375V3.875C1.75 3.66789 1.91789 3.5 2.125 3.5H7.10227C7.30938 3.5 7.47727 3.33211 7.47727 3.125Z"
+                      fill="#112C5F"
+                      stroke="#112C5F"
+                      strokeWidth="0.3"
+                      strokeLinecap="round"
+                    />
+                  </g>
+                  <g id="box-arrow-45">
+                    <path
+                      id="box-arrow-45 (Stroke)"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M13 0.875C13 0.667893 12.8321 0.5 12.625 0.5H8.875C8.66789 0.5 8.5 0.667893 8.5 0.875C8.5 1.08211 8.66789 1.25 8.875 1.25H11.7197L5.60983 7.35983C5.46339 7.50628 5.46339 7.74372 5.60983 7.89017C5.75628 8.03661 5.99372 8.03661 6.14017 7.89017L12.25 1.78033V4.625C12.25 4.83211 12.4179 5 12.625 5C12.8321 5 13 4.83211 13 4.625V0.875Z"
+                      fill="#112C5F"
+                      stroke="#112C5F"
+                      strokeWidth="0.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </g>
+                </g>
+              </svg>
+            </Link>
+          </div>
+        </div>
       </section>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form

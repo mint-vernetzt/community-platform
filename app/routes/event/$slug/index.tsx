@@ -921,7 +921,7 @@ function Index() {
       </section>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative pt-8 @lg:mv-pt-16 mv-mb-24">
         <div className="flex -mx-4 justify-center">
-          <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4">
+          <div className="mv-w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4">
             <p className="font-bold text-xl mb-8">{duration}</p>
             <header className="mb-8">
               <h1 className="m-0">{loaderData.event.name}</h1>

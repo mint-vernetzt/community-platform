@@ -199,7 +199,7 @@ export const ErrorBoundary = () => {
   const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
 
   const bodyClasses = classNames(
-    "mv-min-h-screen",
+    "mv-min-h-screen mv-break-words",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
       "mv-overflow-hidden xl:mv-overflow-auto"
@@ -351,7 +351,7 @@ export default function App() {
   const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
 
   const bodyClasses = classNames(
-    "mv-min-h-screen",
+    "mv-min-h-screen mv-break-words",
     modal && "mv-overflow-hidden",
     showFilters !== null &&
       showFilters !== "false" &&
