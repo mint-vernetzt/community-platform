@@ -494,6 +494,9 @@ function Requirements() {
               setIsDirty(true);
             }
           }}
+          onSubmit={() => {
+            setIsDirty(false);
+          }}
           onReset={() => {
             setIsDirty(false);
           }}

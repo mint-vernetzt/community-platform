@@ -395,7 +395,8 @@ function General() {
   const [isDirty, setIsDirty] = React.useState(false);
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname
+      (actionData?.submission.error !== undefined || isDirty) &&
+      currentLocation.pathname !== nextLocation.pathname
   );
   if (blocker.state === "blocked") {
     const confirmed = confirm(t("content.prompt"));
@@ -418,6 +419,9 @@ function General() {
         {...form.props}
         onChange={() => {
           setIsDirty(true);
+        }}
+        onSubmit={() => {
+          setIsDirty(false);
         }}
         onReset={() => {
           setIsDirty(false);

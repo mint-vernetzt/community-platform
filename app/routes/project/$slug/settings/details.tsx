@@ -689,6 +689,9 @@ function Details() {
             setIsDirty(true);
           }
         }}
+        onSubmit={() => {
+          setIsDirty(false);
+        }}
         onReset={() => {
           setIsDirty(false);
         }}

@@ -236,6 +236,9 @@ function WebSocial() {
         onChange={() => {
           setIsDirty(true);
         }}
+        onSubmit={() => {
+          setIsDirty(false);
+        }}
         onReset={() => {
           setIsDirty(false);
         }}
