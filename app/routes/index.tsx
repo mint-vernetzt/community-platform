@@ -20,16 +20,15 @@ import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import { H1, H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import { RichText } from "~/components/Richtext/RichText";
 import { CountUp } from "./__components";
+import { Accordion } from "./__help.components";
 import {
   getEventCount,
   getOrganizationCount,
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { Accordion } from "./__help.components";
-import { RichText } from "~/components/Richtext/RichText";
 
 const i18nNS = ["routes/index", "help"];
 export const handle = {
@@ -63,8 +62,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/dashboard");
   }
 
-  const abilities = await getFeatureAbilities(authClient, ["keycloak"]);
-
   const profileCount = await getProfileCount();
   const organizationCount = await getOrganizationCount();
   const eventCount = await getEventCount();
@@ -75,7 +72,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organizationCount,
     eventCount,
     projectCount,
-    abilities,
   });
 };
 
@@ -188,38 +184,34 @@ export default function Index() {
 
               <div className="@md:mv-col-start-8 @md:mv-col-span-5 @lg:mv-col-start-9 @lg:mv-col-span-4 @xl:mv-col-start-8 @xl:mv-col-span-4">
                 <div className="py-8 mv-bg-transparent @sm:mv-bg-neutral-50 @sm:mv-rounded-3xl @sm:mv-p-8 @sm:mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
-                  {loaderData.abilities.keycloak.hasAccess && (
-                    <div className="text-center">
-                      <Button
-                        as="a"
-                        size="large"
-                        href={`/auth/keycloak${
-                          loginRedirect
-                            ? `?login_redirect=${loginRedirect}`
-                            : ""
-                        }`}
-                        variant="outline"
-                        fullSize
-                        name={t("login.withMintId")}
-                      >
-                        {t("login.withMintId")}
-                      </Button>
-                      <a
-                        href="https://mint-id.org/faq"
-                        target="_blank"
-                        rel="noreferrer "
-                        className="block py-2 text-primary font-semibold underline"
-                      >
-                        {t("login.moreInformation")}
-                      </a>
-                      <div className="mt-4 mb-8">
-                        <hr className="mx-5" />
-                        <span className="block -my-3 mx-auto w-fit px-4 text-primary mv-bg-white @sm:mv-mv-bg-neutral-50 font-bold">
-                          {t("login.or")}
-                        </span>
-                      </div>
+                  <div className="text-center">
+                    <Button
+                      as="a"
+                      size="large"
+                      href={`/auth/keycloak${
+                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                      }`}
+                      variant="outline"
+                      fullSize
+                      name={t("login.withMintId")}
+                    >
+                      {t("login.withMintId")}
+                    </Button>
+                    <a
+                      href="https://mint-id.org/faq"
+                      target="_blank"
+                      rel="noreferrer "
+                      className="block py-2 text-primary font-semibold underline"
+                    >
+                      {t("login.moreInformation")}
+                    </a>
+                    <div className="mt-4 mb-8">
+                      <hr className="mx-5" />
+                      <span className="block -my-3 mx-auto w-fit px-4 text-primary mv-bg-white @sm:mv-mv-bg-neutral-50 font-bold">
+                        {t("login.or")}
+                      </span>
                     </div>
-                  )}
+                  </div>
                   <LoginForm
                     method="post"
                     schema={schema}
@@ -273,74 +265,43 @@ export default function Index() {
                       </>
                     )}
                   </LoginForm>
-                  {loaderData.abilities.keycloak.hasAccess ? (
-                    <>
-                      <div className="mb-6 text-center">
-                        <Link
-                          to={`/reset${
-                            loginRedirect
-                              ? `?login_redirect=${loginRedirect}`
-                              : ""
-                          }`}
-                          className="text-primary font-bold underline"
-                        >
-                          {t("login.passwordForgotten")}
-                        </Link>
-                      </div>
-                      <div className="text-center">{t("login.noMember")}</div>
-                      <div className="flex justify-center gap-6">
-                        <Link
-                          to={`/register${
-                            loginRedirect
-                              ? `?login_redirect=${loginRedirect}`
-                              : ""
-                          }`}
-                          className="text-primary font-semibold underline"
-                        >
-                          {t("login.registerByEmail")}
-                        </Link>
-                        <Link
-                          to={`/auth/keycloak${
-                            loginRedirect
-                              ? `?login_redirect=${loginRedirect}`
-                              : ""
-                          }`}
-                          className="text-primary font-semibold underline"
-                        >
-                          {t("login.createMintId")}
-                        </Link>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="mb-6 text-center">
-                        <Link
-                          to={`/reset${
-                            loginRedirect
-                              ? `?login_redirect=${loginRedirect}`
-                              : ""
-                          }`}
-                          className="text-primary font-bold underline"
-                        >
-                          {t("login.passwordForgotten")}
-                        </Link>
-                      </div>
-
-                      <div className="text-center">
-                        {t("login.noMember")}{" "}
-                        <Link
-                          to={`/register${
-                            loginRedirect
-                              ? `?login_redirect=${loginRedirect}`
-                              : ""
-                          }`}
-                          className="text-primary font-bold underline"
-                        >
-                          {t("login.register")}
-                        </Link>
-                      </div>
-                    </>
-                  )}
+                  <>
+                    <div className="mb-6 text-center">
+                      <Link
+                        to={`/reset${
+                          loginRedirect
+                            ? `?login_redirect=${loginRedirect}`
+                            : ""
+                        }`}
+                        className="text-primary font-bold underline"
+                      >
+                        {t("login.passwordForgotten")}
+                      </Link>
+                    </div>
+                    <div className="text-center">{t("login.noMember")}</div>
+                    <div className="flex justify-center gap-6">
+                      <Link
+                        to={`/register${
+                          loginRedirect
+                            ? `?login_redirect=${loginRedirect}`
+                            : ""
+                        }`}
+                        className="text-primary font-semibold underline"
+                      >
+                        {t("login.registerByEmail")}
+                      </Link>
+                      <Link
+                        to={`/auth/keycloak${
+                          loginRedirect
+                            ? `?login_redirect=${loginRedirect}`
+                            : ""
+                        }`}
+                        className="text-primary font-semibold underline"
+                      >
+                        {t("login.createMintId")}
+                      </Link>
+                    </div>
+                  </>
                 </div>
 
                 <div className="text-center p-4 pb-0 text-primary text-sm">
