@@ -36,7 +36,7 @@ import {
 import { Trans, useTranslation } from "react-i18next";
 import { H1 } from "~/components/Heading/Heading";
 
-const sortValues = ["title-asc", "title-desc", "createdAt-desc"] as const;
+const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 
 const getFundingsSchema = z.object({
   filter: z
