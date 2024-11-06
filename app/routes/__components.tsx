@@ -373,7 +373,7 @@ function NavBarMenu(
               </TopicItem>
 
               <TopicItem
-                to="/next/explore/fundings"
+                to="/explore/fundings"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {t("root.menu.explore.fundings")}

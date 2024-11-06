@@ -7,7 +7,7 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
-import FundingCard from "../next/explore/__components";
+import { FundingCard } from "../explore/__components";
 import {
   countSearchedFundings,
   getQueryValueAsArrayOfWords,
@@ -15,7 +15,7 @@ import {
   searchFundingsViaLike,
 } from "./utils.server";
 
-const i18nNS = ["routes/search/fundings", "routes/next/explore/fundings"];
+const i18nNS = ["routes/search/fundings", "routes/explore/fundings"];
 export const handle = {
   i18n: i18nNS,
 };

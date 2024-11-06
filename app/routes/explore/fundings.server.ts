@@ -1,8 +1,8 @@
 import { prismaClient } from "~/prisma.server";
-import { FilterKey, GetFundingsSchema } from "./fundings";
+import { type FilterKey, type GetFundingsSchema } from "./fundings";
 import { json } from "@remix-run/server-runtime";
 import { invariantResponse } from "~/lib/utils/response";
-import { ArrayElement } from "~/lib/utils/types";
+import { type ArrayElement } from "~/lib/utils/types";
 
 export function getKeys(key: FilterKey) {
   let singularKey;

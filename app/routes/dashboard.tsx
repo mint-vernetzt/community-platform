@@ -541,7 +541,7 @@ function getDataForUpdateTeasers() {
       icon: "Plus big",
     },
     crawler: {
-      link: "/next/explore/fundings",
+      link: "/explore/fundings",
       icon: "piggy-bank",
     },
   };

@@ -1,6 +1,6 @@
 import { prismaClient } from "~/prisma.server";
 import { updateFilterVectorOfEvent } from "~/routes/event/$slug/settings/utils.server";
-import { updateFilterVectorOfFunding } from "~/routes/next/explore/fundings.server";
+import { updateFilterVectorOfFunding } from "~/routes/explore/fundings.server";
 import { updateFilterVectorOfOrganization } from "~/routes/organization/$slug/settings/utils.server";
 import { updateFilterVectorOfProfile } from "~/routes/profile/$username/utils.server";
 import { updateFilterVectorOfProject } from "~/routes/project/$slug/settings/utils.server";

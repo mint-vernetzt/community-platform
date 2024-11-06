@@ -24,8 +24,8 @@ import {
   Filters,
   FormControl,
   ShowFiltersButton,
-} from "../../explore/__components";
-import FundingCard from "./__components";
+  FundingCard,
+} from "./__components";
 import {
   getFilterCountForSlug,
   getFundingFilterVector,
@@ -405,7 +405,7 @@ export async function loader(args: LoaderFunctionArgs) {
   } as const);
 }
 
-const i18nNS = ["routes/next/explore/fundings"];
+const i18nNS = ["routes/explore/fundings"];
 export const handle = {
   i18n: i18nNS,
 };
