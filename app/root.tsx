@@ -115,6 +115,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "my_organizations",
     "my_events",
     "my_projects",
+    "sharepic",
   ]);
 
   const user = await getSessionUser(authClient);
