@@ -34,7 +34,7 @@ import {
 import { Trans, useTranslation } from "react-i18next";
 import { H1 } from "~/components/Heading/Heading";
 
-const sortValues = ["title-asc", "title-desc", "createdAt-desc"] as const;
+const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 
 const getFundingsSchema = z.object({
   filter: z
@@ -431,7 +431,7 @@ function Fundings() {
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
         <div className="mv-flex mv-flex-col mv-justify-center mv-gap-8">
           <div>
-            <span className="mv-text-white mv-text-xs mv-pt-[2px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[18px]">
+            <span className="mv-text-white mv-text-xs mv-py-[2px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[18px] mv-font-semibold">
               BETA
             </span>
             <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
@@ -742,7 +742,7 @@ function Fundings() {
             <Button>{t("filter.apply")}</Button>
           </noscript>
         </Form>
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+        <div className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-mb-4">
           <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
         </div>
         <section className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 mv-px-0">
