@@ -432,7 +432,7 @@ function NavBarMenu(
                   openNavBarMenuKey={props.openNavBarMenuKey}
                 >
                   {t("root.menu.explore.fundings")}
-                  <span className="mv-text-white mv-text-xs mv-pt-[2px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[18px] mv-absolute mv-top-2 mv-right-2">
+                  <span className="mv-text-white mv-text-xs mv-pt-[4px] mv-pb-[6px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[20px] mv-absolute mv-top-2 mv-right-2 mv-font-semibold">
                     BETA
                   </span>
                 </TopicItem>
