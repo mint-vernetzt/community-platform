@@ -450,28 +450,22 @@ function NavBarMenu(
                   {t("root.menu.ressources.label")}
                 </div>
               </Label>
-
-              {/* TODO: Implement this when MINT-Sharepic is implemented */}
-              {/* <TopicItem
-                // TODO: Link to MINT-Sharepic when its available
-                to=""
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {t("root.menu.ressources.sharepic")}
-                <Icon type="box-arrow-up-right" />
-                <NewFeatureBanner />
-              </TopicItem> */}
-
-              {/* TODO: Implement this when MINT-Bildarchiv is implemented */}
-              {/* <TopicItem
-                // TODO: Link to MINT-Bildarchiv when its available
-                to=""
+              <TopicItem
+                to="https://media-tool.mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {t("root.menu.ressources.imageArchive")}
                 <Icon type="box-arrow-up-right" />
-                <NewFeatureBanner />
-              </TopicItem> */}
+              </TopicItem>
+              {props.abilities.sharepic?.hasAccess && (
+                <TopicItem
+                  to="https://mint.sharepicgenerator.de/"
+                  openNavBarMenuKey={props.openNavBarMenuKey}
+                >
+                  {t("root.menu.ressources.sharepic")}
+                  <Icon type="box-arrow-up-right" />
+                </TopicItem>
+              )}
 
               <TopicItem
                 to="https://mint-vernetzt.de"

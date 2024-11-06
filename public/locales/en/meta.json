@@ -40,8 +40,8 @@
       },
       "ressources": {
         "label": "Ressources",
-        "sharepic": "MINT-Sharepic",
-        "imageArchive": "STEM image archive",
+        "sharepic": "MINT-Sharepic Generator",
+        "imageArchive": "MINT-Mediendatenbank",
         "campus": "MINT-Campus",
         "datalab": "MINT-DataLab",
         "website": "MINTvernetzt Website",
