@@ -26,7 +26,6 @@ import {
 } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
@@ -73,17 +72,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  const abilities = await getFeatureAbilities(authClient, [
-    "my_organizations",
-    "add-to-organization",
-  ]);
-  if (
-    abilities["my_organizations"].hasAccess === false ||
-    abilities["add-to-organization"].hasAccess === false
-  ) {
-    return redirect("/");
-  }
-
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
   if (sessionUser === null && redirectPath !== null) {
@@ -116,7 +104,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return json({
     organizations: flattenedOrganizations,
     invites: enhancedInvites,
-    abilities,
     organizationsToAdd,
     pendingRequestsToOrganizations,
     adminOrganizationsWithPendingRequests:
@@ -143,11 +130,6 @@ export const action = async (args: ActionFunctionArgs) => {
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
-
-  const abilities = await getFeatureAbilities(authClient, "my_organizations");
-  if (abilities.my_organizations.hasAccess === false) {
-    return redirect("/");
-  }
 
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
@@ -650,53 +632,50 @@ export default function MyOrganizations() {
               })}
             </section>
           ) : null}
-          {loaderData.abilities["add-to-organization"].hasAccess ? (
-            <Section>
-              <Section.Headline>
-                {t("addOrganization.headline")}
-              </Section.Headline>
-              <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
-              <AddOrganization
-                organizations={loaderData.organizationsToAdd}
-                memberOrganizations={loaderData.organizations}
-                pendingRequestsToOrganizations={
-                  loaderData.pendingRequestsToOrganizations
-                }
-                invites={loaderData.invites}
-                createRequestFetcher={createRequestFetcher}
-              />
-              {loaderData.pendingRequestsToOrganizations.length > 0 ? (
-                <>
-                  <hr />
-                  <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
-                    {t("requests.headline")}
-                  </h4>
-                  <ListContainer
-                    listKey="pending-requests-to-organizations"
-                    hideAfter={3}
-                  >
-                    {loaderData.pendingRequestsToOrganizations.map(
-                      (organization, index) => {
-                        return (
-                          <ListItem
-                            key={`cancel-request-from-${organization.id}`}
-                            listIndex={index}
-                            entity={organization}
-                            hideAfter={3}
-                          >
-                            <CancelRequestFetcher
-                              fetcher={cancelRequestFetcher}
-                              organizationId={organization.id}
-                            />
-                          </ListItem>
-                        );
-                      }
-                    )}
-                  </ListContainer>
-                </>
-              ) : null}
-            </Section>
-          ) : null}
+
+          <Section>
+            <Section.Headline>{t("addOrganization.headline")}</Section.Headline>
+            <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
+            <AddOrganization
+              organizations={loaderData.organizationsToAdd}
+              memberOrganizations={loaderData.organizations}
+              pendingRequestsToOrganizations={
+                loaderData.pendingRequestsToOrganizations
+              }
+              invites={loaderData.invites}
+              createRequestFetcher={createRequestFetcher}
+            />
+            {loaderData.pendingRequestsToOrganizations.length > 0 ? (
+              <>
+                <hr />
+                <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
+                  {t("requests.headline")}
+                </h4>
+                <ListContainer
+                  listKey="pending-requests-to-organizations"
+                  hideAfter={3}
+                >
+                  {loaderData.pendingRequestsToOrganizations.map(
+                    (organization, index) => {
+                      return (
+                        <ListItem
+                          key={`cancel-request-from-${organization.id}`}
+                          listIndex={index}
+                          entity={organization}
+                          hideAfter={3}
+                        >
+                          <CancelRequestFetcher
+                            fetcher={cancelRequestFetcher}
+                            organizationId={organization.id}
+                          />
+                        </ListItem>
+                      );
+                    }
+                  )}
+                </ListContainer>
+              </>
+            ) : null}
+          </Section>
           {organizations.teamMember.organizations.length > 0 ||
           organizations.admin.organizations.length > 0 ? (
             <Section>

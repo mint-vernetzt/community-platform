@@ -12,15 +12,15 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import classNames from "classnames";
+import Cookies from "js-cookie";
 import React, { useEffect } from "react";
 import { useCountUp, type CountUpProps } from "react-countup";
-import { useTranslation } from "react-i18next";
-import Search from "~/components/Search/Search";
-import { type getFeatureAbilities } from "~/lib/utils/application";
-import { type Mode } from "~/utils.server";
 import { createPortal } from "react-dom";
-import Cookies from "js-cookie";
+import { useTranslation } from "react-i18next";
 import { useHydrated } from "remix-utils/use-hydrated";
+import Search from "~/components/Search/Search";
+import { getFeatureAbilities } from "~/lib/utils/application";
+import { type Mode } from "~/utils.server";
 // import { useHydrated } from "remix-utils/use-hydrated";
 
 function CountUp(props: CountUpProps) {
@@ -190,7 +190,7 @@ function NavBarMenu(
     mode: Mode;
     openNavBarMenuKey: string;
     username?: string;
-    abilities: Awaited<ReturnType<typeof getFeatureAbilities>>;
+    abilities?: Awaited<ReturnType<typeof getFeatureAbilities>>;
   }
 ) {
   const location = useLocation();
@@ -266,19 +266,11 @@ function NavBarMenu(
                 >
                   <Label>
                     {location.pathname === `/profile/${props.username}` ||
-                    (location.pathname === "/my/organizations" &&
-                      props.abilities.my_organizations.hasAccess) ||
-                    (location.pathname === "/organization/create" &&
-                      props.abilities.my_organizations.hasAccess === false) ||
-                    (location.pathname === "/my/events" &&
-                      props.abilities.my_events.hasAccess) ||
-                    (location.pathname === "/event/create" &&
-                      props.abilities.my_events.hasAccess === false) ||
-                    location.pathname === "/project/create" ||
-                    (location.pathname === "/my/projects" &&
-                      props.abilities.my_projects.hasAccess) ||
-                    (location.pathname === "/project/create" &&
-                      props.abilities.my_projects.hasAccess === false) ||
+                    location.pathname === "/my/organizations" ||
+                    location.pathname === "/organization/create" ||
+                    location.pathname === "/my/events" ||
+                    location.pathname === "/event/create" ||
+                    location.pathname === "/my/projects" ||
                     location.pathname === "/project/create" ? (
                       <Icon type="person" />
                     ) : (
@@ -296,73 +288,26 @@ function NavBarMenu(
                     {t("root.menu.personalSpace.myProfile")}
                   </TopicItem>
 
-                  {props.abilities.my_organizations.hasAccess ? (
-                    <TopicItem
-                      to={`/my/organizations`}
-                      openNavBarMenuKey={props.openNavBarMenuKey}
-                    >
-                      {t("root.menu.personalSpace.myOrganizations")}
-                    </TopicItem>
-                  ) : (
-                    <TopicItem
-                      to={`/organization/create`}
-                      openNavBarMenuKey={props.openNavBarMenuKey}
-                    >
-                      {t("root.menu.personalSpace.createOrganization")}
-                    </TopicItem>
-                  )}
+                  <TopicItem
+                    to={`/my/organizations`}
+                    openNavBarMenuKey={props.openNavBarMenuKey}
+                  >
+                    {t("root.menu.personalSpace.myOrganizations")}
+                  </TopicItem>
 
-                  {props.abilities.events?.hasAccess &&
-                    props.abilities.my_events.hasAccess === false && (
-                      <TopicItem
-                        to={`/event/create`}
-                        openNavBarMenuKey={props.openNavBarMenuKey}
-                      >
-                        {t("root.menu.personalSpace.createEvent")}
-                      </TopicItem>
-                    )}
-
-                  {props.abilities.events.hasAccess &&
-                    props.abilities.my_events.hasAccess && (
-                      <TopicItem
-                        to={`/my/events`}
-                        openNavBarMenuKey={props.openNavBarMenuKey}
-                      >
-                        {t("root.menu.personalSpace.myEvents")}
-                      </TopicItem>
-                    )}
-
-                  {props.abilities.my_projects.hasAccess ? (
-                    <TopicItem
-                      to={`/my/projects`}
-                      openNavBarMenuKey={props.openNavBarMenuKey}
-                    >
-                      {t("root.menu.personalSpace.myProjects")}
-                    </TopicItem>
-                  ) : (
-                    <TopicItem
-                      to={`/project/create`}
-                      openNavBarMenuKey={props.openNavBarMenuKey}
-                    >
-                      {t("root.menu.personalSpace.createProject")}
-                    </TopicItem>
-                  )}
-
-                  {/* TODO: Link to event overview route when its implemented */}
-                  {/* <TopicItem
+                  <TopicItem
                     to={`/my/events`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.myEvents")}
-                  </TopicItem> */}
+                  </TopicItem>
 
-                  {/* TODO: Link to project overview route when its implemented */}
-                  {/* <TopicItem
+                  <TopicItem
                     to={`/my/projects`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {t("root.menu.personalSpace.myProjects")}
-                  </TopicItem> */}
+                  </TopicItem>
 
                   {/* TODO: Implement this when Network overview is implemented */}
                   {/* <TopicItem
@@ -426,17 +371,16 @@ function NavBarMenu(
               >
                 {t("root.menu.explore.events")}
               </TopicItem>
-              {props.abilities.fundings?.hasAccess && (
-                <TopicItem
-                  to="/next/explore/fundings"
-                  openNavBarMenuKey={props.openNavBarMenuKey}
-                >
-                  {t("root.menu.explore.fundings")}
-                  <span className="mv-text-white mv-text-xs mv-pt-[4px] mv-pb-[6px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[20px] mv-absolute mv-top-2 mv-right-2 mv-font-semibold">
-                    BETA
-                  </span>
-                </TopicItem>
-              )}
+
+              <TopicItem
+                to="/next/explore/fundings"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                {t("root.menu.explore.fundings")}
+                <span className="mv-text-white mv-text-xs mv-pt-[2px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[18px] mv-absolute mv-top-2 mv-right-2">
+                  BETA
+                </span>
+              </TopicItem>
             </Topic>
 
             <Topic
@@ -457,7 +401,7 @@ function NavBarMenu(
                 {t("root.menu.ressources.imageArchive")}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
-              {props.abilities.sharepic?.hasAccess && (
+              {props.abilities?.sharepic?.hasAccess && (
                 <TopicItem
                   to="https://mint.sharepicgenerator.de/"
                   openNavBarMenuKey={props.openNavBarMenuKey}
@@ -1591,4 +1535,4 @@ function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
   );
 }
 
-export { CountUp, Modal, NavBarMenu, NavBar, Footer, LoginOrRegisterCTA, Icon };
+export { CountUp, Footer, Icon, LoginOrRegisterCTA, Modal, NavBar, NavBarMenu };

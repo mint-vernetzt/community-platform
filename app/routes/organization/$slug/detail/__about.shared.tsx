@@ -1,7 +1,4 @@
-export const i18nNS = [
-  "routes/next/organization/detail/about",
-  "datasets/focuses",
-];
+export const i18nNS = ["routes/organization/detail/about", "datasets/focuses"];
 
 export function hasGeneralInformation(organization: {
   bio: string | null;

@@ -34,7 +34,6 @@ import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import { H1, H2 } from "./components/Heading/Heading";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
-import { getFeatureAbilities } from "./lib/utils/application";
 import { detectLanguage, getProfileByUserId } from "./root.server";
 import {
   LoginOrRegisterCTA,
@@ -49,6 +48,7 @@ import { combineHeaders, deriveMode } from "./utils.server";
 import { getToast } from "./toast.server";
 import { ToastContainer } from "./__toast.components";
 import { getEnv } from "./env.server";
+import { getFeatureAbilities } from "./lib/utils/application";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -106,17 +106,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { authClient, headers } = createAuthClient(request);
 
-  const abilities = await getFeatureAbilities(authClient, [
-    "events",
-    "projects",
-    "dashboard",
-    "fundings",
-    "abuse_report",
-    "my_organizations",
-    "my_events",
-    "my_projects",
-    "sharepic",
-  ]);
+  const abilities = await getFeatureAbilities(authClient, ["sharepic"]);
 
   const user = await getSessionUser(authClient);
 
@@ -172,12 +162,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       sessionUserInfo,
-      abilities,
       alert,
       toast,
       locale,
       ENV: getEnv(),
       mode,
+      abilities,
       meta: {
         baseUrl: process.env.COMMUNITY_BASE_URL,
         url: request.url,
@@ -262,7 +252,9 @@ export const ErrorBoundary = () => {
                   ? rootLoaderData.sessionUserInfo.username
                   : undefined
               }
-              abilities={hasRootLoaderData ? rootLoaderData.abilities : {}}
+              abilities={
+                hasRootLoaderData ? rootLoaderData.abilities : undefined
+              }
             />
             <div className="mv-flex-grow mv-@container min-h-screen">
               <div className="mv-min-h-screen">
@@ -320,12 +312,12 @@ export default function App() {
     matomoUrl,
     matomoSiteId,
     sessionUserInfo,
-    abilities,
     alert,
     toast,
     locale,
     mode,
     ENV,
+    abilities,
   } = useLoaderData<typeof loader>();
 
   React.useEffect(() => {

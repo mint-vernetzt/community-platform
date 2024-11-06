@@ -29,14 +29,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  const abilities = await getFeatureAbilities(authClient, [
-    "my_events",
-    "events",
-  ]);
-
-  if (abilities.my_events.hasAccess === false) {
-    return redirect("/");
-  }
+  const abilities = await getFeatureAbilities(authClient, ["events"]);
 
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);

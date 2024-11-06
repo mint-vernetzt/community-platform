@@ -1,5 +1,5 @@
 import { Button } from "@mint-vernetzt/components";
-import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import {
   Link,
   useLoaderData,
@@ -7,8 +7,6 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
-import { createAuthClient } from "~/auth.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import FundingCard from "../next/explore/__components";
 import {
   countSearchedFundings,
@@ -24,12 +22,6 @@ export const handle = {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
-  const { authClient } = createAuthClient(request);
-  const abilities = await getFeatureAbilities(authClient, "fundings");
-
-  if (abilities.fundings.hasAccess === false) {
-    return redirect("/");
-  }
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { take, page, itemsPerPage } = getTakeParam(request, {

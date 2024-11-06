@@ -7,6 +7,7 @@ import {
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import Search from "~/components/Search/Search";
@@ -18,8 +19,6 @@ import {
   countSearchedProjects,
   getQueryValueAsArrayOfWords,
 } from "./search/utils.server";
-import { useTranslation } from "react-i18next";
-import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/search"];
 export const handle = {
@@ -31,8 +30,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const { authClient } = await createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-
-  const abilities = await getFeatureAbilities(authClient, "fundings");
 
   const countData = {
     profiles: 0,
@@ -47,10 +44,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       countSearchedOrganizations(searchQuery, sessionUser),
       countSearchedEvents(searchQuery, sessionUser),
       countSearchedProjects(searchQuery, sessionUser),
+      countSearchedFundings(searchQuery),
     ];
-    if (abilities["fundings"].hasAccess) {
-      promises.push(countSearchedFundings(searchQuery));
-    }
     const [
       profilesCount,
       organizationsCount,
@@ -62,9 +57,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     countData.organizations = organizationsCount;
     countData.events = eventsCount;
     countData.projects = projectsCount;
-    if (abilities["fundings"].hasAccess) {
-      countData.fundings = fundingsCount;
-    }
+    countData.fundings = fundingsCount;
   }
 
   return json({
@@ -73,7 +66,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     eventsCount: countData.events,
     projectsCount: countData.projects,
     fundingsCount: countData.fundings,
-    abilities,
   });
 };
 
@@ -136,16 +128,14 @@ function SearchView() {
           >
             {t("projects")} (<>{loaderData.projectsCount}</>)
           </NavLink>
-          {loaderData.abilities["fundings"].hasAccess ? (
-            <NavLink
-              id="funding-tab"
-              className={({ isActive }) => getClassName(isActive)}
-              to={`fundings?query=${query}`}
-              preventScrollReset
-            >
-              {t("fundings")} (<>{loaderData.fundingsCount}</>)
-            </NavLink>
-          ) : null}
+          <NavLink
+            id="funding-tab"
+            className={({ isActive }) => getClassName(isActive)}
+            to={`fundings?query=${query}`}
+            preventScrollReset
+          >
+            {t("fundings")} (<>{loaderData.fundingsCount}</>)
+          </NavLink>
         </ul>
       </section>
       <Outlet />

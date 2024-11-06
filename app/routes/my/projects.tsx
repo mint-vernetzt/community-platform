@@ -1,21 +1,20 @@
-import { useTranslation } from "react-i18next";
-import { AddIcon, Container, Placeholder } from "./__components";
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
-import { Section, TabBarTitle } from "./__events.components";
+import {
+  Button,
+  CardContainer,
+  ProjectCard,
+  TabBar,
+} from "@mint-vernetzt/components";
 import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import { AddIcon, Container, Placeholder } from "./__components";
+import { Section, TabBarTitle } from "./__events.components";
 import { getProjects } from "./projects.server";
-import {
-  CardContainer,
-  ProjectCard,
-  TabBar,
-  Button,
-} from "@mint-vernetzt/components";
-import React from "react";
 
 export const i18nNS = ["routes/my/projects"];
 
@@ -26,12 +25,6 @@ export const handle = {
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
-
-  const abilities = await getFeatureAbilities(authClient, ["my_projects"]);
-
-  if (abilities.my_projects.hasAccess === false) {
-    return redirect("/");
-  }
 
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);

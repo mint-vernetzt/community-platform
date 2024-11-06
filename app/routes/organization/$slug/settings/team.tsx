@@ -1,3 +1,4 @@
+import { Avatar } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -40,8 +41,6 @@ import {
   removeMemberSchema,
   type action as removeMemberAction,
 } from "./team/remove-member";
-import { getFeatureAbilities } from "~/lib/utils/application";
-import { Avatar } from "@mint-vernetzt/components";
 
 const i18nNS = ["routes/organization/settings/team"];
 export const handle = {
@@ -97,18 +96,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  const abilities = await getFeatureAbilities(
-    authClient,
-    "add-to-organization"
-  );
-
   return json({
     members,
     invitedProfiles,
     memberSuggestions,
     organizationId: organization.id,
     slug: slug,
-    abilities,
   });
 };
 
@@ -190,8 +183,7 @@ function Index() {
           {addMemberFetcher.data.message}
         </div>
       ) : null}
-      {loaderData.abilities["add-to-organization"].hasAccess &&
-      loaderData.invitedProfiles.length > 0 ? (
+      {loaderData.invitedProfiles.length > 0 ? (
         <>
           <h4 className="mb-4 mt-16 font-semibold">
             {t("content.invites.headline")}

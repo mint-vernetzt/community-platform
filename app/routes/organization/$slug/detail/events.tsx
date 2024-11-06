@@ -1,21 +1,20 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
+import { ListContainer } from "~/routes/my/__components";
+import { Container, ListItem } from "~/routes/my/__events.components";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
+import { i18nNS } from "./__events.shared";
 import {
   addImgUrls,
   filterOrganization,
   getOrganization,
 } from "./events.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { useTranslation } from "react-i18next";
-import { useLoaderData } from "@remix-run/react";
-import { Container, ListItem } from "~/routes/my/__events.components";
-import { i18nNS } from "./__events.shared";
-import { ListContainer } from "~/routes/my/__components";
 
 export const handle = {
   i18n: i18nNS,
@@ -25,7 +24,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, "next-organization-detail");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);

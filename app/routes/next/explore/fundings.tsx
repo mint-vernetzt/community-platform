@@ -6,7 +6,7 @@ import {
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button, Chip } from "@mint-vernetzt/components";
-import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -17,8 +17,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { z } from "zod";
-import { createAuthClient } from "~/auth.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import {
@@ -91,12 +89,6 @@ export type FilterKey = keyof GetFundingsSchema["filter"];
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
-  const { authClient } = createAuthClient(request);
-  const abilities = await getFeatureAbilities(authClient, "fundings");
-
-  if (abilities.fundings.hasAccess === false) {
-    return redirect("/");
-  }
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -104,7 +96,9 @@ export async function loader(args: LoaderFunctionArgs) {
     schema: getFundingsSchema,
   });
 
-  invariantResponse(submission.status === "success", "???");
+  invariantResponse(submission.status === "success", "Bad request", {
+    status: 400,
+  });
 
   const take = submission.value.page * 12;
 
@@ -456,7 +450,9 @@ function Fundings() {
                     <Link
                       to="mailto:community@mint-vernetzt.de"
                       className="mv-font-semibold hover:mv-underline"
-                    />
+                    >
+                      {" "}
+                    </Link>
                   ),
                 }}
               />

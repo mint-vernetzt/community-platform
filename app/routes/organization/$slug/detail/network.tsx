@@ -1,21 +1,20 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
+import { ListContainer, ListItem } from "~/routes/my/__components";
+import { Container } from "~/routes/my/__events.components";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
+import { i18nNS } from "./__network.shared";
 import {
   addImgUrls,
   filterOrganization,
   getOrganization,
-} from "./projects.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { useTranslation } from "react-i18next";
-import { useLoaderData } from "@remix-run/react";
-import { Container } from "~/routes/my/__events.components";
-import { i18nNS } from "./__projects.shared";
-import { ListContainer, ListItem } from "~/routes/my/__components";
+} from "./network.server";
 
 export const handle = {
   i18n: i18nNS,
@@ -25,7 +24,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, "next-organization-detail");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
@@ -55,25 +53,43 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
-function Projects() {
+function Network() {
   const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
   const { organization } = loaderData;
 
   return (
     <Container.Section className="-mv-mt-4 @md:-mv-mt-6 @lg:-mv-mt-8 mv-pt-10 @sm:mv-py-8 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-10 @sm:mv-border-b @sm:mv-border-x @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-b-2xl">
-      {organization.responsibleForProject.length > 0 ? (
+      {organization.memberOf.length > 0 ? (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
-            {t("headlines.responsibleForProject")}
+            {t("headlines.memberOf")}
           </h2>
-          <ListContainer listKey="responsible-for-project">
-            {organization.responsibleForProject.map((relation, index) => {
+          <ListContainer listKey="member-of-networks">
+            {organization.memberOf.map((relation, index) => {
               return (
                 <ListItem
-                  key={`responsible-for-project-${relation.project.slug}`}
+                  key={`member-of-network-${relation.network.slug}`}
                   listIndex={index}
-                  entity={relation.project}
+                  entity={relation.network}
+                />
+              );
+            })}
+          </ListContainer>
+        </div>
+      ) : null}
+      {organization.networkMembers.length > 0 ? (
+        <div className="mv-flex mv-flex-col mv-gap-4">
+          <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
+            {t("headlines.networkMembers")}
+          </h2>
+          <ListContainer listKey="member-of-networks">
+            {organization.networkMembers.map((relation, index) => {
+              return (
+                <ListItem
+                  key={`network-member-${relation.networkMember.slug}`}
+                  listIndex={index}
+                  entity={relation.networkMember}
                 />
               );
             })}
@@ -84,4 +100,4 @@ function Projects() {
   );
 }
 
-export default Projects;
+export default Network;

@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
 import i18next from "~/i18next.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
@@ -32,7 +31,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, "next-organization-detail");
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);

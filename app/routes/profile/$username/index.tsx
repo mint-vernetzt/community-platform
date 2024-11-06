@@ -209,10 +209,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     throw json(t("error.profileNotFound"), { status: 404 });
   }
 
-  const abilities = await getFeatureAbilities(authClient, [
-    "events",
-    "projects",
-  ]);
+  const abilities = await getFeatureAbilities(authClient, ["events"]);
 
   // Overwrite administeredeEvents on mode !== "owner" with empty array
   let filteredProfile = {
@@ -828,8 +825,7 @@ export default function Index() {
                       {t("section.projects.title")}
                     </h3>
                   </div>
-                  {loaderData.mode === "owner" &&
-                  loaderData.abilities.projects.hasAccess ? (
+                  {loaderData.mode === "owner" ? (
                     <div className="flex-initial pl-4">
                       <Link
                         to="/project/create"
