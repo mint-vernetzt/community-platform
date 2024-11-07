@@ -120,10 +120,6 @@ function Roadmap() {
               title={t("secondColumn.thirdCard.title")}
               text={t("secondColumn.thirdCard.description")}
             />
-            <RoadmapCard
-              title={t("secondColumn.fourthCard.title")}
-              text={t("secondColumn.fourthCard.description")}
-            />
           </RoadmapColumn>
 
           <RoadmapColumn title={t("thirdColumn.title")} id="3">
@@ -162,6 +158,10 @@ function Roadmap() {
             <RoadmapCard
               title={t("thirdColumn.ninthCard.title")}
               text={t("thirdColumn.ninthCard.description")}
+            />
+            <RoadmapCard
+              title={t("thirdColumn.tenthCard.title")}
+              text={t("thirdColumn.tenthCard.description")}
             />
           </RoadmapColumn>
         </div>

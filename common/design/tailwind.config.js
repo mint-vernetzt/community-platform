@@ -194,6 +194,7 @@ module.exports = {
     "peer-checked:mv-grid-rows-7",
     "peer-checked:mv-grid-rows-8",
     "peer-checked:mv-grid-rows-9",
+    "peer-checked:mv-grid-rows-10",
     "mv-bg-neutral",
     "mv-bg-neutral-50",
     "mv-bg-neutral-100",
