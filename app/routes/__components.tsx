@@ -395,7 +395,7 @@ function NavBarMenu(
                 </div>
               </Label>
               <TopicItem
-                to="https://media-tool.mint-vernetzt.de"
+                to="https://mediendatenbank.mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {t("root.menu.ressources.imageArchive")}
