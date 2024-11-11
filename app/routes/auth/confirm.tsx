@@ -30,8 +30,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // Get search param token_hash
   const tokenHash = confirmationLinkUrl.searchParams.get("token_hash");
   invariantResponse(tokenHash !== null, "Bad request", { status: 400 });
-  const isPKCEToken = /^(pkce_)?[0-9A-Fa-f]+$/g.test(tokenHash);
-  invariantResponse(isPKCEToken, "Bad request", { status: 400 });
+  const isValidToken = /^(pkce_)?[0-9A-Fa-f]+$/g.test(tokenHash);
+  invariantResponse(isValidToken, "Bad request", { status: 400 });
   // Get search param type
   const type = url.searchParams.get("type") as EmailOtpType | null;
   invariantResponse(type !== null, "Bad request", { status: 400 });
