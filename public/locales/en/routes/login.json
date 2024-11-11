@@ -9,7 +9,9 @@
     }
   },
   "error": {
-    "invalidCredentials": "Your login credentials (email or password) are incorrect. Please check your entries."
+    "invalidCredentials": "Your login credentials (email or password) are incorrect. Please check your entries.",
+    "notConfirmed": "Your email address has not yet been confirmed. Please check your inbox and click on the confirmation link. If you haven't received an email, please check your spam folder or contact <0>Support</0>.",
+    "confirmationLinkExpired": "Your confirmation link has expired. Please contact <0>Support</0> to request a new one."
   },
   "content": {
     "headline": "Login",

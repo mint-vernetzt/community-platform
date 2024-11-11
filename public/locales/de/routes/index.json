@@ -10,7 +10,9 @@
     "noMember": "Noch kein Mitglied?",
     "registerByEmail": "Registrieren mit E-Mail",
     "createMintId": "MINT-ID erstellen",
-    "register": "Registrieren"
+    "register": "Registrieren",
+    "invalidCredentials": "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.",
+    "notConfirmed": "Deine E-Mail-Adresse wurde noch nicht bestätigt. Bitte überprüfe Dein Postfach und klicke auf den Bestätigungslink. Wenn Du keine E-Mail erhalten hast, überprüfe bitte Deinen Spam-Ordner oder melde Dich beim <0>Support</0>."
   },
   "form": {
     "label": {
