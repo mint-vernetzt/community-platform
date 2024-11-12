@@ -18,7 +18,7 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import {
   createAuthClient,
@@ -58,6 +58,7 @@ import {
   type action as requestsAction,
 } from "./organizations/requests";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
+import { Icon } from "../__components";
 
 export const i18nNS = [
   "routes/my/organizations",
@@ -479,6 +480,129 @@ export default function MyOrganizations() {
               {t("cta")}
             </Button>
           </div>
+          {/* Information about organization type network Section */}
+          <Section additionalClassNames="mv-group">
+            <Section.Headline>{t("networkInfo.headline")}</Section.Headline>
+            <div className="mv-text-neutral-700 mv-text-lg mv-leading-[22px]">
+              <p className="mv-font-semibold">{t("networkInfo.sublineOne")}</p>
+              <p>
+                <Trans
+                  i18nKey="networkInfo.sublineTwo"
+                  ns={i18nNS}
+                  components={[
+                    <span
+                      key="network-info-subline-two-semibold"
+                      className="mv-font-semibold"
+                    />,
+                  ]}
+                />
+              </p>
+            </div>
+
+            <div className="mv-w-full mv-border mv-border-neutral-200 mv-hidden group-has-[:checked]:mv-block" />
+            <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-lg mv-font-bold mv-leading-6 mv-hidden group-has-[:checked]:mv-block">
+              {t("networkInfo.steps.headline")}
+            </h3>
+            <ol className="mv-w-full mv-flex-col mv-gap-6 mv-list-none mv-pr-6 mv-max-w-[964px] mv-hidden group-has-[:checked]:mv-flex">
+              <li className="mv-w-full mv-flex mv-gap-2">
+                <span className="mv-text-center mv-align-middle mv-w-5 mv-h-5 mv-rounded-full mv-bg-primary-50 mv-text-sm mv-text-primary mv-font-semibold mv-leading-[18px]">
+                  1
+                </span>
+                <div className="mv-w-full mv-flex mv-flex-col mv-gap-5">
+                  <p className="mv-text-primary mv-font-semibold mv-leading-5">
+                    {t("networkInfo.steps.checkExisting.headline")}
+                  </p>
+                  <p className="mv-text-neutral-700 mv-leading-5">
+                    <Trans
+                      i18nKey="networkInfo.steps.checkExisting.description"
+                      ns={i18nNS}
+                      components={[
+                        <span
+                          key="network-info-step-check-existing-description-semibold"
+                          className="mv-font-semibold"
+                        />,
+                      ]}
+                    />
+                  </p>
+                </div>
+              </li>
+              <li className="mv-w-full mv-flex mv-gap-2">
+                <span className="mv-text-center mv-align-middle mv-w-5 mv-h-5 mv-rounded-full mv-bg-primary-50 mv-text-sm mv-text-primary mv-font-semibold mv-leading-[18px]">
+                  2
+                </span>
+                <div className="mv-w-full mv-flex mv-flex-col mv-gap-5">
+                  <p className="mv-text-primary mv-font-semibold mv-leading-5">
+                    {t("networkInfo.steps.createNetwork.headline")}
+                  </p>
+                  <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-text-neutral-700 mv-leading-5">
+                    <p>
+                      <Trans
+                        i18nKey="networkInfo.steps.createNetwork.descriptionOne"
+                        ns={i18nNS}
+                        components={[
+                          <span
+                            key="network-info-step-create-network-description-one-semibold"
+                            className="mv-font-semibold"
+                          />,
+                        ]}
+                      />
+                    </p>
+                    {/* TODO: Text change from design requested */}
+                    <p>{t("networkInfo.steps.createNetwork.descriptionTwo")}</p>
+                  </div>
+                </div>
+              </li>
+              <li className="mv-w-full mv-flex mv-gap-2">
+                <span className="mv-text-center mv-align-middle mv-w-5 mv-h-5 mv-rounded-full mv-bg-primary-50 mv-text-sm mv-text-primary mv-font-semibold mv-leading-[18px]">
+                  3
+                </span>
+                <div className="mv-w-full mv-flex mv-flex-col mv-gap-5">
+                  <p className="mv-text-primary mv-font-semibold mv-leading-5">
+                    {t("networkInfo.steps.addInformation.headline")}
+                  </p>
+                  <p className="mv-text-neutral-700 mv-leading-5">
+                    <Trans
+                      i18nKey="networkInfo.steps.addInformation.description"
+                      ns={i18nNS}
+                      components={[
+                        <span
+                          key="network-info-step-add-information-description-semibold"
+                          className="mv-font-semibold"
+                        />,
+                      ]}
+                    />
+                  </p>
+                </div>
+              </li>
+            </ol>
+            {/* TODO: Add FAQ section when design is ready */}
+            <div className="mv-w-full mv-border mv-border-neutral-200" />
+            <div
+              key="show-more-network-info-container"
+              className="mv-w-full mv-flex mv-justify-center mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
+            >
+              <label
+                htmlFor="show-more-network-info"
+                className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
+              >
+                <div className="group-has-[:checked]:mv-hidden">
+                  {t("networkInfo.more")}
+                </div>
+                <div className="mv-hidden group-has-[:checked]:mv-block">
+                  {t("networkInfo.less")}
+                </div>
+                <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
+                  <Icon type="chevron-right" />
+                </div>
+              </label>
+              <input
+                id="show-more-network-info"
+                type="checkbox"
+                className="mv-w-0 mv-h-0 mv-opacity-0"
+              />
+            </div>
+          </Section>
+          {/* Invites Section */}
           {invites.teamMember.invites.length > 0 ||
           invites.admin.invites.length > 0 ? (
             <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
@@ -526,7 +650,6 @@ export default function MyOrganizations() {
                   ) : null;
                 })}
               </TabBar>
-
               {Object.entries(invites).map(([key, value]) => {
                 return value.active && value.invites.length > 0 ? (
                   <ListContainer key={key} listKey={`${key}-list`}>
@@ -551,6 +674,7 @@ export default function MyOrganizations() {
               })}
             </section>
           ) : null}
+          {/* Requests Section */}
           {requests.length > 0 ? (
             <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
               <div className="mv-flex mv-flex-col mv-gap-2">
@@ -632,7 +756,7 @@ export default function MyOrganizations() {
               })}
             </section>
           ) : null}
-
+          {/* Add Organization Section */}
           <Section>
             <Section.Headline>{t("addOrganization.headline")}</Section.Headline>
             <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
@@ -676,6 +800,7 @@ export default function MyOrganizations() {
               </>
             ) : null}
           </Section>
+          {/* Team and Admin Organizations Section */}
           {organizations.teamMember.organizations.length > 0 ||
           organizations.admin.organizations.length > 0 ? (
             <Section>

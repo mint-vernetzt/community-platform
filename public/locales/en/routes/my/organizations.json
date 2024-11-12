@@ -1,6 +1,29 @@
 {
     "headline": "My Organizations",
     "cta": "Create Organization",
+    "networkInfo": {
+        "headline": "Information on the organization type “Network”",
+        "sublineOne": "Are you a coordinator or team member of a STEM cluster, a STEM region or another network?",
+        "sublineTwo": "Read the following steps to create your organization as a <0>network organization</0>.",
+        "steps": {
+            "headline": "Set up your network correctly in 3 steps:",
+            "checkExisting": {
+                "headline": "Check whether your network organization has already been created and add yourself as a team member if necessary.",
+                "description": "To do this, go to <0>“Add organization”</0>. Here you can search for your organization or network on the platform <0>and add yourself.</0> If your network organization has not yet been created, you can do this in the following step."
+            },
+            "createNetwork": {
+                "headline": "Create your network as an organization.",
+                "descriptionOne": "Create your network using the <0>“Create organization”</0> button. In the next step, you can select the <0>organization type “Network”</0> and other applicable organization types.",
+                "descriptionTwo": "Now your network is set up so that other organizations can assign themselves to you."
+            },
+            "addInformation": {
+                "headline": "Now you can continue to fill your network organization with information",
+                "description": "Click on the <0>“Edit”</0> button and fill in the form with relevant information so that the community is well informed about your network."
+            }
+        },
+        "more": "Show more information",
+        "less": "Show less information"
+    },
     "invites": {
         "headline": "Invites",
         "subline": "An admin will be notified as soon as you respond to the invitation.",
