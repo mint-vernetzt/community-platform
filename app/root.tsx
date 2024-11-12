@@ -363,10 +363,10 @@ export default function App() {
     modal && "mv-overflow-hidden",
     showFilters !== null &&
       showFilters !== "false" &&
-      "mv-overflow-hidden container-lg:mv-overflow-auto",
+      "mv-overflow-hidden container-lg:mv-overflow-visible",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
-      "mv-overflow-hidden xl:mv-overflow-auto"
+      "mv-overflow-hidden xl:mv-overflow-visible"
   );
 
   const { i18n } = useTranslation();
