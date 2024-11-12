@@ -3,13 +3,14 @@ import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useActionData,
+  useLoaderData,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
-import { type TFunction } from "i18next";
+import { t, type TFunction } from "i18next";
 import type { KeyboardEvent } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import type { FormProps } from "remix-forms";
 import { performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
@@ -50,6 +51,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/dashboard");
   }
 
+  const searchParams = new URL(request.url).searchParams;
+  if (searchParams.has("error")) {
+    return json({
+      error: {
+        message: t("error.confirmationLinkExpired"),
+        type: "confirmationLinkExpired",
+        supportMail: process.env.SUPPORT_MAIL,
+      },
+    });
+  }
+
   return null;
 };
 
@@ -76,12 +88,31 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
 
     if (error !== null) {
-      if (error.message === "Invalid login credentials") {
+      if (
+        error.code === "invalid_credentials" ||
+        error.message === "Invalid login credentials"
+      ) {
         return json({
-          message: t("error.invalidCredentials"),
+          error: {
+            message: t("error.invalidCredentials"),
+          },
+        });
+      } else if (
+        error.code === "email_not_confirmed" ||
+        error.message === "Email not confirmed"
+      ) {
+        return json({
+          error: {
+            message: t("error.notConfirmed"),
+            type: "notConfirmed",
+            supportMail: process.env.SUPPORT_MAIL,
+          },
         });
       } else {
-        throw json({ message: "Server Error" }, { status: 500 });
+        throw json(
+          { message: `${error.code}: ${error.message}` },
+          { status: 500 }
+        );
       }
     }
     if (submission.data.loginRedirect) {
@@ -100,9 +131,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const actionData = useActionData<typeof action>();
+  const loaderData = useLoaderData<typeof loader>();
   const loginError =
-    actionData !== undefined && "message" in actionData
-      ? actionData.message
+    loaderData !== null
+      ? loaderData.error
+      : actionData !== undefined && "error" in actionData
+      ? actionData.error
       : null;
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
@@ -145,9 +179,31 @@ export default function Index() {
                 </div>
                 <h1 className="mb-8">{t("content.headline")}</h1>
 
-                <Errors className="mv-p-3 mv-mb-3 mv-bg-error mv-text-white">
-                  {loginError}
-                </Errors>
+                {loginError !== null ? (
+                  <Errors className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md">
+                    {"supportMail" in loginError && "type" in loginError ? (
+                      <Trans
+                        i18nKey={
+                          loginError.type === "notConfirmed"
+                            ? "error.notConfirmed"
+                            : "error.confirmationLinkExpired"
+                        }
+                        ns={i18nNS}
+                        components={[
+                          <a
+                            key="support-mail"
+                            href={`mailto:${loginError.supportMail}`}
+                            className="mv-text-primary font-bold hover:underline"
+                          >
+                            {" "}
+                          </a>,
+                        ]}
+                      />
+                    ) : (
+                      loginError.message
+                    )}
+                  </Errors>
+                ) : null}
 
                 <div className="mb-4">
                   <Field name="email" label="E-Mail">

@@ -10,7 +10,9 @@
     "noMember": "Not a member yet?",
     "registerByEmail": "Register with email",
     "createMintId": "Create MINT-ID",
-    "register": "Register"
+    "register": "Register",
+    "invalidCredentials": "Your login credentials (email or password) are incorrect. Please check your entries.",
+    "notConfirmed": "Your email address has not yet been confirmed. Please check your inbox and click on the confirmation link. If you haven't received an email, please check your spam folder or contact <0>Support</0>."
   },
   "form": {
     "label": {

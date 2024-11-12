@@ -5,8 +5,17 @@ import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { updateProfileEmailByUserId } from "./verify.server";
 import { invariantResponse } from "~/lib/utils/response";
 import * as Sentry from "@sentry/remix";
+import { detectLanguage } from "~/root.server";
+import i18next from "~/i18next.server";
+
+const i18nNS = ["routes/login"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const requestUrl = new URL(request.url);
   const token_hash = requestUrl.searchParams.get("token_hash");
   const type = requestUrl.searchParams.get("type") as EmailOtpType | null;
@@ -18,6 +27,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     type,
     token_hash,
   });
+  if (
+    error !== null &&
+    (error.code === "otp_expired" ||
+      error.message === "Email link is invalid or has expired")
+  ) {
+    return redirect(`/login?error=${t("error.confirmationLinkExpired")}`);
+  }
   invariantResponse(
     error === null && data.user !== null && data.session !== null,
     "Server Error during verification",

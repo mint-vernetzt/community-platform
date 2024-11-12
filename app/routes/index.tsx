@@ -29,6 +29,8 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
+import { detectLanguage } from "~/root.server";
+import i18next from "~/i18next.server";
 
 const i18nNS = ["routes/index", "help"];
 export const handle = {
@@ -80,6 +82,9 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   const submission = await performMutation({
     request,
     schema,
@@ -94,13 +99,30 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
 
     if (error !== null) {
-      if (error.message === "Invalid login credentials") {
+      if (
+        error.code === "invalid_credentials" ||
+        error.message === "Invalid login credentials"
+      ) {
         return json({
-          message:
-            "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.",
+          error: {
+            message: t("login.invalidCredentials"),
+          },
+        });
+      } else if (
+        error.code === "email_not_confirmed" ||
+        error.message === "Email not confirmed"
+      ) {
+        return json({
+          error: {
+            message: t("login.notConfirmed"),
+            supportMail: process.env.SUPPORT_MAIL,
+          },
         });
       } else {
-        throw json({ message: "Server Error" }, { status: 500 });
+        throw json(
+          { message: `${error.code}: ${error.message}` },
+          { status: 500 }
+        );
       }
     }
     if (submission.data.loginRedirect) {
@@ -122,9 +144,7 @@ export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const loginError =
-    actionData !== undefined && "message" in actionData
-      ? actionData.message
-      : null;
+    actionData !== undefined && "error" in actionData ? actionData.error : null;
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
@@ -223,9 +243,27 @@ export default function Index() {
                   >
                     {({ Field, Errors, register }) => (
                       <>
-                        <Errors className="mv-p-3 mv-mb-3 mv-bg-error mv-text-white">
-                          {loginError}
-                        </Errors>
+                        {loginError !== null ? (
+                          <Errors className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md">
+                            {"supportMail" in loginError ? (
+                              <Trans
+                                i18nKey="error.notConfirmed"
+                                ns={i18nNS}
+                                components={[
+                                  <a
+                                    key="support-mail"
+                                    href={`mailto:${loginError.supportMail}`}
+                                    className="mv-text-primary font-bold hover:underline"
+                                  >
+                                    {" "}
+                                  </a>,
+                                ]}
+                              />
+                            ) : (
+                              loginError.message
+                            )}
+                          </Errors>
+                        ) : null}
 
                         <Field name="email" label="E-Mail">
                           {({ Errors }) => (

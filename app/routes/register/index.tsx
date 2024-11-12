@@ -93,8 +93,16 @@ const createMutation = (t: TFunction) => {
       },
       loginRedirect
     );
-    if (error !== null && error.message !== "User already registered") {
-      throw error.message;
+
+    if (
+      error !== null &&
+      error.code !== "user_already_exists" &&
+      error.message !== "User already registered"
+    ) {
+      throw json(
+        { message: `${error.code}: ${error.message}` },
+        { status: 500 }
+      );
     }
 
     return values;
