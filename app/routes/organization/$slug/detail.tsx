@@ -31,7 +31,6 @@ import { Modal } from "~/routes/__components";
 import { Container } from "~/routes/my/__events.components";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import {
-  hasAboutData,
   hasEventsData,
   hasNetworkData,
   hasProjectsData,
@@ -215,7 +214,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   } as const);
 };
 
-function ProjectDetail() {
+function OrganizationDetail() {
   const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
   const { organization, mode } = loaderData;
@@ -511,56 +510,46 @@ function ProjectDetail() {
         </>
       )}
       {/* TabBar Section */}
-      {hasAboutData(organization) ||
-      hasNetworkData(organization) ||
-      hasTeamData(organization) ||
-      hasEventsData(organization) ||
-      hasProjectsData(organization) ? (
-        <>
-          <Container.Section className="mv-pt-6 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 @sm:mv-border @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-t-2xl">
-            <TabBar>
-              {hasAboutData(organization) ? (
-                <TabBar.Item active={pathname.endsWith("/about")}>
-                  <Link to="./about" preventScrollReset>
-                    {t("tabbar.about")}
-                  </Link>
-                </TabBar.Item>
-              ) : null}
-              {hasNetworkData(organization) ? (
-                <TabBar.Item active={pathname.endsWith("/network")}>
-                  <Link to="./network" preventScrollReset>
-                    {t("tabbar.network")}
-                  </Link>
-                </TabBar.Item>
-              ) : null}
-              {hasTeamData(organization) ? (
-                <TabBar.Item active={pathname.endsWith("/team")}>
-                  <Link to="./team" preventScrollReset>
-                    {t("tabbar.team")}
-                  </Link>
-                </TabBar.Item>
-              ) : null}
-              {hasEventsData(organization) ? (
-                <TabBar.Item active={pathname.endsWith("/events")}>
-                  <Link to="./events" preventScrollReset>
-                    {t("tabbar.events")}
-                  </Link>
-                </TabBar.Item>
-              ) : null}
-              {hasProjectsData(organization) ? (
-                <TabBar.Item active={pathname.endsWith("/projects")}>
-                  <Link to="./projects" preventScrollReset>
-                    {t("tabbar.projects")}
-                  </Link>
-                </TabBar.Item>
-              ) : null}
-            </TabBar>
-          </Container.Section>
-          <Outlet />
-        </>
-      ) : null}
+      <Container.Section className="mv-pt-6 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 @sm:mv-border @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-t-2xl">
+        <TabBar>
+          <TabBar.Item active={pathname.endsWith("/about")}>
+            <Link to="./about" preventScrollReset>
+              {t("tabbar.about")}
+            </Link>
+          </TabBar.Item>
+          {hasNetworkData(organization) ? (
+            <TabBar.Item active={pathname.endsWith("/network")}>
+              <Link to="./network" preventScrollReset>
+                {t("tabbar.network")}
+              </Link>
+            </TabBar.Item>
+          ) : null}
+          {hasTeamData(organization) ? (
+            <TabBar.Item active={pathname.endsWith("/team")}>
+              <Link to="./team" preventScrollReset>
+                {t("tabbar.team")}
+              </Link>
+            </TabBar.Item>
+          ) : null}
+          {hasEventsData(organization) ? (
+            <TabBar.Item active={pathname.endsWith("/events")}>
+              <Link to="./events" preventScrollReset>
+                {t("tabbar.events")}
+              </Link>
+            </TabBar.Item>
+          ) : null}
+          {hasProjectsData(organization) ? (
+            <TabBar.Item active={pathname.endsWith("/projects")}>
+              <Link to="./projects" preventScrollReset>
+                {t("tabbar.projects")}
+              </Link>
+            </TabBar.Item>
+          ) : null}
+        </TabBar>
+      </Container.Section>
+      <Outlet />
     </Container>
   );
 }
 
-export default ProjectDetail;
+export default OrganizationDetail;

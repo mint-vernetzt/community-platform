@@ -5,6 +5,7 @@ export async function getOrganization(slug: string) {
   const organization = await prismaClient.organization.findUnique({
     select: {
       id: true,
+      slug: true,
       bio: true,
       supportedBy: true,
       email: true,

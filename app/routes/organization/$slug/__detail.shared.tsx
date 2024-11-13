@@ -21,10 +21,8 @@ export function hasAboutData(
     | "tiktok"
     | "supportedBy"
   > & {
-    _count: {
-      areas: number;
-      focuses: number;
-    };
+    areas: any[];
+    focuses: any[];
   }
 ) {
   return (
@@ -76,8 +74,8 @@ export function hasAboutData(
     (organization.tiktok !== null &&
       organization.tiktok.trim() !== "" &&
       organization.tiktok.trim() !== "<p></p>") ||
-    organization._count.areas > 0 ||
-    organization._count.focuses > 0 ||
+    organization.areas.length > 0 ||
+    organization.focuses.length > 0 ||
     organization.supportedBy.length > 0
   );
 }
