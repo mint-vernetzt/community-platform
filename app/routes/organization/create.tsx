@@ -1,6 +1,12 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Avatar, Button, Input, List } from "@mint-vernetzt/components";
+import {
+  Avatar,
+  Button,
+  Input,
+  List,
+  TextButton,
+} from "@mint-vernetzt/components";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -28,6 +34,7 @@ import {
   createOrganizationOnProfile,
   searchForOrganizationsByName,
 } from "./create.server";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = ["routes/organization/create"];
 export const handle = {
@@ -53,6 +60,10 @@ export async function loader(args: LoaderFunctionArgs) {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
+
+  const abilities = await getFeatureAbilities(authClient, [
+    "next-organization-create",
+  ]);
 
   const url = new URL(request.url);
 
@@ -96,7 +107,7 @@ export async function loader(args: LoaderFunctionArgs) {
     });
   }
 
-  return json({ searchResult });
+  return json({ searchResult, abilities });
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -169,6 +180,13 @@ function Create() {
 
   return (
     <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
+      {loaderData.abilities["next-organization-create"].hasAccess ? (
+        <TextButton weight="thin" variant="neutral" arrowRight>
+          <Link to="/next/organization/create">
+            Hier gehts zur neuen Organisationserstellung
+          </Link>
+        </TextButton>
+      ) : null}
       <div className="flex -mx-4 justify-center mv-w-full">
         <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4 pt-10 mv-w-full">
           <h4 className="font-semibold">{t("content.headline")}</h4>
