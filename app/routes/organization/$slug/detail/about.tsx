@@ -267,12 +267,14 @@ function About() {
                     </p>
                   ) : null}
                 </div>
-                <Button
-                  as="a"
-                  href={`/organization/${organization.slug}/settings`}
-                >
-                  {t("blankState.owner.cta")}
-                </Button>
+                {mode === "admin" ? (
+                  <Button
+                    as="a"
+                    href={`/organization/${organization.slug}/settings`}
+                  >
+                    {t("blankState.owner.cta")}
+                  </Button>
+                ) : null}
               </div>
             </div>
           </div>
