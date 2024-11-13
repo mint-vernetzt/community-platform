@@ -5,7 +5,7 @@ import {
   TextButton,
 } from "@mint-vernetzt/components";
 import { Link } from "@remix-run/react";
-import React, { FormEvent, type PropsWithChildren } from "react";
+import React, { type FormEvent, type PropsWithChildren } from "react";
 
 export type BackButtonProps = {
   to: string;
@@ -229,7 +229,7 @@ export function MaterialListItem(
       key={props.id}
       className="mv-flex mv-w-full mv-items-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-100 mv-gap-4 mv-overflow-hidden"
     >
-      <div className="mv-shrink-0 mv-w-36 mv-aspect-[3/2] mv-self-stretch mv-bg-primary-100 mv-flex mv-justify-center mv-items-center mv-text-primary mv-hidden @lg:mv-flex">
+      <div className="mv-shrink-0 mv-w-36 mv-aspect-[3/2] mv-self-stretch mv-bg-primary-100 mv-justify-center mv-items-center mv-text-primary mv-hidden @lg:mv-flex">
         {typeof image !== "undefined" && image}
         {typeof pdfIcon !== "undefined" && pdfIcon}
       </div>
@@ -264,11 +264,12 @@ MaterialList.Item = MaterialListItem;
 export type ButtonSelectProps = React.PropsWithChildren<
   Pick<React.HTMLProps<HTMLLabelElement>, "id"> & {
     cta: string;
+    disabled?: boolean;
   }
 >;
 
 function ButtonSelect(props: ButtonSelectProps) {
-  const { children } = props;
+  const { children, disabled = false } = props;
   const validChildren = React.Children.toArray(children).filter((child) => {
     return React.isValidElement(child) || typeof child === "string";
   });
@@ -354,15 +355,18 @@ function ButtonSelect(props: ButtonSelectProps) {
           checked={checked}
           onChange={handleChange}
           ref={inputRef}
+          disabled={disabled === true}
         />
         <label
-          className="mv-bg-neutral-100 mv-bg-select-arrow mv-bg-no-repeat mv-bg-[right_0.5rem_center] mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold group-focus-within:mv-border-blue-400"
+          className={`mv-bg-white mv-bg-select-arrow mv-bg-no-repeat mv-bg-[right_0.5rem_center] mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-p-2 mv-pr-12 mv-text-base mv-leading-snug mv-font-semibold group-focus-within:mv-border-blue-400 ${
+            disabled === true ? "mv-text-neutral-300" : "mv-text-neutral-800"
+          }`}
           htmlFor={`expand-${props.id}`}
           ref={labelRef}
         >
           {props.cta}
         </label>
-        <ul className="mv-w-full mv-hidden group-has-[:checked]:mv-flex mv-flex-col mv-bg-neutral-100 mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300">
+        <ul className="mv-w-full mv-hidden group-has-[:checked]:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300">
           {listItems.map((button) => {
             if (React.isValidElement(button)) {
               if (button.type === "button") {

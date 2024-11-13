@@ -2,22 +2,34 @@
   "validation": {
     "organizationName": {
       "required": "Bitte gib den Namen Deiner Organisation ein.",
-      "min": "Bitte gib den Namen Deiner Organisation ein.Der Name der Organisation muss mindestens 3 Zeichen lang sein."
+      "min": "Der Name der Organisation muss mindestens 3 Zeichen lang sein.",
+      "max": "Der Name der Organisation darf maximal 80 Zeichen lang sein."
     }
   },
-  "content": {
-    "back": "Zurück",
-    "headline": "Organisation oder Netzwerk hinzufügen"
-  },
+    "back": "Meine Organisationen",
+    "headline": "Organisation anlegen",
   "form": {
     "organizationName": {
-      "label": "Name der Organisation*"
+      "headline": "Wie heißt Deine Organisation oder Dein Netzwerk?",
+      "label": "Name der Organisation / des Netzwerks*",
+      "sameOrganization": "Es wurden Organisationen mit ähnlichem Namen gefunden. Falls Du trotzdem die Organisation mit Namen \"{{searchQuery}}\" anlegen willst, klicke erneut auf \"Organisation anlegen\"."
     },
-    "submit": {
-      "label": "Anlegen"
+    "organizationTypes": {
+      "cta": "Bitte auswählen",
+      "headline": "Um welche Art von Organisation handelt es sich?",
+      "label": "Organisationsform",
+      "helperText": "Mehrfachauswahl ist möglich",
+      "notFound": "Die Organisationsform konnte nicht gefunden werden. Bitte kontaktiere den Support."
     },
-    "error": {
-      "sameOrganization": "Es wurden Organisationen mit ähnlichem Namen gefunden. Falls Du die Organisation mit Namen \"{{searchQuery}}\" anlegen willst, klicke erneut auf \"Anlegen\"."
-    }
+    "networkTypes": {
+      "cta": "Bitte auswählen",
+      "headline": "Um welche Art von Netzwerk handelt es sich?",
+      "label": "Netzwerkform",
+      "helperText": "Mehrfachauswahl ist möglich",
+      "notFound": "Die Netzwerkform konnte nicht gefunden werden. Bitte kontaktiere den Support."
+    },
+    "helperText": "*Erforderliche Angaben",
+    "reset": "Verwerfen",
+    "submit": "Organisation anlegen"
   }
 }

@@ -14,9 +14,9 @@ export async function getFeatureAbilities(
 
 export async function checkFeatureAbilitiesOrThrow(
   authClient: SupabaseClient,
-  featureName: string
+  featureNameOrNames: string | string[]
 ) {
-  const result = await validateFeatureAccess(authClient, featureName);
+  const result = await validateFeatureAccess(authClient, featureNameOrNames);
   return result.abilities;
 }
 
