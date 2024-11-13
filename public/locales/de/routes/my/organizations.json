@@ -1,6 +1,29 @@
 {
     "headline": "Meine Organisationen",
     "cta": "Organisation anlegen",
+    "networkInfo": {
+        "headline": "Information zur Organisationform “Netzwerk”",
+        "sublineOne": "Bist Du Koordinator:in oder Teammitglied eines MINT-Clusters, einer MINT-Region oder eines anderen Netzwerks?",
+        "sublineTwo": "Lies Dir folgende Schritte durch um Deine Organisation als <0>Netzwerk-Organisation</0> anzulegen.",
+        "steps": {
+            "headline": "Lege in 3 Schritten Dein Netzwerk richtig an:",
+            "checkExisting": {
+                "headline": "Prüfe, ob Deine Netzwerk-Organisation bereits angelegt ist und füge Dich ggf. als Teammitglied hinzu.",
+                "description": "Gehe dafür auf <0>“Organisation hinzufügen”</0>. Hier kannst Du nach Deiner Organisation bzw. Deinem Netzwerk auf der Plattform <0>suchen und Dich hinzufügen.</0> Falls Deine Netzwerk-Organisation noch nicht angelegt ist, kannst Du dies im folgenden Schritt tun."
+            },
+            "createNetwork": {
+                "headline": "Lege Dein Netzwerk als Organisation an.",
+                "descriptionOne": "Lege Dein Netzwerk mit Hilfe des Buttons <0>“Organisation anlegen”</0> an. Im darauf folgenden Schritt kannst Du als <0>Organisationsform “Netzwerk”</0> und weitere zutreffende Organisationsformen auswählen.",
+                "descriptionTwo": "Nun ist Dein Netzwerk so angelegt, dass sich andere Organisationen Euch zuordnen können."
+            },
+            "addInformation": {
+                "headline": "Nun kannst Du Deine Netzwerk-Organisation weiter mit Informationen befüllen",
+                "description": "Klicke dafür auf den Button <0>“Bearbeiten”</0> und befülle das Formular mit relevanten Informationen, damit sich die Community gut über Dein Netzwerk informieren kann."
+            }
+        },
+        "more": "Infos ausklappen",
+        "less": "Infos einklappen"
+    },
     "invites": {
         "headline": "Einladungen",
         "subline": "Ein Admin wird benachrichtigt, sobald Du Dich zu der Einladung äußerst.",

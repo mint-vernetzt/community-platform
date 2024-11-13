@@ -25,7 +25,10 @@ import {
 import { type getPendingRequestsToOrganizations } from "./organizations/requests.server";
 import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 
-export function Section(props: { children: React.ReactNode }) {
+export function Section(props: {
+  children: React.ReactNode;
+  additionalClassNames?: string;
+}) {
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
       return React.isValidElement(child);
@@ -48,7 +51,13 @@ export function Section(props: { children: React.ReactNode }) {
   });
 
   return (
-    <section className="mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-4 @lg:mv-px-6 @sm:mv-py-6 @sm:mv-gap-6 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200">
+    <section
+      className={`mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-4 @lg:mv-px-6 @sm:mv-py-6 @sm:mv-gap-6 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200${
+        props.additionalClassNames !== undefined
+          ? ` ${props.additionalClassNames}`
+          : ""
+      }`}
+    >
       {typeof headline !== "undefined" || typeof subline !== "undefined" ? (
         <div className="mv-flex mv-flex-col mv-gap-2">
           {headline}
