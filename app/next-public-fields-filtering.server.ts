@@ -136,6 +136,7 @@ type OrganizationWithRelations = Organization & {
   memberOf: any;
   teamMembers: any;
   types: any;
+  networkTypes: any;
   responsibleForEvents: any;
   responsibleForProject: any;
   organizationVisibility: any;
@@ -170,6 +171,7 @@ export function filterOrganizationByVisibility<
         key === "memberOf" ||
         key === "teamMembers" ||
         key === "types" ||
+        key === "networkTypes" ||
         key === "responsibleForEvents" ||
         key === "admins" ||
         key === "abuseReports" ||

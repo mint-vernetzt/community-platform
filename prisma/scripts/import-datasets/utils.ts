@@ -8,6 +8,7 @@ import type {
   Financing,
   Focus,
   Format,
+  NetworkType,
   Offer,
   OrganizationType,
   ProjectTargetGroup,
@@ -20,6 +21,7 @@ import { prismaClient } from "../../../app/prisma.server";
 export type GenericEntry =
   | Offer
   | OrganizationType
+  | NetworkType
   | Focus
   | Tag
   | TargetGroup // legacy
@@ -37,6 +39,7 @@ export type GenericEntry =
 export type TableName =
   | "offer"
   | "organizationType"
+  | "networkType"
   | "focus"
   | "tag"
   | "targetGroup" // legacy

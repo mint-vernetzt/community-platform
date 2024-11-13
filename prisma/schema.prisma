@@ -251,6 +251,7 @@ model Organization {
   memberOf               MemberOfNetwork[]                    @relation("network_member")
   teamMembers            MemberOfOrganization[]
   types                  OrganizationTypesOnOrganizations[]
+  networkTypes           NetworkTypesOnOrganizations[]
   responsibleForEvents   ResponsibleOrganizationOfEvent[]
   responsibleForProject  ResponsibleOrganizationOfProject[]
   organizationVisibility OrganizationVisibility?
@@ -303,6 +304,7 @@ model OrganizationVisibility {
   teamMembers            Boolean      @default(true)
   admins                 Boolean      @default(false)
   types                  Boolean      @default(true)
+  networkTypes           Boolean      @default(true)
   responsibleForEvents   Boolean      @default(true)
   responsibleForProject  Boolean      @default(true)
   abuseReports           Boolean      @default(false)
@@ -369,6 +371,16 @@ model OrganizationTypesOnOrganizations {
 
   @@id([organizationId, organizationTypeId])
   @@map("organization_types_on_organizations")
+}
+
+model NetworkTypesOnOrganizations {
+  organizationId String
+  networkTypeId  String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  networkType    NetworkType  @relation(fields: [networkTypeId], references: [id], onDelete: Cascade)
+
+  @@id([organizationId, networkTypeId])
+  @@map("network_types_on_organizations")
 }
 
 model FocusesOnOrganizations {
@@ -748,6 +760,14 @@ model OrganizationType {
   organizations OrganizationTypesOnOrganizations[]
 
   @@map("organization_types")
+}
+
+model NetworkType {
+  id            String                        @id @default(uuid())
+  slug          String                        @unique
+  organizations NetworkTypesOnOrganizations[]
+
+  @@map("network_types")
 }
 
 model Focus {
