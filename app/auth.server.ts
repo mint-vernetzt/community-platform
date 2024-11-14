@@ -42,7 +42,6 @@ export const createAuthClient = (request: Request) => {
         },
         auth: {
           autoRefreshToken: false,
-          persistSession: false,
           flowType: "pkce",
         },
       }
