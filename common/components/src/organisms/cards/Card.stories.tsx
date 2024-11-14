@@ -353,7 +353,6 @@ export function EventStory(props: EventStoryProps) {
               canceled: false,
               stage: {
                 slug: "on-site",
-                title: "Vor Ort",
               },
               responsibleOrganizations: [
                 {
@@ -411,7 +410,6 @@ export function EventStory(props: EventStoryProps) {
               canceled: false,
               stage: {
                 slug: "online",
-                title: "Online",
               },
               responsibleOrganizations: [
                 {
@@ -477,7 +475,6 @@ export function EventStory(props: EventStoryProps) {
               canceled: false,
               stage: {
                 slug: "hybrid",
-                title: "Hybrid",
               },
               responsibleOrganizations: [
                 {
@@ -550,7 +547,6 @@ export function EventStory(props: EventStoryProps) {
               participantLimit: 100,
               stage: {
                 slug: "hybrid",
-                title: "Hybrid",
               },
               responsibleOrganizations: [
                 {
@@ -626,7 +622,6 @@ export function EventStory(props: EventStoryProps) {
               participantLimit: 100,
               stage: {
                 slug: "hybrid",
-                title: "Hybrid",
               },
               responsibleOrganizations: [
                 {
@@ -703,7 +698,6 @@ export function EventStory(props: EventStoryProps) {
               participantLimit: 0,
               stage: {
                 slug: "hybrid",
-                title: "Hybrid",
               },
               responsibleOrganizations: [
                 {
@@ -780,7 +774,6 @@ export function EventStory(props: EventStoryProps) {
               participantLimit: 0,
               stage: {
                 slug: "hybrid",
-                title: "Hybrid",
               },
               responsibleOrganizations: [
                 {

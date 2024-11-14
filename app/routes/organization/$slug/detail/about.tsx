@@ -227,7 +227,8 @@ function About() {
                           return (
                             <li key={key}>
                               <Link
-                                to={organization[typedKey]}
+                                // Even if typescript claims that organization[typedKey] has the correct type i needed to add the below assertion to make the compiler happy when running npm run typecheck
+                                to={organization[typedKey] as string}
                                 target="__blank"
                                 rel="noopener noreferrer"
                                 className="mv-w-full mv-py-3 mv-px-4 mv-bg-neutral-100 mv-rounded-lg mv-flex mv-justify-center"

@@ -35,12 +35,12 @@ export const WithOrganizationInput: ComponentStory<typeof Autocomplete> = (
         types: [
           {
             organizationType: {
-              title: "Some OrganizationType",
+              slug: "some-organization-type-slug",
             },
           },
           {
             organizationType: {
-              title: "Another OrganizationType",
+              slug: "another-organization-type-slug",
             },
           },
         ],
@@ -52,12 +52,12 @@ export const WithOrganizationInput: ComponentStory<typeof Autocomplete> = (
         types: [
           {
             organizationType: {
-              title: "Some OrganizationType",
+              slug: "some-organization-type-slug",
             },
           },
           {
             organizationType: {
-              title: "Another OrganizationType",
+              slug: "another-organization-type-slug",
             },
           },
         ],
