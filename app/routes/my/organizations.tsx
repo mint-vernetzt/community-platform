@@ -144,6 +144,19 @@ export const action = async (args: ActionFunctionArgs) => {
     return json(submission.reply());
   }
 
+  // Even if typescript claims that role and intent has the correct type i needed to add the below typecheck to make the compiler happy when running npm run typecheck
+  invariantResponse(
+    submission.value.role === "admin" || submission.value.role === "member",
+    "Only admin and member are valid roles.",
+    { status: 400 }
+  );
+  invariantResponse(
+    submission.value.intent === "accepted" ||
+      submission.value.intent === "rejected",
+    "Only accepted and rejected are valid intents.",
+    { status: 400 }
+  );
+
   const pendingInvite = await getPendingOrganizationInvite(
     submission.value.organizationId,
     sessionUser.id,
@@ -155,7 +168,9 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const invite = await updateOrganizationInvite({
     profileId: sessionUser.id,
-    ...submission.value,
+    organizationId: submission.value.organizationId,
+    role: submission.value.role,
+    intent: submission.value.intent,
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
