@@ -6,8 +6,8 @@
       "max": "Der Name der Organisation darf maximal 80 Zeichen lang sein."
     }
   },
-    "back": "Meine Organisationen",
-    "headline": "Organisation anlegen",
+  "back": "Meine Organisationen",
+  "headline": "Organisation anlegen",
   "form": {
     "organizationName": {
       "headline": "Wie heißt Deine Organisation oder Dein Netzwerk?",
@@ -31,5 +31,6 @@
     "helperText": "*Erforderliche Angaben",
     "reset": "Verwerfen",
     "submit": "Organisation anlegen"
-  }
+  },
+  "successAlert": "<p>Du hast Deine Organisation {{name}} erfolgreich angelegt. Du bist Teammitglied und Admin Deiner Organisation. Bearbeite nun Deine Organisation und mache sie damit sichtbarer für die Community. <a href=\"/organization/{{slug}}/settings\">Jetzt bearbeiten</a></p>"
 }

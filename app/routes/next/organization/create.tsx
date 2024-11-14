@@ -39,6 +39,7 @@ import {
 } from "./create.server";
 import { ButtonSelect } from "~/routes/project/$slug/settings/__components";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { redirectWithAlert } from "~/alert.server";
 
 const i18nNS = [
   "routes/next/organization/create",
@@ -175,7 +176,13 @@ export async function action(args: ActionFunctionArgs) {
           submission.value,
           slug
         );
-        return redirect(`/organization/${slug}`);
+        return redirectWithAlert(`/organization/${slug}/detail/about`, {
+          message: t("successAlert", {
+            name: submission.value.organizationName,
+            slug: slug,
+          }),
+          isRichtext: true,
+        });
       } else {
         const redirectURL = new URL(request.url);
         redirectURL.searchParams.set(
@@ -237,6 +244,7 @@ function CreateOrganization() {
 
   return (
     <Form method="post" {...form.props}>
+      <button type="submit" hidden />
       <Container>
         <TextButton weight="thin" variant="neutral" arrowLeft>
           <Link to="/my/organizations" prefetch="intent">

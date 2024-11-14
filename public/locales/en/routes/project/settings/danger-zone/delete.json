@@ -13,6 +13,7 @@
     "confirmation": "Please enter the name of the project <0>{{name}}</0> to confirm deletion.",
     "explanation": "If you then click on “Delete project”, your project will be permanently deleted without further inquiry.",
     "label": "Confirm deletion",
-    "action": "Delete project"
+    "action": "Delete project",
+    "success": "Dein Projekt {{name}} wurde erfolgreich gelöscht."
   }
 }
