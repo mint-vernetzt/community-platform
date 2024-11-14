@@ -41,6 +41,8 @@ export const createAuthClient = (request: Request) => {
           path: "/",
         },
         auth: {
+          autoRefreshToken: false,
+          persistSession: false,
           flowType: "pkce",
         },
       }
