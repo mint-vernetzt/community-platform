@@ -1,6 +1,10 @@
 import type { Profile } from "@prisma/client";
 import { json } from "@remix-run/server-runtime";
-import { createServerClient, parse, serialize } from "@supabase/ssr";
+import {
+  createServerClient,
+  parseCookieHeader,
+  serializeCookieHeader,
+} from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { prismaClient } from "./prisma.server";
 import * as Sentry from "@sentry/remix";
@@ -13,7 +17,6 @@ export const createAuthClient = (request: Request) => {
     process.env.SUPABASE_URL !== undefined &&
     process.env.SUPABASE_ANON_KEY !== undefined
   ) {
-    const cookies = parse(request.headers.get("Cookie") ?? "");
     const headers = new Headers();
 
     const authClient = createServerClient(
@@ -21,14 +24,16 @@ export const createAuthClient = (request: Request) => {
       process.env.SUPABASE_ANON_KEY,
       {
         cookies: {
-          get(key) {
-            return cookies[key];
+          getAll() {
+            return parseCookieHeader(request.headers.get("Cookie") ?? "");
           },
-          set(key, value, options) {
-            headers.append("Set-Cookie", serialize(key, value, options));
-          },
-          remove(key, options) {
-            headers.append("Set-Cookie", serialize(key, "", options));
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              headers.append(
+                "Set-Cookie",
+                serializeCookieHeader(name, value, options)
+              )
+            );
           },
         },
         cookieOptions: {

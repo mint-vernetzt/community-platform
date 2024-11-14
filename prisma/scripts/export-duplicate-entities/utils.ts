@@ -151,8 +151,13 @@ export async function exportPossibleOrganizationDuplicates() {
           }
           return (
             sample.id !== organization.id &&
-            (organization[typedKey].includes(sample[typedKey]) ||
-              sample[typedKey].includes(organization[typedKey]))
+            // Even if typescript claims that organization[typedKey] and sample[typedKey] has the correct type i needed to add the below assertion to make the compiler happy when running npm run typecheck
+            ((organization[typedKey] as string).includes(
+              sample[typedKey] as string
+            ) ||
+              (sample[typedKey] as string).includes(
+                organization[typedKey] as string
+              ))
           );
         });
         for (const possibleDuplicate of possibleDuplicates) {
@@ -282,8 +287,13 @@ export async function exportPossibleProfileDuplicates() {
           }
           return (
             sample.id !== profile.id &&
-            (profile[typedKey].includes(sample[typedKey]) ||
-              sample[typedKey].includes(profile[typedKey]))
+            // Even if typescript claims that profile[typedKey] and sample[typedKey] has the correct type i needed to add the below assertion to make the compiler happy when running npm run typecheck
+            ((profile[typedKey] as string).includes(
+              sample[typedKey] as string
+            ) ||
+              (sample[typedKey] as string).includes(
+                profile[typedKey] as string
+              ))
           );
         });
         for (const possibleDuplicate of possibleDuplicates) {
