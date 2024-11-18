@@ -5,6 +5,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
+import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 
 const i18nNS = ["routes/project/detail/attachments/download"];
 
@@ -54,7 +55,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         slug: params.slug,
       },
       select: {
-        slug: true,
+        name: true,
         documents: {
           select: {
             document: {
@@ -63,6 +64,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
                 path: true,
                 mimeType: true,
                 filename: true,
+                extension: true,
+                title: true,
               },
             },
           },
@@ -103,16 +106,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const arrayBuffer = await result.data.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
+      const escapedFilename = escapeFilenameSpecialChars(
+        relation.document.title || relation.document.filename
+      );
+
       return new Response(buffer, {
         status: 200,
         headers: {
           "Content-Type": relation.document.mimeType,
-          "Content-Disposition": `attachment; filename="${relation.document.filename}"`,
+          "Content-Disposition": `attachment; filename="${escapedFilename}"`,
         },
       });
     } else {
       // TODO: no compression. maybe use different library
-      const filename = `${project.slug}_documents.zip`;
+      const escapedProjectName = escapeFilenameSpecialChars(project.name);
+      const filename = `${escapedProjectName} ${t("zipSuffix.documents")}`;
       const zip = new JSZip();
       let index = 0;
       for (const relation of project.documents) {
@@ -152,7 +160,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         slug: params.slug,
       },
       select: {
-        slug: true,
+        name: true,
         images: {
           select: {
             image: {
@@ -161,6 +169,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
                 path: true,
                 mimeType: true,
                 filename: true,
+                title: true,
               },
             },
           },
@@ -200,16 +209,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
       const arrayBuffer = await result.data.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
+      const escapedFilename = escapeFilenameSpecialChars(
+        relation.image.title || relation.image.filename
+      );
+
       return new Response(buffer, {
         status: 200,
         headers: {
           "Content-Type": relation.image.mimeType,
-          "Content-Disposition": `attachment; filename="${relation.image.filename}"`,
+          "Content-Disposition": `attachment; filename="${escapedFilename}"`,
         },
       });
     } else {
       // TODO: no compression. maybe use different library
-      const filename = `${project.slug}_images.zip`;
+      const escapedProjectName = escapeFilenameSpecialChars(project.name);
+      const filename = `${escapedProjectName} ${t("zipSuffix.images")}`;
       const zip = new JSZip();
       let index = 0;
       for (const relation of project.images) {
