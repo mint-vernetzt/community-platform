@@ -111,7 +111,7 @@ function Settings() {
       <div className="mv-w-full @md:mv-flex @md:mv-mb-20 @lg:mv-mb-0">
         <div className={menuClasses}>
           <div className="mv-flex mv-gap-2 mv-items-center mv-justify-between @md:mv-hidden">
-            <span className="mv-p-6">
+            <span className="mv-p-6 mv-pr-0">
               <h1 className="mv-text-2xl mv-m-0">{t("content.settings")}</h1>
             </span>
             <Link
