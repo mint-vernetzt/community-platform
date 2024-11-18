@@ -7,5 +7,9 @@
       "documentNotFound": "Document not found",
       "downloadFailed": "Downloading from storage failed"
     }
+  },
+  "zipSuffix": {
+    "documents": "documents",
+    "images": "images"
   }
 }
