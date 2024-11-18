@@ -324,6 +324,7 @@ function OrganizationDetail() {
                 <Button
                   as="a"
                   href={`/next/organization/${organization.slug}/settings`}
+                  fullSize
                 >
                   <svg
                     width="16"
@@ -345,6 +346,7 @@ function OrganizationDetail() {
               <Button
                 as="a"
                 href={`/organization/${organization.slug}/settings`}
+                fullSize
               >
                 <svg
                   width="16"
