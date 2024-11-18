@@ -124,7 +124,7 @@ export const action = async (args: ActionFunctionArgs) => {
       },
     });
     return redirectWithAlert(`/dashboard`, {
-      message: t("content.error", { name: project.name }),
+      message: t("content.success", { name: project.name }),
     });
   }
 

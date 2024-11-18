@@ -49,6 +49,7 @@ import { getToast } from "./toast.server";
 import { ToastContainer } from "./__toast.components";
 import { getEnv } from "./env.server";
 import { getFeatureAbilities } from "./lib/utils/application";
+import { RichText } from "./components/Richtext/RichText";
 
 // import newStyles from "../common/design/styles/styles.css";
 
@@ -374,12 +375,18 @@ export default function App() {
 
   const main = (
     <main className="flex-auto relative w-full mv-bg-neutral-50">
-      {typeof alert !== "undefined" &&
+      {alert !== null &&
       isNonAppBaseRoute === false &&
       isIndexRoute === false ? (
         <div className="mv-w-full mv-flex mv-justify-center">
           <div className="mv-w-full mv-max-w-screen-2xl mv-px-4 @lg:mv-px-8">
-            <Alert level={alert.level}>{alert.message}</Alert>
+            <Alert level={alert.level}>
+              {alert.isRichtext !== undefined && alert.isRichtext === true ? (
+                <RichText html={alert.message} />
+              ) : (
+                alert.message
+              )}
+            </Alert>
           </div>
         </div>
       ) : null}
