@@ -14,6 +14,6 @@
     "explanation": "If you then click on “Delete project”, your project will be permanently deleted without further inquiry.",
     "label": "Confirm deletion",
     "action": "Delete project",
-    "success": "Dein Projekt {{name}} wurde erfolgreich gelöscht."
+    "success": "Your project {{name}} has been successfully deleted."
   }
 }

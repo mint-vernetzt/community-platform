@@ -5,15 +5,15 @@ import {
   useLocation,
   useSearchParams,
 } from "@remix-run/react";
-import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getRedirectPathOnProtectedOrganizationRoute } from "./settings.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { Section, TextButton } from "@mint-vernetzt/components";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import classNames from "classnames";
+import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
