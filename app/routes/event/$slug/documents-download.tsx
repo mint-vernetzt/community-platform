@@ -8,9 +8,21 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
 import { deriveEventMode } from "../utils.server";
 import { getDocumentById, getEventBySlug } from "./documents-download.server";
+import { detectLanguage } from "~/root.server";
+import i18next from "~/i18next.server";
+import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
+
+const i18nNS = ["routes/event/documents-download"];
+
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
   const { authClient } = createAuthClient(request);
 
   const { sessionUser, redirectPath } =
@@ -32,6 +44,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   let documents;
   if (documentId === null) {
     documents = event.documents.map((relation, index) => {
+      const escapedFilename = escapeFilenameSpecialChars(
+        relation.document.title || relation.document.filename
+      );
       if (
         event.documents.some((otherRelation) => {
           return (
@@ -42,10 +57,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
       ) {
         return {
           ...relation.document,
-          filename: `${index + 1}_${relation.document.filename}`,
+          filename: `${index + 1}_${escapedFilename}`,
         };
       } else {
-        return relation.document;
+        return {
+          ...relation.document,
+          filename: escapedFilename,
+        };
       }
     });
   } else {
@@ -58,9 +76,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
         { status: 500 }
       );
     }
-    documents = [document];
+    const escapedDocument = {
+      ...document,
+      filename: escapeFilenameSpecialChars(document.title || document.filename),
+    };
+    documents = [escapedDocument];
   }
-  const zipFilename = `${event.slug}_documents.zip`;
+  const escapedEventName = escapeFilenameSpecialChars(event.name);
+  const zipFilename = `${escapedEventName} ${t("zipSuffix")}`;
+
   const documentResponse = getDownloadDocumentsResponse(
     authClient,
     documents,

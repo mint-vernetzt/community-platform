@@ -18,7 +18,7 @@ export async function getEventBySlug(slug: string) {
     select: {
       id: true,
       published: true,
-      slug: true,
+      name: true,
       documents: {
         select: {
           document: {
@@ -26,6 +26,7 @@ export async function getEventBySlug(slug: string) {
               id: true,
               path: true,
               filename: true,
+              title: true,
             },
           },
         },
