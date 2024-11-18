@@ -1,6 +1,15 @@
 {
     "content": {
         "back": "Back to organization",
-        "edit": "Edit"
+        "edit": "Edit",
+        "settings": "Organization settings"
+    },
+    "links": {
+        "general": "General",
+        "organize": "Manage organization",
+        "webSocial": "Website and social networks",
+        "admins": "Administrators",
+        "team": "Team",
+        "dangerZone": "Danger zone"
     }
 }
