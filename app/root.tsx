@@ -336,11 +336,15 @@ export default function App() {
   const matches = useMatches();
   let isSettings = false;
   let isProjectSettings = false;
+  let isOrganizationSettings = false;
   if (matches[1] !== undefined) {
     isProjectSettings = matches[1].id === "routes/project/$slug/settings";
+    isOrganizationSettings =
+      matches[1].id === "routes/next/organization/$slug/settings";
     const otherSettingsRoutes = [
       "routes/profile/$username/settings",
       "routes/organization/$slug/settings",
+      "routes/next/organization/$slug/settings",
       "routes/event/$slug/settings",
       "routes/project/$slug/settings",
     ];
@@ -458,7 +462,11 @@ export default function App() {
             <div
               className={`${
                 showFilters ? "mv-hidden container-lg:mv-block " : " "
-              }${isProjectSettings ? "mv-hidden container-md:mv-block" : ""}`}
+              }${
+                isProjectSettings || isOrganizationSettings
+                  ? "mv-hidden container-md:mv-block"
+                  : ""
+              }`}
             >
               <NavBar
                 sessionUserInfo={sessionUserInfo}
