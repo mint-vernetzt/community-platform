@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone"];
 export const handle = {
@@ -22,6 +23,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
+
+  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {

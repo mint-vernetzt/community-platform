@@ -14,12 +14,15 @@ import { useTranslation } from "react-i18next";
 import { type TFunction } from "i18next";
 import classNames from "classnames";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
+
+  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, "No valid route", {
