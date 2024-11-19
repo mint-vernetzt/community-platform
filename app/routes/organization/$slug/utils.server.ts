@@ -1,4 +1,4 @@
-import type { User } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import { deriveMode, type Mode } from "~/utils.server";
 
@@ -52,4 +52,28 @@ export async function getOrganizationVisibilitiesById(id: string) {
     },
   });
   return result;
+}
+
+export async function getRedirectPathOnProtectedOrganizationRoute(args: {
+  request: Request;
+  slug: string;
+  sessionUser: User | null;
+  authClient?: SupabaseClient;
+}) {
+  const { request, slug, sessionUser } = args;
+  // redirect to login if not logged in
+  if (sessionUser === null) {
+    // redirect to target after login
+    // TODO: Maybe rename login_redirect to redirect_to everywhere?
+    const url = new URL(request.url);
+    return `/login?login_redirect=${url.pathname}`;
+  }
+
+  // check if admin of project and redirect to project details if not
+  const mode = await deriveOrganizationMode(sessionUser, slug);
+  if (mode !== "admin") {
+    return `/organization/${slug}`;
+  }
+
+  return null;
 }

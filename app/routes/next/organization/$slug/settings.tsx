@@ -5,21 +5,24 @@ import {
   useLocation,
   useSearchParams,
 } from "@remix-run/react";
-import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { getRedirectPathOnProtectedOrganizationRoute } from "./settings.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { Section, TextButton } from "@mint-vernetzt/components";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import classNames from "classnames";
+import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
+
+  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, "No valid route", {
@@ -71,6 +74,10 @@ function createNavLinks(t: TFunction) {
 function Settings() {
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
+  const pathnameWithoutSlug = location.pathname.replace(
+    loaderData.organization.slug,
+    ""
+  );
   const [searchParams] = useSearchParams();
   const { t } = useTranslation(i18nNS);
 
@@ -138,7 +145,7 @@ function Settings() {
           <ul className="mv-grid mv-grid-cols-1 mv-grid-rows-6">
             {navLinks.map((navLink) => {
               const absolutePath = navLink.to.replace(".", "");
-              const isActive = location.pathname.includes(absolutePath);
+              const isActive = pathnameWithoutSlug.includes(absolutePath);
 
               const itemClasses = classNames(
                 "@md:mv-border-b @md:mv-last:mv-border-b-0 mv-h-full mv-grid mv-grid-rows-1 mv-grid-cols-1",

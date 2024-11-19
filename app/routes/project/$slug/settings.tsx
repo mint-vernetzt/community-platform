@@ -85,6 +85,10 @@ const createNavLinks = (t: TFunction) => [
 function ProjectSettings() {
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
+  const pathnameWithoutSlug = location.pathname.replace(
+    loaderData.project.slug,
+    ""
+  );
   const [searchParams] = useSearchParams();
   const { t } = useTranslation(i18nNS);
 
@@ -158,7 +162,7 @@ function ProjectSettings() {
           <ul className="mv-grid mv-grid-cols-1 mv-grid-rows-9">
             {navLinks.map((navLink) => {
               const absolutePath = navLink.to.replace(".", "");
-              const isActive = location.pathname.includes(absolutePath);
+              const isActive = pathnameWithoutSlug.includes(absolutePath);
 
               const itemClasses = classNames(
                 "@md:mv-border-b @md:mv-last:mv-border-b-0 mv-h-full mv-grid mv-grid-rows-1 mv-grid-cols-1",

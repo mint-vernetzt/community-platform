@@ -19,16 +19,15 @@ import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
+import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
-} from "../utils.server";
 
-const i18nNS = ["routes/project/settings/danger-zone/change-url"];
+const i18nNS = ["routes/next/organization/settings/danger-zone/change-url"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -66,6 +65,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
+  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
+
   invariantResponse(
     typeof params.slug !== "undefined",
     t("error.missingParameterSlug"),
@@ -74,7 +75,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
-  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
     request,
     slug: params.slug,
     sessionUser,
@@ -102,7 +103,7 @@ export const action = async (args: ActionFunctionArgs) => {
     status: 400,
   });
 
-  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
     request,
     slug: params.slug,
     sessionUser,
@@ -117,20 +118,20 @@ export const action = async (args: ActionFunctionArgs) => {
   const submission = await parse(formData, {
     schema: createSchema(t, {
       isSlugUnique: async (slug) => {
-        const project = await prismaClient.project.findFirst({
+        const organization = await prismaClient.organization.findFirst({
           where: { slug: slug },
           select: {
             slug: true,
           },
         });
-        return project === null;
+        return organization === null;
       },
     }),
     async: true,
   });
 
   if (typeof submission.value !== "undefined" && submission.value !== null) {
-    await prismaClient.project.update({
+    await prismaClient.organization.update({
       where: { slug: params.slug },
       data: { slug: submission.value.slug },
     });
@@ -193,8 +194,9 @@ function ChangeURL() {
           i18nKey="content.reach"
           ns={i18nNS}
           components={[
-            <span key="current-project-url" className="mv-break-all">
-              {loaderData.baseURL}/project/<strong>{loaderData.slug}</strong>
+            <span key="current-organization-url" className="mv-break-all">
+              {loaderData.baseURL}/organization/
+              <strong>{loaderData.slug}</strong>
             </span>,
           ]}
         />

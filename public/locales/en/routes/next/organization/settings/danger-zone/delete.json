@@ -1,0 +1,19 @@
+{
+  "validation": {
+    "name": {
+      "noMatch": "The organization name entered does not match."
+    }
+  },
+  "error": {
+    "invalidRoute": "No valid route",
+    "organizationNotFound": "Organization not found"
+  },
+  "content": {
+    "deleted": "Organization \"{{name}}\" deleted.",
+    "confirmation": "Please enter the name of the organization <0>{{name}}</0> to confirm deletion.",
+    "explanation": "If you then click on “Delete organization”, your organization will be permanently deleted without further inquiry.",
+    "label": "Confirm deletion",
+    "action": "Delete organization",
+    "success": "Your organization {{name}} has been successfully deleted."
+  }
+}
