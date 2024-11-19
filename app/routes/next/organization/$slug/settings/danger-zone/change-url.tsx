@@ -98,8 +98,6 @@ export const action = async (args: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
-  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
-
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,

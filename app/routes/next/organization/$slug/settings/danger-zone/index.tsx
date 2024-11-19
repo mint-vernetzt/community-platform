@@ -1,10 +1,9 @@
 import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
 import i18next from "~/i18next.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone/index"];
 export const handle = {
@@ -20,8 +19,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
-
-  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
