@@ -76,7 +76,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     where: {
       slug: params.slug,
     },
-    include: {
+    select: {
       admins: {
         select: {
           profile: {
@@ -240,107 +240,109 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   const formData = await request.formData();
-  const action = formData.get(conform.INTENT) as string;
+  const action = formData.get(conform.INTENT);
   const hash = getSubmissionHash({ action: action });
-  if (action.startsWith("add_")) {
-    const username = action.replace("add_", "");
+  if (action !== null && typeof action === "string") {
+    if (action.startsWith("add_")) {
+      const username = action.replace("add_", "");
 
-    const project = await prismaClient.project.findFirst({
-      where: { slug: args.params.slug },
-      select: {
-        id: true,
-      },
-    });
+      const project = await prismaClient.project.findFirst({
+        where: { slug: args.params.slug },
+        select: {
+          id: true,
+        },
+      });
 
-    const profile = await prismaClient.profile.findFirst({
-      where: { username },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-      },
-    });
+      const profile = await prismaClient.profile.findFirst({
+        where: { username },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      });
 
-    invariantResponse(
-      project !== null && profile !== null,
-      t("error.invariant.notFound"),
-      { status: 404 }
-    );
+      invariantResponse(
+        project !== null && profile !== null,
+        t("error.invariant.notFound"),
+        { status: 404 }
+      );
 
-    await prismaClient.adminOfProject.upsert({
-      where: {
-        profileId_projectId: {
+      await prismaClient.adminOfProject.upsert({
+        where: {
+          profileId_projectId: {
+            projectId: project.id,
+            profileId: profile.id,
+          },
+        },
+        update: {},
+        create: {
           projectId: project.id,
           profileId: profile.id,
         },
-      },
-      update: {},
-      create: {
-        projectId: project.id,
-        profileId: profile.id,
-      },
-    });
+      });
 
-    return redirectWithToast(request.url, {
-      id: "add-admin-toast",
-      key: hash,
-      message: t("content.profileAdded", {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-      }),
-    });
-  } else if (action.startsWith("remove_")) {
-    const username = action.replace("remove_", "");
+      return redirectWithToast(request.url, {
+        id: "add-admin-toast",
+        key: hash,
+        message: t("content.profileAdded", {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+        }),
+      });
+    } else if (action.startsWith("remove_")) {
+      const username = action.replace("remove_", "");
 
-    const project = await prismaClient.project.findFirst({
-      where: { slug: args.params.slug },
-      select: {
-        id: true,
-      },
-    });
+      const project = await prismaClient.project.findFirst({
+        where: { slug: args.params.slug },
+        select: {
+          id: true,
+        },
+      });
 
-    const profile = await prismaClient.profile.findFirst({
-      where: { username },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-      },
-    });
+      const profile = await prismaClient.profile.findFirst({
+        where: { username },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      });
 
-    invariantResponse(
-      project !== null && profile !== null,
-      t("error.invariant.notFound"),
-      { status: 404 }
-    );
+      invariantResponse(
+        project !== null && profile !== null,
+        t("error.invariant.notFound"),
+        { status: 404 }
+      );
 
-    const adminCount = await prismaClient.adminOfProject.count({
-      where: {
-        projectId: project.id,
-      },
-    });
+      const adminCount = await prismaClient.adminOfProject.count({
+        where: {
+          projectId: project.id,
+        },
+      });
 
-    if (adminCount <= 1) {
-      return json({ success: false, action, profile: null });
+      if (adminCount <= 1) {
+        return json({ success: false, action, profile: null });
+      }
+
+      await prismaClient.adminOfProject.delete({
+        where: {
+          profileId_projectId: {
+            projectId: project.id,
+            profileId: profile.id,
+          },
+        },
+      });
+
+      return redirectWithToast(request.url, {
+        id: "remove-admin-toast",
+        key: hash,
+        message: t("content.profileRemoved", {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+        }),
+      });
     }
-
-    await prismaClient.adminOfProject.delete({
-      where: {
-        profileId_projectId: {
-          projectId: project.id,
-          profileId: profile.id,
-        },
-      },
-    });
-
-    return redirectWithToast(request.url, {
-      id: "remove-admin-toast",
-      key: hash,
-      message: t("content.profileRemoved", {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-      }),
-    });
   }
 
   return json({ success: false, action, profile: null });
@@ -367,6 +369,8 @@ function Admins() {
       <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
       {typeof actionData !== "undefined" &&
         actionData !== null &&
+        actionData.action !== null &&
+        typeof actionData.action === "string" &&
         actionData.success === false && (
           <Alert level="negative" key={actionData.action}>
             {actionData.action.startsWith("remove_") && t("content.ups.remove")}
