@@ -1,23 +1,9 @@
-import {
-  Avatar,
-  Button,
-  Input,
-  List,
-  Section,
-  Toast,
-} from "@mint-vernetzt/components";
-import { type Prisma, type Profile } from "@prisma/client";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint } from "@conform-to/zod-v1";
+import { Avatar, Input, List, Section } from "@mint-vernetzt/components";
 import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import {
-  Form,
-  useFetcher,
-  useLoaderData,
-  useLocation,
-  useSearchParams,
-  useSubmit,
-} from "@remix-run/react";
+import { useFetcher, useLoaderData, useLocation } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
-import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
@@ -25,41 +11,22 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
-import { getPublicURL } from "~/storage.server";
-import { getToast, redirectWithToast } from "~/toast.server";
-import { getInvitedProfilesOfOrganization } from "./admins.server";
+import {
+  NoJsSearchParam,
+  i18nNS as searchI18nNS,
+  searchResponseSchema,
+  searchSchema,
+  type loader as searchLoader,
+} from "~/routes/profile/search";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
-import {
-  addAdminSchema,
-  type action as addAdminAction,
-} from "./admins/add-admin";
-import {
-  cancelInviteSchema,
-  type action as cancelInviteAction,
-} from "./admins/cancel-invite";
-import {
-  removeAdminSchema,
-  type action as removeAdminAction,
-} from "./admins/remove-admin";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
-import { z } from "zod";
-import { type TFunction } from "i18next";
+import { getPublicURL } from "~/storage.server";
+import { getToast } from "~/toast.server";
+import { getInvitedProfilesOfOrganization } from "./admins.server";
+import { useHydrated } from "remix-utils/use-hydrated";
 
-const i18nNS = ["routes/next/organization/settings/admins"];
+const i18nNS = ["routes/next/organization/settings/admins", ...searchI18nNS];
 export const handle = {
   i18n: i18nNS,
-};
-
-const searchSchema = (t: TFunction) => {
-  return z.object({
-    search: z
-      .string()
-      .min(3, { message: t("content.add.criteria") })
-      .optional(),
-    deep: z.string().optional(),
-  });
 };
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -151,105 +118,28 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { toast, headers: toastHeaders } = await getToast(request);
 
-  // get profiles via search query
-  let searchResult: {
-    firstName: string;
-    lastName: string;
-    username: string;
-    avatar: string | null;
-  }[] = [];
-  const searchParams = new URL(request.url).searchParams;
-  const submission = parseWithZod(searchParams, { schema: searchSchema(t) });
-  if (submission.status !== "success") {
-    return json(
-      {
-        organization: enhancedOrganization,
-        invitedProfiles,
-        searchResult,
-        submission: submission.reply(),
-        toast,
-      },
-      {
-        headers: toastHeaders || undefined,
-      }
+  // no js handling for fetcher response of profile/search
+  const url = new URL(request.url);
+  const searchFetcherResponse = url.searchParams.get(NoJsSearchParam);
+  let searchResult;
+  if (searchFetcherResponse !== null) {
+    const jsonSearchFetcherResponse = JSON.parse(
+      decodeURIComponent(searchFetcherResponse)
     );
-  }
-  const query =
-    typeof submission.value.search !== "undefined"
-      ? submission.value.search.split(" ")
-      : [];
-
-  if (
-    query.length > 0 &&
-    submission.value.search !== undefined &&
-    submission.value.search.length >= 3
-  ) {
-    const whereQueries: {
-      OR: {
-        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
-      }[];
-    }[] = [];
-    for (const word of query) {
-      whereQueries.push({
-        OR: [
-          { firstName: { contains: word, mode: "insensitive" } },
-          { lastName: { contains: word, mode: "insensitive" } },
-          { username: { contains: word, mode: "insensitive" } },
-          { email: { contains: word, mode: "insensitive" } },
-        ],
-      });
+    const validationResult = searchResponseSchema.safeParse(
+      jsonSearchFetcherResponse
+    );
+    if (validationResult.success) {
+      searchResult = validationResult.data;
     }
-    searchResult = await prismaClient.profile.findMany({
-      where: {
-        AND: whereQueries,
-      },
-      select: {
-        firstName: true,
-        lastName: true,
-        username: true,
-        avatar: true,
-      },
-      take: 10,
-    });
-    searchResult = searchResult.filter((relation) => {
-      const isTeamMember = organization.admins.some((teamMember) => {
-        return teamMember.profile.username === relation.username;
-      });
-      return !isTeamMember;
-    });
-    searchResult = searchResult.map((relation) => {
-      let avatar = relation.avatar;
-      let blurredAvatar;
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatar = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              ...ImageSizes.Profile.ListItemProjectDetailAndSettings.Avatar,
-            },
-          });
-          blurredAvatar = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              ...ImageSizes.Profile.ListItemProjectDetailAndSettings
-                .BlurredAvatar,
-            },
-            blur: BlurFactor,
-          });
-        }
-      }
-      return { ...relation, avatar, blurredAvatar };
-    });
   }
 
   return json(
     {
       organization: enhancedOrganization,
       invitedProfiles,
-      searchResult,
-      submission,
       toast,
+      searchResult,
     },
     {
       headers: toastHeaders || undefined,
@@ -258,27 +148,39 @@ export const loader = async (args: LoaderFunctionArgs) => {
 };
 
 function Admins() {
-  const loaderData = useLoaderData<typeof loader>();
-  const { organization, invitedProfiles, searchResult, submission, toast } =
-    loaderData;
+  const { organization, invitedProfiles } = useLoaderData<typeof loader>();
+
   // const addAdminFetcher = useFetcher<typeof addAdminAction>();
   // const cancelInviteFetcher = useFetcher<typeof cancelInviteAction>();
   // const removeAdminFetcher = useFetcher<typeof removeAdminAction>();
-  const [searchParams] = useSearchParams();
   const location = useLocation();
-  const submit = useSubmit();
+  const isHydrated = useHydrated();
   const { t } = useTranslation(i18nNS);
 
+  const searchFetcher = useFetcher<typeof searchLoader>();
   const [searchForm, searchFields] = useForm({
-    id: "search",
-    lastResult: loaderData.submission,
+    id: "search-profiles",
+    lastResult:
+      searchFetcher.data !== undefined
+        ? searchFetcher.data.submission
+        : undefined,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
     constraint: getZodConstraint(searchSchema(t)),
-    defaultValue: {
-      search: searchParams.get("search") || "",
-      deep: "true",
-    },
+  });
+  const searchResult =
+    searchFetcher.data !== undefined && "searchResult" in searchFetcher.data
+      ? searchFetcher.data.searchResult
+      : [];
+
+  const filteredSearchResult = searchResult.filter((searchedProfile) => {
+    const isAlreadyInvited = invitedProfiles.some((invitedProfile) => {
+      return invitedProfile.username === searchedProfile.username;
+    });
+    const isAlreadyAdmin = organization.admins.some((admin) => {
+      return admin.profile.username === searchedProfile.username;
+    });
+    return isAlreadyInvited === false && isAlreadyAdmin === false;
   });
 
   // const [removeAdminForm, removeAdminFields] = useForm({});
@@ -344,19 +246,24 @@ function Admins() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.add.headline")}
           </h2>
-          <Form
+          <searchFetcher.Form
             method="get"
+            action="/profile/search"
             onChange={(event) => {
-              submit(event.currentTarget, {
-                preventScrollReset: true,
-              });
+              searchFetcher.submit(event.currentTarget);
             }}
             {...getFormProps(searchForm)}
           >
-            <Input
-              {...getInputProps(searchFields.deep, { type: "hidden" })}
-              key={searchFields.deep.id}
-            />
+            {isHydrated === false ? (
+              <>
+                <input hidden name="noJS" value="true" />
+                <input
+                  hidden
+                  name="redirectToWithNoJS"
+                  value={location.pathname}
+                />
+              </>
+            ) : null}
             <Input
               {...getInputProps(searchFields.search, { type: "search" })}
               key={searchFields.search.id}
@@ -373,11 +280,12 @@ function Admins() {
                   <Input.Error key={error}>{error}</Input.Error>
                 ))}
             </Input>
-          </Form>
+          </searchFetcher.Form>
+
           {/* <Form method="post" preventScrollReset> */}
-          {searchResult.length > 0 ? (
+          {filteredSearchResult.length > 0 ? (
             <List>
-              {searchResult.map((profile) => {
+              {filteredSearchResult.map((profile) => {
                 return (
                   <List.Item key={profile.username}>
                     <Avatar {...profile} />
