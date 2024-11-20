@@ -1,30 +1,35 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint } from "@conform-to/zod-v1";
 import { Avatar, Input, List, Section } from "@mint-vernetzt/components";
-import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { useFetcher, useLoaderData, useLocation } from "@remix-run/react";
+import {
+  type ActionFunctionArgs,
+  json,
+  redirect,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
+import {
+  Form,
+  useLoaderData,
+  useLocation,
+  useSearchParams,
+  useSubmit,
+} from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import {
-  NoJsSearchParam,
-  i18nNS as searchI18nNS,
-  searchResponseSchema,
-  searchSchema,
-  type loader as searchLoader,
-} from "~/routes/profile/search";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
 import { getPublicURL } from "~/storage.server";
 import { getToast } from "~/toast.server";
 import { getInvitedProfilesOfOrganization } from "./admins.server";
-import { useHydrated } from "remix-utils/use-hydrated";
 
-const i18nNS = ["routes/next/organization/settings/admins", ...searchI18nNS];
+// TODO: Import namespaces from validation functions if neccessary (searchProfiles, inviteProfileToBeOrganizationAdmin, cancelAdminInvitation, removeAdminFromOrganization)
+const i18nNS = ["routes/next/organization/settings/admins"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -118,28 +123,31 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { toast, headers: toastHeaders } = await getToast(request);
 
-  // no js handling for fetcher response of profile/search
-  const url = new URL(request.url);
-  const searchFetcherResponse = url.searchParams.get(NoJsSearchParam);
-  let searchResult;
-  if (searchFetcherResponse !== null) {
-    const jsonSearchFetcherResponse = JSON.parse(
-      decodeURIComponent(searchFetcherResponse)
-    );
-    const validationResult = searchResponseSchema.safeParse(
-      jsonSearchFetcherResponse
-    );
-    if (validationResult.success) {
-      searchResult = validationResult.data;
-    }
-  }
+  // TODO: Clean loader
+
+  // const admins = await getAdminsOfOrganization(slug);
+  // const pendingAdminInvites = await getPendingAdminInvitesOfOrganization(slug);
+  // const {searchedProfiles, submission} = await searchProfiles(searchParams); -> How to implement which profiles are excluded (f.e. already admins or invited)?
+  // const toast = await getToast(request);
+
+  // return json(
+  //   {
+  //     admins
+  //     pendingAdminInvites,
+  //     searchedProfiles,
+  //     submission,
+  //     toast,
+  //   },
+  //   {
+  //     headers: toastHeaders || undefined,
+  //   }
+  // );
 
   return json(
     {
       organization: enhancedOrganization,
       invitedProfiles,
       toast,
-      searchResult,
     },
     {
       headers: toastHeaders || undefined,
@@ -147,43 +155,68 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 };
 
+export const action = async (args: ActionFunctionArgs) => {
+  const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
+
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
+
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  let response;
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  // TODO: Add all existing intents to the invariantResponse check
+  invariantResponse(intent !== null, t("error.invariant.invalidRequest"), {
+    status: 400,
+  });
+
+  // TODO: clean action
+
+  // Switch intents and for each:
+
+  // response = await inviteProfileToBeOrganizationAdmin(formData, slug);
+  // response = await cancelAdminInvitation(formData, slug);
+  // response = await removeAdminFromOrganization(formData, slug);
+
+  return response;
+};
+
 function Admins() {
-  const { organization, invitedProfiles } = useLoaderData<typeof loader>();
+  const { admins, pendingAdminInvites, searchedProfiles, submission, toast } =
+    useLoaderData<typeof loader>();
 
-  // const addAdminFetcher = useFetcher<typeof addAdminAction>();
-  // const cancelInviteFetcher = useFetcher<typeof cancelInviteAction>();
-  // const removeAdminFetcher = useFetcher<typeof removeAdminAction>();
   const location = useLocation();
-  const isHydrated = useHydrated();
   const { t } = useTranslation(i18nNS);
+  const submit = useSubmit();
+  const [searchParams] = useSearchParams();
 
-  const searchFetcher = useFetcher<typeof searchLoader>();
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
-    lastResult:
-      searchFetcher.data !== undefined
-        ? searchFetcher.data.submission
-        : undefined,
+    lastResult: submission,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
-    constraint: getZodConstraint(searchSchema(t)),
-  });
-  const searchResult =
-    searchFetcher.data !== undefined && "searchResult" in searchFetcher.data
-      ? searchFetcher.data.searchResult
-      : [];
-
-  const filteredSearchResult = searchResult.filter((searchedProfile) => {
-    const isAlreadyInvited = invitedProfiles.some((invitedProfile) => {
-      return invitedProfile.username === searchedProfile.username;
-    });
-    const isAlreadyAdmin = organization.admins.some((admin) => {
-      return admin.profile.username === searchedProfile.username;
-    });
-    return isAlreadyInvited === false && isAlreadyAdmin === false;
+    // TODO: Import search schema from module where searchProfiles is implemented
+    // constraint: getZodConstraint(searchSchema(t)),
+    defaultValue: {
+      search: searchParams.get("search") || "",
+    },
   });
 
-  // const [removeAdminForm, removeAdminFields] = useForm({});
+  // TODO: conform forms for add cancel and remove
+  // const [inviteAdminForm, inviteAdminFields] = useForm({...});
+  // const [cancelAdminInviteForm, cancelAdminInviteFields] = useForm({...});
+  // const [removeAdminForm, removeAdminFields] = useForm({...});
 
   return (
     <Section>
@@ -246,24 +279,14 @@ function Admins() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.add.headline")}
           </h2>
-          <searchFetcher.Form
+          {/* TODO: Check if the form resets searchParam deep when i dont include it */}
+          <Form
             method="get"
-            action="/profile/search"
             onChange={(event) => {
-              searchFetcher.submit(event.currentTarget);
+              submit(event.currentTarget, { preventScrollReset: true });
             }}
             {...getFormProps(searchForm)}
           >
-            {isHydrated === false ? (
-              <>
-                <input hidden name="noJS" value="true" />
-                <input
-                  hidden
-                  name="redirectToWithNoJS"
-                  value={location.pathname}
-                />
-              </>
-            ) : null}
             <Input
               {...getInputProps(searchFields.search, { type: "search" })}
               key={searchFields.search.id}
@@ -280,12 +303,13 @@ function Admins() {
                   <Input.Error key={error}>{error}</Input.Error>
                 ))}
             </Input>
-          </searchFetcher.Form>
+            {/* TODO: no script submit button */}
+          </Form>
 
           {/* <Form method="post" preventScrollReset> */}
-          {filteredSearchResult.length > 0 ? (
+          {searchedProfiles.length > 0 ? (
             <List>
-              {filteredSearchResult.map((profile) => {
+              {searchedProfiles.map((profile) => {
                 return (
                   <List.Item key={profile.username}>
                     <Avatar {...profile} />
