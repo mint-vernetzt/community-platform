@@ -18,6 +18,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
+import { DeepSearchParam } from "~/searchParams";
 
 const i18nNS = ["routes/project/settings/danger-zone/delete"];
 export const handle = {
@@ -162,7 +163,7 @@ function Delete() {
       <p>{t("content.explanation")}</p>
       <Form method="post" {...form.props}>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <Input id="deep" defaultValue="true" type="hidden" />
+          <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
           <Input id="name">
             <Input.Label htmlFor={fields.name.id}>
               {t("content.label")}

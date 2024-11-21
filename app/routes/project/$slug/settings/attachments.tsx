@@ -51,6 +51,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { DeepSearchParam } from "~/searchParams";
 
 const MAX_UPLOAD_SIZE = 6 * 1024 * 1024; // 6MB
 const i18nNS = ["routes/project/settings/attachments"];
@@ -289,7 +290,7 @@ export const action = async (args: ActionFunctionArgs) => {
     invariantResponse(mimeTypeIsValid, t("error.onStoring"), {
       status: 400,
     });
-        
+
     const filename = submission.value.filename;
     const document = submission.value.document;
     const error = await storeDocument(authClient, {
@@ -710,7 +711,7 @@ function Attachments() {
                             />
                             <MaterialList.Item.Controls.Delete type="submit" />
                             <Link
-                              to={`?deep&modal-${relation.document.id}=true`}
+                              to={`?${DeepSearchParam}=true&modal-${relation.document.id}=true`}
                               preventScrollReset
                             >
                               <MaterialList.Item.Controls.Edit />
@@ -984,7 +985,7 @@ function Attachments() {
                           />
                           <MaterialList.Item.Controls.Delete type="submit" />
                           <Link
-                            to={`?deep&modal-${relation.image.id}=true`}
+                            to={`?${DeepSearchParam}=true&modal-${relation.image.id}=true`}
                             preventScrollReset
                           >
                             <MaterialList.Item.Controls.Edit />

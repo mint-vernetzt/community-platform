@@ -17,6 +17,7 @@ export async function getOrganizationWithAdmins(
         select: {
           profile: {
             select: {
+              id: true,
               username: true,
               firstName: true,
               lastName: true,

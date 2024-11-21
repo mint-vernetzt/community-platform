@@ -15,6 +15,7 @@ import { type TFunction } from "i18next";
 import classNames from "classnames";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { DeepSearchParam } from "~/searchParams";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -83,7 +84,7 @@ function Settings() {
 
   const navLinks = createNavLinks(t);
 
-  const deep = searchParams.get("deep");
+  const deep = searchParams.get(DeepSearchParam);
 
   const menuClasses = classNames(
     "mv-w-full @md:mv-w-1/3 @2xl:mv-w-1/4 mv-max-h-screen @md:mv-max-h-fit mv-flex mv-flex-col mv-absolute @md:mv-relative mv-top-0 mv-bg-white @md:mv-border-l @md:mv-border-b @md:mv-rounded-bl-xl @md:mv-self-start",
@@ -170,7 +171,7 @@ function Settings() {
                 <li key={navLink.label} className={itemClasses}>
                   {/* TODO: H3 as h1 */}
                   <Link
-                    to={`${navLink.to}?deep`}
+                    to={`${navLink.to}?${DeepSearchParam}=true`}
                     className={linkClasses}
                     prefetch="intent"
                     preventScrollReset

@@ -8,6 +8,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
+import { DeepSearchParam } from "~/searchParams";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone"];
 export const handle = {
@@ -52,12 +53,15 @@ function DangerZone() {
       <div id="danger-zone-tab-bar" className="mv-mt-2 @md:-mv-mt-2 mv-mb-4">
         <TabBar>
           <TabBar.Item active={location.pathname.endsWith("/change-url")}>
-            <Link to="./change-url?deep" preventScrollReset>
+            <Link
+              to={`./change-url?${DeepSearchParam}=true`}
+              preventScrollReset
+            >
               {t("content.changeUrl")}
             </Link>
           </TabBar.Item>
           <TabBar.Item active={location.pathname.endsWith("/delete")}>
-            <Link to="./delete?deep" preventScrollReset>
+            <Link to={`./delete?${DeepSearchParam}=true`} preventScrollReset>
               {t("content.organizationDelete")}
             </Link>
           </TabBar.Item>

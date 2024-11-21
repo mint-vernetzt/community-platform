@@ -23,6 +23,7 @@
     "add": {
       "headline": "Add administrator",
       "search": "Search",
+      "submitSearch": "Search",
       "criteria": "At least 3 characters.",
       "submit": "Add"
     }

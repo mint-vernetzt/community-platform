@@ -4,6 +4,7 @@ import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { DeepSearchParam } from "~/searchParams";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone/index"];
 export const handle = {
@@ -32,5 +33,5 @@ export const loader = async (args: LoaderFunctionArgs) => {
     authClient,
   });
 
-  return redirect(redirectPath ?? "./change-url?deep");
+  return redirect(redirectPath ?? `./change-url?${DeepSearchParam}=true`);
 };

@@ -25,6 +25,7 @@ import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
+import { DeepSearchParam } from "~/searchParams";
 import { redirectWithToast } from "~/toast.server";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone/change-url"];
@@ -142,7 +143,7 @@ export const action = async (args: ActionFunctionArgs) => {
     const hash = getSubmissionHash(submission);
 
     return redirectWithToast(
-      `${pathname}?deep`,
+      `${pathname}?${DeepSearchParam}=true`,
       {
         id: "settings-toast",
         key: hash,
@@ -213,7 +214,7 @@ function ChangeURL() {
         }}
       >
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <Input id="deep" defaultValue="true" type="hidden" />
+          <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
           <Input id="slug" defaultValue={loaderData.slug}>
             <Input.Label htmlFor={fields.slug.id}>
               {t("content.label")}

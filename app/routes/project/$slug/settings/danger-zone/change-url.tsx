@@ -27,6 +27,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "../utils.server";
+import { DeepSearchParam } from "~/searchParams";
 
 const i18nNS = ["routes/project/settings/danger-zone/change-url"];
 export const handle = {
@@ -141,7 +142,7 @@ export const action = async (args: ActionFunctionArgs) => {
     const hash = getSubmissionHash(submission);
 
     return redirectWithToast(
-      `${pathname}?deep`,
+      `${pathname}?${DeepSearchParam}=true`,
       {
         id: "settings-toast",
         key: hash,
@@ -211,7 +212,7 @@ function ChangeURL() {
         }}
       >
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <Input id="deep" defaultValue="true" type="hidden" />
+          <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
           <Input id="slug" defaultValue={loaderData.slug}>
             <Input.Label htmlFor={fields.slug.id}>
               {t("content.label")}

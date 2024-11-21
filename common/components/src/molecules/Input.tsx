@@ -165,7 +165,11 @@ function Input(props: InputProps) {
     return React.isValidElement(child) && child.type === InputHelperText;
   });
   const controls = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === InputControls;
+    return (
+      React.isValidElement(child) &&
+      child.type === InputControls &&
+      React.Children.toArray(child.props.children).length > 0
+    );
   });
 
   const inputClasses = classNames(
@@ -191,7 +195,7 @@ function Input(props: InputProps) {
               props.maxLength !== undefined ? handleInputChange : props.onChange
             }
           />
-          {typeof icon !== "undefined" && (
+          {typeof icon !== "undefined" && typeof controls === "undefined" && (
             <div className="mv-absolute mv-right-3 mv-top-2/3 -mv-translate-y-1/2">
               {icon}
             </div>

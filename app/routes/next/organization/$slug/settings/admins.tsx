@@ -1,5 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { Input, Section } from "@mint-vernetzt/components";
+import { Input, Section, Button } from "@mint-vernetzt/components";
 import {
   json,
   redirect,
@@ -8,6 +8,7 @@ import {
 } from "@remix-run/node";
 import {
   Form,
+  useLoaderData,
   useLocation,
   useSearchParams,
   useSubmit,
@@ -25,9 +26,18 @@ import {
   getOrganizationWithAdmins,
   getPendingAdminInvitesOfOrganization,
 } from "./admins.server";
+import { DeepSearchParam, SearchProfilesSearchParam } from "~/searchParams";
+import { searchProfiles } from "~/routes/utils.server";
+import { searchProfilesI18nNS, searchProfilesSchema } from "~/schemas";
+import { deriveMode } from "~/utils.server";
+import { getZodConstraint } from "@conform-to/zod-v1";
+import { ListContainer, ListItem } from "~/routes/my/__components";
 
 // TODO: Import namespaces from validation functions if neccessary (searchProfiles, inviteProfileToBeOrganizationAdmin, cancelAdminInvitation, removeAdminFromOrganization)
-const i18nNS = ["routes/next/organization/settings/admins"];
+const i18nNS = [
+  "routes/next/organization/settings/admins",
+  ...searchProfilesI18nNS,
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -41,6 +51,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
+  const mode = deriveMode(sessionUser);
+  // We could use the mode out of deriveOrganizationMode() inside getRedirectPathOnProtectedOrganizationRoute()
   const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
     request,
     slug,
@@ -50,24 +62,37 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-  // TODO: Clean loader
+
   const organization = await getOrganizationWithAdmins(slug, authClient);
   invariantResponse(organization !== null, t("error.invariant.notFound"), {
     status: 404,
   });
+
   const pendingAdminInvites = await getPendingAdminInvitesOfOrganization(
     organization.id,
     authClient
   );
-  // const {searchedProfiles, submission} = await searchProfiles(searchParams); -> How to implement which profiles are excluded (f.e. already admins or invited)?
+
+  const pendingAndCurrentAdminIds = [
+    ...organization.admins.map((relation) => relation.profile.id),
+    ...pendingAdminInvites.map((invite) => invite.id),
+  ];
+  const { searchedProfiles, submission } = await searchProfiles({
+    searchParams: new URL(request.url).searchParams,
+    idsToExclude: pendingAndCurrentAdminIds,
+    authClient,
+    t,
+    mode,
+  });
+
   const { toast, headers: toastHeaders } = await getToast(request);
 
   return json(
     {
       organization,
       pendingAdminInvites,
-      // searchedProfiles,
-      // submission,
+      searchedProfiles,
+      submission,
       toast,
     },
     {
@@ -115,13 +140,13 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 function Admins() {
-  // const {
-  //   organization,
-  //   pendingAdminInvites,
-  //   searchedProfiles,
-  //   submission,
-  //   toast,
-  // } = useLoaderData<typeof loader>();
+  const {
+    // organization,
+    // pendingAdminInvites,
+    searchedProfiles,
+    submission,
+    // toast,
+  } = useLoaderData<typeof loader>();
 
   const location = useLocation();
   const { t } = useTranslation(i18nNS);
@@ -130,13 +155,13 @@ function Admins() {
 
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
-    // lastResult: submission,
+    lastResult: submission,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onBlur",
-    // TODO: Import search schema from module where searchProfiles is implemented
-    // constraint: getZodConstraint(searchSchema(t)),
+    constraint: getZodConstraint(searchProfilesSchema(t)),
     defaultValue: {
-      search: searchParams.get("search") || "",
+      [SearchProfilesSearchParam]:
+        searchParams.get(SearchProfilesSearchParam) || undefined,
     },
   });
 
@@ -206,7 +231,6 @@ function Admins() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.add.headline")}
           </h2>
-          {/* TODO: Check if the form resets searchParam deep when i dont include it */}
           <Form
             method="get"
             onChange={(event) => {
@@ -214,52 +238,63 @@ function Admins() {
             }}
             {...getFormProps(searchForm)}
           >
+            <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
             <Input
-              {...getInputProps(searchFields.search, { type: "search" })}
-              key={searchFields.search.id}
+              {...getInputProps(searchFields[SearchProfilesSearchParam], {
+                type: "search",
+              })}
+              key={searchFields[SearchProfilesSearchParam].id}
               standalone
             >
-              <Input.Label htmlFor={searchFields.search.id}>
+              <Input.Label htmlFor={searchFields[SearchProfilesSearchParam].id}>
                 {t("content.add.search")}
               </Input.Label>
               <Input.SearchIcon />
-              <Input.HelperText>{t("content.add.criteria")}</Input.HelperText>
-              {typeof searchFields.search.errors !== "undefined" &&
-                searchFields.search.errors.length > 0 &&
-                searchFields.search.errors.map((error) => (
+
+              {typeof searchFields[SearchProfilesSearchParam].errors !==
+                "undefined" &&
+              searchFields[SearchProfilesSearchParam].errors.length > 0 ? (
+                searchFields[SearchProfilesSearchParam].errors.map((error) => (
                   <Input.Error key={error}>{error}</Input.Error>
-                ))}
+                ))
+              ) : (
+                <Input.HelperText>{t("content.add.criteria")}</Input.HelperText>
+              )}
+              <Input.Controls>
+                <noscript>
+                  <Button type="submit" variant="outline">
+                    {t("content.add.submitSearch")}
+                  </Button>
+                </noscript>
+              </Input.Controls>
             </Input>
-            {/* TODO: no script submit button */}
           </Form>
 
           {/* TODO: Add Admin Form with conform */}
-          {/* <Form method="post" preventScrollReset>
+          {/* <Form method="post" preventScrollReset> */}
           {searchedProfiles.length > 0 ? (
-            <List>
+            <ListContainer>
               {searchedProfiles.map((profile) => {
                 return (
-                  <List.Item key={profile.username}>
-                    <Avatar {...profile} />
-                    <List.Item.Title>
-                      {profile.firstName} {profile.lastName}
-                    </List.Item.Title>
-                    <List.Item.Controls>
-                      <Button
-                        name={conform.INTENT}
-                        variant="outline"
-                        value={`add_${profile.username}`}
-                        type="submit"
-                      >
-                        {t("content.add.submit")}
-                      </Button>
-                    </List.Item.Controls>
-                  </List.Item>
+                  <ListItem
+                    key={`profile-search-result-${profile.username}`}
+                    entity={profile}
+                  >
+                    <Button
+                      name="intent"
+                      variant="outline"
+                      value={`add-admin`}
+                      type="submit"
+                      fullSize
+                    >
+                      {t("content.add.submit")}
+                    </Button>
+                  </ListItem>
                 );
               })}
-            </List>
+            </ListContainer>
           ) : null}
-          </Form> */}
+          {/* </Form> */}
           {/* TODO: pending invites section */}
         </div>
       </div>

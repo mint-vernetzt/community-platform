@@ -37,6 +37,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
+import { DeepSearchParam } from "~/searchParams";
 
 const i18nNS = ["routes/project/settings/admins"];
 export const handle = {
@@ -359,7 +360,7 @@ function Admins() {
   const [searchForm, searchFields] = useForm({
     defaultValue: {
       search: searchParams.get("search") || "",
-      deep: "true",
+      [DeepSearchParam]: "true",
     },
   });
 
@@ -440,7 +441,10 @@ function Admins() {
             }}
             {...searchForm.props}
           >
-            <Input {...conform.input(searchFields.deep)} type="hidden" />
+            <Input
+              {...conform.input(searchFields[DeepSearchParam])}
+              type="hidden"
+            />
             <Input {...conform.input(searchFields.search)} standalone>
               <Input.Label htmlFor={searchFields.search.id}>
                 {t("content.add.search")}

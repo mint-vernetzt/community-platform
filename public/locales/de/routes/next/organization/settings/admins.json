@@ -23,6 +23,7 @@
     "add": {
       "headline": "Administrator:in hinzufügen",
       "search": "Suche",
+      "submitSearch": "Suchen",
       "criteria": "Mindestens 3 Buchstaben.",
       "submit": "Hinzufügen"
     }

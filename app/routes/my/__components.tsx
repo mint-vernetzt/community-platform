@@ -467,17 +467,25 @@ type Entity = ListOrganization | ListProfile | ListProject;
 export function ListItem(
   props: React.PropsWithChildren<{
     entity: Entity;
-    listIndex: number;
+    listIndex?: number;
     hideAfter?: number;
   }>
 ) {
   const { entity, children, listIndex, hideAfter } = props;
   const { t } = useTranslation(organizationsI18nNS);
 
+  if (listIndex === undefined && hideAfter !== undefined) {
+    console.error(
+      "ListItem: Property `listIndex` is required when property `hideAfter` is set to hide list items after a specific number."
+    );
+  }
+
   return (
     <li
       className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center ${
-        hideAfter !== undefined && listIndex > hideAfter - 1
+        hideAfter !== undefined &&
+        listIndex !== undefined &&
+        listIndex > hideAfter - 1
           ? "mv-hidden group-has-[:checked]:mv-flex"
           : "mv-flex"
       }`}
@@ -526,9 +534,16 @@ export function ListItem(
 }
 
 export function ListContainer(
-  props: React.PropsWithChildren<{ listKey: string; hideAfter?: number }>
+  props: React.PropsWithChildren<{ listKey?: string; hideAfter?: number }>
 ) {
   const { children, listKey, hideAfter } = props;
+
+  if (listKey === undefined && hideAfter !== undefined) {
+    console.error(
+      "ListItem: Property `listKey` is required when property `hideAfter` is set to hide list items after a specific number."
+    );
+  }
+
   const { t } = useTranslation("components");
   return (
     <ul className="mv-flex mv-flex-col mv-gap-4 @lg:mv-gap-6 mv-group">
