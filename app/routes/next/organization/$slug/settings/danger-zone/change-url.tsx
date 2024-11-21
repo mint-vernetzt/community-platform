@@ -26,7 +26,7 @@ import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 import { redirectWithToast } from "~/toast.server";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone/change-url"];

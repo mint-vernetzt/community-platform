@@ -8,7 +8,7 @@ import { Section, TabBar } from "@mint-vernetzt/components";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/project/settings/danger-zone"];
 export const handle = {

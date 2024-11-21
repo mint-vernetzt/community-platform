@@ -5,27 +5,34 @@
       "notFound": "Not found"
     }
   },
+  "email": {
+    "subject": "You have received an invitation to become an admin!",
+    "button": {
+      "text": "To the community platform"
+    }
+  },
   "content": {
     "profileAdded": "Added {{firstName}} {{lastName}}",
     "profileRemoved": "Removed {{firstName}} {{lastName}}",
     "headline": "Administrators",
     "intro": "Who manages the organization on the community platform? Add or remove other administrators here. Administrators can edit, cancel, and delete organizations. They are not visible on the organization detail page. Team members are shown on the organization detail page. They cannot edit them.",
-    "ups": {
-      "add": "Something went wrong while adding the administrator",
-      "remove": "Something went wrong while removing the administrator"
-    },
+   
     "current": {
       "headline_one": "Administrator",
       "headline_other": "Administrators",
-      "title": "Administrator",
       "remove": "Remove"
     },
     "add": {
       "headline": "Add administrator",
       "search": "Search",
-      "submitSearch": "Search",
       "criteria": "At least 3 characters.",
+      "submitSearch": "Search",
       "submit": "Add"
+    },
+    "invites": {
+      "headline": "Invitations",
+      "intro": "Here you can see all the invitations you have already sent.",
+      "cancel": "withdraw"
     }
   }
 }

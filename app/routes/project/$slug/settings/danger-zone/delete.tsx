@@ -18,7 +18,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/project/settings/danger-zone/delete"];
 export const handle = {

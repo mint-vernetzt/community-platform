@@ -15,7 +15,7 @@ import { type TFunction } from "i18next";
 import classNames from "classnames";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;

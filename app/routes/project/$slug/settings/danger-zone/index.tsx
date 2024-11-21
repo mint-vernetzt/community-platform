@@ -4,7 +4,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/project/settings/danger-zone/index"];
 export const handle = {

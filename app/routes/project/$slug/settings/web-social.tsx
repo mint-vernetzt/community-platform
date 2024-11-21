@@ -40,7 +40,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({

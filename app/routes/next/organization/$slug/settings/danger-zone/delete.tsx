@@ -20,7 +20,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone/delete"];
 export const handle = {

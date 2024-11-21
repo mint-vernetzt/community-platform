@@ -1,5 +1,5 @@
 import { redirect } from "@remix-run/node";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 // Handle change-url as default route
 export const loader = async () => {

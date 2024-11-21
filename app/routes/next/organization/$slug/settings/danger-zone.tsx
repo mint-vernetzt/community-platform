@@ -2,7 +2,7 @@ import { Section, TabBar } from "@mint-vernetzt/components";
 import { Link, Outlet, useLocation } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone"];
 export const handle = {

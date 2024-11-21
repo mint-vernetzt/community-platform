@@ -5,8 +5,10 @@ import { type TFunction } from "i18next";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
-import { searchProfilesSchema } from "~/schemas";
-import { SearchProfilesSearchParam } from "~/searchParams";
+import {
+  searchProfilesSchema,
+  SearchProfilesSearchParam,
+} from "~/form-helpers";
 import { getPublicURL } from "~/storage.server";
 import { type Mode } from "~/utils.server";
 

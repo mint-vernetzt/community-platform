@@ -45,7 +45,7 @@ import {
   getSubmissionHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/project/settings/requirements", "datasets/financings"];
 export const handle = {

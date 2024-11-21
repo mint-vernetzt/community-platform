@@ -19,7 +19,7 @@ import { getToast } from "~/toast.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/project/settings"];
 export const handle = {

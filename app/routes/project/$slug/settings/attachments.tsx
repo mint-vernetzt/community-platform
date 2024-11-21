@@ -51,7 +51,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 const MAX_UPLOAD_SIZE = 6 * 1024 * 1024; // 6MB
 const i18nNS = ["routes/project/settings/attachments"];

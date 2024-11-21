@@ -37,7 +37,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { DeepSearchParam } from "~/searchParams";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/project/settings/admins"];
 export const handle = {
