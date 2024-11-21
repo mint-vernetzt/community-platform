@@ -40,7 +40,6 @@ import {
   inviteProfileToBeOrganizationAdmin,
   removeAdminFromOrganization,
 } from "./admins.server";
-import { FormEvent } from "react";
 
 const i18nNS = [
   "routes/next/organization/settings/admins",
@@ -61,10 +60,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const sessionUser = await getSessionUser(authClient);
   const mode = deriveMode(sessionUser);
 
-  const organization = await getOrganizationWithAdmins(slug, authClient);
-  invariantResponse(organization !== null, t("error.invariant.notFound"), {
-    status: 404,
-  });
+  const organization = await getOrganizationWithAdmins({ slug, authClient, t });
 
   const pendingAdminInvites = await getPendingAdminInvitesOfOrganization(
     organization.id,
@@ -131,7 +127,6 @@ export const action = async (args: ActionFunctionArgs) => {
       t,
     });
   } else if (intent.startsWith("cancel-admin-invite-")) {
-    // TODO: Check locales and i18NS if it contains all calls inside below function
     const cancelAdminInviteFormData = new FormData();
     cancelAdminInviteFormData.set(
       "profileId",
@@ -156,7 +151,11 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  if (result.toast !== undefined) {
+  if (
+    result.submission !== undefined &&
+    result.submission.status === "success" &&
+    result.toast !== undefined
+  ) {
     return redirectWithToast(request.url, result.toast);
   }
   return { submission: result.submission };
@@ -188,7 +187,7 @@ function Admins() {
         searchParams.get(SearchProfilesSearchParam) || undefined,
     },
   });
-  // TODO: Optimistic UI and check mount and unmount behaviour on ListContainer and ListItem
+
   const [inviteAdminForm] = useForm({
     id: "invite-admins",
     lastResult: actionSubmission,
@@ -308,15 +307,6 @@ function Admins() {
                         value={`invite-admin-${profile.id}`}
                         type="submit"
                         fullSize
-                        onChange={(event: FormEvent<HTMLButtonElement>) => {
-                          // TODO:
-                          // Set fade out state and pass it to list and list item
-                          // setTimeout to 150ms
-                          // Test with optimistic ui
-                          submit(event.currentTarget, {
-                            preventScrollReset: true,
-                          });
-                        }}
                       >
                         {t("content.add.submit")}
                       </Button>

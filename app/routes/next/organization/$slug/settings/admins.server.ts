@@ -14,10 +14,12 @@ import { prismaClient } from "~/prisma.server";
 import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
 import { getPublicURL } from "~/storage.server";
 
-export async function getOrganizationWithAdmins(
-  slug: string,
-  authClient: SupabaseClient
-) {
+export async function getOrganizationWithAdmins(options: {
+  slug: string;
+  authClient: SupabaseClient;
+  t: TFunction;
+}) {
+  const { slug, authClient, t } = options;
   const organization = await prismaClient.organization.findFirst({
     where: {
       slug,
@@ -42,9 +44,9 @@ export async function getOrganizationWithAdmins(
     },
   });
 
-  if (organization === null) {
-    return null;
-  }
+  invariantResponse(organization !== null, t("error.invariant.notFound"), {
+    status: 404,
+  });
 
   // enhance admins with avatar
   const admins = organization.admins.map((relation) => {
