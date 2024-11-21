@@ -1,8 +1,7 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint } from "@conform-to/zod-v1";
-import { Button, Input, Section, Toast } from "@mint-vernetzt/components";
+import { Button, Input, Section } from "@mint-vernetzt/components";
 import {
-  json,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -17,6 +16,12 @@ import {
 } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import {
+  DeepSearchParam,
+  searchProfilesI18nNS,
+  searchProfilesSchema,
+  SearchProfilesSearchParam,
+} from "~/form-helpers";
 import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -26,19 +31,16 @@ import { ListContainer, ListItem } from "~/routes/my/__components";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
 import { searchProfiles } from "~/routes/utils.server";
-import {
-  searchProfilesI18nNS,
-  searchProfilesSchema,
-  DeepSearchParam,
-  SearchProfilesSearchParam,
-} from "~/form-helpers";
-import { getToast, redirectWithToast } from "~/toast.server";
+import { redirectWithToast } from "~/toast.server";
 import { deriveMode } from "~/utils.server";
 import {
+  cancelOrganizationAdminInvitation,
   getOrganizationWithAdmins,
   getPendingAdminInvitesOfOrganization,
   inviteProfileToBeOrganizationAdmin,
+  removeAdminFromOrganization,
 } from "./admins.server";
+import { FormEvent } from "react";
 
 const i18nNS = [
   "routes/next/organization/settings/admins",
@@ -81,20 +83,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode,
   });
 
-  const { toast, headers: toastHeaders } = await getToast(request);
-
-  return json(
-    {
-      organization,
-      pendingAdminInvites,
-      searchedProfiles,
-      submission,
-      toast,
-    },
-    {
-      headers: toastHeaders || undefined,
-    }
-  );
+  return {
+    organization,
+    pendingAdminInvites,
+    searchedProfiles,
+    submission,
+  };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -138,26 +132,24 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   } else if (intent.startsWith("cancel-admin-invite-")) {
     // TODO: Check locales and i18NS if it contains all calls inside below function
-
-    // submission = await cancelAdminInvitation(formData, profileId);
-    result = {
-      toast: {
-        id: "",
-        key: "",
-        message: "",
-      },
-      submission: {},
-    };
+    const cancelAdminInviteFormData = new FormData();
+    cancelAdminInviteFormData.set(
+      "profileId",
+      intent.replace("cancel-admin-invite-", "")
+    );
+    result = await cancelOrganizationAdminInvitation({
+      formData: cancelAdminInviteFormData,
+      slug,
+      t,
+    });
   } else if (intent.startsWith("remove-admin-")) {
-    // submission = await removeAdminFromOrganization(formData, profileId);
-    result = {
-      toast: {
-        id: "",
-        key: "",
-        message: "",
-      },
-      submission: {},
-    };
+    const removeAdminFormData = new FormData();
+    removeAdminFormData.set("profileId", intent.replace("remove-admin-", ""));
+    result = await removeAdminFromOrganization({
+      formData: removeAdminFormData,
+      slug,
+      t,
+    });
   } else {
     invariantResponse(false, t("error.invariant.wrongIntent"), {
       status: 400,
@@ -165,12 +157,9 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   if (result.toast !== undefined) {
-    return redirectWithToast(".", result.toast);
+    return redirectWithToast(request.url, result.toast);
   }
-  if (result.submission !== undefined) {
-    return { submission: result.submission };
-  }
-  return redirect(".");
+  return { submission: result.submission };
 };
 
 function Admins() {
@@ -179,7 +168,6 @@ function Admins() {
     pendingAdminInvites,
     searchedProfiles,
     submission: loaderSubmission,
-    toast,
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
@@ -200,16 +188,17 @@ function Admins() {
         searchParams.get(SearchProfilesSearchParam) || undefined,
     },
   });
-
-  // TODO: conform forms for add cancel and remove
+  // TODO: Optimistic UI and check mount and unmount behaviour on ListContainer and ListItem
   const [inviteAdminForm] = useForm({
     id: "invite-admins",
     lastResult: actionSubmission,
   });
+
   const [cancelAdminInviteForm] = useForm({
     id: "cancel-admin-invites",
     lastResult: actionSubmission,
   });
+
   const [removeAdminForm] = useForm({
     id: "remove-admins",
     lastResult: actionSubmission,
@@ -222,13 +211,6 @@ function Admins() {
 
       {/* Current Admins and Remove Section */}
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-        {toast !== null && toast.id === "remove-admin-toast" && (
-          <div id={toast.id}>
-            <Toast key={toast.key} level={toast.level}>
-              {toast.message}
-            </Toast>
-          </div>
-        )}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {t("content.current.headline", {
@@ -264,13 +246,6 @@ function Admins() {
             </ListContainer>
           </Form>
         </div>
-        {toast !== null && toast.id === "add-admin-toast" && (
-          <div id={toast.id}>
-            <Toast key={toast.key} level={toast.level}>
-              {toast.message}
-            </Toast>
-          </div>
-        )}
         {/* Search Profiles To Add Section */}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -330,9 +305,18 @@ function Admins() {
                       <Button
                         name="intent"
                         variant="outline"
-                        value={`add-admin-${profile.id}`}
+                        value={`invite-admin-${profile.id}`}
                         type="submit"
                         fullSize
+                        onChange={(event: FormEvent<HTMLButtonElement>) => {
+                          // TODO:
+                          // Set fade out state and pass it to list and list item
+                          // setTimeout to 150ms
+                          // Test with optimistic ui
+                          submit(event.currentTarget, {
+                            preventScrollReset: true,
+                          });
+                        }}
                       >
                         {t("content.add.submit")}
                       </Button>

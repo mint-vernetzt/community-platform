@@ -1,5 +1,6 @@
 import { Avatar, Button as LegacyButton } from "@mint-vernetzt/components";
 import { Form, Link, useFetcher, useSearchParams } from "@remix-run/react";
+import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 import classNames from "classnames";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -23,7 +24,6 @@ import {
   type action as requestsAction,
 } from "./organizations/requests";
 import { type getPendingRequestsToOrganizations } from "./organizations/requests.server";
-import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 
 export function Section(props: {
   children: React.ReactNode;

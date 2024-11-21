@@ -118,15 +118,11 @@ export const action = async (args: ActionFunctionArgs) => {
 
     const hash = getSubmissionHash(submission);
 
-    return redirectWithToast(
-      `${pathname}?${DeepSearchParam}=true`,
-      {
-        id: "settings-toast",
-        key: hash,
-        message: t("content.feedback"),
-      },
-      { scrollToToast: true }
-    );
+    return redirectWithToast(`${pathname}?${DeepSearchParam}=true`, {
+      id: "settings-toast",
+      key: hash,
+      message: t("content.feedback"),
+    });
   }
 
   return json(submission);

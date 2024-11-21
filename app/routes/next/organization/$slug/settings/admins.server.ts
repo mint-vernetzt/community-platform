@@ -1,7 +1,11 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { type TFunction } from "i18next";
-import { inviteProfileToBeOrganizationAdminSchema } from "~/form-helpers";
+import {
+  cancelOrganizationAdminInvitationSchema,
+  inviteProfileToBeOrganizationAdminSchema,
+  removeAdminFromOrganizationSchema,
+} from "~/form-helpers";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { invariantResponse } from "~/lib/utils/response";
@@ -136,6 +140,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   t: TFunction;
 }) {
   const { formData, slug, t } = options;
+
   const submission = parseWithZod(formData, {
     schema: inviteProfileToBeOrganizationAdminSchema,
   });
@@ -164,7 +169,9 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   invariantResponse(
     organization !== null && profile !== null,
     t("error.invariant.entitiesForInviteNotFound"),
-    { status: 404 }
+    {
+      status: 404,
+    }
   );
 
   await prismaClient.inviteForProfileToJoinOrganization.upsert({
@@ -229,9 +236,141 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   return {
     submission: submission.reply(),
     toast: {
-      id: "add-admin-toast",
+      id: "invite-admin-toast",
       key: hash,
       message: t("content.profileAdded", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
+    },
+  };
+}
+
+export async function cancelOrganizationAdminInvitation(options: {
+  formData: FormData;
+  slug: string;
+  t: TFunction;
+}) {
+  const { formData, slug, t } = options;
+
+  const submission = parseWithZod(formData, {
+    schema: cancelOrganizationAdminInvitationSchema,
+  });
+  if (submission.status !== "success") {
+    return { submission: submission.reply() };
+  }
+
+  const organization = await prismaClient.organization.findFirst({
+    where: { slug },
+    select: {
+      id: true,
+    },
+  });
+  const profile = await prismaClient.profile.findFirst({
+    where: { id: submission.value.profileId },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+    },
+  });
+  invariantResponse(
+    organization !== null && profile !== null,
+    t("error.invariant.entitiesForInviteNotFound"),
+    { status: 404 }
+  );
+
+  await prismaClient.inviteForProfileToJoinOrganization.update({
+    where: {
+      profileId_organizationId_role: {
+        profileId: submission.value.profileId,
+        organizationId: organization.id,
+        role: "admin",
+      },
+    },
+    data: {
+      status: "canceled",
+    },
+  });
+
+  const hash = getSubmissionHash(submission);
+
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "cancel-invite-toast",
+      key: hash,
+      message: t("content.inviteCancelled", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
+    },
+  };
+}
+
+export async function removeAdminFromOrganization(options: {
+  formData: FormData;
+  slug: string;
+  t: TFunction;
+}) {
+  const { formData, slug, t } = options;
+
+  const submission = parseWithZod(formData, {
+    schema: removeAdminFromOrganizationSchema,
+  });
+  if (submission.status !== "success") {
+    return { submission: submission.reply() };
+  }
+
+  const organization = await prismaClient.organization.findFirst({
+    where: { slug },
+    select: {
+      id: true,
+      _count: {
+        select: {
+          admins: true,
+        },
+      },
+    },
+  });
+  const profile = await prismaClient.profile.findFirst({
+    where: { id: submission.value.profileId },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+    },
+  });
+  invariantResponse(
+    organization !== null && profile !== null,
+    t("error.invariant.entitiesForRemovalNotFound"),
+    { status: 404 }
+  );
+  invariantResponse(
+    organization._count.admins > 1,
+    t("error.invariant.adminCount"),
+    {
+      status: 400,
+    }
+  );
+
+  await prismaClient.adminOfOrganization.delete({
+    where: {
+      profileId_organizationId: {
+        profileId: submission.value.profileId,
+        organizationId: organization.id,
+      },
+    },
+  });
+
+  const hash = getSubmissionHash(submission);
+
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "remove-admin-toast",
+      key: hash,
+      message: t("content.profileRemoved", {
         firstName: profile.firstName,
         lastName: profile.lastName,
       }),

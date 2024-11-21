@@ -19,3 +19,11 @@ export const searchProfilesSchema = (t: TFunction) => {
 export const inviteProfileToBeOrganizationAdminSchema = z.object({
   profileId: z.string().uuid(),
 });
+
+export const cancelOrganizationAdminInvitationSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+export const removeAdminFromOrganizationSchema = z.object({
+  profileId: z.string().uuid(),
+});
