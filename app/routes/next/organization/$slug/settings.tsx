@@ -30,6 +30,7 @@ export async function loader(args: LoaderFunctionArgs) {
     status: 400,
   });
 
+  // We could use the mode out of deriveOrganizationMode() inside getRedirectPathOnProtectedOrganizationRoute()
   const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
     request,
     slug: params.slug,

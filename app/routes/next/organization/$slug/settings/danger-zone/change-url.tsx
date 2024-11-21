@@ -21,6 +21,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
@@ -58,36 +59,10 @@ function createSchema(
 }
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request, params } = args;
+  const { params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
-
-  const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-
-  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
-
-  invariantResponse(
-    typeof params.slug !== "undefined",
-    t("error.missingParameterSlug"),
-    {
-      status: 404,
-    }
-  );
-
-  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
-
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-
-  return json({ slug: params.slug, baseURL: process.env.COMMUNITY_BASE_URL });
+  return json({ slug, baseURL: process.env.COMMUNITY_BASE_URL });
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -98,6 +73,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
+  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {

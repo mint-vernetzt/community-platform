@@ -32,6 +32,7 @@ import { searchProfilesI18nNS, searchProfilesSchema } from "~/schemas";
 import { deriveMode } from "~/utils.server";
 import { getZodConstraint } from "@conform-to/zod-v1";
 import { ListContainer, ListItem } from "~/routes/my/__components";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 
 // TODO: Import namespaces from validation functions if neccessary (searchProfiles, inviteProfileToBeOrganizationAdmin, cancelAdminInvitation, removeAdminFromOrganization)
 const i18nNS = [
@@ -52,16 +53,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const mode = deriveMode(sessionUser);
-  // We could use the mode out of deriveOrganizationMode() inside getRedirectPathOnProtectedOrganizationRoute()
-  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
-    request,
-    slug,
-    sessionUser,
-    authClient,
-  });
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
 
   const organization = await getOrganizationWithAdmins(slug, authClient);
   invariantResponse(organization !== null, t("error.invariant.notFound"), {
@@ -119,6 +110,7 @@ export const action = async (args: ActionFunctionArgs) => {
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
 
   let response;
   const formData = await request.formData();
