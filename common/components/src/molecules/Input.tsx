@@ -130,7 +130,7 @@ function Input(props: InputProps) {
     return React.isValidElement(child) || typeof child === "string";
   });
 
-  const error = validChildren.find((child) => {
+  const errors = validChildren.filter((child) => {
     return React.isValidElement(child) && child.type === InputError;
   });
 
@@ -144,17 +144,13 @@ function Input(props: InputProps) {
   let label: React.ReactElement<typeof InputLabel> | undefined;
   if (typeof labelString !== "undefined") {
     label = (
-      <InputLabel
-        htmlFor={props.id}
-        hasError={typeof error !== "undefined"}
-        hidden
-      >
+      <InputLabel htmlFor={props.id} hasError={errors.length > 0} hidden>
         {labelString}
       </InputLabel>
     );
   } else if (typeof labelComponent !== "undefined") {
     label = React.cloneElement(labelComponent, {
-      hasError: typeof error !== "undefined",
+      hasError: errors.length > 0,
     });
   }
 
@@ -169,12 +165,16 @@ function Input(props: InputProps) {
     return React.isValidElement(child) && child.type === InputHelperText;
   });
   const controls = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === InputControls;
+    return (
+      React.isValidElement(child) &&
+      child.type === InputControls &&
+      React.Children.toArray(child.props.children).length > 0
+    );
   });
 
   const inputClasses = classNames(
     "mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-blue-400 focus-visible:mv-outline-0",
-    typeof error !== "undefined" && "mv-border-negative-600"
+    errors.length > 0 && "mv-border-negative-600"
   );
 
   const inputCounterContainerClasses = classNames(
@@ -195,7 +195,7 @@ function Input(props: InputProps) {
               props.maxLength !== undefined ? handleInputChange : props.onChange
             }
           />
-          {typeof icon !== "undefined" && (
+          {typeof icon !== "undefined" && typeof controls === "undefined" && (
             <div className="mv-absolute mv-right-3 mv-top-2/3 -mv-translate-y-1/2">
               {icon}
             </div>
@@ -215,7 +215,13 @@ function Input(props: InputProps) {
         helperText
       )}
 
-      {error}
+      {errors.length > 0 ? (
+        <ul>
+          {errors.map((error, index) => (
+            <li key={index}>{error}</li>
+          ))}
+        </ul>
+      ) : null}
       {typeof standalone !== "undefined" && standalone !== false && (
         <input type="submit" className="mv-hidden" />
       )}

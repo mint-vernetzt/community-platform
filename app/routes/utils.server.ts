@@ -1,8 +1,16 @@
+import { parseWithZod } from "@conform-to/zod-v1";
 import { type Organization, type Prisma, type Profile } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
+import { type TFunction } from "i18next";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
+import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
+import {
+  searchProfilesSchema,
+  SearchProfilesSearchParam,
+} from "~/form-helpers";
 import { getPublicURL } from "~/storage.server";
+import { type Mode } from "~/utils.server";
 
 export async function getProfileCount() {
   return await prismaClient.profile.count();
@@ -228,4 +236,126 @@ export async function getAllOffers() {
       slug: true,
     },
   });
+}
+
+export async function searchProfiles(options: {
+  searchParams: URLSearchParams;
+  idsToExclude?: string[];
+  authClient: SupabaseClient;
+  t: TFunction;
+  mode: Mode;
+}) {
+  const { searchParams, idsToExclude, authClient, t, mode } = options;
+  type WhereStatements = (
+    | {
+        OR: {
+          [K in Profile as string]: {
+            contains: string;
+            mode: Prisma.QueryMode;
+          };
+        }[];
+      }
+    | {
+        id: { notIn: string[] };
+      }
+  )[];
+  const prismaQuery = async (whereStatements: WhereStatements) => {
+    return await prismaClient.profile.findMany({
+      where: {
+        AND: whereStatements,
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        username: true,
+        avatar: true,
+        academicTitle: true,
+        position: true,
+        profileVisibility: {
+          select: {
+            firstName: true,
+            lastName: true,
+            username: true,
+            avatar: true,
+            academicTitle: true,
+            position: true,
+          },
+        },
+      },
+      take: 10,
+    });
+  };
+
+  const submission = parseWithZod(searchParams, {
+    schema: searchProfilesSchema(t),
+  });
+  if (
+    submission.status !== "success" ||
+    submission.value[SearchProfilesSearchParam] === undefined
+  ) {
+    return {
+      searchedProfiles: [] as Awaited<ReturnType<typeof prismaQuery>>,
+      submission: submission.reply(),
+    };
+  }
+
+  const query = submission.value[SearchProfilesSearchParam].trim().split(" ");
+  const whereStatements: WhereStatements = [];
+  if (idsToExclude !== undefined && idsToExclude.length > 0) {
+    whereStatements.push({
+      id: {
+        notIn: idsToExclude,
+      },
+    });
+  }
+  for (const word of query) {
+    whereStatements.push({
+      OR: [
+        { firstName: { contains: word, mode: "insensitive" } },
+        { lastName: { contains: word, mode: "insensitive" } },
+        { username: { contains: word, mode: "insensitive" } },
+        { email: { contains: word, mode: "insensitive" } },
+      ],
+    });
+  }
+  const searchedProfiles = await prismaQuery(whereStatements);
+
+  let filteredSearchedProfiles;
+  if (mode === "anon") {
+    filteredSearchedProfiles = searchedProfiles.map((profile) => {
+      return filterProfileByVisibility<typeof profile>(profile);
+    });
+  } else {
+    filteredSearchedProfiles = searchedProfiles;
+  }
+
+  const enhancedSearchedProfiles = filteredSearchedProfiles.map((relation) => {
+    let avatar = relation.avatar;
+    let blurredAvatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      if (publicURL !== null) {
+        avatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.ListItem.Avatar,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.ListItem.BlurredAvatar,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+    return { ...relation, avatar, blurredAvatar };
+  });
+
+  return {
+    searchedProfiles: enhancedSearchedProfiles,
+    submission: submission.reply(),
+  };
 }

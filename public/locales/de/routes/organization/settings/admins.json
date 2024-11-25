@@ -16,14 +16,14 @@
     "invites": {
       "headline": "Einladungen",
       "intro": "Hier siehst Du alle Einladungen, die Du bereits versendet hast.",
-      "cancel": "zurückziehen"
+      "cancel": "Zurückziehen"
     },
     "current": {
       "headline_one": "Aktuelle Administrator:in",
       "headline_other": "Aktuelle Administrator:innen",
       "intro_one": "Hier siehst Du die Administrator:in der Organisation auf einen Blick.",
       "intro_other": "Hier siehst Du die Administrator:innen der Organisation auf einen Blick.",
-      "remove": "entfernen"
+      "remove": "Entfernen"
     }
   }
 }

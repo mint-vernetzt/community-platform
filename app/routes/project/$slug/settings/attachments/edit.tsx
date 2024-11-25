@@ -10,6 +10,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "../utils.server";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/project/settings/attachments/edit"];
 export const handle = {
@@ -126,7 +127,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   const redirectUrl = new URL("./", request.url);
-  redirectUrl.searchParams.set("deep", "true");
+  redirectUrl.searchParams.set(DeepSearchParam, "true");
 
   return redirect(redirectUrl.toString());
 };

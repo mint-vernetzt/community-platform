@@ -8,6 +8,7 @@ import { Section, TabBar } from "@mint-vernetzt/components";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/project/settings/danger-zone"];
 export const handle = {
@@ -52,12 +53,15 @@ function DangerZone() {
       <div id="danger-zone-tab-bar" className="mv-mt-2 @md:-mv-mt-2 mv-mb-4">
         <TabBar>
           <TabBar.Item active={location.pathname.endsWith("/change-url")}>
-            <Link to="./change-url?deep" preventScrollReset>
+            <Link
+              to={`./change-url?${DeepSearchParam}=true`}
+              preventScrollReset
+            >
               {t("content.changeUrl")}
             </Link>
           </TabBar.Item>
           <TabBar.Item active={location.pathname.endsWith("/delete")}>
-            <Link to="./delete?deep" preventScrollReset>
+            <Link to={`./delete?${DeepSearchParam}=true`} preventScrollReset>
               {t("content.projectDelete")}
             </Link>
           </TabBar.Item>

@@ -21,10 +21,12 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
+import { DeepSearchParam } from "~/form-helpers";
 import { redirectWithToast } from "~/toast.server";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone/change-url"];
@@ -57,36 +59,10 @@ function createSchema(
 }
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request, params } = args;
+  const { params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
-
-  const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-
-  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
-
-  invariantResponse(
-    typeof params.slug !== "undefined",
-    t("error.missingParameterSlug"),
-    {
-      status: 404,
-    }
-  );
-
-  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
-
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-
-  return json({ slug: params.slug, baseURL: process.env.COMMUNITY_BASE_URL });
+  return json({ slug, baseURL: process.env.COMMUNITY_BASE_URL });
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -97,6 +73,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
+  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
@@ -141,15 +118,11 @@ export const action = async (args: ActionFunctionArgs) => {
 
     const hash = getSubmissionHash(submission);
 
-    return redirectWithToast(
-      `${pathname}?deep`,
-      {
-        id: "settings-toast",
-        key: hash,
-        message: t("content.feedback"),
-      },
-      { scrollToToast: true }
-    );
+    return redirectWithToast(`${pathname}?${DeepSearchParam}=true`, {
+      id: "settings-toast",
+      key: hash,
+      message: t("content.feedback"),
+    });
   }
 
   return json(submission);
@@ -213,7 +186,7 @@ function ChangeURL() {
         }}
       >
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <Input id="deep" defaultValue="true" type="hidden" />
+          <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
           <Input id="slug" defaultValue={loaderData.slug}>
             <Input.Label htmlFor={fields.slug.id}>
               {t("content.label")}

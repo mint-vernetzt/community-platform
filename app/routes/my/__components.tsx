@@ -1,5 +1,6 @@
 import { Avatar, Button as LegacyButton } from "@mint-vernetzt/components";
 import { Form, Link, useFetcher, useSearchParams } from "@remix-run/react";
+import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 import classNames from "classnames";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -23,7 +24,6 @@ import {
   type action as requestsAction,
 } from "./organizations/requests";
 import { type getPendingRequestsToOrganizations } from "./organizations/requests.server";
-import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 
 export function Section(props: {
   children: React.ReactNode;
@@ -467,68 +467,93 @@ type Entity = ListOrganization | ListProfile | ListProject;
 export function ListItem(
   props: React.PropsWithChildren<{
     entity: Entity;
-    listIndex: number;
+    listIndex?: number;
     hideAfter?: number;
   }>
 ) {
   const { entity, children, listIndex, hideAfter } = props;
   const { t } = useTranslation(organizationsI18nNS);
 
+  const validChildren = React.Children.toArray(children).filter((child) => {
+    return React.isValidElement(child);
+  });
+
+  if (listIndex === undefined && hideAfter !== undefined) {
+    console.error(
+      "ListItem: Property `listIndex` is required when property `hideAfter` is set to hide list items after a specific number."
+    );
+  }
+
   return (
-    <li
-      className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center ${
-        hideAfter !== undefined && listIndex > hideAfter - 1
-          ? "mv-hidden group-has-[:checked]:mv-flex"
-          : "mv-flex"
-      }`}
-    >
-      <Link
-        to={
-          "academicTitle" in entity
-            ? `/profile/${entity.username}`
-            : "responsibleOrganizations" in entity
-            ? `/project/${entity.slug}`
-            : `/organization/${entity.slug}`
-        }
-        className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit"
+    <li>
+      <div
+        className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center ${
+          hideAfter !== undefined &&
+          listIndex !== undefined &&
+          listIndex > hideAfter - 1
+            ? "mv-hidden group-has-[:checked]:mv-flex"
+            : "mv-flex"
+        }`}
       >
-        <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
-          <Avatar size="full" {...entity} />
-        </div>
-        <div>
-          <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
-            {"academicTitle" in entity
-              ? `${entity.academicTitle ? `${entity.academicTitle} ` : ""}${
-                  entity.firstName
-                } ${entity.lastName}`
-              : entity.name}
-          </p>
-          <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
-            {"academicTitle" in entity
-              ? entity.position
+        <Link
+          to={
+            "academicTitle" in entity
+              ? `/profile/${entity.username}`
               : "responsibleOrganizations" in entity
-              ? entity.responsibleOrganizations
-                  .map((relation) => relation.organization.name)
-                  .join(", ")
-              : entity.types
-                  .map((relation) => {
-                    return t(`${relation.organizationType.slug}.title`, {
-                      ns: "datasets/organizationTypes",
-                    });
-                  })
-                  .join(", ")}
-          </p>
-        </div>
-      </Link>
-      {children}
+              ? `/project/${entity.slug}`
+              : `/organization/${entity.slug}`
+          }
+          className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full mv-grow"
+        >
+          <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
+            <Avatar size="full" {...entity} />
+          </div>
+          <div>
+            <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
+              {"academicTitle" in entity
+                ? `${entity.academicTitle ? `${entity.academicTitle} ` : ""}${
+                    entity.firstName
+                  } ${entity.lastName}`
+                : entity.name}
+            </p>
+            <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
+              {"academicTitle" in entity
+                ? entity.position
+                : "responsibleOrganizations" in entity
+                ? entity.responsibleOrganizations
+                    .map((relation) => relation.organization.name)
+                    .join(", ")
+                : entity.types
+                    .map((relation) => {
+                      return t(`${relation.organizationType.slug}.title`, {
+                        ns: "datasets/organizationTypes",
+                      });
+                    })
+                    .join(", ")}
+            </p>
+          </div>
+        </Link>
+        {validChildren.length > 0 ? (
+          <div className="mv-w-full mv-grow @sm:mv-shrink @sm:mv-w-fit">
+            {validChildren}
+          </div>
+        ) : null}
+      </div>
     </li>
   );
 }
 
 export function ListContainer(
-  props: React.PropsWithChildren<{ listKey: string; hideAfter?: number }>
+  props: React.PropsWithChildren<{ listKey?: string; hideAfter?: number }>
 ) {
   const { children, listKey, hideAfter } = props;
+
+  if (listKey === undefined && hideAfter !== undefined) {
+    console.error(
+      "ListItem: Property `listKey` is required when property `hideAfter` is set to hide list items after a specific number."
+    );
+  }
+
   const { t } = useTranslation("components");
   return (
     <ul className="mv-flex mv-flex-col mv-gap-4 @lg:mv-gap-6 mv-group">

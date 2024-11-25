@@ -19,6 +19,7 @@ import { getToast } from "~/toast.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/project/settings"];
 export const handle = {
@@ -92,7 +93,7 @@ function ProjectSettings() {
   const [searchParams] = useSearchParams();
   const { t } = useTranslation(i18nNS);
 
-  const deep = searchParams.get("deep");
+  const deep = searchParams.get(DeepSearchParam);
 
   const navLinks = createNavLinks(t);
 
@@ -187,7 +188,7 @@ function ProjectSettings() {
                 <li key={navLink.label} className={itemClasses}>
                   {/* TODO: H3 as h1 */}
                   <Link
-                    to={`${navLink.to}?deep`}
+                    to={`${navLink.to}?${DeepSearchParam}=true`}
                     className={linkClasses}
                     prefetch="intent"
                     preventScrollReset

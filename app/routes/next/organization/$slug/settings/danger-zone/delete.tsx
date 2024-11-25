@@ -16,9 +16,11 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone/delete"];
 export const handle = {
@@ -35,34 +37,13 @@ function createSchema(t: TFunction, name: string) {
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
-  const { authClient } = createAuthClient(request);
-
-  const sessionUser = await getSessionUser(authClient);
-
-  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
-
-  // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
-    status: 400,
-  });
-
-  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
-
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-
   const organization = await prismaClient.organization.findFirst({
-    where: { slug: params.slug },
+    where: { slug },
     select: {
       name: true,
     },
@@ -84,8 +65,8 @@ export const action = async (args: ActionFunctionArgs) => {
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
-
   const sessionUser = await getSessionUser(authClient);
+  await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
 
   // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
@@ -165,7 +146,7 @@ function Delete() {
       <p>{t("content.explanation")}</p>
       <Form method="post" {...form.props}>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <Input id="deep" defaultValue="true" type="hidden" />
+          <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
           <Input id="name">
             <Input.Label htmlFor={fields.name.id}>
               {t("content.label")}
