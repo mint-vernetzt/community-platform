@@ -246,15 +246,6 @@ export async function searchProfiles(options: {
   mode: Mode;
 }) {
   const { searchParams, idsToExclude, authClient, t, mode } = options;
-  const searchProfilesSearchParamValue = searchParams.get(
-    SearchProfilesSearchParam
-  );
-  const relevantSearchParams = new URLSearchParams();
-  searchProfilesSearchParamValue !== null &&
-    relevantSearchParams.set(
-      SearchProfilesSearchParam,
-      searchProfilesSearchParamValue
-    );
   type WhereStatements = (
     | {
         OR: {
@@ -296,7 +287,7 @@ export async function searchProfiles(options: {
     });
   };
 
-  const submission = parseWithZod(relevantSearchParams, {
+  const submission = parseWithZod(searchParams, {
     schema: searchProfilesSchema(t),
   });
   if (
