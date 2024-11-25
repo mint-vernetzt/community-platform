@@ -41,6 +41,11 @@ export async function getOrganization(slug: string) {
             },
           },
         },
+        where: {
+          project: {
+            published: true,
+          },
+        },
         orderBy: {
           project: {
             name: "asc",
