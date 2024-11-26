@@ -152,30 +152,36 @@ function About() {
                       ([key, value]) => {
                         const typedKey =
                           key as keyof typeof ContactInformationIcons;
+
                         if (typedKey === "address") {
                           return null;
                         }
-                        if (organization[typedKey] !== null) {
-                          return (
-                            <Link
-                              key={key}
-                              to={`${
-                                typedKey === "email"
-                                  ? "mailto:"
-                                  : typedKey === "phone"
-                                  ? "tel:"
-                                  : ""
-                              }${organization.email}`}
-                              className="mv-py-3 mv-px-4 mv-flex mv-gap-4 mv-bg-neutral-100 mv-rounded-lg mv-items-center"
-                            >
-                              <span className="mv-text-neutral-700 mv-font-semibold">
-                                {value}
-                              </span>
-                              <span>{organization[typedKey]}</span>
-                            </Link>
-                          );
+
+                        let to = null;
+                        if (typedKey === "email") {
+                          to = `mailto:${organization.email}`;
+                        } else if (typedKey === "phone") {
+                          to = `tel:${organization.phone}`;
+                        } else if (typedKey === "website") {
+                          to = organization.website;
                         }
-                        return null;
+
+                        if (to === null) {
+                          return null;
+                        }
+
+                        return (
+                          <Link
+                            key={key}
+                            to={to}
+                            className="mv-py-3 mv-px-4 mv-flex mv-gap-4 mv-bg-neutral-100 mv-rounded-lg mv-items-center"
+                          >
+                            <span className="mv-text-neutral-700 mv-font-semibold">
+                              {value}
+                            </span>
+                            <span>{organization[typedKey]}</span>
+                          </Link>
+                        );
                       }
                     )}
                     {hasAddress(organization) ? (
