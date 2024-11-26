@@ -32,8 +32,7 @@
       "notProvided": "-not provided-"
     },
     "survey": {
-      "title": "Survey on the funding tool",
-      "description": "Help us improve the funding search. Test yourself through the beta version and fill out our survey with your findings. Alternatively, you can also send us an email to <link1>community@mint-vernetzt.de</link>.",
-      "link": "To the survey"
+      "title": "Feedback on the funding search",
+      "description": "Help us improve the funding search. Test yourself through the beta version and send us your feedback and ideas to <link1>community@mint-vernetzt.de</link1> with the subject: Funding search."
     }
 }
