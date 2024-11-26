@@ -2,9 +2,9 @@ import { parseWithZod } from "@conform-to/zod-v1";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { type TFunction } from "i18next";
 import {
-  cancelOrganizationAdminInvitationSchema,
-  inviteProfileToBeOrganizationAdminSchema,
-  removeAdminFromOrganizationSchema,
+  cancelOrganizationTeamMemberInvitationSchema,
+  inviteProfileToBeOrganizationTeamMemberSchema,
+  removeTeamMemberFromOrganizationSchema,
 } from "~/form-helpers";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
@@ -14,7 +14,7 @@ import { prismaClient } from "~/prisma.server";
 import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
 import { getPublicURL } from "~/storage.server";
 
-export async function getOrganizationWithAdmins(options: {
+export async function getOrganizationWithTeamMembers(options: {
   slug: string;
   authClient: SupabaseClient;
   t: TFunction;
@@ -26,7 +26,7 @@ export async function getOrganizationWithAdmins(options: {
     },
     select: {
       id: true,
-      admins: {
+      teamMembers: {
         select: {
           profile: {
             select: {
@@ -48,8 +48,8 @@ export async function getOrganizationWithAdmins(options: {
     status: 404,
   });
 
-  // enhance admins with avatar
-  const admins = organization.admins.map((relation) => {
+  // enhance teamMembers with avatar
+  const teamMembers = organization.teamMembers.map((relation) => {
     let avatar = relation.profile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
@@ -73,12 +73,12 @@ export async function getOrganizationWithAdmins(options: {
     return { profile: { ...relation.profile, avatar, blurredAvatar } };
   });
 
-  const enhancedOrganization = { ...organization, admins };
+  const enhancedOrganization = { ...organization, teamMembers };
 
   return enhancedOrganization;
 }
 
-export async function getPendingAdminInvitesOfOrganization(
+export async function getPendingTeamMemberInvitesOfOrganization(
   organizationId: string,
   authClient: SupabaseClient
 ) {
@@ -87,7 +87,7 @@ export async function getPendingAdminInvitesOfOrganization(
       where: {
         organizationId,
         status: "pending",
-        role: "admin",
+        role: "member",
       },
       select: {
         profile: {
@@ -136,7 +136,7 @@ export async function getPendingAdminInvitesOfOrganization(
   return enhancedProfiles;
 }
 
-export async function inviteProfileToBeOrganizationAdmin(options: {
+export async function inviteProfileToBeOrganizationTeamMember(options: {
   formData: FormData;
   slug: string;
   t: TFunction;
@@ -144,7 +144,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   const { formData, slug, t } = options;
 
   const submission = parseWithZod(formData, {
-    schema: inviteProfileToBeOrganizationAdminSchema,
+    schema: inviteProfileToBeOrganizationTeamMemberSchema,
   });
   if (submission.status !== "success") {
     return { submission: submission.reply() };
@@ -181,13 +181,13 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
       profileId_organizationId_role: {
         profileId: submission.value.profileId,
         organizationId: organization.id,
-        role: "admin",
+        role: "member",
       },
     },
     create: {
       profileId: submission.value.profileId,
       organizationId: organization.id,
-      role: "admin",
+      role: "member",
       status: "pending",
     },
     update: {
@@ -199,9 +199,9 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   const subject = t("email.subject");
   const recipient = profile.email;
   const textTemplatePath =
-    "mail-templates/invites/profile-to-join-organization/as-admin-text.hbs";
+    "mail-templates/invites/profile-to-join-organization/text.hbs";
   const htmlTemplatePath =
-    "mail-templates/invites/profile-to-join-organization/as-admin-html.hbs";
+    "mail-templates/invites/profile-to-join-organization/html.hbs";
   const content = {
     firstName: profile.firstName,
     organization: {
@@ -228,7 +228,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
     await mailer(mailerOptions, sender, recipient, subject, text, html);
   } catch (error) {
     console.error(
-      "Error sending mail: Invite profile to be admin of organization",
+      "Error sending mail: Invite profile to be team member of organization",
       error
     );
   }
@@ -238,7 +238,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   return {
     submission: submission.reply(),
     toast: {
-      id: "invite-admin-toast",
+      id: "invite-team-member-toast",
       key: hash,
       message: t("content.profileAdded", {
         firstName: profile.firstName,
@@ -248,7 +248,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   };
 }
 
-export async function cancelOrganizationAdminInvitation(options: {
+export async function cancelOrganizationTeamMemberInvitation(options: {
   formData: FormData;
   slug: string;
   t: TFunction;
@@ -256,7 +256,7 @@ export async function cancelOrganizationAdminInvitation(options: {
   const { formData, slug, t } = options;
 
   const submission = parseWithZod(formData, {
-    schema: cancelOrganizationAdminInvitationSchema,
+    schema: cancelOrganizationTeamMemberInvitationSchema,
   });
   if (submission.status !== "success") {
     return { submission: submission.reply() };
@@ -287,7 +287,7 @@ export async function cancelOrganizationAdminInvitation(options: {
       profileId_organizationId_role: {
         profileId: submission.value.profileId,
         organizationId: organization.id,
-        role: "admin",
+        role: "member",
       },
     },
     data: {
@@ -310,7 +310,7 @@ export async function cancelOrganizationAdminInvitation(options: {
   };
 }
 
-export async function removeAdminFromOrganization(options: {
+export async function removeTeamMemberFromOrganization(options: {
   formData: FormData;
   slug: string;
   t: TFunction;
@@ -318,7 +318,7 @@ export async function removeAdminFromOrganization(options: {
   const { formData, slug, t } = options;
 
   const submission = parseWithZod(formData, {
-    schema: removeAdminFromOrganizationSchema,
+    schema: removeTeamMemberFromOrganizationSchema,
   });
   if (submission.status !== "success") {
     return { submission: submission.reply() };
@@ -330,7 +330,7 @@ export async function removeAdminFromOrganization(options: {
       id: true,
       _count: {
         select: {
-          admins: true,
+          teamMembers: true,
         },
       },
     },
@@ -349,14 +349,14 @@ export async function removeAdminFromOrganization(options: {
     { status: 404 }
   );
   invariantResponse(
-    organization._count.admins > 1,
-    t("error.invariant.adminCount"),
+    organization._count.teamMembers > 1,
+    t("error.invariant.teamMemberCount"),
     {
       status: 400,
     }
   );
 
-  await prismaClient.adminOfOrganization.delete({
+  await prismaClient.memberOfOrganization.delete({
     where: {
       profileId_organizationId: {
         profileId: submission.value.profileId,
@@ -370,7 +370,7 @@ export async function removeAdminFromOrganization(options: {
   return {
     submission: submission.reply(),
     toast: {
-      id: "remove-admin-toast",
+      id: "remove-team-member-toast",
       key: hash,
       message: t("content.profileRemoved", {
         firstName: profile.firstName,

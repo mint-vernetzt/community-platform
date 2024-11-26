@@ -1,0 +1,42 @@
+{
+  "error": {
+    "invariant": {
+      "notFound": "Organization not found",
+      "noStringIntent": "Bad request: intent is not a string",
+      "wrongIntent": "Bad request: wrong intent",
+      "entitiesForInviteNotFound": "Profile or organization for invite not found",
+      "entitiesForRemovalNotFound": "Profile or organization for removal not found",
+      "adminCount": "Es muss immer ein Teammitglied geben. Bitte füge zuerst jemand anderen als Teammitglied hinzu."
+    }
+  },
+  "email": {
+    "subject": "Du hast eine Einladung erhalten!",
+    "button": {
+      "text": "Zur Community Plattform"
+    }
+  },
+  "content": {
+    "profileAdded": "{{firstName}} {{lastName}} hinzugefügt",
+    "profileRemoved": "{{firstName}} {{lastName}} entfernt",
+    "inviteCancelled": "Die Einladung an {{firstName}} {{lastName}} wurde zurückgezogen",
+    "headline": "Team",
+    "intro": "Wer ist Teil Eurer Organisation? Füge hier weitere Teammitglieder hinzu oder entferne sie. Teammitglieder werden auf der Organisations Detailseite gezeigt. Sie können Organisationen nicht bearbeiten.",
+    "current": {
+      "headline_one": "Aktuelles Teammitglied",
+      "headline_other": "Aktuelle Teammitglieder",
+      "remove": "Entfernen"
+    },
+    "add": {
+      "headline": "Teammitglied hinzufügen",
+      "search": "Suche",
+      "criteria": "Mindestens 3 Buchstaben.",
+      "submitSearch": "Suchen",
+      "submit": "Hinzufügen"
+    },
+    "invites": {
+      "headline": "Einladungen",
+      "intro": "Hier siehst Du alle Einladungen, die Du bereits versendet hast.",
+      "cancel": "Zurückziehen"
+    }
+  }
+}
