@@ -27,3 +27,15 @@ export const cancelOrganizationAdminInvitationSchema = z.object({
 export const removeAdminFromOrganizationSchema = z.object({
   profileId: z.string().uuid(),
 });
+
+export const inviteProfileToBeOrganizationTeamMemberSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+export const cancelOrganizationTeamMemberInvitationSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+export const removeTeamMemberFromOrganizationSchema = z.object({
+  profileId: z.string().uuid(),
+});
