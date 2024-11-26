@@ -1,4 +1,8 @@
 coverage
-public
+public/build
+public/fonts
+public/images
+public/static
+public/favicon.ico
 .cache
 build
