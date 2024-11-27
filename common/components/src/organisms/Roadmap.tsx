@@ -1,3 +1,4 @@
+import { Button } from "@mint-vernetzt/components";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
@@ -12,7 +13,7 @@ function RoadmapColumn(props: RoadmapColumnProps) {
   const { t } = useTranslation(["organisms/roadmap"]);
   return (
     <div>
-      <h4 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary mv-font-bold">
+      <h4 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary-600 mv-font-bold mv-leading-[26px]">
         {props.title}
       </h4>
       <div className="mv-bg-blue-50 mv-rounded-lg mv-p-4 @xl:mv-p-6 mv-flex mv-flex-col mv-group">
@@ -80,8 +81,14 @@ function Roadmap() {
   return (
     <section
       id="roadmap"
-      className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)] mv-py-16 @lg:mv-py-24"
+      className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)] mv-py-16"
     >
+      <h3 className="mv-text-center mv-mb-4 mv-text-5xl mv-text-primary-600 mv-font-bold mv-all-small-caps mv-subpixel-antialiased mv-leading-9">
+        {t("headline")}
+      </h3>
+      <p className="mv-text-center mv-mb-16 mv-text-2xl mv-font-semibold mv-leading-[26px] mv-text-primary-600">
+        {t("subline")}
+      </p>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-y-8 @md:mv-gap-y-12 @md:mv-gap-x-4 @xl:mv-gap-x-4">
           <RoadmapColumn title={t("firstColumn.title")} id="1">
@@ -165,13 +172,22 @@ function Roadmap() {
             />
           </RoadmapColumn>
         </div>
-        <div className="mv-flex mv-justify-center mv-mt-12">
-          <a
-            className="mv-btn mv-border-2 mv-bg-white mv-border-primary mv-text-primary mv-text-base mv-font-semibold hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+        <div className="mv-flex mv-flex-col mv-items-center mv-mt-12 mv-gap-4">
+          <Button
+            as="a"
+            variant="outline"
             href="mailto:community@mint-vernetzt.de"
           >
             {t("controls.submitIdeas")}
-          </a>
+          </Button>
+          <div className="mv-flex mv-flex-col mv-gap-1">
+            <p className="mv-text-center mv-leading-[22px] mv-text-primary-600">
+              {t("controls.ctaQuestion")}
+            </p>
+            <p className="mv-text-center mv-leading-[22px] mv-text-primary-600">
+              {t("controls.cta")}
+            </p>
+          </div>
         </div>
       </div>
     </section>

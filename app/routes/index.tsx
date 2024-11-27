@@ -159,9 +159,9 @@ export default function Index() {
   //background: linear-gradient(358.45deg, #FFFFFF 12.78%, rgba(255, 255, 255, 0.4) 74.48%, rgba(255, 255, 255, 0.4) 98.12%);
   return (
     <>
-      <section className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
-        <div className="py-16 @lg:mv-py-20 relative overflow-hidden mv-min-h-[calc(100dvh-76px)] lg:mv-min-h-[calc(100dvh-80px)] @md:mv-flex @md:mv-items-center">
-          <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden @lg:mv-block">
+      <section className="mv-bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
+        <div className="mv-py-16 @lg:mv-py-20 mv-relative mv-overflow-hidden mv-min-h-[calc(100dvh-76px)] lg:mv-min-h-[calc(100dvh-80px)] @md:mv-flex @md:mv-items-center">
+          <div className="mv-absolute mv-top-[50%] mv-left-0 -mv-ml-[250px] mv-mt-[200px] mv-hidden @lg:mv-block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="579"
@@ -175,7 +175,7 @@ export default function Index() {
             </svg>
           </div>
 
-          <div className="absolute top-[-80px] left-1/2 ml-[400px] hidden @lg:mv-block">
+          <div className="mv-absolute mv-top-[-80px] mv-left-1/2 mv-ml-[400px] mv-hidden @lg:mv-block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="945"
@@ -189,22 +189,22 @@ export default function Index() {
             </svg>
           </div>
 
-          <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
+          <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
             <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
               <div className="@md:mv-col-start-1 @md:mv-col-span-7 @xl:mv-col-start-2 @xl:mv-col-span-5 @md:mv-flex @md:mv-items-center">
                 <div>
-                  <H1 className="text-center @sm:mv-text-left leading-none">
+                  <H1 className="mv-text-center @sm:mv-text-left mv-text-primary-600 mv-text-7xl mv-font-black mv-leading-[52px]">
                     {t("welcome")}
                   </H1>
-                  <p className="mt-8 mb-8 @lg:mv-mb-0 text-primary">
+                  <p className="mv-mt-8 mv-mb-8 @lg:mv-mb-0 mv-text-primary-600 mv-font-semibold mv-leading-5">
                     {t("intro")}
                   </p>
                 </div>
               </div>
 
               <div className="@md:mv-col-start-8 @md:mv-col-span-5 @lg:mv-col-start-9 @lg:mv-col-span-4 @xl:mv-col-start-8 @xl:mv-col-span-4">
-                <div className="py-8 mv-bg-transparent @sm:mv-bg-neutral-50 @sm:mv-rounded-3xl @sm:mv-p-8 @sm:mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
-                  <div className="text-center">
+                <div className="mv-py-8 mv-bg-transparent @sm:mv-bg-neutral-50 @sm:mv-rounded-3xl @sm:mv-p-8 @sm:mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+                  <div className="mv-text-center">
                     <Button
                       as="a"
                       size="large"
@@ -221,13 +221,13 @@ export default function Index() {
                       href="https://mint-id.org/faq"
                       target="_blank"
                       rel="noreferrer "
-                      className="block py-2 text-primary font-semibold underline"
+                      className="mv-block mv-py-2 mv-text-primary mv-font-semibold mv-underline"
                     >
                       {t("login.moreInformation")}
                     </a>
-                    <div className="mt-4 mb-8">
-                      <hr className="mx-5" />
-                      <span className="block -my-3 mx-auto w-fit px-4 text-primary mv-bg-white @sm:mv-mv-bg-neutral-50 font-bold">
+                    <div className="mv-mt-4 mv-mb-8">
+                      <hr className="mv-mx-5" />
+                      <span className="mv-block -mv-my-3 mv-mx-auto mv-w-fit mv-px-4 mv-text-primary mv-bg-white @sm:mv-mv-bg-neutral-50 mv-font-bold">
                         {t("login.or")}
                       </span>
                     </div>
@@ -253,7 +253,7 @@ export default function Index() {
                                   <a
                                     key="support-mail"
                                     href={`mailto:${loginError.supportMail}`}
-                                    className="mv-text-primary font-bold hover:underline"
+                                    className="mv-text-primary mv-font-bold hover:mv-underline"
                                   >
                                     {" "}
                                   </a>,
@@ -267,7 +267,7 @@ export default function Index() {
 
                         <Field name="email" label="E-Mail">
                           {({ Errors }) => (
-                            <div className="mb-4">
+                            <div className="mv-mb-4">
                               <Input
                                 id="email"
                                 label={t("form.label.email")}
@@ -279,7 +279,7 @@ export default function Index() {
                         </Field>
                         <Field name="password" label="Passwort">
                           {({ Errors }) => (
-                            <div className="mb-4">
+                            <div className="mv-mb-4">
                               <InputPassword
                                 id="password"
                                 label={t("form.label.password")}
@@ -291,7 +291,7 @@ export default function Index() {
                         </Field>
 
                         <Field name="loginRedirect" />
-                        <div className="mt-4 mb-2">
+                        <div className="mv-mt-4 mv-mb-2">
                           <Button
                             size="large"
                             fullSize
@@ -304,27 +304,27 @@ export default function Index() {
                     )}
                   </LoginForm>
                   <>
-                    <div className="mb-6 text-center">
+                    <div className="mv-mb-6 mv-text-center">
                       <Link
                         to={`/reset${
                           loginRedirect
                             ? `?login_redirect=${loginRedirect}`
                             : ""
                         }`}
-                        className="text-primary font-bold underline"
+                        className="mv-text-primary mv-font-bold mv-underline"
                       >
                         {t("login.passwordForgotten")}
                       </Link>
                     </div>
-                    <div className="text-center">{t("login.noMember")}</div>
-                    <div className="flex justify-center gap-6">
+                    <div className="mv-text-center">{t("login.noMember")}</div>
+                    <div className="mv-flex mv-justify-center mv-gap-6">
                       <Link
                         to={`/register${
                           loginRedirect
                             ? `?login_redirect=${loginRedirect}`
                             : ""
                         }`}
-                        className="text-primary font-semibold underline"
+                        className="mv-text-primary mv-font-semibold mv-underline"
                       >
                         {t("login.registerByEmail")}
                       </Link>
@@ -334,7 +334,7 @@ export default function Index() {
                             ? `?login_redirect=${loginRedirect}`
                             : ""
                         }`}
-                        className="text-primary font-semibold underline"
+                        className="mv-text-primary mv-font-semibold mv-underline"
                       >
                         {t("login.createMintId")}
                       </Link>
@@ -342,7 +342,7 @@ export default function Index() {
                   </>
                 </div>
 
-                <div className="text-center p-4 pb-0 text-primary text-sm">
+                <div className="mv-text-center mv-p-4 mv-pb-0 mv-text-primary mv-text-sm">
                   <p>
                     <Trans i18nKey="opportunities" ns={i18nNS} />
                   </p>
@@ -351,7 +351,7 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="absolute left-1/2 bottom-8 hidden @md:mv-block">
+          <div className="mv-absolute mv-left-1/2 mv-bottom-8 mv-hidden @md:mv-block mv-animate-bounce">
             <a href="#intro">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -373,117 +373,135 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="py-16 @lg:mv-py-24 relative" id="intro">
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
+      <section
+        className="mv-py-16 @lg:mv-py-24 mv-relative mv-bg-accent-100"
+        id="intro"
+      >
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
           <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
             <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
-              <H3 className="text-center font-semibold all-small-caps mb-12">
+              <H3 className="mv-text-center mv-font-semibold mv-all-small-caps mv-subpixel-antialiased mv-mb-12 mv-text-primary-600 mv-text-5xl mv-leading-9">
                 {t("content.education.headline")}
               </H3>
-              <p className="text-3xl font-semibold text-primary mb-12 hyphens-auto">
+              <p className="mv-text-primary-600 mv-text-3xl mv-font-semibold mv-leading-8 mv-mb-12 mv-hyphens-auto">
                 <Trans
                   i18nKey="content.education.content"
                   ns={i18nNS}
                   components={[
-                    <span className="bg-lilac-200" />, // eslint-disable-line react/jsx-key
-                    <span className="hyphens-manual" />, // eslint-disable-line react/jsx-key
+                    <span
+                      key="highlighted-education-content"
+                      className="mv-bg-secondary-200"
+                    />,
+                    <span
+                      key="hyphens-manual-education-content"
+                      className="mv-hyphens-manual"
+                    />,
                   ]}
                 />
               </p>
-              <p className="text-center">
-                <Link
-                  to={`/register${
+              <div className="mv-flex mv-justify-center">
+                <Button
+                  as="a"
+                  href={`/register${
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                   }`}
-                  className="btn btn-primary"
                 >
                   {t("content.education.action")}
-                </Link>
-              </p>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 @lg:mv-py-24 relative bg-primary text-white">
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
-          <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
-            <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
-              <H3 className="text-center font-semibold all-small-caps mb-12 text-white tracking-wider">
-                {t("content.growth.headline")}
-              </H3>
-              <div className="@md:mv-grid @md:mv-grid-cols-4 @md:mv-gap-6 @lg:mv-gap-8">
-                <div className="text-center mb-8">
-                  <p className="text-7xl leading-tight font-bold">
-                    <CountUp
-                      end={loaderData.profileCount}
-                      enableScrollSpy={true}
-                      scrollSpyDelay={100}
-                      scrollSpyOnce={true}
-                      separator="."
-                    />
-                  </p>
-                  <p className="font-bold">{t("content.growth.profiles")}</p>
-                </div>
-                <div className="text-center mb-8">
-                  <p className="text-7xl leading-tight font-bold">
-                    <CountUp
-                      end={loaderData.organizationCount}
-                      enableScrollSpy={true}
-                      scrollSpyDelay={100}
-                      scrollSpyOnce={true}
-                      separator="."
-                    />
-                  </p>
-                  <p className="font-bold">
-                    {t("content.growth.organizations")}
-                  </p>
-                </div>
-                <div className="text-center mb-8">
-                  <p className="text-7xl leading-tight font-bold">
-                    <CountUp
-                      end={loaderData.eventCount}
-                      enableScrollSpy={true}
-                      scrollSpyDelay={100}
-                      scrollSpyOnce={true}
-                      separator="."
-                    />
-                  </p>
-                  <p className="font-bold">{t("content.growth.events")}</p>
-                </div>
-                <div className="text-center mb-8">
-                  <p className="text-7xl leading-tight font-bold">
-                    <CountUp
-                      end={loaderData.projectCount}
-                      enableScrollSpy={true}
-                      scrollSpyDelay={100}
-                      scrollSpyOnce={true}
-                      separator="."
-                    />
-                  </p>
-                  <p className="font-bold">{t("content.growth.projects")}</p>
-                </div>
+      <section className="mv-pt-16 mv-pb-10 @md:mv-pt-20 @md:mv-pb-[50px] @lg:mv-pt-24 @lg:mv-pb-[60px] mv-relative mv-bg-primary-600">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
+          <div className="mv-w-full mv-flex mv-flex-col mv-items-center mv-gap-12">
+            <H3 className="mv-text-center mv-mb-0 mv-text-5xl mv-font-semibold mv-leading-9 mv-text-neutral-50 mv-all-small-caps mv-subpixel-antialiased">
+              {t("content.growth.headline")}
+            </H3>
+            <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-8 @lg:mv-gap-24 @xl:mv-gap-44">
+              <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
+                <p className="mv-text-neutral-50 mv-text-[54px] mv-font-bold mv-leading-[52px]">
+                  <CountUp
+                    end={loaderData.profileCount}
+                    enableScrollSpy={true}
+                    scrollSpyDelay={100}
+                    scrollSpyOnce={true}
+                    separator="."
+                  />
+                </p>
+                <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
+                  {t("content.growth.profiles")}
+                </p>
               </div>
-              <p className="text-center font-bold">
-                {t("content.growth.join")}
-              </p>
+              <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
+                <p className="mv-text-neutral-50 mv-text-[54px] mv-font-bold mv-leading-[52px]">
+                  <CountUp
+                    end={loaderData.organizationCount}
+                    enableScrollSpy={true}
+                    scrollSpyDelay={100}
+                    scrollSpyOnce={true}
+                    separator="."
+                  />
+                </p>
+                <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
+                  {t("content.growth.organizations")}
+                </p>
+              </div>
+              <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
+                <p className="mv-text-neutral-50 mv-text-[54px] mv-font-bold mv-leading-[52px]">
+                  <CountUp
+                    end={loaderData.eventCount}
+                    enableScrollSpy={true}
+                    scrollSpyDelay={100}
+                    scrollSpyOnce={true}
+                    separator="."
+                  />
+                </p>
+                <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
+                  {t("content.growth.events")}
+                </p>
+              </div>
+              <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
+                <p className="mv-text-neutral-50 mv-text-[54px] mv-font-bold mv-leading-[52px]">
+                  <CountUp
+                    end={loaderData.projectCount}
+                    enableScrollSpy={true}
+                    scrollSpyDelay={100}
+                    scrollSpyOnce={true}
+                    separator="."
+                  />
+                </p>
+                <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
+                  {t("content.growth.projects")}
+                </p>
+              </div>
             </div>
+            <p className="mv-text-center mv-text-neutral-50 mv-text-3xl mv-font-semibold mv-leading-8">
+              {t("content.growth.join")}
+            </p>
           </div>
         </div>
       </section>
 
       <Roadmap />
 
-      <section className="mv-flex mv-flex-col mv-items-center mv-gap-12 mv-w-full py-16 @md:mv-py-24 @xl:mv-py-32 mv-px-4 @md:mv-px-20 @xl:mv-px-36 mv-bg-accent-200">
-        <div className="mv-max-w-[852px] mv-text-primary-600 @xl:mv-text-primary-500 mv-text-3xl mv-font-semibold">
-          <h2 className="mv-mb-12 mv-text-center @md:mv-text-4xl @xl:mv-text-5xl mv-leading-6 @md:mv-leading-7 @xl:mv-leading-9 mv-uppercase">
+      <section className="mv-flex mv-flex-col mv-items-center mv-gap-12 mv-w-full mv-py-16 @md:mv-py-24 @xl:mv-py-32 mv-px-4 @md:mv-px-20 @xl:mv-px-36 mv-bg-accent-100">
+        <div className="mv-max-w-[852px]">
+          <h2 className="mv-mb-12 mv-text-center mv-all-small-caps mv-subpixel-antialiased mv-text-primary-600 mv-text-5xl mv-font-semibold mv-leading-9">
             {t("content.more.headline")}
           </h2>
-          <p className="mv-hyphens-auto mv-leading-8">
+          <p className="mv-hyphens-auto mv-text-primary-600 mv-text-3xl mv-font-semibold mv-leading-8">
             <Trans
               i18nKey="content.more.content"
               ns={i18nNS}
-              components={[<span className="bg-lilac-200" />]} // eslint-disable-line react/jsx-key
+              components={[
+                <span
+                  key="highlighted-more-content"
+                  className="mv-bg-secondary-200"
+                />,
+              ]}
             />
           </p>
         </div>
@@ -554,7 +572,7 @@ export default function Index() {
             />
           </svg>
         </div>
-        <h2 className="mv-mb-[42px] mv-text-primary-600 @xl:mv-text-primary-500 mv-text-4xl @xl:mv-text-5xl mv-font-semibold mv-leading-7 @md:mv-leading-8 @xl:mv-leading-9 mv-uppercase">
+        <h2 className="mv-mb-[42px] mv-all-small-caps mv-subpixel-antialiased mv-text-primary-600 mv-text-5xl mv-font-semibold mv-leading-9">
           {t("content.faq.headline")}
         </h2>
         <div className="mv-w-full mv-mb-8 @md:mv-mb-14 @xl:mv-mb-[88px]">
@@ -632,7 +650,7 @@ export default function Index() {
         <Button as="a" href="/help" variant="outline">
           {t("content.faq.cta")}
         </Button>
-        <div className="mv-text-center mv-text-primary-600 @xl:mv-text-primary-500 mv-font-semibold mv-leading-5 mv-mt-10">
+        <div className="mv-text-center mv-text-primary-600 mv-font-semibold mv-leading-5 mv-mt-10">
           <p>{t("content.faq.supportQuestion")}</p>
           <p>{t("content.faq.supportCta")}</p>
           <p>{t("content.faq.supportEmail")}</p>

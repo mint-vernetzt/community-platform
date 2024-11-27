@@ -1,8 +1,12 @@
 {
+  "headline": "Fahrplan",
+  "subline": "Eure Feature-Wünsche für die Plattformentwicklung in der Roadmap-Ansicht.",
   "controls": {
     "showMore": "Mehr anzeigen",
     "showLess": "Weniger anzeigen",
-    "submitIdeas": "Ideen einreichen"
+    "submitIdeas": "Ideen einreichen",
+    "ctaQuestion": "Du hast eine Idee für ein Feature, das Du auf der Plattform benötigst?",
+    "cta": "Reiche es bei uns ein!"
   },
   "firstColumn": {
     "title": "Ideen",
