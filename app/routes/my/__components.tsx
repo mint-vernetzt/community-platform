@@ -485,16 +485,16 @@ export function ListItem(
   }
 
   return (
-    <li>
-      <div
-        className={`mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center ${
-          hideAfter !== undefined &&
-          listIndex !== undefined &&
-          listIndex > hideAfter - 1
-            ? "mv-hidden group-has-[:checked]:mv-flex"
-            : "mv-flex"
-        }`}
-      >
+    <li
+      className={
+        hideAfter !== undefined &&
+        listIndex !== undefined &&
+        listIndex > hideAfter - 1
+          ? "mv-hidden group-has-[:checked]:mv-block"
+          : "mv-block"
+      }
+    >
+      <div className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center">
         <Link
           to={
             "academicTitle" in entity
@@ -503,7 +503,7 @@ export function ListItem(
               ? `/project/${entity.slug}`
               : `/organization/${entity.slug}`
           }
-          className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full mv-grow"
+          className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full mv-grow mv-pb-0 mv-pt-4 mv-px-4 @sm:mv-pr-0 @sm:mv-pl-4 @sm:mv-py-4"
         >
           <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
             <Avatar size="full" {...entity} />
@@ -534,7 +534,7 @@ export function ListItem(
           </div>
         </Link>
         {validChildren.length > 0 ? (
-          <div className="mv-w-full mv-grow @sm:mv-shrink @sm:mv-w-fit">
+          <div className="mv-w-full mv-grow @sm:mv-shrink @sm:mv-w-fit mv-px-4 mv-pb-4 mv-pt-0 @sm:mv-py-4 @sm:mv-pr-4 @sm:mv-pl-0">
             {validChildren}
           </div>
         ) : null}
