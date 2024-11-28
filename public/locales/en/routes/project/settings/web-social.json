@@ -52,7 +52,7 @@
       },
       "youtube": {
         "label": "YouTube",
-        "placeholder": "youtube.com/<name>"
+        "placeholder": "youtube.com/@<name>"
       }
     }
   }

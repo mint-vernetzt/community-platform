@@ -1,14 +1,13 @@
 {
   "error": {
-    "invalidRoute": "No valid route",
-    "projectNotFound": "Project not found",
-    "custom": "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support"
+    "organizationNotFound": "Organization or organization visibility not found",
+    "updateFailed": "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support"
   },
   "content": {
     "success": "Daten gespeichert!",
     "prompt": "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
     "back": "Website und Soziale Netzwerke",
-    "intro": "Wo kann die Community mehr über Dein Projekt oder Bildungsangebot erfahren?"
+    "intro": "Wo kann die Community mehr über Deine Organisation erfahren?"
   },
   "form": {
     "reset": "Änderungen verwerfen",
