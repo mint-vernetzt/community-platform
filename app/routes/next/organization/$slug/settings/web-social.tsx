@@ -9,9 +9,12 @@ import {
 import {
   Form,
   useActionData,
+  useBlocker,
   useLoaderData,
   useLocation,
   useNavigation,
+  useSearchParams,
+  useSubmit,
 } from "@remix-run/react";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
@@ -32,7 +35,7 @@ import {
   createYoutubeSchema,
 } from "~/lib/utils/schemas";
 import { detectLanguage } from "~/root.server";
-import { VisibilityCheckbox } from "~/routes/__components";
+import { Modal, VisibilityCheckbox } from "~/routes/__components";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
 import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
@@ -42,6 +45,7 @@ import {
   updateOrganizationWebSocial,
 } from "./web-social.server";
 import { useHydrated } from "remix-utils/use-hydrated";
+import React from "react";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({
@@ -163,108 +167,62 @@ function WebSocial() {
   });
   const visibilities = fields.visibilities.getFieldset();
 
-  // const blocker = useBlocker(
-  //   ({ currentLocation, nextLocation }) =>
-  //     form.dirty && currentLocation.pathname !== nextLocation.pathname
-  // );
-  // if (blocker.state === "blocked") {
-  //   const confirmed = confirm(t("content.prompt"));
-  //   if (confirmed === true) {
-  //     // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
-  //     if (blocker.state !== "proceeding") {
-  //       blocker.proceed();
-  //     }
-  //   } else {
-  //     blocker.reset();
-  //   }
-  // }
-
-  // const navigation = useNavigation();
-  // let persistedBlockerState;
-  // if (navigation.location !== undefined && typeof navigation.location.state !== "undefined" && navigation.location.state !== null && navigation.location.state.blockerState === "blocked") {
-  //   persistedBlockerState = "blocked";
-  // }
-  // const [searchParams, setSearchParams] = useSearchParams();
-  // const blocker = useBlocker(({ currentLocation, nextLocation }) => {
-  //   console.log(
-  //     "Evaluate new blocker state",
-  //     form.dirty || currentLocation.pathname !== nextLocation.pathname,
-  //     {
-  //       form.dirty,
-  //       currentLocation,
-  //       nextLocation,
-  //     }
-  //   );
-
-  //   const isBlocked =
-  //     form.dirty &&
-  //     (currentLocation.pathname !== nextLocation.pathname ||
-  //       searchParams.has("modal-unsaved-changes"));
-
-  //   if (isBlocked && searchParams.has("modal-unsaved-changes") === false) {
-  //     setSearchParams(
-  //       (previousSearchParams) => {
-  //         const newSearchParams = new URLSearchParams(previousSearchParams);
-  //         newSearchParams.set("modal-unsaved-changes", "true");
-  //         return newSearchParams;
-  //       },
-  //       { preventScrollReset: true }
-  //     );
-  //   }
-
-  //   return isBlocked;
-  // });
-  // React.useEffect(() => {
-  //   console.log("useEffect blocker state", blocker.state);
-  //   if (
-  //     blocker.state === "blocked" &&
-  //     searchParams.has("modal-unsaved-changes") === false
-  //   ) {
-  //     console.log("Setting search params");
-  //     setSearchParams(
-  //       (previousSearchParams) => {
-  //         const newSearchParams = new URLSearchParams(previousSearchParams);
-  //         if (newSearchParams.has("modal-unsaved-changes") === false) {
-  //           newSearchParams.set("modal-unsaved-changes", "true");
-  //         }
-  //         return newSearchParams;
-  //       },
-  //       { preventScrollReset: true }
-  //     );
-  //   }
-  // }, [blocker.state, searchParams, setSearchParams]);
-
-  // console.log("Blocker state", blocker.state);
+  // Blocker with modal
+  const [searchParams] = useSearchParams();
+  const searchParamsWithoutModal = new URLSearchParams(searchParams);
+  searchParamsWithoutModal.delete("modal-unsaved-changes");
+  const submit = useSubmit();
+  const [nextLocationPathname, setNextLocationPathname] = React.useState<
+    string | null
+  >(null);
+  useBlocker(({ currentLocation, nextLocation }) => {
+    const modalIsOpen = nextLocation.search.includes(
+      "modal-unsaved-changes=true"
+    );
+    if (modalIsOpen || nextLocationPathname !== null) {
+      return false;
+    }
+    const isBlocked =
+      form.dirty && currentLocation.pathname !== nextLocation.pathname;
+    if (isBlocked) {
+      setNextLocationPathname(nextLocation.pathname);
+      const newSearchParams = new URLSearchParams(searchParams);
+      if (modalIsOpen === false) {
+        newSearchParams.set("modal-unsaved-changes", "true");
+      }
+      submit(newSearchParams, { method: "get" });
+    }
+    return isBlocked;
+  });
 
   return (
     <Section>
-      {/* <Modal searchParam={`modal-unsaved-changes`}>
+      <Form
+        id="discard-changes-and-proceed"
+        method="get"
+        action={
+          nextLocationPathname !== null
+            ? nextLocationPathname
+            : `${location.pathname}?${searchParamsWithoutModal.toString()}`
+        }
+        hidden
+        preventScrollReset
+      />
+      <Modal searchParam={`modal-unsaved-changes`}>
         <Modal.Title>{t("modal.unsavedChanges.title")}</Modal.Title>
         <Modal.Section>{t("modal.unsavedChanges.description")}</Modal.Section>
-        <Modal.SubmitButton
-          onClick={() => {
-            console.log("onClick Proceed Button");
-            console.log("Blocker", { blocker });
-            if (blocker.state === "blocked") {
-              console.log("Proceeding");
-              blocker.proceed();
-            }
-          }}
-        >
+        <Modal.SubmitButton form="discard-changes-and-proceed">
           {t("modal.unsavedChanges.proceed")}
         </Modal.SubmitButton>
         <Modal.CloseButton
+          route={`${location.pathname}?${searchParamsWithoutModal.toString()}`}
           onClick={() => {
-            console.log("onClick reset Button");
-            console.log("Blocker", { blocker });
-            if (blocker.state === "blocked") {
-              blocker.reset();
-            }
+            setNextLocationPathname(null);
           }}
         >
           {t("modal.unsavedChanges.cancel")}
         </Modal.CloseButton>
-      </Modal> */}
+      </Modal>
 
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
       <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
@@ -277,8 +235,6 @@ function WebSocial() {
         <button type="submit" hidden />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            {/* TODO: Investigate if this is neccessary on post */}
-            {/* <Input name={DeepSearchParam} defaultValue="true" type="hidden" /> */}
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("form.website.headline")}
             </h2>
