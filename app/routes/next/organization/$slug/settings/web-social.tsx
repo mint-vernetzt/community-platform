@@ -156,9 +156,6 @@ function WebSocial() {
     lastResult: actionData?.submission,
     shouldRevalidate: "onInput",
   });
-  console.log({
-    lastResult: actionData?.submission,
-  });
   const visibilities = fields.visibilities.getFieldset();
   const isDirty = form.dirty;
 

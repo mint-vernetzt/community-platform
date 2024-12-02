@@ -152,18 +152,20 @@ function About() {
                       ([key, value]) => {
                         const typedKey =
                           key as keyof typeof ContactInformationIcons;
+                        let to;
 
                         if (typedKey === "address") {
                           return null;
-                        }
-
-                        let to = null;
-                        if (typedKey === "email") {
+                        } else if (typedKey === "email") {
                           to = `mailto:${organization.email}`;
                         } else if (typedKey === "phone") {
                           to = `tel:${organization.phone}`;
-                        } else if (typedKey === "website") {
+                        } else {
                           to = organization.website;
+                        }
+
+                        if (organization[typedKey] === null) {
+                          return null;
                         }
 
                         if (to === null) {
