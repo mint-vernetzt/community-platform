@@ -108,11 +108,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const submission = await parseWithZod(formData, {
     schema: (intent) =>
       createWebSocialSchema(t).transform(async (data, ctx) => {
-        console.log({ intent });
-        if (intent === null || intent.type !== "validate") {
-          console.log("No intent or not validate");
-          return { ...data };
-        }
         const { error } = await updateOrganizationWebSocial({
           slug,
           data,
@@ -257,6 +252,20 @@ function WebSocial() {
               );
             })}
           </div>
+          {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+            <div>
+              {form.errors.map((error, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                  >
+                    {error}
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
           <div className="mv-flex mv-flex-col @xl:mv-flex-row mv-w-full mv-justify-end @xl:mv-justify-between mv-items-start @xl:mv-items-center mv-gap-4">
             <div className="mv-flex mv-flex-col mv-gap-1">
               <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
@@ -304,21 +313,6 @@ function WebSocial() {
             </div>
             <div className="mv-flex mv-shrink mv-w-full @xl:mv-max-w-fit @xl:mv-w-auto mv-items-center mv-justify-center @xl:mv-justify-end">
               <Controls>
-                {typeof form.errors !== "undefined" &&
-                form.errors.length > 0 ? (
-                  <div>
-                    {form.errors.map((error, index) => {
-                      return (
-                        <div
-                          key={index}
-                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                        >
-                          {error}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : null}
                 <Button type="reset" variant="outline" fullSize>
                   {t("form.reset")}
                 </Button>
