@@ -88,11 +88,6 @@ export async function updateOrganizationWebSocial(options: {
   const { data, slug } = options;
   const { visibilities, ...organizationData } = data;
 
-  console.log({
-    organizationData: organizationData,
-    visibilities: visibilities,
-  });
-
   let organization;
   let organizationVisibility;
   try {

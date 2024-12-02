@@ -9,16 +9,16 @@ import {
 import {
   Form,
   useActionData,
-  useBlocker,
   useLoaderData,
   useLocation,
+  useNavigation,
 } from "@remix-run/react";
 import { type TFunction } from "i18next";
-import React from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   checkboxSchema,
   createFacebookSchema,
@@ -32,16 +32,16 @@ import {
   createYoutubeSchema,
 } from "~/lib/utils/schemas";
 import { detectLanguage } from "~/root.server";
-import { redirectWithToast } from "~/toast.server";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { VisibilityCheckbox } from "~/routes/__components";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { BackButton } from "~/routes/project/$slug/settings/__components";
+import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
+import { redirectWithToast } from "~/toast.server";
 import {
   getOrganizationWebSocial,
   updateOrganizationWebSocial,
 } from "./web-social.server";
-import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
-import { BackButton } from "~/routes/project/$slug/settings/__components";
-import { VisibilityCheckbox } from "~/routes/__components";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({
@@ -106,7 +106,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // Validation
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
-    schema: (intent) =>
+    schema: () =>
       createWebSocialSchema(t).transform(async (data, ctx) => {
         const { error } = await updateOrganizationWebSocial({
           slug,
@@ -128,7 +128,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (submission.status !== "success") {
     console.log("Submission did not succeed");
-    return { submission: submission.reply() };
+    return {
+      submission: submission.reply(),
+    };
   }
 
   const hash = getSubmissionHash(submission);
@@ -145,41 +147,133 @@ function WebSocial() {
   const { t } = useTranslation(i18nNS);
   const { organization } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
 
+  const { organizationVisibility, ...rest } = organization;
   const [form, fields] = useForm({
     id: "web-social-form",
     constraint: getZodConstraint(createWebSocialSchema(t)),
     defaultValue: {
-      ...organization,
-      visibilities: organization.organizationVisibility,
+      ...rest,
+      visibilities: organizationVisibility,
     },
-    lastResult: actionData?.submission,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
     shouldRevalidate: "onInput",
   });
   const visibilities = fields.visibilities.getFieldset();
-  const isDirty = form.dirty;
 
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname
-  );
-  if (blocker.state === "blocked") {
-    const confirmed = confirm(t("content.prompt"));
-    if (confirmed === true) {
-      // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
-      if (blocker.state !== "proceeding") {
-        blocker.proceed();
-      }
-    } else {
-      blocker.reset();
-    }
-  }
+  // const blocker = useBlocker(
+  //   ({ currentLocation, nextLocation }) =>
+  //     form.dirty && currentLocation.pathname !== nextLocation.pathname
+  // );
+  // if (blocker.state === "blocked") {
+  //   const confirmed = confirm(t("content.prompt"));
+  //   if (confirmed === true) {
+  //     // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
+  //     if (blocker.state !== "proceeding") {
+  //       blocker.proceed();
+  //     }
+  //   } else {
+  //     blocker.reset();
+  //   }
+  // }
+
+  // const navigation = useNavigation();
+  // let persistedBlockerState;
+  // if (navigation.location !== undefined && typeof navigation.location.state !== "undefined" && navigation.location.state !== null && navigation.location.state.blockerState === "blocked") {
+  //   persistedBlockerState = "blocked";
+  // }
+  // const [searchParams, setSearchParams] = useSearchParams();
+  // const blocker = useBlocker(({ currentLocation, nextLocation }) => {
+  //   console.log(
+  //     "Evaluate new blocker state",
+  //     form.dirty || currentLocation.pathname !== nextLocation.pathname,
+  //     {
+  //       form.dirty,
+  //       currentLocation,
+  //       nextLocation,
+  //     }
+  //   );
+
+  //   const isBlocked =
+  //     form.dirty &&
+  //     (currentLocation.pathname !== nextLocation.pathname ||
+  //       searchParams.has("modal-unsaved-changes"));
+
+  //   if (isBlocked && searchParams.has("modal-unsaved-changes") === false) {
+  //     setSearchParams(
+  //       (previousSearchParams) => {
+  //         const newSearchParams = new URLSearchParams(previousSearchParams);
+  //         newSearchParams.set("modal-unsaved-changes", "true");
+  //         return newSearchParams;
+  //       },
+  //       { preventScrollReset: true }
+  //     );
+  //   }
+
+  //   return isBlocked;
+  // });
+  // React.useEffect(() => {
+  //   console.log("useEffect blocker state", blocker.state);
+  //   if (
+  //     blocker.state === "blocked" &&
+  //     searchParams.has("modal-unsaved-changes") === false
+  //   ) {
+  //     console.log("Setting search params");
+  //     setSearchParams(
+  //       (previousSearchParams) => {
+  //         const newSearchParams = new URLSearchParams(previousSearchParams);
+  //         if (newSearchParams.has("modal-unsaved-changes") === false) {
+  //           newSearchParams.set("modal-unsaved-changes", "true");
+  //         }
+  //         return newSearchParams;
+  //       },
+  //       { preventScrollReset: true }
+  //     );
+  //   }
+  // }, [blocker.state, searchParams, setSearchParams]);
+
+  // console.log("Blocker state", blocker.state);
 
   return (
     <Section>
+      {/* <Modal searchParam={`modal-unsaved-changes`}>
+        <Modal.Title>{t("modal.unsavedChanges.title")}</Modal.Title>
+        <Modal.Section>{t("modal.unsavedChanges.description")}</Modal.Section>
+        <Modal.SubmitButton
+          onClick={() => {
+            console.log("onClick Proceed Button");
+            console.log("Blocker", { blocker });
+            if (blocker.state === "blocked") {
+              console.log("Proceeding");
+              blocker.proceed();
+            }
+          }}
+        >
+          {t("modal.unsavedChanges.proceed")}
+        </Modal.SubmitButton>
+        <Modal.CloseButton
+          onClick={() => {
+            console.log("onClick reset Button");
+            console.log("Blocker", { blocker });
+            if (blocker.state === "blocked") {
+              blocker.reset();
+            }
+          }}
+        >
+          {t("modal.unsavedChanges.cancel")}
+        </Modal.CloseButton>
+      </Modal> */}
+
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
       <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
-      <Form {...getFormProps(form)} method="post" preventScrollReset>
+      <Form
+        {...getFormProps(form)}
+        method="post"
+        preventScrollReset
+        autoComplete="off"
+      >
         <button type="submit" hidden />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
@@ -189,9 +283,9 @@ function WebSocial() {
               {t("form.website.headline")}
             </h2>
             <Input
-              // TODO: Check how type url behaves
               {...getInputProps(fields.website, { type: "url" })}
               placeholder={t("form.website.url.placeholder")}
+              key={"website"}
             >
               <Input.Label htmlFor={fields.website.id}>
                 {t("form.website.url.label")}
@@ -201,6 +295,7 @@ function WebSocial() {
                   {...getInputProps(visibilities.website, {
                     type: "checkbox",
                   })}
+                  key={"website-visibility"}
                 />
               </Input.Controls>
               {typeof fields.website.errors !== "undefined" &&
@@ -237,6 +332,7 @@ function WebSocial() {
                       {...getInputProps(visibilities[typedKey], {
                         type: "checkbox",
                       })}
+                      key={`${key}-visibility`}
                     />
                   </Input.Controls>
                   {typeof fields[typedKey].errors !== "undefined" &&
@@ -310,7 +406,13 @@ function WebSocial() {
             </div>
             <div className="mv-flex mv-shrink mv-w-full @xl:mv-max-w-fit @xl:mv-w-auto mv-items-center mv-justify-center @xl:mv-justify-end">
               <Controls>
-                <Button type="reset" variant="outline" fullSize>
+                <Button
+                  type="reset"
+                  variant="outline"
+                  fullSize
+                  // Don't disable button when js is disabled
+                  disabled={isHydrated ? form.dirty === false : false}
+                >
                   {t("form.reset")}
                 </Button>
                 <Button
@@ -318,7 +420,8 @@ function WebSocial() {
                   name="intent"
                   defaultValue="submit"
                   fullSize
-                  disabled={!form.dirty}
+                  // Don't disable button when js is disabled
+                  disabled={isHydrated ? form.dirty === false : false}
                 >
                   {t("form.submit")}
                 </Button>
