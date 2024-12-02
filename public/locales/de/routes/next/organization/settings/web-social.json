@@ -12,6 +12,10 @@
   "form": {
     "reset": "Änderungen verwerfen",
     "submit": "Speichern",
+    "hint": {
+      "public": "Für alle sichtbar",
+      "private": "Nur für registrierte Nutzer:innen sichtbar"
+    },
     "website": {
       "headline": "Website",
       "url": {

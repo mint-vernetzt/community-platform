@@ -12,6 +12,10 @@
   "form": {
     "reset": "Discard changes",
     "submit": "Save",
+    "hint": {
+      "public": "Visible to everyone",
+      "private": "Visible only to registered users"
+    },
     "website": {
       "headline": "Website",
       "url": {
