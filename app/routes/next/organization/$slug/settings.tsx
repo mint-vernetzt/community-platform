@@ -1,3 +1,5 @@
+import { Section, TextButton } from "@mint-vernetzt/components";
+import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import {
   Link,
   Outlet,
@@ -5,17 +7,15 @@ import {
   useLocation,
   useSearchParams,
 } from "@remix-run/react";
-import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
+import classNames from "classnames";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { DeepSearchParam } from "~/form-helpers";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { Section, TextButton } from "@mint-vernetzt/components";
-import { useTranslation } from "react-i18next";
-import { type TFunction } from "i18next";
-import classNames from "classnames";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { DeepSearchParam } from "~/form-helpers";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -54,7 +54,7 @@ export async function loader(args: LoaderFunctionArgs) {
     status: 404,
   });
 
-  return json({ organization });
+  return { organization };
 }
 
 const i18nNS = ["routes/next/organization/settings"];
