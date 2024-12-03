@@ -32,7 +32,7 @@ export function TeaserCard(props: {
           <div className="mv-text-primary mv-text-2xl mv-font-semibold mv-leading-[26px] mv-tracking-[-0.44px] @xl:mv-flex-grow">
             {description}
           </div>
-          <div className="mv-flex mv-items-center mv-gap-1 mv-text-primary mv-text-sm mv-font-semibold mv-leading-5 mv-tracking-[0.14px] mv-underline mv-underline-offset-1">
+          <div className="mv-flex mv-items-end mv-gap-1 mv-text-primary mv-text-sm mv-font-semibold mv-leading-5 mv-tracking-[0.14px] mv-underline mv-underline-offset-1">
             {linkDescription}
             {external ? (
               <svg

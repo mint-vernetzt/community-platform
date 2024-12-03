@@ -512,21 +512,24 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 function getDataForExternalLinkTeasers() {
   const teaserData: {
-    website: { link: string; icon: TeaserIconType };
-    dataLab: { link: string; icon: TeaserIconType };
-    meshMint: { link: string; icon: TeaserIconType };
+    website: { link: string; icon: TeaserIconType; external: boolean };
+    dataLab: { link: string; icon: TeaserIconType; external: boolean };
+    meshMint: { link: string; icon: TeaserIconType; external: boolean };
   } = {
     website: {
       link: "https://www.mint-vernetzt.de",
       icon: "globe",
+      external: true,
     },
     dataLab: {
       link: "https://www.mint-vernetzt.de/mint-datalab/",
       icon: "bar-chart",
+      external: true,
     },
     meshMint: {
       link: "https://www.mint-vernetzt.de/mesh-studie/?limit=6&PostType=mesh_study",
       icon: "signpost",
+      external: true,
     },
   };
   return teaserData;
@@ -534,15 +537,17 @@ function getDataForExternalLinkTeasers() {
 
 function getDataForUpdateTeasers() {
   const teaserData: {
-    [key: string]: { link: string; icon: TeaserIconType };
+    [key: string]: { link: string; icon: TeaserIconType; external: boolean };
   } = {
     addToOrganization: {
       link: "/my/organizations",
       icon: "Plus big",
+      external: false,
     },
     crawler: {
       link: "/explore/fundings",
       icon: "piggy-bank",
+      external: false,
     },
   };
   return teaserData;
@@ -550,16 +555,22 @@ function getDataForUpdateTeasers() {
 
 function getDataForNewsTeasers() {
   const teaserData: {
-    tableMedia: { link: string; icon: TeaserIconType };
-    mintPitch: { link: string; icon: TeaserIconType };
+    tableMedia: { link: string; icon: TeaserIconType; external: boolean };
+    learningJourneyParticipation: {
+      link: string;
+      icon: TeaserIconType;
+      external: boolean;
+    };
   } = {
     tableMedia: {
       link: "https://table.media/aktion/mint-vernetzt?utm_source=samail&utm_medium=email&utm_campaign=rt_mintvernetzt_koop_email_job&utm_content=lp_1",
       icon: "lightning-charge",
+      external: true,
     },
-    mintPitch: {
-      link: "https://www.mint-vernetzt.de/news/mint-pitch-jahrestagung/",
+    learningJourneyParticipation: {
+      link: "https://www.mint-vernetzt.de/news/anmeldung-lernreise-teilhabe-2025/",
       icon: "megaphone",
+      external: true,
     },
   };
   return teaserData;
@@ -854,6 +865,7 @@ function Dashboard() {
                 <TeaserCard
                   key={`${key}-update-teaser`}
                   to={value.link}
+                  external={value.external}
                   headline={t(`content.updates.${key}.headline`)}
                   description={t(`content.updates.${key}.description`)}
                   linkDescription={t(`content.updates.${key}.linkDescription`)}
@@ -906,6 +918,7 @@ function Dashboard() {
                 <TeaserCard
                   key={`${key}-news-teaser`}
                   to={value.link}
+                  external={value.external}
                   headline={t(`content.news.${key}.headline`)}
                   description={t(`content.news.${key}.description`)}
                   linkDescription={t(`content.news.${key}.linkDescription`)}
@@ -1078,6 +1091,7 @@ function Dashboard() {
             return (
               <TeaserCard
                 to={value.link}
+                external={value.external}
                 key={`${key}-external-link-teaser`}
                 headline={t(`content.externalLinks.${key}.headline`)}
                 description={t(`content.externalLinks.${key}.description`)}
@@ -1085,7 +1099,6 @@ function Dashboard() {
                   `content.externalLinks.${key}.linkDescription`
                 )}
                 iconType={value.icon}
-                external
               />
             );
           })}
