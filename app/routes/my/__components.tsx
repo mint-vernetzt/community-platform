@@ -621,7 +621,7 @@ export function CreateOrganization(props: { name: string }) {
 
 export function Container(props: { children: React.ReactNode }) {
   return (
-    <div className="mv-w-full mv-h-full mv-flex mv-justify-center">
+    <div className="mv-w-full mv-h-full mv-flex mv-justify-center mv-pb-8">
       <div className="mv-w-full mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl">
         {props.children}
       </div>

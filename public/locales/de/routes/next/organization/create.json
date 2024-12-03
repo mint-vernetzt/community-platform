@@ -29,7 +29,7 @@
       "notFound": "Die Netzwerkform konnte nicht gefunden werden. Bitte kontaktiere den Support."
     },
     "helperText": "*Erforderliche Angaben",
-    "reset": "Verwerfen",
+    "cancel": "Abbrechen",
     "submit": "Organisation anlegen"
   },
   "successAlert": "<p>Du hast Deine Organisation {{name}} erfolgreich angelegt. Du bist Teammitglied und Admin Deiner Organisation. Bearbeite nun Deine Organisation und mache sie damit sichtbarer für die Community. <a href=\"/organization/{{slug}}/settings\">Jetzt bearbeiten</a></p>"

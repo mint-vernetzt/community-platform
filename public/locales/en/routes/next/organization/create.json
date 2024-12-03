@@ -6,8 +6,8 @@
       "max": "The name of the organization may be a maximum of 80 characters long."
     }
   },
-    "back": "My organizations",
-    "headline": "Create organization",
+  "back": "My organizations",
+  "headline": "Create organization",
   "form": {
     "organizationName": {
       "headline": "What is the name of your organization or network?",
@@ -29,7 +29,7 @@
       "notFound": "The type of network could not be found. Please contact support."
     },
     "helperText": "*Required information",
-    "reset": "Discard",
+    "cancel": "Cancel",
     "submit": "Create organization"
   },
   "successAlert": "<p>You have successfully created your organization {{name}}. You are a team member and admin of your organization. Now edit your organization and make it more visible to the community. <a href=\"/organization/{{slug}}/settings\">Edit now</a></p>"
