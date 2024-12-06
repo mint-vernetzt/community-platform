@@ -179,7 +179,9 @@ function Input(props: InputProps) {
 
   const inputCounterContainerClasses = classNames(
     "mv-flex mv-w-full",
-    helperText !== undefined ? "mv-justify-between" : "mv-justify-end"
+    helperText !== undefined || errors.length > 0
+      ? "mv-justify-between"
+      : "mv-justify-end"
   );
 
   return (
@@ -205,17 +207,32 @@ function Input(props: InputProps) {
       </div>
       {props.maxLength !== undefined ? (
         <div className={inputCounterContainerClasses}>
-          <div className="mv-pr-8">{helperText}</div>
+          {helperText !== undefined || errors.length > 0 ? (
+            <div className="mv-flex mv-flex-col">
+              {helperText !== undefined ? (
+                <div className="mv-pr-8">{helperText}</div>
+              ) : null}
+              {errors.length > 0 ? (
+                <ul>
+                  {errors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
           <InputCounter
             currentCount={characterCount}
             maxCount={props.maxLength}
           />
         </div>
-      ) : (
-        helperText
-      )}
+      ) : null}
 
-      {errors.length > 0 ? (
+      {props.maxLength === undefined && helperText !== undefined ? (
+        <div className="mv-pr-8">{helperText}</div>
+      ) : null}
+
+      {props.maxLength === undefined && errors.length > 0 ? (
         <ul>
           {errors.map((error, index) => (
             <li key={index}>{error}</li>

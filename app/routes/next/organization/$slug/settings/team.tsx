@@ -1,5 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint } from "@conform-to/zod-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button, Input, Section } from "@mint-vernetzt/components";
 import {
   redirect,
@@ -11,6 +11,7 @@ import {
   useActionData,
   useLoaderData,
   useLocation,
+  useNavigation,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
@@ -178,7 +179,7 @@ function Team() {
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
-  const actionSubmission = actionData?.submission;
+  const navigation = useNavigation();
 
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
@@ -188,27 +189,35 @@ function Team() {
 
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
-    lastResult: loaderSubmission,
-    constraint: getZodConstraint(searchProfilesSchema(t)),
     defaultValue: {
       [SearchProfilesSearchParam]:
         searchParams.get(SearchProfilesSearchParam) || undefined,
     },
+    constraint: getZodConstraint(searchProfilesSchema(t)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: searchProfilesSchema(t),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? loaderSubmission : null,
   });
 
   const [inviteTeamMemberForm] = useForm({
     id: "invite-team-members",
-    lastResult: actionSubmission,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelTeamMemberInviteForm] = useForm({
     id: "cancel-team-member-invites",
-    lastResult: actionSubmission,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [removeTeamMemberForm] = useForm({
     id: "remove-team-members",
-    lastResult: actionSubmission,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   return (
@@ -262,7 +271,10 @@ function Team() {
             {...getFormProps(searchForm)}
             method="get"
             onChange={(event) => {
-              submit(event.currentTarget, { preventScrollReset: true });
+              searchForm.validate();
+              if (searchForm.valid) {
+                submit(event.currentTarget, { preventScrollReset: true });
+              }
             }}
           >
             <Input name={DeepSearchParam} defaultValue="true" type="hidden" />

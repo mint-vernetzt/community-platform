@@ -1,5 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint } from "@conform-to/zod-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button, Input, Section } from "@mint-vernetzt/components";
 import {
   redirect,
@@ -11,6 +11,7 @@ import {
   useActionData,
   useLoaderData,
   useLocation,
+  useNavigation,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
@@ -170,7 +171,7 @@ function Admins() {
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
-  const actionSubmission = actionData?.submission;
+  const navigation = useNavigation();
 
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
@@ -180,27 +181,36 @@ function Admins() {
 
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
-    lastResult: loaderSubmission,
-    constraint: getZodConstraint(searchProfilesSchema(t)),
     defaultValue: {
       [SearchProfilesSearchParam]:
         searchParams.get(SearchProfilesSearchParam) || undefined,
     },
+    constraint: getZodConstraint(searchProfilesSchema(t)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: searchProfilesSchema(t),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? loaderSubmission : null,
   });
 
+  // Only button forms, dont need special validation logic
   const [inviteAdminForm] = useForm({
     id: "invite-admins",
-    lastResult: actionSubmission,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelAdminInviteForm] = useForm({
     id: "cancel-admin-invites",
-    lastResult: actionSubmission,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [removeAdminForm] = useForm({
     id: "remove-admins",
-    lastResult: actionSubmission,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   return (
@@ -254,7 +264,10 @@ function Admins() {
             {...getFormProps(searchForm)}
             method="get"
             onChange={(event) => {
-              submit(event.currentTarget, { preventScrollReset: true });
+              searchForm.validate();
+              if (searchForm.valid) {
+                submit(event.currentTarget, { preventScrollReset: true });
+              }
             }}
           >
             <Input name={DeepSearchParam} defaultValue="true" type="hidden" />

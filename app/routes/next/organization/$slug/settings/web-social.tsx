@@ -46,6 +46,7 @@ import {
 } from "./web-social.server";
 import { useHydrated } from "remix-utils/use-hydrated";
 import React from "react";
+import * as Sentry from "@sentry/remix";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({
@@ -117,7 +118,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           data,
         });
         if (error !== null) {
-          console.log("Error updating organization", error);
+          console.error("Error updating organization", error);
+          Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
             message: t("error.updateFailed"),
@@ -131,7 +133,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (submission.status !== "success") {
-    console.log("Submission did not succeed");
     return {
       submission: submission.reply(),
     };
@@ -157,13 +158,20 @@ function WebSocial() {
   const { organizationVisibility, ...rest } = organization;
   const [form, fields] = useForm({
     id: "web-social-form",
-    constraint: getZodConstraint(createWebSocialSchema(t)),
     defaultValue: {
       ...rest,
       visibilities: organizationVisibility,
     },
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    constraint: getZodConstraint(createWebSocialSchema(t)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: createWebSocialSchema(t),
+      });
+    },
     shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
   const visibilities = fields.visibilities.getFieldset();
 
