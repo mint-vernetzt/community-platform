@@ -40,7 +40,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({
@@ -248,7 +248,7 @@ function WebSocial() {
         <button type="submit" hidden />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
+            <Input name={Deep} defaultValue="true" type="hidden" />
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("form.website.headline")}
             </h2>

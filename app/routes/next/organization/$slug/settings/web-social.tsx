@@ -9,12 +9,9 @@ import {
 import {
   Form,
   useActionData,
-  useBlocker,
   useLoaderData,
   useLocation,
   useNavigation,
-  useSearchParams,
-  useSubmit,
 } from "@remix-run/react";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
@@ -35,7 +32,7 @@ import {
   createYoutubeSchema,
 } from "~/lib/utils/schemas";
 import { detectLanguage } from "~/root.server";
-import { Modal, VisibilityCheckbox } from "~/routes/__components";
+import { VisibilityCheckbox } from "~/routes/__components";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
 import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
@@ -45,8 +42,11 @@ import {
   updateOrganizationWebSocial,
 } from "./web-social.server";
 import { useHydrated } from "remix-utils/use-hydrated";
-import React from "react";
 import * as Sentry from "@sentry/remix";
+import {
+  i18nNS as i18nNSUnsavedChangesModal,
+  useUnsavedChangesBlockerWithModal,
+} from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({
@@ -75,6 +75,7 @@ const createWebSocialSchema = (t: TFunction) =>
 const i18nNS = [
   "routes/next/organization/settings/web-social",
   "utils/schemas",
+  ...i18nNSUnsavedChangesModal,
 ];
 export const handle = {
   i18n: i18nNS,
@@ -175,63 +176,14 @@ function WebSocial() {
   });
   const visibilities = fields.visibilities.getFieldset();
 
-  // Blocker with modal
-  const [searchParams] = useSearchParams();
-  const searchParamsWithoutModal = new URLSearchParams(searchParams);
-  searchParamsWithoutModal.delete("modal-unsaved-changes");
-  const submit = useSubmit();
-  const [nextLocationPathname, setNextLocationPathname] = React.useState<
-    string | null
-  >(null);
-  useBlocker(({ currentLocation, nextLocation }) => {
-    const modalIsOpen = nextLocation.search.includes(
-      "modal-unsaved-changes=true"
-    );
-    if (modalIsOpen || nextLocationPathname !== null) {
-      return false;
-    }
-    const isBlocked =
-      form.dirty && currentLocation.pathname !== nextLocation.pathname;
-    if (isBlocked) {
-      setNextLocationPathname(nextLocation.pathname);
-      const newSearchParams = new URLSearchParams(searchParams);
-      if (modalIsOpen === false) {
-        newSearchParams.set("modal-unsaved-changes", "true");
-      }
-      submit(newSearchParams, { method: "get" });
-    }
-    return isBlocked;
+  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    searchParam: "modal-unsaved-changes",
+    formMetadataToCheck: form,
   });
 
   return (
     <Section>
-      <Form
-        id="discard-changes-and-proceed"
-        method="get"
-        action={
-          nextLocationPathname !== null
-            ? nextLocationPathname
-            : `${location.pathname}?${searchParamsWithoutModal.toString()}`
-        }
-        hidden
-        preventScrollReset
-      />
-      <Modal searchParam={`modal-unsaved-changes`}>
-        <Modal.Title>{t("modal.unsavedChanges.title")}</Modal.Title>
-        <Modal.Section>{t("modal.unsavedChanges.description")}</Modal.Section>
-        <Modal.SubmitButton form="discard-changes-and-proceed">
-          {t("modal.unsavedChanges.proceed")}
-        </Modal.SubmitButton>
-        <Modal.CloseButton
-          route={`${location.pathname}?${searchParamsWithoutModal.toString()}`}
-          onClick={() => {
-            setNextLocationPathname(null);
-          }}
-        >
-          {t("modal.unsavedChanges.cancel")}
-        </Modal.CloseButton>
-      </Modal>
-
+      {UnsavedChangesBlockerModal}
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
       <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
       <Form
@@ -265,7 +217,9 @@ function WebSocial() {
               {typeof fields.website.errors !== "undefined" &&
               fields.website.errors.length > 0
                 ? fields.website.errors.map((error) => (
-                    <Input.Error key={error}>{error}</Input.Error>
+                    <Input.Error id={fields.website.errorId} key={error}>
+                      {error}
+                    </Input.Error>
                   ))
                 : null}
             </Input>
@@ -302,7 +256,9 @@ function WebSocial() {
                   {typeof fields[typedKey].errors !== "undefined" &&
                   fields[typedKey].errors.length > 0
                     ? fields[typedKey].errors.map((error) => (
-                        <Input.Error key={error}>{error}</Input.Error>
+                        <Input.Error id={fields[typedKey].errorId} key={error}>
+                          {error}
+                        </Input.Error>
                       ))
                     : null}
                 </Input>
@@ -314,6 +270,7 @@ function WebSocial() {
               {form.errors.map((error, index) => {
                 return (
                   <div
+                    id={form.errorId}
                     key={index}
                     className="mv-text-sm mv-font-semibold mv-text-negative-600"
                   >

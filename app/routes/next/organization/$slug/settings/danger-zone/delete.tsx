@@ -160,7 +160,12 @@ function Delete() {
         />
       </p>
       <p>{t("content.explanation")}</p>
-      <Form {...getFormProps(form)} method="post" preventScrollReset>
+      <Form
+        {...getFormProps(form)}
+        method="post"
+        preventScrollReset
+        autoComplete="off"
+      >
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <Input
             {...getInputProps(fields.name, { type: "text" })}
@@ -173,7 +178,9 @@ function Delete() {
             {typeof fields.name.errors !== "undefined" &&
             fields.name.errors.length > 0
               ? fields.name.errors.map((error) => (
-                  <Input.Error key={error}>{error}</Input.Error>
+                  <Input.Error id={fields.name.errorId} key={error}>
+                    {error}
+                  </Input.Error>
                 ))
               : null}
           </Input>

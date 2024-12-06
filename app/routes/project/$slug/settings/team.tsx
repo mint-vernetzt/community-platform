@@ -35,7 +35,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   getSubmissionHash,
 } from "./utils.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 
 const i18nNS = ["routes/project/settings/team"];
 export const handle = {
@@ -350,7 +350,7 @@ function Team() {
   const [searchForm, fields] = useForm({
     defaultValue: {
       search: searchParams.get("search") || "",
-      [DeepSearchParam]: "true",
+      [Deep]: "true",
     },
   });
   const { t } = useTranslation(i18nNS);
@@ -431,7 +431,7 @@ function Team() {
             }}
             {...searchForm.props}
           >
-            <Input {...conform.input(fields[DeepSearchParam])} type="hidden" />
+            <Input {...conform.input(fields[Deep])} type="hidden" />
             <Input {...conform.input(fields.search)} standalone>
               <Input.Label htmlFor={fields.search.id}>
                 {t("content.add.search")}

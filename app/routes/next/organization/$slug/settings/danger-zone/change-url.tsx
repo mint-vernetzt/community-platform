@@ -10,7 +10,6 @@ import {
 import {
   Form,
   useActionData,
-  useBlocker,
   useLoaderData,
   useNavigation,
 } from "@remix-run/react";
@@ -27,11 +26,18 @@ import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 import { redirectWithToast } from "~/toast.server";
 import { useHydrated } from "remix-utils/use-hydrated";
+import {
+  i18nNS as i18nNSUnsavedChangesModal,
+  useUnsavedChangesBlockerWithModal,
+} from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 
-const i18nNS = ["routes/next/organization/settings/danger-zone/change-url"];
+const i18nNS = [
+  "routes/next/organization/settings/danger-zone/change-url",
+  ...i18nNSUnsavedChangesModal,
+];
 export const handle = {
   i18n: i18nNS,
 };
@@ -118,7 +124,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const hash = getSubmissionHash(submission);
 
-  return redirectWithToast(`${pathname}?${DeepSearchParam}=true`, {
+  return redirectWithToast(`${pathname}?${Deep}=true`, {
     id: "settings-toast",
     key: hash,
     message: t("content.feedback"),
@@ -149,25 +155,14 @@ function ChangeURL() {
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
-  const [isDirty, setIsDirty] = React.useState(false);
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname
-  );
-  if (blocker.state === "blocked") {
-    const confirmed = confirm(t("content.prompt"));
-    if (confirmed === true) {
-      // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
-      if (blocker.state !== "proceeding") {
-        blocker.proceed();
-      }
-    } else {
-      blocker.reset();
-    }
-  }
+  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    searchParam: "modal-unsaved-changes",
+    formMetadataToCheck: form,
+  });
 
   return (
     <>
+      {UnsavedChangesBlockerModal}
       <p>
         <Trans
           i18nKey="content.reach"
@@ -181,16 +176,7 @@ function ChangeURL() {
         />
       </p>
       <p>{t("content.note")}</p>
-      <Form
-        {...getFormProps(form)}
-        method="post"
-        onChange={() => {
-          setIsDirty(true);
-        }}
-        onReset={() => {
-          setIsDirty(false);
-        }}
-      >
+      <Form {...getFormProps(form)} method="post" autoComplete="off">
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <Input
             {...getInputProps(fields.slug, { type: "text" })}
@@ -202,7 +188,9 @@ function ChangeURL() {
             {typeof fields.slug.errors !== "undefined" &&
             fields.slug.errors.length > 0
               ? fields.slug.errors.map((error) => (
-                  <Input.Error key={error}>{error}</Input.Error>
+                  <Input.Error id={fields.slug.errorId} key={error}>
+                    {error}
+                  </Input.Error>
                 ))
               : null}
           </Input>
@@ -212,9 +200,6 @@ function ChangeURL() {
                 type="submit"
                 level="negative"
                 fullSize
-                onClick={() => {
-                  setIsDirty(false);
-                }}
                 disabled={isHydrated ? form.dirty === false : false}
               >
                 {t("content.action")}

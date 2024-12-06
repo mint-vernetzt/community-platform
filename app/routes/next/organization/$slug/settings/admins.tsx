@@ -17,12 +17,8 @@ import {
 } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import {
-  DeepSearchParam,
-  searchProfilesI18nNS,
-  searchProfilesSchema,
-  SearchProfilesSearchParam,
-} from "~/form-helpers";
+import { searchProfilesI18nNS, searchProfilesSchema } from "~/form-helpers";
+import { SearchProfiles, Deep } from "~/lib/utils/searchParams";
 import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -182,8 +178,7 @@ function Admins() {
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
     defaultValue: {
-      [SearchProfilesSearchParam]:
-        searchParams.get(SearchProfilesSearchParam) || undefined,
+      [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
     constraint: getZodConstraint(searchProfilesSchema(t)),
     // Client side validation onInput, server side validation on submit
@@ -269,25 +264,30 @@ function Admins() {
                 submit(event.currentTarget, { preventScrollReset: true });
               }
             }}
+            autoComplete="off"
           >
-            <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
+            <Input name={Deep} defaultValue="true" type="hidden" />
             <Input
-              {...getInputProps(searchFields[SearchProfilesSearchParam], {
+              {...getInputProps(searchFields[SearchProfiles], {
                 type: "search",
               })}
-              key={searchFields[SearchProfilesSearchParam].id}
+              key={searchFields[SearchProfiles].id}
               standalone
             >
-              <Input.Label htmlFor={searchFields[SearchProfilesSearchParam].id}>
+              <Input.Label htmlFor={searchFields[SearchProfiles].id}>
                 {t("content.add.search")}
               </Input.Label>
               <Input.SearchIcon />
 
-              {typeof searchFields[SearchProfilesSearchParam].errors !==
-                "undefined" &&
-              searchFields[SearchProfilesSearchParam].errors.length > 0 ? (
-                searchFields[SearchProfilesSearchParam].errors.map((error) => (
-                  <Input.Error key={error}>{error}</Input.Error>
+              {typeof searchFields[SearchProfiles].errors !== "undefined" &&
+              searchFields[SearchProfiles].errors.length > 0 ? (
+                searchFields[SearchProfiles].errors.map((error) => (
+                  <Input.Error
+                    id={searchFields[SearchProfiles].errorId}
+                    key={error}
+                  >
+                    {error}
+                  </Input.Error>
                 ))
               ) : (
                 <Input.HelperText>{t("content.add.criteria")}</Input.HelperText>

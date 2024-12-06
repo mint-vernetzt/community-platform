@@ -62,10 +62,18 @@ function InputHelperText(props: React.PropsWithChildren<{}>) {
   );
 }
 
-function InputError(props: React.PropsWithChildren<{}>) {
+function InputError(
+  props: React.PropsWithChildren<{}> & React.HTMLProps<HTMLDivElement>
+) {
+  const { children, className: additionalClassName, ...rest } = props;
   return (
-    <div className="mv-text-sm mv-font-semibold mv-text-negative-600 mv-mt-2">
-      {props.children}
+    <div
+      {...rest}
+      className={`mv-text-sm mv-font-semibold mv-text-negative-600 mv-mt-2${
+        additionalClassName !== undefined ? ` ${additionalClassName}` : ""
+      }`}
+    >
+      {children}
     </div>
   );
 }

@@ -9,14 +9,6 @@
     "back": "Website and social networks",
     "intro": "Where can the community find out more about your organization?"
   },
-  "modal": {
-    "unsavedChanges": {
-      "title": "Unsaved changes",
-      "description": "You have unsaved changes. These will be lost if you go one step further now.",
-      "proceed": "Discard changes",
-      "cancel": "Cancel"
-    }
-  },
   "form": {
     "reset": "Discard changes",
     "submit": "Save",
