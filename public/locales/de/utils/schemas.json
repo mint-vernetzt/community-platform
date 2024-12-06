@@ -4,7 +4,7 @@
       "regex": "Bitte gib eine gültige Telefonnummer ein (Mindestens 7 Ziffern, Erlaubte Zeichen: Leerzeichen, +, -, (, ))."
     },
     "website": {
-      "regex": "Deine Eingabe entspricht nicht dem Format einer Website URL."
+      "regex": "Deine Eingabe entspricht nicht dem Format einer Website URL (subdomain.domain.tld/...)."
     },
     "facebook": {
       "regex": "Deine Eingabe entspricht nicht dem Format einer Facebook Seite (facebook.com/...)."
@@ -16,22 +16,22 @@
       "regex": "Deine Eingabe entspricht nicht dem Format einer Xing Seite (xing.com/...)."
     },
     "twitter": {
-      "regex": "Deine Eingabe entspricht nicht dem Format einer Twitter Seite (x.com/... oder twitter.com/...)."
+      "regex": "Deine Eingabe entspricht nicht dem Format einer X oder Twitter Seite (x.com/... oder twitter.com/...)."
     },
     "mastodon": {
-      "regex": "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite (domainname.tld/@<name>)."
+      "regex": "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite (subdomain.domain.tld/...)."
     },
     "bluesky": {
       "regex": "Deine Eingabe entspricht nicht dem Format einer Blue Sky Seite (bsky.app/...)."
     },
     "tiktok": {
-      "regex": "Deine Eingabe entspricht nicht dem Format einer TikTok Seite (tiktok.com/@...)."
+      "regex": "Deine Eingabe entspricht nicht dem Format einer TikTok Seite (tiktok.com/...)."
     },
     "instagram": {
       "regex": "Deine Eingabe entspricht nicht dem Format einer Instagram Seite (instagram.com/...)."
     },
     "youtube": {
-      "regex": "Deine Eingabe entspricht nicht dem Format einer Youtube Seite (youtube.com/@...)."
+      "regex": "Deine Eingabe entspricht nicht dem Format einer Youtube Seite (youtube.com/...)."
     },
     "youtubeEmbed": {
       "urlParsing": "Unknown error during url parsing.",
