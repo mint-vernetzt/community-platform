@@ -235,6 +235,8 @@ export async function action(args: ActionFunctionArgs) {
       submission.value.intent === AddToOrganizationRequest.Create ||
       submission.value.intent === AddToOrganizationRequest.Accept
         ? "positive"
+        : submission.value.intent === AddToOrganizationRequest.Cancel
+        ? "neutral"
         : "negative",
     message:
       submission.value.intent === AddToOrganizationRequest.Create ||
