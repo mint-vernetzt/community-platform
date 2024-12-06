@@ -1,5 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint } from "@conform-to/zod-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button, Input, Section } from "@mint-vernetzt/components";
 import {
   redirect,
@@ -11,17 +11,14 @@ import {
   useActionData,
   useLoaderData,
   useLocation,
+  useNavigation,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import {
-  DeepSearchParam,
-  searchProfilesI18nNS,
-  searchProfilesSchema,
-  SearchProfilesSearchParam,
-} from "~/form-helpers";
+import { searchProfilesI18nNS, searchProfilesSchema } from "~/form-helpers";
+import { SearchProfiles, Deep } from "~/lib/utils/searchParams";
 import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -178,7 +175,7 @@ function Team() {
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
-  const actionSubmission = actionData?.submission;
+  const navigation = useNavigation();
 
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
@@ -188,27 +185,34 @@ function Team() {
 
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
-    lastResult: loaderSubmission,
-    constraint: getZodConstraint(searchProfilesSchema(t)),
     defaultValue: {
-      [SearchProfilesSearchParam]:
-        searchParams.get(SearchProfilesSearchParam) || undefined,
+      [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
+    constraint: getZodConstraint(searchProfilesSchema(t)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: searchProfilesSchema(t),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? loaderSubmission : null,
   });
 
   const [inviteTeamMemberForm] = useForm({
     id: "invite-team-members",
-    lastResult: actionSubmission,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelTeamMemberInviteForm] = useForm({
     id: "cancel-team-member-invites",
-    lastResult: actionSubmission,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [removeTeamMemberForm] = useForm({
     id: "remove-team-members",
-    lastResult: actionSubmission,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   return (
@@ -262,27 +266,35 @@ function Team() {
             {...getFormProps(searchForm)}
             method="get"
             onChange={(event) => {
-              submit(event.currentTarget, { preventScrollReset: true });
+              searchForm.validate();
+              if (searchForm.valid) {
+                submit(event.currentTarget, { preventScrollReset: true });
+              }
             }}
+            autoComplete="off"
           >
-            <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
+            <Input name={Deep} defaultValue="true" type="hidden" />
             <Input
-              {...getInputProps(searchFields[SearchProfilesSearchParam], {
+              {...getInputProps(searchFields[SearchProfiles], {
                 type: "search",
               })}
-              key={searchFields[SearchProfilesSearchParam].id}
+              key={searchFields[SearchProfiles].id}
               standalone
             >
-              <Input.Label htmlFor={searchFields[SearchProfilesSearchParam].id}>
+              <Input.Label htmlFor={searchFields[SearchProfiles].id}>
                 {t("content.add.search")}
               </Input.Label>
               <Input.SearchIcon />
 
-              {typeof searchFields[SearchProfilesSearchParam].errors !==
-                "undefined" &&
-              searchFields[SearchProfilesSearchParam].errors.length > 0 ? (
-                searchFields[SearchProfilesSearchParam].errors.map((error) => (
-                  <Input.Error key={error}>{error}</Input.Error>
+              {typeof searchFields[SearchProfiles].errors !== "undefined" &&
+              searchFields[SearchProfiles].errors.length > 0 ? (
+                searchFields[SearchProfiles].errors.map((error) => (
+                  <Input.Error
+                    id={searchFields[SearchProfiles].errorId}
+                    key={error}
+                  >
+                    {error}
+                  </Input.Error>
                 ))
               ) : (
                 <Input.HelperText>{t("content.add.criteria")}</Input.HelperText>

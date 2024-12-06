@@ -1,5 +1,5 @@
-import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button, Input } from "@mint-vernetzt/components";
 import {
   json,
@@ -10,11 +10,10 @@ import {
 import {
   Form,
   useActionData,
-  useBlocker,
   useLoaderData,
+  useNavigation,
 } from "@remix-run/react";
 import { type TFunction } from "i18next";
-import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -25,36 +24,30 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 import { redirectWithToast } from "~/toast.server";
+import { useHydrated } from "remix-utils/use-hydrated";
+import {
+  i18nNS as i18nNSUnsavedChangesModal,
+  useUnsavedChangesBlockerWithModal,
+} from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { getHash } from "~/lib/string/transform";
 
-const i18nNS = ["routes/next/organization/settings/danger-zone/change-url"];
+const i18nNS = [
+  "routes/next/organization/settings/danger-zone/change-url",
+  ...i18nNSUnsavedChangesModal,
+];
 export const handle = {
   i18n: i18nNS,
 };
 
-function createSchema(
-  t: TFunction,
-  constraint?: {
-    isSlugUnique?: (slug: string) => Promise<boolean>;
-  }
-) {
+function createSchema(t: TFunction) {
   return z.object({
     slug: z
       .string()
       .min(3, t("validation.slug.min"))
       .max(50, t("validation.slug.max"))
-      .regex(/^[-a-z0-9-]+$/i, t("validation.slug.regex"))
-      .refine(async (slug) => {
-        if (
-          typeof constraint !== "undefined" &&
-          typeof constraint.isSlugUnique === "function"
-        ) {
-          return await constraint.isSlugUnique(slug);
-        }
-        return true;
-      }, t("validation.slug.unique")),
+      .regex(/^[-a-z0-9-]+$/i, t("validation.slug.regex")),
   });
 }
 
@@ -92,76 +85,83 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   const formData = await request.formData();
-  const submission = await parse(formData, {
-    schema: createSchema(t, {
-      isSlugUnique: async (slug) => {
-        const organization = await prismaClient.organization.findFirst({
-          where: { slug: slug },
-          select: {
-            slug: true,
-          },
+  const submission = await parseWithZod(formData, {
+    schema: createSchema(t).transform(async (data, ctx) => {
+      const organization = await prismaClient.organization.findFirst({
+        where: { slug: data.slug },
+        select: {
+          slug: true,
+        },
+      });
+      if (organization !== null) {
+        ctx.addIssue({
+          code: "custom",
+          message: t("validation.slug.unique"),
         });
-        return organization === null;
-      },
+        return z.NEVER;
+      }
+
+      return { ...data };
     }),
     async: true,
   });
 
-  if (typeof submission.value !== "undefined" && submission.value !== null) {
-    await prismaClient.organization.update({
-      where: { slug: params.slug },
-      data: { slug: submission.value.slug },
-    });
-
-    const url = new URL(request.url);
-    const pathname = url.pathname.replace(params.slug, submission.value.slug);
-
-    const hash = getSubmissionHash(submission);
-
-    return redirectWithToast(`${pathname}?${DeepSearchParam}=true`, {
-      id: "settings-toast",
-      key: hash,
-      message: t("content.feedback"),
-    });
+  if (submission.status !== "success") {
+    console.log("Submission did not succeed");
+    return {
+      submission: submission.reply(),
+    };
   }
 
-  return json(submission);
+  await prismaClient.organization.update({
+    where: { slug: params.slug },
+    data: { slug: submission.value.slug },
+  });
+
+  const url = new URL(request.url);
+  const pathname = url.pathname.replace(params.slug, submission.value.slug);
+
+  const hash = getHash(submission);
+
+  return redirectWithToast(`${pathname}?${Deep}=true`, {
+    id: "settings-toast",
+    key: hash,
+    message: t("content.feedback"),
+  });
 };
 
 function ChangeURL() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
 
   const { t } = useTranslation(i18nNS);
 
   const [form, fields] = useForm({
-    shouldValidate: "onSubmit",
-    onValidate: (values) => {
-      return parse(values.formData, { schema: createSchema(t) });
+    id: `change-url-form-${getHash(loaderData)}`,
+    defaultValue: {
+      slug: loaderData.slug,
     },
-    shouldRevalidate: "onSubmit",
-    lastSubmission: actionData,
+    constraint: getZodConstraint(createSchema(t)),
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: createSchema(t),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
-  const [isDirty, setIsDirty] = React.useState(false);
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname
-  );
-  if (blocker.state === "blocked") {
-    const confirmed = confirm(t("content.prompt"));
-    if (confirmed === true) {
-      // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
-      if (blocker.state !== "proceeding") {
-        blocker.proceed();
-      }
-    } else {
-      blocker.reset();
-    }
-  }
+  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    searchParam: "modal-unsaved-changes",
+    formMetadataToCheck: form,
+  });
 
   return (
     <>
+      {UnsavedChangesBlockerModal}
       <p>
         <Trans
           i18nKey="content.reach"
@@ -176,25 +176,34 @@ function ChangeURL() {
       </p>
       <p>{t("content.note")}</p>
       <Form
+        {...getFormProps(form)}
         method="post"
-        {...form.props}
-        onChange={() => {
-          setIsDirty(true);
-        }}
-        onReset={() => {
-          setIsDirty(false);
-        }}
+        autoComplete="off"
+        preventScrollReset
       >
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
-          <Input id="slug" defaultValue={loaderData.slug}>
+          <Input
+            {...getInputProps(fields.slug, { type: "text" })}
+            key={"current-slug"}
+          >
             <Input.Label htmlFor={fields.slug.id}>
               {t("content.label")}
             </Input.Label>
-            {typeof actionData !== "undefined" &&
-              typeof fields.slug.error !== "undefined" && (
-                <Input.Error>{fields.slug.error}</Input.Error>
-              )}
+            {typeof fields.slug.errors !== "undefined" &&
+            fields.slug.errors.length > 0
+              ? fields.slug.errors.map((error) => (
+                  <Input.Error id={fields.slug.errorId} key={error}>
+                    {error}
+                  </Input.Error>
+                ))
+              : null}
+            {typeof form.errors !== "undefined" && form.errors.length > 0
+              ? form.errors.map((error) => (
+                  <Input.Error id={form.errorId} key={error}>
+                    {error}
+                  </Input.Error>
+                ))
+              : null}
           </Input>
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
@@ -202,9 +211,11 @@ function ChangeURL() {
                 type="submit"
                 level="negative"
                 fullSize
-                onClick={() => {
-                  setIsDirty(false);
-                }}
+                disabled={
+                  isHydrated
+                    ? form.dirty === false || form.valid === false
+                    : false
+                }
               >
                 {t("content.action")}
               </Button>

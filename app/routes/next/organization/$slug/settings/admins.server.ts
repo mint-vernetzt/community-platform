@@ -11,7 +11,7 @@ import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { invariantResponse } from "~/lib/utils/response";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
-import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
+import { getHash } from "~/routes/project/$slug/settings/utils.server";
 import { getPublicURL } from "~/storage.server";
 
 export async function getOrganizationWithAdmins(options: {
@@ -233,7 +233,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
     );
   }
 
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   return {
     submission: submission.reply(),
@@ -295,7 +295,7 @@ export async function cancelOrganizationAdminInvitation(options: {
     },
   });
 
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   return {
     submission: submission.reply(),
@@ -365,7 +365,7 @@ export async function removeAdminFromOrganization(options: {
     },
   });
 
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   return {
     submission: submission.reply(),

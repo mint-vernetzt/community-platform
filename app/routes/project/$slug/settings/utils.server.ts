@@ -27,8 +27,8 @@ export async function getRedirectPathOnProtectedProjectRoute(args: {
   return null;
 }
 
-export function getSubmissionHash(submission: object) {
-  const json = JSON.stringify(submission);
+export function getHash(object: object) {
+  const json = JSON.stringify(object);
   const hash = crypto.createHash("sha256").update(json).digest("hex");
   return hash;
 }

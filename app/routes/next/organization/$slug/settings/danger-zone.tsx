@@ -2,7 +2,7 @@ import { Section, TabBar } from "@mint-vernetzt/components";
 import { Link, Outlet, useLocation } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 
 const i18nNS = ["routes/next/organization/settings/danger-zone"];
 export const handle = {
@@ -19,15 +19,12 @@ function DangerZone() {
       <div id="danger-zone-tab-bar" className="mv-mt-2 @md:-mv-mt-2 mv-mb-4">
         <TabBar>
           <TabBar.Item active={location.pathname.endsWith("/change-url")}>
-            <Link
-              to={`./change-url?${DeepSearchParam}=true`}
-              preventScrollReset
-            >
+            <Link to={`./change-url?${Deep}=true`} preventScrollReset>
               {t("content.changeUrl")}
             </Link>
           </TabBar.Item>
           <TabBar.Item active={location.pathname.endsWith("/delete")}>
-            <Link to={`./delete?${DeepSearchParam}=true`} preventScrollReset>
+            <Link to={`./delete?${Deep}=true`} preventScrollReset>
               {t("content.organizationDelete")}
             </Link>
           </TabBar.Item>

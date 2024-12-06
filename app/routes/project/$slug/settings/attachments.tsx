@@ -49,9 +49,9 @@ import {
 } from "./attachments/edit";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
 } from "./utils.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 
 const MAX_UPLOAD_SIZE = 6 * 1024 * 1024; // 6MB
 const i18nNS = ["routes/project/settings/attachments"];
@@ -374,7 +374,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   const submissionHash =
-    typeof submission !== "undefined" ? getSubmissionHash(submission) : null;
+    typeof submission !== "undefined" ? getHash(submission) : null;
 
   return json({
     status: "success",
@@ -711,7 +711,7 @@ function Attachments() {
                             />
                             <MaterialList.Item.Controls.Delete type="submit" />
                             <Link
-                              to={`?${DeepSearchParam}=true&modal-${relation.document.id}=true`}
+                              to={`?${Deep}=true&modal-${relation.document.id}=true`}
                               preventScrollReset
                             >
                               <MaterialList.Item.Controls.Edit />
@@ -985,7 +985,7 @@ function Attachments() {
                           />
                           <MaterialList.Item.Controls.Delete type="submit" />
                           <Link
-                            to={`?${DeepSearchParam}=true&modal-${relation.image.id}=true`}
+                            to={`?${Deep}=true&modal-${relation.image.id}=true`}
                             preventScrollReset
                           >
                             <MaterialList.Item.Controls.Edit />

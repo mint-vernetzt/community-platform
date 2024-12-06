@@ -9,14 +9,6 @@
     "back": "Website and social networks",
     "intro": "Where can the community find out more about your organization?"
   },
-  "modal": {
-    "unsavedChanges": {
-      "title": "Unsaved changes",
-      "description": "You have unsaved changes. These will be lost if you go one step further now.",
-      "proceed": "Discard changes",
-      "cancel": "Cancel"
-    }
-  },
   "form": {
     "reset": "Discard changes",
     "submit": "Save",
@@ -28,42 +20,42 @@
       "headline": "Website",
       "url": {
         "label": "URL",
-        "placeholder": "domainname.tld"
+        "placeholder": "https://subdomain.domain.tld/..."
       }
     },
     "socialNetworks": {
       "headline": "Social networks",
       "facebook": {
         "label": "Facebook",
-        "placeholder": "facebook.com/<name>"
+        "placeholder": "https://facebook.com/..."
       },
       "linkedin": {
         "label": "LinkedIn",
-        "placeholder": "linkedin.com/company/<name>"
+        "placeholder": "https://linkedin.com/..."
       },
       "xing": {
         "label": "Xing",
-        "placeholder": "xing.com/pages/<name>"
+        "placeholder": "https://xing.com/..."
       },
       "twitter": {
         "label": "X (Twitter)",
-        "placeholder": "twitter.com/<name>"
+        "placeholder": "https://x.com/..."
       },
       "mastodon": {
         "label": "Mastodon",
-        "placeholder": "domainname.tld/@<name>"
+        "placeholder": "https://subdomain.domain.tld/..."
       },
       "tiktok": {
         "label": "TikTok",
-        "placeholder": "tiktok.com/@<name>"
+        "placeholder": "https://tiktok.com/..."
       },
       "instagram": {
         "label": "Instagram",
-        "placeholder": "instagram.com/<name>"
+        "placeholder": "https://instagram.com/..."
       },
       "youtube": {
         "label": "YouTube",
-        "placeholder": "youtube.com/@<name>"
+        "placeholder": "https://youtube.com/..."
       }
     }
   }

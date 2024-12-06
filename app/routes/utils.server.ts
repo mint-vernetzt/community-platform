@@ -5,10 +5,8 @@ import { type TFunction } from "i18next";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
-import {
-  searchProfilesSchema,
-  SearchProfilesSearchParam,
-} from "~/form-helpers";
+import { searchProfilesSchema } from "~/form-helpers";
+import { SearchProfiles } from "~/lib/utils/searchParams";
 import { getPublicURL } from "~/storage.server";
 import { type Mode } from "~/utils.server";
 
@@ -292,7 +290,7 @@ export async function searchProfiles(options: {
   });
   if (
     submission.status !== "success" ||
-    submission.value[SearchProfilesSearchParam] === undefined
+    submission.value[SearchProfiles] === undefined
   ) {
     return {
       searchedProfiles: [] as Awaited<ReturnType<typeof prismaQuery>>,
@@ -300,7 +298,7 @@ export async function searchProfiles(options: {
     };
   }
 
-  const query = submission.value[SearchProfilesSearchParam].trim().split(" ");
+  const query = submission.value[SearchProfiles].trim().split(" ");
   const whereStatements: WhereStatements = [];
   if (idsToExclude !== undefined && idsToExclude.length > 0) {
     whereStatements.push({
