@@ -8,7 +8,7 @@
     "steps": {
       "headline": "Set up your network correctly in 3 steps:",
       "checkExisting": {
-        "headline": "Check whether your network organization has already been created and add yourself as a team member if necessary.",
+        "headline": "Check if your network organization has already been created. If so, add yourself as a team member.",
         "description": "To do this, go to <0>“Add me to an organization”</0>. Here you can search for your organization or network on the platform <0>and add yourself.</0> If your network organization has not yet been created, you can do this in the following step."
       },
       "createNetwork": {
