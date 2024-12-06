@@ -38,7 +38,7 @@ import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
 } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 
@@ -162,7 +162,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   if (submission.intent !== "submit") {
     return json({ status: "idle", submission, hash } as const);

@@ -35,7 +35,7 @@ import { getToast, redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
 } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 
@@ -242,7 +242,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT);
-  const hash = getSubmissionHash({ action: action });
+  const hash = getHash({ action: action });
   if (action !== null && typeof action === "string") {
     if (action.startsWith("add_")) {
       const username = action.replace("add_", "");

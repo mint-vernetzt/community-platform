@@ -13,11 +13,18 @@ import {
   useLocation,
   useNavigation,
 } from "@remix-run/react";
+import * as Sentry from "@sentry/remix";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
+import {
+  i18nNS as i18nNSUnsavedChangesModal,
+  useUnsavedChangesBlockerWithModal,
+} from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { getHash } from "~/lib/string/transform";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   checkboxSchema,
@@ -35,18 +42,11 @@ import { detectLanguage } from "~/root.server";
 import { VisibilityCheckbox } from "~/routes/__components";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
-import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
 import { redirectWithToast } from "~/toast.server";
 import {
   getOrganizationWebSocial,
   updateOrganizationWebSocial,
 } from "./web-social.server";
-import { useHydrated } from "remix-utils/use-hydrated";
-import * as Sentry from "@sentry/remix";
-import {
-  i18nNS as i18nNSUnsavedChangesModal,
-  useUnsavedChangesBlockerWithModal,
-} from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({
@@ -139,7 +139,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     };
   }
 
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   return redirectWithToast(request.url, {
     id: "update-web-social-toast",
@@ -157,8 +157,10 @@ function WebSocial() {
   const isHydrated = useHydrated();
 
   const { organizationVisibility, ...rest } = organization;
+  const hash = getHash(organization);
   const [form, fields] = useForm({
-    id: "web-social-form",
+    // Use different ids depending on loaderData to sync dirty state
+    id: `web-social-form-${hash}`,
     defaultValue: {
       ...rest,
       visibilities: organizationVisibility,
@@ -332,7 +334,11 @@ function WebSocial() {
                   variant="outline"
                   fullSize
                   // Don't disable button when js is disabled
-                  disabled={isHydrated ? form.dirty === false : false}
+                  disabled={
+                    isHydrated
+                      ? form.dirty === false || form.valid === false
+                      : false
+                  }
                 >
                   {t("form.reset")}
                 </Button>
@@ -342,7 +348,11 @@ function WebSocial() {
                   defaultValue="submit"
                   fullSize
                   // Don't disable button when js is disabled
-                  disabled={isHydrated ? form.dirty === false : false}
+                  disabled={
+                    isHydrated
+                      ? form.dirty === false || form.valid === false
+                      : false
+                  }
                 >
                   {t("form.submit")}
                 </Button>

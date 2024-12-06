@@ -141,11 +141,12 @@ function Delete() {
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
+  // Validate on first render
   React.useEffect(() => {
     if (isHydrated) {
       form.validate();
     }
-  }, [form, isHydrated]);
+  }, []);
 
   return (
     <>

@@ -41,7 +41,7 @@ export const createWebsiteSchema = (t: TFunction) =>
     .regex(
       // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
       // eslint-disable-next-line no-useless-escape
-      /^(https?:\/\/)?(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
+      /^(https:\/\/)(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
       {
         message: t("validation.website.regex", { ns: i18nNS }),
       }
@@ -55,13 +55,13 @@ export const createWebsiteSchema = (t: TFunction) =>
       if (trimmedValue === "") {
         return null;
       }
-      return addProtocolToUrl(trimmedValue);
+      return trimmedValue;
     });
 
 export const createFacebookSchema = (t: TFunction) =>
   z
     .string()
-    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?facebook.com\/.+$|^$/, {
+    .regex(/^(https:\/\/)([a-z0-9]+\.)?facebook.com\/.+$|^$/, {
       message: t("validation.facebook.regex", { ns: i18nNS }),
     })
     .optional()
@@ -73,13 +73,13 @@ export const createFacebookSchema = (t: TFunction) =>
       if (trimmedValue === "") {
         return null;
       }
-      return addProtocolToUrl(trimmedValue);
+      return trimmedValue;
     });
 
 export const createLinkedinSchema = (t: TFunction) =>
   z
     .string()
-    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?linkedin.com\/.+$|^$/, {
+    .regex(/^(https:\/\/)([a-z0-9]+\.)?linkedin.com\/.+$|^$/, {
       message: t("validation.linkedin.regex", { ns: i18nNS }),
     })
     .optional()
@@ -91,13 +91,13 @@ export const createLinkedinSchema = (t: TFunction) =>
       if (trimmedValue === "") {
         return null;
       }
-      return addProtocolToUrl(trimmedValue);
+      return trimmedValue;
     });
 
 export const createXingSchema = (t: TFunction) =>
   z
     .string()
-    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?xing.com\/.+$|^$/, {
+    .regex(/^(https:\/\/)([a-z0-9]+\.)?xing.com\/.+$|^$/, {
       message: t("validation.xing.regex", { ns: i18nNS }),
     })
     .optional()
@@ -109,13 +109,13 @@ export const createXingSchema = (t: TFunction) =>
       if (trimmedValue === "") {
         return null;
       }
-      return addProtocolToUrl(trimmedValue);
+      return trimmedValue;
     });
 
 export const createTwitterSchema = (t: TFunction) =>
   z
     .string()
-    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?(twitter|x).com\/.+$|^$/, {
+    .regex(/^(https:\/\/)([a-z0-9]+\.)?(twitter|x).com\/.+$|^$/, {
       message: t("validation.twitter.regex", { ns: i18nNS }),
     })
     .optional()
@@ -127,7 +127,7 @@ export const createTwitterSchema = (t: TFunction) =>
       if (trimmedValue === "") {
         return null;
       }
-      return addProtocolToUrl(trimmedValue);
+      return trimmedValue;
     });
 
 export const createMastodonSchema = (t: TFunction) =>
@@ -136,7 +136,7 @@ export const createMastodonSchema = (t: TFunction) =>
     .regex(
       // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
       // eslint-disable-next-line no-useless-escape
-      /^(https?:\/\/)?([a-z0-9]+\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,6}\/.+$|^$/,
+      /^(https:\/\/)([a-z0-9]+\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,6}\/.+$|^$/,
       {
         message: t("validation.mastodon.regex", { ns: i18nNS }),
       }
@@ -150,13 +150,13 @@ export const createMastodonSchema = (t: TFunction) =>
       if (trimmedValue === "") {
         return null;
       }
-      return addProtocolToUrl(trimmedValue);
+      return trimmedValue;
     });
 
 export const createBlueskySchema = (t: TFunction) =>
   z
     .string()
-    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?bsky.app\/.+$|^$/, {
+    .regex(/^(https:\/\/)([a-z0-9]+\.)?bsky.app\/.+$|^$/, {
       message: t("validation.bluesky.regex", { ns: i18nNS }),
     })
     .optional()
@@ -168,13 +168,13 @@ export const createBlueskySchema = (t: TFunction) =>
       if (trimmedValue === "") {
         return null;
       }
-      return addProtocolToUrl(trimmedValue);
+      return trimmedValue;
     });
 
 export const createTiktokSchema = (t: TFunction) =>
   z
     .string()
-    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?tiktok.com\/.+$|^$/, {
+    .regex(/^(https:\/\/)([a-z0-9]+\.)?tiktok.com\/.+$|^$/, {
       message: t("validation.tiktok.regex", { ns: i18nNS }),
     })
     .optional()
@@ -186,13 +186,13 @@ export const createTiktokSchema = (t: TFunction) =>
       if (trimmedValue === "") {
         return null;
       }
-      return addProtocolToUrl(trimmedValue);
+      return trimmedValue;
     });
 
 export const createInstagramSchema = (t: TFunction) =>
   z
     .string()
-    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?instagram.com\/.+$|^$/, {
+    .regex(/^(https:\/\/)([a-z0-9]+\.)?instagram.com\/.+$|^$/, {
       message: t("validation.instagram.regex", { ns: i18nNS }),
     })
     .optional()
@@ -204,13 +204,13 @@ export const createInstagramSchema = (t: TFunction) =>
       if (trimmedValue === "") {
         return null;
       }
-      return addProtocolToUrl(trimmedValue);
+      return trimmedValue;
     });
 
 export const createYoutubeSchema = (t: TFunction) =>
   z
     .string()
-    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?youtube.com\/.+$|^$/, {
+    .regex(/^(https:\/\/)([a-z0-9]+\.)?youtube.com\/.+$|^$/, {
       message: t("validation.youtube.regex", { ns: i18nNS }),
     })
     .optional()
@@ -222,7 +222,7 @@ export const createYoutubeSchema = (t: TFunction) =>
       if (trimmedValue === "") {
         return null;
       }
-      return addProtocolToUrl(trimmedValue);
+      return trimmedValue;
     });
 
 export const createYoutubeEmbedSchema = (t: TFunction) =>

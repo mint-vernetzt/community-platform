@@ -8,7 +8,7 @@ import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
 } from "../utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 
@@ -97,7 +97,7 @@ export const action = async (args: ActionFunctionArgs) => {
     schema = imageSchema;
   }
   const submission = parse(formData, { schema });
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   if (typeof submission.value !== "undefined" && submission.value !== null) {
     const { id, type, ...rest } = submission.value;

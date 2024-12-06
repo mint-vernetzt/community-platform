@@ -14,7 +14,6 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { type TFunction } from "i18next";
-import React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -25,7 +24,6 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { redirectWithToast } from "~/toast.server";
 import { useHydrated } from "remix-utils/use-hydrated";
@@ -33,6 +31,7 @@ import {
   i18nNS as i18nNSUnsavedChangesModal,
   useUnsavedChangesBlockerWithModal,
 } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { getHash } from "~/lib/string/transform";
 
 const i18nNS = [
   "routes/next/organization/settings/danger-zone/change-url",
@@ -89,7 +88,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const submission = await parseWithZod(formData, {
     schema: createSchema(t).transform(async (data, ctx) => {
       const organization = await prismaClient.organization.findFirst({
-        where: { slug: params.slug },
+        where: { slug: data.slug },
         select: {
           slug: true,
         },
@@ -122,7 +121,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const url = new URL(request.url);
   const pathname = url.pathname.replace(params.slug, submission.value.slug);
 
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   return redirectWithToast(`${pathname}?${Deep}=true`, {
     id: "settings-toast",
@@ -140,7 +139,7 @@ function ChangeURL() {
   const { t } = useTranslation(i18nNS);
 
   const [form, fields] = useForm({
-    id: "change-url-form",
+    id: `change-url-form-${getHash(loaderData)}`,
     defaultValue: {
       slug: loaderData.slug,
     },
@@ -176,7 +175,12 @@ function ChangeURL() {
         />
       </p>
       <p>{t("content.note")}</p>
-      <Form {...getFormProps(form)} method="post" autoComplete="off">
+      <Form
+        {...getFormProps(form)}
+        method="post"
+        autoComplete="off"
+        preventScrollReset
+      >
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <Input
             {...getInputProps(fields.slug, { type: "text" })}
@@ -193,6 +197,13 @@ function ChangeURL() {
                   </Input.Error>
                 ))
               : null}
+            {typeof form.errors !== "undefined" && form.errors.length > 0
+              ? form.errors.map((error) => (
+                  <Input.Error id={form.errorId} key={error}>
+                    {error}
+                  </Input.Error>
+                ))
+              : null}
           </Input>
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
@@ -200,7 +211,11 @@ function ChangeURL() {
                 type="submit"
                 level="negative"
                 fullSize
-                disabled={isHydrated ? form.dirty === false : false}
+                disabled={
+                  isHydrated
+                    ? form.dirty === false || form.valid === false
+                    : false
+                }
               >
                 {t("content.action")}
               </Button>

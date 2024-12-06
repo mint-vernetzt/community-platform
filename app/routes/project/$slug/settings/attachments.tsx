@@ -49,7 +49,7 @@ import {
 } from "./attachments/edit";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
 } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 
@@ -374,7 +374,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   const submissionHash =
-    typeof submission !== "undefined" ? getSubmissionHash(submission) : null;
+    typeof submission !== "undefined" ? getHash(submission) : null;
 
   return json({
     status: "success",

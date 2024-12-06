@@ -25,7 +25,7 @@ import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
 } from "../utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 
@@ -139,7 +139,7 @@ export const action = async (args: ActionFunctionArgs) => {
     const url = new URL(request.url);
     const pathname = url.pathname.replace(params.slug, submission.value.slug);
 
-    const hash = getSubmissionHash(submission);
+    const hash = getHash(submission);
 
     return redirectWithToast(
       `${pathname}?${Deep}=true`,
