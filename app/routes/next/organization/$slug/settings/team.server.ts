@@ -238,7 +238,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
   const toast: Toast = {
     id: "invite-team-member-toast",
     key: hash,
-    message: t("content.profileAdded", {
+    message: t("content.profileInvited", {
       firstName: profile.firstName,
       lastName: profile.lastName,
     }),

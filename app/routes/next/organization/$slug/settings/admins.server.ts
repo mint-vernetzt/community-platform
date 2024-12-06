@@ -238,7 +238,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   const toast: Toast = {
     id: "invite-admin-toast",
     key: hash,
-    message: t("content.profileAdded", {
+    message: t("content.profileInvited", {
       firstName: profile.firstName,
       lastName: profile.lastName,
     }),

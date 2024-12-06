@@ -16,9 +16,9 @@
     }
   },
   "content": {
-    "profileAdded": "{{firstName}} {{lastName}} hinzugefügt",
-    "profileRemoved": "{{firstName}} {{lastName}} entfernt",
-    "inviteCancelled": "Die Einladung an {{firstName}} {{lastName}} wurde zurückgezogen",
+    "profileInvited": "{{firstName}} {{lastName}} wurde eingeladen Teammitglied zu werden.",
+    "profileRemoved": "{{firstName}} {{lastName}} als Teammitglied entfernt.",
+    "inviteCancelled": "Die Einladung an {{firstName}} {{lastName}} wurde zurückgezogen.",
     "headline": "Team",
     "intro": "Wer ist Teil Eurer Organisation? Füge hier weitere Teammitglieder hinzu oder entferne sie. Teammitglieder werden auf der Organisations Detailseite gezeigt. Sie können Organisationen nicht bearbeiten.",
     "current": {
