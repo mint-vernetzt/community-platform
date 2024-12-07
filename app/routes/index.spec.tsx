@@ -8,7 +8,7 @@ import { expect, test, vi } from "vitest";
 import { createServerClient } from "~/__mocks__/auth.server";
 import { prismaClient } from "~/__mocks__/prisma.server";
 import i18n from "./../../tests/i18n-for-tests";
-import { consoleError } from "./../../tests/setup/setup-test-env";
+import { consoleError } from "./../../tests/setup-test-env";
 import { default as LandingPageRoute, loader } from "./index";
 import { AuthError } from "@supabase/supabase-js";
 
