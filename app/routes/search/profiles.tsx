@@ -21,11 +21,11 @@ import {
   getTakeParam,
   searchProfilesViaLike,
 } from "./utils.server";
-// import styles from "../../../common/design/styles/styles.css";
+// import styles from "../../../common/design/styles/styles.css?url";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-const i18nNS = ["routes/search/profiles", "datasets/offers"];
+const i18nNS = ["routes/search/profiles", "datasets/offers"] as const;
 export const handle = {
   i18n: i18nNS,
 };

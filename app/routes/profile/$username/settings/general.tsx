@@ -16,7 +16,7 @@ import { type TFunction } from "i18next";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
-import quillStyles from "react-quill/dist/quill.snow.css";
+import quillStyles from "react-quill/dist/quill.snow.css?url";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import {
@@ -58,7 +58,7 @@ import {
 } from "../utils.server";
 import { getProfileByUsername } from "./general.server";
 
-const i18nNS = ["routes/profile/settings/general", "datasets/offers"];
+const i18nNS = ["routes/profile/settings/general", "datasets/offers"] as const;
 export const handle = {
   i18n: i18nNS,
 };

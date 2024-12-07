@@ -43,7 +43,7 @@ const i18nNS = [
   "routes/project/settings/general",
   "utils/schemas",
   "datasets/formats",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

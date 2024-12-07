@@ -42,7 +42,7 @@ import {
   type action as removeMemberAction,
 } from "./team/remove-member";
 
-const i18nNS = ["routes/organization/settings/team"];
+const i18nNS = ["routes/organization/settings/team"] as const;
 export const handle = {
   i18n: i18nNS,
 };

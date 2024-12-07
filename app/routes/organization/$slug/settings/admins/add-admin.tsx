@@ -18,7 +18,7 @@ import { detectLanguage } from "~/root.server";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 
-const i18nNS = ["routes/organization/settings/admin/add-admin"];
+const i18nNS = ["routes/organization/settings/admin/add-admin"] as const;
 export const handle = {
   i18n: i18nNS,
 };

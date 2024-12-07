@@ -25,7 +25,7 @@ import {
 import { type TFunction } from "i18next";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import quillStyles from "react-quill/dist/quill.snow.css";
+import quillStyles from "react-quill/dist/quill.snow.css?url";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
@@ -47,7 +47,10 @@ import {
 } from "./utils.server";
 import { DeepSearchParam } from "~/form-helpers";
 
-const i18nNS = ["routes/project/settings/requirements", "datasets/financings"];
+const i18nNS = [
+  "routes/project/settings/requirements",
+  "datasets/financings",
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

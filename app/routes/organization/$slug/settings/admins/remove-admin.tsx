@@ -15,7 +15,7 @@ import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/organization/settings/admin/remove-admin"];
+const i18nNS = ["routes/organization/settings/admin/remove-admin"] as const;
 export const handle = {
   i18n: i18nNS,
 };

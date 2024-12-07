@@ -55,7 +55,7 @@ const createWebSocialSchema = (t: TFunction) =>
     youtube: createYoutubeSchema(t),
   });
 
-const i18nNS = ["routes/project/settings/web-social", "utils/schemas"];
+const i18nNS = ["routes/project/settings/web-social", "utils/schemas"] as const;
 export const handle = {
   i18n: i18nNS,
 };

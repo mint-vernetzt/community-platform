@@ -23,7 +23,7 @@ import { detectLanguage } from "~/root.server";
 import { deriveProfileMode } from "../utils.server";
 import { getProfileByUsername } from "./security.server";
 
-const i18nNS = ["routes/profile/settings/security"];
+const i18nNS = ["routes/profile/settings/security"] as const;
 export const handle = {
   i18n: i18nNS,
 };

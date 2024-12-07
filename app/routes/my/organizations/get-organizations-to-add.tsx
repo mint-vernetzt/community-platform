@@ -1,5 +1,4 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "react-router-dom";
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getOrganizationsToAdd } from "./get-organizations-to-add.server";
 

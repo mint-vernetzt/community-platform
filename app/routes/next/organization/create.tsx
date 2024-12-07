@@ -45,7 +45,7 @@ const i18nNS = [
   "routes/next/organization/create",
   "datasets/organizationTypes",
   "datasets/networkTypes",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

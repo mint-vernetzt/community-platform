@@ -19,7 +19,11 @@ import {
 } from "./__events.components";
 import { getEvents } from "./events.server";
 
-export const i18nNS = ["routes/my/events", "datasets/stages", "components"];
+export const i18nNS = [
+  "routes/my/events",
+  "datasets/stages",
+  "components",
+] as const;
 
 export const handle = {
   i18n: i18nNS,

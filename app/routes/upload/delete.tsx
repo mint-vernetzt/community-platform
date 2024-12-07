@@ -20,7 +20,7 @@ import {
   removeImageFromProject,
 } from "./delete.server";
 
-const i18nNS = ["routes/upload/delete"];
+const i18nNS = ["routes/upload/delete"] as const;
 export const handle = {
   i18n: i18nNS,
 };

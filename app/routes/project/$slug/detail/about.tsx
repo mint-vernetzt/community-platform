@@ -33,7 +33,7 @@ const i18nNS = [
   "datasets/projectTargetGroups",
   "datasets/specialTargetGroups",
   "datasets/organizationTypes",
-];
+] as const;
 
 export const handle = {
   i18n: i18nNS,

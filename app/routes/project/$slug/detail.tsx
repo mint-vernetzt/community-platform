@@ -24,8 +24,8 @@ import {
   useLocation,
   useMatches,
 } from "@remix-run/react";
-import rcSliderStyles from "rc-slider/assets/index.css";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
@@ -41,7 +41,7 @@ import { deriveProjectMode } from "../utils.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/project/detail", "components/image-cropper"];
+const i18nNS = ["routes/project/detail", "components/image-cropper"] as const;
 
 export const handle = {
   i18n: i18nNS,

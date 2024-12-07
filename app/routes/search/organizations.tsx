@@ -25,7 +25,7 @@ import {
   getTakeParam,
   searchOrganizationsViaLike,
 } from "./utils.server";
-// import styles from "../../../common/design/styles/styles.css";
+// import styles from "../../../common/design/styles/styles.css?url";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -33,7 +33,7 @@ const i18nNS = [
   "routes/search/organizations",
   "datasets/organizationTypes",
   "datasets/focuses",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

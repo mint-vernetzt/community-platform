@@ -1,14 +1,14 @@
+import { RemixBrowser, useLocation, useMatches } from "@remix-run/react";
+import * as Sentry from "@sentry/remix";
 import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import Backend from "i18next-http-backend";
+import backend from "i18next-fs-backend/cjs";
 import { StrictMode, startTransition, useEffect } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { I18nextProvider, initReactI18next } from "react-i18next";
-import { getInitialNamespaces } from "remix-i18next";
+import { getInitialNamespaces } from "remix-i18next/client";
 import i18n from "./i18n";
 import { localesUrl, requestOptions } from "./lib/no-cache";
-import { RemixBrowser, useLocation, useMatches } from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
 
 if (ENV.MODE === "production" && ENV.SENTRY_DSN) {
   Sentry.init({
@@ -32,10 +32,14 @@ async function hydrate() {
   await i18next
     .use(initReactI18next)
     .use(LanguageDetector)
-    .use(Backend)
+    .use(backend)
     .init({
       ...i18n,
-      ns: getInitialNamespaces(),
+      ns:
+        typeof window !== "undefined" &&
+        typeof window.__reactRouterRouteModules !== "undefined"
+          ? getInitialNamespaces()
+          : [],
       backend: {
         loadPath: localesUrl,
         requestOptions: requestOptions(),
@@ -50,12 +54,11 @@ async function hydrate() {
   startTransition(() => {
     hydrateRoot(
       document,
-
-      <I18nextProvider i18n={i18next}>
-        <StrictMode>
+      <StrictMode>
+        <I18nextProvider i18n={i18next}>
           <RemixBrowser />
-        </StrictMode>
-      </I18nextProvider>
+        </I18nextProvider>
+      </StrictMode>
     );
   });
 }

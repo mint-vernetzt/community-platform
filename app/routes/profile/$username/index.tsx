@@ -9,10 +9,10 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import rcSliderStyles from "rc-slider/assets/index.css";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
@@ -55,7 +55,7 @@ const i18nNS = [
   "datasets/stages",
   "datasets/organizationTypes",
   "components/image-cropper",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

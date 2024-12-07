@@ -36,7 +36,7 @@ import {
 } from "./create.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 
-const i18nNS = ["routes/organization/create"];
+const i18nNS = ["routes/organization/create"] as const;
 export const handle = {
   i18n: i18nNS,
 };

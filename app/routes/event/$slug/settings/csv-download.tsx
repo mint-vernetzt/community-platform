@@ -1,6 +1,5 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { type TFunction } from "i18next";
-import { redirect } from "react-router-dom";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,

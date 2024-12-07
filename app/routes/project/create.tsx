@@ -19,7 +19,7 @@ import { detectLanguage } from "~/root.server";
 import { deriveMode, generateProjectSlug } from "~/utils.server";
 import { getSubmissionHash } from "./$slug/settings/utils.server";
 
-const i18nNS = ["routes/project/create"];
+const i18nNS = ["routes/project/create"] as const;
 export const handle = {
   i18n: i18nNS,
 };

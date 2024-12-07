@@ -34,7 +34,7 @@ import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/event/create"];
+const i18nNS = ["routes/event/create"] as const;
 export const handle = {
   i18n: i18nNS,
 };

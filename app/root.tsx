@@ -10,14 +10,13 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
+  isRouteErrorResponse,
   Link,
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-  isRouteErrorResponse,
   useLoaderData,
   useLocation,
   useMatches,
@@ -29,29 +28,28 @@ import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useChangeLanguage } from "remix-i18next";
+import { useChangeLanguage } from "remix-i18next/react";
+import { ToastContainer } from "./__toast.components";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import { H1, H2 } from "./components/Heading/Heading";
+import { RichText } from "./components/Richtext/RichText";
+import { getEnv } from "./env.server";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
+import { getFeatureAbilities } from "./lib/utils/application";
 import { detectLanguage, getProfileByUserId } from "./root.server";
 import {
+  Footer,
   LoginOrRegisterCTA,
   Modal,
-  NavBarMenu,
-  Footer,
   NavBar,
+  NavBarMenu,
 } from "./routes/__components";
 import { getPublicURL } from "./storage.server";
-import legacyStyles from "./styles/legacy-styles.css";
-import { combineHeaders, deriveMode } from "./utils.server";
+import legacyStyles from "./styles/legacy-styles.css?url";
 import { getToast } from "./toast.server";
-import { ToastContainer } from "./__toast.components";
-import { getEnv } from "./env.server";
-import { getFeatureAbilities } from "./lib/utils/application";
-import { RichText } from "./components/Richtext/RichText";
-
-// import newStyles from "../common/design/styles/styles.css";
+import { combineHeaders, deriveMode } from "./utils.server";
+import Cookies from "js-cookie";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -178,17 +176,19 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 };
 
+const i18nNS = [
+  "meta",
+  "organisms/footer",
+  "organisms/roadmap",
+  "utils/social-media-services",
+  "components/image-cropper",
+  "organisms/cards/event-card",
+  "organisms/cards/profile-card",
+  "organisms/cards/organization-card",
+] as const;
+
 export const handle = {
-  i18n: [
-    "meta",
-    "organisms/footer",
-    "organisms/roadmap",
-    "utils/social-media-services",
-    "components/image-cropper",
-    "organisms/cards/event-card",
-    "organisms/cards/profile-card",
-    "organisms/cards/organization-card",
-  ],
+  i18n: i18nNS,
 };
 
 export const ErrorBoundary = () => {
@@ -198,7 +198,9 @@ export const ErrorBoundary = () => {
   const hasRootLoaderData =
     typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
 
-  const { i18n } = useTranslation();
+  useChangeLanguage(rootLoaderData?.locale || Cookies.get("i18next") || "de");
+  const { i18n } = useTranslation(i18nNS);
+
   const [searchParams] = useSearchParams();
   const openNavBarMenuKey = "navbarmenu";
   const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
@@ -301,14 +303,12 @@ export const ErrorBoundary = () => {
           />
         ) : null}
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   );
 };
 
 export default function App() {
-  const location = useLocation();
   const {
     matomoUrl,
     matomoSiteId,
@@ -320,6 +320,8 @@ export default function App() {
     ENV,
     abilities,
   } = useLoaderData<typeof loader>();
+  useChangeLanguage(locale);
+  const location = useLocation();
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
@@ -374,11 +376,10 @@ export default function App() {
       "mv-overflow-hidden xl:mv-overflow-visible"
   );
 
-  const { i18n } = useTranslation();
-  useChangeLanguage(locale);
+  const { i18n } = useTranslation(i18nNS);
 
   const main = (
-    <main className="flex-auto relative w-full mv-bg-neutral-50">
+    <main className="mv-flex-auto mv-relative mv-w-full mv-bg-neutral-50">
       {alert !== null &&
       isNonAppBaseRoute === false &&
       isIndexRoute === false ? (
@@ -402,10 +403,10 @@ export default function App() {
   // Scroll to top button
   // Should this be a component?
   const scrollButton = (
-    <div className={`${isSettings ? "hidden @md:mv-block " : ""}w-0`}>
-      <div className="w-0 h-4"></div>
-      <div className="w-0 h-screen sticky top-0">
-        <div className="absolute bottom-4 -left-20">
+    <div className={`${isSettings ? "mv-hidden @md:mv-block " : ""}mv-w-0`}>
+      <div className="mv-w-0 mv-h-4"></div>
+      <div className="mv-w-0 mv-h-screen mv-sticky mv-top-0">
+        <div className="mv-absolute mv-bottom-4 -mv-left-20">
           <Link to={`${location.pathname}${location.search}#`}>
             <CircleButton size="large" floating>
               <svg
@@ -465,7 +466,7 @@ export default function App() {
 
       <body className={bodyClasses}>
         <div className={bodyClasses}>
-          <div id="top" className="flex flex-col mv-min-h-screen">
+          <div id="top" className="mv-flex mv-flex-col mv-min-h-screen">
             <div
               className={`${
                 showFilters ? "mv-hidden container-lg:mv-block " : " "
@@ -492,7 +493,7 @@ export default function App() {
                 {isIndexRoute === false && isNonAppBaseRoute === false && (
                   <LoginOrRegisterCTA isAnon={mode === "anon"} />
                 )}
-                <div className="flex flex-nowrap min-h-[calc(100dvh - 76px)] xl:min-h-[calc(100dvh - 80px)]">
+                <div className="mv-flex mv-flex-nowrap mv-min-h-[calc(100dvh - 76px)] xl:mv-min-h-[calc(100dvh - 80px)]">
                   {main}
                   {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
                   {scrollButton}
@@ -510,7 +511,6 @@ export default function App() {
           }}
         />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   );

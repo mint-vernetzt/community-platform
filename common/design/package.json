@@ -23,7 +23,7 @@
   "scripts": {
     "storybook::develop": "storybook dev -p 6006",
     "storybook::build": "storybook build -o build",
-    "styles::build": "npx tailwindcss -i ./styles/tailwind.css -o ./styles/styles.css",
+    "styles::build": "npx tailwindcss -i ./styles/tailwind.css -o ./styles/styles.css --minify",
     "styles::develop": "npm run styles::build -- --watch",
     "develop": "npm run styles::develop | npm run storybook::develop",
     "build": "npm run styles::build && npm run storybook::build"

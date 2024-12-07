@@ -53,9 +53,9 @@ import {
   getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-// import styles from "../../../common/design/styles/styles.css";
+// import styles from "../../../common/design/styles/styles.css?url";
 
-const i18nNS = ["routes/explore/profiles", "datasets/offers"];
+const i18nNS = ["routes/explore/profiles", "datasets/offers"] as const;
 export const handle = {
   i18n: i18nNS,
 };

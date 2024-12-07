@@ -58,7 +58,7 @@ import {
   getVisibilityFilteredProjectsCount,
 } from "./projects.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-// import styles from "../../../common/design/styles/styles.css";
+// import styles from "../../../common/design/styles/styles.css?url";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -70,7 +70,7 @@ const i18nNS = [
   "datasets/projectTargetGroups",
   "datasets/formats",
   "datasets/specialTargetGroups",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

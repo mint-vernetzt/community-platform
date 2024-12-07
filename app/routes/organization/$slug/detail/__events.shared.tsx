@@ -1,1 +1,4 @@
-export const i18nNS = ["routes/organization/detail/events", "datasets/stages"];
+export const i18nNS = [
+  "routes/organization/detail/events",
+  "datasets/stages",
+] as const;

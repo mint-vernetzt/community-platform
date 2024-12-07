@@ -18,7 +18,7 @@ import {
 } from "./uploadHandler.server";
 import { uploadKeys, type Subject } from "./utils.server";
 
-const i18nNS = ["routes/upload/image"];
+const i18nNS = ["routes/upload/image"] as const;
 export const handle = {
   i18n: i18nNS,
 };

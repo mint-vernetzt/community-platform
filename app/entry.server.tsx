@@ -7,16 +7,15 @@ import type {
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import * as Sentry from "@sentry/remix";
-import { createInstance, type i18n } from "i18next";
-import Backend from "i18next-fs-backend";
 import { isbot } from "isbot";
 import { resolve } from "node:path";
 import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
+import { createInstance } from "i18next";
+import i18next from "./i18next.server";
 import { I18nextProvider, initReactI18next } from "react-i18next";
-import i18nConfig from "~/i18n";
-import i18next from "~/i18next.server";
-import { detectLanguage } from "./root.server";
+import backend from "i18next-fs-backend/cjs";
+import i18n from "./i18n"; // your i18n configuration file
 import { getEnv, init } from "./env.server";
 
 init();
@@ -59,16 +58,17 @@ export default async function handleRequest(
   loadContext: AppLoadContext
 ) {
   // i18n
-  const i18nInstance = createInstance();
-  const lng = detectLanguage(request);
-  const ns = i18next.getRouteNamespaces(remixContext);
+  let i18nInstance = createInstance();
+  let lng = await i18next.getLocale(request);
+  let ns = i18next.getRouteNamespaces(remixContext);
+
   await i18nInstance
-    .use(initReactI18next)
-    .use(Backend)
+    .use(initReactI18next) // Tell our instance to use react-i18next
+    .use(backend) // Setup our backend
     .init({
-      ...i18nConfig,
-      lng,
-      ns,
+      ...i18n, // spread the configuration
+      lng, // The locale we detected above
+      ns, // The namespaces the routes about to render wants to use
       backend: {
         loadPath: function (lng: string, ns: string) {
           return resolve(`./public/locales/${lng}/${ns}.json`);
@@ -87,14 +87,14 @@ export default async function handleRequest(
         responseStatusCode,
         responseHeaders,
         remixContext,
-        i18nInstance as i18n
+        i18nInstance
       )
     : handleBrowserRequest(
         request,
         responseStatusCode,
         responseHeaders,
         remixContext,
-        i18nInstance as i18n
+        i18nInstance
       );
 }
 
@@ -103,7 +103,7 @@ function handleBotRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
-  i18nInstance: i18n
+  i18nInstance: ReturnType<typeof createInstance>
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
@@ -156,7 +156,7 @@ function handleBrowserRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
-  i18nInstance: i18n
+  i18nInstance: ReturnType<typeof createInstance>
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;

@@ -45,7 +45,7 @@ import {
 const i18nNS = [
   "routes/event/settings/organizations",
   "datasets/organizationTypes",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

@@ -19,7 +19,7 @@ import { detectLanguage } from "~/root.server";
 import { deriveOrganizationMode } from "../utils.server";
 import { deleteOrganizationBySlug, getProfileByUserId } from "./delete.server";
 
-const i18nNS = ["routes/organization/settings/delete"];
+const i18nNS = ["routes/organization/settings/delete"] as const;
 export const handle = {
   i18n: i18nNS,
 };

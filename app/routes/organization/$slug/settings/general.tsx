@@ -54,7 +54,7 @@ import {
 
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import quillStyles from "react-quill/dist/quill.snow.css";
+import quillStyles from "react-quill/dist/quill.snow.css?url";
 import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { detectLanguage } from "~/root.server";
@@ -64,7 +64,7 @@ const i18nNS = [
   "routes/organization/settings/general",
   "datasets/organizationTypes",
   "datasets/focuses",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

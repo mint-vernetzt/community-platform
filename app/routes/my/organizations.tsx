@@ -64,7 +64,7 @@ export const i18nNS = [
   "routes/my/organizations",
   "datasets/organizationTypes",
   "datasets/focuses",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

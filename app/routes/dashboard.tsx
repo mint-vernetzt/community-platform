@@ -30,7 +30,7 @@ import {
 } from "~/images.server";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
-import styles from "../../common/design/styles/styles.css";
+import styles from "../../common/design/styles/styles.css?url";
 import { Icon } from "./__components";
 import { TeaserCard, type TeaserIconType } from "./__dashboard.components";
 import {
@@ -60,7 +60,7 @@ const i18nNS = [
   "datasets/organizationTypes",
   "organisms/cards/event-card",
   "datasets/stages",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

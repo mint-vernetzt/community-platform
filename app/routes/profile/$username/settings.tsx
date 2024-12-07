@@ -8,7 +8,7 @@ import {
 } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 
-const i18nNS = ["routes/profile/settings"];
+const i18nNS = ["routes/profile/settings"] as const;
 export const handle = {
   i18n: i18nNS,
 };

@@ -32,7 +32,7 @@ import {
 import { detectLanguage } from "~/root.server";
 import i18next from "~/i18next.server";
 
-const i18nNS = ["routes/index", "help"];
+const i18nNS = ["routes/index", "help"] as const;
 export const handle = {
   i18n: i18nNS,
 };

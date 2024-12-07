@@ -18,7 +18,7 @@ import {
   inviteProfileToJoinOrganization,
 } from "./add-member.server";
 
-const i18nNS = ["routes/organization/settings/team/add-member"];
+const i18nNS = ["routes/organization/settings/team/add-member"] as const;
 export const handle = {
   i18n: i18nNS,
 };

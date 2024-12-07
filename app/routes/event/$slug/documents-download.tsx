@@ -12,7 +12,7 @@ import { detectLanguage } from "~/root.server";
 import i18next from "~/i18next.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 
-const i18nNS = ["routes/event/documents-download"];
+const i18nNS = ["routes/event/documents-download"] as const;
 
 export const handle = {
   i18n: i18nNS,

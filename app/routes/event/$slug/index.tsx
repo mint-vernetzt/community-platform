@@ -16,10 +16,10 @@ import { json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import { type TFunction } from "i18next";
-import rcSliderStyles from "rc-slider/assets/index.css";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
 import React from "react";
 import { Trans, useTranslation } from "react-i18next";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { z } from "zod";
 import {
   createEventAbuseReport,
@@ -86,7 +86,7 @@ const i18nNS = [
   "datasets/eventAbuseReportReasonSuggestions",
   "datasets/organizationTypes",
   "components/image-cropper",
-];
+] as const;
 
 export const handle = {
   i18n: i18nNS,

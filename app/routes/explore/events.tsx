@@ -68,7 +68,7 @@ const i18nNS = [
   "datasets/focuses",
   "datasets/stages",
   "datasets/eventTargetGroups",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

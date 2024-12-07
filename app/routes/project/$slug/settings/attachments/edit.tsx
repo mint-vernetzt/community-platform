@@ -12,7 +12,7 @@ import {
 } from "../utils.server";
 import { DeepSearchParam } from "~/form-helpers";
 
-const i18nNS = ["routes/project/settings/attachments/edit"];
+const i18nNS = ["routes/project/settings/attachments/edit"] as const;
 export const handle = {
   i18n: i18nNS,
 };

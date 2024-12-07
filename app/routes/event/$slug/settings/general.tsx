@@ -62,7 +62,7 @@ import {
   validateTimePeriods,
 } from "./utils.server";
 
-import quillStyles from "react-quill/dist/quill.snow.css";
+import quillStyles from "react-quill/dist/quill.snow.css?url";
 import { invariantResponse } from "~/lib/utils/response";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug, getEventBySlugForAction } from "./general.server";
@@ -80,7 +80,7 @@ const i18nNS = [
   "datasets/eventTypes",
   "datasets/eventTargetGroups",
   "datasets/tags",
-];
+] as const;
 
 export const handle = {
   i18n: i18nNS,

@@ -17,9 +17,9 @@ import {
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
-import rcSliderStyles from "rc-slider/assets/index.css";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
 import { useTranslation } from "react-i18next";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import i18next from "~/i18next.server";
@@ -48,7 +48,7 @@ const i18nNS = [
   "routes/organization/detail",
   "datasets/organizationTypes",
   "components/image-cropper",
-];
+] as const;
 
 export const handle = {
   i18n: i18nNS,

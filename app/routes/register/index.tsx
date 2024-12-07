@@ -22,7 +22,7 @@ import InputPassword from "../../components/FormElements/InputPassword/InputPass
 import SelectField from "../../components/FormElements/SelectField/SelectField";
 import { generateUsername } from "../../utils.server";
 
-const i18nNS = ["routes/register/index"];
+const i18nNS = ["routes/register/index"] as const;
 export const handle = {
   i18n: i18nNS,
 };

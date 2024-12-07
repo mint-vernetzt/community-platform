@@ -22,7 +22,9 @@ import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { DeepSearchParam } from "~/form-helpers";
 
-const i18nNS = ["routes/next/organization/settings/danger-zone/delete"];
+const i18nNS = [
+  "routes/next/organization/settings/danger-zone/delete",
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

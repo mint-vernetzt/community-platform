@@ -6,7 +6,7 @@ import { Link as StyledLink, Button } from "@mint-vernetzt/components";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
-const i18nNS = ["help"];
+const i18nNS = ["help"] as const;
 export const handle = {
   i18n: i18nNS,
 };

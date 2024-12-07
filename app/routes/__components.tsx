@@ -33,7 +33,7 @@ function CountUp(props: CountUpProps) {
 }
 
 function HeaderLogo() {
-  const { t } = useTranslation(["meta"]);
+  const { t } = useTranslation("meta");
   return (
     <div className="flex flex-row items-center">
       <svg

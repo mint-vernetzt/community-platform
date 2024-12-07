@@ -16,7 +16,7 @@ import { AddIcon, Container, Placeholder } from "./__components";
 import { Section, TabBarTitle } from "./__events.components";
 import { getProjects } from "./projects.server";
 
-export const i18nNS = ["routes/my/projects"];
+export const i18nNS = ["routes/my/projects"] as const;
 
 export const handle = {
   i18n: i18nNS,

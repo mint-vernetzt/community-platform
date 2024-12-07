@@ -23,7 +23,7 @@ import {
   useLocation,
 } from "@remix-run/react";
 import React from "react";
-import quillStyles from "react-quill/dist/quill.snow.css";
+import quillStyles from "react-quill/dist/quill.snow.css?url";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
@@ -54,7 +54,7 @@ const i18nNS = [
   "datasets/additionalDisciplines",
   "datasets/projectTargetGroups",
   "datasets/specialTargetGroups",
-];
+] as const;
 export const handle = {
   i18n: i18nNS,
 };

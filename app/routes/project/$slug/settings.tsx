@@ -21,7 +21,7 @@ import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { DeepSearchParam } from "~/form-helpers";
 
-const i18nNS = ["routes/project/settings"];
+const i18nNS = ["routes/project/settings"] as const;
 export const handle = {
   i18n: i18nNS,
 };

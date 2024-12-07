@@ -8,7 +8,10 @@ import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import i18next from "~/i18next.server";
 
-const i18nNS = ["routes/project/detail/requirements", "datasets/financings"];
+const i18nNS = [
+  "routes/project/detail/requirements",
+  "datasets/financings",
+] as const;
 
 export const handle = {
   i18n: i18nNS,

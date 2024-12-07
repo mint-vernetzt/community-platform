@@ -37,7 +37,7 @@ import {
 } from "./utils.server";
 import { DeepSearchParam } from "~/form-helpers";
 
-const i18nNS = ["routes/project/settings/team"];
+const i18nNS = ["routes/project/settings/team"] as const;
 export const handle = {
   i18n: i18nNS,
 };

@@ -18,7 +18,7 @@ import {
   sendResetPasswordLink,
 } from "../../auth.server";
 
-const i18nNS = ["routes/reset/index"];
+const i18nNS = ["routes/reset/index"] as const;
 export const handle = {
   i18n: i18nNS,
 };

@@ -15,7 +15,7 @@ import {
   searchFundingsViaLike,
 } from "./utils.server";
 
-const i18nNS = ["routes/search/fundings", "routes/explore/fundings"];
+const i18nNS = ["routes/search/fundings", "routes/explore/fundings"] as const;
 export const handle = {
   i18n: i18nNS,
 };

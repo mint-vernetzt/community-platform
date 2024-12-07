@@ -20,7 +20,7 @@ import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import { DeepSearchParam } from "~/form-helpers";
 
-const i18nNS = ["routes/project/settings/danger-zone/delete"];
+const i18nNS = ["routes/project/settings/danger-zone/delete"] as const;
 export const handle = {
   i18n: i18nNS,
 };

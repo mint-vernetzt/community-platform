@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
-const i18nNS = ["routes/profile/settings/delete"];
+const i18nNS = ["routes/profile/settings/delete"] as const;
 export const handle = {
   i18n: i18nNS,
 };
