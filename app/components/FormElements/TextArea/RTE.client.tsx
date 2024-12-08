@@ -23,7 +23,7 @@ interface RTEProps {
   id: string;
   defaultValue: string;
   maxLength?: number;
-  quillRef?: React.RefObject<ReactQuill>;
+  quillRef?: React.RefObject<ReactQuill | null>;
 }
 
 export function RTE({ id, defaultValue, maxLength, quillRef }: RTEProps) {

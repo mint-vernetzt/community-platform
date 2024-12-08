@@ -13,5 +13,9 @@ export { default as TextButton, type TextButtonProps } from "./TextButton";
 export { default as Toast, type ToastProps, type ToastLevel } from "./Toast";
 export { default as Image, type ImageProps } from "./Image";
 export { default as Status, type StatusProps } from "./Status";
-export { default as Input, type InputProps } from "./Input";
+export {
+  default as Input,
+  type InputProps,
+  type InputLabelProps,
+} from "./Input";
 export { default as Select, type SelectProps } from "./Select";

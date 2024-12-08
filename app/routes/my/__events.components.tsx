@@ -273,9 +273,12 @@ export function Button(props: ButtonProps) {
   );
 
   if (React.isValidElement(props.children)) {
-    return React.cloneElement(props.children as React.ReactElement, {
-      className: classes,
-    });
+    return React.cloneElement(
+      props.children as React.ReactElement<HTMLElement>,
+      {
+        className: classes,
+      }
+    );
   }
 
   return <button className={classes}>{props.children}</button>;

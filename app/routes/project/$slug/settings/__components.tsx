@@ -1,3 +1,4 @@
+import { type InputLabelProps } from "@mint-vernetzt/components";
 import {
   CircleButton,
   Image,
@@ -283,9 +284,13 @@ function ButtonSelect(props: ButtonSelectProps) {
   });
   const labelComponent = validChildren.find((child) => {
     return React.isValidElement(child) && child.type === Input.Label;
-  }) as React.ReactElement;
+  });
+  type LabelComponentType = React.DetailedReactHTMLElement<
+    React.PropsWithChildren<InputLabelProps>,
+    HTMLLabelElement
+  > & { ref: React.RefObject<HTMLLabelElement> };
 
-  let label: React.ReactElement<typeof Input.Label> | undefined;
+  let label: LabelComponentType | React.ReactElement | undefined;
   if (typeof labelString !== "undefined") {
     label = (
       <Input.Label
@@ -297,9 +302,12 @@ function ButtonSelect(props: ButtonSelectProps) {
       </Input.Label>
     );
   } else if (typeof labelComponent !== "undefined") {
-    label = React.cloneElement(labelComponent, {
-      hasError: typeof error !== "undefined",
-    });
+    label = React.cloneElement<React.PropsWithChildren<InputLabelProps>>(
+      labelComponent as LabelComponentType,
+      {
+        hasError: typeof error !== "undefined",
+      }
+    );
   }
 
   if (typeof label === "undefined") {

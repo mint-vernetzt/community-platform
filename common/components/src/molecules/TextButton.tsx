@@ -94,15 +94,23 @@ function TextButton(
   if (typeof props.as === "undefined" && typeof props.children !== "string") {
     const element = React.Children.only(props.children);
     if (React.isValidElement(element)) {
-      const elementChildren = React.Children.toArray(element.props.children);
+      const elementChildren =
+        typeof element.props === "object" &&
+        element.props !== null &&
+        "children" in element.props
+          ? React.isValidElement(element.props.children)
+            ? React.Children.toArray(element.props.children)
+            : element.props.children
+          : null;
       const clone = React.cloneElement(
         element as React.ReactElement,
         {
+          // @ts-ignore - We should look at our cloneElement implementation.
           className: classes,
         },
         <>
           {props.arrowLeft && <ChevronLeft size={size} />}
-          {elementChildren}
+          {React.isValidElement(elementChildren) ? elementChildren : null}
           {props.arrowRight && <ChevronRight size={size} />}
         </>
       );

@@ -45,14 +45,11 @@ function reducer(state: typeof defaultUsers, action: any) {
 }
 
 export function AutoCompleteReplacementPlayground() {
-  const [results, setResults] = React.useState<typeof users>([]);
-  const [users, dispatch] = React.useReducer<typeof reducer>(
-    reducer,
-    defaultUsers
-  );
-  const [removedUser, setRemovedUser] = React.useState<typeof users[0] | null>(
-    null
-  );
+  const [results, setResults] = React.useState<typeof users>(() => []);
+  const [users, dispatch] = React.useReducer(reducer, defaultUsers);
+  const [removedUser, setRemovedUser] = React.useState<
+    (typeof users)[0] | null
+  >(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;

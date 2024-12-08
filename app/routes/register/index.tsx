@@ -304,7 +304,10 @@ export default function Register() {
                             {({ Errors }) => {
                               const ForwardRefComponent = React.forwardRef<
                                 HTMLInputElement,
-                                JSX.IntrinsicElements["input"]
+                                React.DetailedHTMLProps<
+                                  React.InputHTMLAttributes<HTMLInputElement>,
+                                  HTMLInputElement
+                                >
                               >((props, ref) => {
                                 return (
                                   <>

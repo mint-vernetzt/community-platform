@@ -15,6 +15,7 @@ export {
   type ImageProps,
   Input,
   type InputProps,
+  type InputLabelProps,
   Select,
   type SelectProps,
 } from "./src/molecules";

@@ -339,7 +339,7 @@ export function FormControl(
 
   const info = childrenArray.find((child) => {
     return React.isValidElement(child) && child.type === FromControlInfo;
-  }) as React.ReactElement | undefined;
+  });
 
   const classes = classNames(
     "mv-group mv-px-4 mv-py-2.5 mv-flex mv-justify-between mv-items-center mv-cursor-pointer mv-gap-1 mv-transition",
@@ -352,7 +352,16 @@ export function FormControl(
         <span className="mv-whitespace-normal">{label}</span>
         {typeof info !== "undefined" && (
           <label
-            htmlFor={info.props.id}
+            htmlFor={
+              typeof info === "object" &&
+              "props" in info &&
+              typeof info.props === "object" &&
+              info.props !== null &&
+              "id" in info.props &&
+              typeof info.props.id === "string"
+                ? info.props.id
+                : undefined
+            }
             className="mv-h-[20px] hover:mv-text-primary focus:mv-text-primary"
           >
             <svg
@@ -402,6 +411,14 @@ export function FormControl(
 FormControl.Label = FormControlLabel;
 FormControl.Info = FromControlInfo;
 FormControl.Counter = FormControlCounter;
+
+type DropdownLabelType = React.DetailedReactHTMLElement<
+  DropdownLabelProps,
+  HTMLLabelElement
+>;
+type DropdownLabelProps = React.PropsWithChildren & {
+  listRef?: React.RefObject<HTMLDivElement | null>;
+};
 
 export function DropdownLabel(
   props: React.PropsWithChildren & { listRef?: React.RefObject<HTMLDivElement> }
@@ -482,6 +499,13 @@ export function DropdownListCategory(props: React.PropsWithChildren) {
   );
 }
 
+type DropdownListType = React.DetailedReactHTMLElement<
+  DropdownListProps,
+  HTMLElement
+>;
+type DropdownListProps = React.HTMLProps<HTMLDivElement> &
+  React.PropsWithChildren & { orientation?: "left" | "right" };
+
 export const DropdownList = React.forwardRef<
   HTMLDivElement,
   React.PropsWithChildren & { orientation?: "left" | "right" }
@@ -514,7 +538,6 @@ export const DropdownList = React.forwardRef<
     </div>
   );
 });
-
 export function Dropdown(
   props: React.PropsWithChildren & {
     orientation?: "left" | "right";
@@ -527,10 +550,10 @@ export function Dropdown(
   const list = children.find((child) => {
     return React.isValidElement(child) && child.type === DropdownList;
   });
-  const listRef = React.useRef();
+  const listRef = React.useRef<HTMLDivElement | null>(null);
   const listClone =
-    typeof list !== "undefined"
-      ? React.cloneElement(list as React.ReactElement, {
+    typeof list !== "undefined" && typeof list !== "string"
+      ? React.cloneElement<DropdownListProps>(list as DropdownListType, {
           ref: listRef,
           orientation,
         })
@@ -541,7 +564,7 @@ export function Dropdown(
   });
   const labelClone =
     typeof label !== "undefined"
-      ? React.cloneElement(label as React.ReactElement, {
+      ? React.cloneElement<DropdownLabelProps>(label as DropdownLabelType, {
           listRef,
         })
       : null;

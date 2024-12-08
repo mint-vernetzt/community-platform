@@ -13,7 +13,7 @@ import {
 } from "@remix-run/react";
 import classNames from "classnames";
 import Cookies from "js-cookie";
-import React, { useEffect } from "react";
+import React, { type ReactElement, useEffect } from "react";
 import { useCountUp, type CountUpProps } from "react-countup";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
@@ -23,9 +23,9 @@ import { type getFeatureAbilities } from "~/lib/utils/application";
 import { type Mode } from "~/utils.server";
 
 function CountUp(props: CountUpProps) {
-  const ref = React.useRef(null);
+  const ref = React.useRef<HTMLElement | null>(null);
   useCountUp({
-    ref,
+    ref: ref as React.RefObject<HTMLElement>,
     ...props,
   });
 
@@ -1311,10 +1311,10 @@ function ModalClose(props: { route: string }) {
   );
 }
 
-function ModalCloseButton(
-  props: React.PropsWithChildren<{ route?: string }> &
-    React.InputHTMLAttributes<HTMLAnchorElement>
-) {
+type ModalCloseButtonProps = React.PropsWithChildren<{ route?: string }> &
+  React.InputHTMLAttributes<HTMLAnchorElement>;
+
+function ModalCloseButton(props: ModalCloseButtonProps) {
   const { route, children, ...anchorProps } = props;
   if (typeof route === "undefined") {
     return <>{children}</>;
@@ -1419,9 +1419,12 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
 
   const closeButtonClone =
     typeof closeButton !== "undefined"
-      ? React.cloneElement(closeButton as React.ReactElement, {
-          route: redirect,
-        })
+      ? React.cloneElement<ModalCloseButtonProps>(
+          closeButton as ReactElement<ModalCloseButtonProps>,
+          {
+            route: redirect || undefined,
+          }
+        )
       : null;
 
   return createPortal(

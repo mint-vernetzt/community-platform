@@ -56,7 +56,13 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
   // if first node is a valid react element, get first child and wrap it into span
   if (React.isValidElement(firstNode)) {
     const clone = React.cloneElement(firstNode as React.ReactElement);
-    const cloneChildren = React.Children.toArray(clone.props.children);
+    const cloneChildren =
+      typeof clone.props === "object" &&
+      clone.props !== null &&
+      "children" in clone.props &&
+      React.isValidElement(clone.props.children)
+        ? React.Children.toArray(clone.props.children)
+        : [];
 
     if (cloneChildren.length > 0) {
       const firstChild = cloneChildren[0];

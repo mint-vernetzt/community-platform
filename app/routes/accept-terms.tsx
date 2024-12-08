@@ -137,15 +137,14 @@ function AcceptTerms() {
                         {({ Errors }) => {
                           const ForwardRefComponent = React.forwardRef<
                             HTMLInputElement,
-                            JSX.IntrinsicElements["input"]
+                            React.DetailedHTMLProps<
+                              React.InputHTMLAttributes<HTMLInputElement>,
+                              HTMLInputElement
+                            >
                           >((props, ref) => {
                             return (
                               <>
-                                <input
-                                  // TODO: can this type assertion be removed and proofen by code?
-                                  ref={ref as React.RefObject<HTMLInputElement>}
-                                  {...props}
-                                />
+                                <input ref={ref} {...props} />
                               </>
                             );
                           });

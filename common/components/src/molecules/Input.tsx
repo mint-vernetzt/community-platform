@@ -3,7 +3,7 @@ import React from "react";
 
 export type InputType = "text" | "password" | "email" | "number" | "hidden";
 
-type InputLabelProps = {
+export type InputLabelProps = {
   htmlFor?: string;
   hidden?: boolean;
   hasError?: boolean;
@@ -139,9 +139,13 @@ function Input(props: InputProps) {
   });
   const labelComponent = validChildren.find((child) => {
     return React.isValidElement(child) && child.type === InputLabel;
-  }) as React.ReactElement;
+  });
+  type LabelComponentType = React.DetailedReactHTMLElement<
+    React.PropsWithChildren<InputLabelProps>,
+    HTMLLabelElement
+  > & { ref: React.RefObject<HTMLLabelElement> };
 
-  let label: React.ReactElement<typeof InputLabel> | undefined;
+  let label: LabelComponentType | React.ReactElement | undefined;
   if (typeof labelString !== "undefined") {
     label = (
       <InputLabel htmlFor={props.id} hasError={errors.length > 0} hidden>
@@ -149,9 +153,12 @@ function Input(props: InputProps) {
       </InputLabel>
     );
   } else if (typeof labelComponent !== "undefined") {
-    label = React.cloneElement(labelComponent, {
-      hasError: errors.length > 0,
-    });
+    label = React.cloneElement<React.PropsWithChildren<InputLabelProps>>(
+      labelComponent as LabelComponentType,
+      {
+        hasError: errors.length > 0,
+      }
+    );
   }
 
   if (typeof label === "undefined") {
@@ -168,6 +175,10 @@ function Input(props: InputProps) {
     return (
       React.isValidElement(child) &&
       child.type === InputControls &&
+      typeof child.props === "object" &&
+      child.props !== null &&
+      "children" in child.props &&
+      React.isValidElement(child.props.children) &&
       React.Children.toArray(child.props.children).length > 0
     );
   });
