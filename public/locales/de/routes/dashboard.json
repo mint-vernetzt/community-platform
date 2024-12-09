@@ -36,8 +36,13 @@
       },
       "crawler": {
         "headline": "Neue Beta-Funktion",
-        "description": "Teste nun unsere Fördersuche",
+        "description": "Teste unsere Fördermittelsuche",
         "linkDescription": "Jetzt ausprobieren"
+      },
+      "mediaDatabase": {
+        "headline": "Neues Feature",
+        "description": "Finde kostenlose MINT-Bilder und Grafiken in der MINT-Mediendatenbank",
+        "linkDescription": "Jetzt probieren"
       }
     },
     "news": {

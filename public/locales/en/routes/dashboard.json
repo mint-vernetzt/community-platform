@@ -38,6 +38,11 @@
         "headline": "New beta feature",
         "description": "Test our funding search now",
         "linkDescription": "Try now"
+      },
+      "mediaDatabase": {
+        "headline": "New feature",
+        "description": "Find free STEM related images and graphics in the STEM media database",
+        "linkDescription": "Try out now"
       }
     },
     "news": {
