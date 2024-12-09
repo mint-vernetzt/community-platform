@@ -130,28 +130,7 @@ export const createTwitterSchema = (t: TFunction) =>
       return trimmedValue;
     });
 
-export const createMastodonSchema = (t: TFunction) =>
-  z
-    .string()
-    .regex(
-      // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
-      // eslint-disable-next-line no-useless-escape
-      /^(https:\/\/)([a-z0-9]+\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,6}\/.+$|^$/,
-      {
-        message: t("validation.mastodon.regex", { ns: i18nNS }),
-      }
-    )
-    .optional()
-    .transform((value) => {
-      if (value === undefined) {
-        return null;
-      }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
-    });
+export const createMastodonSchema = (t: TFunction) => createWebsiteSchema(t);
 
 export const createBlueskySchema = (t: TFunction) =>
   z

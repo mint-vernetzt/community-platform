@@ -4,7 +4,7 @@
       "regex": "Please enter a valid phone number (At least 7 digits, Allowed characters: Space, +, -, (, ))."
     },
     "website": {
-      "regex": "Your input does not match the format of a website URL (https://subdomain.domain.tld/...)."
+      "regex": "Your input does not match the format of a website URL (https://domain.tld/...)."
     },
     "facebook": {
       "regex": "Your input does not match the format of a Facebook page (https://facebook.com/...)."
@@ -19,7 +19,7 @@
       "regex": "Your input does not match the format of a Twitter page (https://x.com/... or https://twitter.com/...)."
     },
     "mastodon": {
-      "regex": "Your input does not match the format of a Mastodon page (https://subdomain.domain.tld/...)."
+      "regex": "Your input does not match the format of a Mastodon page (https://domain.tld/...)."
     },
     "bluesky": {
       "regex": "Your input does not match the format of a Blue Sky page (https://bsky.app/...)."
