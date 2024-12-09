@@ -243,226 +243,226 @@ function CreateOrganization() {
   }
 
   return (
-    <Form method="post" {...form.props}>
-      <button type="submit" hidden />
-      <Container>
-        <TextButton weight="thin" variant="neutral" arrowLeft>
-          <Link to="/my/organizations" prefetch="intent">
-            {t("back")}
-          </Link>
-        </TextButton>
-        <h1 className="mv-mb-0 mv-text-primary mv-text-5xl mv-font-bold mv-leading-9">
-          {t("headline")}
-        </h1>
-        <Section>
-          <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
-            {/* Organization name Section */}
-            <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
-              {t("form.organizationName.headline")}
-            </h2>
-            <Input {...conform.input(fields.organizationName)}>
-              <Input.Label htmlFor={fields.organizationName.id}>
-                {t("form.organizationName.label")}
-              </Input.Label>
-              {typeof fields.organizationName.error !== "undefined" && (
-                <Input.Error>{fields.organizationName.error}</Input.Error>
-              )}
-            </Input>
-            {/* Already existing organizations section */}
-            {searchResult.length > 0 && (
-              <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-8">
-                <p>
-                  {t("form.organizationName.sameOrganization", {
-                    searchQuery,
-                  })}
-                </p>
-                <ListContainer listKey="already-existing-organizations">
-                  {searchResult.map((organization, index) => {
-                    return (
-                      <ListItem
-                        key={`already-existing-organization-${organization.id}`}
-                        listIndex={index}
-                        entity={organization}
-                      />
-                    );
-                  })}
-                </ListContainer>
-              </div>
+    <Container>
+      <Form method="post" {...form.props} className="mv-absolute" />
+      <button form={form.id} type="submit" hidden />
+      <TextButton weight="thin" variant="neutral" arrowLeft>
+        <Link to="/my/organizations" prefetch="intent">
+          {t("back")}
+        </Link>
+      </TextButton>
+      <h1 className="mv-mb-0 mv-text-primary mv-text-5xl mv-font-bold mv-leading-9">
+        {t("headline")}
+      </h1>
+      <Section>
+        <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
+          {/* Organization name Section */}
+          <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
+            {t("form.organizationName.headline")}
+          </h2>
+          <Input {...conform.input(fields.organizationName)}>
+            <Input.Label htmlFor={fields.organizationName.id}>
+              {t("form.organizationName.label")}
+            </Input.Label>
+            {typeof fields.organizationName.error !== "undefined" && (
+              <Input.Error>{fields.organizationName.error}</Input.Error>
             )}
-          </div>
-          {/* Organization types section */}
-          <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
-            <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
-              {t("form.organizationTypes.headline")}
-            </h2>
-            <ButtonSelect
-              id={fields.organizationTypes.id}
-              cta={t("form.organizationTypes.cta")}
-            >
-              <ButtonSelect.Label htmlFor={fields.organizationTypes.id}>
-                {t("form.organizationTypes.label")}
-              </ButtonSelect.Label>
-              <ButtonSelect.HelperText>
-                {t("form.organizationTypes.helperText")}
-              </ButtonSelect.HelperText>
-              {allOrganizationTypes
-                .filter((organizationType) => {
-                  return !organizationTypeList.some((listOrganizationType) => {
-                    return (
-                      listOrganizationType.defaultValue === organizationType.id
-                    );
-                  });
-                })
-                .map((filteredOrganizationType) => {
+          </Input>
+          {/* Already existing organizations section */}
+          {searchResult.length > 0 && (
+            <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-8">
+              <p>
+                {t("form.organizationName.sameOrganization", {
+                  searchQuery,
+                })}
+              </p>
+              <ListContainer listKey="already-existing-organizations">
+                {searchResult.map((organization, index) => {
                   return (
-                    <button
-                      key={filteredOrganizationType.id}
-                      {...list.insert(fields.organizationTypes.name, {
-                        defaultValue: filteredOrganizationType.id,
-                      })}
-                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
-                    >
-                      {t(`${filteredOrganizationType.slug}.title`, {
-                        ns: "datasets/organizationTypes",
-                      })}
-                    </button>
+                    <ListItem
+                      key={`already-existing-organization-${organization.id}`}
+                      listIndex={index}
+                      entity={organization}
+                    />
                   );
                 })}
-            </ButtonSelect>
-            {organizationTypeList.length > 0 && (
-              <Chip.Container>
-                {organizationTypeList.map((listOrganizationType, index) => {
-                  return (
-                    <Chip key={listOrganizationType.key}>
-                      <Input
-                        type="hidden"
-                        {...conform.input(listOrganizationType)}
-                      />
-                      {t(
-                        `${
-                          allOrganizationTypes.find((organizationType) => {
-                            return (
-                              organizationType.id ===
-                              listOrganizationType.defaultValue
-                            );
-                          })?.slug
-                        }.title`,
-                        { ns: "datasets/organizationTypes" }
-                      ) || t("form.organizationTypes.notFound")}
-                      <Chip.Delete>
-                        <button
-                          {...list.remove(fields.organizationTypes.name, {
-                            index,
-                          })}
-                        />
-                      </Chip.Delete>
-                    </Chip>
-                  );
-                })}
-              </Chip.Container>
-            )}
-          </div>
-          {/* Network types section */}
-          {/* TODO: Single or multiple choice? helper text, radios vs. checkboxes, chips or label to show currently selected, etc... */}
-          <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
-            <h2
-              className={`mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px] ${
-                isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
-              }`}
-            >
-              {t("form.networkTypes.headline")}
-            </h2>
-            <ButtonSelect
-              id={fields.networkTypes.id}
-              cta={t("form.networkTypes.cta")}
-              disabled={isNetwork === false}
-            >
-              <ButtonSelect.Label htmlFor={fields.networkTypes.id}>
-                <span
-                  className={isNetwork === false ? "mv-text-neutral-300" : ""}
-                >
-                  {t("form.networkTypes.label")}
-                </span>
-              </ButtonSelect.Label>
-              <ButtonSelect.HelperText>
-                <span
-                  className={isNetwork === false ? "mv-text-neutral-300" : ""}
-                >
-                  {t("form.networkTypes.helperText")}
-                </span>
-              </ButtonSelect.HelperText>
-              {allNetworkTypes
-                .filter((networkType) => {
-                  return !networkTypeList.some((listNetworkType) => {
-                    return listNetworkType.defaultValue === networkType.id;
-                  });
-                })
-                .map((filteredNetworkType) => {
-                  return (
-                    <button
-                      key={filteredNetworkType.id}
-                      {...list.insert(fields.networkTypes.name, {
-                        defaultValue: filteredNetworkType.id,
-                      })}
-                      disabled={!isNetwork}
-                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
-                    >
-                      {t(`${filteredNetworkType.slug}.title`, {
-                        ns: "datasets/networkTypes",
-                      })}
-                    </button>
-                  );
-                })}
-            </ButtonSelect>
-            {networkTypeList.length > 0 && (
-              <Chip.Container>
-                {networkTypeList.map((listNetworkType, index) => {
-                  return (
-                    <Chip key={listNetworkType.key}>
-                      <Input
-                        type="hidden"
-                        {...conform.input(listNetworkType)}
-                      />
-                      {t(
-                        `${
-                          allNetworkTypes.find((networkType) => {
-                            return (
-                              networkType.id === listNetworkType.defaultValue
-                            );
-                          })?.slug
-                        }.title`,
-                        { ns: "datasets/networkTypes" }
-                      ) || t("form.networkTypes.notFound")}
-                      <Chip.Delete>
-                        <button
-                          {...list.remove(fields.networkTypes.name, { index })}
-                        />
-                      </Chip.Delete>
-                    </Chip>
-                  );
-                })}
-              </Chip.Container>
-            )}
-          </div>
-
-          {/* TODO: FAQ Section */}
-        </Section>
-
-        <div className="mv-w-full mv-flex mv-flex-col @sm:mv-flex-row mv-justify-between mv-gap-4 @sm:mv-px-6">
-          <p className="mv-text-neutral-700 mv-text-xs mv-leading-4">
-            {t("form.helperText")}
-          </p>
-          <div className="mv-flex mv-gap-2 ">
-            <Button form={form.id} type="reset" variant="outline">
-              {t("form.reset")}
-            </Button>
-            <Button form={form.id} type="submit">
-              {t("form.submit")}
-            </Button>
-          </div>
+              </ListContainer>
+            </div>
+          )}
         </div>
-      </Container>
-    </Form>
+        {/* Organization types section */}
+        <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
+          <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
+            {t("form.organizationTypes.headline")}
+          </h2>
+          <ButtonSelect
+            id={fields.organizationTypes.id}
+            cta={t("form.organizationTypes.cta")}
+          >
+            <ButtonSelect.Label htmlFor={fields.organizationTypes.id}>
+              {t("form.organizationTypes.label")}
+            </ButtonSelect.Label>
+            <ButtonSelect.HelperText>
+              {t("form.organizationTypes.helperText")}
+            </ButtonSelect.HelperText>
+            {allOrganizationTypes
+              .filter((organizationType) => {
+                return !organizationTypeList.some((listOrganizationType) => {
+                  return (
+                    listOrganizationType.defaultValue === organizationType.id
+                  );
+                });
+              })
+              .map((filteredOrganizationType) => {
+                return (
+                  <button
+                    {...list.insert(fields.organizationTypes.name, {
+                      defaultValue: filteredOrganizationType.id,
+                    })}
+                    form={form.id}
+                    key={filteredOrganizationType.id}
+                    className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                  >
+                    {t(`${filteredOrganizationType.slug}.title`, {
+                      ns: "datasets/organizationTypes",
+                    })}
+                  </button>
+                );
+              })}
+          </ButtonSelect>
+          {organizationTypeList.length > 0 && (
+            <Chip.Container>
+              {organizationTypeList.map((listOrganizationType, index) => {
+                return (
+                  <Chip key={listOrganizationType.key}>
+                    <Input
+                      type="hidden"
+                      {...conform.input(listOrganizationType)}
+                    />
+                    {t(
+                      `${
+                        allOrganizationTypes.find((organizationType) => {
+                          return (
+                            organizationType.id ===
+                            listOrganizationType.defaultValue
+                          );
+                        })?.slug
+                      }.title`,
+                      { ns: "datasets/organizationTypes" }
+                    ) || t("form.organizationTypes.notFound")}
+                    <Chip.Delete>
+                      <button
+                        {...list.remove(fields.organizationTypes.name, {
+                          index,
+                        })}
+                        form={form.id}
+                      />
+                    </Chip.Delete>
+                  </Chip>
+                );
+              })}
+            </Chip.Container>
+          )}
+        </div>
+        {/* Network types section */}
+        {/* TODO: Single or multiple choice? helper text, radios vs. checkboxes, chips or label to show currently selected, etc... */}
+        <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
+          <h2
+            className={`mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px] ${
+              isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
+            }`}
+          >
+            {t("form.networkTypes.headline")}
+          </h2>
+          <ButtonSelect
+            id={fields.networkTypes.id}
+            cta={t("form.networkTypes.cta")}
+            disabled={isNetwork === false}
+          >
+            <ButtonSelect.Label htmlFor={fields.networkTypes.id}>
+              <span
+                className={isNetwork === false ? "mv-text-neutral-300" : ""}
+              >
+                {t("form.networkTypes.label")}
+              </span>
+            </ButtonSelect.Label>
+            <ButtonSelect.HelperText>
+              <span
+                className={isNetwork === false ? "mv-text-neutral-300" : ""}
+              >
+                {t("form.networkTypes.helperText")}
+              </span>
+            </ButtonSelect.HelperText>
+            {allNetworkTypes
+              .filter((networkType) => {
+                return !networkTypeList.some((listNetworkType) => {
+                  return listNetworkType.defaultValue === networkType.id;
+                });
+              })
+              .map((filteredNetworkType) => {
+                return (
+                  <button
+                    {...list.insert(fields.networkTypes.name, {
+                      defaultValue: filteredNetworkType.id,
+                    })}
+                    form={form.id}
+                    key={filteredNetworkType.id}
+                    disabled={!isNetwork}
+                    className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                  >
+                    {t(`${filteredNetworkType.slug}.title`, {
+                      ns: "datasets/networkTypes",
+                    })}
+                  </button>
+                );
+              })}
+          </ButtonSelect>
+          {networkTypeList.length > 0 && (
+            <Chip.Container>
+              {networkTypeList.map((listNetworkType, index) => {
+                return (
+                  <Chip key={listNetworkType.key}>
+                    <Input type="hidden" {...conform.input(listNetworkType)} />
+                    {t(
+                      `${
+                        allNetworkTypes.find((networkType) => {
+                          return (
+                            networkType.id === listNetworkType.defaultValue
+                          );
+                        })?.slug
+                      }.title`,
+                      { ns: "datasets/networkTypes" }
+                    ) || t("form.networkTypes.notFound")}
+                    <Chip.Delete>
+                      <button
+                        {...list.remove(fields.networkTypes.name, { index })}
+                        form={form.id}
+                      />
+                    </Chip.Delete>
+                  </Chip>
+                );
+              })}
+            </Chip.Container>
+          )}
+        </div>
+
+        {/* TODO: FAQ Section */}
+      </Section>
+
+      <div className="mv-w-full mv-flex mv-flex-col @sm:mv-flex-row mv-justify-between mv-items-end @sm:mv-items-start mv-gap-4 @sm:mv-px-6">
+        <p className="mv-text-neutral-700 mv-text-xs mv-leading-4">
+          {t("form.helperText")}
+        </p>
+        <div className="mv-flex mv-gap-2 ">
+          <Button as="a" href="/my/organizations" variant="outline">
+            {t("form.cancel")}
+          </Button>
+          <Button form={form.id} type="submit">
+            {t("form.submit")}
+          </Button>
+        </div>
+      </div>
+    </Container>
   );
 }
 

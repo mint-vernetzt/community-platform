@@ -16,10 +16,10 @@
       "regex": "Deine Eingabe entspricht nicht dem Format einer Xing Seite (xing.com/...)."
     },
     "twitter": {
-      "regex": "Deine Eingabe entspricht nicht dem Format einer Twitter Seite (twitter.com/...)."
+      "regex": "Deine Eingabe entspricht nicht dem Format einer Twitter Seite (x.com/... oder twitter.com/...)."
     },
     "mastodon": {
-      "regex": "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite."
+      "regex": "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite (domainname.tld/@<name>)."
     },
     "bluesky": {
       "regex": "Deine Eingabe entspricht nicht dem Format einer Blue Sky Seite (bsky.app/...)."
@@ -31,7 +31,7 @@
       "regex": "Deine Eingabe entspricht nicht dem Format einer Instagram Seite (instagram.com/...)."
     },
     "youtube": {
-      "regex": "Deine Eingabe entspricht nicht dem Format einer Youtube Seite (youtube.com/...)."
+      "regex": "Deine Eingabe entspricht nicht dem Format einer Youtube Seite (youtube.com/@...)."
     },
     "youtubeEmbed": {
       "urlParsing": "Unknown error during url parsing.",

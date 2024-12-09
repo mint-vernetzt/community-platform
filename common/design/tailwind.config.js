@@ -3,6 +3,7 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
 const daisyui = require("daisyui");
 const tailwindContainerQueries = require("@tailwindcss/container-queries");
+const tailwindcssOpentype = require("tailwindcss-opentype");
 
 module.exports = {
   prefix: "mv-",
@@ -13,7 +14,7 @@ module.exports = {
     "../components/src/**/*.@(js|jsx|ts|tsx)",
     "../../app/**/*.@(js|jsx|ts|tsx)",
   ],
-  plugins: [daisyui, tailwindContainerQueries],
+  plugins: [daisyui, tailwindContainerQueries, tailwindcssOpentype],
   theme: {
     extend: {
       screens: {

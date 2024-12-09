@@ -3,6 +3,16 @@ import { type TFunction } from "i18next";
 
 const i18nNS = "utils/schemas";
 
+export const checkboxSchema = z
+  .boolean()
+  .optional()
+  .transform((value) => {
+    if (value === undefined) {
+      return false;
+    }
+    return value;
+  });
+
 export const fileUploadSchema = z.object({
   subject: z.string(),
   slug: z.string().min(1),
@@ -105,7 +115,7 @@ export const createXingSchema = (t: TFunction) =>
 export const createTwitterSchema = (t: TFunction) =>
   z
     .string()
-    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?twitter.com\/.+$|^$/, {
+    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?(twitter|x).com\/.+$|^$/, {
       message: t("validation.twitter.regex", { ns: i18nNS }),
     })
     .optional()
@@ -126,7 +136,7 @@ export const createMastodonSchema = (t: TFunction) =>
     .regex(
       // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
       // eslint-disable-next-line no-useless-escape
-      /^(https?:\/\/)?([a-z0-9]+\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,6}\/@.+$|^$/,
+      /^(https?:\/\/)?([a-z0-9]+\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,6}\/.+$|^$/,
       {
         message: t("validation.mastodon.regex", { ns: i18nNS }),
       }
@@ -164,7 +174,7 @@ export const createBlueskySchema = (t: TFunction) =>
 export const createTiktokSchema = (t: TFunction) =>
   z
     .string()
-    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?tiktok.com\/@.+$|^$/, {
+    .regex(/^(https?:\/\/)?([a-z0-9]+\.)?tiktok.com\/.+$|^$/, {
       message: t("validation.tiktok.regex", { ns: i18nNS }),
     })
     .optional()

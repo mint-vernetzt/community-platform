@@ -1,0 +1,41 @@
+{
+  "validation": {
+    "phone": {
+      "regex": "Please enter a valid phone number (At least 7 digits, Allowed characters: Space, +, -, (, ))."
+    },
+    "website": {
+      "regex": "Your input does not match the format of a website URL."
+    },
+    "facebook": {
+      "regex": "Your input does not match the format of a Facebook page (facebook.com/...)."
+    },
+    "linkedin": {
+      "regex": "Your input does not match the format of a LinkedIn page (linkedin.com/...)."
+    },
+    "xing": {
+      "regex": "Your input does not match the format of a Xing page (xing.com/...)."
+    },
+    "twitter": {
+      "regex": "Your input does not match the format of a Twitter page (x.com/... or twitter.com/...)."
+    },
+    "mastodon": {
+      "regex": "Your input does not match the format of a Mastodon page (domainname.tld/@<name>)."
+    },
+    "bluesky": {
+      "regex": "Your input does not match the format of a Blue Sky page (bsky.app/...)."
+    },
+    "tiktok": {
+      "regex": "Your input does not match the format of a TikTok page (tiktok.com/@...)."
+    },
+    "instagram": {
+      "regex": "Your input does not match the format of an Instagram page (instagram.com/...)."
+    },
+    "youtube": {
+      "regex": "Your input does not match the format of a Youtube page (youtube.com/@...)."
+    },
+    "youtubeEmbed": {
+      "urlParsing": "Unknown error during url parsing.",
+      "regex": "Your input does not match the format of a Youtube-Watch-URL, a Youtube-Embed-URL or a YouTube-<iframe> (youtube.com/watch?v=, youtube.com/embed/, youtube-nocookie.com/embed/, youtu.be/, <iframe ... src=\"youtube.com/embed/... ></iframe>)."
+    }
+  }
+}

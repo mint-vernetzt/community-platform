@@ -364,7 +364,7 @@ export default function App() {
   const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
 
   const bodyClasses = classNames(
-    "mv-min-h-screen mv-break-words",
+    "mv-min-h-screen mv-break-words mv-antialiased",
     modal && "mv-overflow-hidden",
     showFilters !== null &&
       showFilters !== "false" &&
