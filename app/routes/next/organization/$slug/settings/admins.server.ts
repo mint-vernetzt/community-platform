@@ -11,7 +11,6 @@ import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { invariantResponse } from "~/lib/utils/response";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
-import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { type Toast } from "~/toast.server";
 
@@ -234,19 +233,16 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
     );
   }
 
-  const hash = getSubmissionHash(submission);
-  const toast: Toast = {
-    id: "invite-admin-toast",
-    key: hash,
-    message: t("content.profileInvited", {
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-    }),
-  };
-
   return {
     submission: submission.reply(),
-    toast,
+    toast: {
+      id: "invite-admin-toast",
+      key: `${new Date().getTime()}`,
+      message: t("content.profileAdded", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
+    },
   };
 }
 
@@ -297,20 +293,16 @@ export async function cancelOrganizationAdminInvitation(options: {
     },
   });
 
-  const hash = getSubmissionHash(submission);
-  const toast: Toast = {
-    id: "cancel-invite-toast",
-    level: "neutral",
-    key: hash,
-    message: t("content.inviteCancelled", {
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-    }),
-  };
-
   return {
     submission: submission.reply(),
-    toast,
+    toast: {
+      id: "cancel-invite-toast",
+      key: `${new Date().getTime()}`,
+      message: t("content.inviteCancelled", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
+    },
   };
 }
 
@@ -369,18 +361,15 @@ export async function removeAdminFromOrganization(options: {
     },
   });
 
-  const hash = getSubmissionHash(submission);
-  const toast: Toast = {
-    id: "remove-admin-toast",
-    key: hash,
-    message: t("content.profileRemoved", {
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-    }),
-  };
-
   return {
     submission: submission.reply(),
-    toast,
+    toast: {
+      id: "remove-admin-toast",
+      key: `${new Date().getTime()}`,
+      message: t("content.profileRemoved", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
+    },
   };
 }

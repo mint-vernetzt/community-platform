@@ -33,9 +33,9 @@ import { getToast, redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
 } from "./utils.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 
 const i18nNS = ["routes/project/settings/team"];
 export const handle = {
@@ -242,7 +242,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT) as string;
-  const hash = getSubmissionHash({ action: action });
+  const hash = getHash({ action: action });
   if (action.startsWith("add_")) {
     const username = action.replace("add_", "");
 
@@ -350,7 +350,7 @@ function Team() {
   const [searchForm, fields] = useForm({
     defaultValue: {
       search: searchParams.get("search") || "",
-      [DeepSearchParam]: "true",
+      [Deep]: "true",
     },
   });
   const { t } = useTranslation(i18nNS);
@@ -431,7 +431,7 @@ function Team() {
             }}
             {...searchForm.props}
           >
-            <Input {...conform.input(fields[DeepSearchParam])} type="hidden" />
+            <Input {...conform.input(fields[Deep])} type="hidden" />
             <Input {...conform.input(fields.search)} standalone>
               <Input.Label htmlFor={fields.search.id}>
                 {t("content.add.search")}

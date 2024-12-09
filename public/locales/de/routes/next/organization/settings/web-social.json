@@ -9,14 +9,6 @@
     "back": "Website und Soziale Netzwerke",
     "intro": "Wo kann die Community mehr über Deine Organisation erfahren?"
   },
-  "modal": {
-    "unsavedChanges": {
-      "title": "Ungespeicherte Änderungen",
-      "description": "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
-      "proceed": "Änderungen verwerfen",
-      "cancel": "Abbrechen"
-    }
-  },
   "form": {
     "reset": "Änderungen verwerfen",
     "submit": "Speichern",
@@ -28,42 +20,42 @@
       "headline": "Website",
       "url": {
         "label": "URL",
-        "placeholder": "domainname.tld"
+        "placeholder": "https://subdomain.domain.tld/..."
       }
     },
     "socialNetworks": {
       "headline": "Soziale Netzwerke",
       "facebook": {
         "label": "Facebook",
-        "placeholder": "facebook.com/<name>"
+        "placeholder": "https://facebook.com/..."
       },
       "linkedin": {
         "label": "LinkedIn",
-        "placeholder": "linkedin.com/company/<name>"
+        "placeholder": "https://linkedin.com/..."
       },
       "xing": {
         "label": "Xing",
-        "placeholder": "xing.com/pages/<name>"
+        "placeholder": "https://xing.com/..."
       },
       "twitter": {
         "label": "X (Twitter)",
-        "placeholder": "x.com/<name>"
+        "placeholder": "https://x.com/..."
       },
       "mastodon": {
         "label": "Mastodon",
-        "placeholder": "domainname.tld/@<name>"
+        "placeholder": "https://subdomain.domain.tld/..."
       },
       "tiktok": {
         "label": "TikTok",
-        "placeholder": "tiktok.com/@<name>"
+        "placeholder": "https://tiktok.com/..."
       },
       "instagram": {
         "label": "Instagram",
-        "placeholder": "instagram.com/<name>"
+        "placeholder": "https://instagram.com/..."
       },
       "youtube": {
         "label": "YouTube",
-        "placeholder": "youtube.com/@<name>"
+        "placeholder": "https://youtube.com/..."
       }
     }
   }

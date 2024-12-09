@@ -39,7 +39,7 @@ import { redirectWithToast } from "~/toast.server";
 import { BackButton, ButtonSelect } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
 import { type TFunction } from "i18next";
@@ -542,7 +542,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   if (submission.intent !== "submit") {
     return json({ status: "idle", submission, hash } as const);
