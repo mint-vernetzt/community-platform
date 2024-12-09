@@ -26,7 +26,7 @@ export function createAreaOptions(
     value: state.id,
   }));
 
-  const districtOptions: Option[] = [];
+  const districtOptions: { label: string; value?: string }[] = [];
 
   states.map((state) => {
     districtOptions.push(divider);
