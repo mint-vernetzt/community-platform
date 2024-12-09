@@ -4,7 +4,7 @@
       "regex": "Bitte gib eine gültige Telefonnummer ein (Mindestens 7 Ziffern, Erlaubte Zeichen: Leerzeichen, +, -, (, ))."
     },
     "website": {
-      "regex": "Deine Eingabe entspricht nicht dem Format einer Website URL."
+      "regex": "Deine Eingabe entspricht nicht dem Format einer Website URL (https://domain.tld/...)."
     },
     "facebook": {
       "regex": "Deine Eingabe entspricht nicht dem Format einer Facebook Seite (facebook.com/...)."
@@ -19,7 +19,7 @@
       "regex": "Deine Eingabe entspricht nicht dem Format einer Twitter Seite (twitter.com/...)."
     },
     "mastodon": {
-      "regex": "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite."
+      "regex": "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite (https://domain.tld/...)."
     },
     "bluesky": {
       "regex": "Deine Eingabe entspricht nicht dem Format einer Blue Sky Seite (bsky.app/...)."

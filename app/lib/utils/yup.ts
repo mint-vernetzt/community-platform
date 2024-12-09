@@ -30,50 +30,56 @@ const phoneValidation = {
 
 const websiteValidation = {
   match:
-    /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,9}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi,
-  error: "Deine Eingabe entspricht nicht dem Format einer Website URL.",
+    // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
+    // eslint-disable-next-line no-useless-escape
+    /^(https?:\/\/)?(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
+  error:
+    "Deine Eingabe entspricht nicht dem Format einer Webseiten URL (subdomain.domain.tld/...).",
 };
 
 const socialValidation = {
   facebook: {
     match: /^(https?:\/\/)?([a-z0-9]+\.)?facebook.com\/.+$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines facebook Profils (facebook.com/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format einer facebook Seite (facebook.com/...).",
   },
   linkedin: {
-    match: /^(https?:\/\/)?([a-z0-9]+\.)?linkedin.com\/(in|company)\/.+$|^$/,
+    match: /^(https?:\/\/)?([a-z0-9]+\.)?linkedin.com\/.+$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines LinkedIn Profils (linkedin.com/in/<Nutzername> oder linkedin.com/company/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format einer LinkedIn Seite (linkedin.com/...).",
   },
   twitter: {
     match: /^(https?:\/\/)?([a-z0-9]+\.)?twitter.com\/.+$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines Twitter Profils (twitter.com/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format einer X oder Twitter Seite (twitter.com/...).",
   },
   youtube: {
     match: /^(https?:\/\/)?([a-z0-9]+\.)?youtube.com\/.+$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines Youtube Kanals (youtube.com/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format einer Youtube Seite (youtube.com/...).",
   },
   instagram: {
     match: /^(https?:\/\/)?([a-z0-9]+\.)?instagram.com\/.+$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines Instagram Profils (instagram.com/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format einer Instagram Seite (instagram.com/...).",
   },
   xing: {
-    match: /^(https?:\/\/)?([a-z0-9]+\.)?xing.com\/(profile|pages)\/.+$|^$/,
+    match: /^(https?:\/\/)?([a-z0-9]+\.)?xing.com\/.+$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format eines Xing Profils (xing.com/profile/<Nutzername> oder xing.com/pages/<Nutzername>).",
+      "Deine Eingabe entspricht nicht dem Format einer Xing Seite (xing.com/...).",
   },
   mastodon: {
     match:
-      /^(https?:\/\/)?([a-z0-9]+\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\/@.+$|^$/,
-    error: "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite.",
+      // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
+      // eslint-disable-next-line no-useless-escape
+      /^(https?:\/\/)?(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
+    error:
+      "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite (subdomain.domain.tld/...).",
   },
   tiktok: {
-    match: /^(https?:\/\/)?([a-z0-9]+\.)?tiktok.com\/@.+$|^$/,
+    match: /^(https?:\/\/)?([a-z0-9]+\.)?tiktok.com\/.+$|^$/,
     error:
-      "Deine Eingabe entspricht nicht dem Format einer TikTok Seite (tiktok.com/@...)",
+      "Deine Eingabe entspricht nicht dem Format einer TikTok Seite (tiktok.com/...)",
   },
 };
 

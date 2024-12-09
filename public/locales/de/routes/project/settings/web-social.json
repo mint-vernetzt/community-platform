@@ -17,42 +17,42 @@
       "headline": "Website",
       "url": {
         "label": "URL",
-        "placeholder": "domainname.tld"
+        "placeholder": "subdomain.domain.tld/..."
       }
     },
     "socialNetworks": {
       "headline": "Soziale Netzwerke",
       "facebook": {
         "label": "Facebook",
-        "placeholder": "facebook.com/<name>"
+        "placeholder": "facebook.com/..."
       },
       "linkedin": {
         "label": "LinkedIn",
-        "placeholder": "linkedin.com/company/<name>"
+        "placeholder": "linkedin.com/..."
       },
       "xing": {
         "label": "Xing",
-        "placeholder": "xing.com/pages/<name>"
+        "placeholder": "xing.com/..."
       },
       "twitter": {
         "label": "X (Twitter)",
-        "placeholder": "twitter.com/<name>"
+        "placeholder": "x.com/..."
       },
       "mastodon": {
         "label": "Mastodon",
-        "placeholder": "domainname.tld/@<name>"
+        "placeholder": "subdomain.domain.tld/..."
       },
       "tiktok": {
         "label": "TikTok",
-        "placeholder": "tiktok.com/@<name>"
+        "placeholder": "tiktok.com/..."
       },
       "instagram": {
         "label": "Instagram",
-        "placeholder": "instagram.com/<name>"
+        "placeholder": "instagram.com/..."
       },
       "youtube": {
         "label": "YouTube",
-        "placeholder": "youtube.com/<name>"
+        "placeholder": "youtube.com/..."
       }
     }
   }
