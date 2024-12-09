@@ -76,16 +76,16 @@ import {
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 
 const i18nNS = [
-  "routes/event/index",
-  "datasets/stages",
-  "datasets/experienceLevels",
-  "datasets/focuses",
-  "datasets/eventTypes",
-  "datasets/eventTargetGroups",
-  "datasets/tags",
-  "datasets/eventAbuseReportReasonSuggestions",
-  "datasets/organizationTypes",
-  "components/image-cropper",
+  "routes-event-index",
+  "datasets-stages",
+  "datasets-experienceLevels",
+  "datasets-focuses",
+  "datasets-eventTypes",
+  "datasets-eventTargetGroups",
+  "datasets-tags",
+  "datasets-eventAbuseReportReasonSuggestions",
+  "datasets-organizationTypes",
+  "components-image-cropper",
 ] as const;
 
 export const handle = {

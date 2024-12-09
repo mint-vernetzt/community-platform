@@ -42,8 +42,8 @@ function ProfileCard(
   const { profile, publicAccess = false } = props;
 
   const { t } = useTranslation([
-    "organisms/cards/profile-card",
-    "datasets/offers",
+    "organisms-cards-profile-card",
+    "datasets-offers",
   ]);
 
   const fullName = getFullName(profile);

@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { DeepSearchParam } from "~/form-helpers";
 
-const i18nNS = ["routes/project/settings/danger-zone"] as const;
+const i18nNS = ["routes-project-settings-danger-zone"] as const;
 export const handle = {
   i18n: i18nNS,
 };

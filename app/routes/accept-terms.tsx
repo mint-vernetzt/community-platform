@@ -18,7 +18,7 @@ import i18next from "~/i18next.server";
 import { Trans, useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/accept-terms"] as const;
+const i18nNS = ["routes-accept-terms"] as const;
 export const handle = {
   i18n: i18nNS,
 };

@@ -13,7 +13,7 @@ import { MaterialList } from "../settings/__components";
 import { deriveProjectMode } from "../../utils.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 
-const i18nNS = ["routes/project/detail/attachments"] as const;
+const i18nNS = ["routes-project-detail-attachments"] as const;
 export const handle = {
   i18n: i18nNS,
 };

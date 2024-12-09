@@ -405,7 +405,7 @@ export async function loader(args: LoaderFunctionArgs) {
   } as const);
 }
 
-const i18nNS = ["routes/explore/fundings"] as const;
+const i18nNS = ["routes-explore-fundings"] as const;
 export const handle = {
   i18n: i18nNS,
 };

@@ -22,7 +22,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/documents/upload-document",
+    "routes-event-settings-documents-upload-document",
   ]);
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");

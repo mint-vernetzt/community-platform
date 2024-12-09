@@ -77,7 +77,7 @@ function ImageCropper(props: ImageCropperProps) {
   const [scale, setScale] = useState(DEFAULT_SCALE);
   const aspect = props.aspect === undefined ? DEFAULT_ASPECT : props.aspect;
 
-  const { t } = useTranslation(["components/image-cropper"]);
+  const { t } = useTranslation(["components-image-cropper"]);
 
   const {
     id,

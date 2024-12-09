@@ -27,8 +27,8 @@ import {
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
 import { useChangeLanguage } from "remix-i18next/react";
+import i18nServer, { localeCookie } from "./i18next.server";
 import { ToastContainer } from "./__toast.components";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
@@ -37,7 +37,7 @@ import { RichText } from "./components/Richtext/RichText";
 import { getEnv } from "./env.server";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { getFeatureAbilities } from "./lib/utils/application";
-import { detectLanguage, getProfileByUserId } from "./root.server";
+import { getProfileByUserId } from "./root.server";
 import {
   Footer,
   LoginOrRegisterCTA,
@@ -49,7 +49,6 @@ import { getPublicURL } from "./storage.server";
 import legacyStyles from "./styles/legacy-styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
-import Cookies from "js-cookie";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -101,7 +100,7 @@ export const links: LinksFunction = () => [
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const locale = detectLanguage(request);
+  const locale = await i18nServer.getLocale(request);
 
   const { authClient, headers } = createAuthClient(request);
 
@@ -172,7 +171,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
         url: request.url,
       },
     },
-    { headers: combineHeaders(headers, alertHeaders, toastHeaders) }
+    {
+      headers: combineHeaders(headers, alertHeaders, toastHeaders, {
+        "Set-Cookie": await localeCookie.serialize(locale),
+      }),
+    }
   );
 };
 
@@ -198,8 +201,7 @@ export const ErrorBoundary = () => {
   const hasRootLoaderData =
     typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
 
-  useChangeLanguage(rootLoaderData?.locale || Cookies.get("i18next") || "de");
-  const { i18n } = useTranslation(i18nNS);
+  useChangeLanguage(hasRootLoaderData ? rootLoaderData.locale : "de");
 
   const [searchParams] = useSearchParams();
   const openNavBarMenuKey = "navbarmenu";
@@ -229,7 +231,10 @@ export const ErrorBoundary = () => {
   }
 
   return (
-    <html lang="en-US" dir={i18n.dir()} data-theme="light">
+    <html
+      lang={hasRootLoaderData ? rootLoaderData.locale : "de"}
+      data-theme="light"
+    >
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -376,8 +381,6 @@ export default function App() {
       "mv-overflow-hidden xl:mv-overflow-visible"
   );
 
-  const { i18n } = useTranslation(i18nNS);
-
   const main = (
     <main className="mv-flex-auto mv-relative mv-w-full mv-bg-neutral-50">
       {alert !== null &&
@@ -438,7 +441,7 @@ export default function App() {
   );
 
   return (
-    <html lang={locale} dir={i18n.dir()} data-theme="light">
+    <html lang={locale} data-theme="light">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />

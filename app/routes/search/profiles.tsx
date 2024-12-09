@@ -25,7 +25,7 @@ import {
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-const i18nNS = ["routes/search/profiles", "datasets/offers"] as const;
+const i18nNS = ["routes-search-profiles", "datasets-offers"] as const;
 export const handle = {
   i18n: i18nNS,
 };

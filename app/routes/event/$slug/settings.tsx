@@ -28,7 +28,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 function Settings() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(["routes/event/settings"]);
+  const { t } = useTranslation(["routes-event-settings"]);
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"

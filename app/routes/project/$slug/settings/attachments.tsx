@@ -54,7 +54,7 @@ import {
 import { DeepSearchParam } from "~/form-helpers";
 
 const MAX_UPLOAD_SIZE = 6 * 1024 * 1024; // 6MB
-const i18nNS = ["routes/project/settings/attachments"] as const;
+const i18nNS = ["routes-project-settings-attachments"] as const;
 export const handle = {
   i18n: i18nNS,
 };

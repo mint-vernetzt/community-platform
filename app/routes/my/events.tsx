@@ -20,8 +20,8 @@ import {
 import { getEvents } from "./events.server";
 
 export const i18nNS = [
-  "routes/my/events",
-  "datasets/stages",
+  "routes-my-events",
+  "datasets-stages",
   "components",
 ] as const;
 

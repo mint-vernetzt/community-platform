@@ -42,7 +42,7 @@ import {
   type action as removeMemberAction,
 } from "./team/remove-member";
 
-const i18nNS = ["routes/organization/settings/team"] as const;
+const i18nNS = ["routes-organization-settings-team"] as const;
 export const handle = {
   i18n: i18nNS,
 };
@@ -52,7 +52,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/team",
+    "routes-organization-settings-team",
   ]);
 
   const { authClient } = createAuthClient(request);

@@ -8,7 +8,7 @@ interface InputFileProps {
 }
 
 export function InputFile({ id, hasImage, onSelectFile }: InputFileProps) {
-  const { t } = useTranslation(["components/image-cropper"]);
+  const { t } = useTranslation(["components-image-cropper"]);
   return (
     <>
       <label

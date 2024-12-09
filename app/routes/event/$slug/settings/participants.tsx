@@ -82,7 +82,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/participants",
+    "routes-event-settings-participants",
   ]);
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -196,7 +196,7 @@ const createMutation = (t: TFunction) => {
 export async function action({ request, params }: ActionFunctionArgs) {
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/participants",
+    "routes-event-settings-participants",
   ]);
   const eventSlug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
@@ -233,7 +233,7 @@ function Participants() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/event/settings/participants"]);
+  const { t } = useTranslation(["routes-event-settings-participants"]);
   const actionData = useActionData<typeof action>();
 
   const participantLimitSchema = createParticipantLimitSchema(t);

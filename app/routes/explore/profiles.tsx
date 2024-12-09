@@ -55,7 +55,7 @@ import {
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 // import styles from "../../../common/design/styles/styles.css?url";
 
-const i18nNS = ["routes/explore/profiles", "datasets/offers"] as const;
+const i18nNS = ["routes-explore-profiles", "datasets-offers"] as const;
 export const handle = {
   i18n: i18nNS,
 };

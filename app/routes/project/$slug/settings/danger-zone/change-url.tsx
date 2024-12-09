@@ -29,7 +29,7 @@ import {
 } from "../utils.server";
 import { DeepSearchParam } from "~/form-helpers";
 
-const i18nNS = ["routes/project/settings/danger-zone/change-url"] as const;
+const i18nNS = ["routes-project-settings-danger-zone-change-url"] as const;
 export const handle = {
   i18n: i18nNS,
 };

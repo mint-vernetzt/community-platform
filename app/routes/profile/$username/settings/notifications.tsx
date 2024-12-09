@@ -27,7 +27,7 @@ import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/profile/settings/notifications"] as const;
+const i18nNS = ["routes-profile-settings-notifications"] as const;
 export const handle = {
   i18n: i18nNS,
 };
@@ -48,7 +48,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/profile/settings/notifications",
+    "routes-profile-settings-notifications",
   ]);
   const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
@@ -83,7 +83,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/profile/settings/notifications",
+    "routes-profile-settings-notifications",
   ]);
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);

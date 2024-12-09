@@ -29,7 +29,7 @@ export type ProjectCardProps = {
 
 function ProjectCard(props: ProjectCardProps) {
   const { project, mode } = props;
-  const { t } = useTranslation(["organisms/cards/project-card"]);
+  const { t } = useTranslation(["organisms-cards-project-card"]);
 
   const fetcher = useFetcher({ key: `quit-${project.slug}` });
 

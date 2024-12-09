@@ -1,6 +1,6 @@
 export const i18nNS = [
-  "routes/organization/detail/about",
-  "datasets/focuses",
+  "routes-organization-detail-about",
+  "datasets-focuses",
 ] as const;
 
 export function hasGeneralInformation(organization: {

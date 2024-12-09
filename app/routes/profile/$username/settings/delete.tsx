@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
-const i18nNS = ["routes/profile/settings/delete"] as const;
+const i18nNS = ["routes-profile-settings-delete"] as const;
 export const handle = {
   i18n: i18nNS,
 };
@@ -50,7 +50,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const username = getParamValueOrThrow(params, "username");
 
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/profile/settings/delete"]);
+  const t = await i18next.getFixedT(locale, ["routes-profile-settings-delete"]);
 
   const profile = await getProfileByUsername(username);
   if (profile === null) {
@@ -140,7 +140,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/profile/settings/delete"]);
+  const t = await i18next.getFixedT(locale, ["routes-profile-settings-delete"]);
 
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);

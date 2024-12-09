@@ -44,7 +44,7 @@ import { Avatar } from "@mint-vernetzt/components";
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/event/settings/speakers"]);
+  const t = await i18next.getFixedT(locale, ["routes-event-settings-speakers"]);
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = await getParamValueOrThrow(params, "slug");
@@ -129,7 +129,7 @@ function Speakers() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/event/settings/speakers"]);
+  const { t } = useTranslation(["routes-event-settings-speakers"]);
 
   return (
     <>

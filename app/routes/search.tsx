@@ -20,7 +20,7 @@ import {
   getQueryValueAsArrayOfWords,
 } from "./search/utils.server";
 
-const i18nNS = ["routes/search"] as const;
+const i18nNS = ["routes-search"] as const;
 export const handle = {
   i18n: i18nNS,
 };

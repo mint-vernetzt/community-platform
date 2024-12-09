@@ -50,11 +50,11 @@ import {
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 
 const i18nNS = [
-  "routes/profile/index",
-  "datasets/offers",
-  "datasets/stages",
-  "datasets/organizationTypes",
-  "components/image-cropper",
+  "routes-profile-index",
+  "datasets-offers",
+  "datasets-stages",
+  "datasets-organizationTypes",
+  "components-image-cropper",
 ] as const;
 export const handle = {
   i18n: i18nNS,

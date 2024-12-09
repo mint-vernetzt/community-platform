@@ -6,7 +6,7 @@ import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
 import { DeepSearchParam } from "~/form-helpers";
 
-const i18nNS = ["routes/project/settings/danger-zone/index"] as const;
+const i18nNS = ["routes-project-settings-danger-zone-index"] as const;
 export const handle = {
   i18n: i18nNS,
 };

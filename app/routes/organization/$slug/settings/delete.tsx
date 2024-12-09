@@ -19,7 +19,7 @@ import { detectLanguage } from "~/root.server";
 import { deriveOrganizationMode } from "../utils.server";
 import { deleteOrganizationBySlug, getProfileByUserId } from "./delete.server";
 
-const i18nNS = ["routes/organization/settings/delete"] as const;
+const i18nNS = ["routes-organization-settings-delete"] as const;
 export const handle = {
   i18n: i18nNS,
 };
@@ -43,7 +43,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/delete",
+    "routes-organization-settings-delete",
   ]);
 
   const { authClient } = createAuthClient(request);
@@ -80,7 +80,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/delete",
+    "routes-organization-settings-delete",
   ]);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);

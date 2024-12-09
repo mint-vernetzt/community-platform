@@ -23,7 +23,7 @@ import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organizati
 import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = [
-  "routes/next/organization/settings/danger-zone/delete",
+  "routes-next-organization-settings-danger-zone-delete",
 ] as const;
 export const handle = {
   i18n: i18nNS,

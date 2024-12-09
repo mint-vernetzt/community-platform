@@ -41,7 +41,7 @@ import { deriveProjectMode } from "../utils.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/project/detail", "components/image-cropper"] as const;
+const i18nNS = ["routes-project-detail", "components-image-cropper"] as const;
 
 export const handle = {
   i18n: i18nNS,

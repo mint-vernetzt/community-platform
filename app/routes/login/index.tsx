@@ -22,7 +22,7 @@ import { detectLanguage } from "~/root.server";
 import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 
-const i18nNS = ["routes/login"] as const;
+const i18nNS = ["routes-login"] as const;
 export const handle = {
   i18n: i18nNS,
 };

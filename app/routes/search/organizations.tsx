@@ -30,9 +30,9 @@ import {
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 const i18nNS = [
-  "routes/search/organizations",
-  "datasets/organizationTypes",
-  "datasets/focuses",
+  "routes-search-organizations",
+  "datasets-organizationTypes",
+  "datasets-focuses",
 ] as const;
 export const handle = {
   i18n: i18nNS,

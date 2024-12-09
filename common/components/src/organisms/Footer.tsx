@@ -8,7 +8,7 @@ function Footer(props: { isSettings?: boolean }) {
     "mv-shadow-md",
     props.isSettings && "hidden md:block"
   );
-  const { t } = useTranslation(["organisms/footer"]);
+  const { t } = useTranslation(["organisms-footer"]);
 
   return (
     <div className={classes}>

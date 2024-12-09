@@ -28,9 +28,9 @@ import { detectLanguage } from "~/root.server";
 import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 
 const i18nNS = [
-  "routes/organization/settings/network/index",
-  "routes/organization/settings/network/add",
-  "datasets/organizationTypes",
+  "routes-organization-settings-network-index",
+  "routes-organization-settings-network-add",
+  "datasets-organizationTypes",
 ] as const;
 export const handle = {
   i18n: i18nNS,

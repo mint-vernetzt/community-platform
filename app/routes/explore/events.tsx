@@ -64,10 +64,10 @@ import {
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 
 const i18nNS = [
-  "routes/explore/events",
-  "datasets/focuses",
-  "datasets/stages",
-  "datasets/eventTargetGroups",
+  "routes-explore-events",
+  "datasets-focuses",
+  "datasets-stages",
+  "datasets-eventTargetGroups",
 ] as const;
 export const handle = {
   i18n: i18nNS,

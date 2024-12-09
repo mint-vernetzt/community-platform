@@ -54,7 +54,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/participants/add-participant",
+    "routes-event-settings-participants-add-participant",
   ]);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
@@ -101,7 +101,7 @@ type AddParticipantButtonProps = {
 export function AddParticipantButton(props: AddParticipantButtonProps) {
   const fetcher = useFetcher<typeof action>();
   const { t } = useTranslation([
-    "routes/event/settings/participants/add-participant",
+    "routes-event-settings-participants-add-participant",
   ]);
   return (
     <RemixFormsForm

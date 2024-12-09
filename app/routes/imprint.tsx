@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-const i18nNS = ["routes/imprint"] as const;
+const i18nNS = ["routes-imprint"] as const;
 export const handle = {
   i18n: i18nNS,
 };

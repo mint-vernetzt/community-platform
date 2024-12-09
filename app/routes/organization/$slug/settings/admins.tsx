@@ -43,7 +43,7 @@ import {
 } from "./admins/remove-admin";
 import { Avatar } from "@mint-vernetzt/components";
 
-const i18nNS = ["routes/organization/settings/admins"] as const;
+const i18nNS = ["routes-organization-settings-admins"] as const;
 export const handle = {
   i18n: i18nNS,
 };

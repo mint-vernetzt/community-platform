@@ -113,7 +113,7 @@ function FundingCardLink(props: { to: string; children: React.ReactNode }) {
   );
 }
 
-const i18nNS = ["routes/explore/fundings"] as const;
+const i18nNS = ["routes-explore-fundings"] as const;
 function FundingCardCategory(props: {
   children: React.ReactNode;
   items: string[];

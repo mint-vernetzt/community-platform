@@ -140,8 +140,8 @@ const Autocomplete = React.forwardRef(
     };
 
     const { i18n, t } = useTranslation([
-      "datasets/stages",
-      "datasets/organizationTypes",
+      "datasets-stages",
+      "datasets-organizationTypes",
     ]);
 
     return (

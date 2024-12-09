@@ -137,7 +137,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/csv-download",
+    "routes-event-settings-csv-download",
   ]);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");

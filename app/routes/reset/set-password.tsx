@@ -17,7 +17,7 @@ import {
 } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 
-const i18nNS = ["routes/reset/set-password"] as const;
+const i18nNS = ["routes-reset-set-password"] as const;
 export const handle = {
   i18n: i18nNS,
 };

@@ -73,13 +73,13 @@ import { detectLanguage } from "~/root.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const i18nNS = [
-  "routes/event/settings/general",
-  "datasets/stages",
-  "datasets/experienceLevels",
-  "datasets/focuses",
-  "datasets/eventTypes",
-  "datasets/eventTargetGroups",
-  "datasets/tags",
+  "routes-event-settings-general",
+  "datasets-stages",
+  "datasets-experienceLevels",
+  "datasets-focuses",
+  "datasets-eventTypes",
+  "datasets-eventTargetGroups",
+  "datasets-tags",
 ] as const;
 
 export const handle = {

@@ -34,7 +34,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/documents/delete-document",
+    "routes-event-settings-documents-delete-document",
   ]);
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");

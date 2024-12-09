@@ -2,12 +2,16 @@ import { vitePlugin as remix } from "@remix-run/dev";
 import { createRoutesFromFolders } from "@remix-run/v1-route-convention";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { envOnlyMacros } from "vite-env-only";
+
+// TODO: Polyfills for console warnings that are currently occuring
 
 export default defineConfig({
   server: {
     port: 3000,
   },
   plugins: [
+    envOnlyMacros(),
     remix({
       future: {
         // TODO: Add future flags

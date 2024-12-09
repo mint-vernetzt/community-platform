@@ -8,7 +8,7 @@ import * as Sentry from "@sentry/remix";
 import { detectLanguage } from "~/root.server";
 import i18next from "~/i18next.server";
 
-const i18nNS = ["routes/login"] as const;
+const i18nNS = ["routes-login"] as const;
 export const handle = {
   i18n: i18nNS,
 };

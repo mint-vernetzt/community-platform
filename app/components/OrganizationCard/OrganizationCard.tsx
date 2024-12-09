@@ -17,7 +17,7 @@ export interface OrganizationCardProps {
 }
 
 function OrganizationCard(props: OrganizationCardProps) {
-  const { t } = useTranslation(["datasets/organizationTypes"]);
+  const { t } = useTranslation(["datasets-organizationTypes"]);
   return (
     <div
       key={props.id}

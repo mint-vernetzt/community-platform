@@ -60,7 +60,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/admins/add-admin",
+    "routes-organization-settings-admins-add-admin",
   ]);
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");

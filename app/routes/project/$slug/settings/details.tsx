@@ -48,12 +48,12 @@ import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 
 const i18nNS = [
-  "routes/project/settings/details",
-  "utils/schemas",
-  "datasets/disciplines",
-  "datasets/additionalDisciplines",
-  "datasets/projectTargetGroups",
-  "datasets/specialTargetGroups",
+  "routes-project-settings-details",
+  "utils-schemas",
+  "datasets-disciplines",
+  "datasets-additionalDisciplines",
+  "datasets-projectTargetGroups",
+  "datasets-specialTargetGroups",
 ] as const;
 export const handle = {
   i18n: i18nNS,

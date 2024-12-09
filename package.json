@@ -13,8 +13,8 @@
   ],
   "scripts": {
     "prepare": "husky install",
-    "build": "npm run update:seed && npm run build:new-styles && npm run build:styles && cross-env NODE_ENV=production node -r dotenv/config | remix vite:build --sourcemap",
-    "dev": "npm run update:seed && npm run build:styles:watch | npm run build:new-styles:watch | cross-env NODE_ENV=development node -r dotenv/config | remix vite:dev",
+    "build": "npm run build:new-styles && npm run build:styles && cross-env NODE_ENV=production node -r dotenv/config | remix vite:build --sourcemap",
+    "dev": "npm run build:styles:watch | npm run build:new-styles:watch | cross-env NODE_ENV=development node -r dotenv/config | remix vite:dev",
     "start": "cross-env NODE_ENV=production node -r dotenv/config remix-serve ./build/server/index.js",
     "create": "plop",
     "format": "lint-staged",
@@ -30,7 +30,6 @@
     "prisma:format": "prisma format",
     "copy:fonts": "rsync node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-{400,600,700}-normal.woff public/fonts",
     "make": "make",
-    "update:seed": "npx tsx scripts/update-seed.ts",
     "typecheck": "npx tsc",
     "typecheck:api": "npx tsc -p ./common/api",
     "start:api": "ts-node ./common/api/src/server.ts"
@@ -66,6 +65,7 @@
     "i18next": "^24.0.5",
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-chained-backend": "^4.6.2",
+    "i18next-fetch-backend": "^6.0.0",
     "i18next-fs-backend": "^2.6.0",
     "i18next-http-backend": "^3.0.1",
     "ics": "^3.7.1",
@@ -78,6 +78,7 @@
     "pdf-lib": "^1.17.1",
     "pica": "^9.0.1",
     "postcss": "^8.4.49",
+    "pretty-cache-header": "^1.0.0",
     "rc-slider": "^10.5.0",
     "react": "^19.0.0",
     "react-countup": "^6.5.0",
@@ -153,6 +154,7 @@
     "tsx": "^4.19.1",
     "typescript": "^5.6.2",
     "vite": "^5.4.8",
+    "vite-env-only": "^3.0.3",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^2.1.2",
     "vitest-mock-extended": "^2.0.2"

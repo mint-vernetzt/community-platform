@@ -23,7 +23,7 @@ import { detectLanguage } from "~/root.server";
 import { deriveProfileMode } from "../utils.server";
 import { getProfileByUsername } from "./security.server";
 
-const i18nNS = ["routes/profile/settings/security"] as const;
+const i18nNS = ["routes-profile-settings-security"] as const;
 export const handle = {
   i18n: i18nNS,
 };
@@ -136,7 +136,7 @@ const createEmailMutation = (t: TFunction) => {
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/profile/settings/security",
+    "routes-profile-settings-security",
   ]);
   const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");

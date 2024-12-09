@@ -19,7 +19,7 @@ import { detectLanguage } from "~/root.server";
 import { deriveMode, generateProjectSlug } from "~/utils.server";
 import { getSubmissionHash } from "./$slug/settings/utils.server";
 
-const i18nNS = ["routes/project/create"] as const;
+const i18nNS = ["routes-project-create"] as const;
 export const handle = {
   i18n: i18nNS,
 };
@@ -194,11 +194,14 @@ function Create() {
                 ns={i18nNS}
                 components={[
                   <Link
+                    key="terms-of-use"
                     as="a"
                     to="https://mint-vernetzt.de/terms-of-use-community-platform/"
                     className="mv-text-primary"
                     isExternal
-                  />,
+                  >
+                    {" "}
+                  </Link>,
                 ]}
               />
             </p>

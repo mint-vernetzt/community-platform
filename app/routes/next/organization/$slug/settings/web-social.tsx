@@ -72,8 +72,8 @@ const createWebSocialSchema = (t: TFunction) =>
   });
 
 const i18nNS = [
-  "routes/next/organization/settings/web-social",
-  "utils/schemas",
+  "routes-next-organization-settings-web-social",
+  "utils-schemas",
 ] as const;
 export const handle = {
   i18n: i18nNS,

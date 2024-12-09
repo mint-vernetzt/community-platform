@@ -5,7 +5,7 @@ import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
 
-const i18nNS = ["routes/project/settings/index"] as const;
+const i18nNS = ["routes-project-settings-index"] as const;
 export const handle = {
   i18n: i18nNS,
 };

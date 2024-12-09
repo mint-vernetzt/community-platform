@@ -366,9 +366,9 @@ function ListItemImage(props: {
 
 function EventListItemFlag(props: { canceled?: boolean; published?: boolean }) {
   const { t } = useTranslation([
-    "routes/my/events",
+    "routes-my-events",
     "components",
-    "datasets/stages",
+    "datasets-stages",
   ]);
 
   const classes = classNames(
@@ -411,9 +411,9 @@ function EventListItemContent(props: {
   const { event } = props;
 
   const { t, i18n } = useTranslation([
-    "routes/my/events",
+    "routes-my-events",
     "components",
-    "datasets/stages",
+    "datasets-stages",
   ]);
 
   const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");

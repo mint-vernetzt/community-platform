@@ -30,7 +30,7 @@ import { DeepSearchParam } from "~/form-helpers";
 import { redirectWithToast } from "~/toast.server";
 
 const i18nNS = [
-  "routes/next/organization/settings/danger-zone/change-url",
+  "routes-next-organization-settings-danger-zone-change-url",
 ] as const;
 export const handle = {
   i18n: i18nNS,

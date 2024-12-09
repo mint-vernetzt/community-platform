@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
 import { DeepSearchParam } from "~/form-helpers";
 
-const i18nNS = ["routes/next/organization/settings/danger-zone"] as const;
+const i18nNS = ["routes-next-organization-settings-danger-zone"] as const;
 export const handle = {
   i18n: i18nNS,
 };

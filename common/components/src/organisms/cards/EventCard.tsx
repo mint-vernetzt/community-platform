@@ -100,8 +100,8 @@ function EventCard(
 ) {
   const { event } = props;
   const { t, i18n } = useTranslation([
-    "organisms/cards/event-card",
-    "datasets/stages",
+    "organisms-cards-event-card",
+    "datasets-stages",
   ]);
 
   const now = new Date();

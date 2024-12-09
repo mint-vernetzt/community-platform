@@ -9,8 +9,8 @@ import { detectLanguage } from "~/root.server";
 import i18next from "~/i18next.server";
 
 const i18nNS = [
-  "routes/project/detail/requirements",
-  "datasets/financings",
+  "routes-project-detail-requirements",
+  "datasets-financings",
 ] as const;
 
 export const handle = {

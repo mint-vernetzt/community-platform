@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { faq } from "public/locales/en/help.json";
+import { faq } from "~/locales/de/help.json";
 import { RichText } from "~/components/Richtext/RichText";
 import { Accordion } from "./__help.components";
 import { Link as StyledLink, Button } from "@mint-vernetzt/components";

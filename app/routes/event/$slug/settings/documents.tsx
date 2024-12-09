@@ -43,7 +43,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/documents",
+    "routes-event-settings-documents",
   ]);
   const { authClient } = createAuthClient(request);
 
@@ -88,7 +88,7 @@ function Documents() {
   const deleteDocumentFetcher = useFetcher<typeof deleteDocumentAction>();
   const publishFetcher = useFetcher<typeof publishAction>();
 
-  const { t } = useTranslation(["routes/event/settings/documents"]);
+  const { t } = useTranslation(["routes-event-settings-documents"]);
 
   const [fileSelected, setFileSelected] = useState(false);
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {

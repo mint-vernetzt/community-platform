@@ -50,7 +50,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/waiting-list",
+    "routes-event-settings-waiting-list",
   ]);
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -160,7 +160,7 @@ function Participants() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes/event/settings/waiting-list"]);
+  const { t } = useTranslation(["routes-event-settings-waiting-list"]);
 
   return (
     <>

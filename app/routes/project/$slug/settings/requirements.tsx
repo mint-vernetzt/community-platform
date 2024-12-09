@@ -48,8 +48,8 @@ import {
 import { DeepSearchParam } from "~/form-helpers";
 
 const i18nNS = [
-  "routes/project/settings/requirements",
-  "datasets/financings",
+  "routes-project-settings-requirements",
+  "datasets-financings",
 ] as const;
 export const handle = {
   i18n: i18nNS,

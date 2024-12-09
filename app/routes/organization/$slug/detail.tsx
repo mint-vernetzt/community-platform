@@ -45,9 +45,9 @@ import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import { getFeatureAbilities } from "~/lib/utils/application";
 
 const i18nNS = [
-  "routes/organization/detail",
-  "datasets/organizationTypes",
-  "components/image-cropper",
+  "routes-organization-detail",
+  "datasets-organizationTypes",
+  "components-image-cropper",
 ] as const;
 
 export const handle = {

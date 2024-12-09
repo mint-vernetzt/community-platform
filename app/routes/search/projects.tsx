@@ -22,7 +22,7 @@ import {
   searchProjectsViaLike,
 } from "./utils.server";
 
-const i18nNS = ["routes/search/projects"] as const;
+const i18nNS = ["routes-search-projects"] as const;
 export const handle = {
   i18n: i18nNS,
 };

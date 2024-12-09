@@ -36,7 +36,7 @@ import {
 } from "./create.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
 
-const i18nNS = ["routes/organization/create"] as const;
+const i18nNS = ["routes-organization-create"] as const;
 export const handle = {
   i18n: i18nNS,
 };
@@ -121,7 +121,7 @@ export async function action(args: ActionFunctionArgs) {
   const queryString = url.searchParams.get("search");
 
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/organization/create"]);
+  const t = await i18next.getFixedT(locale, ["routes-organization-create"]);
 
   const formData = await request.formData();
   const submission = parse(formData, { schema: createSchema(t) });

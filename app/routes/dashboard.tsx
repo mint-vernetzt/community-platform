@@ -52,14 +52,14 @@ import {
 } from "./utils.server";
 
 const i18nNS = [
-  "routes/dashboard",
-  "organisms/cards/profile-card",
-  "datasets/offers",
-  "organisms/cards/organization-card",
-  "datasets/focuses",
-  "datasets/organizationTypes",
-  "organisms/cards/event-card",
-  "datasets/stages",
+  "routes-dashboard",
+  "organisms-cards-profile-card",
+  "datasets-offers",
+  "organisms-cards-organization-card",
+  "datasets-focuses",
+  "datasets-organizationTypes",
+  "organisms-cards-event-card",
+  "datasets-stages",
 ] as const;
 export const handle = {
   i18n: i18nNS,

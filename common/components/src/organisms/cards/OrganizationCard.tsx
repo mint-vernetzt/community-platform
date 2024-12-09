@@ -46,9 +46,9 @@ function OrganizationCard(
   const { organization, publicAccess = false, menu } = props;
 
   const { t } = useTranslation([
-    "organisms/cards/organization-card",
-    "datasets/focuses",
-    "datasets/organizationTypes",
+    "organisms-cards-organization-card",
+    "datasets-focuses",
+    "datasets-organizationTypes",
   ]);
 
   const emptyMessage = publicAccess

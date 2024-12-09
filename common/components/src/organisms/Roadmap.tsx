@@ -10,7 +10,7 @@ export type RoadmapColumnProps = {
 
 function RoadmapColumn(props: RoadmapColumnProps) {
   const countRoadmapCards = React.Children.count(props.children);
-  const { t } = useTranslation(["organisms/roadmap"]);
+  const { t } = useTranslation(["organisms-roadmap"]);
   return (
     <div>
       <h4 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary-600 mv-font-bold mv-leading-[26px]">
@@ -77,7 +77,7 @@ function RoadmapCard(props: RoadmapCardProps) {
 }
 
 function Roadmap() {
-  const { t } = useTranslation(["organisms/roadmap"]);
+  const { t } = useTranslation(["organisms-roadmap"]);
   return (
     <section
       id="roadmap"

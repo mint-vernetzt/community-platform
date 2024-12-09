@@ -21,9 +21,9 @@ import Add from "./add";
 import { NetworkMemberRemoveForm } from "./remove";
 
 const i18nNS = [
-  "routes/organization/settings/network/index",
-  "routes/organization/settings/network/add",
-  "datasets/organizationTypes",
+  "routes-organization-settings-network-index",
+  "routes-organization-settings-network-add",
+  "datasets-organizationTypes",
 ] as const;
 
 export const handle = {
@@ -43,7 +43,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/network/index",
+    "routes-organization-settings-network-index",
   ]);
 
   const { authClient } = createAuthClient(request);

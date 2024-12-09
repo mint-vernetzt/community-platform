@@ -58,7 +58,7 @@ import {
 } from "../utils.server";
 import { getProfileByUsername } from "./general.server";
 
-const i18nNS = ["routes/profile/settings/general", "datasets/offers"] as const;
+const i18nNS = ["routes-profile-settings-general", "datasets-offers"] as const;
 export const handle = {
   i18n: i18nNS,
 };
@@ -111,7 +111,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/profile/settings/general",
+    "routes-profile-settings-general",
   ]);
   const username = getParamValueOrThrow(params, "username");
   const { sessionUser, redirectPath } =
@@ -148,7 +148,7 @@ export const links: LinksFunction = () => [
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const locale = detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
-    "routes/profile/settings/general",
+    "routes-profile-settings-general",
   ]);
   const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");

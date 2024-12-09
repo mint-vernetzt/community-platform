@@ -61,9 +61,9 @@ import { getPendingRequestsToOrganizations } from "./organizations/requests.serv
 import { Icon } from "../__components";
 
 export const i18nNS = [
-  "routes/my/organizations",
-  "datasets/organizationTypes",
-  "datasets/focuses",
+  "routes-my-organizations",
+  "datasets-organizationTypes",
+  "datasets-focuses",
 ] as const;
 export const handle = {
   i18n: i18nNS,

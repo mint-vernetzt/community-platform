@@ -25,7 +25,7 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
     return React.isValidElement(child) && child.type === VideoSubline;
   });
 
-  const { t } = useTranslation(["organisms/video"]);
+  const { t } = useTranslation(["organisms-video"]);
 
   return (
     <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">

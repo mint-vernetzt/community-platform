@@ -1129,7 +1129,7 @@ function NewFeatureBanner() {
 }
 
 function Footer() {
-  const { t } = useTranslation(["organisms/footer"]);
+  const { t } = useTranslation(["organisms-footer"]);
 
   return (
     <footer className="mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">

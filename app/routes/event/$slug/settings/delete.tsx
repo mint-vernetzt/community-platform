@@ -40,7 +40,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
+  const t = await i18next.getFixedT(locale, ["routes-event-settings-delete"]);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -85,7 +85,7 @@ const createMutation = (t: TFunction) => {
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
+  const t = await i18next.getFixedT(locale, ["routes-event-settings-delete"]);
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -120,7 +120,7 @@ function Delete() {
   const loaderData = useLoaderData<typeof loader>();
   const { slug } = useParams();
   const publishFetcher = useFetcher<typeof publishAction>();
-  const { t } = useTranslation(["routes/event/settings/delete"]);
+  const { t } = useTranslation(["routes-event-settings-delete"]);
 
   return (
     <>

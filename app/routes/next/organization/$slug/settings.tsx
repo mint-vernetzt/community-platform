@@ -57,7 +57,7 @@ export async function loader(args: LoaderFunctionArgs) {
   return { organization };
 }
 
-const i18nNS = ["routes/next/organization/settings"] as const;
+const i18nNS = ["routes-next-organization-settings"] as const;
 export const handle = {
   i18n: i18nNS,
 };

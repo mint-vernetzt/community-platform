@@ -1,14 +1,12 @@
 import { RemixBrowser, useLocation, useMatches } from "@remix-run/react";
 import * as Sentry from "@sentry/remix";
 import i18next from "i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
-import backend from "i18next-fs-backend/cjs";
+import I18nextBrowserLanguageDetector from "i18next-browser-languagedetector";
+import Fetch from "i18next-fetch-backend";
 import { StrictMode, startTransition, useEffect } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { I18nextProvider, initReactI18next } from "react-i18next";
-import { getInitialNamespaces } from "remix-i18next/client";
-import i18n from "./i18n";
-import { localesUrl, requestOptions } from "./lib/no-cache";
+import { defaultNS, fallbackLng, resources, supportedLngs } from "~/i18n";
 
 if (ENV.MODE === "production" && ENV.SENTRY_DSN) {
   Sentry.init({
@@ -29,25 +27,38 @@ if (ENV.MODE === "production" && ENV.SENTRY_DSN) {
 }
 
 async function hydrate() {
+  const languages = resources!;
+  const namespaces = [];
+  for (const lng in languages) {
+    const typedKey = lng as keyof typeof languages;
+    const keys = Object.keys(languages[typedKey]);
+    for (const key of keys) {
+      namespaces.push(key);
+    }
+  }
+
   await i18next
-    .use(initReactI18next)
-    .use(LanguageDetector)
-    .use(backend)
+    .use(initReactI18next) // Tell i18next to use the react-i18next plugin
+    .use(Fetch) // Tell i18next to use the Fetch backend
+    .use(I18nextBrowserLanguageDetector) // Setup a client-side language detector
     .init({
-      ...i18n,
-      ns:
-        typeof window !== "undefined" &&
-        typeof window.__reactRouterRouteModules !== "undefined"
-          ? getInitialNamespaces()
-          : [],
-      backend: {
-        loadPath: localesUrl,
-        requestOptions: requestOptions(),
-      },
+      defaultNS,
+      fallbackLng,
+      supportedLngs,
+      ns: namespaces,
       detection: {
-        order: ["cookie", "htmlTag"],
-        caches: ["cookie"],
-        excludeCacheFor: ["cimode"],
+        // Here only enable htmlTag detection, we'll detect the language only
+        // server-side with remix-i18next, by using the `<html lang>` attribute
+        // we can communicate to the client the language detected server-side
+        order: ["htmlTag"],
+        // Because we only use htmlTag, there's no reason to cache the language
+        // on the browser, so we disable it
+        caches: [],
+      },
+      backend: {
+        // We will configure the backend to fetch the translations from the
+        // resource route /i18n/locales and pass the lng and ns as search params
+        loadPath: "/i18n/locales?lng={{lng}}&ns={{ns}}",
       },
     });
 

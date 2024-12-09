@@ -42,7 +42,7 @@ import {
 } from "./team.server";
 
 const i18nNS = [
-  "routes/next/organization/settings/team",
+  "routes-next-organization-settings-team",
   ...searchProfilesI18nNS,
 ] as const;
 export const handle = {

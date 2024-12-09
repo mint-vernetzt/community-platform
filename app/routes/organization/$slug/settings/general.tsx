@@ -61,9 +61,9 @@ import { detectLanguage } from "~/root.server";
 import { getOrganizationBySlug } from "./general.server";
 
 const i18nNS = [
-  "routes/organization/settings/general",
-  "datasets/organizationTypes",
-  "datasets/focuses",
+  "routes-organization-settings-general",
+  "datasets-organizationTypes",
+  "datasets-focuses",
 ] as const;
 export const handle = {
   i18n: i18nNS,

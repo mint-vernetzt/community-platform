@@ -63,13 +63,13 @@ import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 const i18nNS = [
-  "routes/explore/projects",
-  "datasets/financings",
-  "datasets/disciplines",
-  "datasets/additionalDisciplines",
-  "datasets/projectTargetGroups",
-  "datasets/formats",
-  "datasets/specialTargetGroups",
+  "routes-explore-projects",
+  "datasets-financings",
+  "datasets-disciplines",
+  "datasets-additionalDisciplines",
+  "datasets-projectTargetGroups",
+  "datasets-formats",
+  "datasets-specialTargetGroups",
 ] as const;
 export const handle = {
   i18n: i18nNS,
