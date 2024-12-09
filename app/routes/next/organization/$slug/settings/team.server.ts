@@ -11,8 +11,8 @@ import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { invariantResponse } from "~/lib/utils/response";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
-import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
 import { getPublicURL } from "~/storage.server";
+import { type Toast } from "~/toast.server";
 
 export async function getOrganizationWithTeamMembers(options: {
   slug: string;
@@ -233,13 +233,11 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
     );
   }
 
-  const hash = getSubmissionHash(submission);
-
   return {
     submission: submission.reply(),
     toast: {
       id: "invite-team-member-toast",
-      key: hash,
+      key: `${new Date().getTime()}`,
       message: t("content.profileAdded", {
         firstName: profile.firstName,
         lastName: profile.lastName,
@@ -295,13 +293,11 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
     },
   });
 
-  const hash = getSubmissionHash(submission);
-
   return {
     submission: submission.reply(),
     toast: {
       id: "cancel-invite-toast",
-      key: hash,
+      key: `${new Date().getTime()}`,
       message: t("content.inviteCancelled", {
         firstName: profile.firstName,
         lastName: profile.lastName,
@@ -365,13 +361,11 @@ export async function removeTeamMemberFromOrganization(options: {
     },
   });
 
-  const hash = getSubmissionHash(submission);
-
   return {
     submission: submission.reply(),
     toast: {
       id: "remove-team-member-toast",
-      key: hash,
+      key: `${new Date().getTime()}`,
       message: t("content.profileRemoved", {
         firstName: profile.firstName,
         lastName: profile.lastName,

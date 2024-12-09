@@ -539,15 +539,15 @@ function getDataForUpdateTeasers() {
   const teaserData: {
     [key: string]: { link: string; icon: TeaserIconType; external: boolean };
   } = {
-    addToOrganization: {
-      link: "/my/organizations",
-      icon: "Plus big",
-      external: false,
-    },
     crawler: {
       link: "/explore/fundings",
       icon: "piggy-bank",
       external: false,
+    },
+    mediaDatabase: {
+      link: "https://mediendatenbank.mint-vernetzt.de",
+      icon: "Plus big",
+      external: true,
     },
   };
   return teaserData;
@@ -556,7 +556,7 @@ function getDataForUpdateTeasers() {
 function getDataForNewsTeasers() {
   const teaserData: {
     tableMedia: { link: string; icon: TeaserIconType; external: boolean };
-    learningJourneyParticipation: {
+    annualConference: {
       link: string;
       icon: TeaserIconType;
       external: boolean;
@@ -567,10 +567,10 @@ function getDataForNewsTeasers() {
       icon: "lightning-charge",
       external: true,
     },
-    learningJourneyParticipation: {
-      link: "https://www.mint-vernetzt.de/news/anmeldung-lernreise-teilhabe-2025/",
+    annualConference: {
+      link: "/event/mintvernetztjahrestagung2025-lxa5gke3",
       icon: "megaphone",
-      external: true,
+      external: false,
     },
   };
   return teaserData;
