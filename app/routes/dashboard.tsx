@@ -550,16 +550,22 @@ function getDataForUpdateTeasers() {
 
 function getDataForNewsTeasers() {
   const teaserData: {
-    tableMedia: { link: string; icon: TeaserIconType };
-    mintPitch: { link: string; icon: TeaserIconType };
+    tableMedia: { link: string; icon: TeaserIconType; external: boolean };
+    annualConference: {
+      link: string;
+      icon: TeaserIconType;
+      external: boolean;
+    };
   } = {
     tableMedia: {
       link: "https://table.media/aktion/mint-vernetzt?utm_source=samail&utm_medium=email&utm_campaign=rt_mintvernetzt_koop_email_job&utm_content=lp_1",
       icon: "lightning-charge",
+      external: true,
     },
-    mintPitch: {
-      link: "https://www.mint-vernetzt.de/news/mint-pitch-jahrestagung/",
+    annualConference: {
+      link: "/event/mintvernetztjahrestagung2025-lxa5gke3",
       icon: "megaphone",
+      external: false,
     },
   };
   return teaserData;
