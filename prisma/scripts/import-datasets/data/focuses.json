@@ -76,5 +76,11 @@
     "title": "Ländlicher Raum",
     "slug": "rural_area",
     "description": null
+  },
+  {
+    "id": "2168a7a6-667f-45bd-b3d8-232fbb8a16d1",
+    "title": "International",
+    "slug": "international",
+    "description": null
   }
 ]
