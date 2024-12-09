@@ -50,5 +50,9 @@
   "rural_area": {
     "title": "Rural Areas",
     "description": null
+  },
+  "international": {
+    "title": "International",
+    "description": null
   }
 }
