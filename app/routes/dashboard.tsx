@@ -539,15 +539,15 @@ function getDataForUpdateTeasers() {
   const teaserData: {
     [key: string]: { link: string; icon: TeaserIconType; external: boolean };
   } = {
-    addToOrganization: {
-      link: "/my/organizations",
-      icon: "Plus big",
-      external: false,
-    },
     crawler: {
       link: "/explore/fundings",
       icon: "piggy-bank",
       external: false,
+    },
+    mediaDatabase: {
+      link: "https://mediendatenbank.mint-vernetzt.de",
+      icon: "Plus big",
+      external: true,
     },
   };
   return teaserData;
