@@ -448,6 +448,7 @@ function Fundings() {
                 components={{
                   link1: (
                     <Link
+                      key="feedback-link"
                       to="mailto:community@mint-vernetzt.de"
                       className="mv-font-semibold hover:mv-underline"
                     >
