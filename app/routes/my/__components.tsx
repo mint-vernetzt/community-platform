@@ -526,7 +526,7 @@ export function ListItem(
                 : entity.types
                     .map((relation) => {
                       return t(`${relation.organizationType.slug}.title`, {
-                        ns: "datasets/organizationTypes",
+                        ns: "datasets-organizationTypes",
                       });
                     })
                     .join(", ")}

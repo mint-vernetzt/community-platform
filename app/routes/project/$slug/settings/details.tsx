@@ -730,7 +730,7 @@ function Details() {
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
                       {t(`${filteredDiscipline.slug}.title`, {
-                        ns: "datasets/disciplines",
+                        ns: "datasets-disciplines",
                       })}
                     </button>
                   );
@@ -749,7 +749,7 @@ function Details() {
                             );
                           })?.slug
                         }.title`,
-                        { ns: "datasets/disciplines" }
+                        { ns: "datasets-disciplines" }
                       ) || "Not Found"}
                       <Input type="hidden" {...conform.input(listDiscipline)} />
                       <Chip.Delete>
@@ -794,7 +794,7 @@ function Details() {
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
                       {t(`${filteredAdditionalDiscipline.slug}.title`, {
-                        ns: "datasets/additionalDisciplines",
+                        ns: "datasets-additionalDisciplines",
                       })}
                     </button>
                   );
@@ -818,7 +818,7 @@ function Details() {
                             )?.slug
                           }.title`,
                           {
-                            ns: "datasets/additionalDisciplines",
+                            ns: "datasets-additionalDisciplines",
                           }
                         ) || t("error.notFound")}
                         <Input
@@ -934,7 +934,7 @@ function Details() {
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
                       {t(`${filteredTargetGroup.slug}.title`, {
-                        ns: "datasets/projectTargetGroups",
+                        ns: "datasets-projectTargetGroups",
                       })}
                     </button>
                   );
@@ -954,7 +954,7 @@ function Details() {
                           })?.slug
                         }.title`,
                         {
-                          ns: "datasets/projectTargetGroups",
+                          ns: "datasets-projectTargetGroups",
                         }
                       ) || t("error.notFound")}
                       <Input
@@ -1005,7 +1005,7 @@ function Details() {
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
                       {t(`${filteredSpecialTargetGroup.slug}.title`, {
-                        ns: "datasets/specialTargetGroups",
+                        ns: "datasets-specialTargetGroups",
                       })}
                     </button>
                   );
@@ -1026,7 +1026,7 @@ function Details() {
                           })?.slug
                         }.title`,
                         {
-                          ns: "datasets/specialTargetGroups",
+                          ns: "datasets-specialTargetGroups",
                         }
                       ) || t("error.notFound")}
                       <Input

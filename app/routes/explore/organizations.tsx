@@ -426,7 +426,7 @@ export default function ExploreOrganizations() {
                     {loaderData.selectedTypes
                       .map((type) => {
                         return t(`${type}.title`, {
-                          ns: "datasets/organizationTypes",
+                          ns: "datasets-organizationTypes",
                         });
                       })
                       .join(", ")}
@@ -450,14 +450,14 @@ export default function ExploreOrganizations() {
                       >
                         <FormControl.Label>
                           {t(`${type.slug}.title`, {
-                            ns: "datasets/organizationTypes",
+                            ns: "datasets-organizationTypes",
                           })}
                           {t(`${type.slug}.description`, {
-                            ns: "datasets/organizationTypes",
+                            ns: "datasets-organizationTypes",
                           }) !== `${type.slug}.description` ? (
                             <p className="mv-text-sm">
                               {t(`${type.slug}.description`, {
-                                ns: "datasets/organizationTypes",
+                                ns: "datasets-organizationTypes",
                               })}
                             </p>
                           ) : null}
@@ -477,7 +477,7 @@ export default function ExploreOrganizations() {
                     <br />
                     {loaderData.selectedFocuses
                       .map((focus) => {
-                        return t(`${focus}.title`, { ns: "datasets/focuses" });
+                        return t(`${focus}.title`, { ns: "datasets-focuses" });
                       })
                       .join(", ")}
                   </span>
@@ -499,13 +499,13 @@ export default function ExploreOrganizations() {
                         disabled={focus.vectorCount === 0 && !focus.isChecked}
                       >
                         <FormControl.Label>
-                          {t(`${focus.slug}.title`, { ns: "datasets/focuses" })}
+                          {t(`${focus.slug}.title`, { ns: "datasets-focuses" })}
                           {t(`${focus.slug}.description`, {
-                            ns: "datasets/focuses",
+                            ns: "datasets-focuses",
                           }) !== `${focus.slug}.description` ? (
                             <p className="mv-text-sm">
                               {t(`${focus.slug}.description`, {
-                                ns: "datasets/focuses",
+                                ns: "datasets-focuses",
                               })}
                             </p>
                           ) : null}
@@ -764,7 +764,7 @@ export default function ExploreOrganizations() {
                 return (
                   <Chip key={selectedType} size="medium">
                     {t(`${selectedType}.title`, {
-                      ns: "datasets/organizationTypes",
+                      ns: "datasets-organizationTypes",
                     })}
                     <Chip.Delete>
                       <Link
@@ -784,7 +784,7 @@ export default function ExploreOrganizations() {
                 deleteSearchParams.delete(filter.focus.name, selectedFocus);
                 return (
                   <Chip key={selectedFocus} size="medium">
-                    {t(`${selectedFocus}.title`, { ns: "datasets/focuses" })}
+                    {t(`${selectedFocus}.title`, { ns: "datasets-focuses" })}
                     <Chip.Delete>
                       <Link
                         to={`${

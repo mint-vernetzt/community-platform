@@ -113,7 +113,7 @@ function About() {
                       return (
                         <Chip key={relation.focus.slug} color="primary">
                           {t(`${relation.focus.slug}.title`, {
-                            ns: "datasets/focuses",
+                            ns: "datasets-focuses",
                           })}
                         </Chip>
                       );

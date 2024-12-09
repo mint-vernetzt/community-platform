@@ -153,7 +153,7 @@ function Add(props: NetworkMemberProps) {
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="name" className="label">
                     {t("content.label", {
-                      ns: "routes/organization/settings/network/add",
+                      ns: "routes-organization-settings-network-add",
                     })}
                   </label>
                 </div>

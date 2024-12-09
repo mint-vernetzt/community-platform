@@ -103,7 +103,7 @@ function ProfileCard(
               {profile.offers.map((offer) => {
                 return (
                   <Chip key={offer} color="secondary">
-                    {t(`${offer}.title`, { ns: "datasets/offers" })}
+                    {t(`${offer}.title`, { ns: "datasets-offers" })}
                   </Chip>
                 );
               })}

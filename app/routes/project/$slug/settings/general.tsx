@@ -490,7 +490,7 @@ function General() {
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
                       {t(`${filteredFormat.slug}.title`, {
-                        ns: "datasets/formats",
+                        ns: "datasets-formats",
                       })}
                     </button>
                   );
@@ -508,7 +508,7 @@ function General() {
                             return format.id === listFormat.defaultValue;
                           })?.slug
                         }.title`,
-                        { ns: "datasets/formats" }
+                        { ns: "datasets-formats" }
                       ) || t("content.notFound")}
                       <Chip.Delete>
                         <button

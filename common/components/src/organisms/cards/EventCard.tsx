@@ -197,7 +197,7 @@ function EventCard(
               <>
                 <IconOnSite />
                 <span className="mv-ml-1">
-                  {t(`${event.stage?.slug}.title`, { ns: "datasets/stages" })}
+                  {t(`${event.stage?.slug}.title`, { ns: "datasets-stages" })}
                 </span>
               </>
             )}
@@ -205,7 +205,7 @@ function EventCard(
               <>
                 <IconOnline />
                 <span className="mv-ml-1">
-                  {t(`${event.stage?.slug}.title`, { ns: "datasets/stages" })}
+                  {t(`${event.stage?.slug}.title`, { ns: "datasets-stages" })}
                 </span>
               </>
             )}
@@ -213,7 +213,7 @@ function EventCard(
               <>
                 <IconHybrid />
                 <span className="mv-ml-1">
-                  {t(`${event.stage?.slug}.title`, { ns: "datasets/stages" })}
+                  {t(`${event.stage?.slug}.title`, { ns: "datasets-stages" })}
                 </span>
               </>
             )}

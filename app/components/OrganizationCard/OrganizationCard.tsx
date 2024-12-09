@@ -52,7 +52,7 @@ function OrganizationCard(props: OrganizationCardProps) {
                 {props.types
                   .map((relation) =>
                     t(`${relation.organizationType.slug}.title`, {
-                      ns: "datasets/organizationTypes",
+                      ns: "datasets-organizationTypes",
                     })
                   )
                   .join(", ")}

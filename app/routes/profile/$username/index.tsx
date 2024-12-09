@@ -744,7 +744,7 @@ export default function Index() {
                     <Chip
                       key={`offer_${relation.offer.slug}`}
                       title={t(`${relation.offer.slug}.title`, {
-                        ns: "datasets/offers",
+                        ns: "datasets-offers",
                       })}
                       slug=""
                       isEnabled
@@ -763,7 +763,7 @@ export default function Index() {
                     <Chip
                       key={`seeking_${relation.offer.slug}`}
                       title={t(`${relation.offer.slug}.title`, {
-                        ns: "datasets/offers",
+                        ns: "datasets-offers",
                       })}
                       slug=""
                       isEnabled
@@ -957,7 +957,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? t(`${event.stage.slug}.title`, {
-                                          ns: "datasets/stages",
+                                          ns: "datasets-stages",
                                         }) + " | "
                                       : ""}
                                     {getDuration(
@@ -1126,7 +1126,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? t(`${event.stage.slug}.title`, {
-                                          ns: "datasets/stages",
+                                          ns: "datasets-stages",
                                         }) + " | "
                                       : ""}
                                     {getDuration(
@@ -1280,7 +1280,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? t(`${event.stage.slug}.title`, {
-                                          ns: "datasets/stages",
+                                          ns: "datasets-stages",
                                         }) + " | "
                                       : ""}
                                     {getDuration(
@@ -1428,7 +1428,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? t(`${event.stage.slug}.title`, {
-                                          ns: "datasets/stages",
+                                          ns: "datasets-stages",
                                         }) + " | "
                                       : ""}
                                     {getDuration(
@@ -1581,7 +1581,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? t(`${event.stage.slug}.title`, {
-                                          ns: "datasets/stages",
+                                          ns: "datasets-stages",
                                         }) + " | "
                                       : ""}
                                     {getDuration(
@@ -1695,7 +1695,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? t(`${event.stage.slug}.title`, {
-                                          ns: "datasets/stages",
+                                          ns: "datasets-stages",
                                         }) + " | "
                                       : ""}
                                     {getDuration(
@@ -1794,7 +1794,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? t(`${event.stage.slug}.title`, {
-                                          ns: "datasets/stages",
+                                          ns: "datasets-stages",
                                         }) + " | "
                                       : ""}
                                     {getDuration(
@@ -1889,7 +1889,7 @@ export default function Index() {
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? t(`${event.stage.slug}.title`, {
-                                          ns: "datasets/stages",
+                                          ns: "datasets-stages",
                                         }) + " | "
                                       : ""}
                                     {getDuration(

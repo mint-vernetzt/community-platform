@@ -287,7 +287,7 @@ function OrganizationDetail() {
                   {organization.types
                     .map((relation) => {
                       return t(`${relation.organizationType.slug}.title`, {
-                        ns: "datasets/organizationTypes",
+                        ns: "datasets-organizationTypes",
                       });
                     })
                     .join(" / ")}

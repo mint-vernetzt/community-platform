@@ -318,7 +318,7 @@ function Events() {
                           {/* TODO: Display icons (see figma) */}
                           {loaderData.parentEvent.stage !== null
                             ? t(`${loaderData.parentEvent.stage.slug}.title`, {
-                                ns: "datasets/stages",
+                                ns: "datasets-stages",
                               }) + " | "
                             : ""}
                           {getDuration(
@@ -507,7 +507,7 @@ function Events() {
                               {/* TODO: Display icons (see figma) */}
                               {childEvent.stage !== null
                                 ? t(`${childEvent.stage.slug}.title`, {
-                                    ns: "datasets/stages",
+                                    ns: "datasets-stages",
                                   }) + " | "
                                 : ""}
                               {getDuration(

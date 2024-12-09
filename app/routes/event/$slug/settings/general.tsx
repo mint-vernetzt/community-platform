@@ -358,7 +358,7 @@ function General() {
 
   const stageOptions = stages.map((item) => {
     return {
-      label: t(`${item.slug}.title`, { ns: "datasets/stages" }),
+      label: t(`${item.slug}.title`, { ns: "datasets-stages" }),
       value: item.id,
     };
   });
@@ -369,7 +369,7 @@ function General() {
     })
     .map((item) => {
       return {
-        label: t(`${item.slug}.title`, { ns: "datasets/focuses" }),
+        label: t(`${item.slug}.title`, { ns: "datasets-focuses" }),
         value: item.id,
       };
     });
@@ -379,8 +379,8 @@ function General() {
       ? focuses
           .filter((focus) => event.focuses.includes(focus.id))
           .sort((a, b) =>
-            t(`${a.slug}.title`, { ns: "datasets/focuses" }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets/focuses" })
+            t(`${a.slug}.title`, { ns: "datasets-focuses" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets-focuses" })
             )
           )
       : [];
@@ -391,7 +391,7 @@ function General() {
     })
     .map((type) => {
       return {
-        label: t(`${type.slug}.title`, { ns: "datasets/eventTypes" }),
+        label: t(`${type.slug}.title`, { ns: "datasets-eventTypes" }),
         value: type.id,
       };
     });
@@ -401,8 +401,8 @@ function General() {
       ? types
           .filter((type) => event.types.includes(type.id))
           .sort((a, b) =>
-            t(`${a.slug}.title`, { ns: "datasets/eventTypes" }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets/eventTypes" })
+            t(`${a.slug}.title`, { ns: "datasets-eventTypes" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets-eventTypes" })
             )
           )
       : [];
@@ -414,7 +414,7 @@ function General() {
     .map((targetGroup) => {
       return {
         label: t(`${targetGroup.slug}.title`, {
-          ns: "datasets/eventTargetGroups",
+          ns: "datasets-eventTargetGroups",
         }),
         value: targetGroup.id,
       };
@@ -428,9 +428,9 @@ function General() {
           )
           .sort((a, b) =>
             t(`${a.slug}.title`, {
-              ns: "datasets/eventTargetGroups",
+              ns: "datasets-eventTargetGroups",
             }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets/eventTargetGroups" })
+              t(`${b.slug}.title`, { ns: "datasets-eventTargetGroups" })
             )
           )
       : [];
@@ -441,7 +441,7 @@ function General() {
     })
     .map((tag) => {
       return {
-        label: t(`${tag.slug}.title`, { ns: "datasets/tags" }),
+        label: t(`${tag.slug}.title`, { ns: "datasets-tags" }),
         value: tag.id,
       };
     });
@@ -451,8 +451,8 @@ function General() {
       ? tags
           .filter((tag) => event.tags.includes(tag.id))
           .sort((a, b) =>
-            t(`${a.slug}.title`, { ns: "datasets/tags" }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets/tags" })
+            t(`${a.slug}.title`, { ns: "datasets-tags" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets-tags" })
             )
           )
       : [];
@@ -836,7 +836,7 @@ function General() {
               label={t("form.types.label")}
               placeholder={t("form.types.placeholder")}
               entries={selectedTypes.map((type) => ({
-                label: t(`${type.slug}.title`, { ns: "datasets/eventTypes" }),
+                label: t(`${type.slug}.title`, { ns: "datasets-eventTypes" }),
                 value: type.id,
               }))}
               options={typeOptions}
@@ -850,7 +850,7 @@ function General() {
               label={t("form.tags.label")}
               placeholder={t("form.tags.placeholder")}
               entries={selectedTags.map((tag) => ({
-                label: t(`${tag.slug}.title`, { ns: "datasets/tags" }),
+                label: t(`${tag.slug}.title`, { ns: "datasets-tags" }),
                 value: tag.id,
               }))}
               options={tagOptions}
@@ -866,7 +866,7 @@ function General() {
               placeholder={t("form.targetGroups.placeholder")}
               entries={selectedEventTargetGroups.map((targetGroup) => ({
                 label: t(`${targetGroup.slug}.title`, {
-                  ns: "datasets/eventTargetGroups",
+                  ns: "datasets-eventTargetGroups",
                 }),
                 value: targetGroup.id,
               }))}
@@ -893,7 +893,7 @@ function General() {
               label={t("form.focuses.label")}
               placeholder={t("form.focuses.placeholder")}
               entries={selectedFocuses.map((focus) => ({
-                label: t(`${focus.slug}.title`, { ns: "datasets/focuses" }),
+                label: t(`${focus.slug}.title`, { ns: "datasets-focuses" }),
                 value: focus.id,
               }))}
               options={focusOptions}

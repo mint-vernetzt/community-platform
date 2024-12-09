@@ -152,7 +152,7 @@ function Requirements() {
                   return (
                     <Chip key={relation.financing.slug} color="primary">
                       {t(`${relation.financing.slug}.title`, {
-                        ns: "datasets/financings",
+                        ns: "datasets-financings",
                       })}
                     </Chip>
                   );

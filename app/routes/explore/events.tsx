@@ -443,7 +443,7 @@ export default function ExploreOrganizations() {
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {t(`${loaderData.submission.value.filter.stage}.title`, {
-                      ns: "datasets/stages",
+                      ns: "datasets-stages",
                     })}
                   </span>
                 </Dropdown.Label>
@@ -463,7 +463,7 @@ export default function ExploreOrganizations() {
                         readOnly
                       >
                         <FormControl.Label>
-                          {t(`${stage.slug}.title`, { ns: "datasets/stages" })}
+                          {t(`${stage.slug}.title`, { ns: "datasets-stages" })}
                         </FormControl.Label>
                       </FormControl>
                     );
@@ -477,7 +477,7 @@ export default function ExploreOrganizations() {
                     <br />
                     {loaderData.selectedFocuses
                       .map((focus) => {
-                        return t(`${focus}.title`, { ns: "datasets/focuses" });
+                        return t(`${focus}.title`, { ns: "datasets-focuses" });
                       })
                       .join(", ")}
                   </span>
@@ -499,13 +499,13 @@ export default function ExploreOrganizations() {
                         disabled={focus.vectorCount === 0 && !focus.isChecked}
                       >
                         <FormControl.Label>
-                          {t(`${focus.slug}.title`, { ns: "datasets/focuses" })}
+                          {t(`${focus.slug}.title`, { ns: "datasets-focuses" })}
                           {t(`${focus.slug}.description`, {
-                            ns: "datasets/focuses",
+                            ns: "datasets-focuses",
                           }) !== `${focus.slug}.description` ? (
                             <p className="mv-text-sm">
                               {t(`${focus.slug}.description`, {
-                                ns: "datasets/focuses",
+                                ns: "datasets-focuses",
                               })}
                             </p>
                           ) : null}
@@ -569,7 +569,7 @@ export default function ExploreOrganizations() {
                     {loaderData.selectedTargetGroups
                       .map((targetGroup) => {
                         return t(`${targetGroup}.title`, {
-                          ns: "datasets/eventTargetGroups",
+                          ns: "datasets-eventTargetGroups",
                         });
                       })
                       .join(", ")}
@@ -596,14 +596,14 @@ export default function ExploreOrganizations() {
                       >
                         <FormControl.Label>
                           {t(`${targetGroup.slug}.title`, {
-                            ns: "datasets/eventTargetGroups",
+                            ns: "datasets-eventTargetGroups",
                           })}
                           {t(`${targetGroup}.description`, {
-                            ns: "datasets/eventTargetGroups",
+                            ns: "datasets-eventTargetGroups",
                           }) !== `${targetGroup}.description` ? (
                             <p className="mv-text-sm">
                               {t(`${targetGroup}.description`, {
-                                ns: "datasets/eventTargetGroups",
+                                ns: "datasets-eventTargetGroups",
                               })}
                             </p>
                           ) : null}
@@ -863,7 +863,7 @@ export default function ExploreOrganizations() {
                 return (
                   <Chip key={selectedFocus} responsive>
                     {t(`${selectedFocus}.title`, {
-                      ns: "datasets/focuses",
+                      ns: "datasets-focuses",
                     })}
                     <Chip.Delete>
                       <Link
@@ -887,7 +887,7 @@ export default function ExploreOrganizations() {
                 return (
                   <Chip key={selectedTargetGroup} responsive>
                     {t(`${selectedTargetGroup}.title`, {
-                      ns: "datasets/eventTargetGroups",
+                      ns: "datasets-eventTargetGroups",
                     })}
                     <Chip.Delete>
                       <Link

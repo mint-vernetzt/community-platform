@@ -498,14 +498,14 @@ export default function ExploreProjects() {
                     {loaderData.selectedDisciplines
                       .map((discipline) => {
                         return t(`${discipline}.title`, {
-                          ns: "datasets/disciplines",
+                          ns: "datasets-disciplines",
                         });
                       })
                       .concat(
                         loaderData.selectedAdditionalDisciplines.map(
                           (additionalDiscipline) => {
                             return t(`${additionalDiscipline}.title`, {
-                              ns: "datasets/additionalDisciplines",
+                              ns: "datasets-additionalDisciplines",
                             });
                           }
                         )
@@ -533,15 +533,15 @@ export default function ExploreProjects() {
                       >
                         <FormControl.Label>
                           {t(`${discipline.slug}.title`, {
-                            ns: "datasets/disciplines",
+                            ns: "datasets-disciplines",
                           })}
                         </FormControl.Label>
                         {t(`${discipline.slug}.description`, {
-                          ns: "datasets/disciplines",
+                          ns: "datasets-disciplines",
                         }) !== `${discipline.slug}.description` && (
                           <FormControl.Info id={discipline.slug}>
                             {t(`${discipline.slug}.description`, {
-                              ns: "datasets/disciplines",
+                              ns: "datasets-disciplines",
                             })}
                           </FormControl.Info>
                         )}
@@ -576,15 +576,15 @@ export default function ExploreProjects() {
                         >
                           <FormControl.Label>
                             {t(`${additionalDiscipline.slug}.title`, {
-                              ns: "datasets/additionalDisciplines",
+                              ns: "datasets-additionalDisciplines",
                             })}
                           </FormControl.Label>
                           {t(`${additionalDiscipline.slug}.description`, {
-                            ns: "datasets/additionalDisciplines",
+                            ns: "datasets-additionalDisciplines",
                           }) !== `${additionalDiscipline.slug}.description` && (
                             <FormControl.Info id={additionalDiscipline.slug}>
                               {t(`${additionalDiscipline.slug}.description`, {
-                                ns: "datasets/additionalDisciplines",
+                                ns: "datasets-additionalDisciplines",
                               })}
                             </FormControl.Info>
                           )}
@@ -605,7 +605,7 @@ export default function ExploreProjects() {
                     {loaderData.selectedTargetGroups
                       .map((targetGroup) => {
                         return t(`${targetGroup}.title`, {
-                          ns: "datasets/projectTargetGroups",
+                          ns: "datasets-projectTargetGroups",
                         });
                       })
                       .join(", ")}
@@ -632,15 +632,15 @@ export default function ExploreProjects() {
                       >
                         <FormControl.Label>
                           {t(`${targetGroup.slug}.title`, {
-                            ns: "datasets/projectTargetGroups",
+                            ns: "datasets-projectTargetGroups",
                           })}
                         </FormControl.Label>
                         {t(`${targetGroup.slug}.description`, {
-                          ns: "datasets/projectTargetGroups",
+                          ns: "datasets-projectTargetGroups",
                         }) !== `${targetGroup.slug}.description` && (
                           <FormControl.Info id={targetGroup.slug}>
                             {t(`${targetGroup.slug}.description`, {
-                              ns: "datasets/projectTargetGroups",
+                              ns: "datasets-projectTargetGroups",
                             })}
                           </FormControl.Info>
                         )}
@@ -832,7 +832,7 @@ export default function ExploreProjects() {
                     {loaderData.selectedFormats
                       .map((format) => {
                         return t(`${format}.title`, {
-                          ns: "datasets/formats",
+                          ns: "datasets-formats",
                         });
                       })
                       .join(", ")}
@@ -856,15 +856,15 @@ export default function ExploreProjects() {
                       >
                         <FormControl.Label>
                           {t(`${format.slug}.title`, {
-                            ns: "datasets/formats",
+                            ns: "datasets-formats",
                           })}
                         </FormControl.Label>
                         {t(`${format.slug}.description`, {
-                          ns: "datasets/formats",
+                          ns: "datasets-formats",
                         }) !== `${format.slug}.description` && (
                           <FormControl.Info id={format.slug}>
                             {t(`${format.slug}.description`, {
-                              ns: "datasets/formats",
+                              ns: "datasets-formats",
                             })}
                           </FormControl.Info>
                         )}
@@ -884,7 +884,7 @@ export default function ExploreProjects() {
                     {loaderData.selectedSpecialTargetGroups
                       .map((targetGroup) => {
                         return t(`${targetGroup}.title`, {
-                          ns: "datasets/specialTargetGroups",
+                          ns: "datasets-specialTargetGroups",
                         });
                       })
                       .join(", ")}
@@ -911,15 +911,15 @@ export default function ExploreProjects() {
                       >
                         <FormControl.Label>
                           {t(`${targetGroup.slug}.title`, {
-                            ns: "datasets/specialTargetGroups",
+                            ns: "datasets-specialTargetGroups",
                           })}
                         </FormControl.Label>
                         {t(`${targetGroup.slug}.description`, {
-                          ns: "datasets/specialTargetGroups",
+                          ns: "datasets-specialTargetGroups",
                         }) !== `${targetGroup.slug}.description` && (
                           <FormControl.Info id={targetGroup.slug}>
                             {t(`${targetGroup.slug}.description`, {
-                              ns: "datasets/specialTargetGroups",
+                              ns: "datasets-specialTargetGroups",
                             })}
                           </FormControl.Info>
                         )}
@@ -939,7 +939,7 @@ export default function ExploreProjects() {
                     {loaderData.selectedFinancings
                       .map((financing) => {
                         return t(`${financing}.title`, {
-                          ns: "datasets/financings",
+                          ns: "datasets-financings",
                         });
                       })
                       .join(", ")}
@@ -965,15 +965,15 @@ export default function ExploreProjects() {
                       >
                         <FormControl.Label>
                           {t(`${financing.slug}.title`, {
-                            ns: "datasets/financings",
+                            ns: "datasets-financings",
                           })}
                         </FormControl.Label>
                         {t(`${financing.slug}.description`, {
-                          ns: "datasets/financings",
+                          ns: "datasets-financings",
                         }) !== `${financing.slug}.description` && (
                           <FormControl.Info id={financing.slug}>
                             {t(`${financing.slug}.description`, {
-                              ns: "datasets/financings",
+                              ns: "datasets-financings",
                             })}
                           </FormControl.Info>
                         )}
@@ -1066,7 +1066,7 @@ export default function ExploreProjects() {
                 return (
                   <Chip key={selectedDiscipline} size="medium">
                     {t(`${selectedDiscipline}.title`, {
-                      ns: "datasets/disciplines",
+                      ns: "datasets-disciplines",
                     })}
                     <Chip.Delete>
                       <Link
@@ -1091,7 +1091,7 @@ export default function ExploreProjects() {
                   return (
                     <Chip key={selectedAdditionalDiscipline} size="medium">
                       {t(`${selectedAdditionalDiscipline}.title`, {
-                        ns: "datasets/additionalDisciplines",
+                        ns: "datasets-additionalDisciplines",
                       })}
                       <Chip.Delete>
                         <Link
@@ -1116,7 +1116,7 @@ export default function ExploreProjects() {
                 return (
                   <Chip key={selectedTargetGroup} size="medium">
                     {t(`${selectedTargetGroup}.title`, {
-                      ns: "datasets/projectTargetGroups",
+                      ns: "datasets-projectTargetGroups",
                     })}
                     <Chip.Delete>
                       <Link
@@ -1156,7 +1156,7 @@ export default function ExploreProjects() {
                 return (
                   <Chip key={selectedFormat} size="medium">
                     {t(`${selectedFormat}.title`, {
-                      ns: "datasets/formats",
+                      ns: "datasets-formats",
                     })}
                     <Chip.Delete>
                       <Link
@@ -1181,7 +1181,7 @@ export default function ExploreProjects() {
                   return (
                     <Chip key={selectedSpecialTargetGroup} size="medium">
                       {t(`${selectedSpecialTargetGroup}.title`, {
-                        ns: "datasets/specialTargetGroups",
+                        ns: "datasets-specialTargetGroups",
                       })}
                       <Chip.Delete>
                         <Link
@@ -1206,7 +1206,7 @@ export default function ExploreProjects() {
                 return (
                   <Chip key={selectedFinancing} size="medium">
                     {t(`${selectedFinancing}.title`, {
-                      ns: "datasets/financings",
+                      ns: "datasets-financings",
                     })}
                     <Chip.Delete>
                       <Link

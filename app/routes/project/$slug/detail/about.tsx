@@ -308,7 +308,7 @@ function About() {
               return (
                 <Chip key={relation.format.slug} color="primary">
                   {t(`${relation.format.slug}.title`, {
-                    ns: "datasets/formats",
+                    ns: "datasets-formats",
                   })}
                 </Chip>
               );
@@ -342,7 +342,7 @@ function About() {
               return (
                 <Chip key={relation.discipline.slug} color="primary">
                   {t(`${relation.discipline.slug}.title`, {
-                    ns: "datasets/disciplines",
+                    ns: "datasets-disciplines",
                   })}
                 </Chip>
               );
@@ -374,7 +374,7 @@ function About() {
               return (
                 <Chip key={relation.projectTargetGroup.slug} color="primary">
                   {t(`${relation.projectTargetGroup.slug}.title`, {
-                    ns: "datasets/projectTargetGroups",
+                    ns: "datasets-projectTargetGroups",
                   })}
                 </Chip>
               );
@@ -392,7 +392,7 @@ function About() {
               return (
                 <Chip key={relation.specialTargetGroup.slug} color="primary">
                   {t(`${relation.specialTargetGroup.slug}.title`, {
-                    ns: "datasets/specialTargetGroups",
+                    ns: "datasets-specialTargetGroups",
                   })}
                 </Chip>
               );
@@ -588,7 +588,7 @@ function About() {
                             return t(
                               `${relation.organizationType.slug}.title`,
                               {
-                                ns: "datasets/organizationTypes",
+                                ns: "datasets-organizationTypes",
                               }
                             );
                           })

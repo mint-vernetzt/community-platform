@@ -287,7 +287,7 @@ function Index() {
 
   const organizationTypesOptions = organizationTypes.map((type) => {
     return {
-      label: t(`${type.slug}.title`, { ns: "datasets/organizationTypes" }),
+      label: t(`${type.slug}.title`, { ns: "datasets-organizationTypes" }),
       value: type.id,
     };
   });
@@ -298,9 +298,9 @@ function Index() {
           .filter((type) => organization.types.includes(type.id))
           .sort((a, b) =>
             t(`${a.slug}.title`, {
-              ns: "datasets/organizationTypes",
+              ns: "datasets-organizationTypes",
             }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets/organizationTypes" })
+              t(`${b.slug}.title`, { ns: "datasets-organizationTypes" })
             )
           )
       : [];
@@ -316,7 +316,7 @@ function Index() {
 
   const focusOptions = focuses.map((focus) => {
     return {
-      label: t(`${focus.slug}.title`, { ns: "datasets/focuses" }),
+      label: t(`${focus.slug}.title`, { ns: "datasets-focuses" }),
       value: focus.id,
     };
   });
@@ -326,8 +326,8 @@ function Index() {
       ? focuses
           .filter((focus) => organization.focuses.includes(focus.id))
           .sort((a, b) =>
-            t(`${a.slug}.title`, { ns: "datasets/focuses" }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets/focuses" })
+            t(`${a.slug}.title`, { ns: "datasets-focuses" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets-focuses" })
             )
           )
       : [];
@@ -489,7 +489,7 @@ function Index() {
               label={t("form.organizationForm.label")}
               entries={selectedOrganizationTypes.map((type) => ({
                 label: t(`${type.slug}.title`, {
-                  ns: "datasets/organizationTypes",
+                  ns: "datasets-organizationTypes",
                 }),
                 value: type.id,
               }))}
@@ -530,7 +530,7 @@ function Index() {
               label={t("form.focuses.label")}
               placeholder={t("form.focuses.placeholder")}
               entries={selectedFocuses.map((focus) => ({
-                label: t(`${focus.slug}.title`, { ns: "datasets/focuses" }),
+                label: t(`${focus.slug}.title`, { ns: "datasets-focuses" }),
                 value: focus.id,
               }))}
               options={focusOptions.filter((option) => {

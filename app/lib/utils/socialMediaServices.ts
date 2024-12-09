@@ -50,12 +50,12 @@ export const createSocialMediaServices = (
     (id: SocialMediaIdType): SocialMediaService => {
       return {
         id: id,
-        label: t(`${id}.label`, { ns: "utils/social-media-services" }),
+        label: t(`${id}.label`, { ns: "utils-social-media-services" }),
         placeholder: t(`${id}.placeholder`, {
-          ns: "utils/social-media-services",
+          ns: "utils-social-media-services",
         }),
         organizationPlaceholder: t(`${id}.organizationPlaceholder`, {
-          ns: "utils/social-media-services",
+          ns: "utils-social-media-services",
         }),
       };
     }

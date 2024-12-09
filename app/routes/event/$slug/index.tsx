@@ -675,7 +675,7 @@ function Index() {
                         </div>
                         <span>
                           {t(`${reason.slug}.description`, {
-                            ns: "datasets/eventAbuseReportReasonSuggestions",
+                            ns: "datasets-eventAbuseReportReasonSuggestions",
                           })}
                         </span>
                       </label>
@@ -948,7 +948,7 @@ function Index() {
                     {loaderData.event.types
                       .map((item) =>
                         t(`${item.eventType.slug}.title`, {
-                          ns: "datasets/eventTypes",
+                          ns: "datasets-eventTypes",
                         })
                       )
                       .join(" / ")}
@@ -1142,7 +1142,7 @@ function Index() {
                       return (
                         <div key={`focus-${index}`} className="badge">
                           {t(`${item.focus.slug}.title`, {
-                            ns: "datasets/focuses",
+                            ns: "datasets-focuses",
                           })}
                         </div>
                       );
@@ -1164,7 +1164,7 @@ function Index() {
                           className="badge"
                         >
                           {t(`${item.eventTargetGroup.slug}.title`, {
-                            ns: "datasets/eventTargetGroups",
+                            ns: "datasets-eventTargetGroups",
                           })}
                         </div>
                       );
@@ -1181,7 +1181,7 @@ function Index() {
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
                     <div className="badge">
                       {t(`${loaderData.event.experienceLevel.slug}.title`, {
-                        ns: "datasets/experienceLevels",
+                        ns: "datasets-experienceLevels",
                       })}
                     </div>
                   </div>
@@ -1197,7 +1197,7 @@ function Index() {
                     {loaderData.event.tags.map((item, index) => {
                       return (
                         <div key={`tags-${index}`} className="badge">
-                          {t(`${item.tag.slug}.title`, { ns: "datasets/tags" })}
+                          {t(`${item.tag.slug}.title`, { ns: "datasets-tags" })}
                         </div>
                       );
                     })}
@@ -1314,7 +1314,7 @@ function Index() {
                               {/* TODO: Display icons (see figma) */}
                               {event.stage !== null
                                 ? t(`${event.stage.slug}.title`, {
-                                    ns: "datasets/stages",
+                                    ns: "datasets-stages",
                                   }) + " | "
                                 : ""}
                               {getDuration(
@@ -1538,7 +1538,7 @@ function Index() {
                               {item.organization.types
                                 .map((item) =>
                                   t(`${item.organizationType.slug}.title`, {
-                                    ns: "datasets/organizationTypes",
+                                    ns: "datasets-organizationTypes",
                                   })
                                 )
                                 .join(", ")}

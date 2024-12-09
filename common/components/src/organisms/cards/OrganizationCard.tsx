@@ -115,7 +115,7 @@ function OrganizationCard(
                     {organization.types
                       .map((type) => {
                         return t(`${type}.title`, {
-                          ns: "datasets/organizationTypes",
+                          ns: "datasets-organizationTypes",
                         });
                       })
                       .join("/")}
@@ -138,7 +138,7 @@ function OrganizationCard(
                 {organization.focuses.map((focus) => {
                   return (
                     <Chip key={focus}>
-                      {t(`${focus}.title`, { ns: "datasets/focuses" })}
+                      {t(`${focus}.title`, { ns: "datasets-focuses" })}
                     </Chip>
                   );
                 })}

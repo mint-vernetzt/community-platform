@@ -409,7 +409,7 @@ export default function ExploreProfiles() {
                     <br />
                     {loaderData.selectedOffers
                       .map((offer) => {
-                        return t(`${offer}.title`, { ns: "datasets/offers" });
+                        return t(`${offer}.title`, { ns: "datasets-offers" });
                       })
                       .join(", ")}
                   </span>
@@ -431,13 +431,13 @@ export default function ExploreProfiles() {
                         disabled={offer.vectorCount === 0 && !offer.isChecked}
                       >
                         <FormControl.Label>
-                          {t(`${offer.slug}.title`, { ns: "datasets/offers" })}
+                          {t(`${offer.slug}.title`, { ns: "datasets-offers" })}
                           {t(`${offer.slug}.description`, {
-                            ns: "datasets/offers",
+                            ns: "datasets-offers",
                           }) !== `${offer.slug}.description` ? (
                             <p className="mv-text-sm">
                               {t(`${offer.slug}.description`, {
-                                ns: "datasets/offers",
+                                ns: "datasets-offers",
                               })}
                             </p>
                           ) : null}
@@ -694,7 +694,7 @@ export default function ExploreProfiles() {
                 deleteSearchParams.delete(filter.offer.name, selectedOffer);
                 return (
                   <Chip key={selectedOffer} size="medium">
-                    {t(`${selectedOffer}.title`, { ns: "datasets/offers" })}
+                    {t(`${selectedOffer}.title`, { ns: "datasets-offers" })}
                     <Chip.Delete>
                       <Link
                         to={`${

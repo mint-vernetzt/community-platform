@@ -324,7 +324,7 @@ function CreateOrganization() {
                     className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                   >
                     {t(`${filteredOrganizationType.slug}.title`, {
-                      ns: "datasets/organizationTypes",
+                      ns: "datasets-organizationTypes",
                     })}
                   </button>
                 );
@@ -348,7 +348,7 @@ function CreateOrganization() {
                           );
                         })?.slug
                       }.title`,
-                      { ns: "datasets/organizationTypes" }
+                      { ns: "datasets-organizationTypes" }
                     ) || t("form.organizationTypes.notFound")}
                     <Chip.Delete>
                       <button
@@ -411,7 +411,7 @@ function CreateOrganization() {
                     className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                   >
                     {t(`${filteredNetworkType.slug}.title`, {
-                      ns: "datasets/networkTypes",
+                      ns: "datasets-networkTypes",
                     })}
                   </button>
                 );
@@ -431,7 +431,7 @@ function CreateOrganization() {
                           );
                         })?.slug
                       }.title`,
-                      { ns: "datasets/networkTypes" }
+                      { ns: "datasets-networkTypes" }
                     ) || t("form.networkTypes.notFound")}
                     <Chip.Delete>
                       <button

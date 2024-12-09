@@ -194,7 +194,7 @@ const Autocomplete = React.forwardRef(
                           {suggestion.types
                             .map((item) => {
                               return t(`${item.organizationType.slug}.title`, {
-                                ns: "datasets/organizationTypes",
+                                ns: "datasets-organizationTypes",
                               });
                             })
                             .join(" / ")}
@@ -270,7 +270,7 @@ const Autocomplete = React.forwardRef(
                         {/* TODO: Display icons (see figma) */}
                         {suggestion.stage !== null
                           ? t(`${suggestion.stage.slug}.title`, {
-                              ns: "datasets/stages",
+                              ns: "datasets-stages",
                             }) + " | "
                           : ""}
                         {getDuration(

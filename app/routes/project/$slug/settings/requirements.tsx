@@ -595,7 +595,7 @@ function Requirements() {
                         className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                       >
                         {t(`${filteredFinancing.slug}.title`, {
-                          ns: "datasets/financings",
+                          ns: "datasets-financings",
                         })}
                       </button>
                     );
@@ -615,7 +615,7 @@ function Requirements() {
                             })?.slug
                           }.title`,
                           {
-                            ns: "datasets/financings",
+                            ns: "datasets-financings",
                           }
                         ) || t("content.notFound")}
                         <Input
