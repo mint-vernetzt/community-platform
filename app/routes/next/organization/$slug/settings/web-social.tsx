@@ -24,7 +24,6 @@ import {
   i18nNS as i18nNSUnsavedChangesModal,
   useUnsavedChangesBlockerWithModal,
 } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
-import { getHash } from "~/lib/string/transform";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   checkboxSchema,
@@ -90,7 +89,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const organization = await getOrganizationWebSocial({ slug, t });
 
-  return { organization };
+  const currentTimestamp = new Date().getTime();
+
+  return { organization, currentTimestamp };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -139,11 +140,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     };
   }
 
-  const hash = getHash(submission);
-
   return redirectWithToast(request.url, {
     id: "update-web-social-toast",
-    key: hash,
+    key: `${new Date().getTime()}`,
     message: t("content.success"),
   });
 }
@@ -151,16 +150,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
 function WebSocial() {
   const location = useLocation();
   const { t } = useTranslation(i18nNS);
-  const { organization } = useLoaderData<typeof loader>();
+  const { organization, currentTimestamp } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
 
   const { organizationVisibility, ...rest } = organization;
-  const hash = getHash(organization);
   const [form, fields] = useForm({
     // Use different ids depending on loaderData to sync dirty state
-    id: `web-social-form-${hash}`,
+    id: `web-social-form-${currentTimestamp}`,
     defaultValue: {
       ...rest,
       visibilities: organizationVisibility,

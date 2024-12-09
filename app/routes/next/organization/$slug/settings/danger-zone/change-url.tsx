@@ -2,7 +2,6 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button, Input } from "@mint-vernetzt/components";
 import {
-  json,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -15,23 +14,22 @@ import {
 } from "@remix-run/react";
 import { type TFunction } from "i18next";
 import { Trans, useTranslation } from "react-i18next";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { invariantResponse } from "~/lib/utils/response";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/root.server";
-import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { redirectWithToast } from "~/toast.server";
-import { useHydrated } from "remix-utils/use-hydrated";
 import {
   i18nNS as i18nNSUnsavedChangesModal,
   useUnsavedChangesBlockerWithModal,
 } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
-import { getHash } from "~/lib/string/transform";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { Deep } from "~/lib/utils/searchParams";
+import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
+import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { redirectWithToast } from "~/toast.server";
 
 const i18nNS = [
   "routes/next/organization/settings/danger-zone/change-url",
@@ -54,8 +52,9 @@ function createSchema(t: TFunction) {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { params } = args;
   const slug = getParamValueOrThrow(params, "slug");
+  const currentTimestamp = new Date().getTime();
 
-  return json({ slug, baseURL: process.env.COMMUNITY_BASE_URL });
+  return { slug, currentTimestamp, baseURL: process.env.COMMUNITY_BASE_URL };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -121,11 +120,9 @@ export const action = async (args: ActionFunctionArgs) => {
   const url = new URL(request.url);
   const pathname = url.pathname.replace(params.slug, submission.value.slug);
 
-  const hash = getHash(submission);
-
   return redirectWithToast(`${pathname}?${Deep}=true`, {
     id: "settings-toast",
-    key: hash,
+    key: `${new Date().getTime()}`,
     message: t("content.feedback"),
   });
 };
@@ -139,7 +136,7 @@ function ChangeURL() {
   const { t } = useTranslation(i18nNS);
 
   const [form, fields] = useForm({
-    id: `change-url-form-${getHash(loaderData)}`,
+    id: `change-url-form-${loaderData.currentTimestamp}`,
     defaultValue: {
       slug: loaderData.slug,
     },
