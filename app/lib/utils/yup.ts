@@ -34,7 +34,7 @@ const websiteValidation = {
     // eslint-disable-next-line no-useless-escape
     /^(https?:\/\/)?(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
   error:
-    "Deine Eingabe entspricht nicht dem Format einer Webseiten URL (subdomain.domain.tld/...).",
+    "Deine Eingabe entspricht nicht dem Format einer Webseiten URL https://domain.tld/...).",
 };
 
 const socialValidation = {
@@ -74,7 +74,7 @@ const socialValidation = {
       // eslint-disable-next-line no-useless-escape
       /^(https?:\/\/)?(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
     error:
-      "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite (subdomain.domain.tld/...).",
+      "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite https://domain.tld/...).",
   },
   tiktok: {
     match: /^(https?:\/\/)?([a-z0-9]+\.)?tiktok.com\/.+$|^$/,
