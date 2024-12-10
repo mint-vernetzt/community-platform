@@ -35,9 +35,9 @@ import { getToast, redirectWithToast } from "~/toast.server";
 import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
 } from "./utils.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 
 const i18nNS = ["routes-project-settings-admins"] as const;
 export const handle = {
@@ -242,7 +242,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT);
-  const hash = getSubmissionHash({ action: action });
+  const hash = getHash({ action: action });
   if (action !== null && typeof action === "string") {
     if (action.startsWith("add_")) {
       const username = action.replace("add_", "");
@@ -360,7 +360,7 @@ function Admins() {
   const [searchForm, searchFields] = useForm({
     defaultValue: {
       search: searchParams.get("search") || "",
-      [DeepSearchParam]: "true",
+      [Deep]: "true",
     },
   });
 
@@ -441,10 +441,7 @@ function Admins() {
             }}
             {...searchForm.props}
           >
-            <Input
-              {...conform.input(searchFields[DeepSearchParam])}
-              type="hidden"
-            />
+            <Input {...conform.input(searchFields[Deep])} type="hidden" />
             <Input {...conform.input(searchFields.search)} standalone>
               <Input.Label htmlFor={searchFields.search.id}>
                 {t("content.add.search")}

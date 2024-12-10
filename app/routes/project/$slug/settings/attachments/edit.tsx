@@ -8,9 +8,9 @@ import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
 } from "../utils.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 
 const i18nNS = ["routes-project-settings-attachments-edit"] as const;
 export const handle = {
@@ -97,7 +97,7 @@ export const action = async (args: ActionFunctionArgs) => {
     schema = imageSchema;
   }
   const submission = parse(formData, { schema });
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   if (typeof submission.value !== "undefined" && submission.value !== null) {
     const { id, type, ...rest } = submission.value;
@@ -127,7 +127,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   const redirectUrl = new URL("./", request.url);
-  redirectUrl.searchParams.set(DeepSearchParam, "true");
+  redirectUrl.searchParams.set(Deep, "true");
 
   return redirect(redirectUrl.toString());
 };

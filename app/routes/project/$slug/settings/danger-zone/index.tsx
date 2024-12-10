@@ -4,7 +4,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import i18next from "~/i18next.server";
 import { detectLanguage } from "~/root.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 
 const i18nNS = ["routes-project-settings-danger-zone-index"] as const;
 export const handle = {
@@ -33,5 +33,5 @@ export const loader = async (args: LoaderFunctionArgs) => {
     authClient,
   });
 
-  return redirect(redirectPath ?? `./change-url?${DeepSearchParam}=true`);
+  return redirect(redirectPath ?? `./change-url?${Deep}=true`);
 };

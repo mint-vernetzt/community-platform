@@ -25,9 +25,9 @@ import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
 } from "../utils.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 
 const i18nNS = ["routes-project-settings-danger-zone-change-url"] as const;
 export const handle = {
@@ -139,10 +139,10 @@ export const action = async (args: ActionFunctionArgs) => {
     const url = new URL(request.url);
     const pathname = url.pathname.replace(params.slug, submission.value.slug);
 
-    const hash = getSubmissionHash(submission);
+    const hash = getHash(submission);
 
     return redirectWithToast(
-      `${pathname}?${DeepSearchParam}=true`,
+      `${pathname}?${Deep}=true`,
       {
         id: "settings-toast",
         key: hash,
@@ -212,7 +212,7 @@ function ChangeURL() {
         }}
       >
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
+          <Input name={Deep} defaultValue="true" type="hidden" />
           <Input id="slug" defaultValue={loaderData.slug}>
             <Input.Label htmlFor={fields.slug.id}>
               {t("content.label")}

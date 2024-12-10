@@ -42,10 +42,10 @@ import { redirectWithToast } from "~/toast.server";
 import { BackButton, ButtonSelect } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getSubmissionHash,
+  getHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { DeepSearchParam } from "~/form-helpers";
+import { Deep } from "~/lib/utils/searchParams";
 
 const i18nNS = [
   "routes-project-settings-requirements",
@@ -415,7 +415,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   if (submission.intent !== "submit") {
     return json({ status: "idle", submission, hash } as const);
@@ -507,7 +507,7 @@ function Requirements() {
         >
           {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
           <button type="submit" hidden />
-          <Input name={DeepSearchParam} defaultValue="true" type="hidden" />
+          <Input name={Deep} defaultValue="true" type="hidden" />
           <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
             <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">

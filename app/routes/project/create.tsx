@@ -17,7 +17,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { deriveMode, generateProjectSlug } from "~/utils.server";
-import { getSubmissionHash } from "./$slug/settings/utils.server";
+import { getHash } from "./$slug/settings/utils.server";
 
 const i18nNS = ["routes-project-create"] as const;
 export const handle = {
@@ -130,7 +130,7 @@ export const action = async (args: ActionFunctionArgs) => {
     async: true,
   });
 
-  const hash = getSubmissionHash(submission);
+  const hash = getHash(submission);
 
   if (submission.intent !== "submit") {
     return json({ status: "idle", submission, hash } as const);
