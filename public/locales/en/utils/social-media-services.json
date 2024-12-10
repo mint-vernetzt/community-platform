@@ -1,32 +1,42 @@
 {
   "facebook": {
-    "label": "Facebook",
-    "placeholder": "facebook.com/<Username>",
-    "organizationPlaceholder": "facebook.com/<OrganizationName>"
+    "label": "facebook",
+    "placeholder": "https://facebook.com/...",
+    "organizationPlaceholder": "https://facebook.com/..."
   },
   "linkedin": {
     "label": "LinkedIn",
-    "placeholder": "linkedin.com/in/<Username>",
-    "organizationPlaceholder": "linkedin.com/company/<OrganizationName>"
+    "placeholder": "https://linkedin.com/...",
+    "organizationPlaceholder": "https://linkedin.com/..."
   },
   "twitter": {
-    "label": "Twitter",
-    "placeholder": "twitter.com/<Username>",
-    "organizationPlaceholder": "twitter.com/<OrganizationName>"
+    "label": "X (Twitter)",
+    "placeholder": "https://x.com/...",
+    "organizationPlaceholder": "https://x.com/..."
   },
   "youtube": {
     "label": "YouTube",
-    "placeholder": "youtube.com/<Username>",
-    "organizationPlaceholder": "youtube.com/<OrganizationName>"
+    "placeholder": "https://youtube.com/...",
+    "organizationPlaceholder": "https://youtube.com/..."
   },
   "instagram": {
     "label": "Instagram",
-    "placeholder": "instagram.com/<Username>",
-    "organizationPlaceholder": "instagram.com/<OrganizationName>"
+    "placeholder": "https://instagram.com/...",
+    "organizationPlaceholder": "https://instagram.com/..."
   },
   "xing": {
     "label": "Xing",
-    "placeholder": "xing.com/profile/<Username>",
-    "organizationPlaceholder": "xing.com/pages/<OrganizationName>"
+    "placeholder": "https://xing.com/...",
+    "organizationPlaceholder": "https://xing.com/..."
+  },
+  "mastodon": {
+    "label": "Mastodon",
+    "placeholder": "https://domain.tld/...",
+    "organizationPlaceholder": "https://domain.tld/..."
+  },
+  "tiktok": {
+    "label": "TikTok",
+    "placeholder": "https://tiktok.com/...",
+    "organizationPlaceholder": "https://tiktok.com/..."
   }
 }
