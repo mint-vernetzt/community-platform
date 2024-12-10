@@ -2,10 +2,9 @@ import fsExtra from "fs-extra";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 export function getLocaleFiles(locale: string) {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
   const dirPath = resolve(__dirname, `../../locales/${locale}`);
   const files = fsExtra.readdirSync(dirPath);
   const localeFiles: Record<string, any> = {};

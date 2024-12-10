@@ -1,5 +1,5 @@
 import { serverOnly$ } from "vite-env-only/macros";
-import { getLocaleFiles } from "~/lib/utils/getLocaleFiles";
+import { getLocaleFiles } from "./routes/i18n/locales.server";
 
 // This is the list of languages your application supports, the last one is your
 // fallback language
@@ -13,10 +13,7 @@ export const fallbackLng = "de";
 export const defaultNS = "meta";
 
 // Dynamically load locale files
-const deLocaleFiles = getLocaleFiles("de");
-const enLocaleFiles = getLocaleFiles("en");
-
 export const resources = serverOnly$({
-  de: deLocaleFiles,
-  en: enLocaleFiles,
+  de: getLocaleFiles("de"),
+  en: getLocaleFiles("en"),
 });
