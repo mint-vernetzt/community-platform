@@ -717,7 +717,7 @@ function Attachments() {
                               <MaterialList.Item.Controls.Edit />
                             </Link>
                             <Link
-                              to={`./attachments/download?type=document&id=${relation.document.id}`}
+                              to={`./download?type=document&id=${relation.document.id}`}
                               reloadDocument
                             >
                               <MaterialList.Item.Controls.Download />
@@ -991,7 +991,7 @@ function Attachments() {
                             <MaterialList.Item.Controls.Edit />
                           </Link>
                           <Link
-                            to={`./attachments/download?type=image&id=${relation.image.id}`}
+                            to={`./download?type=image&id=${relation.image.id}`}
                             reloadDocument
                           >
                             <MaterialList.Item.Controls.Download />
