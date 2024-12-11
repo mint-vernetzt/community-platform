@@ -23,7 +23,6 @@ import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
 import i18next from "~/i18next.server";
 import {
-  addUserParticipationStatus,
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
@@ -48,6 +47,7 @@ import {
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
+import { addUserParticipationStatus } from "~/routes/event/$slug/utils.server";
 
 const i18nNS = [
   "routes-profile-index",
