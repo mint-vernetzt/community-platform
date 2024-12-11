@@ -12,6 +12,7 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
+    target: "esnext",
   },
   plugins: [
     remix({
