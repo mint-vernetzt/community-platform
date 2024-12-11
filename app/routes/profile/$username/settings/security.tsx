@@ -134,7 +134,7 @@ const createEmailMutation = (t: TFunction) => {
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes-profile-settings-security",
   ]);

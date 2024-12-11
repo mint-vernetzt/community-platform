@@ -34,7 +34,7 @@ const createMutation = (t: TFunction) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes-organization-settings-team-cancel-invite",
   ]);

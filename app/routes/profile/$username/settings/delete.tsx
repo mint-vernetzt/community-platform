@@ -49,7 +49,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
 
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes-profile-settings-delete"]);
 
   const profile = await getProfileByUsername(username);
@@ -139,7 +139,7 @@ const createMutation = (t: TFunction) => {
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes-profile-settings-delete"]);
 
   const username = getParamValueOrThrow(params, "username");

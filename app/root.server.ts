@@ -1,5 +1,5 @@
 import { prismaClient } from "~/prisma.server";
-import i18n from "./i18n";
+import i18nServer from "./i18next.server";
 
 export async function getProfileByUserId(id: string) {
   return await prismaClient.profile.findUnique({
@@ -16,17 +16,6 @@ export async function getProfileByUserId(id: string) {
   });
 }
 
-export function detectLanguage(request: Request) {
-  let cookie = Object.fromEntries(
-    request.headers
-      .get("Cookie")
-      ?.split(";")
-      .map((cookie) => cookie.split("=")) ?? []
-  ) as { i18next?: string };
-
-  if (cookie.i18next) {
-    return cookie.i18next;
-  }
-
-  return i18n.fallbackLng;
+export async function detectLanguage(request: Request) {
+  return await i18nServer.getLocale(request);
 }

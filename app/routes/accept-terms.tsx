@@ -78,7 +78,7 @@ const createMutation = (t: TFunction) => {
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
 
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
   const { authClient } = createAuthClient(request);
 

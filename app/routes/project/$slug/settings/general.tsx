@@ -153,7 +153,7 @@ const createGeneralSchema = (t: TFunction) =>
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
@@ -241,7 +241,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 export async function action({ request, params }: ActionFunctionArgs) {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
   // check slug exists (throw bad request if not)

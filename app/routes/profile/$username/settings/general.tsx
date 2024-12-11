@@ -109,7 +109,7 @@ function makeFormProfileFromDbProfile(
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes-profile-settings-general",
   ]);
@@ -146,7 +146,7 @@ export const links: LinksFunction = () => [
 ];
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes-profile-settings-general",
   ]);

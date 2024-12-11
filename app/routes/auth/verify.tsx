@@ -14,7 +14,7 @@ export const handle = {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
   const requestUrl = new URL(request.url);
   const token_hash = requestUrl.searchParams.get("token_hash");

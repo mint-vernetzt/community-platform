@@ -173,7 +173,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
@@ -271,7 +271,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient, response } = createAuthClient(request);

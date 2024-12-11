@@ -28,16 +28,16 @@ import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
 import * as React from "react";
 import { useChangeLanguage } from "remix-i18next/react";
-import i18nServer, { localeCookie } from "./i18next.server";
 import { ToastContainer } from "./__toast.components";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import { H1, H2 } from "./components/Heading/Heading";
 import { RichText } from "./components/Richtext/RichText";
 import { getEnv } from "./env.server";
+import { localeCookie } from "./i18next.server";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { getFeatureAbilities } from "./lib/utils/application";
-import { getProfileByUserId } from "./root.server";
+import { detectLanguage, getProfileByUserId } from "./root.server";
 import {
   Footer,
   LoginOrRegisterCTA,
@@ -100,7 +100,7 @@ export const links: LinksFunction = () => [
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const locale = await i18nServer.getLocale(request);
+  const locale = await detectLanguage(request);
 
   const { authClient, headers } = createAuthClient(request);
 

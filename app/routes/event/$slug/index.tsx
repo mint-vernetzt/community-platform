@@ -229,7 +229,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "events",
     "abuse_report",
   ]);
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const sessionUser = await getSessionUser(authClient);
@@ -388,7 +388,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
 
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const formData = await request.formData();

@@ -93,7 +93,7 @@ export const loader = async () => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);

@@ -120,7 +120,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const queryString = url.searchParams.get("search");
 
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes-organization-create"]);
 
   const formData = await request.formData();

@@ -85,7 +85,7 @@ const createMutation = (t: TFunction) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
   const formData = await request.clone().formData();
   const redirectUrl = formData.get("redirect")?.toString();

@@ -85,7 +85,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const organization = await getOrganizationWebSocial({ slug, t });
@@ -99,7 +99,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({

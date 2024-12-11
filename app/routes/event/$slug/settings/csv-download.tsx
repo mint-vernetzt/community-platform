@@ -135,7 +135,7 @@ function createCsvString(
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, [
     "routes-event-settings-csv-download",
   ]);

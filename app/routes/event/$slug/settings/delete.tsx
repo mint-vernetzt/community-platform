@@ -39,7 +39,7 @@ const environmentSchema = z.object({
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes-event-settings-delete"]);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -84,7 +84,7 @@ const createMutation = (t: TFunction) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, ["routes-event-settings-delete"]);
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");

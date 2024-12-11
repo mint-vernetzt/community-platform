@@ -113,7 +113,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  const locale = detectLanguage(request);
+  const locale = await detectLanguage(request);
   const t = await i18next.getFixedT(locale, i18nNS);
 
   const siteUrl = `${process.env.COMMUNITY_BASE_URL}`;
