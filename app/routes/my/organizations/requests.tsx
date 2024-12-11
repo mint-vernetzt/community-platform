@@ -9,7 +9,6 @@ import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { detectLanguage } from "~/root.server";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { i18nNS } from "../organizations";
 import { GetOrganizationsToAdd } from "./get-organizations-to-add";
 import {
   acceptRequestFromProfile,
@@ -18,6 +17,11 @@ import {
   rejectRequestFromProfile,
 } from "./requests.server";
 
+export const i18nNS = [
+  "routes-my-organizations",
+  "datasets-organizationTypes",
+  "datasets-focuses",
+] as const;
 export const handle = {
   i18n: i18nNS,
 };
