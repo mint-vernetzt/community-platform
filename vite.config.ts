@@ -10,6 +10,9 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  build: {
+    sourcemap: true,
+  },
   plugins: [
     remix({
       future: {
