@@ -49,10 +49,6 @@ Functional tests:
 
 vi.mock("~/prisma.server");
 
-vi.mock("~/routes/i18n/locales.server");
-
-vi.mock("~/i18n");
-
 test("Landing page is rendered without errors", async () => {
   consoleError.mockImplementationOnce(() => {});
   consoleError.mockImplementationOnce(() => {});

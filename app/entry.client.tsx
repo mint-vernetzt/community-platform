@@ -6,7 +6,7 @@ import Fetch from "i18next-fetch-backend";
 import { StrictMode, startTransition, useEffect } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { I18nextProvider, initReactI18next } from "react-i18next";
-import { defaultNS, fallbackLng, resources, supportedLngs } from "~/i18n";
+import { defaultNS, fallbackLng, supportedLngs } from "~/i18n";
 
 if (ENV.MODE === "production" && ENV.SENTRY_DSN) {
   Sentry.init({
@@ -27,16 +27,6 @@ if (ENV.MODE === "production" && ENV.SENTRY_DSN) {
 }
 
 async function hydrate() {
-  const languages = resources!;
-  const namespaces = [];
-  for (const lng in languages) {
-    const typedKey = lng as keyof typeof languages;
-    const keys = Object.keys(languages[typedKey]);
-    for (const key of keys) {
-      namespaces.push(key);
-    }
-  }
-
   await i18next
     .use(initReactI18next) // Tell i18next to use the react-i18next plugin
     .use(Fetch) // Tell i18next to use the Fetch backend
@@ -45,7 +35,7 @@ async function hydrate() {
       defaultNS,
       fallbackLng,
       supportedLngs,
-      ns: namespaces,
+      ns: [],
       detection: {
         // Here only enable htmlTag detection, we'll detect the language only
         // server-side with remix-i18next, by using the `<html lang>` attribute

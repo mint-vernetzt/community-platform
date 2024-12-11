@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { faq } from "~/locales/de/help.json";
+import deLocales from "../locales.server/de.json";
 import { RichText } from "~/components/Richtext/RichText";
 import { Accordion } from "./__help.components";
 import { Link as StyledLink, Button } from "@mint-vernetzt/components";
@@ -12,7 +12,9 @@ export const handle = {
 };
 
 export const loader = async () => {
+  const faq = deLocales.help.faq;
   return json({
+    faq,
     supportMail: process.env.SUPPORT_MAIL,
   });
 };
@@ -43,7 +45,7 @@ export default function Help() {
       </section>
       <section className="mv-w-full mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-px-4 @md:mv-px-6 @xl:mv-px-8 mv-py-6 mv-mb-6 @md:mv-mb-8 @xl:mv-mb-12">
         <Accordion>
-          {Object.entries(faq).map(([topicKey, topicValue]) => {
+          {Object.entries(loaderData.faq).map(([topicKey, topicValue]) => {
             return (
               <Accordion.Topic id={topicKey} key={topicKey}>
                 {t(`faq.${topicKey}.headline`)}

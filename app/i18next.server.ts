@@ -1,7 +1,14 @@
 import { createCookie } from "@remix-run/node";
 import { RemixI18Next } from "remix-i18next/server";
+import deLocales from "./locales.server/de.json";
+import enLocales from "./locales.server/en.json";
 
 import * as i18n from "~/i18n";
+
+export const resources = {
+  de: deLocales,
+  en: enLocales,
+};
 
 export const localeCookie = createCookie("lng", {
   path: "/",
