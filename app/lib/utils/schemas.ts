@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { type TFunction } from "i18next";
 
-const i18nNS = "utils/schemas" as const;
+export const i18nNS = "utils-schemas" as const;
 
 export const checkboxSchema = z
   .boolean()

@@ -19,7 +19,7 @@ const schema = z.object({
   profileId: z.string().uuid(),
 });
 
-const i18nNS = ["routes/organization/settings/team/cancel-invite"] as const;
+const i18nNS = ["routes-organization-settings-team-cancel-invite"] as const;
 export const handle = {
   i18n: i18nNS,
 };

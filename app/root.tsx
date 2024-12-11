@@ -179,15 +179,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 };
 
-const i18nNS = [
+export const i18nNS = [
   "meta",
-  "organisms/footer",
-  "organisms/roadmap",
-  "utils/social-media-services",
-  "components/image-cropper",
-  "organisms/cards/event-card",
-  "organisms/cards/profile-card",
-  "organisms/cards/organization-card",
+  "organisms-footer",
+  "organisms-roadmap",
+  "utils-social-media-services",
+  "components-image-cropper",
+  "organisms-cards-event-card",
+  "organisms-cards-profile-card",
+  "organisms-cards-organization-card",
 ] as const;
 
 export const handle = {
