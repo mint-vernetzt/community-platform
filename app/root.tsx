@@ -27,17 +27,16 @@ import {
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
 import * as React from "react";
-import { useChangeLanguage } from "remix-i18next/react";
 import { ToastContainer } from "./__toast.components";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import { H1, H2 } from "./components/Heading/Heading";
 import { RichText } from "./components/Richtext/RichText";
 import { getEnv } from "./env.server";
-import { localeCookie } from "./i18next.server";
+import { detectLanguage } from "./i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { getFeatureAbilities } from "./lib/utils/application";
-import { detectLanguage, getProfileByUserId } from "./root.server";
+import { getProfileByUserId } from "./root.server";
 import {
   Footer,
   LoginOrRegisterCTA,
@@ -49,6 +48,12 @@ import { getPublicURL } from "./storage.server";
 import legacyStyles from "./styles/legacy-styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
+import { defaultLanguage } from "./i18n";
+import { invariantResponse } from "./lib/utils/response";
+import { meta as deMetaLocales } from "~/locales-next.server/de/meta";
+import { meta as enMetaLocales } from "~/locales-next.server/en/meta";
+import { footer as deFooterLocales } from "~/locales-next.server/de/organisms/footer";
+import { footer as enFooterLocales } from "~/locales-next.server/en/organisms/footer";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -100,7 +105,29 @@ export const links: LinksFunction = () => [
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const locale = await detectLanguage(request);
+
+  const language = detectLanguage(request);
+  let metaLocales;
+  if (language === "de") {
+    metaLocales = deMetaLocales;
+  }
+  if (language === "en") {
+    metaLocales = enMetaLocales;
+  }
+  invariantResponse(metaLocales !== undefined, "No locales found", {
+    status: 500,
+  });
+
+  let footerLocales;
+  if (language === "de") {
+    footerLocales = deFooterLocales;
+  }
+  if (language === "en") {
+    footerLocales = enFooterLocales;
+  }
+  invariantResponse(footerLocales !== undefined, "No locales found", {
+    status: 500,
+  });
 
   const { authClient, headers } = createAuthClient(request);
 
@@ -162,7 +189,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       sessionUserInfo,
       alert,
       toast,
-      locale,
+      currentLanguage: language,
+      metaLocales,
+      footerLocales,
       ENV: getEnv(),
       mode,
       abilities,
@@ -172,9 +201,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       },
     },
     {
-      headers: combineHeaders(headers, alertHeaders, toastHeaders, {
-        "Set-Cookie": await localeCookie.serialize(locale),
-      }),
+      headers: combineHeaders(headers, alertHeaders, toastHeaders),
     }
   );
 };
@@ -200,8 +227,6 @@ export const ErrorBoundary = () => {
   const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
   const hasRootLoaderData =
     typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
-
-  useChangeLanguage(hasRootLoaderData ? rootLoaderData.locale : "de");
 
   const [searchParams] = useSearchParams();
   const openNavBarMenuKey = "navbarmenu";
@@ -232,7 +257,7 @@ export const ErrorBoundary = () => {
 
   return (
     <html
-      lang={hasRootLoaderData ? rootLoaderData.locale : "de"}
+      lang={hasRootLoaderData ? rootLoaderData.currentLanguage : "de"}
       data-theme="light"
     >
       <head>
@@ -249,6 +274,7 @@ export const ErrorBoundary = () => {
               hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
             }
             openNavBarMenuKey={openNavBarMenuKey}
+            locales={hasRootLoaderData ? rootLoaderData.metaLocales : undefined}
           />
           <div className="mv-flex mv-h-full min-h-screen">
             <NavBarMenu
@@ -262,6 +288,14 @@ export const ErrorBoundary = () => {
               }
               abilities={
                 hasRootLoaderData ? rootLoaderData.abilities : undefined
+              }
+              currentLanguage={
+                hasRootLoaderData
+                  ? rootLoaderData.currentLanguage
+                  : defaultLanguage
+              }
+              locales={
+                hasRootLoaderData ? rootLoaderData.metaLocales : undefined
               }
             />
             <div className="mv-flex-grow mv-@container min-h-screen">
@@ -295,7 +329,11 @@ export const ErrorBoundary = () => {
                   </section>
                 ) : null}
               </div>
-              <Footer />
+              <Footer
+                locales={
+                  hasRootLoaderData ? rootLoaderData.footerLocales : undefined
+                }
+              />
             </div>
           </div>
         </div>
@@ -320,12 +358,13 @@ export default function App() {
     sessionUserInfo,
     alert,
     toast,
-    locale,
+    currentLanguage,
+    metaLocales,
+    footerLocales,
     mode,
     ENV,
     abilities,
   } = useLoaderData<typeof loader>();
-  useChangeLanguage(locale);
   const location = useLocation();
 
   React.useEffect(() => {
@@ -441,7 +480,7 @@ export default function App() {
   );
 
   return (
-    <html lang={locale} data-theme="light">
+    <html lang={currentLanguage} data-theme="light">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -482,6 +521,7 @@ export default function App() {
               <NavBar
                 sessionUserInfo={sessionUserInfo}
                 openNavBarMenuKey={openNavBarMenuKey}
+                locales={metaLocales}
               />
             </div>
 
@@ -491,17 +531,22 @@ export default function App() {
                 openNavBarMenuKey={openNavBarMenuKey}
                 username={sessionUserInfo?.username}
                 abilities={abilities}
+                currentLanguage={currentLanguage}
+                locales={metaLocales}
               />
               <div className="mv-flex-grow mv-@container">
                 {isIndexRoute === false && isNonAppBaseRoute === false && (
-                  <LoginOrRegisterCTA isAnon={mode === "anon"} />
+                  <LoginOrRegisterCTA
+                    isAnon={mode === "anon"}
+                    locales={metaLocales}
+                  />
                 )}
                 <div className="mv-flex mv-flex-nowrap mv-min-h-[calc(100dvh - 76px)] xl:mv-min-h-[calc(100dvh - 80px)]">
                   {main}
                   {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
                   {scrollButton}
                 </div>
-                {isIndexRoute ? <Footer /> : null}
+                {isIndexRoute ? <Footer locales={footerLocales} /> : null}
               </div>
             </div>
           </div>

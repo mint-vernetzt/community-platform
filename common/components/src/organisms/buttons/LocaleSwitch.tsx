@@ -1,47 +1,57 @@
-import { useLocation } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
+import { Link, useLocation } from "@remix-run/react";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { TextButton } from "../../molecules";
 import { type TextButtonVariants } from "../../molecules/TextButton";
+import {
+  lngCookieMaxAge,
+  lngCookieName,
+  supportedCookieLanguages,
+} from "~/i18n";
+import { type ArrayElement } from "~/lib/utils/types";
+import Cookies from "js-cookie";
 
-export default function LocaleSwitch(props: { variant?: TextButtonVariants }) {
+export default function LocaleSwitch(props: {
+  variant?: TextButtonVariants;
+  currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
+}) {
   const variant = props.variant || "primary";
-  const { i18n } = useTranslation();
   const location = useLocation();
-
-  let languages = ["de", "en"];
-  if (i18n.options.supportedLngs) {
-    languages = i18n.options.supportedLngs.filter((l) => l !== "cimode");
-  }
 
   return (
     <ul className="mv-flex mv-items-center">
-      {languages.map((l: string, cnt: number) => {
+      {supportedCookieLanguages.map((language: string, index: number) => {
         const newSearchParams = extendSearchParams(
           new URLSearchParams(location.search),
           {
             addOrReplace: {
-              lng: l,
+              lng: language,
             },
           }
         );
         return (
-          <li key={cnt} className="mv-flex mv-items-center">
-            {cnt > 0 ? <span className="mv-px-2">|</span> : ""}
+          <li key={language} className="mv-flex mv-items-center">
+            {index > 0 ? <span className="mv-px-2">|</span> : ""}
             <span>
-              <TextButton
-                as="a"
-                href={`?${newSearchParams.toString()}`}
-                variant={variant}
-                weight={l === i18n.language ? "normal" : "thin"}
-                onClick={(event: any) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  i18n.changeLanguage(l);
+              <Link
+                to={`?${newSearchParams.toString()}`}
+                onClick={() => {
+                  console.log("COOKIE SET CLIENT SIDE");
+                  Cookies.set(lngCookieName, language, {
+                    sameSite: "Lax",
+                    expires: new Date(Date.now() + lngCookieMaxAge * 1000),
+                  });
                 }}
+                preventScrollReset
               >
-                {l.toUpperCase()}
-              </TextButton>
+                <TextButton
+                  variant={variant}
+                  weight={
+                    language === props.currentLanguage ? "normal" : "thin"
+                  }
+                >
+                  {language.toUpperCase()}
+                </TextButton>
+              </Link>
             </span>
           </li>
         );

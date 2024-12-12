@@ -1,5 +1,5 @@
 import { prismaClient } from "~/prisma.server";
-import i18nServer from "./i18next.server";
+import { detectLanguage as nextDetectLanguage } from "./i18n.server";
 
 export async function getProfileByUserId(id: string) {
   return await prismaClient.profile.findUnique({
@@ -16,6 +16,6 @@ export async function getProfileByUserId(id: string) {
   });
 }
 
-export async function detectLanguage(request: Request) {
-  return await i18nServer.getLocale(request);
+export function detectLanguage(request: Request) {
+  return nextDetectLanguage(request);
 }

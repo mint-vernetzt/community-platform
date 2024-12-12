@@ -16,11 +16,16 @@ import Cookies from "js-cookie";
 import React, { type ReactElement, useEffect } from "react";
 import { useCountUp, type CountUpProps } from "react-countup";
 import { createPortal } from "react-dom";
-import { useTranslation } from "react-i18next";
 import { useHydrated } from "remix-utils/use-hydrated";
 import Search from "~/components/Search/Search";
+import { defaultLanguage, type supportedCookieLanguages } from "~/i18n";
 import { type getFeatureAbilities } from "~/lib/utils/application";
+import { type ArrayElement } from "~/lib/utils/types";
 import { type Mode } from "~/utils.server";
+import { type meta as deMetaLocales } from "~/locales-next.server/de/meta";
+import { type meta as enMetaLocales } from "~/locales-next.server/en/meta";
+import { type footer as deFooterLocales } from "~/locales-next.server/de/organisms/footer";
+import { type footer as enFooterLocales } from "~/locales-next.server/en/organisms/footer";
 
 function CountUp(props: CountUpProps) {
   const ref = React.useRef<HTMLElement | null>(null);
@@ -32,8 +37,9 @@ function CountUp(props: CountUpProps) {
   return <span ref={ref}></span>;
 }
 
-function HeaderLogo() {
-  const { t } = useTranslation("meta");
+function HeaderLogo(props: {
+  locales?: typeof deMetaLocales | typeof enMetaLocales;
+}) {
   return (
     <div className="flex flex-row items-center">
       <svg
@@ -61,7 +67,11 @@ function HeaderLogo() {
         </g>
       </svg>
       <span className="hidden lg:block font-bold text-primary ml-2">
-        {t("root.community")}
+        {props.locales !== undefined
+          ? props.locales.root.community
+          : defaultLanguage === "de"
+          ? "Community"
+          : "Community"}
       </span>
     </div>
   );
@@ -70,6 +80,8 @@ function HeaderLogo() {
 type NextNavBarProps = {
   sessionUserInfo?: SessionUserInfo;
   openNavBarMenuKey: string;
+  // TODO: How to implement search and replace in this scenario? Maybe with /* */ comments?
+  locales?: typeof deMetaLocales | typeof enMetaLocales;
 };
 
 type SessionUserInfo = {
@@ -93,8 +105,6 @@ function NavBar(props: NextNavBarProps) {
       "mv-hidden xl:mv-block"
   );
 
-  const { t } = useTranslation(["meta"]);
-
   return (
     <header id="header" className={classes}>
       <div className="mv-flex mv-h-full mv-items-center mv-mr-4 xl:mv-mr-8">
@@ -104,7 +114,7 @@ function NavBar(props: NextNavBarProps) {
             props.sessionUserInfo !== undefined ? "mv-hidden xl:mv-block" : ""
           }`}
         >
-          <HeaderLogo />
+          <HeaderLogo locales={props.locales} />
         </Link>
         {props.sessionUserInfo !== undefined && (
           <div
@@ -132,7 +142,13 @@ function NavBar(props: NextNavBarProps) {
         <div className="mv-flex mv-gap-2 xl:mv-gap-4 mv-flex-grow mv-items-center">
           <Form className="mv-flex-grow" method="get" action="/search">
             <Search
-              placeholder={t("root.search.placeholder")}
+              placeholder={
+                props.locales !== undefined
+                  ? props.locales.root.search.placeholder
+                  : defaultLanguage === "de"
+                  ? "Suche (min. 3 Zeichen)"
+                  : "Search (min. 3 characters)"
+              }
               name="query"
               query={query}
             />
@@ -167,13 +183,25 @@ function NavBar(props: NextNavBarProps) {
               <div>
                 <Link to={`/login?login_redirect=${location.pathname}`}>
                   <Button variant="ghost">
-                    <span className="mv-underline">{t("root.login")}</span>
+                    <span className="mv-underline">
+                      {props.locales !== undefined
+                        ? props.locales.root.login
+                        : defaultLanguage === "de"
+                        ? "Anmelden"
+                        : "Login"}
+                    </span>
                   </Button>
                 </Link>
               </div>
               <div>
                 <Link to={`/register?login_redirect=${location.pathname}`}>
-                  <Button>{t("root.register")}</Button>
+                  <Button>
+                    {props.locales !== undefined
+                      ? props.locales.root.register
+                      : defaultLanguage === "de"
+                      ? "Registrieren"
+                      : "Register"}
+                  </Button>
                 </Link>
               </div>
             </div>
@@ -190,6 +218,8 @@ function NavBarMenu(
     openNavBarMenuKey: string;
     username?: string;
     abilities?: Awaited<ReturnType<typeof getFeatureAbilities>>;
+    currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
+    locales?: typeof deMetaLocales | typeof enMetaLocales;
   }
 ) {
   const location = useLocation();
@@ -197,8 +227,6 @@ function NavBarMenu(
   const isOpen = searchParams.get(props.openNavBarMenuKey);
 
   const [activeTopicId, setActiveTopicId] = React.useState<string | null>(null);
-
-  const { t } = useTranslation(["meta"]);
 
   return (
     <nav
@@ -221,15 +249,31 @@ function NavBarMenu(
           <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex xl:mv-hidden">
             <div>
               <Link to={`/login?login_redirect=${location.pathname}`}>
-                <Button>{t("root.login")}</Button>
+                <Button>
+                  {props.locales !== undefined
+                    ? props.locales.root.login
+                    : defaultLanguage === "de"
+                    ? "Anmelden"
+                    : "Login"}
+                </Button>
               </Link>
             </div>
             <div className="mv-hidden sm:mv-block mv-font-semibold mv-text-primary-500">
-              {t("root.or")}
+              {props.locales !== undefined
+                ? props.locales.root.or
+                : defaultLanguage === "de"
+                ? "oder"
+                : "or"}
             </div>
             <div>
               <Link to={`/register?login_redirect=${location.pathname}`}>
-                <Button variant="outline">{t("root.register")}</Button>
+                <Button variant="outline">
+                  {props.locales !== undefined
+                    ? props.locales.root.register
+                    : defaultLanguage === "de"
+                    ? "Registrieren"
+                    : "Register"}
+                </Button>
               </Link>
             </div>
           </div>
@@ -254,7 +298,11 @@ function NavBarMenu(
                     <Icon type="grid-outline" />
                   )}
                   <div className="mv-font-semibold">
-                    {t("root.menu.overview")}
+                    {props.locales !== undefined
+                      ? props.locales.root.menu.overview
+                      : defaultLanguage === "de"
+                      ? "Überblick"
+                      : "Overview"}
                   </div>
                 </Item>
 
@@ -276,7 +324,11 @@ function NavBarMenu(
                       <Icon type="person-outline" />
                     )}
                     <div className="mv-font-semibold">
-                      {t("root.menu.personalSpace.label")}
+                      {props.locales !== undefined
+                        ? props.locales.root.menu.personalSpace.label
+                        : defaultLanguage === "de"
+                        ? "Mein MINT-Bereich"
+                        : "My space"}
                     </div>
                   </Label>
 
@@ -284,28 +336,44 @@ function NavBarMenu(
                     to={`/profile/${props.username}`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.myProfile")}
+                    {props.locales !== undefined
+                      ? props.locales.root.menu.personalSpace.myProfile
+                      : defaultLanguage === "de"
+                      ? "Mein Profil"
+                      : "My profile"}
                   </TopicItem>
 
                   <TopicItem
                     to={`/my/organizations`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.myOrganizations")}
+                    {props.locales !== undefined
+                      ? props.locales.root.menu.personalSpace.myOrganizations
+                      : defaultLanguage === "de"
+                      ? "Meine Organisationen"
+                      : "My organizations"}
                   </TopicItem>
 
                   <TopicItem
                     to={`/my/events`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.myEvents")}
+                    {props.locales !== undefined
+                      ? props.locales.root.menu.personalSpace.myEvents
+                      : defaultLanguage === "de"
+                      ? "Meine Veranstaltungen"
+                      : "My events"}
                   </TopicItem>
 
                   <TopicItem
                     to={`/my/projects`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.myProjects")}
+                    {props.locales !== undefined
+                      ? props.locales.root.menu.personalSpace.myProjects
+                      : defaultLanguage === "de"
+                      ? "Meine Projekte"
+                      : "My projects"}
                   </TopicItem>
 
                   {/* TODO: Implement this when Network overview is implemented */}
@@ -313,7 +381,11 @@ function NavBarMenu(
                     to={`my/network`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.myNetwork")}
+                    {props.locales !== undefined
+                      ? props.locales.root.menu.personalSpace.myNetwork
+                      : defaultLanguage === "de"
+                      ? "Mein Netzwerk"
+                      : "My network"}
                   </TopicItem> */}
 
                   {/* TODO: Implement this when bookmark feature is available */}
@@ -321,7 +393,11 @@ function NavBarMenu(
                     to={`my/bookmarks`}
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
-                    {t("root.menu.personalSpace.myBookmarks")}
+                    {props.locales !== undefined
+                      ? props.locales.root.menu.personalSpace.myBookmarks
+                      : defaultLanguage === "de"
+                      ? "Gemerkte Inhalte"
+                      : "Bookmarks"}
                   </TopicItem> */}
                 </Topic>
               </>
@@ -339,7 +415,11 @@ function NavBarMenu(
                   <Icon type="binoculars-outline" />
                 )}
                 <div className="mv-font-semibold">
-                  {t("root.menu.explore.label")}
+                  {props.locales !== undefined
+                    ? props.locales.root.menu.explore.label
+                    : defaultLanguage === "de"
+                    ? "Entdecken"
+                    : "Explore"}
                 </div>
               </Label>
 
@@ -347,35 +427,55 @@ function NavBarMenu(
                 to="/explore/profiles"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {t("root.menu.explore.profiles")}
+                {props.locales !== undefined
+                  ? props.locales.root.menu.explore.profiles
+                  : defaultLanguage === "de"
+                  ? "Profile"
+                  : "Profiles"}
               </TopicItem>
 
               <TopicItem
                 to="/explore/organizations"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {t("root.menu.explore.organizations")}
+                {props.locales !== undefined
+                  ? props.locales.root.menu.explore.organizations
+                  : defaultLanguage === "de"
+                  ? "Organisationen"
+                  : "Organizations"}
               </TopicItem>
 
               <TopicItem
                 to="/explore/projects"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {t("root.menu.explore.projects")}
+                {props.locales !== undefined
+                  ? props.locales.root.menu.explore.projects
+                  : defaultLanguage === "de"
+                  ? "Projekte"
+                  : "Projects"}
               </TopicItem>
 
               <TopicItem
                 to="/explore/events"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {t("root.menu.explore.events")}
+                {props.locales !== undefined
+                  ? props.locales.root.menu.explore.events
+                  : defaultLanguage === "de"
+                  ? "Veranstaltungen"
+                  : "Events"}
               </TopicItem>
 
               <TopicItem
                 to="/explore/fundings"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {t("root.menu.explore.fundings")}
+                {props.locales !== undefined
+                  ? props.locales.root.menu.explore.fundings
+                  : defaultLanguage === "de"
+                  ? "Förderungen"
+                  : "Fundings"}
                 <span className="mv-text-white mv-text-xs mv-pt-[4px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[20px] mv-absolute mv-top-2 mv-right-2 mv-font-semibold">
                   BETA
                 </span>
@@ -390,14 +490,22 @@ function NavBarMenu(
               <Label>
                 <Icon type="briefcase-outline" />
                 <div className="mv-font-semibold">
-                  {t("root.menu.ressources.label")}
+                  {props.locales !== undefined
+                    ? props.locales.root.menu.ressources.label
+                    : defaultLanguage === "de"
+                    ? "Ressourcen"
+                    : "Ressources"}
                 </div>
               </Label>
               <TopicItem
                 to="https://mediendatenbank.mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {t("root.menu.ressources.imageArchive")}
+                {props.locales !== undefined
+                  ? props.locales.root.menu.ressources.imageArchive
+                  : defaultLanguage === "de"
+                  ? "MINT-Mediendatenbank"
+                  : "MINT-Mediendatenbank"}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
               {props.abilities?.sharepic?.hasAccess && (
@@ -405,7 +513,11 @@ function NavBarMenu(
                   to="https://mint.sharepicgenerator.de/"
                   openNavBarMenuKey={props.openNavBarMenuKey}
                 >
-                  {t("root.menu.ressources.sharepic")}
+                  {props.locales !== undefined
+                    ? props.locales.root.menu.ressources.sharepic
+                    : defaultLanguage === "de"
+                    ? "MINT-Sharepic Generator"
+                    : "MINT-Sharepic Generator"}
                   <Icon type="box-arrow-up-right" />
                 </TopicItem>
               )}
@@ -414,7 +526,11 @@ function NavBarMenu(
                 to="https://mint-vernetzt.de"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {t("root.menu.ressources.website")}
+                {props.locales !== undefined
+                  ? props.locales.root.menu.ressources.website
+                  : defaultLanguage === "de"
+                  ? "MINTvernetzt Webseite"
+                  : "MINTvernetzt Website"}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
 
@@ -422,7 +538,11 @@ function NavBarMenu(
                 to="https://mint-vernetzt.shinyapps.io/datalab/"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {t("root.menu.ressources.datalab")}
+                {props.locales !== undefined
+                  ? props.locales.root.menu.ressources.datalab
+                  : defaultLanguage === "de"
+                  ? "MINT-DataLab"
+                  : "MINT-DataLab"}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
 
@@ -430,7 +550,11 @@ function NavBarMenu(
                 to="https://mintcampus.org/"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {t("root.menu.ressources.campus")}
+                {props.locales !== undefined
+                  ? props.locales.root.menu.ressources.campus
+                  : defaultLanguage === "de"
+                  ? "MINT-Campus"
+                  : "MINT-Campus"}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
 
@@ -438,7 +562,11 @@ function NavBarMenu(
                 to="https://github.com/mint-vernetzt/community-platform"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
-                {t("root.menu.ressources.github")}
+                {props.locales !== undefined
+                  ? props.locales.root.menu.ressources.github
+                  : defaultLanguage === "de"
+                  ? "MINTvernetzt GitHub"
+                  : "MINTvernetzt GitHub"}
                 <Icon type="box-arrow-up-right" />
               </TopicItem>
             </Topic>
@@ -447,7 +575,10 @@ function NavBarMenu(
         <div className="mv-flex-shrink">
           <BottomMenu>
             <div className="mv-pl-2 mv-py-4">
-              <LocaleSwitch variant="dark" />
+              <LocaleSwitch
+                variant="dark"
+                currentLanguage={props.currentLanguage}
+              />
             </div>
 
             <Item
@@ -460,7 +591,13 @@ function NavBarMenu(
               ) : (
                 <Icon type="life-preserver-outline" />
               )}
-              <div className="mv-font-semibold">{t("root.menu.help")}</div>
+              <div className="mv-font-semibold">
+                {props.locales !== undefined
+                  ? props.locales.root.menu.help
+                  : defaultLanguage === "de"
+                  ? "Hilfe"
+                  : "Help"}
+              </div>
             </Item>
 
             {props.mode === "authenticated" ? (
@@ -478,7 +615,11 @@ function NavBarMenu(
                     <Icon type="gear-outline" />
                   )}
                   <div className="mv-font-semibold">
-                    {t("root.menu.settings")}
+                    {props.locales !== undefined
+                      ? props.locales.root.menu.settings
+                      : defaultLanguage === "de"
+                      ? "Einstellungen"
+                      : "Settings"}
                   </div>
                 </Item>
 
@@ -490,7 +631,11 @@ function NavBarMenu(
                 >
                   <Icon type="door-closed-outline" />
                   <div className="mv-font-semibold">
-                    {t("root.menu.logout")}
+                    {props.locales !== undefined
+                      ? props.locales.root.menu.logout
+                      : defaultLanguage === "de"
+                      ? "Ausloggen"
+                      : "Logout"}
                   </div>
                 </Item>
               </>
@@ -505,21 +650,33 @@ function NavBarMenu(
               }
               to="/imprint"
             >
-              {t("root.menu.imprint")}
+              {props.locales !== undefined
+                ? props.locales.root.menu.imprint
+                : defaultLanguage === "de"
+                ? "Impressum"
+                : "Imprint"}
             </NavLink>
             <Link
               className="hover:mv-underline"
               target="_blank"
               to="https://mint-vernetzt.de/privacy-policy-community-platform/"
             >
-              {t("root.menu.privacy")}
+              {props.locales !== undefined
+                ? props.locales.root.menu.privacy
+                : defaultLanguage === "de"
+                ? "Datenschutz"
+                : "Privacy policy"}
             </Link>
             <Link
-              className="hover:mv-underline"
+              className="hover:mv-underline mv-w-full"
               target="_blank"
               to="https://mint-vernetzt.de/terms-of-use-community-platform/"
             >
-              {t("root.menu.terms")}
+              {props.locales !== undefined
+                ? props.locales.root.menu.terms
+                : defaultLanguage === "de"
+                ? "Nutzungsbedingungen"
+                : "Terms of use"}
             </Link>
           </FooterMenu>
         </div>
@@ -1118,19 +1275,10 @@ function Icon(props: { type: IconType }) {
 
   return icon;
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function NewFeatureBanner() {
-  const { t } = useTranslation(["meta"]);
-  return (
-    <div className="mv-absolute mv-right-2 mv-top-2 mv-w-[35px] mv-h-[18px] mv-rounded-[4px] mv-bg-success mv-text-center mv-text-xs mv-font-semibold mv-text-white">
-      {t("root.new")}
-    </div>
-  );
-}
 
-function Footer() {
-  const { t } = useTranslation(["organisms-footer"]);
-
+function Footer(props: {
+  locales?: typeof deFooterLocales | typeof enFooterLocales;
+}) {
   return (
     <footer className="mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
       {/* CP logo and description */}
@@ -1170,10 +1318,11 @@ function Footer() {
             </span>
           </MVLink>
           <p className="mv-text-sm mv-text-primary mv-font-semibold mv-hidden @sm:mv-block">
-            {t(
-              "description",
-              "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland."
-            )}
+            {props.locales !== undefined
+              ? props.locales.description
+              : defaultLanguage === "de"
+              ? "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland."
+              : "The networking platform for STEM actors in Germany."}
           </p>
         </div>
         {/* BMBF Logo */}
@@ -1211,7 +1360,13 @@ function Footer() {
       </div>
       <div className="mv-flex mv-justify-between mv-w-full mv-pt-6 mv-pb-4">
         {/* Copyright */}
-        <div className="mv-font-bold mv-text-xs">{t("meta.copyright")}</div>
+        <div className="mv-font-bold mv-text-xs">
+          {props.locales !== undefined
+            ? props.locales.meta.copyright
+            : defaultLanguage === "de"
+            ? "© 2021-2025 matrix gGmbH"
+            : "© 2021-2025 matrix gGmbH"}
+        </div>
         {/* SoMe icons */}
         <ul className="mv-flex mv-items-center mv-gap-6">
           <li>
@@ -1461,12 +1616,13 @@ Modal.Section = ModalSection;
 Modal.CloseButton = ModalCloseButton;
 Modal.SubmitButton = ModalSubmitButton;
 
-function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
-  const { isAnon = false } = props;
+function LoginOrRegisterCTA(props: {
+  isAnon?: Boolean;
+  locales: typeof deMetaLocales | typeof enMetaLocales;
+}) {
+  const { isAnon = false, locales } = props;
   const location = useLocation();
   const isHydrated = useHydrated();
-
-  const { t } = useTranslation(["meta"]);
 
   const [hideLoginOrRegisterCookie, setHideLoginOrRegisterCookie] =
     React.useState(false);
@@ -1487,37 +1643,37 @@ function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
     <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-px-6 mv-py-6 mv-text-primary mv-bg-primary-50">
       <div className="mv-flex mv-justify-between mv-w-full">
         <p className="mv-block mv-font-semibold">
-          {t("root.loginOrRegisterCTA.info")}
+          {locales.root.loginOrRegisterCTA.info}
         </p>
-        {isHydrated ? (
-          <Form
-            action={`${location.pathname}${location.search}`}
-            method="get"
-            onSubmit={(event) => {
-              event.stopPropagation();
-              event.preventDefault();
-              Cookies.set("mv-hide-login-or-register-cta", "true", {
-                expires: 1,
-              });
-              setHideLoginOrRegisterCookie(true);
-            }}
-          >
-            <button type="submit">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-              >
-                <path
-                  d="M5.80752 5.80752C5.86558 5.74931 5.93454 5.70314 6.01048 5.67163C6.08641 5.64012 6.16781 5.6239 6.25002 5.6239C6.33223 5.6239 6.41363 5.64012 6.48956 5.67163C6.56549 5.70314 6.63446 5.74931 6.69252 5.80752L10 9.11627L13.3075 5.80752C13.3656 5.74941 13.4346 5.70331 13.5105 5.67186C13.5865 5.64042 13.6678 5.62423 13.75 5.62423C13.8322 5.62423 13.9136 5.64042 13.9895 5.67186C14.0654 5.70331 14.1344 5.74941 14.1925 5.80752C14.2506 5.86563 14.2967 5.93461 14.3282 6.01054C14.3596 6.08646 14.3758 6.16784 14.3758 6.25002C14.3758 6.3322 14.3596 6.41357 14.3282 6.4895C14.2967 6.56542 14.2506 6.63441 14.1925 6.69252L10.8838 10L14.1925 13.3075C14.2506 13.3656 14.2967 13.4346 14.3282 13.5105C14.3596 13.5865 14.3758 13.6678 14.3758 13.75C14.3758 13.8322 14.3596 13.9136 14.3282 13.9895C14.2967 14.0654 14.2506 14.1344 14.1925 14.1925C14.1344 14.2506 14.0654 14.2967 13.9895 14.3282C13.9136 14.3596 13.8322 14.3758 13.75 14.3758C13.6678 14.3758 13.5865 14.3596 13.5105 14.3282C13.4346 14.2967 13.3656 14.2506 13.3075 14.1925L10 10.8838L6.69252 14.1925C6.63441 14.2506 6.56542 14.2967 6.4895 14.3282C6.41357 14.3596 6.3322 14.3758 6.25002 14.3758C6.16784 14.3758 6.08646 14.3596 6.01054 14.3282C5.93461 14.2967 5.86563 14.2506 5.80752 14.1925C5.74941 14.1344 5.70331 14.0654 5.67186 13.9895C5.64042 13.9136 5.62423 13.8322 5.62423 13.75C5.62423 13.6678 5.64042 13.5865 5.67186 13.5105C5.70331 13.4346 5.74941 13.3656 5.80752 13.3075L9.11627 10L5.80752 6.69252C5.74931 6.63446 5.70314 6.56549 5.67163 6.48956C5.64012 6.41363 5.6239 6.33223 5.6239 6.25002C5.6239 6.16781 5.64012 6.08641 5.67163 6.01048C5.70314 5.93454 5.74931 5.86558 5.80752 5.80752Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
-          </Form>
-        ) : null}
+
+        <Form
+          action={`${location.pathname}${location.search}`}
+          method="get"
+          onSubmit={(event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            Cookies.set("mv-hide-login-or-register-cta", "true", {
+              expires: 1,
+            });
+            setHideLoginOrRegisterCookie(true);
+          }}
+          className={`${isHydrated ? "mv-opacity-100" : "mv-opacity-0"}`}
+        >
+          <button type="submit">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <path
+                d="M5.80752 5.80752C5.86558 5.74931 5.93454 5.70314 6.01048 5.67163C6.08641 5.64012 6.16781 5.6239 6.25002 5.6239C6.33223 5.6239 6.41363 5.64012 6.48956 5.67163C6.56549 5.70314 6.63446 5.74931 6.69252 5.80752L10 9.11627L13.3075 5.80752C13.3656 5.74941 13.4346 5.70331 13.5105 5.67186C13.5865 5.64042 13.6678 5.62423 13.75 5.62423C13.8322 5.62423 13.9136 5.64042 13.9895 5.67186C14.0654 5.70331 14.1344 5.74941 14.1925 5.80752C14.2506 5.86563 14.2967 5.93461 14.3282 6.01054C14.3596 6.08646 14.3758 6.16784 14.3758 6.25002C14.3758 6.3322 14.3596 6.41357 14.3282 6.4895C14.2967 6.56542 14.2506 6.63441 14.1925 6.69252L10.8838 10L14.1925 13.3075C14.2506 13.3656 14.2967 13.4346 14.3282 13.5105C14.3596 13.5865 14.3758 13.6678 14.3758 13.75C14.3758 13.8322 14.3596 13.9136 14.3282 13.9895C14.2967 14.0654 14.2506 14.1344 14.1925 14.1925C14.1344 14.2506 14.0654 14.2967 13.9895 14.3282C13.9136 14.3596 13.8322 14.3758 13.75 14.3758C13.6678 14.3758 13.5865 14.3596 13.5105 14.3282C13.4346 14.2967 13.3656 14.2506 13.3075 14.1925L10 10.8838L6.69252 14.1925C6.63441 14.2506 6.56542 14.2967 6.4895 14.3282C6.41357 14.3596 6.3322 14.3758 6.25002 14.3758C6.16784 14.3758 6.08646 14.3596 6.01054 14.3282C5.93461 14.2967 5.86563 14.2506 5.80752 14.1925C5.74941 14.1344 5.70331 14.0654 5.67186 13.9895C5.64042 13.9136 5.62423 13.8322 5.62423 13.75C5.62423 13.6678 5.64042 13.5865 5.67186 13.5105C5.70331 13.4346 5.74941 13.3656 5.80752 13.3075L9.11627 10L5.80752 6.69252C5.74931 6.63446 5.70314 6.56549 5.67163 6.48956C5.64012 6.41363 5.6239 6.33223 5.6239 6.25002C5.6239 6.16781 5.64012 6.08641 5.67163 6.01048C5.70314 5.93454 5.74931 5.86558 5.80752 5.80752Z"
+                fill="currentColor"
+              />
+            </svg>
+          </button>
+        </Form>
       </div>
       <div className="mv-flex mv-w-full mv-gap-4 mv-items-baseline">
         <Link
@@ -1525,17 +1681,17 @@ function LoginOrRegisterCTA(props: { isAnon?: Boolean }) {
           className="text-primary font-semibold hover:underline mv-flex-grow @sm:mv-flex-grow-0"
         >
           <Button variant="outline" fullSize>
-            {t("root.loginOrRegisterCTA.login")}
+            {locales.root.loginOrRegisterCTA.login}
           </Button>
         </Link>
         <p className="mv-text-xs mv-flex-grow-0">
-          {t("root.loginOrRegisterCTA.or")}
+          {locales.root.loginOrRegisterCTA.or}
         </p>
         <Link
           to={`/register?login_redirect=${location.pathname}`}
           className="text-primary font-semibold hover:underline mv-flex-grow @sm:mv-flex-grow-0"
         >
-          <Button fullSize>{t("root.loginOrRegisterCTA.register")}</Button>
+          <Button fullSize>{locales.root.loginOrRegisterCTA.register}</Button>
         </Link>
       </div>
     </div>

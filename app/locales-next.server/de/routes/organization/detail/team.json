@@ -1,0 +1,10 @@
+{
+  "server": {
+    "error": {
+      "organizationNotFound": "Organisation nicht gefunden"
+    }
+  },
+  "headlines": {
+    "teamMembers": "Teammitglieder"
+  }
+}
