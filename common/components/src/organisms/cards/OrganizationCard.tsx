@@ -1,6 +1,6 @@
 import React from "react";
-import Chip, { ChipContainer } from "../../molecules/Chip";
-import Avatar, { AvatarList } from "../../molecules/Avatar";
+import { Chip, ChipContainer } from "./../../molecules/Chip";
+import { Avatar, AvatarList } from "./../../molecules/Avatar";
 import {
   Card,
   CardBody,
@@ -12,7 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { Link, type useFetcher } from "@remix-run/react";
 import { type action as quitAction } from "~/routes/my/organizations/quit";
-import { Image } from "@mint-vernetzt/components";
+import { Image } from "./../../molecules/Image";
 
 export type OrganizationCardProps = {
   match?: number;
@@ -273,4 +273,4 @@ function OrganizationCard(
   );
 }
 
-export default OrganizationCard;
+export { OrganizationCard };

@@ -49,7 +49,7 @@ import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { Image } from "@mint-vernetzt/components";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 
 const i18nNS = ["routes-event-settings-events", "datasets-stages"] as const;
 export const handle = {

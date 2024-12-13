@@ -1,4 +1,3 @@
-import { Button, Roadmap } from "@mint-vernetzt/components";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -31,6 +30,8 @@ import {
 } from "./utils.server";
 import { detectLanguage } from "~/root.server";
 import i18next from "~/i18next.server";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
 
 const i18nNS = ["routes-index", "help"] as const;
 export const handle = {

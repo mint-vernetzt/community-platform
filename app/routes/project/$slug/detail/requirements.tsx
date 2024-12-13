@@ -1,4 +1,4 @@
-import { Chip } from "@mint-vernetzt/components";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { useLoaderData } from "@remix-run/react";
 import { json, type LoaderFunctionArgs } from "@remix-run/server-runtime";
 import { RichText } from "~/components/Richtext/RichText";

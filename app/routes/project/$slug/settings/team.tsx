@@ -1,12 +1,4 @@
 import { conform, useForm } from "@conform-to/react";
-import {
-  Avatar,
-  Button,
-  Input,
-  List,
-  Section,
-  Toast,
-} from "@mint-vernetzt/components";
 import { type Prisma, type Profile } from "@prisma/client";
 import {
   json,
@@ -36,6 +28,12 @@ import {
   getHash,
 } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { Toast } from "@mint-vernetzt/components/src/molecules/Toast";
+import { List } from "@mint-vernetzt/components/src/organisms/List";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 
 const i18nNS = ["routes-project-settings-team"] as const;
 export const handle = {

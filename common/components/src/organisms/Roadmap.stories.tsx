@@ -1,4 +1,4 @@
-import Roadmap from "./Roadmap";
+import { Roadmap } from "./Roadmap";
 
 export function RoadmapPlayground() {
   return (

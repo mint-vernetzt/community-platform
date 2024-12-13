@@ -1,15 +1,5 @@
 import { conform } from "@conform-to/react";
-import {
-  Avatar,
-  Button,
-  CircleButton,
-  Controls,
-  Header,
-  Image,
-  Status,
-  TabBar,
-  TextButton,
-} from "@mint-vernetzt/components";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -40,6 +30,14 @@ import { getPublicURL } from "~/storage.server";
 import { deriveProjectMode } from "../utils.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Header } from "@mint-vernetzt/components/src/organisms/Header";
+import { Status } from "@mint-vernetzt/components/src/molecules/Status";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 
 const i18nNS = ["routes-project-detail", "components-image-cropper"] as const;
 

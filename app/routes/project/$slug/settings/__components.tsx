@@ -1,12 +1,12 @@
-import { type InputLabelProps } from "@mint-vernetzt/components";
 import {
-  CircleButton,
-  Image,
   Input,
-  TextButton,
-} from "@mint-vernetzt/components";
+  type InputLabelProps,
+} from "@mint-vernetzt/components/src/molecules/Input";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Link } from "@remix-run/react";
 import React, { type FormEvent, type PropsWithChildren } from "react";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 
 export type BackButtonProps = {
   to: string;

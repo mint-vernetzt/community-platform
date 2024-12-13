@@ -1,8 +1,9 @@
-import Button from "../../molecules/Button";
-import EventCard from "./EventCard";
-import OrganizationCard from "./OrganizationCard";
-import ProfileCard from "./ProfileCard";
-import ProjectCard from "./ProjectCard";
+import { languageModuleMap } from "~/locales-next.server/utils";
+import { Button } from "../../molecules/Button";
+import { EventCard } from "./EventCard";
+import { OrganizationCard } from "./OrganizationCard";
+import { ProfileCard } from "./ProfileCard";
+import { ProjectCard } from "./ProjectCard";
 
 export function Profile() {
   return (
@@ -10,6 +11,7 @@ export function Profile() {
       <div className="mv-w-[253px]">
         <ProfileCard
           match={98}
+          locales={languageModuleMap.en["explore/profiles"]}
           profile={{
             academicTitle: "Prof. Dr.",
             username: "julialanglangschmittberger",
@@ -49,6 +51,7 @@ export function Profile() {
       </div>
       <div className="mv-w-[253px]">
         <ProfileCard
+          locales={languageModuleMap.en["explore/profiles"]}
           publicAccess={true}
           profile={{
             academicTitle: "Prof. Dr.",
@@ -85,6 +88,7 @@ export function Profile() {
       </div>
       <div className="mv-w-[253px]">
         <ProfileCard
+          locales={languageModuleMap.en["explore/profiles"]}
           profile={{
             academicTitle: "Prof. Dr.",
             username: "julialanglangschmittberger",

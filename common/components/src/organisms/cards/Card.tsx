@@ -1,15 +1,15 @@
 import classNames from "classnames";
 import React from "react";
-import Avatar from "../../molecules/Avatar";
+import { Avatar } from "../../molecules/Avatar";
 import { ChipContainer } from "../../molecules/Chip";
-import { Image } from "@mint-vernetzt/components";
+import { Image } from "../../molecules/Image";
 
 export type CardProps = {
   children?: React.ReactNode;
   to?: string;
 };
 
-export function Card(props: CardProps) {
+function Card(props: CardProps) {
   const children = React.Children.toArray(props.children);
 
   const header = children.find((child) => {
@@ -338,3 +338,5 @@ export function CardRowContainer(props: CardRowContainerProps) {
 }
 
 Card.RowContainer = CardRowContainer;
+
+export { Card };

@@ -142,4 +142,4 @@ function TextButton(
   return element;
 }
 
-export default TextButton;
+export { TextButton };

@@ -49,7 +49,7 @@ import {
   type action as removeParticipantAction,
   removeParticipantSchema,
 } from "./participants/remove-participant";
-import { Avatar } from "@mint-vernetzt/components";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 const createParticipantLimitSchema = (t: TFunction) => {
   return z.object({

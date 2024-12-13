@@ -44,4 +44,4 @@ function CardContainer(props: CardContainerProps) {
   );
 }
 
-export default CardContainer;
+export { CardContainer };

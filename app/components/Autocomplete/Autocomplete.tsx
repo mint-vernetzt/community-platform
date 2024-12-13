@@ -7,7 +7,8 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDuration } from "~/lib/utils/time";
 import { H3 } from "../Heading/Heading";
 import { useTranslation } from "react-i18next";
-import { Avatar, Image } from "@mint-vernetzt/components";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 
 export interface AutocompleteProps {
   suggestions:

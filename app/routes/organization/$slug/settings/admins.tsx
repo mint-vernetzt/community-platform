@@ -41,7 +41,7 @@ import {
   removeAdminSchema,
   type action as removeAdminAction,
 } from "./admins/remove-admin";
-import { Avatar } from "@mint-vernetzt/components";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 const i18nNS = ["routes-organization-settings-admins"] as const;
 export const handle = {

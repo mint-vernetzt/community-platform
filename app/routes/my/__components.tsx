@@ -1,4 +1,5 @@
-import { Avatar, Button as LegacyButton } from "@mint-vernetzt/components";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button as LegacyButton } from "@mint-vernetzt/components/src/molecules/Button";
 import { Form, Link, useFetcher, useSearchParams } from "@remix-run/react";
 import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 import classNames from "classnames";

@@ -1,4 +1,3 @@
-import { Button, CardContainer, ProjectCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -21,6 +20,9 @@ import {
   getTakeParam,
   searchProjectsViaLike,
 } from "./utils.server";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 const i18nNS = ["routes-search-projects"] as const;
 export const handle = {

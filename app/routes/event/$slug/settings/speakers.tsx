@@ -39,7 +39,7 @@ import {
   removeSpeakerSchema,
   type action as removeSpeakerAction,
 } from "./speakers/remove-speaker";
-import { Avatar } from "@mint-vernetzt/components";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;

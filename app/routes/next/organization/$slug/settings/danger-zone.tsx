@@ -1,4 +1,5 @@
-import { Section, TabBar } from "@mint-vernetzt/components";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { Link, Outlet, useLocation } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { BackButton } from "~/routes/project/$slug/settings/__components";

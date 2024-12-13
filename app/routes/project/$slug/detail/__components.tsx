@@ -1,4 +1,4 @@
-import { Image } from "@mint-vernetzt/components";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import classNames from "classnames";
 
 export function Envelope() {

@@ -1,4 +1,3 @@
-import { Button, CardContainer, EventCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -28,6 +27,9 @@ import {
   getTakeParam,
   searchEventsViaLike,
 } from "./utils.server";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 const i18nNS = ["routes-search-events", "datasets-stages"] as const;
 export const handle = {

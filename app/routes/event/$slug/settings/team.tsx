@@ -36,7 +36,7 @@ import {
   removeMemberSchema,
   type action as removeMemberAction,
 } from "./team/remove-member";
-import { Avatar } from "@mint-vernetzt/components";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;

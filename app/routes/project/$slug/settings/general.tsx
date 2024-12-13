@@ -1,13 +1,6 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import {
-  Button,
-  Chip,
-  Controls,
-  Input,
-  Section,
-} from "@mint-vernetzt/components";
-import {
   json,
   redirect,
   type ActionFunctionArgs,
@@ -38,6 +31,11 @@ import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 
 const i18nNS = [
   "routes-project-settings-general",

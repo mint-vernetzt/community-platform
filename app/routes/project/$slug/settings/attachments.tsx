@@ -1,12 +1,6 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import {
-  Button,
-  Image,
-  Input,
-  Section,
-  Toast,
-} from "@mint-vernetzt/components";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import {
   json,
   redirect,
@@ -52,6 +46,10 @@ import {
   getHash,
 } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Toast } from "@mint-vernetzt/components/src/molecules/Toast";
 
 const MAX_UPLOAD_SIZE = 6 * 1024 * 1024; // 6MB
 const i18nNS = ["routes-project-settings-attachments"] as const;

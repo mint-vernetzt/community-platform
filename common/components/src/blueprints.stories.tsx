@@ -1,6 +1,8 @@
 import React from "react";
-import List from "./organisms/List";
-import { Avatar, Button, Toast } from "./molecules";
+import { List } from "./organisms/List";
+import { Avatar } from "./molecules/Avatar";
+import { Button } from "./molecules/Button";
+import { Toast } from "./molecules/Toast";
 
 const defaultUsers = [
   {

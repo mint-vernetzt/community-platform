@@ -1,4 +1,4 @@
-import { Button } from "@mint-vernetzt/components";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import {
   Link,

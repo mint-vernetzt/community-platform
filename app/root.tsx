@@ -1,8 +1,3 @@
-import {
-  Alert,
-  CircleButton,
-  Link as StyledLink,
-} from "@mint-vernetzt/components";
 import type {
   LinksFunction,
   LoaderFunctionArgs,
@@ -50,6 +45,9 @@ import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
 import { defaultLanguage } from "./i18n";
 import { languageModuleMap } from "./locales-next.server/utils";
+import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;

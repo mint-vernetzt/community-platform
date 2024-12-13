@@ -1,11 +1,14 @@
-import { Avatar, Controls, Image, Status } from "./../../index";
+import { Controls } from "./../organisms/containers/Controls";
+import { Avatar } from "./../molecules/Avatar";
+import { Image } from "./../molecules/Image";
+import { Status } from "./../molecules/Status";
 import React, { type ReactNode } from "react";
 
 type HeaderProps = {
   children: ReactNode;
 };
 
-export function Header(props: HeaderProps) {
+function Header(props: HeaderProps) {
   const children = React.Children.toArray(props.children);
   const status = children.find((child) => {
     return React.isValidElement(child) && child.type === Status;
@@ -141,4 +144,4 @@ function Footer(props: FooterProps) {
 Header.Body = Body;
 Header.Footer = Footer;
 
-export default Header;
+export { Header };

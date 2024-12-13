@@ -1,6 +1,5 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { Button, Controls, Input, Section } from "@mint-vernetzt/components";
 import {
   json,
   redirect,
@@ -41,6 +40,10 @@ import {
   getHash,
 } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({

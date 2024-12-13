@@ -3,7 +3,7 @@ import { Link } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { H3 } from "../Heading/Heading";
-import { Avatar } from "@mint-vernetzt/components";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 export interface OrganizationCardProps {
   id: string;

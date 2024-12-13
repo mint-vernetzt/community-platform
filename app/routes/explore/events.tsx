@@ -5,13 +5,7 @@ import {
   useForm,
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import {
-  Button,
-  CardContainer,
-  Chip,
-  EventCard,
-  Input,
-} from "@mint-vernetzt/components";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -62,6 +56,10 @@ import {
   getVisibilityFilteredEventsCount,
 } from "./events.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 
 const i18nNS = [
   "routes-explore-events",

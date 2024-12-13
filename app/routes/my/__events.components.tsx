@@ -1,4 +1,4 @@
-import { TabBar } from "@mint-vernetzt/components";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { Link } from "@remix-run/react";
 import classNames from "classnames";
 import { utcToZonedTime } from "date-fns-tz";

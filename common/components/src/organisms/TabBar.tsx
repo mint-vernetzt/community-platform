@@ -253,4 +253,4 @@ function TabBar(props: TabBarProps) {
 TabBar.Item = Item;
 TabBar.Counter = Counter;
 
-export default TabBar;
+export { TabBar };

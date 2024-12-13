@@ -1,14 +1,6 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import {
-  Alert,
-  Button,
-  Chip,
-  Controls,
-  Input,
-  Section,
-} from "@mint-vernetzt/components";
-import {
   json,
   redirect,
   type ActionFunctionArgs,
@@ -46,6 +38,12 @@ import { type TFunction } from "i18next";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 
 const i18nNS = [
   "routes-project-settings-details",
@@ -426,6 +424,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
           return z.NEVER;
         }
+
+        invariantResponse(
+          sanitizeUserHtml !== undefined,
+          "Server only module doesnt know we are on the server here.",
+          { status: 500 }
+        );
 
         const {
           disciplines,

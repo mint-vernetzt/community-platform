@@ -1,4 +1,7 @@
-import { Avatar, Chip, List, Video } from "@mint-vernetzt/components";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { List } from "@mint-vernetzt/components/src/organisms/List";
+import { Video } from "@mint-vernetzt/components/src/organisms/Video";
 import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";

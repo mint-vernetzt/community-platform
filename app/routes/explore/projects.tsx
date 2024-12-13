@@ -5,13 +5,11 @@ import {
   useForm,
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import {
-  Button,
-  CardContainer,
-  Chip,
-  Input,
-  ProjectCard,
-} from "@mint-vernetzt/components";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {

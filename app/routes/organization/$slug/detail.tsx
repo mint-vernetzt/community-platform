@@ -1,11 +1,4 @@
 import {
-  Avatar,
-  Button,
-  Image,
-  TabBar,
-  TextButton,
-} from "@mint-vernetzt/components";
-import {
   type LoaderFunctionArgs,
   type MetaFunction,
   json,
@@ -43,6 +36,11 @@ import {
 } from "./detail.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 
 const i18nNS = [
   "routes-organization-detail",

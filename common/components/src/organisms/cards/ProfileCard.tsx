@@ -1,6 +1,6 @@
 import React from "react";
-import Chip, { ChipContainer } from "../../molecules/Chip";
-import Avatar, { AvatarList } from "../../molecules/Avatar";
+import { Chip, ChipContainer } from "./../../molecules/Chip";
+import { Avatar, AvatarList } from "./../../molecules/Avatar";
 import {
   Card,
   CardBody,
@@ -9,8 +9,8 @@ import {
   CardHeader,
   CardStatus,
 } from "./Card";
-import { getFullName } from "../../utils";
-import { Image } from "@mint-vernetzt/components";
+import { getFullName } from "./../../utils";
+import { Image } from "./../../molecules/Image";
 import { type ExploreProfileLocales } from "~/routes/explore/profiles.server";
 import { getTypedOffer } from "~/routes/explore/profiles";
 
@@ -130,4 +130,4 @@ function ProfileCard(
   );
 }
 
-export default ProfileCard;
+export { ProfileCard };

@@ -1,5 +1,5 @@
 import type { AvatarProps, MoreIndicatorProps } from "./Avatar";
-import Avatar, { AvatarList, MoreIndicator } from "./Avatar";
+import { Avatar, AvatarList, MoreIndicator } from "./Avatar";
 
 type AvatarPlaygroundProps = {
   firstName: string;

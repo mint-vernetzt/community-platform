@@ -271,4 +271,4 @@ Input.Error = InputError;
 Input.SearchIcon = InputSearchIcon;
 Input.Controls = InputControls;
 
-export default Input;
+export { Input };

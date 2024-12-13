@@ -185,4 +185,4 @@ export function ChipContainer(props: ChipContainerProps) {
 
 Chip.Container = ChipContainer;
 
-export default Chip;
+export { Chip };

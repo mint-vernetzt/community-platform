@@ -1,10 +1,7 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import {
-  Button,
-  CardContainer,
-  OrganizationCard,
-  TabBar,
-} from "@mint-vernetzt/components";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import {
   json,
   redirect,
@@ -59,6 +56,7 @@ import {
 } from "./organizations/requests";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
 import { Icon } from "../__components";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 
 export const i18nNS = [
   "routes-my-organizations",

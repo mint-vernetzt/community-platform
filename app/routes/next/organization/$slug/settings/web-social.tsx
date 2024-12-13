@@ -1,6 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
-import { Button, Controls, Input, Section } from "@mint-vernetzt/components";
 import {
   redirect,
   type ActionFunctionArgs,
@@ -46,6 +45,10 @@ import {
   getOrganizationWebSocial,
   updateOrganizationWebSocial,
 } from "./web-social.server";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({

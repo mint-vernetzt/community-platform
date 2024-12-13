@@ -122,4 +122,4 @@ Section.Header = SectionHeader;
 Section.Body = SectionBody;
 Section.Footer = SectionFooter;
 
-export default Section;
+export { Section };

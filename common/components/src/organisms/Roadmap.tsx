@@ -1,4 +1,4 @@
-import { Button } from "@mint-vernetzt/components";
+import { Button } from "./../molecules/Button";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
@@ -194,4 +194,4 @@ function Roadmap() {
   );
 }
 
-export default Roadmap;
+export { Roadmap };

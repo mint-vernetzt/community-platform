@@ -1,4 +1,5 @@
-import { Section, TextButton } from "@mint-vernetzt/components";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import {
   Link,

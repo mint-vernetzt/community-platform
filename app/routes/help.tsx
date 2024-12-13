@@ -2,9 +2,10 @@ import { useTranslation } from "react-i18next";
 import deLocales from "../locales.server/de.json";
 import { RichText } from "~/components/Richtext/RichText";
 import { Accordion } from "./__help.components";
-import { Link as StyledLink, Button } from "@mint-vernetzt/components";
+import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 const i18nNS = ["help"] as const;
 export const handle = {

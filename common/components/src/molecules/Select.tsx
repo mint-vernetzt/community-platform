@@ -1,5 +1,5 @@
 import React from "react";
-import Input, { type InputLabelProps } from "./Input";
+import { Input, type InputLabelProps } from "./Input";
 
 export type SelectProps = React.HTMLProps<HTMLSelectElement>;
 
@@ -80,4 +80,4 @@ Select.Label = Input.Label;
 Select.HelperText = Input.HelperText;
 Select.Error = Input.Error;
 
-export default Select;
+export { Select };

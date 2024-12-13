@@ -1,12 +1,5 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import {
-  Avatar,
-  Button,
-  Input,
-  List,
-  TextButton,
-} from "@mint-vernetzt/components";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -35,6 +28,11 @@ import {
   searchForOrganizationsByName,
 } from "./create.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { List } from "@mint-vernetzt/components/src/organisms/List";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 const i18nNS = ["routes-organization-create"] as const;
 export const handle = {

@@ -15,7 +15,7 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
-      "@mint-vernetzt/components": ["./common/components/*"]
+      "@mint-vernetzt/components/*": ["./common/components/*"]
     },
     "noEmit": true,
     "allowJs": true,

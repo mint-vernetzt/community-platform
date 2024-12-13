@@ -1,7 +1,7 @@
 import React from "react";
-import Avatar from "../molecules/Avatar";
+import { Avatar } from "../molecules/Avatar";
 import classNames from "classnames";
-import { type ImageProps } from "./../../index";
+import { type ImageProps } from "./../molecules/Image";
 
 type Size = "sm" | "md";
 
@@ -287,4 +287,4 @@ ListItem.Preview = ListItemPreview;
 
 List.Item = ListItem;
 
-export default List;
+export { List };

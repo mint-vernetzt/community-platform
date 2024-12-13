@@ -1,5 +1,5 @@
 import React from "react";
-import TextButton, { type TextButtonProps } from "./TextButton";
+import { TextButton, type TextButtonProps } from "./TextButton";
 
 type TextButtonPlaygroundArgs = TextButtonProps & {
   onClick?: () => void;

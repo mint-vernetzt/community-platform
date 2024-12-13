@@ -1,4 +1,4 @@
-import { Toast } from "@mint-vernetzt/components";
+import { Toast } from "@mint-vernetzt/components/src/molecules/Toast";
 import { type Toast as ToastType } from "./toast.server";
 
 export function ToastContainer(props: { toast: ToastType }) {

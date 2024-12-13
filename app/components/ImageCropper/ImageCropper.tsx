@@ -13,7 +13,7 @@ import { useDebounceEffect } from "./useDebounceEffect";
 import { useTranslation } from "react-i18next";
 import { RemixFormsForm } from "../RemixFormsForm/RemixFormsForm";
 import { Form, type SubmitFunction, useSubmit } from "@remix-run/react";
-import { Button } from "@mint-vernetzt/components";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 export interface ImageCropperProps {
   id: string;

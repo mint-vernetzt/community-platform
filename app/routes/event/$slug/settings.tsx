@@ -1,4 +1,4 @@
-import { TextButton } from "@mint-vernetzt/components";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";

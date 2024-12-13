@@ -44,7 +44,7 @@ import {
   removeFromWaitingListSchema,
   type action as removeFromWaitingListAction,
 } from "./waiting-list/remove-from-waiting-list";
-import { Avatar } from "@mint-vernetzt/components";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;

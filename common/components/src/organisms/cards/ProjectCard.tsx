@@ -1,9 +1,9 @@
 import { Link, useFetcher } from "@remix-run/react";
-import Avatar from "../../molecules/Avatar";
+import { Avatar } from "./../../molecules/Avatar";
 import { Card } from "./Card";
 import { useTranslation } from "react-i18next";
 import React from "react";
-import { Image } from "@mint-vernetzt/components";
+import { Image } from "./../../molecules/Image";
 
 export type ProjectCardProps = {
   project: {
@@ -221,4 +221,4 @@ function ProjectCard(props: ProjectCardProps) {
   );
 }
 
-export default ProjectCard;
+export { ProjectCard };

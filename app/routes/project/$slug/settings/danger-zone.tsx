@@ -4,11 +4,12 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { BackButton } from "./__components";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-import { Section, TabBar } from "@mint-vernetzt/components";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
 import { Deep } from "~/lib/utils/searchParams";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 
 const i18nNS = ["routes-project-settings-danger-zone"] as const;
 export const handle = {

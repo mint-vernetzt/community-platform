@@ -1,14 +1,6 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import {
-  Alert,
-  Button,
-  Chip,
-  Controls,
-  Input,
-  Section,
-} from "@mint-vernetzt/components";
-import {
   json,
   redirect,
   type ActionFunctionArgs,
@@ -46,6 +38,12 @@ import {
   updateFilterVectorOfProject,
 } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 
 const i18nNS = [
   "routes-project-settings-requirements",
@@ -351,6 +349,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
     schema: (intent) =>
       requirementsSchema.transform(async (data, ctx) => {
         if (intent !== "submit") return { ...data };
+
+        invariantResponse(
+          sanitizeUserHtml !== undefined,
+          "Typescript doesnt know that the module is server only and that we are on the server here.",
+          { status: 500 }
+        );
 
         const {
           financings,

@@ -1,12 +1,6 @@
 import { useForm } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import {
-  Avatar,
-  Button,
-  Image,
-  Input,
-  TextButton,
-} from "@mint-vernetzt/components";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -74,6 +68,10 @@ import {
   type SpeakersQuery,
 } from "./utils.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 const i18nNS = [
   "routes-event-index",

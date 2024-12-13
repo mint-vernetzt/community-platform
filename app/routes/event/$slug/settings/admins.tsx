@@ -35,7 +35,7 @@ import {
   type action as removeAdminAction,
 } from "./admins/remove-admin";
 import { publishSchema, type action as publishAction } from "./events/publish";
-import { Avatar } from "@mint-vernetzt/components";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 const i18nNS = ["routes-event-settings-admins"] as const;
 export const handle = {

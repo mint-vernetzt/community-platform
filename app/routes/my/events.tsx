@@ -1,4 +1,5 @@
-import { TabBar, Button } from "@mint-vernetzt/components";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import React from "react";

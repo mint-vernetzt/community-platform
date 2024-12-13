@@ -1,4 +1,3 @@
-import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -21,6 +20,9 @@ import {
   getTakeParam,
   searchProfilesViaLike,
 } from "./utils.server";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 // import styles from "../../../common/design/styles/styles.css?url";
 
 // export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];

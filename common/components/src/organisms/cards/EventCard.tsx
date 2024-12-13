@@ -1,6 +1,6 @@
 import React from "react";
 import { removeHtmlTags } from "../../../../../app/lib/utils/sanitizeUserHtml";
-import Avatar, { AvatarList } from "../../molecules/Avatar";
+import { Avatar, AvatarList } from "../../molecules/Avatar";
 import {
   Card,
   CardBody,
@@ -12,7 +12,7 @@ import {
 } from "./Card";
 import { useTranslation } from "react-i18next";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
-import { Image } from "@mint-vernetzt/components";
+import { Image } from "../../molecules/Image";
 
 export type EventCardProps = {
   match?: number;
@@ -310,4 +310,4 @@ function EventCard(
   );
 }
 
-export default EventCard;
+export { EventCard };

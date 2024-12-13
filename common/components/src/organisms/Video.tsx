@@ -1,6 +1,6 @@
-import { Button } from "./../../index";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { Button } from "./../molecules/Button";
 
 export type VideoProps = {
   src: string;
@@ -60,4 +60,4 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
 
 Video.Subline = VideoSubline;
 
-export default Video;
+export { Video };

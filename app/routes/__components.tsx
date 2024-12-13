@@ -1,9 +1,4 @@
-import {
-  Avatar,
-  Button,
-  LocaleSwitch,
-  Link as MVLink,
-} from "@mint-vernetzt/components";
+import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
 import {
   Form,
   Link,
@@ -23,6 +18,9 @@ import { type getFeatureAbilities } from "~/lib/utils/application";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type Mode } from "~/utils.server";
 import { type RootLocales } from "~/root.server";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { LocaleSwitch } from "@mint-vernetzt/components/src/organisms/buttons/LocaleSwitch";
 
 function CountUp(props: CountUpProps) {
   const ref = React.useRef<HTMLElement | null>(null);

@@ -1,4 +1,3 @@
-import { Section, TextButton, Toast } from "@mint-vernetzt/components";
 import {
   Link,
   Outlet,
@@ -20,6 +19,9 @@ import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server"
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { Deep } from "~/lib/utils/searchParams";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Toast } from "@mint-vernetzt/components/src/molecules/Toast";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 
 const i18nNS = ["routes-project-settings"] as const;
 export const handle = {

@@ -1,14 +1,4 @@
-import {
-  Avatar,
-  Button,
-  CardContainer,
-  EventCard,
-  Image,
-  Link as MVLink,
-  OrganizationCard,
-  ProfileCard,
-  ProjectCard,
-} from "@mint-vernetzt/components";
+import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
 import type { Organization, Profile } from "@prisma/client";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -50,6 +40,14 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
+import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
+import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
+import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 
 const i18nNS = [
   "routes-dashboard",

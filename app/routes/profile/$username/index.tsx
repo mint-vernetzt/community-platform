@@ -1,9 +1,5 @@
-import {
-  Button,
-  TextButton,
-  Image,
-  Avatar as MVAvatar,
-} from "@mint-vernetzt/components";
+import { Avatar as MVAvatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import type { Profile } from "@prisma/client";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -48,6 +44,8 @@ import {
 } from "./utils.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import { addUserParticipationStatus } from "~/routes/event/$slug/utils.server";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 const i18nNS = [
   "routes-profile-index",
