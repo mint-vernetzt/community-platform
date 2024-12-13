@@ -5,8 +5,8 @@ export const fundings = {
   empty: "Unfortunately, no fundings could be found.",
   itemsCountSuffix_one: "funding",
   itemsCountSuffix_other: "fundings",
-  showNumberOfItems_one: "Show {{count}} funding",
-  showNumberOfItems_other: "Show {{count}} fundings",
+  showNumberOfItems_singular: "Show {{count}} funding",
+  showNumberOfItems_plural: "Show {{count}} fundings",
   showFiltersLabel: "Filter fundings",
   filter: {
     apply: "Apply filter",

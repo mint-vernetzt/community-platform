@@ -5,8 +5,8 @@ export const fundings = {
   empty: "Es konnten leider keine Förderungen gefunden werden.",
   itemsCountSuffix_one: "Förderung",
   itemsCountSuffix_other: "Förderungen",
-  showNumberOfItems_one: "{{count}} Profil anzeigen",
-  showNumberOfItems_other: "{{count}} Profile anzeigen",
+  showNumberOfItems_singular: "{{count}} Profil anzeigen",
+  showNumberOfItems_plural: "{{count}} Profile anzeigen",
   showFiltersLabel: "Förderungen filtern",
   filter: {
     apply: "Filter anwenden",

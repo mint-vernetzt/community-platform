@@ -1,12 +1,18 @@
 import { meta as deMeta } from "./de/meta";
 import { meta as enMeta } from "./en/meta";
 import { meta as frMeta } from "./fr/meta";
+import { offers as deOffers } from "./de/datasets/offers";
+import { offers as enOffers } from "./en/datasets/offers";
+import { offers as frOffers } from "./fr/datasets/offers";
 import { footer as deFooter } from "./de/organisms/footer";
 import { footer as enFooter } from "./en/organisms/footer";
 import { footer as frFooter } from "./fr/organisms/footer";
 import { fundings as deExploreFundings } from "./de/routes/explore/fundings";
 import { fundings as enExploreFundings } from "./en/routes/explore/fundings";
 import { fundings as frExploreFundings } from "./fr/routes/explore/fundings";
+import { profiles as deExploreProfiles } from "./de/routes/explore/profiles";
+import { profiles as enExploreProfiles } from "./en/routes/explore/profiles";
+import { profiles as frExploreProfiles } from "./fr/routes/explore/profiles";
 
 /**
  * This is the map of all language modules.
@@ -31,13 +37,16 @@ export const languageModuleMap = {
   de: {
     root: { ...deMeta, ...deFooter },
     "explore/fundings": deExploreFundings,
+    "explore/profiles": { ...deExploreProfiles, offers: { ...deOffers } },
   },
   en: {
     root: { ...enMeta, ...enFooter },
     "explore/fundings": enExploreFundings,
+    "explore/profiles": { ...enExploreProfiles, offers: { ...enOffers } },
   },
   fr: {
     root: { ...frMeta, ...frFooter },
     "explore/fundings": frExploreFundings,
+    "explore/profiles": { ...frExploreProfiles, offers: { ...frOffers } },
   },
 } as const;

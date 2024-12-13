@@ -24,7 +24,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -53,6 +52,9 @@ import {
   getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales-next.server/utils";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 // import styles from "../../../common/design/styles/styles.css?url";
 
 const i18nNS = ["routes-explore-profiles", "datasets-offers"] as const;
@@ -136,6 +138,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "Validation failed for get request",
     { status: 400 }
   );
+
+  const language = detectLanguage(request);
+  const routeLocales = languageModuleMap[language]["explore/profiles"];
 
   const take = getTakeParam(submission.value.page);
   const { authClient } = createAuthClient(request);
@@ -341,8 +346,40 @@ export const loader = async (args: LoaderFunctionArgs) => {
     submission,
     filteredByVisibilityCount,
     profilesCount,
+    locales: routeLocales,
   });
 };
+
+// TODO: Check this function
+function getTypedOffer(
+  slug: string,
+  loaderData: ReturnType<typeof useLoaderData<typeof loader>>
+) {
+  const offerKeys = Object.entries(loaderData.locales.offers).map(
+    ([key, value]) => {
+      console.log({
+        key,
+        slug,
+      });
+      return key === slug
+        ? (value as keyof typeof loaderData.locales.offers)
+        : null;
+    }
+  );
+  if (offerKeys.length > 0) {
+    const offer = offerKeys.find((offerKey) => {
+      return offerKey !== null;
+    });
+    if (offer !== undefined && loaderData.locales.offers[offer] !== undefined) {
+      return {
+        title: loaderData.locales.offers[offer].title,
+        description: loaderData.locales.offers[offer].description,
+      };
+    }
+    return null;
+  }
+  return null;
+}
 
 export default function ExploreProfiles() {
   const loaderData = useLoaderData<typeof loader>();
@@ -351,7 +388,6 @@ export default function ExploreProfiles() {
   const location = useLocation();
   const submit = useSubmit();
   const debounceSubmit = useDebounceSubmit();
-  const { t } = useTranslation(i18nNS);
 
   const [form, fields] = useForm<GetProfilesSchema>({});
 
@@ -364,13 +400,20 @@ export default function ExploreProfiles() {
     loaderData.submission.value.search
   );
 
+  const currentSortValue = sortValues.find((value) => {
+    return (
+      value ===
+      `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+    );
+  });
+
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
         <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {t("headline")}
+          {loaderData.locales.headline}
         </H1>
-        <p>{t("intro")}</p>
+        <p>{loaderData.locales.intro}</p>
       </section>
 
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -392,11 +435,13 @@ export default function ExploreProfiles() {
           {searchParams.get(fields.showFilters.name) === null && (
             <input name="showFilters" defaultValue="on" hidden />
           )}
-          <ShowFiltersButton>{t("filter.showFiltersLabel")}</ShowFiltersButton>
+          <ShowFiltersButton>
+            {loaderData.locales.filter.showFiltersLabel}
+          </ShowFiltersButton>
           <Filters
             showFilters={searchParams.get(fields.showFilters.name) === "on"}
           >
-            <Filters.Title>{t("filter.title")}</Filters.Title>
+            <Filters.Title>{loaderData.locales.filter.title}</Filters.Title>
 
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
@@ -404,18 +449,23 @@ export default function ExploreProfiles() {
             >
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.offers")}
+                  {loaderData.locales.filter.offers}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedOffers
-                      .map((offer) => {
-                        return t(`${offer}.title`, { ns: "datasets-offers" });
+                      .map((selectedOffer) => {
+                        const typedOffer = getTypedOffer(
+                          selectedOffer,
+                          loaderData
+                        );
+                        return typedOffer ? typedOffer.title : selectedOffer;
                       })
                       .join(", ")}
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.offers.map((offer) => {
+                    const typedOffer = getTypedOffer(offer.slug, loaderData);
                     return (
                       <FormControl
                         {...getInputProps(filter.offer, {
@@ -431,14 +481,11 @@ export default function ExploreProfiles() {
                         disabled={offer.vectorCount === 0 && !offer.isChecked}
                       >
                         <FormControl.Label>
-                          {t(`${offer.slug}.title`, { ns: "datasets-offers" })}
-                          {t(`${offer.slug}.description`, {
-                            ns: "datasets-offers",
-                          }) !== `${offer.slug}.description` ? (
+                          {typedOffer !== null ? typedOffer.title : offer.slug}
+                          {typedOffer !== null &&
+                          typedOffer.description !== null ? (
                             <p className="mv-text-sm">
-                              {t(`${offer.slug}.description`, {
-                                ns: "datasets-offers",
-                              })}
+                              {typedOffer.description}
                             </p>
                           ) : null}
                         </FormControl.Label>
@@ -452,7 +499,7 @@ export default function ExploreProfiles() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.areas")}
+                  {loaderData.locales.filter.areas}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedAreas
@@ -547,23 +594,29 @@ export default function ExploreProfiles() {
                           replace: true,
                         });
                       }}
-                      placeholder={t("filter.searchAreaPlaceholder")}
+                      placeholder={
+                        loaderData.locales.filter.searchAreaPlaceholder
+                      }
                     >
                       <Input.Label htmlFor={fields.search.id} hidden>
-                        {t("filter.searchAreaPlaceholder")}
+                        {loaderData.locales.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>
-                        {t("filter.searchAreaHelper")}
+                        {loaderData.locales.filter.searchAreaHelper}
                       </Input.HelperText>
                       <Input.Controls>
                         <noscript>
-                          <Button>{t("filter.searchAreaButton")}</Button>
+                          <Button>
+                            {loaderData.locales.filter.searchAreaButton}
+                          </Button>
                         </noscript>
                       </Input.Controls>
                     </Input>
                   </div>
                   {loaderData.areas.state.length > 0 && (
-                    <Dropdown.Legend>{t("filter.stateLabel")}</Dropdown.Legend>
+                    <Dropdown.Legend>
+                      {loaderData.locales.filter.stateLabel}
+                    </Dropdown.Legend>
                   )}
                   {loaderData.areas.state.length > 0 &&
                     loaderData.areas.state.map((area) => {
@@ -594,7 +647,7 @@ export default function ExploreProfiles() {
                     )}
                   {loaderData.areas.district.length > 0 && (
                     <Dropdown.Legend>
-                      {t("filter.districtLabel")}
+                      {loaderData.locales.filter.districtLabel}
                     </Dropdown.Legend>
                   )}
                   {loaderData.areas.district.length > 0 &&
@@ -627,13 +680,15 @@ export default function ExploreProfiles() {
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
-                    {t("filter.sortBy.label")}
+                    {loaderData.locales.filter.sortBy.label}
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
-                    {t(
-                      `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
-                    )}
+                    {
+                      loaderData.locales.filter.sortBy[
+                        currentSortValue || sortValues[0]
+                      ]
+                    }
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
@@ -653,7 +708,7 @@ export default function ExploreProfiles() {
                         readOnly
                       >
                         <FormControl.Label>
-                          {t(`filter.sortBy.${sortValue}`)}
+                          {loaderData.locales.filter.sortBy[sortValue]}
                         </FormControl.Label>
                       </FormControl>
                     );
@@ -668,16 +723,18 @@ export default function ExploreProfiles() {
                   : ""
               }`}
             >
-              {t("filter.reset")}
+              {loaderData.locales.filter.reset}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {t("showNumberOfItems", {
-                count: loaderData.profilesCount,
-              })}
+              {decideBetweenSingularOrPlural(
+                loaderData.locales.showNumberOfItems_singular,
+                loaderData.locales.showNumberOfItems_plural,
+                loaderData.profilesCount
+              )}
             </Filters.ApplyButton>
           </Filters>
           <noscript>
-            <Button>{t("filter.apply")}</Button>
+            <Button>{loaderData.locales.filter.apply}</Button>
           </noscript>
         </Form>
       </section>
@@ -692,9 +749,10 @@ export default function ExploreProfiles() {
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.offer.name, selectedOffer);
+                const typedOffer = getTypedOffer(selectedOffer, loaderData);
                 return (
                   <Chip key={selectedOffer} size="medium">
-                    {t(`${selectedOffer}.title`, { ns: "datasets-offers" })}
+                    {typedOffer !== null ? typedOffer.title : selectedOffer}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -742,7 +800,7 @@ export default function ExploreProfiles() {
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
-                {t("filter.reset")}
+                {loaderData.locales.filter.reset}
               </Button>
             </Link>
           </div>
@@ -753,15 +811,25 @@ export default function ExploreProfiles() {
         {loaderData.filteredByVisibilityCount !== undefined &&
         loaderData.filteredByVisibilityCount > 0 ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
-            {t("notShown", { count: loaderData.filteredByVisibilityCount })}
+            {decideBetweenSingularOrPlural(
+              loaderData.locales.notShown_singular,
+              loaderData.locales.notShown_plural,
+              loaderData.filteredByVisibilityCount
+            )}
           </p>
         ) : loaderData.profilesCount > 0 ? (
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.profilesCount}</strong>{" "}
-            {t("itemsCountSuffix", { count: loaderData.profilesCount })}
+            {decideBetweenSingularOrPlural(
+              loaderData.locales.itemsCountSuffix_singular,
+              loaderData.locales.itemsCountSuffix_plural,
+              loaderData.profilesCount
+            )}
           </p>
         ) : (
-          <p className="text-center text-gray-700 mb-4">{t("empty")}</p>
+          <p className="text-center text-gray-700 mb-4">
+            {loaderData.locales.empty}
+          </p>
         )}
         {loaderData.profiles.length > 0 && (
           <>
@@ -789,7 +857,7 @@ export default function ExploreProfiles() {
                     loading={navigation.state === "loading"}
                     disabled={navigation.state === "loading"}
                   >
-                    {t("more")}
+                    {loaderData.locales.more}
                   </Button>
                 </Link>
               </div>

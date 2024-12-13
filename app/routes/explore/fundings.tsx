@@ -700,8 +700,8 @@ function Fundings() {
             </Filters.ResetButton>
             <Filters.ApplyButton>
               {decideBetweenSingularOrPlural(
-                loaderData.locales.showNumberOfItems_one,
-                loaderData.locales.showNumberOfItems_other,
+                loaderData.locales.showNumberOfItems_singular,
+                loaderData.locales.showNumberOfItems_plural,
                 loaderData.count
               )}
             </Filters.ApplyButton>

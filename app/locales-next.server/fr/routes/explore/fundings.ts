@@ -6,8 +6,8 @@ export const fundings = {
   empty: "Malheureusement, aucun financement n'a pu être trouvé.",
   itemsCountSuffix_one: "Financement",
   itemsCountSuffix_other: "Financements",
-  showNumberOfItems_one: "Afficher {{count}} profil",
-  showNumberOfItems_other: "Afficher {{count}} profils",
+  showNumberOfItems_singular: "Afficher {{count}} profil",
+  showNumberOfItems_plural: "Afficher {{count}} profils",
   showFiltersLabel: "Filtrer les financements",
   filter: {
     apply: "Appliquer les filtres",
