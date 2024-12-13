@@ -35,7 +35,6 @@ export default function LocaleSwitch(props: {
               <Link
                 to={`?${newSearchParams.toString()}`}
                 onClick={() => {
-                  console.log("COOKIE SET CLIENT SIDE");
                   Cookies.set(lngCookieName, language, {
                     sameSite: "Lax",
                     expires: new Date(Date.now() + lngCookieMaxAge * 1000),
