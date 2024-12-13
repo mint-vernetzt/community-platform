@@ -49,11 +49,7 @@ import legacyStyles from "./styles/legacy-styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
 import { defaultLanguage } from "./i18n";
-import { invariantResponse } from "./lib/utils/response";
-import { meta as deMetaLocales } from "~/locales-next.server/de/meta";
-import { meta as enMetaLocales } from "~/locales-next.server/en/meta";
-import { footer as deFooterLocales } from "~/locales-next.server/de/organisms/footer";
-import { footer as enFooterLocales } from "~/locales-next.server/en/organisms/footer";
+import { languageModuleMap } from "./locales-next.server/utils";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -107,27 +103,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
   const language = detectLanguage(request);
-  let metaLocales;
-  if (language === "de") {
-    metaLocales = deMetaLocales;
-  }
-  if (language === "en") {
-    metaLocales = enMetaLocales;
-  }
-  invariantResponse(metaLocales !== undefined, "No locales found", {
-    status: 500,
-  });
-
-  let footerLocales;
-  if (language === "de") {
-    footerLocales = deFooterLocales;
-  }
-  if (language === "en") {
-    footerLocales = enFooterLocales;
-  }
-  invariantResponse(footerLocales !== undefined, "No locales found", {
-    status: 500,
-  });
+  const locales = languageModuleMap[language].root;
 
   const { authClient, headers } = createAuthClient(request);
 
@@ -190,8 +166,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       alert,
       toast,
       currentLanguage: language,
-      metaLocales,
-      footerLocales,
+      locales,
       ENV: getEnv(),
       mode,
       abilities,
@@ -204,21 +179,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       headers: combineHeaders(headers, alertHeaders, toastHeaders),
     }
   );
-};
-
-export const i18nNS = [
-  "meta",
-  "organisms-footer",
-  "organisms-roadmap",
-  "utils-social-media-services",
-  "components-image-cropper",
-  "organisms-cards-event-card",
-  "organisms-cards-profile-card",
-  "organisms-cards-organization-card",
-] as const;
-
-export const handle = {
-  i18n: i18nNS,
 };
 
 export const ErrorBoundary = () => {
@@ -274,7 +234,7 @@ export const ErrorBoundary = () => {
               hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
             }
             openNavBarMenuKey={openNavBarMenuKey}
-            locales={hasRootLoaderData ? rootLoaderData.metaLocales : undefined}
+            locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
           />
           <div className="mv-flex mv-h-full min-h-screen">
             <NavBarMenu
@@ -294,9 +254,7 @@ export const ErrorBoundary = () => {
                   ? rootLoaderData.currentLanguage
                   : defaultLanguage
               }
-              locales={
-                hasRootLoaderData ? rootLoaderData.metaLocales : undefined
-              }
+              locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
             />
             <div className="mv-flex-grow mv-@container min-h-screen">
               <div className="mv-min-h-screen">
@@ -330,9 +288,7 @@ export const ErrorBoundary = () => {
                 ) : null}
               </div>
               <Footer
-                locales={
-                  hasRootLoaderData ? rootLoaderData.footerLocales : undefined
-                }
+                locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
               />
             </div>
           </div>
@@ -359,8 +315,7 @@ export default function App() {
     alert,
     toast,
     currentLanguage,
-    metaLocales,
-    footerLocales,
+    locales,
     mode,
     ENV,
     abilities,
@@ -521,7 +476,7 @@ export default function App() {
               <NavBar
                 sessionUserInfo={sessionUserInfo}
                 openNavBarMenuKey={openNavBarMenuKey}
-                locales={metaLocales}
+                locales={locales}
               />
             </div>
 
@@ -532,13 +487,13 @@ export default function App() {
                 username={sessionUserInfo?.username}
                 abilities={abilities}
                 currentLanguage={currentLanguage}
-                locales={metaLocales}
+                locales={locales}
               />
               <div className="mv-flex-grow mv-@container">
                 {isIndexRoute === false && isNonAppBaseRoute === false && (
                   <LoginOrRegisterCTA
                     isAnon={mode === "anon"}
-                    locales={metaLocales}
+                    locales={locales}
                   />
                 )}
                 <div className="mv-flex mv-flex-nowrap mv-min-h-[calc(100dvh - 76px)] xl:mv-min-h-[calc(100dvh - 80px)]">
@@ -546,7 +501,7 @@ export default function App() {
                   {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
                   {scrollButton}
                 </div>
-                {isIndexRoute ? <Footer locales={footerLocales} /> : null}
+                {isIndexRoute ? <Footer locales={locales} /> : null}
               </div>
             </div>
           </div>

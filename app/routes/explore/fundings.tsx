@@ -37,8 +37,7 @@ import {
   decideBetweenSingularOrPlural,
   insertComponentsIntoLocale,
 } from "~/lib/utils/i18n";
-import { fundings as deFundingLocales } from "~/locales-next.server/de/routes/explore/fundings";
-import { fundings as enFundingLocales } from "~/locales-next.server/en/routes/explore/fundings";
+import { languageModuleMap } from "~/locales-next.server/utils";
 
 const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 
@@ -107,14 +106,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const language = detectLanguage(request);
-  let locales;
-  if (language === "de") {
-    locales = deFundingLocales;
-  }
-  if (language === "en") {
-    locales = enFundingLocales;
-  }
-  invariantResponse(locales !== undefined, "No locales found", { status: 500 });
+  const locales = languageModuleMap[language]["explore/fundings"];
 
   const take = submission.value.page * 12;
 

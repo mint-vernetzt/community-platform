@@ -22,10 +22,7 @@ import { defaultLanguage, type supportedCookieLanguages } from "~/i18n";
 import { type getFeatureAbilities } from "~/lib/utils/application";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type Mode } from "~/utils.server";
-import { type meta as deMetaLocales } from "~/locales-next.server/de/meta";
-import { type meta as enMetaLocales } from "~/locales-next.server/en/meta";
-import { type footer as deFooterLocales } from "~/locales-next.server/de/organisms/footer";
-import { type footer as enFooterLocales } from "~/locales-next.server/en/organisms/footer";
+import { type RootLocales } from "~/root.server";
 
 function CountUp(props: CountUpProps) {
   const ref = React.useRef<HTMLElement | null>(null);
@@ -37,9 +34,7 @@ function CountUp(props: CountUpProps) {
   return <span ref={ref}></span>;
 }
 
-function HeaderLogo(props: {
-  locales?: typeof deMetaLocales | typeof enMetaLocales;
-}) {
+function HeaderLogo(props: { locales?: RootLocales }) {
   return (
     <div className="flex flex-row items-center">
       <svg
@@ -80,8 +75,7 @@ function HeaderLogo(props: {
 type NextNavBarProps = {
   sessionUserInfo?: SessionUserInfo;
   openNavBarMenuKey: string;
-  // TODO: How to implement search and replace in this scenario? Maybe with /* */ comments?
-  locales?: typeof deMetaLocales | typeof enMetaLocales;
+  locales?: RootLocales;
 };
 
 type SessionUserInfo = {
@@ -219,7 +213,7 @@ function NavBarMenu(
     username?: string;
     abilities?: Awaited<ReturnType<typeof getFeatureAbilities>>;
     currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
-    locales?: typeof deMetaLocales | typeof enMetaLocales;
+    locales?: RootLocales;
   }
 ) {
   const location = useLocation();
@@ -1276,9 +1270,7 @@ function Icon(props: { type: IconType }) {
   return icon;
 }
 
-function Footer(props: {
-  locales?: typeof deFooterLocales | typeof enFooterLocales;
-}) {
+function Footer(props: { locales?: RootLocales }) {
   return (
     <footer className="mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
       {/* CP logo and description */}
@@ -1616,10 +1608,7 @@ Modal.Section = ModalSection;
 Modal.CloseButton = ModalCloseButton;
 Modal.SubmitButton = ModalSubmitButton;
 
-function LoginOrRegisterCTA(props: {
-  isAnon?: Boolean;
-  locales: typeof deMetaLocales | typeof enMetaLocales;
-}) {
+function LoginOrRegisterCTA(props: { isAnon?: Boolean; locales: RootLocales }) {
   const { isAnon = false, locales } = props;
   const location = useLocation();
   const isHydrated = useHydrated();
