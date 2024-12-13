@@ -27,6 +27,13 @@ const supportedHeaderLanguages = [
   "en-gb",
   "en-us",
   "en-zw",
+  "fr",
+  "fr-be",
+  "fr-ca",
+  "fr-fr",
+  "fr-lu",
+  "fr-mc",
+  "fr-ch",
 ] as const;
 
 export const localeCookie = createCookie(lngCookieName, {
@@ -48,6 +55,9 @@ const localeHeaderSchema = z
     }
     if (value.startsWith("en")) {
       return "en" as const;
+    }
+    if (value.startsWith("fr")) {
+      return "fr" as const;
     }
     return defaultLanguage;
   });
