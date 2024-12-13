@@ -3,6 +3,7 @@ import { createRoutesFromFolders } from "@remix-run/v1-route-convention";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { installGlobals } from "@remix-run/node";
+import { envOnlyMacros } from "vite-env-only";
 
 installGlobals();
 
@@ -41,6 +42,7 @@ export default defineConfig({
       },
     }),
     tsconfigPaths(),
+    envOnlyMacros(),
   ],
   resolve: {
     alias: {
