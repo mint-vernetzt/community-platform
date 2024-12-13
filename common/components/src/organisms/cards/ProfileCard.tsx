@@ -10,12 +10,14 @@ import {
   CardStatus,
 } from "./Card";
 import { getFullName } from "../../utils";
-import { useTranslation } from "react-i18next";
 import { Image } from "@mint-vernetzt/components";
+import { type ExploreProfileLocales } from "~/routes/explore/profiles.server";
+import { getTypedOffer } from "~/routes/explore/profiles";
 
 export type ProfileCardProps = {
   match?: number;
   publicAccess?: boolean;
+  locales: ExploreProfileLocales;
   profile: {
     academicTitle?: string | null;
     username: string;
@@ -39,18 +41,11 @@ export type ProfileCardProps = {
 function ProfileCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & ProfileCardProps
 ) {
-  const { profile, publicAccess = false } = props;
-
-  const { t } = useTranslation([
-    "organisms-cards-profile-card",
-    "datasets-offers",
-  ]);
+  const { profile, publicAccess = false, locales } = props;
 
   const fullName = getFullName(profile);
 
-  const emptyMessage = publicAccess
-    ? t("nonPublic", "-nicht öffentlich-")
-    : t("nonStated", "-nicht angegeben-");
+  const emptyMessage = publicAccess ? locales.nonPublic : locales.nonStated;
 
   return (
     <Card to={`/profile/${profile.username}`}>
@@ -65,7 +60,7 @@ function ProfileCard(
         )}
         {props.match !== undefined && (
           <CardStatus>
-            {props.match}% {t("match")}
+            {props.match}% {locales.match}
           </CardStatus>
         )}
       </CardHeader>
@@ -90,20 +85,21 @@ function ProfileCard(
           </div>
         }
         <CardBodySection
-          title={t("areasOfActivity")}
+          title={locales.areasOfActivity}
           emptyMessage={emptyMessage}
         >
           {profile.areas.length > 0 ? profile.areas.join("/") : ""}
         </CardBodySection>
-        <CardBodySection title={t("offer")} emptyMessage={emptyMessage}>
+        <CardBodySection title={locales.offer} emptyMessage={emptyMessage}>
           {profile.offers.length === 0 ? (
             ""
           ) : (
             <ChipContainer maxRows={2}>
               {profile.offers.map((offer) => {
+                const typedOffer = getTypedOffer(offer, locales.offers);
                 return (
                   <Chip key={offer} color="secondary">
-                    {t(`${offer}.title`, { ns: "datasets-offers" })}
+                    {typedOffer !== null ? typedOffer.title : offer}
                   </Chip>
                 );
               })}

@@ -7,6 +7,9 @@ import { offers as frOffers } from "./fr/datasets/offers";
 import { footer as deFooter } from "./de/organisms/footer";
 import { footer as enFooter } from "./en/organisms/footer";
 import { footer as frFooter } from "./fr/organisms/footer";
+import { profileCard as deProfileCard } from "./de/organisms/cards/profile-card";
+import { profileCard as enProfileCard } from "./en/organisms/cards/profile-card";
+import { profileCard as frProfileCard } from "./fr/organisms/cards/profile-card";
 import { fundings as deExploreFundings } from "./de/routes/explore/fundings";
 import { fundings as enExploreFundings } from "./en/routes/explore/fundings";
 import { fundings as frExploreFundings } from "./fr/routes/explore/fundings";
@@ -37,16 +40,28 @@ export const languageModuleMap = {
   de: {
     root: { ...deMeta, ...deFooter },
     "explore/fundings": deExploreFundings,
-    "explore/profiles": { ...deExploreProfiles, offers: { ...deOffers } },
+    "explore/profiles": {
+      ...deExploreProfiles,
+      offers: { ...deOffers },
+      ...deProfileCard,
+    },
   },
   en: {
     root: { ...enMeta, ...enFooter },
     "explore/fundings": enExploreFundings,
-    "explore/profiles": { ...enExploreProfiles, offers: { ...enOffers } },
+    "explore/profiles": {
+      ...enExploreProfiles,
+      offers: { ...enOffers },
+      ...enProfileCard,
+    },
   },
   fr: {
     root: { ...frMeta, ...frFooter },
     "explore/fundings": frExploreFundings,
-    "explore/profiles": { ...frExploreProfiles, offers: { ...frOffers } },
+    "explore/profiles": {
+      ...frExploreProfiles,
+      offers: { ...frOffers },
+      ...frProfileCard,
+    },
   },
 } as const;

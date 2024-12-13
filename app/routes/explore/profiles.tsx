@@ -350,35 +350,25 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
-// TODO: Check this function
-function getTypedOffer(
-  slug: string,
-  loaderData: ReturnType<typeof useLoaderData<typeof loader>>
-) {
-  const offerKeys = Object.entries(loaderData.locales.offers).map(
-    ([key, value]) => {
-      console.log({
-        key,
-        slug,
-      });
-      return key === slug
-        ? (value as keyof typeof loaderData.locales.offers)
-        : null;
-    }
-  );
-  if (offerKeys.length > 0) {
-    const offer = offerKeys.find((offerKey) => {
-      return offerKey !== null;
+type OfferLocales = ReturnType<
+  typeof useLoaderData<typeof loader>
+>["locales"]["offers"];
+
+export function getTypedOffer(slug: string, offerLocales: OfferLocales) {
+  const offerSlugSchema = z
+    .string()
+    .refine((value) => {
+      return Object.keys(offerLocales).includes(value);
+    })
+    .transform((value) => {
+      return value as keyof OfferLocales;
     });
-    if (offer !== undefined && loaderData.locales.offers[offer] !== undefined) {
-      return {
-        title: loaderData.locales.offers[offer].title,
-        description: loaderData.locales.offers[offer].description,
-      };
-    }
+  try {
+    const typedSlug = offerSlugSchema.parse(slug);
+    return offerLocales[typedSlug];
+  } catch (error) {
     return null;
   }
-  return null;
 }
 
 export default function ExploreProfiles() {
@@ -456,7 +446,7 @@ export default function ExploreProfiles() {
                       .map((selectedOffer) => {
                         const typedOffer = getTypedOffer(
                           selectedOffer,
-                          loaderData
+                          loaderData.locales.offers
                         );
                         return typedOffer ? typedOffer.title : selectedOffer;
                       })
@@ -465,7 +455,10 @@ export default function ExploreProfiles() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.offers.map((offer) => {
-                    const typedOffer = getTypedOffer(offer.slug, loaderData);
+                    const typedOffer = getTypedOffer(
+                      offer.slug,
+                      loaderData.locales.offers
+                    );
                     return (
                       <FormControl
                         {...getInputProps(filter.offer, {
@@ -749,7 +742,10 @@ export default function ExploreProfiles() {
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.offer.name, selectedOffer);
-                const typedOffer = getTypedOffer(selectedOffer, loaderData);
+                const typedOffer = getTypedOffer(
+                  selectedOffer,
+                  loaderData.locales.offers
+                );
                 return (
                   <Chip key={selectedOffer} size="medium">
                     {typedOffer !== null ? typedOffer.title : selectedOffer}
@@ -837,6 +833,7 @@ export default function ExploreProfiles() {
               {loaderData.profiles.map((profile) => {
                 return (
                   <ProfileCard
+                    locales={loaderData.locales}
                     key={`profile-${profile.id}`}
                     publicAccess={!loaderData.isLoggedIn}
                     profile={profile}
