@@ -2,8 +2,13 @@ import { Link } from "./../../index";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
 import LocaleSwitch from "./buttons/LocaleSwitch";
+import { defaultLanguage, type supportedCookieLanguages } from "~/i18n";
+import { type ArrayElement } from "~/lib/utils/types";
 
-function Footer(props: { isSettings?: boolean }) {
+function Footer(props: {
+  isSettings?: boolean;
+  currentLanguage?: ArrayElement<typeof supportedCookieLanguages>;
+}) {
   const classes = classNames(
     "mv-shadow-md",
     props.isSettings && "hidden md:block"
@@ -234,7 +239,9 @@ function Footer(props: { isSettings?: boolean }) {
                 </ul>
               </div>
               <div>
-                <LocaleSwitch />
+                <LocaleSwitch
+                  currentLanguage={props.currentLanguage || defaultLanguage}
+                />
               </div>
             </div>
 
