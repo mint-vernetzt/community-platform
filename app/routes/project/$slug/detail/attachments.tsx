@@ -10,7 +10,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
-import { MaterialList } from "../settings/__components";
+import { MaterialList } from "~/components-next/MaterialList";
 import { deriveProjectMode } from "../../utils.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 

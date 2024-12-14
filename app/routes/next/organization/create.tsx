@@ -24,12 +24,10 @@ import {
 import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { detectLanguage } from "~/root.server";
-import {
-  Container,
-  ListContainer,
-  ListItem,
-  Section,
-} from "~/routes/my/__components";
+import { Container } from "~/components-next/MyProjectsCreateOrganizationContainer";
+import { ListContainer } from "~/components-next/ListContainer";
+import { ListItem } from "~/components-next/ListItem";
+import { Section } from "~/components-next/MyOrganizationsSection";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
 import {
@@ -40,7 +38,7 @@ import {
   getOrganizationTypesWithSlugs,
   searchForOrganizationsByName,
 } from "./create.server";
-import { ButtonSelect } from "~/routes/project/$slug/settings/__components";
+import { ConformSelect } from "~/components-next/ConformSelect";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { redirectWithAlert } from "~/alert.server";
 
@@ -298,16 +296,16 @@ function CreateOrganization() {
           <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
             {t("form.organizationTypes.headline")}
           </h2>
-          <ButtonSelect
+          <ConformSelect
             id={fields.organizationTypes.id}
             cta={t("form.organizationTypes.cta")}
           >
-            <ButtonSelect.Label htmlFor={fields.organizationTypes.id}>
+            <ConformSelect.Label htmlFor={fields.organizationTypes.id}>
               {t("form.organizationTypes.label")}
-            </ButtonSelect.Label>
-            <ButtonSelect.HelperText>
+            </ConformSelect.Label>
+            <ConformSelect.HelperText>
               {t("form.organizationTypes.helperText")}
-            </ButtonSelect.HelperText>
+            </ConformSelect.HelperText>
             {allOrganizationTypes
               .filter((organizationType) => {
                 return !organizationTypeList.some((listOrganizationType) => {
@@ -332,7 +330,7 @@ function CreateOrganization() {
                   </button>
                 );
               })}
-          </ButtonSelect>
+          </ConformSelect>
           {organizationTypeList.length > 0 && (
             <Chip.Container>
               {organizationTypeList.map((listOrganizationType, index) => {
@@ -377,25 +375,25 @@ function CreateOrganization() {
           >
             {t("form.networkTypes.headline")}
           </h2>
-          <ButtonSelect
+          <ConformSelect
             id={fields.networkTypes.id}
             cta={t("form.networkTypes.cta")}
             disabled={isNetwork === false}
           >
-            <ButtonSelect.Label htmlFor={fields.networkTypes.id}>
+            <ConformSelect.Label htmlFor={fields.networkTypes.id}>
               <span
                 className={isNetwork === false ? "mv-text-neutral-300" : ""}
               >
                 {t("form.networkTypes.label")}
               </span>
-            </ButtonSelect.Label>
-            <ButtonSelect.HelperText>
+            </ConformSelect.Label>
+            <ConformSelect.HelperText>
               <span
                 className={isNetwork === false ? "mv-text-neutral-300" : ""}
               >
                 {t("form.networkTypes.helperText")}
               </span>
-            </ButtonSelect.HelperText>
+            </ConformSelect.HelperText>
             {allNetworkTypes
               .filter((networkType) => {
                 return !networkTypeList.some((listNetworkType) => {
@@ -419,7 +417,7 @@ function CreateOrganization() {
                   </button>
                 );
               })}
-          </ButtonSelect>
+          </ConformSelect>
           {networkTypeList.length > 0 && (
             <Chip.Container>
               {networkTypeList.map((listNetworkType, index) => {

@@ -1,30 +1,8 @@
-import {
-  Input,
-  type InputLabelProps,
-} from "@mint-vernetzt/components/src/molecules/Input";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import { Link } from "@remix-run/react";
-import React, { type FormEvent, type PropsWithChildren } from "react";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import React from "react";
 
-export type BackButtonProps = {
-  to: string;
-};
-
-export function BackButton(props: PropsWithChildren<BackButtonProps>) {
-  return (
-    <div className="@md:mv-hidden">
-      <TextButton arrowLeft size="large">
-        <Link to={props.to} prefetch="intent">
-          {props.children}
-        </Link>
-      </TextButton>
-    </div>
-  );
-}
-
-export function MaterialList(props: PropsWithChildren<unknown>) {
+export function MaterialList(props: React.PropsWithChildren<unknown>) {
   return (
     <ul className="mv-list-none mv-max-w-full mv-flex mv-gap-4 mv-flex-col">
       {props.children}
@@ -32,7 +10,7 @@ export function MaterialList(props: PropsWithChildren<unknown>) {
   );
 }
 
-export function PDFIcon() {
+function PDFIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +28,7 @@ export function PDFIcon() {
   );
 }
 
-export function JPGIcon() {
+function JPGIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -69,11 +47,11 @@ export function JPGIcon() {
   );
 }
 
-export function MaterialListItemTitle(props: PropsWithChildren<unknown>) {
+function MaterialListItemTitle(props: React.PropsWithChildren<unknown>) {
   return <>{props.children}</>;
 }
 
-export function MaterialListItemMeta(props: PropsWithChildren<unknown>) {
+function MaterialListItemMeta(props: React.PropsWithChildren<unknown>) {
   return (
     <span className="mv-text-primary mv-text-base mv-font-normal">
       {" "}
@@ -82,7 +60,7 @@ export function MaterialListItemMeta(props: PropsWithChildren<unknown>) {
   );
 }
 
-export function MaterialListItemParagraph(props: PropsWithChildren<unknown>) {
+function MaterialListItemParagraph(props: React.PropsWithChildren<unknown>) {
   return (
     <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-hidden @md:mv-line-clamp-1">
       {props.children}
@@ -90,14 +68,14 @@ export function MaterialListItemParagraph(props: PropsWithChildren<unknown>) {
   );
 }
 
-export function MaterialListItemControls(props: PropsWithChildren<unknown>) {
+function MaterialListItemControls(props: React.PropsWithChildren<unknown>) {
   return (
     <div className="mv-p-4 mv-shrink-0 mv-flex mv-gap-4 mv-ml-auto">
       {props.children}
     </div>
   );
 }
-export function MaterialListItemControlsDelete(
+function MaterialListItemControlsDelete(
   props: React.ButtonHTMLAttributes<HTMLButtonElement>
 ) {
   return (
@@ -132,7 +110,7 @@ export function MaterialListItemControlsDelete(
   );
 }
 
-export function MaterialListItemControlsEdit() {
+function MaterialListItemControlsEdit() {
   return (
     <div className="mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-rounded-full mv-w-12 mv-h-12 mv-flex mv-justify-center">
       <svg
@@ -152,7 +130,7 @@ export function MaterialListItemControlsEdit() {
   );
 }
 
-export function MaterialListItemControlsDownload() {
+function MaterialListItemControlsDownload() {
   return (
     <div className="mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-rounded-full mv-w-12 mv-h-12 mv-flex mv-justify-center">
       <svg
@@ -176,8 +154,8 @@ export function MaterialListItemControlsDownload() {
   );
 }
 
-export function MaterialListItem(
-  props: PropsWithChildren<unknown> & { id?: string }
+function MaterialListItem(
+  props: React.PropsWithChildren<unknown> & { id?: string }
 ) {
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
@@ -251,6 +229,7 @@ export function MaterialListItem(
     </li>
   );
 }
+
 MaterialListItem.PDFIcon = PDFIcon;
 MaterialListItem.JPGIcon = JPGIcon;
 MaterialListItem.Title = MaterialListItemTitle;
@@ -261,151 +240,3 @@ MaterialListItemControls.Delete = MaterialListItemControlsDelete;
 MaterialListItemControls.Edit = MaterialListItemControlsEdit;
 MaterialListItemControls.Download = MaterialListItemControlsDownload;
 MaterialList.Item = MaterialListItem;
-
-export type ButtonSelectProps = React.PropsWithChildren<
-  Pick<React.HTMLProps<HTMLLabelElement>, "id"> & {
-    cta: string;
-    disabled?: boolean;
-  }
->;
-
-function ButtonSelect(props: ButtonSelectProps) {
-  const { children, disabled = false } = props;
-  const validChildren = React.Children.toArray(children).filter((child) => {
-    return React.isValidElement(child) || typeof child === "string";
-  });
-
-  const error = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Input.Error;
-  });
-
-  const labelString = validChildren.find((child) => {
-    return typeof child === "string";
-  });
-  const labelComponent = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Input.Label;
-  });
-  type LabelComponentType = React.DetailedReactHTMLElement<
-    React.PropsWithChildren<InputLabelProps>,
-    HTMLLabelElement
-  > & { ref: React.RefObject<HTMLLabelElement> };
-
-  let label: LabelComponentType | React.ReactElement | undefined;
-  if (typeof labelString !== "undefined") {
-    label = (
-      <Input.Label
-        htmlFor={props.id}
-        hasError={typeof error !== "undefined"}
-        hidden
-      >
-        {labelString}
-      </Input.Label>
-    );
-  } else if (typeof labelComponent !== "undefined") {
-    label = React.cloneElement<React.PropsWithChildren<InputLabelProps>>(
-      labelComponent as LabelComponentType,
-      {
-        hasError: typeof error !== "undefined",
-      }
-    );
-  }
-
-  if (typeof label === "undefined") {
-    throw new Error("ButtonSelect component must have a label");
-  }
-
-  const listItems = validChildren.filter((child) => {
-    return (
-      React.isValidElement(child) &&
-      (child.type === "button" || child.type === "div")
-    );
-  });
-
-  const helperText = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Input.HelperText;
-  });
-
-  const [checked, setChecked] = React.useState(false);
-  const labelRef = React.useRef<HTMLLabelElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
-  const handleChange = (event: FormEvent<HTMLInputElement>) => {
-    event.stopPropagation();
-    setChecked(!checked);
-  };
-
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (
-        labelRef.current !== null &&
-        inputRef.current !== null &&
-        target !== labelRef.current &&
-        target !== inputRef.current
-      ) {
-        setChecked(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [labelRef, inputRef]);
-
-  return (
-    <div className="w-full">
-      {label}
-      <div className="mv-group mv-flex mv-flex-col mv-w-full">
-        <input
-          id={`expand-${props.id}`}
-          type="checkbox"
-          className="mv-w-0 mv-h-0 mv-opacity-0"
-          checked={checked}
-          onChange={handleChange}
-          ref={inputRef}
-          disabled={disabled === true}
-        />
-        <label
-          className={`mv-bg-white mv-bg-select-arrow mv-bg-no-repeat mv-bg-[right_0.5rem_center] mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-p-2 mv-pr-12 mv-text-base mv-leading-snug mv-font-semibold group-focus-within:mv-border-blue-400 ${
-            disabled === true ? "mv-text-neutral-300" : "mv-text-neutral-800"
-          }`}
-          htmlFor={`expand-${props.id}`}
-          ref={labelRef}
-        >
-          {props.cta}
-        </label>
-        <ul className="mv-w-full mv-hidden group-has-[:checked]:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300">
-          {listItems.map((button) => {
-            if (React.isValidElement(button)) {
-              if (button.type === "button") {
-                return (
-                  <li
-                    key={button.key}
-                    className="mv-w-full hover:mv-text-white hover:mv-bg-primary-200 focus-within:mv-text-white focus-within:mv-bg-primary-200 mv-rounded focus-within:mv-rounded-none"
-                  >
-                    {button}
-                  </li>
-                );
-              } else {
-                return (
-                  <li key={button.key} className="mv-w-full">
-                    {button}
-                  </li>
-                );
-              }
-            }
-            return null;
-          })}
-        </ul>
-      </div>
-      {helperText}
-      {error}
-    </div>
-  );
-}
-
-ButtonSelect.Label = Input.Label;
-ButtonSelect.HelperText = Input.HelperText;
-ButtonSelect.Error = Input.Error;
-
-export { ButtonSelect };

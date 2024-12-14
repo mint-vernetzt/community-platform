@@ -37,9 +37,9 @@ import {
   createYoutubeSchema,
 } from "~/lib/utils/schemas";
 import { detectLanguage } from "~/root.server";
-import { VisibilityCheckbox } from "~/routes/__components";
+import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { BackButton } from "~/routes/project/$slug/settings/__components";
+import { BackButton } from "~/components-next/BackButton";
 import { redirectWithToast } from "~/toast.server";
 import {
   getOrganizationWebSocial,

@@ -20,13 +20,10 @@ import {
 import { z } from "zod";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import {
-  Dropdown,
-  Filters,
-  FormControl,
-  FundingCard,
-  ShowFiltersButton,
-} from "./__components";
+import { Dropdown } from "~/components-next/Dropdown";
+import { Filters, ShowFiltersButton } from "~/components-next/Filters";
+import { FormControl } from "~/components-next/FormControl";
+import { FundingCard } from "~/components-next/FundingCard";
 import {
   getFilterCountForSlug,
   getFundingFilterVector,

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import deLocales from "../locales.server/de.json";
 import { RichText } from "~/components/Richtext/RichText";
-import { Accordion } from "./__help.components";
+import { Accordion } from "~/components-next/Accordion";
 import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";

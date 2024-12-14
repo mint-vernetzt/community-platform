@@ -2,7 +2,7 @@ import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, Outlet, useLocation } from "@remix-run/react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { BackButton } from "./__components";
+import { BackButton } from "~/components-next/BackButton";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";

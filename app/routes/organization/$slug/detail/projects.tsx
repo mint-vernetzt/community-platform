@@ -6,8 +6,9 @@ import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
-import { ListContainer, ListItem } from "~/routes/my/__components";
-import { Container } from "~/routes/my/__events.components";
+import { ListContainer } from "~/components-next/ListContainer";
+import { ListItem } from "~/components-next/ListItem";
+import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { i18nNS } from "./__projects.shared";
 import {

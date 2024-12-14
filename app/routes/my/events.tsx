@@ -9,15 +9,13 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { ListContainer } from "./__components";
-import {
-  AddIcon,
-  Container,
-  ListItem,
-  Placeholder,
-  Section,
-  TabBarTitle,
-} from "./__events.components";
+import { ListContainer } from "~/components-next/ListContainer";
+import { Add } from "~/components-next/icons/Add";
+import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
+import { EventListItem } from "~/components-next/EventListItem";
+import { Placeholder } from "~/components-next/Placeholder";
+import { Section } from "~/components-next/MyEventsProjectsSection";
+import { TabBarTitle } from "~/components-next/TabBarTitle";
 import { getEvents } from "./events.server";
 
 export const i18nNS = [
@@ -131,7 +129,7 @@ function MyEvents() {
         <Container.Title>{t("title")}</Container.Title>
         {loaderData.abilities["events"].hasAccess ? (
           <Button as="a" href="/event/create">
-            <AddIcon />
+            <Add />
             {t("create")}
           </Button>
         ) : null}
@@ -158,18 +156,18 @@ function MyEvents() {
           <ListContainer listKey="canceled">
             {loaderData.canceledEvents.map((event, index) => {
               return (
-                <ListItem.Event
+                <EventListItem
                   key={`canceled-${event.slug}`}
                   to={`/event/${event.slug}`}
                   listIndex={index}
                 >
-                  <ListItem.Event.Image
+                  <EventListItem.Image
                     src={event.background}
                     blurredSrc={event.blurredBackground}
                     alt={event.name}
                   />
-                  <ListItem.Event.Content event={event} />
-                </ListItem.Event>
+                  <EventListItem.Content event={event} />
+                </EventListItem>
               );
             })}
           </ListContainer>
@@ -223,19 +221,19 @@ function MyEvents() {
             {loaderData.upcomingEvents[upcoming as "adminEvents"].map(
               (event, index) => {
                 return (
-                  <ListItem.Event
+                  <EventListItem
                     key={`upcoming-${event.slug}`}
                     to={`/event/${event.slug}`}
                     listIndex={index}
                     hideAfter={3}
                   >
-                    <ListItem.Event.Image
+                    <EventListItem.Image
                       src={event.background}
                       blurredSrc={event.blurredBackground}
                       alt={event.name}
                     />
-                    <ListItem.Event.Content event={event} />
-                  </ListItem.Event>
+                    <EventListItem.Content event={event} />
+                  </EventListItem>
                 );
               }
             )}
@@ -282,19 +280,19 @@ function MyEvents() {
             {loaderData.pastEvents[past as "adminEvents"].map(
               (event, index) => {
                 return (
-                  <ListItem.Event
+                  <EventListItem
                     key={`past-${event.slug}`}
                     to={`/event/${event.slug}`}
                     listIndex={index}
                     hideAfter={3}
                   >
-                    <ListItem.Event.Image
+                    <EventListItem.Image
                       src={event.background}
                       blurredSrc={event.blurredBackground}
                       alt={event.name}
                     />
-                    <ListItem.Event.Content event={event} />
-                  </ListItem.Event>
+                    <EventListItem.Content event={event} />
+                  </EventListItem>
                 );
               }
             )}

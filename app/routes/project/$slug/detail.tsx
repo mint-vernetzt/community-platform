@@ -19,7 +19,7 @@ import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
-import { Modal } from "~/routes/__components";
+import { Modal } from "~/components-next/Modal";
 import i18next from "~/i18next.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";

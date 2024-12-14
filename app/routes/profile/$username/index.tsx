@@ -30,10 +30,11 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { detectLanguage } from "~/root.server";
-import { Modal } from "~/routes/__components";
+import { Modal } from "~/components-next/Modal";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
-import { Mastodon, TikTok } from "~/routes/project/$slug/detail/__components";
+import { Mastodon } from "~/components-next/icons/Mastodon";
+import { TikTok } from "~/components-next/icons/TikTok";
 import { getProfileByUsername } from "./index.server";
 import {
   addImgUrls,

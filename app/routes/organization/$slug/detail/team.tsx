@@ -8,9 +8,10 @@ import { addImgUrls, filterOrganization, getOrganization } from "./team.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { useTranslation } from "react-i18next";
 import { useLoaderData } from "@remix-run/react";
-import { Container } from "~/routes/my/__events.components";
+import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import { i18nNS } from "./__team.shared";
-import { ListContainer, ListItem } from "~/routes/my/__components";
+import { ListContainer } from "~/components-next/ListContainer";
+import { ListItem } from "~/components-next/ListItem";
 
 export const handle = {
   i18n: i18nNS,

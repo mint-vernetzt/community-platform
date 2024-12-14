@@ -22,7 +22,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
-import { Modal } from "~/routes/__components";
+import { Modal } from "~/components-next/Modal";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug } from "./documents.server";
 import {

@@ -28,9 +28,10 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
-import { Modal } from "~/routes/__components";
+import { Modal } from "~/components-next/Modal";
 import { getPublicURL } from "~/storage.server";
-import { BackButton, MaterialList } from "./__components";
+import { BackButton } from "~/components-next/BackButton";
+import { MaterialList } from "~/components-next/MaterialList";
 import {
   hasValidMimeType,
   storeDocument,

@@ -28,7 +28,8 @@ import {
 import { createYoutubeEmbedSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
-import { BackButton, ButtonSelect } from "./__components";
+import { BackButton } from "~/components-next/BackButton";
+import { ConformSelect } from "~/components-next/ConformSelect";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getHash,
@@ -708,16 +709,16 @@ function Details() {
               {t("content.disciplines.headline")}
             </h2>
 
-            <ButtonSelect
+            <ConformSelect
               id={fields.disciplines.id}
               cta={t("content.disciplines.choose")}
             >
-              <ButtonSelect.Label htmlFor={fields.disciplines.id}>
+              <ConformSelect.Label htmlFor={fields.disciplines.id}>
                 {t("content.disciplines.intro")}
-              </ButtonSelect.Label>
-              <ButtonSelect.HelperText>
+              </ConformSelect.Label>
+              <ConformSelect.HelperText>
                 {t("content.disciplines.helper")}
-              </ButtonSelect.HelperText>
+              </ConformSelect.HelperText>
               {allDisciplines
                 .filter((discipline) => {
                   return !disciplineList.some((listDiscipline) => {
@@ -739,7 +740,7 @@ function Details() {
                     </button>
                   );
                 })}
-            </ButtonSelect>
+            </ConformSelect>
             {disciplineList.length > 0 && (
               <Chip.Container>
                 {disciplineList.map((listDiscipline, index) => {
@@ -767,16 +768,16 @@ function Details() {
               </Chip.Container>
             )}
 
-            <ButtonSelect
+            <ConformSelect
               id={fields.additionalDisciplines.id}
               cta={t("content.additionalDisciplines.choose")}
             >
-              <ButtonSelect.Label htmlFor={fields.additionalDisciplines.id}>
+              <ConformSelect.Label htmlFor={fields.additionalDisciplines.id}>
                 {t("content.additionalDisciplines.headline")}
-              </ButtonSelect.Label>
-              <ButtonSelect.HelperText>
+              </ConformSelect.Label>
+              <ConformSelect.HelperText>
                 {t("content.additionalDisciplines.helper")}
-              </ButtonSelect.HelperText>
+              </ConformSelect.HelperText>
               {allAdditionalDisciplines
                 .filter((additionalDiscipline) => {
                   return !additionalDisciplineList.some(
@@ -803,7 +804,7 @@ function Details() {
                     </button>
                   );
                 })}
-            </ButtonSelect>
+            </ConformSelect>
             {additionalDisciplineList.length > 0 && (
               <Chip.Container>
                 {additionalDisciplineList.map(
@@ -912,16 +913,16 @@ function Details() {
               </Input.HelperText>
             </Input>
 
-            <ButtonSelect
+            <ConformSelect
               id={fields.projectTargetGroups.id}
               cta={t("content.projectTargetGroups.choose")}
             >
-              <ButtonSelect.Label htmlFor={fields.projectTargetGroups.id}>
+              <ConformSelect.Label htmlFor={fields.projectTargetGroups.id}>
                 {t("content.projectTargetGroups.intro")}
-              </ButtonSelect.Label>
-              <ButtonSelect.HelperText>
+              </ConformSelect.Label>
+              <ConformSelect.HelperText>
                 {t("content.projectTargetGroups.helper")}
-              </ButtonSelect.HelperText>
+              </ConformSelect.HelperText>
               {allProjectTargetGroups
                 .filter((targetGroup) => {
                   return !targetGroupList.some((listTargetGroup) => {
@@ -943,7 +944,7 @@ function Details() {
                     </button>
                   );
                 })}
-            </ButtonSelect>
+            </ConformSelect>
             {targetGroupList.length > 0 && (
               <Chip.Container>
                 {targetGroupList.map((listTargetGroup, index) => {
@@ -978,16 +979,16 @@ function Details() {
               </Chip.Container>
             )}
 
-            <ButtonSelect
+            <ConformSelect
               id={fields.specialTargetGroups.id}
               cta={t("content.specialTargetGroups.choose")}
             >
-              <ButtonSelect.Label htmlFor={fields.specialTargetGroups.id}>
+              <ConformSelect.Label htmlFor={fields.specialTargetGroups.id}>
                 {t("content.specialTargetGroups.intro")}
-              </ButtonSelect.Label>
-              <ButtonSelect.HelperText>
+              </ConformSelect.Label>
+              <ConformSelect.HelperText>
                 {t("content.specialTargetGroups.helper")}
-              </ButtonSelect.HelperText>
+              </ConformSelect.HelperText>
               {allSpecialTargetGroups
                 .filter((specialTargetGroup) => {
                   return !specialTargetGroupList.some(
@@ -1014,7 +1015,7 @@ function Details() {
                     </button>
                   );
                 })}
-            </ButtonSelect>
+            </ConformSelect>
             {specialTargetGroupList.length > 0 && (
               <Chip.Container>
                 {specialTargetGroupList.map((listSpecialTargetGroup, index) => {

@@ -28,15 +28,15 @@ import { extendSearchParams } from "~/lib/utils/searchParams";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
-import {
-  AcceptOrRejectInviteFetcher,
-  AcceptOrRejectRequestFetcher,
-  AddOrganization,
-  CancelRequestFetcher,
-  ListContainer,
-  ListItem,
-  Section,
-} from "./__components";
+
+import { AcceptOrRejectInviteFetcher } from "~/components-next/AcceptOrRejectInviteFetcher";
+import { AcceptOrRejectRequestFetcher } from "~/components-next/AcceptOrRejectRequestFetcher";
+import { AddOrganization } from "~/components-next/AddOrganization";
+import { CancelRequestFetcher } from "~/components-next/CancelRequestFetcher";
+import { ListContainer } from "~/components-next/ListContainer";
+import { ListItem } from "~/components-next/ListItem";
+import { Section } from "~/components-next/MyOrganizationsSection";
+
 import {
   addImageUrlToInvites,
   addImageUrlToOrganizations,
@@ -55,7 +55,7 @@ import {
   type action as requestsAction,
 } from "./organizations/requests";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
-import { Icon } from "../__components";
+import { Icon } from "~/components-next/icons/Icon";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 
 export const i18nNS = [

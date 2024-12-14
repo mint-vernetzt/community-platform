@@ -8,7 +8,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router-dom";
-import { Modal } from "~/routes/__components";
+import { Modal } from "~/components-next/Modal";
 import { extendSearchParams } from "../utils/searchParams";
 
 export const i18nNS = ["components"];

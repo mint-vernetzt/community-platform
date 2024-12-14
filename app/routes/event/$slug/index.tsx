@@ -45,7 +45,7 @@ import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
-import { Modal } from "~/routes/__components";
+import { Modal } from "~/components-next/Modal";
 import { deriveEventMode } from "../utils.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";

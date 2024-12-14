@@ -2,7 +2,7 @@ import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { Link, Outlet, useLocation } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
-import { BackButton } from "~/routes/project/$slug/settings/__components";
+import { BackButton } from "~/components-next/BackButton";
 import { Deep } from "~/lib/utils/searchParams";
 
 const i18nNS = ["routes-next-organization-settings-danger-zone"] as const;

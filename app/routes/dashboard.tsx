@@ -21,8 +21,8 @@ import {
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css?url";
-import { Icon } from "./__components";
-import { TeaserCard, type TeaserIconType } from "./__dashboard.components";
+import { Icon } from "~/components-next/icons/Icon";
+import { TeaserCard, type TeaserIconType } from "~/components-next/TeaserCard";
 import {
   enhanceEventsWithParticipationStatus,
   getEventsForCards,

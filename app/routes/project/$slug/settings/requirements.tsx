@@ -31,7 +31,8 @@ import {
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
-import { BackButton, ButtonSelect } from "./__components";
+import { BackButton } from "~/components-next/BackButton";
+import { ConformSelect } from "~/components-next/ConformSelect";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getHash,
@@ -573,16 +574,16 @@ function Requirements() {
                 </Input.HelperText>
               </Input>
 
-              <ButtonSelect
+              <ConformSelect
                 id={fields.financings.id}
                 cta={t("form.budget.financings.option")}
               >
-                <ButtonSelect.Label htmlFor={fields.financings.id}>
+                <ConformSelect.Label htmlFor={fields.financings.id}>
                   {t("form.budget.financings.label")}
-                </ButtonSelect.Label>
-                <ButtonSelect.HelperText>
+                </ConformSelect.Label>
+                <ConformSelect.HelperText>
                   {t("form.budget.financings.helper")}
-                </ButtonSelect.HelperText>
+                </ConformSelect.HelperText>
                 {allFinancings
                   .filter((financing) => {
                     return !financingList.some((listFinancing) => {
@@ -604,7 +605,7 @@ function Requirements() {
                       </button>
                     );
                   })}
-              </ButtonSelect>
+              </ConformSelect>
               {financingList.length > 0 && (
                 <Chip.Container>
                   {financingList.map((listFinancing, index) => {

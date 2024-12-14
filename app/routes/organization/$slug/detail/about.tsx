@@ -9,7 +9,7 @@ import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
-import { Container } from "~/routes/my/__events.components";
+import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { filterOrganization, getOrganization } from "./about.server";
 import {

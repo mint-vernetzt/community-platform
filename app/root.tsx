@@ -22,7 +22,7 @@ import {
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
 import * as React from "react";
-import { ToastContainer } from "./__toast.components";
+import { ToastContainer } from "./components-next/ToastContainer";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import { H1, H2 } from "./components/Heading/Heading";
@@ -32,13 +32,10 @@ import { detectLanguage, localeCookie } from "./i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { getProfileByUserId } from "./root.server";
-import {
-  Footer,
-  LoginOrRegisterCTA,
-  Modal,
-  NavBar,
-  NavBarMenu,
-} from "./routes/__components";
+import { NavBar } from "~/components-next/NavBar";
+import { Footer } from "~/components-next/Footer";
+import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
+import { MainMenu } from "./components-next/MainMenu";
 import { getPublicURL } from "./storage.server";
 import legacyStyles from "./styles/legacy-styles.css?url";
 import { getToast } from "./toast.server";
@@ -48,6 +45,7 @@ import { languageModuleMap } from "./locales-next.server/utils";
 import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
+import { ModalRoot } from "./components-next/ModalRoot";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -242,7 +240,7 @@ export const ErrorBoundary = () => {
             locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
           />
           <div className="mv-flex mv-h-full min-h-screen">
-            <NavBarMenu
+            <MainMenu
               mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
               openNavBarMenuKey={openNavBarMenuKey}
               username={
@@ -486,7 +484,7 @@ export default function App() {
             </div>
 
             <div className="mv-flex mv-h-full mv-min-h-screen">
-              <NavBarMenu
+              <MainMenu
                 mode={mode}
                 openNavBarMenuKey={openNavBarMenuKey}
                 username={sessionUserInfo?.username}
@@ -510,7 +508,7 @@ export default function App() {
               </div>
             </div>
           </div>
-          <Modal.Root />
+          <ModalRoot />
         </div>
         <ScrollRestoration />
         <script

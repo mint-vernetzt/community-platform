@@ -6,8 +6,9 @@ import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/root.server";
-import { ListContainer } from "~/routes/my/__components";
-import { Container, ListItem } from "~/routes/my/__events.components";
+import { ListContainer } from "~/components-next/ListContainer";
+import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
+import { EventListItem } from "~/components-next/EventListItem";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { i18nNS } from "./__events.shared";
 import {
@@ -68,18 +69,18 @@ function Network() {
           <ListContainer listKey="future-events">
             {organization.futureEvents.map((relation, index) => {
               return (
-                <ListItem.Event
+                <EventListItem
                   key={`future-event-${relation.event.slug}`}
                   to={`/event/${relation.event.slug}`}
                   listIndex={index}
                 >
-                  <ListItem.Event.Image
+                  <EventListItem.Image
                     src={relation.event.background}
                     blurredSrc={relation.event.blurredBackground}
                     alt={relation.event.name}
                   />
-                  <ListItem.Event.Content event={relation.event} />
-                </ListItem.Event>
+                  <EventListItem.Content event={relation.event} />
+                </EventListItem>
               );
             })}
           </ListContainer>
@@ -93,19 +94,19 @@ function Network() {
           <ListContainer listKey="past-events" hideAfter={3}>
             {organization.pastEvents.map((relation, index) => {
               return (
-                <ListItem.Event
+                <EventListItem
                   key={`past-event-${relation.event.slug}`}
                   to={`/event/${relation.event.slug}`}
                   listIndex={index}
                   hideAfter={3}
                 >
-                  <ListItem.Event.Image
+                  <EventListItem.Image
                     src={relation.event.background}
                     blurredSrc={relation.event.blurredBackground}
                     alt={relation.event.name}
                   />
-                  <ListItem.Event.Content event={relation.event} />
-                </ListItem.Event>
+                  <EventListItem.Content event={relation.event} />
+                </EventListItem>
               );
             })}
           </ListContainer>

@@ -10,21 +10,20 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import {
-  Avatar as AvatarIcon,
-  Envelope,
-  Facebook,
-  Globe,
-  House,
-  Instagram,
-  Linkedin,
-  Mastodon,
-  Phone,
-  TikTok,
-  Twitter,
-  Xing,
-  YouTube,
-} from "./__components";
+
+import { Avatar as AvatarIcon } from "~/components-next/Avatar";
+import { Envelope } from "~/components-next/icons/Envelope";
+import { Facebook } from "~/components-next/icons/Facebook";
+import { Globe } from "~/components-next/icons/Globe";
+import { House } from "~/components-next/icons/House";
+import { Instagram } from "~/components-next/icons/Instagram";
+import { LinkedIn } from "~/components-next/icons/Linkedin";
+import { Mastodon } from "~/components-next/icons/Mastodon";
+import { Phone } from "~/components-next/icons/Phone";
+import { TikTok } from "~/components-next/icons/TikTok";
+import { Twitter } from "~/components-next/icons/Twitter";
+import { Xing } from "~/components-next/icons/Xing";
+import { YouTube } from "~/components-next/icons/YouTube";
 import i18next from "~/i18next.server";
 import { useTranslation } from "react-i18next";
 import { detectLanguage } from "~/root.server";
@@ -695,7 +694,7 @@ function About() {
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
-                  <Linkedin />
+                  <LinkedIn />
                 </a>
               )}
               {loaderData.project.twitter !== null && (

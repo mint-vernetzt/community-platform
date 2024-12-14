@@ -7,7 +7,7 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
-import { FundingCard } from "../explore/__components";
+import { FundingCard } from "~/components-next/FundingCard";
 import {
   countSearchedFundings,
   getQueryValueAsArrayOfWords,

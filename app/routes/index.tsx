@@ -20,8 +20,8 @@ import InputPassword from "~/components/FormElements/InputPassword/InputPassword
 import { H1, H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { RichText } from "~/components/Richtext/RichText";
-import { CountUp } from "./__components";
-import { Accordion } from "./__help.components";
+import { CountUp } from "~/components-next/CountUp";
+import { Accordion } from "~/components-next/Accordion";
 import {
   getEventCount,
   getOrganizationCount,

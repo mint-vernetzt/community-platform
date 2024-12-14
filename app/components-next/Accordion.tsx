@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon } from "./__components";
+import { Icon } from "./icons/Icon";
 
 function Accordion(props: React.PropsWithChildren) {
   const children = React.Children.toArray(props.children);

@@ -10,8 +10,11 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import { AddIcon, Container, Placeholder } from "./__components";
-import { Section, TabBarTitle } from "./__events.components";
+import { Add } from "~/components-next/icons/Add";
+import { Container } from "~/components-next/MyProjectsCreateOrganizationContainer";
+import { Placeholder } from "~/components-next/Placeholder";
+import { Section } from "~/components-next/MyEventsProjectsSection";
+import { TabBarTitle } from "~/components-next/TabBarTitle";
 import { getProjects } from "./projects.server";
 
 export const i18nNS = ["routes-my-projects"] as const;
@@ -75,7 +78,7 @@ function MyProjects() {
       <Container.Header>
         <Container.Title>{t("title")}</Container.Title>
         <Button as="a" href="/project/create">
-          <AddIcon />
+          <Add />
           {t("create")}
         </Button>
       </Container.Header>

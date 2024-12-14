@@ -34,7 +34,7 @@ import {
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
-import { BackButton } from "./__components";
+import { BackButton } from "~/components-next/BackButton";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getHash,

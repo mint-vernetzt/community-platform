@@ -89,7 +89,7 @@ export type TeaserIconType =
   | "search"
   | "piggy-bank";
 
-export function TeaserIcon(props: { type: TeaserIconType }) {
+function TeaserIcon(props: { type: TeaserIconType }) {
   const { type } = props;
   let icon;
   if (type === "globe") {

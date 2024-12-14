@@ -20,8 +20,8 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { detectLanguage } from "~/root.server";
-import { Modal } from "~/routes/__components";
-import { Container } from "~/routes/my/__events.components";
+import { Modal } from "~/components-next/Modal";
+import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import {
   hasEventsData,

@@ -20,7 +20,8 @@ import { invariantResponse } from "~/lib/utils/response";
 import { createPhoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
-import { BackButton, ButtonSelect } from "./__components";
+import { BackButton } from "~/components-next/BackButton";
+import { ConformSelect } from "~/components-next/ConformSelect";
 import { createAreaOptions } from "./general.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
@@ -462,16 +463,16 @@ function General() {
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.formats.headline")}
             </h2>
-            <ButtonSelect
+            <ConformSelect
               id={fields.formats.id}
               cta={t("content.formats.choose")}
             >
-              <ButtonSelect.Label htmlFor={fields.formats.id}>
+              <ConformSelect.Label htmlFor={fields.formats.id}>
                 {t("content.formats.label")}
-              </ButtonSelect.Label>
-              <ButtonSelect.HelperText>
+              </ConformSelect.Label>
+              <ConformSelect.HelperText>
                 {t("content.formats.helper")}
-              </ButtonSelect.HelperText>
+              </ConformSelect.HelperText>
               {allFormats
                 .filter((format) => {
                   return !formatList.some((listFormat) => {
@@ -493,7 +494,7 @@ function General() {
                     </button>
                   );
                 })}
-            </ButtonSelect>
+            </ConformSelect>
             {formatList.length > 0 && (
               <Chip.Container>
                 {formatList.map((listFormat, index) => {
@@ -568,13 +569,13 @@ function General() {
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {t("content.areas.headline")}
             </h2>
-            <ButtonSelect id={fields.areas.id} cta={t("content.areas.option")}>
-              <ButtonSelect.Label htmlFor={fields.areas.id}>
+            <ConformSelect id={fields.areas.id} cta={t("content.areas.option")}>
+              <ConformSelect.Label htmlFor={fields.areas.id}>
                 {t("content.areas.label")}
-              </ButtonSelect.Label>
-              <ButtonSelect.HelperText>
+              </ConformSelect.Label>
+              <ConformSelect.HelperText>
                 {t("content.areas.helper")}
-              </ButtonSelect.HelperText>
+              </ConformSelect.HelperText>
               {areaOptions
                 .filter((option) => {
                   // All options that have a value should only be shown if they are not inside the current selected area list
@@ -615,7 +616,7 @@ function General() {
                     );
                   }
                 })}
-            </ButtonSelect>
+            </ConformSelect>
             {areaList.length > 0 && (
               <Chip.Container>
                 {areaList.map((listArea, index) => {
