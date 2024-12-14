@@ -106,7 +106,7 @@ export async function loader(args: LoaderFunctionArgs) {
     status: 400,
   });
 
-  const language = detectLanguage(request);
+  const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/fundings"];
 
   const take = submission.value.page * 12;

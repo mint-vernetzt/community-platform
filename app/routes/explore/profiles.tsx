@@ -52,7 +52,10 @@ import {
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales-next.server/utils";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 // import styles from "../../../common/design/styles/styles.css?url";
 
 const i18nNS = ["routes-explore-profiles", "datasets-offers"] as const;
@@ -137,7 +140,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     { status: 400 }
   );
 
-  const language = detectLanguage(request);
+  const language = await detectLanguage(request);
   const routeLocales = languageModuleMap[language]["explore/profiles"];
 
   const take = getTakeParam(submission.value.page);
@@ -805,10 +808,13 @@ export default function ExploreProfiles() {
         {loaderData.filteredByVisibilityCount !== undefined &&
         loaderData.filteredByVisibilityCount > 0 ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
-            {decideBetweenSingularOrPlural(
-              loaderData.locales.notShown_singular,
-              loaderData.locales.notShown_plural,
-              loaderData.filteredByVisibilityCount
+            {insertParametersIntoLocale(
+              decideBetweenSingularOrPlural(
+                loaderData.locales.notShown_singular,
+                loaderData.locales.notShown_plural,
+                loaderData.filteredByVisibilityCount
+              ),
+              { count: loaderData.filteredByVisibilityCount }
             )}
           </p>
         ) : loaderData.profilesCount > 0 ? (

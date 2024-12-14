@@ -6,6 +6,8 @@ import {
   supportedCookieLanguages,
   lngCookieMaxAge,
 } from "./i18n";
+import { type ArrayElement } from "./lib/utils/types";
+import { invariantResponse } from "./lib/utils/response";
 
 const supportedHeaderLanguages = [
   "de",
@@ -62,34 +64,50 @@ const localeHeaderSchema = z
     return defaultLanguage;
   });
 
-export function detectLanguage(request: Request) {
-  const cookie = request.headers.get("Cookie") ?? "";
-  const splittedCookie = cookie.split("=");
-  if (splittedCookie.length !== 2) {
-    const acceptLanguageHeaderLng =
-      request.headers.get("Accept-Language") ?? "";
+export async function detectLanguage(request: Request) {
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const lngSearchParam = searchParams.get("lng");
+  if (lngSearchParam !== null) {
+    invariantResponse(
+      supportedCookieLanguages.includes(
+        lngSearchParam as ArrayElement<typeof supportedCookieLanguages>
+      ),
+      "Invalid language",
+      {
+        status: 400,
+      }
+    );
+    return lngSearchParam as ArrayElement<typeof supportedCookieLanguages>;
+  } else {
+    const cookieHeader = request.headers.get("Cookie");
+    const cookieLng = (await localeCookie.parse(cookieHeader)) as null | any;
+    if (cookieLng === null) {
+      const acceptLanguageHeaderLng =
+        request.headers.get("Accept-Language") ?? "";
+      const preferredLanguage = acceptLanguageHeaderLng.split(",")[0];
+      let lng;
+      try {
+        lng = localeHeaderSchema.parse(preferredLanguage.toLowerCase());
+      } catch {
+        return defaultLanguage;
+      }
+      return lng;
+    }
     let lng;
     try {
-      lng = localeHeaderSchema.parse(acceptLanguageHeaderLng.toLowerCase());
+      lng = localeCookieSchema.parse(cookieLng);
     } catch {
-      return defaultLanguage;
+      const acceptLanguageHeaderLng =
+        request.headers.get("Accept-Language") ?? "";
+      let lng;
+      try {
+        lng = localeHeaderSchema.parse(acceptLanguageHeaderLng.toLowerCase());
+      } catch {
+        return defaultLanguage;
+      }
+      return lng;
     }
     return lng;
   }
-  const cookieLng = splittedCookie[1];
-  let lng;
-  try {
-    lng = localeCookieSchema.parse(cookieLng);
-  } catch {
-    const acceptLanguageHeaderLng =
-      request.headers.get("Accept-Language") ?? "";
-    let lng;
-    try {
-      lng = localeHeaderSchema.parse(acceptLanguageHeaderLng.toLowerCase());
-    } catch {
-      return defaultLanguage;
-    }
-    return lng;
-  }
-  return lng;
 }

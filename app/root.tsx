@@ -28,7 +28,7 @@ import { createAuthClient, getSessionUser } from "./auth.server";
 import { H1, H2 } from "./components/Heading/Heading";
 import { RichText } from "./components/Richtext/RichText";
 import { getEnv } from "./env.server";
-import { detectLanguage } from "./i18n.server";
+import { detectLanguage, localeCookie } from "./i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { getFeatureAbilities } from "./lib/utils/application";
 import { getProfileByUserId } from "./root.server";
@@ -99,8 +99,10 @@ export const links: LinksFunction = () => [
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-
-  const language = detectLanguage(request);
+  const language = await detectLanguage(request);
+  const languageCookieHeaders = {
+    "Set-Cookie": await localeCookie.serialize(language),
+  };
   const locales = languageModuleMap[language].root;
 
   const { authClient, headers } = createAuthClient(request);
@@ -174,7 +176,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
       },
     },
     {
-      headers: combineHeaders(headers, alertHeaders, toastHeaders),
+      headers: combineHeaders(
+        headers,
+        alertHeaders,
+        toastHeaders,
+        languageCookieHeaders
+      ),
     }
   );
 };
