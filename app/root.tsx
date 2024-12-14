@@ -46,8 +46,6 @@ import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { ModalRoot } from "./components-next/ModalRoot";
-// import { isContentSmallerThanScreen } from "./root.client";
-import { profiles } from "./locales-next/.server/de/routes/explore/profiles";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -328,8 +326,6 @@ export default function App() {
     abilities,
   } = useLoaderData<typeof loader>();
   const location = useLocation();
-
-  console.log(profiles);
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
