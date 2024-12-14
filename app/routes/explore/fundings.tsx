@@ -35,7 +35,7 @@ import {
   decideBetweenSingularOrPlural,
   insertComponentsIntoLocale,
 } from "~/lib/utils/i18n";
-import { languageModuleMap } from "~/locales-next.server/utils";
+import { languageModuleMap } from "~/locales-next/.server/utils";
 
 const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 

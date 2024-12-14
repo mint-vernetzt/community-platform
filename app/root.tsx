@@ -41,11 +41,13 @@ import legacyStyles from "./styles/legacy-styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
 import { defaultLanguage } from "./i18n";
-import { languageModuleMap } from "./locales-next.server/utils";
+import { languageModuleMap } from "./locales-next/.server/utils";
 import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { ModalRoot } from "./components-next/ModalRoot";
+// import { isContentSmallerThanScreen } from "./root.client";
+import { profiles } from "./locales-next/.server/de/routes/explore/profiles";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -155,6 +157,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { toast, headers: toastHeaders } = await getToast(request);
 
   const mode = deriveMode(user);
+
+  // console.log(isContentSmallerThanScreen());
 
   return json(
     {
@@ -325,6 +329,8 @@ export default function App() {
   } = useLoaderData<typeof loader>();
   const location = useLocation();
 
+  console.log(profiles);
+
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
       window._paq.push(["setCustomUrl", window.location.href]);
@@ -436,6 +442,8 @@ export default function App() {
       </div>
     </div>
   );
+
+  // console.log(isContentSmallerThanScreen());
 
   return (
     <html lang={currentLanguage} data-theme="light">

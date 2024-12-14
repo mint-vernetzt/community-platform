@@ -48,7 +48,7 @@ import {
 } from "./profiles.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales-next.server/utils";
+import { languageModuleMap } from "~/locales-next/.server/utils";
 import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,

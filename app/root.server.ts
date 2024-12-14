@@ -1,6 +1,6 @@
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage as nextDetectLanguage } from "./i18n.server";
-import { type languageModuleMap } from "./locales-next.server/utils";
+import { type languageModuleMap } from "./locales-next/.server/utils";
 import { type ArrayElement } from "./lib/utils/types";
 import { type supportedCookieLanguages } from "./i18n";
 
