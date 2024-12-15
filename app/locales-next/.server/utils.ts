@@ -1,21 +1,25 @@
-import { meta as deMeta } from "./de/meta";
-import { meta as enMeta } from "./en/meta";
-import { meta as frMeta } from "./fr/meta";
-import { offers as deOffers } from "./de/datasets/offers";
-import { offers as enOffers } from "./en/datasets/offers";
-import { offers as frOffers } from "./fr/datasets/offers";
-import { footer as deFooter } from "./de/organisms/footer";
-import { footer as enFooter } from "./en/organisms/footer";
-import { footer as frFooter } from "./fr/organisms/footer";
-import { profileCard as deProfileCard } from "./de/organisms/cards/profile-card";
-import { profileCard as enProfileCard } from "./en/organisms/cards/profile-card";
-import { profileCard as frProfileCard } from "./fr/organisms/cards/profile-card";
-import { fundings as deExploreFundings } from "./de/routes/explore/fundings";
-import { fundings as enExploreFundings } from "./en/routes/explore/fundings";
-import { fundings as frExploreFundings } from "./fr/routes/explore/fundings";
-import { profiles as deExploreProfiles } from "./de/routes/explore/profiles";
-import { profiles as enExploreProfiles } from "./en/routes/explore/profiles";
-import { profiles as frExploreProfiles } from "./fr/routes/explore/profiles";
+import { locale as deMeta } from "./de/meta";
+import { locale as enMeta } from "./en/meta";
+import { locale as frMeta } from "./fr/meta";
+import { locale as deOffers } from "./de/datasets/offers";
+import { locale as enOffers } from "./en/datasets/offers";
+import { locale as frOffers } from "./fr/datasets/offers";
+import { locale as deFooter } from "./de/organisms/footer";
+import { locale as enFooter } from "./en/organisms/footer";
+import { locale as frFooter } from "./fr/organisms/footer";
+import { locale as deProfileCard } from "./de/organisms/cards/profile-card";
+import { locale as enProfileCard } from "./en/organisms/cards/profile-card";
+import { locale as frProfileCard } from "./fr/organisms/cards/profile-card";
+import { locale as deAddAdmin } from "./de/routes/event/$slug/settings/admins/add-admin";
+import { locale as enAddAdmin } from "./en/routes/event/$slug/settings/admins/add-admin";
+import { locale as deRemoveAdmin } from "./de/routes/event/$slug/settings/admins/remove-admin";
+import { locale as enRemoveAdmin } from "./en/routes/event/$slug/settings/admins/remove-admin";
+import { locale as deExploreFundings } from "./de/routes/explore/fundings";
+import { locale as enExploreFundings } from "./en/routes/explore/fundings";
+import { locale as frExploreFundings } from "./fr/routes/explore/fundings";
+import { locale as deExploreProfiles } from "./de/routes/explore/profiles";
+import { locale as enExploreProfiles } from "./en/routes/explore/profiles";
+import { locale as frExploreProfiles } from "./fr/routes/explore/profiles";
 
 /**
  * This is the map of all language modules.
@@ -36,32 +40,45 @@ import { profiles as frExploreProfiles } from "./fr/routes/explore/profiles";
  *
  */
 
+const de = {
+  root: { ...deMeta, ...deFooter },
+  "event/$slug/settings/admins/add-admin": deAddAdmin,
+  "event/$slug/settings/admins/remove-admin": deRemoveAdmin,
+  "explore/fundings": deExploreFundings,
+  "explore/profiles": {
+    ...deExploreProfiles,
+    offers: { ...deOffers },
+    ...deProfileCard,
+  },
+} as const;
+
+const en = {
+  root: { ...enMeta, ...enFooter },
+  "event/$slug/settings/admins/add-admin": enAddAdmin,
+  "event/$slug/settings/admins/remove-admin": enRemoveAdmin,
+  "explore/fundings": enExploreFundings,
+  "explore/profiles": {
+    ...enExploreProfiles,
+    offers: { ...enOffers },
+    ...enProfileCard,
+  },
+} as const;
+
+// poc
+const fr = {
+  ...en,
+  root: { ...frMeta, ...frFooter },
+  "explore/fundings": frExploreFundings,
+  "explore/profiles": {
+    ...frExploreProfiles,
+    offers: { ...frOffers },
+    ...frProfileCard,
+  },
+} as const;
+
 export const languageModuleMap = {
-  de: {
-    root: { ...deMeta, ...deFooter },
-    "explore/fundings": deExploreFundings,
-    "explore/profiles": {
-      ...deExploreProfiles,
-      offers: { ...deOffers },
-      ...deProfileCard,
-    },
-  },
-  en: {
-    root: { ...enMeta, ...enFooter },
-    "explore/fundings": enExploreFundings,
-    "explore/profiles": {
-      ...enExploreProfiles,
-      offers: { ...enOffers },
-      ...enProfileCard,
-    },
-  },
-  fr: {
-    root: { ...frMeta, ...frFooter },
-    "explore/fundings": frExploreFundings,
-    "explore/profiles": {
-      ...frExploreProfiles,
-      offers: { ...frOffers },
-      ...frProfileCard,
-    },
-  },
+  de,
+  en,
+  // poc
+  fr,
 } as const;

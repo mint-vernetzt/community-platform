@@ -1,4 +1,4 @@
-export const footer = {
+export const locale = {
   description: "The networking platform for STEM actors in Germany.",
   discover: {
     title: "Discover",

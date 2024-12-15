@@ -52,14 +52,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   const searchParams = new URL(request.url).searchParams;
-  if (searchParams.has("error")) {
-    return json({
-      error: {
-        message: t("error.confirmationLinkExpired"),
-        type: "confirmationLinkExpired",
-        supportMail: process.env.SUPPORT_MAIL,
-      },
-    });
+  const error = searchParams.get("error");
+  if (error !== null) {
+    if (error === "confirmationLinkExpired") {
+      return json({
+        error: {
+          message: t("error.confirmationLinkExpired"),
+          type: "confirmationLinkExpired",
+          supportMail: process.env.SUPPORT_MAIL,
+        },
+      });
+    }
   }
 
   return null;

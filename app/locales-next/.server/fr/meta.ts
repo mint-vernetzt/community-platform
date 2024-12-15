@@ -1,4 +1,4 @@
-export const meta = {
+export const locale = {
   root: {
     community: "Communauté",
     profiles: "Profil",

@@ -1,0 +1,20 @@
+export const locale = {
+  error: {
+    notPrivileged: "Not privileged",
+    notFound: "Eure Organisation konnte nicht gefunden werden.",
+    inputError: {
+      doesNotExist: "Es existiert noch keine Organisation unter diesem Namen.",
+      alreadyMember:
+        "Die angegebene Organisation ist bereits Teil Eures Netzwerks.",
+    },
+    serverError:
+      "Die Organisation konnte leider nicht Eurem Netzwerk hinzugefügt werden.",
+  },
+  content: {
+    headline: "Netzwerkmitglied hinzufügen",
+    intro:
+      "Füge hier Eurem Netzwerk eine bereits bestehende Organisation hinzu.",
+    label: "Name der Organisation",
+  },
+  feedback: 'Die Organisation "{{title}}" ist jetzt Teil Eures Netzwerks.',
+} as const;

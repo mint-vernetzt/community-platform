@@ -1,4 +1,4 @@
-export const profiles = {
+export const locale = {
   headline: "Discover the community",
   intro:
     "Discover profiles from diverse individuals within the STEM community here.",

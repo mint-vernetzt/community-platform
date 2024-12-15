@@ -1,4 +1,4 @@
-export const fundings = {
+export const locale = {
   title: "Finde Förderungen für Deine Projekte",
   intro: "Filtere die Ergebnisse um relevantere Treffer zu erzielen.",
   more: "Weitere laden",

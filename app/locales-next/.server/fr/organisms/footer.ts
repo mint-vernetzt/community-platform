@@ -1,4 +1,4 @@
-export const footer = {
+export const locale = {
   description:
     "La plateforme de mise en réseau pour les acteurs STEM en Allemagne.",
   discover: {

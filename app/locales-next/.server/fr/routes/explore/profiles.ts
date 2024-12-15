@@ -1,4 +1,4 @@
-export const profiles = {
+export const locale = {
   headline: "Découvrez la communauté",
   intro: "Vous trouverez ici les profils des acteurs de la communauté MINT.",
   filter: {

@@ -1,0 +1,12 @@
+export const locale = {
+  title: {
+    query: "Your search",
+    noquery: "Search",
+  },
+  results: 'Here you see the results for your search "{{query}}".',
+  profiles: "Profiles",
+  organizations: "Organizations",
+  events: "Events",
+  projects: "Projects",
+  fundings: "Fundings",
+} as const;

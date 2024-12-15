@@ -1,4 +1,4 @@
-export const profileCard = {
+export const locale = {
   nonPublic: "-not public-",
   nonStated: "-not specified-",
   match: "Match",

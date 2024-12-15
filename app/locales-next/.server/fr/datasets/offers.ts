@@ -1,4 +1,4 @@
-export const offers = {
+export const locale = {
   networking: {
     title: "Réseautage",
     description: null,

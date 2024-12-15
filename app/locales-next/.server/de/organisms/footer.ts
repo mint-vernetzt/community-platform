@@ -1,4 +1,4 @@
-export const footer = {
+export const locale = {
   description:
     "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland.",
   discover: {
