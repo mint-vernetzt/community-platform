@@ -14,6 +14,7 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type getEventBySlug } from "./general.server";
 import { json } from "@remix-run/server-runtime";
+import { invariantResponse } from "~/lib/utils/response";
 
 export function validateTimePeriods(
   // TODO: fix any type
@@ -178,6 +179,12 @@ export function transformFormToEvent(form: any) {
   const participationFrom = zonedTimeToUtc(
     `${participationFromDate} ${participationFromTime}`,
     "Europe/Berlin"
+  );
+
+  invariantResponse(
+    sanitizeUserHtml !== undefined,
+    "typescript does not know that sanitizeUserHtml is always defined on the server",
+    { status: 500 }
   );
 
   const description = sanitizeUserHtml(event.description);

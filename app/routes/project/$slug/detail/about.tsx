@@ -17,7 +17,7 @@ import { Facebook } from "~/components-next/icons/Facebook";
 import { Globe } from "~/components-next/icons/Globe";
 import { House } from "~/components-next/icons/House";
 import { Instagram } from "~/components-next/icons/Instagram";
-import { LinkedIn } from "~/components-next/icons/Linkedin";
+import { LinkedIn } from "~/components-next/icons/LinkedIn";
 import { Mastodon } from "~/components-next/icons/Mastodon";
 import { Phone } from "~/components-next/icons/Phone";
 import { TikTok } from "~/components-next/icons/TikTok";

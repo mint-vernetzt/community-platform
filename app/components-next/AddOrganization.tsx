@@ -20,6 +20,8 @@ import { i18nNS as organizationsI18nNS } from "~/routes/my/organizations";
 import React from "react";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { ListContainer } from "./ListContainer";
+import { ListItem } from "./ListItem";
 
 export function AddOrganization(props: {
   organizations?: Jsonify<Awaited<ReturnType<typeof getOrganizationsToAdd>>>;
