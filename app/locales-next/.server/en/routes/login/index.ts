@@ -1,4 +1,4 @@
-export const login = {
+export const locale = {
   validation: {
     email: {
       email: "Please enter a valid email address.",
