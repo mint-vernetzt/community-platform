@@ -3,8 +3,8 @@ import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import { type GetProfilesSchema } from "./profiles";
-import { type languageModuleMap } from "~/locales-next/.server/utils";
-import { type supportedCookieLanguages } from "~/i18n";
+import { type languageModuleMap } from "~/locales/.server";
+import { type supportedCookieLanguages } from "~/i18n.shared";
 
 export type ExploreProfileLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages

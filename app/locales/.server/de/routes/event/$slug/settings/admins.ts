@@ -1,7 +1,7 @@
 export const locale = {
   error: {
     notFound: "Event not found",
-    notProvileged: "Not privileged",
+    notPrivileged: "Not privileged",
   },
   content: {
     headline: "Die Administrator:innen",

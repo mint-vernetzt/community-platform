@@ -3,7 +3,7 @@ import type {
   LinksFunction,
   LoaderFunctionArgs,
 } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -27,7 +27,6 @@ import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
 import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
-
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import {
   createAreaOptionFromData,
@@ -61,34 +60,21 @@ import {
   updateEventById,
   validateTimePeriods,
 } from "./utils.server";
-
 import quillStyles from "react-quill/dist/quill.snow.css?url";
 import { invariantResponse } from "~/lib/utils/response";
 import { deriveEventMode } from "../../utils.server";
-import { getEventBySlug, getEventBySlugForAction } from "./general.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
+import {
+  type GeneralEventSettingsLocales,
+  getEventBySlug,
+  getEventBySlugForAction,
+} from "./general.server";
+import { detectLanguage } from "~/i18n.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { languageModuleMap } from "~/locales/.server";
 
-const i18nNS = [
-  "routes-event-settings-general",
-  "datasets-stages",
-  "datasets-experienceLevels",
-  "datasets-focuses",
-  "datasets-eventTypes",
-  "datasets-eventTargetGroups",
-  "datasets-tags",
-] as const;
-
-export const handle = {
-  i18n: i18nNS,
-};
-
-const createSchema = (t: TFunction) => {
+const createSchema = (locales: GeneralEventSettingsLocales) => {
   return object({
-    name: string().required(t("validation.name.required")),
+    name: string().required(locales.validation.name.required),
     startDate: string()
       .transform((value) => {
         value = value.trim();
@@ -100,7 +86,7 @@ const createSchema = (t: TFunction) => {
         }
         return undefined;
       })
-      .required(t("validation.startDate.required")),
+      .required(locales.validation.startDate.required),
     startTime: string()
       .transform((value: string) => {
         value = value.trim();
@@ -109,48 +95,48 @@ const createSchema = (t: TFunction) => {
         }
         return undefined;
       })
-      .required(t("validation.startTime.required")),
+      .required(locales.validation.startTime.required),
     endDate: greaterThanDate(
       "endDate",
       "startDate",
-      t("validation.endDate.required"),
-      t("validation.endDate.greaterThan")
+      locales.validation.endDate.required,
+      locales.validation.endDate.greaterThan
     ),
     endTime: greaterThanTimeOnSameDate(
       "endTime",
       "startTime",
       "startDate",
       "endDate",
-      t("validation.endTime.required"),
-      t("validation.endTime.greaterThan")
+      locales.validation.endTime.required,
+      locales.validation.endTime.greaterThan
     ),
     participationUntilDate: greaterThanDate(
       "participationUntilDate",
       "participationFromDate",
-      t("validation.participationUntilDate.required"),
-      t("validation.participationUntilDate.greaterThan")
+      locales.validation.participationUntilDate.required,
+      locales.validation.participationUntilDate.greaterThan
     ),
     participationUntilTime: greaterThanTimeOnSameDate(
       "participationUntilTime",
       "participationFromTime",
       "participationUntilDate",
       "participationFromDate",
-      t("validation.participationUntilTime.required"),
-      t("validation.participationUntilTime.greaterThan")
+      locales.validation.participationUntilTime.required,
+      locales.validation.participationUntilTime.greaterThan
     ),
     participationFromDate: greaterThanDate(
       "startDate",
       "participationFromDate",
-      t("validation.participationFromDate.required"),
-      t("validation.participationFromDate.greaterThan")
+      locales.validation.participationFromDate.required,
+      locales.validation.participationFromDate.greaterThan
     ),
     participationFromTime: greaterThanTimeOnSameDate(
       "startTime",
       "participationFromTime",
       "startDate",
       "participationFromDate",
-      t("validation.participationFromTime.required"),
-      t("validation.participationFromTime.greaterThan")
+      locales.validation.participationFromTime.required,
+      locales.validation.participationFromTime.greaterThan
     ),
     subline: nullOrString(multiline()),
     description: nullOrString(multiline()),
@@ -178,8 +164,8 @@ type FormType = InferType<SchemaType>;
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["event/$slug/settings/general"];
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -192,10 +178,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, t("error.notFound"), { status: 404 });
+  invariantResponse(event, locales.error.notFound, { status: 404 });
   const eventVisibilities = await getEventVisibilitiesBySlugOrThrow(slug);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.error.notPrivileged, {
     status: 403,
   });
 
@@ -209,7 +195,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const transformedEvent = transformEventToForm(event);
 
-  return json({
+  return {
     event: transformedEvent,
     eventVisibilities,
     focuses,
@@ -219,7 +205,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     experienceLevels,
     stages,
     areas,
-  });
+    locales,
+  };
 };
 
 export const links: LinksFunction = () => [
@@ -229,8 +216,8 @@ export const links: LinksFunction = () => [
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["event/$slug/settings/general"];
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -238,15 +225,15 @@ export const action = async (args: ActionFunctionArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const event = await getEventBySlugForAction(slug);
-  invariantResponse(event, t("error.notFound"), { status: 404 });
+  invariantResponse(event, locales.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.error.notPrivileged, {
     status: 403,
   });
 
   const result = await getFormDataValidationResultOrThrow<SchemaType>(
     request,
-    createSchema(t)
+    createSchema(locales)
   );
 
   let updated = false;
@@ -287,12 +274,12 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  return json({
+  return {
     data: { ...data, id: event.id },
     errors,
     updated,
     lastSubmit: (formData.get("submit") as string) ?? "",
-  });
+  };
 };
 
 function General() {
@@ -308,11 +295,11 @@ function General() {
     experienceLevels,
     stages,
     areas,
+    locales,
   } = loaderData;
 
   const publishFetcher = useFetcher<typeof publishAction>();
   const cancelFetcher = useFetcher<typeof cancelAction>();
-  const { t } = useTranslation(i18nNS);
 
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
@@ -348,18 +335,34 @@ function General() {
   }
 
   const experienceLevelOptions = experienceLevels.map((experienceLevel) => {
+    let title;
+    if (experienceLevel.slug in locales.experienceLevels) {
+      type LocaleKey = keyof typeof locales.experienceLevels;
+      title = locales.experienceLevels[experienceLevel.slug as LocaleKey].title;
+    } else {
+      console.error(
+        `Experience level ${experienceLevel.slug} not found in locales`
+      );
+      title = experienceLevel.slug;
+    }
     return {
-      label: t(`${experienceLevel.slug}.title`, {
-        ns: "datasets/experienceLevels",
-      }),
+      label: title,
       value: experienceLevel.id,
     };
   });
 
-  const stageOptions = stages.map((item) => {
+  const stageOptions = stages.map((stage) => {
+    let title;
+    if (stage.slug in locales.stages) {
+      type LocaleKey = keyof typeof locales.stages;
+      title = locales.stages[stage.slug as LocaleKey].title;
+    } else {
+      console.error(`Event stage ${stage.slug} not found in locales`);
+      title = stage.slug;
+    }
     return {
-      label: t(`${item.slug}.title`, { ns: "datasets-stages" }),
-      value: item.id,
+      label: title,
+      value: stage.id,
     };
   });
 
@@ -367,10 +370,18 @@ function General() {
     .filter((focus) => {
       return !event.focuses.includes(focus.id);
     })
-    .map((item) => {
+    .map((focus) => {
+      let title;
+      if (focus.slug in locales.focuses) {
+        type LocaleKey = keyof typeof locales.focuses;
+        title = locales.focuses[focus.slug as LocaleKey].title;
+      } else {
+        console.error(`Focus ${focus.slug} not found in locales`);
+        title = focus.slug;
+      }
       return {
-        label: t(`${item.slug}.title`, { ns: "datasets-focuses" }),
-        value: item.id,
+        label: title,
+        value: focus.id,
       };
     });
 
@@ -378,11 +389,27 @@ function General() {
     event.focuses && focuses
       ? focuses
           .filter((focus) => event.focuses.includes(focus.id))
-          .sort((a, b) =>
-            t(`${a.slug}.title`, { ns: "datasets-focuses" }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets-focuses" })
-            )
-          )
+          .sort((currentFocus, nextFocus) => {
+            let currentFocusTitle;
+            let nextFocusTitle;
+            if (currentFocus.slug in locales.focuses) {
+              type LocaleKey = keyof typeof locales.focuses;
+              currentFocusTitle =
+                locales.focuses[currentFocus.slug as LocaleKey].title;
+            } else {
+              console.error(`Focus ${currentFocus.slug} not found in locales`);
+              currentFocusTitle = currentFocus.slug;
+            }
+            if (nextFocus.slug in locales.focuses) {
+              type LocaleKey = keyof typeof locales.focuses;
+              nextFocusTitle =
+                locales.focuses[nextFocus.slug as LocaleKey].title;
+            } else {
+              console.error(`Focus ${nextFocus.slug} not found in locales`);
+              nextFocusTitle = nextFocus.slug;
+            }
+            return currentFocusTitle.localeCompare(nextFocusTitle);
+          })
       : [];
 
   const typeOptions = types
@@ -390,8 +417,16 @@ function General() {
       return !event.types.includes(type.id);
     })
     .map((type) => {
+      let title;
+      if (type.slug in locales.eventTypes) {
+        type LocaleKey = keyof typeof locales.eventTypes;
+        title = locales.eventTypes[type.slug as LocaleKey].title;
+      } else {
+        console.error(`Type ${type.slug} not found in locales`);
+        title = type.slug;
+      }
       return {
-        label: t(`${type.slug}.title`, { ns: "datasets-eventTypes" }),
+        label: title,
         value: type.id,
       };
     });
@@ -400,11 +435,29 @@ function General() {
     event.types && types
       ? types
           .filter((type) => event.types.includes(type.id))
-          .sort((a, b) =>
-            t(`${a.slug}.title`, { ns: "datasets-eventTypes" }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets-eventTypes" })
-            )
-          )
+          .sort((currentType, nextType) => {
+            let currentTypeTitle;
+            let nextTypeTitle;
+            if (currentType.slug in locales.eventTypes) {
+              type LocaleKey = keyof typeof locales.eventTypes;
+              currentTypeTitle =
+                locales.eventTypes[currentType.slug as LocaleKey].title;
+            } else {
+              console.error(
+                `Event type ${currentType.slug} not found in locales`
+              );
+              currentTypeTitle = currentType.slug;
+            }
+            if (nextType.slug in locales.eventTypes) {
+              type LocaleKey = keyof typeof locales.eventTypes;
+              nextTypeTitle =
+                locales.eventTypes[nextType.slug as LocaleKey].title;
+            } else {
+              console.error(`Event type ${nextType.slug} not found in locales`);
+              nextTypeTitle = nextType.slug;
+            }
+            return currentTypeTitle.localeCompare(nextTypeTitle);
+          })
       : [];
 
   const eventTargetGroupOptions = eventTargetGroups
@@ -412,10 +465,18 @@ function General() {
       return !event.eventTargetGroups.includes(targetGroup.id);
     })
     .map((targetGroup) => {
+      let title;
+      if (targetGroup.slug in locales.eventTargetGroups) {
+        type LocaleKey = keyof typeof locales.eventTargetGroups;
+        title = locales.eventTargetGroups[targetGroup.slug as LocaleKey].title;
+      } else {
+        console.error(
+          `Event target group ${targetGroup.slug} not found in locales`
+        );
+        title = targetGroup.slug;
+      }
       return {
-        label: t(`${targetGroup.slug}.title`, {
-          ns: "datasets-eventTargetGroups",
-        }),
+        label: title,
         value: targetGroup.id,
       };
     });
@@ -426,13 +487,33 @@ function General() {
           .filter((targetGroup) =>
             event.eventTargetGroups.includes(targetGroup.id)
           )
-          .sort((a, b) =>
-            t(`${a.slug}.title`, {
-              ns: "datasets-eventTargetGroups",
-            }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets-eventTargetGroups" })
-            )
-          )
+          .sort((currentTargetGroup, nextTargetGroup) => {
+            let currentTargetGroupTitle;
+            let nextTargetGroupTitle;
+            if (currentTargetGroup.slug in locales.eventTargetGroups) {
+              type LocaleKey = keyof typeof locales.eventTargetGroups;
+              currentTargetGroupTitle =
+                locales.eventTargetGroups[currentTargetGroup.slug as LocaleKey]
+                  .title;
+            } else {
+              console.error(
+                `Event target group ${currentTargetGroup.slug} not found in locales`
+              );
+              currentTargetGroupTitle = currentTargetGroup.slug;
+            }
+            if (nextTargetGroup.slug in locales.eventTargetGroups) {
+              type LocaleKey = keyof typeof locales.eventTargetGroups;
+              nextTargetGroupTitle =
+                locales.eventTargetGroups[nextTargetGroup.slug as LocaleKey]
+                  .title;
+            } else {
+              console.error(
+                `Event target group ${nextTargetGroup.slug} not found in locales`
+              );
+              nextTargetGroupTitle = nextTargetGroup.slug;
+            }
+            return currentTargetGroupTitle.localeCompare(nextTargetGroupTitle);
+          })
       : [];
 
   const tagOptions = tags
@@ -440,8 +521,16 @@ function General() {
       return !event.tags.includes(tag.id);
     })
     .map((tag) => {
+      let title;
+      if (tag.slug in locales.tags) {
+        type LocaleKey = keyof typeof locales.tags;
+        title = locales.tags[tag.slug as LocaleKey].title;
+      } else {
+        console.error(`Tag ${tag.slug} not found in locales`);
+        title = tag.slug;
+      }
       return {
-        label: t(`${tag.slug}.title`, { ns: "datasets-tags" }),
+        label: title,
         value: tag.id,
       };
     });
@@ -450,11 +539,26 @@ function General() {
     event.tags && tags
       ? tags
           .filter((tag) => event.tags.includes(tag.id))
-          .sort((a, b) =>
-            t(`${a.slug}.title`, { ns: "datasets-tags" }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets-tags" })
-            )
-          )
+          .sort((currentTag, nextTag) => {
+            let currentTagTitle;
+            let nextTagTitle;
+            if (currentTag.slug in locales.tags) {
+              type LocaleKey = keyof typeof locales.tags;
+              currentTagTitle =
+                locales.tags[currentTag.slug as LocaleKey].title;
+            } else {
+              console.error(`Tag ${currentTag.slug} not found in locales`);
+              currentTagTitle = currentTag.slug;
+            }
+            if (nextTag.slug in locales.tags) {
+              type LocaleKey = keyof typeof locales.tags;
+              nextTagTitle = locales.tags[nextTag.slug as LocaleKey].title;
+            } else {
+              console.error(`Tag ${nextTag.slug} not found in locales`);
+              nextTagTitle = nextTag.slug;
+            }
+            return currentTagTitle.localeCompare(nextTagTitle);
+          })
       : [];
 
   const areaOptions = createAreaOptionFromData(areas);
@@ -503,10 +607,10 @@ function General() {
 
   return (
     <>
-      <h1 className="mb-8">{t("content.headline")}</h1>
-      <h4 className="mb-4 font-semibold">{t("content.start.headline")}</h4>
+      <h1 className="mb-8">{locales.content.headline}</h1>
+      <h4 className="mb-4 font-semibold">{locales.content.start.headline}</h4>
 
-      <p className="mb-4">{t("content.start.intro")}</p>
+      <p className="mb-4">{locales.content.start.intro}</p>
       <div className="flex mb-4">
         <RemixFormsForm
           schema={cancelSchema}
@@ -524,7 +628,9 @@ function General() {
                 <Field name="cancel"></Field>
                 <div className="mt-2">
                   <Button className="btn btn-outline-primary ml-auto btn-small">
-                    {event.canceled ? t("content.revert") : t("content.cancel")}
+                    {event.canceled
+                      ? locales.content.revert
+                      : locales.content.cancel}
                   </Button>
                 </div>
               </>
@@ -546,7 +652,7 @@ function General() {
               <InputText
                 {...register("startDate")}
                 id="startDate"
-                label={t("form.startDate.label")}
+                label={locales.form.startDate.label}
                 defaultValue={event.startDate}
                 errorMessage={errors?.startDate?.message}
                 type="date"
@@ -559,7 +665,7 @@ function General() {
               <InputText
                 {...register("startTime")}
                 id="startTime"
-                label={t("form.startTime.label")}
+                label={locales.form.startTime.label}
                 defaultValue={event.startTime}
                 errorMessage={errors?.startTime?.message}
                 type="time"
@@ -576,7 +682,7 @@ function General() {
               <InputText
                 {...register("endDate")}
                 id="endDate"
-                label={t("form.endDate.label")}
+                label={locales.form.endDate.label}
                 defaultValue={event.endDate}
                 errorMessage={errors?.endDate?.message}
                 type="date"
@@ -589,7 +695,7 @@ function General() {
               <InputText
                 {...register("endTime")}
                 id="endTime"
-                label={t("form.endTime.label")}
+                label={locales.form.endTime.label}
                 defaultValue={event.endTime}
                 errorMessage={errors?.endTime?.message}
                 type="time"
@@ -607,7 +713,7 @@ function General() {
               <InputText
                 {...register("participationFromDate")}
                 id="participationFromDate"
-                label={t("form.participationFromDate.label")}
+                label={locales.form.participationFromDate.label}
                 defaultValue={event.participationFromDate}
                 errorMessage={errors?.participationFromDate?.message}
                 type="date"
@@ -620,7 +726,7 @@ function General() {
               <InputText
                 {...register("participationFromTime")}
                 id="participationFromTime"
-                label={t("form.participationFromTime.label")}
+                label={locales.form.participationFromTime.label}
                 defaultValue={event.participationFromTime}
                 errorMessage={errors?.participationFromTime?.message}
                 type="time"
@@ -637,7 +743,7 @@ function General() {
               <InputText
                 {...register("participationUntilDate")}
                 id="participationUntilDate"
-                label={t("form.participationUntilDate.label")}
+                label={locales.form.participationUntilDate.label}
                 defaultValue={event.participationUntilDate}
                 errorMessage={errors?.participationUntilDate?.message}
                 type="date"
@@ -650,7 +756,7 @@ function General() {
               <InputText
                 {...register("participationUntilTime")}
                 id="participationUntilTime"
-                label={t("form.participationUntilTime.label")}
+                label={locales.form.participationUntilTime.label}
                 defaultValue={event.participationUntilTime}
                 errorMessage={errors?.participationUntilTime?.message}
                 type="time"
@@ -662,13 +768,13 @@ function General() {
               ) : null}
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">{t("content.location")}</h4>
+          <h4 className="mb-4 font-semibold">{locales.content.location}</h4>
           <div className="mb-4">
             <SelectField
               {...register("stage")}
               name="stage"
-              label={t("form.stage.label")}
-              placeholder={t("form.stage.placeholder")}
+              label={locales.form.stage.label}
+              placeholder={locales.form.stage.placeholder}
               options={stageOptions}
               defaultValue={event.stage || ""}
               withPublicPrivateToggle={false}
@@ -680,7 +786,7 @@ function General() {
             <InputText
               {...register("venueName")}
               id="venueName"
-              label={t("form.venueName.label")}
+              label={locales.form.venueName.label}
               defaultValue={event.venueName || ""}
               errorMessage={errors?.venueName?.message}
               withPublicPrivateToggle={false}
@@ -695,7 +801,7 @@ function General() {
               <InputText
                 {...register("venueStreet")}
                 id="venueStreet"
-                label={t("form.venueStreet.label")}
+                label={locales.form.venueStreet.label}
                 defaultValue={event.venueStreet || ""}
                 errorMessage={errors?.venueStreet?.message}
                 withPublicPrivateToggle={false}
@@ -709,7 +815,7 @@ function General() {
               <InputText
                 {...register("venueStreetNumber")}
                 id="venueStreetNumber"
-                label={t("form.venueStreetNumber.label")}
+                label={locales.form.venueStreetNumber.label}
                 defaultValue={event.venueStreetNumber || ""}
                 errorMessage={errors?.venueStreetNumber?.message}
                 withPublicPrivateToggle={false}
@@ -725,7 +831,7 @@ function General() {
               <InputText
                 {...register("venueZipCode")}
                 id="venueZipCode"
-                label={t("form.venueZipCode.label")}
+                label={locales.form.venueZipCode.label}
                 defaultValue={event.venueZipCode || ""}
                 errorMessage={errors?.venueZipCode?.message}
                 withPublicPrivateToggle={false}
@@ -739,7 +845,7 @@ function General() {
               <InputText
                 {...register("venueCity")}
                 id="venueCity"
-                label={t("form.venueCity.label")}
+                label={locales.form.venueCity.label}
                 defaultValue={event.venueCity || ""}
                 errorMessage={errors?.venueCity?.message}
                 withPublicPrivateToggle={false}
@@ -754,7 +860,7 @@ function General() {
             <InputText
               {...register("conferenceLink")}
               id="conferenceLink"
-              label={t("form.conferenceLink.label")}
+              label={locales.form.conferenceLink.label}
               defaultValue={event.conferenceLink || ""}
               placeholder=""
               errorMessage={errors?.conferenceLink?.message}
@@ -770,7 +876,7 @@ function General() {
             <InputText
               {...register("conferenceCode")}
               id="conferenceCode"
-              label={t("form.conferenceCode.label")}
+              label={locales.form.conferenceCode.label}
               defaultValue={event.conferenceCode || ""}
               errorMessage={errors?.conferenceCode?.message}
               withClearButton
@@ -783,14 +889,14 @@ function General() {
           </div>
 
           <h4 className="mb-4 font-semibold">
-            {t("content.generic.headline")}
+            {locales.content.generic.headline}
           </h4>
-          <p className="mb-8">{t("content.generic.intro")}</p>
+          <p className="mb-8">{locales.content.generic.intro}</p>
           <div className="mb-6">
             <InputText
               {...register("name")}
               id="name"
-              label={t("form.name.label")}
+              label={locales.form.name.label}
               defaultValue={event.name}
               errorMessage={errors?.name?.message}
               withPublicPrivateToggle={false}
@@ -804,7 +910,7 @@ function General() {
               {...register("subline")}
               id="subline"
               defaultValue={event.subline || ""}
-              label={t("form.subline.label")}
+              label={locales.form.subline.label}
               errorMessage={errors?.subline?.message}
               maxCharacters={100}
               withPublicPrivateToggle={false}
@@ -819,7 +925,7 @@ function General() {
               {...register("description")}
               id="description"
               defaultValue={event.description || ""}
-              label={t("form.description.label")}
+              label={locales.form.description.label}
               errorMessage={errors?.description?.message}
               maxCharacters={2000}
               withPublicPrivateToggle={false}
@@ -833,12 +939,22 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="types"
-              label={t("form.types.label")}
-              placeholder={t("form.types.placeholder")}
-              entries={selectedTypes.map((type) => ({
-                label: t(`${type.slug}.title`, { ns: "datasets-eventTypes" }),
-                value: type.id,
-              }))}
+              label={locales.form.types.label}
+              placeholder={locales.form.types.placeholder}
+              entries={selectedTypes.map((type) => {
+                let title;
+                if (type.slug in locales.eventTypes) {
+                  type LocaleKey = keyof typeof locales.eventTypes;
+                  title = locales.eventTypes[type.slug as LocaleKey].title;
+                } else {
+                  console.error(`Event type ${type.slug} not found in locales`);
+                  title = type.slug;
+                }
+                return {
+                  label: title,
+                  value: type.id,
+                };
+              })}
               options={typeOptions}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.types}
@@ -847,12 +963,22 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="tags"
-              label={t("form.tags.label")}
-              placeholder={t("form.tags.placeholder")}
-              entries={selectedTags.map((tag) => ({
-                label: t(`${tag.slug}.title`, { ns: "datasets-tags" }),
-                value: tag.id,
-              }))}
+              label={locales.form.tags.label}
+              placeholder={locales.form.tags.placeholder}
+              entries={selectedTags.map((tag) => {
+                let title;
+                if (tag.slug in locales.tags) {
+                  type LocaleKey = keyof typeof locales.tags;
+                  title = locales.tags[tag.slug as LocaleKey].title;
+                } else {
+                  console.error(`Tag ${tag.slug} not found in locales`);
+                  title = tag.slug;
+                }
+                return {
+                  label: title,
+                  value: tag.id,
+                };
+              })}
               options={tagOptions}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.tags}
@@ -862,14 +988,26 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="eventTargetGroups"
-              label={t("form.targetGroups.label")}
-              placeholder={t("form.targetGroups.placeholder")}
-              entries={selectedEventTargetGroups.map((targetGroup) => ({
-                label: t(`${targetGroup.slug}.title`, {
-                  ns: "datasets-eventTargetGroups",
-                }),
-                value: targetGroup.id,
-              }))}
+              label={locales.form.targetGroups.label}
+              placeholder={locales.form.targetGroups.placeholder}
+              entries={selectedEventTargetGroups.map((targetGroup) => {
+                let title;
+                if (targetGroup.slug in locales.eventTargetGroups) {
+                  type LocaleKey = keyof typeof locales.eventTargetGroups;
+                  title =
+                    locales.eventTargetGroups[targetGroup.slug as LocaleKey]
+                      .title;
+                } else {
+                  console.error(
+                    `Target group ${targetGroup.slug} not found in locales`
+                  );
+                  title = targetGroup.slug;
+                }
+                return {
+                  label: title,
+                  value: targetGroup.id,
+                };
+              })}
               options={eventTargetGroupOptions}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.eventTargetGroups}
@@ -879,8 +1017,8 @@ function General() {
             <SelectField
               {...register("experienceLevel")}
               name="experienceLevel"
-              label={t("form.experienceLevel.label")}
-              placeholder={t("form.experienceLevel.placeholder")}
+              label={locales.form.experienceLevel.label}
+              placeholder={locales.form.experienceLevel.placeholder}
               options={experienceLevelOptions}
               defaultValue={event.experienceLevel || ""}
               withPublicPrivateToggle={false}
@@ -890,12 +1028,22 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="focuses"
-              label={t("form.focuses.label")}
-              placeholder={t("form.focuses.placeholder")}
-              entries={selectedFocuses.map((focus) => ({
-                label: t(`${focus.slug}.title`, { ns: "datasets-focuses" }),
-                value: focus.id,
-              }))}
+              label={locales.form.focuses.label}
+              placeholder={locales.form.focuses.placeholder}
+              entries={selectedFocuses.map((focus) => {
+                let title;
+                if (focus.slug in locales.focuses) {
+                  type LocaleKey = keyof typeof locales.focuses;
+                  title = locales.focuses[focus.slug as LocaleKey].title;
+                } else {
+                  console.error(`Focus ${focus.slug} not found in locales`);
+                  title = focus.slug;
+                }
+                return {
+                  label: title,
+                  value: focus.id,
+                };
+              })}
               options={focusOptions}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.focuses}
@@ -904,8 +1052,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="areas"
-              label={t("form.areas.label")}
-              placeholder={t("form.areas.placeholder")}
+              label={locales.form.areas.label}
+              placeholder={locales.form.areas.placeholder}
               entries={selectedAreas.map((area) => ({
                 label: area.name,
                 value: area.id,
@@ -927,7 +1075,7 @@ function General() {
                   : "hidden"
               }`}
             >
-              {t("content.feedback")}
+              {locales.content.feedback}
             </div>
 
             {isFormChanged ? (
@@ -936,7 +1084,7 @@ function General() {
                 reloadDocument
                 className={`btn btn-link`}
               >
-                {t("form.reset.label")}
+                {locales.form.reset.label}
               </Link>
             ) : null}
             <div></div>
@@ -948,7 +1096,7 @@ function General() {
               className="btn btn-primary ml-4"
               disabled={isSubmitting || !isFormChanged}
             >
-              {t("form.submit.label")}
+              {locales.form.submit.label}
             </button>
           </div>
           <div className="flex flex-row flex-nowrap items-center justify-end mb-4">
@@ -968,8 +1116,8 @@ function General() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {event.published
-                        ? t("form.hide.label")
-                        : t("form.publish.label")}
+                        ? locales.form.hide.label
+                        : locales.form.publish.label}
                     </Button>
                   </>
                 );

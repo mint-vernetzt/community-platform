@@ -4,7 +4,7 @@ import { type RootLocales } from "~/root.server";
 import { HeaderLogo } from "./HeaderLogo";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import Search from "~/components/Search/Search";
-import { defaultLanguage } from "~/i18n";
+import { defaultLanguage } from "~/i18n.shared";
 import { Icon } from "./icons/Icon";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 

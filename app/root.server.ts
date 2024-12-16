@@ -1,8 +1,8 @@
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage as nextDetectLanguage } from "./i18n.server";
-import { type languageModuleMap } from "./locales-next/.server/utils";
+import { type languageModuleMap } from "./locales/.server";
 import { type ArrayElement } from "./lib/utils/types";
-import { type supportedCookieLanguages } from "./i18n";
+import { type supportedCookieLanguages } from "./i18n.shared";
 
 export async function getProfileByUserId(id: string) {
   return await prismaClient.profile.findUnique({

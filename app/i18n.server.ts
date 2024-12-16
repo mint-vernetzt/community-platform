@@ -5,7 +5,7 @@ import {
   defaultLanguage,
   supportedCookieLanguages,
   lngCookieMaxAge,
-} from "./i18n";
+} from "./i18n.shared";
 import { type ArrayElement } from "./lib/utils/types";
 import { invariantResponse } from "./lib/utils/response";
 

@@ -1,4 +1,4 @@
-import { languageModuleMap } from "~/locales-next/.server/utils";
+import { languageModuleMap } from "~/locales/.server";
 import { ProfileCard } from "./../cards/ProfileCard";
 import { CardContainer } from "./CardContainer";
 

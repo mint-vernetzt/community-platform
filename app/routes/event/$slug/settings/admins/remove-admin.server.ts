@@ -1,9 +1,9 @@
-import { type supportedCookieLanguages } from "~/i18n";
+import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales-next/.server/utils";
+import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 
-export type EventRemoveAdminLocales = (typeof languageModuleMap)[ArrayElement<
+export type RemoveEventAdminLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
 >]["event/$slug/settings/admins/remove-admin"];
 

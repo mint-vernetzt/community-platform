@@ -1,7 +1,7 @@
 export const locale = {
   error: {
     notFound: "Event not found",
-    notProvileged: "Not privileged",
+    notPrivileged: "Not privileged",
   },
   content: {
     headline: "Administrators",
@@ -15,9 +15,11 @@ export const locale = {
       intro: "Add an already existing profile to your event here.",
     },
     current: {
-      headline: "Current administrators",
-      intro:
-        "Here you can see all the administrators of the event at a glance.",
+      headline_one: "Current administrator",
+      headline_other: "Current administrators",
+      intro_one: "Here you can see the administrator of the event at a glance.",
+      intro_other:
+        "Here you can see the administrators of the event at a glance.",
     },
   },
   form: {

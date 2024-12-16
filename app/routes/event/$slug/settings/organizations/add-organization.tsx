@@ -1,18 +1,18 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { detectLanguage } from "~/i18n.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { getOrganizationById } from "../utils.server";
+import { type AddResponsibleOrganizationToEventLocales } from "./add-organization.server";
 import { connectOrganizationToEvent, getEventBySlug } from "./utils.server";
-import i18next from "~/i18next.server";
-import { type TFunction } from "i18next";
-import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   organizationId: z.string(),
@@ -24,14 +24,14 @@ const environmentSchema = z.object({
   eventSlug: z.string(),
 });
 
-const createMutation = (t: TFunction) => {
+const createMutation = (locales: AddResponsibleOrganizationToEventLocales) => {
   return makeDomainFunction(
     schema,
     environmentSchema
   )(async (values, environment) => {
     const organization = await getOrganizationById(values.organizationId);
     if (organization === null) {
-      throw new InputError(t("error.notFound"), "organizationId");
+      throw new InputError(locales.error.notFound, "organizationId");
     }
     const alreadyResponsible = organization.responsibleForEvents.some(
       (entry) => {
@@ -39,7 +39,7 @@ const createMutation = (t: TFunction) => {
       }
     );
     if (alreadyResponsible) {
-      throw new InputError(t("error.inputError"), "organizationId");
+      throw new InputError(locales.error.inputError, "organizationId");
     }
     return { ...values, name: organization.name };
   });
@@ -47,15 +47,16 @@ const createMutation = (t: TFunction) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes-event-settings-organizations-add-organization",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language][
+      "event/$slug/settings/organizations/add-organization"
+    ];
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.error.notPrivileged, {
     status: 403,
   });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -63,7 +64,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(t),
+    mutation: createMutation(locales),
     environment: { eventSlug: slug },
   });
 
@@ -71,9 +72,11 @@ export const action = async (args: ActionFunctionArgs) => {
     const event = await getEventBySlug(slug);
     invariantResponse(event, "Event not found", { status: 404 });
     await connectOrganizationToEvent(event.id, result.data.organizationId);
-    return json({
-      message: t("feedback", { title: result.data.name }),
-    });
+    return {
+      message: insertParametersIntoLocale(locales.feedback, {
+        title: result.data.name,
+      }),
+    };
   }
-  return json(result);
+  return { ...result };
 };

@@ -1,22 +1,20 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { detectLanguage } from "~/i18n.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import {
   disconnectFromWaitingListOfEvent,
   getEventBySlug,
 } from "./utils.server";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   profileId: z.string(),
@@ -30,10 +28,11 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes-event-settings-waiting-list-remove-from-waiting-list",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language][
+      "event/$slug/settings/waiting-list/remove-from-waiting-list"
+    ];
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -42,17 +41,17 @@ export const action = async (args: ActionFunctionArgs) => {
 
   if (result.success === true) {
     const event = await getEventBySlug(slug);
-    invariantResponse(event, t("error.notFound"), { status: 404 });
+    invariantResponse(event, locales.error.notFound, { status: 404 });
     if (sessionUser.id !== result.data.profileId) {
       const mode = await deriveEventMode(sessionUser, slug);
-      invariantResponse(mode === "admin", t("error.notPrivileged"), {
+      invariantResponse(mode === "admin", locales.error.notPrivileged, {
         status: 403,
       });
       await checkFeatureAbilitiesOrThrow(authClient, "events");
     }
     await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
   }
-  return json(result);
+  return { ...result, locales };
 };
 
 type RemoveFromWaitingListButtonProps = {
@@ -64,9 +63,7 @@ export function RemoveFromWaitingListButton(
   props: RemoveFromWaitingListButtonProps
 ) {
   const fetcher = useFetcher<typeof action>();
-  const { t } = useTranslation([
-    "routes-event-settings-waiting-list-remove-from-waiting-list",
-  ]);
+  const locales = fetcher.data !== undefined ? fetcher.data.locales : undefined;
   return (
     <RemixFormsForm
       action={props.action}
@@ -83,7 +80,9 @@ export function RemoveFromWaitingListButton(
           <>
             <Field name="profileId" />
             <button className="btn btn-primary" type="submit">
-              {t("action")}
+              {locales !== undefined
+                ? locales.action
+                : "Remove from waiting list"}
             </button>
             <Errors />
           </>

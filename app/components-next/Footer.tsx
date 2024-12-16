@@ -1,5 +1,5 @@
 import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
-import { defaultLanguage } from "~/i18n";
+import { defaultLanguage } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
 
 export function Footer(props: { locales?: RootLocales }) {

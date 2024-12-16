@@ -1,6 +1,6 @@
-import { type supportedCookieLanguages } from "~/i18n";
+import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales-next/.server/utils";
+import { type languageModuleMap } from "~/locales/.server";
 
 export type SearchProfileLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages

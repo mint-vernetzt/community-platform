@@ -6,7 +6,7 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import React from "react";
-import { defaultLanguage, type supportedCookieLanguages } from "~/i18n";
+import { defaultLanguage, type supportedCookieLanguages } from "~/i18n.shared";
 import { type getFeatureAbilities } from "~/lib/utils/application";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type RootLocales } from "~/root.server";

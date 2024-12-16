@@ -1,21 +1,20 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { detectLanguage } from "~/i18n.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { getProfileById } from "../utils.server";
+import { type AddProfileToEventWaitingListLocales } from "./add-to-waiting-list.server";
 import { connectToWaitingListOfEvent, getEventBySlug } from "./utils.server";
-import i18next from "~/i18next.server";
-import { type TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 
 const schema = z.object({
   profileId: z.string(),
@@ -27,27 +26,27 @@ const environmentSchema = z.object({
   eventSlug: z.string(),
 });
 
-const createMutation = (t: TFunction) => {
+const createMutation = (locales: AddProfileToEventWaitingListLocales) => {
   return makeDomainFunction(
     schema,
     environmentSchema
   )(async (values, environment) => {
     const profile = await getProfileById(values.profileId);
     if (profile === null) {
-      throw new InputError(t("error.inputError.notFound"), "profileId");
+      throw new InputError(locales.error.inputError.doesNotExist, "profileId");
     }
     const alreadyOnWaitingList = profile.waitingForEvents.some((entry) => {
       return entry.event.slug === environment.eventSlug;
     });
     if (alreadyOnWaitingList) {
-      throw new InputError(t("error.inputError.alreadyOn"), "profileId");
+      throw new InputError(locales.error.inputError.alreadyOn, "profileId");
     }
     const alreadyParticipant = profile.participatedEvents.some((entry) => {
       return entry.event.slug === environment.eventSlug;
     });
     if (alreadyParticipant) {
       throw new InputError(
-        t("error.inputError.alreadyParticipant"),
+        locales.error.inputError.alreadyParticipant,
         "profileId"
       );
     }
@@ -61,10 +60,11 @@ const createMutation = (t: TFunction) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes-event-settings-waiting-list-add-to-waiting-list",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language][
+      "event/$slug/settings/waiting-list/add-to-waiting-list"
+    ];
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -72,7 +72,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(t),
+    mutation: createMutation(locales),
     environment: {
       eventSlug: slug,
     },
@@ -80,10 +80,10 @@ export const action = async (args: ActionFunctionArgs) => {
 
   if (result.success === true) {
     const event = await getEventBySlug(slug);
-    invariantResponse(event, t("error.notFound"), { status: 404 });
+    invariantResponse(event, locales.error.notFound, { status: 404 });
     if (sessionUser.id !== result.data.profileId) {
       const mode = await deriveEventMode(sessionUser, slug);
-      invariantResponse(mode === "admin", t("error.notPrivileged"), {
+      invariantResponse(mode === "admin", locales.error.notPrivileged, {
         status: 403,
       });
       await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -91,15 +91,16 @@ export const action = async (args: ActionFunctionArgs) => {
     } else {
       await connectToWaitingListOfEvent(event.id, result.data.profileId);
     }
-    return json({
+    return {
       success: true,
-      message: t("feedback", {
+      message: insertParametersIntoLocale(locales.feedback, {
         firstName: result.data.firstName,
         lastName: result.data.lastName,
       }),
-    });
+      locales,
+    };
   }
-  return json(result);
+  return { ...result, locales };
 };
 
 type AddToWaitingListButtonProps = {
@@ -109,9 +110,7 @@ type AddToWaitingListButtonProps = {
 
 export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
   const fetcher = useFetcher<typeof action>();
-  const { t } = useTranslation([
-    "routes-event-settings-waiting-list-add-to-waiting-list",
-  ]);
+  const locales = fetcher.data !== undefined ? fetcher.data.locales : undefined;
   return (
     <RemixFormsForm
       action={props.action}
@@ -128,7 +127,7 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
           <>
             <Field name="profileId" />
             <button type="submit" className="btn btn-primary">
-              {t("action")}
+              {locales !== undefined ? locales.action : "Waiting list"}
             </button>
             <Errors />
           </>

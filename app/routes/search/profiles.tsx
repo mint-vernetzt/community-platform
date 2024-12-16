@@ -23,7 +23,7 @@ import { CardContainer } from "@mint-vernetzt/components/src/organisms/container
 import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales-next/.server/utils";
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);

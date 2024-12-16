@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -45,21 +45,16 @@ import {
   getChildEventSuggestions,
   getParentEventSuggestions,
 } from "./utils.server";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-
-const i18nNS = ["routes-event-settings-events", "datasets-stages"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["event/$slug/settings/events"];
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
@@ -70,9 +65,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, t("error.notFound"), { status: 404 });
+  invariantResponse(event, locales.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.error.notPrivileged, {
     status: 403,
   });
 
@@ -174,18 +169,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  return json({
+  return {
     parentEvent: enhancedParentEvent,
     parentEventSuggestions,
     childEvents: enhancedChildEvents,
     childEventSuggestions,
     published: event.published,
-  });
+    locales,
+    language,
+  };
 };
 
 function Events() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
+  const { locales, language } = loaderData;
   const setParentFetcher = useFetcher<typeof setParentAction>();
   const addChildFetcher = useFetcher<typeof addChildAction>();
   const removeChildFetcher = useFetcher<typeof removeChildAction>();
@@ -210,14 +208,13 @@ function Events() {
     "child_autocomplete_query"
   );
   const submit = useSubmit();
-  const { t, i18n } = useTranslation(i18nNS);
 
   return (
     <>
-      <h1 className="mb-8">{t("content.headline")}</h1>
-      <h4 className="mb-4 font-semibold">{t("content.assign.headline")}</h4>
+      <h1 className="mb-8">{locales.content.headline}</h1>
+      <h4 className="mb-4 font-semibold">{locales.content.assign.headline}</h4>
 
-      <p className="mb-4">{t("content.assign.intro")}</p>
+      <p className="mb-4">{locales.content.assign.intro}</p>
       <RemixFormsForm
         schema={setParentSchema}
         fetcher={setParentFetcher}
@@ -238,7 +235,7 @@ function Events() {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
-                    {t("content.assign.name")}
+                    {locales.content.assign.name}
                   </label>
                 </div>
               </div>
@@ -275,12 +272,12 @@ function Events() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-4 font-semibold">
-        {t("content.parent.headline")}
+        {locales.content.parent.headline}
       </h4>
       <p className="mb-8">
-        {t("content.parent.intro")}
+        {locales.content.parent.intro}
         <br></br>
-        {loaderData.parentEvent === null ? t("content.parent.empty") : ""}
+        {loaderData.parentEvent === null ? locales.content.parent.empty : ""}
       </p>
       {loaderData.parentEvent !== null ? (
         <div>
@@ -300,6 +297,23 @@ function Events() {
                 parentEventEndTime !== undefined
               ) {
                 const { Field, Button } = props;
+                let stageTitle;
+                if (loaderData.parentEvent.stage === null) {
+                  stageTitle = null;
+                } else if (
+                  loaderData.parentEvent.stage.slug in locales.stages
+                ) {
+                  type LocaleKey = keyof typeof locales.stages;
+                  stageTitle =
+                    locales.stages[
+                      loaderData.parentEvent.stage.slug as LocaleKey
+                    ].title;
+                } else {
+                  console.error(
+                    `No locale found for event stage ${loaderData.parentEvent.stage.slug}`
+                  );
+                  stageTitle = loaderData.parentEvent.stage.slug;
+                }
                 return (
                   <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden">
                     <Link
@@ -316,28 +330,28 @@ function Events() {
                       <div className="px-4 py-6">
                         <p className="text-xs mb-1">
                           {/* TODO: Display icons (see figma) */}
-                          {loaderData.parentEvent.stage !== null
-                            ? t(`${loaderData.parentEvent.stage.slug}.title`, {
-                                ns: "datasets-stages",
-                              }) + " | "
-                            : ""}
+                          {stageTitle !== null ? stageTitle + " | " : ""}
                           {getDuration(
                             parentEventStartTime,
                             parentEventEndTime,
-                            i18n.language
+                            language
                           )}
                           {loaderData.parentEvent._count.childEvents === 0 ? (
                             <>
                               {loaderData.parentEvent.participantLimit === null
-                                ? t("content.parent.seats.unlimited")
-                                : t("content.parent.seats.exact", {
-                                    number:
-                                      loaderData.parentEvent.participantLimit -
-                                      loaderData.parentEvent._count
-                                        .participants,
-                                    total:
-                                      loaderData.parentEvent.participantLimit,
-                                  })}
+                                ? locales.content.parent.seats.unlimited
+                                : insertParametersIntoLocale(
+                                    locales.content.parent.seats.exact,
+                                    {
+                                      number:
+                                        loaderData.parentEvent
+                                          .participantLimit -
+                                        loaderData.parentEvent._count
+                                          .participants,
+                                      total:
+                                        loaderData.parentEvent.participantLimit,
+                                    }
+                                  )}
                             </>
                           ) : (
                             ""
@@ -349,10 +363,13 @@ function Events() {
                               {" "}
                               |{" "}
                               <span>
-                                {t("content.parent.seats.waiting", {
-                                  number:
-                                    loaderData.parentEvent._count.waitingList,
-                                })}
+                                {insertParametersIntoLocale(
+                                  locales.content.parent.seats.waiting,
+                                  {
+                                    number:
+                                      loaderData.parentEvent._count.waitingList,
+                                  }
+                                )}
                               </span>
                             </>
                           ) : (
@@ -400,9 +417,9 @@ function Events() {
         </div>
       ) : null}
       <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
-      <h4 className="mb-4 font-semibold">{t("content.related.headline")}</h4>
+      <h4 className="mb-4 font-semibold">{locales.content.related.headline}</h4>
 
-      <p className="mb-4">{t("content.related.intro")}</p>
+      <p className="mb-4">{locales.content.related.intro}</p>
       <RemixFormsForm
         schema={addChildSchema}
         fetcher={addChildFetcher}
@@ -423,7 +440,7 @@ function Events() {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
-                    {t("content.related.name")}
+                    {locales.content.related.name}
                   </label>
                 </div>
               </div>
@@ -460,12 +477,14 @@ function Events() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-4 font-semibold">
-        {t("content.current.headline")}
+        {locales.content.current.headline}
       </h4>
       <p className="mb-8">
-        {t("content.current.intro")}
+        {locales.content.current.intro}
         <br></br>
-        {loaderData.childEvents.length === 0 ? t("content.current.empty") : ""}
+        {loaderData.childEvents.length === 0
+          ? locales.content.current.empty
+          : ""}
       </p>
       {loaderData.childEvents.length > 0 ? (
         <div className="mt-6">
@@ -479,6 +498,19 @@ function Events() {
                 childEvent.endTime,
                 "Europe/Berlin"
               );
+              let stageTitle;
+              if (childEvent.stage === null) {
+                stageTitle = null;
+              } else if (childEvent.stage.slug in locales.stages) {
+                type LocaleKey = keyof typeof locales.stages;
+                stageTitle =
+                  locales.stages[childEvent.stage.slug as LocaleKey].title;
+              } else {
+                console.error(
+                  `No locale found for event stage ${childEvent.stage.slug}`
+                );
+                stageTitle = childEvent.stage.slug;
+              }
               return (
                 <RemixFormsForm
                   key={`remove-child-${childEvent.id}`}
@@ -505,26 +537,25 @@ function Events() {
                           <div className="px-4 py-6">
                             <p className="text-xs mb-1">
                               {/* TODO: Display icons (see figma) */}
-                              {childEvent.stage !== null
-                                ? t(`${childEvent.stage.slug}.title`, {
-                                    ns: "datasets-stages",
-                                  }) + " | "
-                                : ""}
+                              {stageTitle !== null ? stageTitle + " | " : ""}
                               {getDuration(
                                 eventStartTime,
                                 eventEndTime,
-                                i18n.language
+                                language
                               )}
                               {childEvent._count.childEvents === 0 ? (
                                 <>
                                   {childEvent.participantLimit === null
-                                    ? t("content.current.seats.unlimited")
-                                    : t("content.current.seats.exact", {
-                                        number:
-                                          childEvent.participantLimit -
-                                          childEvent._count.participants,
-                                        total: childEvent.participantLimit,
-                                      })}
+                                    ? locales.content.current.seats.unlimited
+                                    : insertParametersIntoLocale(
+                                        locales.content.current.seats.exact,
+                                        {
+                                          number:
+                                            childEvent.participantLimit -
+                                            childEvent._count.participants,
+                                          total: childEvent.participantLimit,
+                                        }
+                                      )}
                                 </>
                               ) : (
                                 ""
@@ -536,9 +567,12 @@ function Events() {
                                   {" "}
                                   |{" "}
                                   <span>
-                                    {t("content.current.seats.waiting", {
-                                      number: childEvent._count.waitingList,
-                                    })}
+                                    {insertParametersIntoLocale(
+                                      locales.content.current.seats.waiting,
+                                      {
+                                        number: childEvent._count.waitingList,
+                                      }
+                                    )}
                                   </span>
                                 </>
                               ) : (
@@ -562,7 +596,7 @@ function Events() {
                         <Field name="childEventId" />
                         <Button
                           className="ml-auto btn-none"
-                          title={t("form.remove.label")}
+                          title={locales.form.remove.label}
                         >
                           <svg
                             viewBox="0 0 10 10"
@@ -605,8 +639,8 @@ function Events() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? t("form.hide.label")
-                        : t("form.publish.label")}
+                        ? locales.form.hide.label
+                        : locales.form.publish.label}
                     </Button>
                   </>
                 );

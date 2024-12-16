@@ -2,7 +2,7 @@ import { Link, useLocation } from "@remix-run/react";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { TextButton } from "../../molecules/TextButton";
 import { type TextButtonVariants } from "../../molecules/TextButton";
-import { supportedCookieLanguages } from "~/i18n";
+import { supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 
 export function LocaleSwitch(props: {

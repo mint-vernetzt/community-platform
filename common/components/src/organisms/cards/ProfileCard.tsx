@@ -12,7 +12,6 @@ import {
 import { getFullName } from "./../../utils";
 import { Image } from "./../../molecules/Image";
 import { type ExploreProfileLocales } from "~/routes/explore/profiles.server";
-import { getTypedOffer } from "~/routes/explore/profiles";
 import { type SearchProfileLocales } from "~/routes/search/profiles.server";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 
@@ -98,10 +97,17 @@ function ProfileCard(
           ) : (
             <ChipContainer maxRows={2}>
               {profile.offers.map((offer) => {
-                const typedOffer = getTypedOffer(offer, locales.offers);
+                let title;
+                if (offer in locales.offers) {
+                  type LocaleKey = keyof typeof locales.offers;
+                  title = locales.offers[offer as LocaleKey].title;
+                } else {
+                  console.error(`No locale found for offer ${offer}`);
+                  title = offer;
+                }
                 return (
                   <Chip key={offer} color="secondary">
-                    {typedOffer !== null ? typedOffer.title : offer}
+                    {title}
                   </Chip>
                 );
               })}

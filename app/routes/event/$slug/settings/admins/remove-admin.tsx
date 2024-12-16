@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -7,15 +7,15 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/root.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { getIsTeamMember } from "../../utils.server";
-import { detectLanguage } from "~/root.server";
 import {
-  type EventRemoveAdminLocales,
+  type RemoveEventAdminLocales,
   getEventBySlug,
   removeAdminFromEvent,
 } from "./remove-admin.server";
-import { languageModuleMap } from "~/locales-next/.server/utils";
 
 const schema = z.object({
   profileId: z.string(),
@@ -27,7 +27,7 @@ const environmentSchema = z.object({
   adminCount: z.number(),
 });
 
-const createMutation = (locales: EventRemoveAdminLocales) => {
+const createMutation = (locales: RemoveEventAdminLocales) => {
   return makeDomainFunction(
     schema,
     environmentSchema
@@ -74,5 +74,5 @@ export const action = async (args: ActionFunctionArgs) => {
       }
     }
   }
-  return json(result);
+  return { ...result };
 };

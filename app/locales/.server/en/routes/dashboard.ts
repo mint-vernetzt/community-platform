@@ -15,7 +15,7 @@ export const locale = {
       showMore: "Show more",
       showLess: "Show less",
     },
-    updates: {
+    updateTeasers: {
       headline: "Updates",
       hide: "Hide updates",
       show: "Show updates",
@@ -25,43 +25,47 @@ export const locale = {
           "New help page with answers to questions about the platform",
         linkDescription: "View now",
       },
-      createProject: {
-        headline: "Share knowledge",
-        description: "Create your own project or publish an existing draft",
-        linkDescription: "Create now",
-      },
-      addToOrganization: {
-        headline: "New functionality",
-        description: "Add yourself to organizations",
-        linkDescription: "Try now",
-      },
-      crawler: {
-        headline: "New beta feature",
-        description: "Test our funding search now",
-        linkDescription: "Try now",
-      },
-      mediaDatabase: {
-        headline: "New feature",
-        description:
-          "Find free STEM related images and graphics in the STEM media database",
-        linkDescription: "Try out now",
+      entries: {
+        createProject: {
+          headline: "Share knowledge",
+          description: "Create your own project or publish an existing draft",
+          linkDescription: "Create now",
+        },
+        addToOrganization: {
+          headline: "New functionality",
+          description: "Add yourself to organizations",
+          linkDescription: "Try now",
+        },
+        crawler: {
+          headline: "New beta feature",
+          description: "Test our funding search now",
+          linkDescription: "Try now",
+        },
+        mediaDatabase: {
+          headline: "New feature",
+          description:
+            "Find free STEM related images and graphics in the STEM media database",
+          linkDescription: "Try out now",
+        },
       },
     },
-    news: {
+    newsTeaser: {
       headline: "MINTvernetzt News",
       hide: "Hide news",
       show: "Show news",
-      tableMedia: {
-        headline: "New cooperation",
-        description:
-          "Offer: table.media subscription for MINTvernetzt Community",
-        linkDescription: "Learn more now",
-      },
-      annualConference: {
-        headline: "Register now",
-        description:
-          "Program and hotel information for our annual conference from 11.-12.2.24 in Berlin published",
-        linkDescription: "Learn more",
+      entries: {
+        tableMedia: {
+          headline: "New cooperation",
+          description:
+            "Offer: table.media subscription for MINTvernetzt Community",
+          linkDescription: "Learn more now",
+        },
+        annualConference: {
+          headline: "Register now",
+          description:
+            "Program and hotel information for our annual conference from 11.-12.2.24 in Berlin published",
+          linkDescription: "Learn more",
+        },
       },
     },
     communityCounter: {
@@ -79,22 +83,24 @@ export const locale = {
     allEvents: "All events",
     projects: "Projects",
     allProjects: "All projects",
-    externalLinks: {
+    externalTeasers: {
       headline: "More about MINTvernetzt",
-      website: {
-        headline: "Your networking office",
-        description: "Learn more about MINTvernetzt",
-        linkDescription: "To the MINTvernetzt website",
-      },
-      dataLab: {
-        headline: "MINT-DataLab",
-        description: "Find analyses, graphics and statistics about STEM",
-        linkDescription: "To the MINT-DataLab",
-      },
-      meshMint: {
-        headline: "MesH_MINT",
-        description: "Highlights from educational research",
-        linkDescription: "To MesH_MINT",
+      entries: {
+        website: {
+          headline: "Your networking office",
+          description: "Learn more about MINTvernetzt",
+          linkDescription: "To the MINTvernetzt website",
+        },
+        dataLab: {
+          headline: "MINT-DataLab",
+          description: "Find analyses, graphics and statistics about STEM",
+          linkDescription: "To the MINT-DataLab",
+        },
+        meshMint: {
+          headline: "MesH_MINT",
+          description: "Highlights from educational research",
+          linkDescription: "To MesH_MINT",
+        },
       },
     },
     invites: {

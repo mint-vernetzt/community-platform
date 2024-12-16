@@ -8,8 +8,8 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { doPersistUpload, parseMultipart } from "~/storage.server";
 import { createDocumentOnEvent } from "./utils.server";
-import i18next from "~/i18next.server";
-import { detectLanguage } from "~/root.server";
+import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/i18n.server";
 
 const schema = z.object({
   uploadKey: z.string(),
@@ -20,15 +20,16 @@ export const uploadDocumentSchema = schema;
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes-event-settings-documents-upload-document",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language][
+      "event/$slug/settings/documents/upload-document"
+    ];
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.error.notPrivileged, {
     status: 403,
   });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -51,7 +52,7 @@ export const action = async (args: ActionFunctionArgs) => {
   try {
     await createDocumentOnEvent(slug, document);
   } catch (error) {
-    throw t("error.server");
+    throw locales.error.server;
   }
 
   return null;

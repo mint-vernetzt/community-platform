@@ -1,22 +1,21 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { detectLanguage } from "~/i18n.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import {
   addAdminToEvent,
-  type EventAddAdminLocales,
+  type AddEventAdminLocales,
   getEventBySlug,
   getProfileById,
 } from "./add-admin.server";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales-next/.server/utils";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const schema = z.object({
   profileId: z.string(),
@@ -28,7 +27,7 @@ const environmentSchema = z.object({
 
 export const addAdminSchema = schema;
 
-const createMutation = (locales: EventAddAdminLocales) => {
+const createMutation = (locales: AddEventAdminLocales) => {
   return makeDomainFunction(
     schema,
     environmentSchema
@@ -77,12 +76,12 @@ export const action = async (args: ActionFunctionArgs) => {
     invariantResponse(event, locales.error.notFound, { status: 404 });
     await addAdminToEvent(event.id, result.data.profileId);
 
-    return json({
+    return {
       message: insertParametersIntoLocale(locales.feedback, {
         firstName: result.data.firstName,
         lastName: result.data.lastName,
       }),
-    });
+    };
   }
-  return json(result);
+  return { ...result };
 };

@@ -1,4 +1,4 @@
-import { languageModuleMap } from "~/locales-next/.server/utils";
+import { languageModuleMap } from "~/locales/.server";
 import { Button } from "../../molecules/Button";
 import { EventCard } from "./EventCard";
 import { OrganizationCard } from "./OrganizationCard";

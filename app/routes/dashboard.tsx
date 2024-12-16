@@ -46,8 +46,9 @@ import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/Profi
 import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
-import { languageModuleMap } from "~/locales-next/.server/utils";
+import { languageModuleMap } from "~/locales/.server";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { type AtLeastOne } from "~/lib/utils/types";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -492,15 +493,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
     profilesFromRequests,
     upcomingCanceledEvents,
     locales,
+    language,
   });
 };
 
-function getDataForExternalLinkTeasers() {
-  const teaserData: {
-    website: { link: string; icon: TeaserIconType; external: boolean };
-    dataLab: { link: string; icon: TeaserIconType; external: boolean };
-    meshMint: { link: string; icon: TeaserIconType; external: boolean };
-  } = {
+function getDataForExternalTeasers() {
+  type ExternalTeaserKey = keyof Awaited<
+    ReturnType<typeof useLoaderData<typeof loader>>
+  >["locales"]["content"]["externalTeasers"]["entries"];
+  type ExternalTeaser = {
+    [key in ExternalTeaserKey]: {
+      link: string;
+      icon: TeaserIconType;
+      external: boolean;
+    };
+  };
+  const teaserData: AtLeastOne<ExternalTeaser> = {
     website: {
       link: "https://www.mint-vernetzt.de",
       icon: "globe",
@@ -521,9 +529,17 @@ function getDataForExternalLinkTeasers() {
 }
 
 function getDataForUpdateTeasers() {
-  const teaserData: {
-    [key: string]: { link: string; icon: TeaserIconType; external: boolean };
-  } = {
+  type UpdateTeaserKey = keyof Awaited<
+    ReturnType<typeof useLoaderData<typeof loader>>
+  >["locales"]["content"]["updateTeasers"]["entries"];
+  type UpdateTeaser = {
+    [key in UpdateTeaserKey]: {
+      link: string;
+      icon: TeaserIconType;
+      external: boolean;
+    };
+  };
+  const teaserData: AtLeastOne<UpdateTeaser> = {
     crawler: {
       link: "/explore/fundings",
       icon: "piggy-bank",
@@ -539,14 +555,17 @@ function getDataForUpdateTeasers() {
 }
 
 function getDataForNewsTeasers() {
-  const teaserData: {
-    tableMedia: { link: string; icon: TeaserIconType; external: boolean };
-    annualConference: {
+  type NewsTeaserKey = keyof Awaited<
+    ReturnType<typeof useLoaderData<typeof loader>>
+  >["locales"]["content"]["newsTeaser"]["entries"];
+  type NewsTeaser = {
+    [key in NewsTeaserKey]: {
       link: string;
       icon: TeaserIconType;
       external: boolean;
     };
-  } = {
+  };
+  const teaserData: AtLeastOne<NewsTeaser> = {
     tableMedia: {
       link: "https://table.media/aktion/mint-vernetzt?utm_source=samail&utm_medium=email&utm_campaign=rt_mintvernetzt_koop_email_job&utm_content=lp_1",
       icon: "lightning-charge",
@@ -564,7 +583,7 @@ function getDataForNewsTeasers() {
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
 
-  const externalLinkTeasers = getDataForExternalLinkTeasers();
+  const externalTeasers = getDataForExternalTeasers();
   const updateTeasers = getDataForUpdateTeasers();
   const newsTeasers = getDataForNewsTeasers();
 
@@ -817,20 +836,20 @@ function Dashboard() {
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
         <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
           <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
-            {loaderData.locales.content.updates.headline}
+            {loaderData.locales.content.updateTeasers.headline}
           </h2>
           <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
             <label
               htmlFor="hide-updates"
               className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
             >
-              {loaderData.locales.content.updates.show}
+              {loaderData.locales.content.updateTeasers.show}
             </label>
             <label
               htmlFor="hide-updates"
               className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
             >
-              {loaderData.locales.content.updates.hide}
+              {loaderData.locales.content.updateTeasers.hide}
             </label>
             <input
               id="hide-updates"
@@ -851,17 +870,35 @@ function Dashboard() {
         {hideUpdates === false ? (
           <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
             {Object.entries(updateTeasers).map(([key, value]) => {
+              // Runtime check to safely use type assertion below
+              if (
+                key in loaderData.locales.content.updateTeasers.entries ===
+                false
+              ) {
+                console.error(`No locale found for update teaser ${key}`);
+                return null;
+              }
+              type LocaleKey =
+                keyof typeof loaderData.locales.content.updateTeasers.entries;
               return (
                 <TeaserCard
                   key={`${key}-update-teaser`}
                   to={value.link}
                   external={value.external}
-                  headline={loaderData.locales.content.updates[key].headline}
+                  headline={
+                    loaderData.locales.content.updateTeasers.entries[
+                      key as LocaleKey
+                    ].headline
+                  }
                   description={
-                    loaderData.locales.content.updates[key].description
+                    loaderData.locales.content.updateTeasers.entries[
+                      key as LocaleKey
+                    ].description
                   }
                   linkDescription={
-                    loaderData.locales.content.updates[key].linkDescription
+                    loaderData.locales.content.updateTeasers.entries[
+                      key as LocaleKey
+                    ].linkDescription
                   }
                   iconType={value.icon}
                 />
@@ -874,20 +911,20 @@ function Dashboard() {
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
         <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
           <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
-            {loaderData.locales.content.news.headline}
+            {loaderData.locales.content.newsTeaser.headline}
           </h2>
           <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
             <label
               htmlFor="hide-news"
               className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
             >
-              {loaderData.locales.content.news.show}
+              {loaderData.locales.content.newsTeaser.show}
             </label>
             <label
               htmlFor="hide-news"
               className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
             >
-              {loaderData.locales.content.news.hide}
+              {loaderData.locales.content.newsTeaser.hide}
             </label>
             <input
               id="hide-news"
@@ -908,15 +945,35 @@ function Dashboard() {
         {hideNews === false ? (
           <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
             {Object.entries(newsTeasers).map(([key, value]) => {
+              // Runtime check to safely use type assertion below
+              if (
+                key in loaderData.locales.content.newsTeaser.entries ===
+                false
+              ) {
+                console.error(`No locale found for news teaser ${key}`);
+                return null;
+              }
+              type LocaleKey =
+                keyof typeof loaderData.locales.content.newsTeaser.entries;
               return (
                 <TeaserCard
                   key={`${key}-news-teaser`}
                   to={value.link}
                   external={value.external}
-                  headline={loaderData.locales.content.news[key].headline}
-                  description={loaderData.locales.content.news[key].description}
+                  headline={
+                    loaderData.locales.content.newsTeaser.entries[
+                      key as LocaleKey
+                    ].headline
+                  }
+                  description={
+                    loaderData.locales.content.newsTeaser.entries[
+                      key as LocaleKey
+                    ].description
+                  }
                   linkDescription={
-                    loaderData.locales.content.news[key].linkDescription
+                    loaderData.locales.content.newsTeaser.entries[
+                      key as LocaleKey
+                    ].linkDescription
                   }
                   iconType={value.icon}
                   type="secondary"
@@ -934,6 +991,16 @@ function Dashboard() {
           </h2>
           <ul className="mv-grid mv-grid-cols-2 mv-grid-rows-2 mv-place-items-center mv-w-fit mv-gap-x-6 mv-gap-y-8 mv-px-6 @lg:mv-gap-x-16 @lg:mv-grid-cols-4 @lg:mv-grid-rows-1">
             {Object.entries(loaderData.communityCounter).map(([key, value]) => {
+              // Runtime check to safely use type assertion below
+              if (
+                key in loaderData.locales.content.communityCounter ===
+                false
+              ) {
+                console.error(`No locale found for community counter ${key}`);
+                return null;
+              }
+              type LocaleKey =
+                keyof typeof loaderData.locales.content.communityCounter;
               return (
                 <li
                   key={`${key}-counter`}
@@ -943,7 +1010,11 @@ function Dashboard() {
                     {value}
                   </div>
                   <div className="mv-text-lg mv-font-bold mv-leading-6 mv-text-primary">
-                    {loaderData.locales.content.communityCounter[key]}
+                    {
+                      loaderData.locales.content.communityCounter[
+                        key as LocaleKey
+                      ]
+                    }
                   </div>
                 </li>
               );
@@ -1000,6 +1071,7 @@ function Dashboard() {
                 <OrganizationCard
                   key={`newest-organization-card-${organization.slug}`}
                   organization={organization}
+                  locales={loaderData.locales}
                 />
               );
             })}
@@ -1027,6 +1099,7 @@ function Dashboard() {
                 <ProjectCard
                   key={`newest-project-card-${project.slug}`}
                   project={project}
+                  locales={loaderData.locales}
                 />
               );
             })}
@@ -1062,6 +1135,8 @@ function Dashboard() {
               return (
                 <EventCard
                   key={`newest-event-card-${event.slug}`}
+                  locales={loaderData.locales}
+                  currentLanguage={loaderData.language}
                   event={{
                     ...event,
                     startTime,
@@ -1081,23 +1156,39 @@ function Dashboard() {
       {/* External Links Section */}
       <section className="mv-w-full mv-mb-24 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <h2 className="mv-appearance-none mv-w-full mv-mb-6 mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold">
-          {loaderData.locales.content.externalLinks.headline}
+          {loaderData.locales.content.externalTeasers.headline}
         </h2>
         <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-3 @xl:mv-grid-rows-1 mv-gap-6 @xl:mv-gap-8 mv-w-full">
-          {Object.entries(externalLinkTeasers).map(([key, value]) => {
+          {Object.entries(externalTeasers).map(([key, value]) => {
+            // Runtime check to safely use type assertion below
+            if (
+              key in loaderData.locales.content.externalTeasers.entries ===
+              false
+            ) {
+              console.error(`No locale found for external teaser ${key}`);
+              return null;
+            }
+            type LocaleKey =
+              keyof typeof loaderData.locales.content.externalTeasers.entries;
             return (
               <TeaserCard
                 to={value.link}
                 external={value.external}
                 key={`${key}-external-link-teaser`}
                 headline={
-                  loaderData.locales.content.externalLinks[key].headline
+                  loaderData.locales.content.externalTeasers.entries[
+                    key as LocaleKey
+                  ].headline
                 }
                 description={
-                  loaderData.locales.content.externalLinks[key].description
+                  loaderData.locales.content.externalTeasers.entries[
+                    key as LocaleKey
+                  ].description
                 }
                 linkDescription={
-                  loaderData.locales.content.externalLinks[key].linkDescription
+                  loaderData.locales.content.externalTeasers.entries[
+                    key as LocaleKey
+                  ].linkDescription
                 }
                 iconType={value.icon}
               />

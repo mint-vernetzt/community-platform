@@ -48,7 +48,7 @@ import {
 } from "./profiles.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales-next/.server/utils";
+import { languageModuleMap } from "~/locales/.server";
 import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,
@@ -348,27 +348,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 };
 
-type OfferLocales = ReturnType<
-  typeof useLoaderData<typeof loader>
->["locales"]["offers"];
-
-export function getTypedOffer(slug: string, offerLocales: OfferLocales) {
-  const offerSlugSchema = z
-    .string()
-    .refine((value) => {
-      return Object.keys(offerLocales).includes(value);
-    })
-    .transform((value) => {
-      return value as keyof OfferLocales;
-    });
-  try {
-    const typedSlug = offerSlugSchema.parse(slug);
-    return offerLocales[typedSlug];
-  } catch (error) {
-    return null;
-  }
-}
-
 export default function ExploreProfiles() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
@@ -442,21 +421,40 @@ export default function ExploreProfiles() {
                     <br />
                     {loaderData.selectedOffers
                       .map((selectedOffer) => {
-                        const typedOffer = getTypedOffer(
-                          selectedOffer,
-                          loaderData.locales.offers
-                        );
-                        return typedOffer ? typedOffer.title : selectedOffer;
+                        if (
+                          selectedOffer in loaderData.locales.offers ===
+                          false
+                        ) {
+                          console.error(
+                            `No locale found for offer ${selectedOffer}`
+                          );
+                          return selectedOffer;
+                        }
+                        type LocaleKey = keyof typeof loaderData.locales.offers;
+                        return loaderData.locales.offers[
+                          selectedOffer as LocaleKey
+                        ].title;
                       })
                       .join(", ")}
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.offers.map((offer) => {
-                    const typedOffer = getTypedOffer(
-                      offer.slug,
-                      loaderData.locales.offers
-                    );
+                    let title;
+                    let description;
+                    if (offer.slug in loaderData.locales.offers === false) {
+                      console.error(`No locale found for offer ${offer.slug}`);
+                      title = offer.slug;
+                      description = null;
+                    } else {
+                      type LocaleKey = keyof typeof loaderData.locales.offers;
+                      title =
+                        loaderData.locales.offers[offer.slug as LocaleKey]
+                          .title;
+                      description =
+                        loaderData.locales.offers[offer.slug as LocaleKey]
+                          .description;
+                    }
                     return (
                       <FormControl
                         {...getInputProps(filter.offer, {
@@ -472,12 +470,9 @@ export default function ExploreProfiles() {
                         disabled={offer.vectorCount === 0 && !offer.isChecked}
                       >
                         <FormControl.Label>
-                          {typedOffer !== null ? typedOffer.title : offer.slug}
-                          {typedOffer !== null &&
-                          typedOffer.description !== null ? (
-                            <p className="mv-text-sm">
-                              {typedOffer.description}
-                            </p>
+                          {title}
+                          {description !== null ? (
+                            <p className="mv-text-sm">{description}</p>
                           ) : null}
                         </FormControl.Label>
                         <FormControl.Counter>
@@ -740,13 +735,18 @@ export default function ExploreProfiles() {
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.offer.name, selectedOffer);
-                const typedOffer = getTypedOffer(
-                  selectedOffer,
-                  loaderData.locales.offers
-                );
+                let title;
+                if (selectedOffer in loaderData.locales.offers === false) {
+                  console.error(`No locale found for offer ${selectedOffer}`);
+                  title = selectedOffer;
+                } else {
+                  type LocaleKey = keyof typeof loaderData.locales.offers;
+                  title =
+                    loaderData.locales.offers[selectedOffer as LocaleKey].title;
+                }
                 return (
                   <Chip key={selectedOffer} size="medium">
-                    {typedOffer !== null ? typedOffer.title : selectedOffer}
+                    {title}
                     <Chip.Delete>
                       <Link
                         to={`${

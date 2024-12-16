@@ -2,7 +2,7 @@ import { Link } from "./../molecules/Link";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
 import { LocaleSwitch } from "./buttons/LocaleSwitch";
-import { defaultLanguage, type supportedCookieLanguages } from "~/i18n";
+import { defaultLanguage, type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 
 function Footer(props: {

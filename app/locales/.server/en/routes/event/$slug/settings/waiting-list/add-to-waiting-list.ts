@@ -12,5 +12,5 @@ export const locale = {
   },
   feedback:
     'The profile with the name "{{firstName}} {{lastName}}" has been added to the waitlist.',
-  action: "Waitlist",
+  action: "Waiting list",
 } as const;
