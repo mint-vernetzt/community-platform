@@ -542,7 +542,7 @@ const de = {
   "search/events": deSearchEvents,
   "search/fundings": deSearchFundings,
   "search/organizations": deSearchOrganizations,
-  "search/profiles": deSearchProfiles,
+  "search/profiles": { ...deSearchProfiles, offers: { ...deOffers } },
   "search/projects": deSearchProjects,
   // upload routes
   "upload/delete": deDeleteImage,
@@ -550,7 +550,16 @@ const de = {
   // accept terms route
   "accept-terms": deAcceptTerms,
   // dashboard route
-  dashboard: deDashboard,
+  dashboard: {
+    ...deDashboard,
+    ...deProfileCard,
+    offers: { ...deOffers },
+    ...deOrganizationCard,
+    focuses: { ...deFocuses },
+    organizationTypes: { ...deOrganizationTypes },
+    ...deEventCard,
+    stages: { ...deStages },
+  },
   // goodbye route
   goodbye: deGoodbye,
   // imprint route
@@ -709,7 +718,7 @@ const en = {
   "search/events": enSearchEvents,
   "search/fundings": enSearchFundings,
   "search/organizations": enSearchOrganizations,
-  "search/profiles": enSearchProfiles,
+  "search/profiles": { ...enSearchProfiles, offers: { ...enOffers } },
   "search/projects": enSearchProjects,
   // upload routes
   "upload/delete": enDeleteImage,
@@ -717,7 +726,16 @@ const en = {
   // accept terms route
   "accept-terms": enAcceptTerms,
   // dashboard route
-  dashboard: enDashboard,
+  dashboard: {
+    ...enDashboard,
+    ...enProfileCard,
+    offers: { ...enOffers },
+    ...enOrganizationCard,
+    focuses: { ...enFocuses },
+    organizationTypes: { ...enOrganizationTypes },
+    ...enEventCard,
+    stages: { ...enStages },
+  },
   // goodbye route
   goodbye: enGoodbye,
   // imprint route

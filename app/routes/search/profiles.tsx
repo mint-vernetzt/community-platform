@@ -6,7 +6,6 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import {
@@ -23,17 +22,14 @@ import {
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-// import styles from "../../../common/design/styles/styles.css?url";
-
-// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
-
-const i18nNS = ["routes-search-profiles", "datasets-offers"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales-next/.server/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["search/profiles"];
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { take, page, itemsPerPage } = getTakeParam(request);
@@ -149,11 +145,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       page,
       itemsPerPage,
     },
+    locales,
   });
 };
 
 export default function Profiles() {
-  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
 
@@ -176,6 +172,7 @@ export default function Profiles() {
                   key={`profile-${profile.id}`}
                   publicAccess={!loaderData.isLoggedIn}
                   profile={profile}
+                  locales={loaderData.locales}
                 />
               );
             })}
@@ -193,14 +190,14 @@ export default function Profiles() {
                   loading={navigation.state === "loading"}
                   disabled={navigation.state === "loading"}
                 >
-                  {t("more")}
+                  {loaderData.locales.more}
                 </Button>
               </Link>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">{t("empty")}</p>
+        <p className="text-center text-primary">{loaderData.locales.empty}</p>
       )}
     </section>
   );
