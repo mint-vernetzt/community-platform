@@ -1,12 +1,13 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
+import { detectLanguage } from "~/i18n.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -18,17 +19,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["event/$slug/settings"];
 
   const slug = getParamValueOrThrow(params, "slug");
 
-  return json({
+  return {
     slug,
-  });
+    locales,
+  };
 };
 
 function Settings() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(["routes-event-settings"]);
+  const { locales } = loaderData;
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
@@ -38,7 +42,7 @@ function Settings() {
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
         <TextButton weight="thin" variant="neutral" arrowLeft>
           <Link to={`/event/${loaderData.slug}`} prefetch="intent">
-            {t("back")}
+            {locales.back}
           </Link>
         </TextButton>
       </section>
@@ -46,70 +50,70 @@ function Settings() {
         <div className="flex flex-col items-stretch @lg:mv-flex-row -mx-4 pt-10 @lg:mv-pt-0 mb-8">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 @lg:mv-p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">{t("content.headline")}</h3>
+              <h3 className="font-bold mb-7">{locales.content.headline}</h3>
               <menu>
                 <NavLink
                   to="general#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
-                  {t("content.general")}
+                  {locales.content.general}
                 </NavLink>
                 <NavLink
                   to="events#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
-                  {t("content.linkedEvents")}
+                  {locales.content.linkedEvents}
                 </NavLink>
                 <NavLink
                   to="admins#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
-                  {t("content.administrators")}
+                  {locales.content.administrators}
                 </NavLink>
                 <NavLink
                   to="team#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
-                  {t("content.team")}
+                  {locales.content.team}
                 </NavLink>
                 <NavLink
                   to="speakers#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
-                  {t("content.speakers")}
+                  {locales.content.speakers}
                 </NavLink>
                 <NavLink
                   to="participants#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
-                  {t("content.participants")}
+                  {locales.content.participants}
                 </NavLink>
                 <NavLink
                   to="waiting-list#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
-                  {t("content.waitingList")}
+                  {locales.content.waitingList}
                 </NavLink>
                 <NavLink
                   to="organizations#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
-                  {t("content.organizations")}
+                  {locales.content.organizations}
                 </NavLink>
                 <NavLink
                   to="documents#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
-                  {t("content.documents")}
+                  {locales.content.documents}
                 </NavLink>
                 <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
                 <NavLink
@@ -117,7 +121,7 @@ function Settings() {
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
                 >
-                  {t("content.delete")}
+                  {locales.content.delete}
                 </NavLink>
               </menu>
             </div>

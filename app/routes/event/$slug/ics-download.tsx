@@ -1,4 +1,4 @@
-import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -33,18 +33,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const isSpeaker = await getIsSpeaker(event.id, sessionUser.id);
   const isParticipant = await getIsParticipant(event.id, sessionUser.id);
 
-  if (!(isTeamMember || isSpeaker || isParticipant)) {
-    throw json(
-      {
-        message:
-          "Um den Kalender-Eintrag herunterzuladen musst Du entweder Teammitglied, Speaker oder Teilnehmer der Veranstaltung sein.",
-      },
-      { status: 403 }
-    );
-  }
+  invariantResponse(
+    isTeamMember || isSpeaker || isParticipant || mode === "admin",
+    "Forbidden",
+    { status: 403 }
+  );
 
   if (mode !== "admin" && event.published === false) {
-    throw json({ message: "Event not published" }, { status: 403 });
+    invariantResponse(false, "Event not published", { status: 403 });
   }
 
   const url = new URL(request.url);
@@ -58,7 +54,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 200,
     headers: {
       "Content-Type": "text/calendar",
-      "Content-Disposition": `filename=${filename}`,
+      "Content-Disposition": `filename="${filename}"`,
     },
   });
 };

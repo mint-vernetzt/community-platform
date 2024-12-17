@@ -305,7 +305,7 @@ export async function getDownloadDocumentsResponse(
     status: 200,
     headers: {
       "Content-Type": contentType,
-      "Content-Disposition": `attachment; filename=${filename}`,
+      "Content-Disposition": `attachment; filename="${filename}"`,
     },
   });
 }

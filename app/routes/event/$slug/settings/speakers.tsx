@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -8,7 +8,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -16,13 +15,12 @@ import {
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -40,11 +38,12 @@ import {
   type action as removeSpeakerAction,
 } from "./speakers/remove-speaker";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes-event-settings-speakers"]);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["event/$slug/settings/speakers"];
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = await getParamValueOrThrow(params, "slug");
@@ -55,9 +54,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, t("error.notFound"), { status: 404 });
+  invariantResponse(event, locales.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.error.notPrivileged, {
     status: 403,
   });
 
@@ -112,16 +111,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  return json({
+  return {
     published: event.published,
     speakers: enhancedSpeakers,
     speakerSuggestions,
-  });
+    locales,
+  };
 };
 
 function Speakers() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
 
   const addSpeakerFetcher = useFetcher<typeof addSpeakerAction>();
   const removeSpeakerFetcher = useFetcher<typeof removeSpeakerAction>();
@@ -129,14 +130,15 @@ function Speakers() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes-event-settings-speakers"]);
 
   return (
     <>
-      <h1 className="mb-8">{t("content.headline")}</h1>
-      <p className="mb-8">{t("content.intro")}</p>
-      <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
-      <p className="mb-8">{t("content.add.intro")}</p>
+      <h1 className="mb-8">{locales.content.headline}</h1>
+      <p className="mb-8">{locales.content.intro}</p>
+      <h4 className="mb-4 mt-4 font-semibold">
+        {locales.content.add.headline}
+      </h4>
+      <p className="mb-8">{locales.content.add.intro}</p>
       <RemixFormsForm
         schema={addSpeakerSchema}
         fetcher={addSpeakerFetcher}
@@ -156,7 +158,7 @@ function Speakers() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      {t("content.add.label")}
+                      {locales.content.add.label}
                     </label>
                   </div>
                 </div>
@@ -194,9 +196,9 @@ function Speakers() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
-        {t("content.current.headline")}
+        {locales.content.current.headline}
       </h4>
-      <p className="mb-8">{t("content.current.intro")} </p>
+      <p className="mb-8">{locales.content.current.intro} </p>
       <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
         {loaderData.speakers.map((profile) => {
           const initials = getInitials(profile);
@@ -252,7 +254,7 @@ function Speakers() {
                       <Field name="profileId" />
                       <Button
                         className="ml-auto btn-none"
-                        title={t("content.current.remove")}
+                        title={locales.content.current.remove}
                       >
                         <svg
                           viewBox="0 0 10 10"
@@ -294,8 +296,8 @@ function Speakers() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? t("content.hide")
-                        : t("content.publish")}
+                        ? locales.content.hide
+                        : locales.content.publish}
                     </Button>
                   </>
                 );

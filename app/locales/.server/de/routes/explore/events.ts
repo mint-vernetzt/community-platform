@@ -4,21 +4,21 @@ export const locale = {
   filter: {
     title: "Filter",
     showFiltersLabel: "Veranstaltungen filtern",
-
     showMore: "Mehr anzeigen",
     showLess: "Weniger anzeigen",
-
     types: "Veranstaltungsart",
     focuses: "Schwerpunkte",
     targetGroups: "Zielgruppe",
     periodOfTime: {
       label: "Zeitraum",
-      now: "Ab Heute",
-      thisWeek: "Diese Woche",
-      nextWeek: "Nächste Woche",
-      thisMonth: "Diesen Monat",
-      nextMonth: "Nächsten Monat",
-      past: "Vergangene Veranstaltungen",
+      values: {
+        now: "Ab Heute",
+        thisWeek: "Diese Woche",
+        nextWeek: "Nächste Woche",
+        thisMonth: "Diesen Monat",
+        nextMonth: "Nächsten Monat",
+        past: "Vergangene Veranstaltungen",
+      },
     },
     areas: "Ort / Gebiet",
     searchAreaPlaceholder: "Ort oder Gebiet eingeben",
@@ -30,9 +30,11 @@ export const locale = {
     reset: "Alles zurücksetzen",
     sortBy: {
       label: "Sortierung",
-      "startTime-asc": "Nächste zuerst",
-      "name-asc": "Name (A-Z)",
-      "name-desc": "Name (Z-A)",
+      values: {
+        "startTime-asc": "Nächste zuerst",
+        "name-asc": "Name (A-Z)",
+        "name-desc": "Name (Z-A)",
+      },
     },
     stage: "Veranstaltungsart",
   },

@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   Link,
   useActionData,
@@ -10,8 +10,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
-import { type TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
@@ -23,7 +21,6 @@ import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import InputText from "~/components/FormElements/InputText/InputText";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -36,6 +33,7 @@ import { deriveEventMode } from "../../utils.server";
 import { getFullDepthProfiles } from "../utils.server";
 import { type action as publishAction, publishSchema } from "./events/publish";
 import {
+  type EventParticipantsLocales,
   getEventBySlug,
   getEventWithParticipantCount,
   getParticipantsDataFromEvent,
@@ -50,11 +48,12 @@ import {
   removeParticipantSchema,
 } from "./participants/remove-participant";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { languageModuleMap } from "~/locales/.server";
 
-const createParticipantLimitSchema = (t: TFunction) => {
+const createParticipantLimitSchema = (locales: EventParticipantsLocales) => {
   return z.object({
     participantLimit: z
-      .string({ invalid_type_error: t("validation.participantLimit.type") })
+      .string({ invalid_type_error: locales.validation.participantLimit.type })
       .regex(/^\d+$/)
       .optional()
       .transform((value) => {
@@ -80,10 +79,9 @@ const environmentSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes-event-settings-participants",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["event/$slug/settings/participants"];
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
@@ -94,9 +92,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, t("error.notFound"), { status: 404 });
+  invariantResponse(event, locales.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.error.notPrivileged, {
     status: 403,
   });
 
@@ -167,7 +165,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "participants"
   );
 
-  return json({
+  return {
     published: event.published,
     participantLimit: event.participantLimit,
     participants: enhancedParticipants,
@@ -176,17 +174,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
       fullDepthParticipants !== null &&
       fullDepthParticipants.length > 0 &&
       event._count.childEvents !== 0,
-  });
+    locales,
+  };
 };
 
-const createMutation = (t: TFunction) => {
+const createMutation = (locales: EventParticipantsLocales) => {
   return makeDomainFunction(
-    createParticipantLimitSchema(t),
+    createParticipantLimitSchema(locales),
     environmentSchema
   )(async (values, environment) => {
     if (values.participantLimit !== null) {
       if (environment.participantsCount > values.participantLimit) {
-        throw new InputError(t("error.inputError"), "participantLimit");
+        throw new InputError(locales.error.inputError, "participantLimit");
       }
     }
     return values;
@@ -194,10 +193,9 @@ const createMutation = (t: TFunction) => {
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes-event-settings-participants",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["event/$slug/settings/participants"];
   const eventSlug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -209,8 +207,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const result = await performMutation({
     request,
-    schema: createParticipantLimitSchema(t),
-    mutation: createMutation(t),
+    schema: createParticipantLimitSchema(locales),
+    mutation: createMutation(locales),
     environment: { participantsCount: event._count.participants },
   });
   if (result.success) {
@@ -221,29 +219,29 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return json(result);
+  return { ...result };
 }
 
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const addParticipantFetcher = useFetcher<typeof addParticipantAction>();
   const removeParticipantFetcher = useFetcher<typeof removeParticipantAction>();
   const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(["routes-event-settings-participants"]);
   const actionData = useActionData<typeof action>();
 
-  const participantLimitSchema = createParticipantLimitSchema(t);
+  const participantLimitSchema = createParticipantLimitSchema(locales);
 
   return (
     <>
-      <h1 className="mb-8">{t("content.headline")}</h1>
-      <p className="mb-8">{t("content.intro")}</p>
-      <h4 className="mb-4 font-semibold">{t("content.limit.headline")}</h4>
-      <p className="mb-8">{t("content.limit.intro")}</p>
+      <h1 className="mb-8">{locales.content.headline}</h1>
+      <p className="mb-8">{locales.content.intro}</p>
+      <h4 className="mb-4 font-semibold">{locales.content.limit.headline}</h4>
+      <p className="mb-8">{locales.content.limit.intro}</p>
       <RemixFormsForm schema={participantLimitSchema}>
         {({ Field, Errors, Button, register }) => {
           return (
@@ -254,7 +252,7 @@ function Participants() {
                     <InputText
                       {...register("participantLimit")}
                       id="participantLimit"
-                      label={t("content.limit.label")}
+                      label={locales.content.limit.label}
                       defaultValue={loaderData.participantLimit || undefined}
                       type="number"
                     />
@@ -264,22 +262,22 @@ function Participants() {
               </Field>
               <div className="flex flex-row">
                 <Button type="submit" className="btn btn-primary mb-8">
-                  {t("content.limit.submit")}
+                  {locales.content.limit.submit}
                 </Button>
                 <div
                   className={`text-green-500 text-bold ml-4 mt-2 ${
                     actionData?.success ? "block animate-fade-out" : "hidden"
                   }`}
                 >
-                  {t("content.limit.feedback")}
+                  {locales.content.limit.feedback}
                 </div>
               </div>
             </>
           );
         }}
       </RemixFormsForm>
-      <h4 className="mb-4 font-semibold">{t("content.add.headline")}</h4>
-      <p className="mb-8">{t("content.add.intro")}</p>
+      <h4 className="mb-4 font-semibold">{locales.content.add.headline}</h4>
+      <p className="mb-8">{locales.content.add.intro}</p>
       <div className="mb-8">
         <RemixFormsForm
           schema={addParticipantSchema}
@@ -303,7 +301,7 @@ function Participants() {
                         htmlFor="Name"
                         className="label"
                       >
-                        {t("content.add.label")}
+                        {locales.content.add.label}
                       </label>
                     </div>
                   </div>
@@ -344,9 +342,9 @@ function Participants() {
         ) : null}
       </div>
       <h4 className="mb-4 mt-16 font-semibold">
-        {t("content.current.headline")}
+        {locales.content.current.headline}
       </h4>
-      <p className="mb-4">{t("content.current.intro")}</p>
+      <p className="mb-4">{locales.content.current.intro}</p>
       {loaderData.participants.length > 0 ? (
         <p className="mb-4">
           <Link
@@ -354,7 +352,7 @@ function Participants() {
             to="../csv-download?type=participants&amp;depth=single"
             reloadDocument
           >
-            {t("content.current.download1")}
+            {locales.content.current.download1}
           </Link>
         </p>
       ) : null}
@@ -365,7 +363,7 @@ function Participants() {
             to="../csv-download?type=participants&amp;depth=full"
             reloadDocument
           >
-            {t("content.current.download2")}
+            {locales.content.current.download2}
           </Link>
         </p>
       ) : null}
@@ -423,7 +421,7 @@ function Participants() {
                       <Field name="profileId" />
                       <Button
                         className="ml-auto btn-none"
-                        title={t("content.current.remove")}
+                        title={locales.content.current.remove}
                       >
                         <svg
                           viewBox="0 0 10 10"
@@ -465,8 +463,8 @@ function Participants() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? t("content.hide")
-                        : t("content.publish")}
+                        ? locales.content.hide
+                        : locales.content.publish}
                     </Button>
                   </>
                 );

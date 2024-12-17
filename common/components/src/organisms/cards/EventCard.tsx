@@ -16,11 +16,12 @@ import { type DashboardLocales } from "~/routes/dashboard.server";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { type ExploreEventsLocales } from "~/routes/explore/events.server";
 
 export type EventCardProps = {
   match?: number;
   publicAccess?: boolean;
-  locales: DashboardLocales;
+  locales: DashboardLocales | ExploreEventsLocales;
   currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
   event: {
     name: string;
