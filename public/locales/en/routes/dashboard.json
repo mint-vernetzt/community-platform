@@ -38,6 +38,11 @@
         "headline": "New beta feature",
         "description": "Test our funding search now",
         "linkDescription": "Try now"
+      },
+      "mediaDatabase": {
+        "headline": "New feature",
+        "description": "Find free STEM related images and graphics in the STEM media database",
+        "linkDescription": "Try out now"
       }
     },
     "news": {
@@ -49,10 +54,10 @@
         "description": "Offer: table.media subscription for MINTvernetzt Community",
         "linkDescription": "Learn more now"
       },
-      "learningJourneyParticipation": {
-        "headline": "Apply now",
-        "description": "Projects wanted for learning journey about participation. Registration until 10.12.24",
-        "linkDescription": "More info"
+      "annualConference": {
+        "headline": "Register now",
+        "description": "Program and hotel information for our annual conference from 11.-12.2.24 in Berlin published",
+        "linkDescription": "Learn more"
       }
     },
     "communityCounter": {

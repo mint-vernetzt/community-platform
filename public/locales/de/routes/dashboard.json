@@ -36,8 +36,13 @@
       },
       "crawler": {
         "headline": "Neue Beta-Funktion",
-        "description": "Teste nun unsere Fördersuche",
+        "description": "Teste unsere Fördermittelsuche",
         "linkDescription": "Jetzt ausprobieren"
+      },
+      "mediaDatabase": {
+        "headline": "Neues Feature",
+        "description": "Finde kostenlose MINT-Bilder und Grafiken in der MINT-Mediendatenbank",
+        "linkDescription": "Jetzt probieren"
       }
     },
     "news": {
@@ -49,10 +54,10 @@
         "description": "Angebot: table.media-Abo für MINTvernetzt Community",
         "linkDescription": "Jetzt mehr erfahren"
       },
-      "learningJourneyParticipation": {
-        "headline": "Jetzt bewerben",
-        "description": "Projekte gesucht für Lernreise Teilhabe mit Anmeldefrist 10.12.24",
-        "linkDescription": "Mehr Infos"
+      "annualConference": {
+        "headline": "Jetzt anmelden",
+        "description": "Programm und Hotelinfos für unsere Jahrestagung vom 11.-12.2.24 in Berlin veröffentlicht",
+        "linkDescription": "Mehr erfahren"
       }
     },
     "communityCounter": {

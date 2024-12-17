@@ -1,6 +1,5 @@
 {
-  "EventListItem": {
-  },
+  "EventListItem": {},
   "EventListItemContent": {
     "onWaitingList": "on waiting list",
     "unlimitedSeats": "Unlimited seats",
@@ -13,5 +12,11 @@
   "ListContainer": {
     "more": "Show {{count}} more",
     "less": "Show {{count}} less"
+  },
+  "UnsavedChangesModal": {
+    "title": "Unsaved changes",
+    "description": "You have unsaved changes. These will be lost if you go one step further now.",
+    "proceed": "Discard changes",
+    "cancel": "Cancel"
   }
 }

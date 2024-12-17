@@ -9,18 +9,21 @@ import {
 import {
   Form,
   useActionData,
-  useBlocker,
   useLoaderData,
   useLocation,
   useNavigation,
-  useSearchParams,
-  useSubmit,
 } from "@remix-run/react";
+import * as Sentry from "@sentry/remix";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
+import {
+  i18nNS as i18nNSUnsavedChangesModal,
+  useUnsavedChangesBlockerWithModal,
+} from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   checkboxSchema,
@@ -35,17 +38,14 @@ import {
   createYoutubeSchema,
 } from "~/lib/utils/schemas";
 import { detectLanguage } from "~/root.server";
-import { Modal, VisibilityCheckbox } from "~/routes/__components";
+import { VisibilityCheckbox } from "~/routes/__components";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { BackButton } from "~/routes/project/$slug/settings/__components";
-import { getSubmissionHash } from "~/routes/project/$slug/settings/utils.server";
 import { redirectWithToast } from "~/toast.server";
 import {
   getOrganizationWebSocial,
   updateOrganizationWebSocial,
 } from "./web-social.server";
-import { useHydrated } from "remix-utils/use-hydrated";
-import React from "react";
 
 const createWebSocialSchema = (t: TFunction) =>
   z.object({
@@ -74,6 +74,7 @@ const createWebSocialSchema = (t: TFunction) =>
 const i18nNS = [
   "routes/next/organization/settings/web-social",
   "utils/schemas",
+  ...i18nNSUnsavedChangesModal,
 ];
 export const handle = {
   i18n: i18nNS,
@@ -88,7 +89,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const organization = await getOrganizationWebSocial({ slug, t });
 
-  return { organization };
+  const currentTimestamp = new Date().getTime();
+
+  return { organization, currentTimestamp };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -117,7 +120,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           data,
         });
         if (error !== null) {
-          console.log("Error updating organization", error);
+          console.error("Error updating organization", error);
+          Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
             message: t("error.updateFailed"),
@@ -131,17 +135,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (submission.status !== "success") {
-    console.log("Submission did not succeed");
     return {
       submission: submission.reply(),
     };
   }
 
-  const hash = getSubmissionHash(submission);
-
   return redirectWithToast(request.url, {
     id: "update-web-social-toast",
-    key: hash,
+    key: `${new Date().getTime()}`,
     message: t("content.success"),
   });
 }
@@ -149,81 +150,40 @@ export async function action({ request, params }: ActionFunctionArgs) {
 function WebSocial() {
   const location = useLocation();
   const { t } = useTranslation(i18nNS);
-  const { organization } = useLoaderData<typeof loader>();
+  const { organization, currentTimestamp } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
 
   const { organizationVisibility, ...rest } = organization;
   const [form, fields] = useForm({
-    id: "web-social-form",
-    constraint: getZodConstraint(createWebSocialSchema(t)),
+    // Use different ids depending on loaderData to sync dirty state
+    id: `web-social-form-${currentTimestamp}`,
     defaultValue: {
       ...rest,
       visibilities: organizationVisibility,
     },
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    constraint: getZodConstraint(createWebSocialSchema(t)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: createWebSocialSchema(t),
+      });
+    },
     shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
   const visibilities = fields.visibilities.getFieldset();
 
-  // Blocker with modal
-  const [searchParams] = useSearchParams();
-  const searchParamsWithoutModal = new URLSearchParams(searchParams);
-  searchParamsWithoutModal.delete("modal-unsaved-changes");
-  const submit = useSubmit();
-  const [nextLocationPathname, setNextLocationPathname] = React.useState<
-    string | null
-  >(null);
-  useBlocker(({ currentLocation, nextLocation }) => {
-    const modalIsOpen = nextLocation.search.includes(
-      "modal-unsaved-changes=true"
-    );
-    if (modalIsOpen || nextLocationPathname !== null) {
-      return false;
-    }
-    const isBlocked =
-      form.dirty && currentLocation.pathname !== nextLocation.pathname;
-    if (isBlocked) {
-      setNextLocationPathname(nextLocation.pathname);
-      const newSearchParams = new URLSearchParams(searchParams);
-      if (modalIsOpen === false) {
-        newSearchParams.set("modal-unsaved-changes", "true");
-      }
-      submit(newSearchParams, { method: "get" });
-    }
-    return isBlocked;
+  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    searchParam: "modal-unsaved-changes",
+    formMetadataToCheck: form,
   });
 
   return (
     <Section>
-      <Form
-        id="discard-changes-and-proceed"
-        method="get"
-        action={
-          nextLocationPathname !== null
-            ? nextLocationPathname
-            : `${location.pathname}?${searchParamsWithoutModal.toString()}`
-        }
-        hidden
-        preventScrollReset
-      />
-      <Modal searchParam={`modal-unsaved-changes`}>
-        <Modal.Title>{t("modal.unsavedChanges.title")}</Modal.Title>
-        <Modal.Section>{t("modal.unsavedChanges.description")}</Modal.Section>
-        <Modal.SubmitButton form="discard-changes-and-proceed">
-          {t("modal.unsavedChanges.proceed")}
-        </Modal.SubmitButton>
-        <Modal.CloseButton
-          route={`${location.pathname}?${searchParamsWithoutModal.toString()}`}
-          onClick={() => {
-            setNextLocationPathname(null);
-          }}
-        >
-          {t("modal.unsavedChanges.cancel")}
-        </Modal.CloseButton>
-      </Modal>
-
+      {UnsavedChangesBlockerModal}
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
       <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
       <Form
@@ -257,7 +217,9 @@ function WebSocial() {
               {typeof fields.website.errors !== "undefined" &&
               fields.website.errors.length > 0
                 ? fields.website.errors.map((error) => (
-                    <Input.Error key={error}>{error}</Input.Error>
+                    <Input.Error id={fields.website.errorId} key={error}>
+                      {error}
+                    </Input.Error>
                   ))
                 : null}
             </Input>
@@ -294,7 +256,9 @@ function WebSocial() {
                   {typeof fields[typedKey].errors !== "undefined" &&
                   fields[typedKey].errors.length > 0
                     ? fields[typedKey].errors.map((error) => (
-                        <Input.Error key={error}>{error}</Input.Error>
+                        <Input.Error id={fields[typedKey].errorId} key={error}>
+                          {error}
+                        </Input.Error>
                       ))
                     : null}
                 </Input>
@@ -306,6 +270,7 @@ function WebSocial() {
               {form.errors.map((error, index) => {
                 return (
                   <div
+                    id={form.errorId}
                     key={index}
                     className="mv-text-sm mv-font-semibold mv-text-negative-600"
                   >
@@ -367,7 +332,11 @@ function WebSocial() {
                   variant="outline"
                   fullSize
                   // Don't disable button when js is disabled
-                  disabled={isHydrated ? form.dirty === false : false}
+                  disabled={
+                    isHydrated
+                      ? form.dirty === false || form.valid === false
+                      : false
+                  }
                 >
                   {t("form.reset")}
                 </Button>
@@ -377,7 +346,11 @@ function WebSocial() {
                   defaultValue="submit"
                   fullSize
                   // Don't disable button when js is disabled
-                  disabled={isHydrated ? form.dirty === false : false}
+                  disabled={
+                    isHydrated
+                      ? form.dirty === false || form.valid === false
+                      : false
+                  }
                 >
                   {t("form.submit")}
                 </Button>
