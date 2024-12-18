@@ -9,7 +9,7 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { createPhoneSchema } from "~/lib/utils/schemas";
+import { checkboxSchema, createPhoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
@@ -31,6 +31,9 @@ import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/T
 import quillStyles from "react-quill/dist/quill.snow.css";
 import { ButtonSelect } from "~/routes/project/$slug/settings/__components";
 import React from "react";
+import { phone } from "~/lib/utils/yup";
+import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { VisibilityCheckbox } from "~/routes/__components";
 
 const i18nNS = [
   "routes/next/organization/settings/general",
@@ -125,7 +128,12 @@ const createGeneralSchema = (t: TFunction) => {
       .optional(),
     areas: z.array(z.string().uuid()),
     focuses: z.array(z.string().uuid()),
-    // visibilities: z.array(z.string()),
+    visibilities: z.object({
+      email: checkboxSchema,
+      phone: checkboxSchema,
+      bio: checkboxSchema,
+      focuses: checkboxSchema,
+    }),
   });
 };
 
@@ -187,19 +195,18 @@ export async function loader(args: LoaderFunctionArgs) {
           },
         },
       },
+      organizationVisibility: {
+        select: {
+          email: true,
+          phone: true,
+          bio: true,
+          focuses: true,
+        },
+      },
     },
   });
   invariantResponse(organization !== null, t("error.notFound"), {
     status: 404,
-  });
-  const visibilities = await prismaClient.organizationVisibility.findFirst({
-    where: { organizationId: organization.id },
-    select: {
-      email: true,
-      phone: true,
-      bio: true,
-      focuses: true,
-    },
   });
 
   const allAreas = await prismaClient.area.findMany({
@@ -219,11 +226,13 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
+  const currentTimestamp = Date.now();
+
   return json({
     organization,
     areaOptions,
     allFocuses,
-    visibilities,
+    currentTimestamp,
   });
 }
 
@@ -241,18 +250,19 @@ function General() {
   const { t } = useTranslation(i18nNS);
   const generalSchema = createGeneralSchema(t);
 
-  const { areas, focuses, ...rest } = organization;
+  const { areas, focuses, organizationVisibility, ...rest } = organization;
   const defaultValues = {
     ...rest,
     areas: areas.map((relation) => relation.area.id),
     focuses: focuses.map((relation) => relation.focus.id),
+    visibilities: organizationVisibility,
     // visibilities: loaderData.visibilities.keys((visibility) => visibility.id),
   };
 
   console.log("defaultValues", defaultValues);
 
   const [form, fields] = useForm({
-    id: "general-form",
+    id: `general-form-${loaderData.currentTimestamp}`,
     constraint: getFieldsetConstraint(generalSchema),
     defaultValue: defaultValues,
     shouldValidate: "onSubmit",
@@ -263,16 +273,19 @@ function General() {
     },
   });
 
-  console.log(form.dirty);
-
-  console.log("defaultValues.areas", defaultValues.areas);
-
   const areaFieldList = fields.areas.getFieldList();
   const focusFieldList = fields.focuses.getFieldList();
   const supportedByFieldList = fields.supportedBy.getFieldList();
+  const visibilitiesFieldList = fields.visibilities.getFieldset();
+
+  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    searchParam: "modal-unsaved-changes",
+    formMetadataToCheck: form,
+  });
 
   return (
     <Section>
+      {UnsavedChangesBlockerModal}
       <BackButton to={location.pathname}>{t("content.back")}</BackButton>
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
@@ -295,6 +308,14 @@ function General() {
                 <Input.Label htmlFor={fields.email.id}>
                   {t("content.contact.email.label")}
                 </Input.Label>
+                <Input.Controls>
+                  <VisibilityCheckbox
+                    {...getInputProps(visibilitiesFieldList.email, {
+                      type: "checkbox",
+                    })}
+                    key={"email-visibility"}
+                  />
+                </Input.Controls>
                 {typeof fields.email.errors !== "undefined" && (
                   <Input.Error>{fields.email.errors}</Input.Error>
                 )}
@@ -306,6 +327,14 @@ function General() {
                 <Input.Label htmlFor={fields.phone.id}>
                   {t("content.contact.phone.label")}
                 </Input.Label>
+                <Input.Controls>
+                  <VisibilityCheckbox
+                    {...getInputProps(visibilitiesFieldList.phone, {
+                      type: "checkbox",
+                    })}
+                    key={"phone-visibility"}
+                  />
+                </Input.Controls>
                 {typeof fields.phone.errors !== "undefined" && (
                   <Input.Error>{fields.phone.errors}</Input.Error>
                 )}
@@ -313,6 +342,28 @@ function General() {
             </div>
           </div>
 
+          <div className="@lg:mv-flex @lg:mv-gap-4">
+            <div className="mv-flex-1">
+              <Input {...getInputProps(fields.street, { type: "text" })}>
+                <Input.Label htmlFor={fields.street.id}>
+                  {t("content.contact.street.label")}
+                </Input.Label>
+                {typeof fields.street.errors !== "undefined" && (
+                  <Input.Error>{fields.street.errors}</Input.Error>
+                )}
+              </Input>
+            </div>
+            <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
+              <Input {...getInputProps(fields.streetNumber, { type: "text" })}>
+                <Input.Label htmlFor={fields.streetNumber.id}>
+                  {t("content.contact.streetNumber.label")}
+                </Input.Label>
+                {typeof fields.streetNumber.errors !== "undefined" && (
+                  <Input.Error>{fields.streetNumber.errors}</Input.Error>
+                )}
+              </Input>
+            </div>
+          </div>
           <div className="@lg:mv-flex @lg:mv-gap-4">
             <div className="mv-flex-1">
               <Input {...getInputProps(fields.zipCode, { type: "text" })}>
@@ -341,10 +392,13 @@ function General() {
             {t("content.about.headline")}
           </h2>
           <p>{t("content.about.intro")}</p>
+
           <TextAreaWithCounter
             {...getTextareaProps(fields.bio)}
             id={fields.bio.id || ""}
             label={t("content.bio.label")}
+            withPublicPrivateToggle={true}
+            isPublic={organizationVisibility?.bio}
             errorMessage={
               Array.isArray(fields.bio.errors)
                 ? fields.bio.errors.join(", ")
@@ -353,6 +407,7 @@ function General() {
             maxCharacters={2000}
             rte
           />
+
           <ButtonSelect id={fields.areas.id} cta={t("content.areas.option")}>
             <ButtonSelect.Label htmlFor={fields.areas.id}>
               {t("content.areas.label")}
@@ -431,6 +486,15 @@ function General() {
             <ButtonSelect.Label htmlFor={fields.areas.id}>
               {t("content.focuses.label")}
             </ButtonSelect.Label>
+
+            <ButtonSelect.Controls>
+              <VisibilityCheckbox
+                {...getInputProps(visibilitiesFieldList.email, {
+                  type: "checkbox",
+                })}
+                key={"email-visibility"}
+              />
+            </ButtonSelect.Controls>
             <ButtonSelect.HelperText>
               {t("content.focuses.helper")}
             </ButtonSelect.HelperText>

@@ -11,6 +11,12 @@
       "phone": {
         "label": "Phone number"
       },
+      "street": {
+        "label": "Street"
+      },
+      "streetNumber": {
+        "label": "House number"
+      },
       "zipCode": {
         "label": "Zip code"
       },
