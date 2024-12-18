@@ -121,7 +121,7 @@ export async function createRequestToOrganization(
   });
 
   if (organization === null) {
-    return { error: new Error("addOrganization.errors.alreadyInRelation") };
+    return { error: new Error("Server Error") };
   }
 
   const result = await prismaClient.requestToOrganizationToAddProfile.upsert({

@@ -2,6 +2,7 @@ import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 
-export type SearchProfilesLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
->]["search/profiles"];
+export type OrganizationSettingsLocales =
+  (typeof languageModuleMap)[ArrayElement<
+    typeof supportedCookieLanguages
+  >]["next/organization/$slug/settings"];

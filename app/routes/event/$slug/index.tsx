@@ -221,7 +221,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const rawEvent = await getEvent(slug);
 
-  invariantResponse(rawEvent !== null, locales.error.notFound, { status: 404 });
+  invariantResponse(rawEvent !== null, locales.route.error.notFound, {
+    status: 404,
+  });
 
   const mode = await deriveEventMode(sessionUser, slug);
 
@@ -243,7 +245,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   if (mode !== "admin" && !isTeamMember && rawEvent.published === false) {
-    invariantResponse(false, locales.error.notPublished, { status: 403 });
+    invariantResponse(false, locales.route.error.notPublished, { status: 403 });
   }
 
   let speakers: SpeakersQuery | FullDepthProfilesQuery = [];
@@ -287,6 +289,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // Filtering by visbility settings
   if (mode === "anon") {
     // TODO: Still async as its using the old filter method for speakers and participants because of raw queries
+    // When refactoring events use the new filter method
     enhancedEvent = await filterEvent(enhancedEvent);
   }
   // Add imgUrls for imgproxy call on client
@@ -383,7 +386,7 @@ export const action = async (args: ActionFunctionArgs) => {
         ctx.addIssue({
           path: ["reasons"],
           code: z.ZodIssueCode.custom,
-          message: locales.abuseReport.noReasons,
+          message: locales.route.abuseReport.noReasons,
         });
         return;
       }
@@ -446,7 +449,7 @@ export const action = async (args: ActionFunctionArgs) => {
   await sendNewReportMailToSupport(report);
 
   return redirectWithAlert(".", {
-    message: locales.success.abuseReport,
+    message: locales.route.success.abuseReport,
   });
 };
 
@@ -509,7 +512,7 @@ function formatDateTime(
   language: ArrayElement<typeof supportedCookieLanguages>,
   locales: EventDetailLocales
 ) {
-  return insertParametersIntoLocale(locales.content.clock, {
+  return insertParametersIntoLocale(locales.route.content.clock, {
     date: date.toLocaleDateString(language, {
       day: "2-digit",
       month: "long",
@@ -584,7 +587,7 @@ function Index() {
           ) : (
             <TextButton weight="thin" variant="neutral" arrowLeft>
               <Link to="/explore/events" prefetch="intent">
-                {locales.content.back}
+                {locales.route.content.back}
               </Link>
             </TextButton>
           )}
@@ -594,7 +597,7 @@ function Index() {
           loaderData.alreadyAbuseReported === false && (
             <Form method="get" preventScrollReset>
               <input hidden name="modal-report" defaultValue="true" />
-              <button type="submit">{locales.content.report}</button>
+              <button type="submit">{locales.route.content.report}</button>
             </Form>
           )}
       </section>
@@ -602,8 +605,10 @@ function Index() {
         loaderData.mode === "authenticated" &&
         loaderData.alreadyAbuseReported === false && (
           <Modal searchParam="modal-report">
-            <Modal.Title>{locales.abuseReport.title}</Modal.Title>
-            <Modal.Section>{locales.abuseReport.description}</Modal.Section>
+            <Modal.Title>{locales.route.abuseReport.title}</Modal.Title>
+            <Modal.Section>
+              {locales.route.abuseReport.description}
+            </Modal.Section>
             <Modal.Section>
               <Form
                 id={abuseReportForm.id}
@@ -685,7 +690,9 @@ function Index() {
                     name={abuseReportFields.otherReason.name}
                     maxLength={250}
                   >
-                    <Input.Label>{locales.abuseReport.otherReason}</Input.Label>
+                    <Input.Label>
+                      {locales.route.abuseReport.otherReason}
+                    </Input.Label>
                   </Input>
                   {abuseReportFields.reasons.errors && (
                     <span>{abuseReportFields.reasons.errors}</span>
@@ -694,9 +701,11 @@ function Index() {
               </Form>
             </Modal.Section>
             <Modal.SubmitButton form={abuseReportForm.id}>
-              {locales.abuseReport.submit}
+              {locales.route.abuseReport.submit}
             </Modal.SubmitButton>
-            <Modal.CloseButton>{locales.abuseReport.abort}</Modal.CloseButton>
+            <Modal.CloseButton>
+              {locales.route.abuseReport.abort}
+            </Modal.CloseButton>
           </Modal>
         )}
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mt-6">
@@ -714,11 +723,13 @@ function Index() {
                 <div className="absolute bottom-6 right-6">
                   <Form method="get" preventScrollReset>
                     <input hidden name="modal-background" defaultValue="true" />
-                    <Button type="submit">{locales.content.change}</Button>
+                    <Button type="submit">
+                      {locales.route.content.change}
+                    </Button>
                   </Form>
 
                   <Modal searchParam="modal-background">
-                    <Modal.Title>{locales.content.headline}</Modal.Title>
+                    <Modal.Title>{locales.route.content.headline}</Modal.Title>
                     <Modal.Section>
                       <ImageCropper
                         subject="event"
@@ -746,17 +757,17 @@ function Index() {
             <>
               {loaderData.event.canceled ? (
                 <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
-                  {locales.content.event.cancelled}
+                  {locales.route.content.event.cancelled}
                 </div>
               ) : (
                 <>
                   {loaderData.event.published ? (
                     <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-green-600 p-2 text-white">
-                      {locales.content.event.published}
+                      {locales.route.content.event.published}
                     </div>
                   ) : (
                     <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white">
-                      {locales.content.event.draft}
+                      {locales.route.content.event.draft}
                     </div>
                   )}
                 </>
@@ -766,7 +777,7 @@ function Index() {
 
           {loaderData.mode !== "admin" && loaderData.event.canceled ? (
             <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
-              {locales.content.event.cancelled}
+              {locales.route.content.event.cancelled}
             </div>
           ) : null}
           {loaderData.mode !== "admin" ? (
@@ -775,10 +786,10 @@ function Index() {
                 <div className="bg-accent-300 p-8">
                   <p className="font-bold text-center">
                     {laysInThePast
-                      ? locales.content.event.alreadyTakenPlace
+                      ? locales.route.content.event.alreadyTakenPlace
                       : beforeParticipationPeriod
-                      ? locales.content.event.registrationNotStarted
-                      : locales.content.event.registrationExpired}
+                      ? locales.route.content.event.registrationNotStarted
+                      : locales.route.content.event.registrationExpired}
                   </p>
                 </div>
               ) : (
@@ -792,7 +803,7 @@ function Index() {
                           <p className="font-bold @xl:mv-text-center @md:mv-pl-4 @lg:mv-pl-0 pb-4 @md:mv-pb-0">
                             {insertComponentsIntoLocale(
                               insertParametersIntoLocale(
-                                locales.content.event.context,
+                                locales.route.content.event.context,
                                 {
                                   name: loaderData.event.parentEvent.name,
                                 }
@@ -819,7 +830,7 @@ function Index() {
                                   className="btn btn-primary"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                                 >
-                                  {locales.content.event.loginToRegister}
+                                  {locales.route.content.event.loginToRegister}
                                 </Link>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -839,7 +850,7 @@ function Index() {
                         <div className="w-full @md:mv-flex-auto px-4">
                           <p className="font-bold @xl:mv-text-center @md:mv-pl-4 @lg:mv-pl-0 pb-4 @md:mv-pb-0">
                             {insertComponentsIntoLocale(
-                              locales.content.event.select,
+                              locales.route.content.event.select,
                               [
                                 <a
                                   key="to-child-events"
@@ -861,7 +872,7 @@ function Index() {
                                   className="btn btn-primary"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                                 >
-                                  {locales.content.event.loginToRegister}
+                                  {locales.route.content.event.loginToRegister}
                                 </Link>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -882,7 +893,7 @@ function Index() {
                             className="btn btn-primary"
                             to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                           >
-                            {locales.content.event.loginToRegister}
+                            {locales.route.content.event.loginToRegister}
                           </Link>
                         ) : null}
                         {loaderData.mode !== "anon" &&
@@ -906,13 +917,13 @@ function Index() {
                   className="btn btn-outline btn-primary ml-4 mb-2 @md:mv-mb-0"
                   to={`/event/${loaderData.event.slug}/settings`}
                 >
-                  {locales.content.event.edit}
+                  {locales.route.content.event.edit}
                 </Link>
                 <Link
                   className="btn btn-primary ml-4"
                   to={`/event/create/?parent=${loaderData.event.id}`}
                 >
-                  {locales.content.event.createRelated}
+                  {locales.route.content.event.createRelated}
                 </Link>
               </p>
             </div>
@@ -942,7 +953,7 @@ function Index() {
               {loaderData.event.types.length > 0 ? (
                 <>
                   <div className="text-xs leading-6">
-                    {locales.content.event.type}
+                    {locales.route.content.event.type}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event.types
@@ -970,7 +981,7 @@ function Index() {
               {loaderData.event.venueName !== null ? (
                 <>
                   <div className="text-xs leading-6">
-                    {locales.content.event.location}
+                    {locales.route.content.event.location}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     <p>
@@ -988,7 +999,7 @@ function Index() {
               loaderData.event.conferenceLink !== "" ? (
                 <>
                   <div className="text-xs leading-6">
-                    {locales.content.event.conferenceLink}
+                    {locales.route.content.event.conferenceLink}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     <a
@@ -1005,7 +1016,7 @@ function Index() {
               loaderData.event.conferenceCode !== "" ? (
                 <>
                   <div className="text-xs leading-6">
-                    {locales.content.event.conferenceCode}
+                    {locales.route.content.event.conferenceCode}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event.conferenceCode}
@@ -1014,14 +1025,14 @@ function Index() {
               ) : null}
 
               <div className="text-xs leading-6">
-                {locales.content.event.start}
+                {locales.route.content.event.start}
               </div>
               <div className="pb-3 @md:mv-pb-0">
                 {formatDateTime(startTime, language, locales)}
               </div>
 
               <div className="text-xs leading-6">
-                {locales.content.event.end}
+                {locales.route.content.event.end}
               </div>
               <div className="pb-3 @md:mv-pb-0">
                 {formatDateTime(endTime, language, locales)}
@@ -1030,7 +1041,7 @@ function Index() {
               {participationFrom > now ? (
                 <>
                   <div className="text-xs leading-6">
-                    {locales.content.event.registrationStart}
+                    {locales.route.content.event.registrationStart}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {formatDateTime(participationFrom, language, locales)}
@@ -1040,7 +1051,7 @@ function Index() {
               {participationUntil > now ? (
                 <>
                   <div className="text-xs leading-6">
-                    {locales.content.event.registrationEnd}
+                    {locales.route.content.event.registrationEnd}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {formatDateTime(participationUntil, language, locales)}
@@ -1054,7 +1065,7 @@ function Index() {
                 0 ? (
                 <>
                   <div className="text-xs leading-6">
-                    {locales.content.event.numberOfPlaces}
+                    {locales.route.content.event.numberOfPlaces}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event.participantLimit !== null &&
@@ -1067,7 +1078,7 @@ function Index() {
                         / {loaderData.event.participantLimit}
                       </>
                     ) : (
-                      locales.content.event.withoutRestriction
+                      locales.route.content.event.withoutRestriction
                     )}
                   </div>
                 </>
@@ -1079,11 +1090,11 @@ function Index() {
                 0 ? (
                 <>
                   <div className="text-xs leading-6">
-                    {locales.content.event.numberOfWaitingSeats}
+                    {locales.route.content.event.numberOfWaitingSeats}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event._count.waitingList}{" "}
-                    {locales.content.event.onWaitingList}
+                    {locales.route.content.event.onWaitingList}
                   </div>
                 </>
               ) : null}
@@ -1093,7 +1104,7 @@ function Index() {
               loaderData.isTeamMember === true ? (
                 <>
                   <div className="text-xs leading-6 mt-1">
-                    {locales.content.event.calenderItem}
+                    {locales.route.content.event.calenderItem}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     <Link
@@ -1101,7 +1112,7 @@ function Index() {
                       to="ics-download"
                       reloadDocument
                     >
-                      {locales.content.event.download}
+                      {locales.route.content.event.download}
                     </Link>
                   </div>
                 </>
@@ -1111,7 +1122,7 @@ function Index() {
               loaderData.event.documents.length > 0 ? (
                 <>
                   <div className="text-xs leading-6">
-                    {locales.content.event.downloads}
+                    {locales.route.content.event.downloads}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event.documents.map((item) => {
@@ -1138,7 +1149,7 @@ function Index() {
                         to={`/event/${loaderData.event.slug}/documents-download`}
                         reloadDocument
                       >
-                        {locales.content.event.downloadAll}
+                        {locales.route.content.event.downloadAll}
                       </Link>
                     ) : null}
                   </div>
@@ -1148,7 +1159,7 @@ function Index() {
               {loaderData.event.focuses.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    {locales.content.event.focusAreas}
+                    {locales.route.content.event.focusAreas}
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
                     {loaderData.event.focuses.map((relation, index) => {
@@ -1177,7 +1188,7 @@ function Index() {
               {loaderData.event.eventTargetGroups.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    {locales.content.event.targetGroups}
+                    {locales.route.content.event.targetGroups}
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
                     {loaderData.event.eventTargetGroups.map(
@@ -1216,7 +1227,7 @@ function Index() {
               {loaderData.event.experienceLevel ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    {locales.content.event.experienceLevel}
+                    {locales.route.content.event.experienceLevel}
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
                     <div className="badge">
@@ -1248,7 +1259,7 @@ function Index() {
               {loaderData.event.tags.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    {locales.content.event.tags}
+                    {locales.route.content.event.tags}
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
                     {loaderData.event.tags.map((relation, index) => {
@@ -1276,7 +1287,7 @@ function Index() {
               {loaderData.event.areas.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    {locales.content.event.areas}
+                    {locales.route.content.event.areas}
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
                     {loaderData.event.areas.map((item, index) => {
@@ -1295,7 +1306,7 @@ function Index() {
             loaderData.event.speakers.length > 0 ? (
               <>
                 <h3 className="mt-16 mb-8 font-bold">
-                  {locales.content.event.speakers}
+                  {locales.route.content.event.speakers}
                 </h3>
                 <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4 mb-16">
                   {loaderData.event.speakers.map((speaker) => {
@@ -1341,11 +1352,11 @@ function Index() {
             {loaderData.event.childEvents.length > 0 ? (
               <>
                 <h3 id="child-events" className="mt-16 font-bold">
-                  {locales.content.event.relatedEvents}
+                  {locales.route.content.event.relatedEvents}
                 </h3>
                 <p className="mb-8">
                   {insertParametersIntoLocale(
-                    locales.content.event.eventContext,
+                    locales.route.content.event.eventContext,
                     {
                       name: loaderData.event.name,
                     }
@@ -1408,13 +1419,13 @@ function Index() {
                                 language
                               )}
                               {event.participantLimit === null &&
-                                locales.content.event.unlimitedSeats}
+                                locales.route.content.event.unlimitedSeats}
                               {event.participantLimit !== null &&
                                 event.participantLimit -
                                   event._count.participants >
                                   0 &&
                                 insertParametersIntoLocale(
-                                  locales.content.event.seatsFree,
+                                  locales.route.content.event.seatsFree,
                                   {
                                     count:
                                       event.participantLimit -
@@ -1432,7 +1443,7 @@ function Index() {
                                   |{" "}
                                   <span>
                                     {insertParametersIntoLocale(
-                                      locales.content.event.waitingList,
+                                      locales.route.content.event.waitingList,
                                       {
                                         count: event._count.waitingList,
                                       }
@@ -1462,25 +1473,25 @@ function Index() {
                           <>
                             {event.published ? (
                               <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                {locales.content.event.published}
+                                {locales.route.content.event.published}
                               </div>
                             ) : (
                               <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
-                                {locales.content.event.draft}
+                                {locales.route.content.event.draft}
                               </div>
                             )}
                           </>
                         ) : null}
                         {event.canceled ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                            {locales.content.event.cancelled}
+                            {locales.route.content.event.cancelled}
                           </div>
                         ) : null}
                         {event.isParticipant &&
                         !event.canceled &&
                         loaderData.mode !== "admin" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                            <p>{locales.content.event.registered}</p>
+                            <p>{locales.route.content.event.registered}</p>
                           </div>
                         ) : null}
                         {canUserParticipate(event) &&
@@ -1496,7 +1507,7 @@ function Index() {
                         !event.canceled &&
                         loaderData.mode !== "admin" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                            <p>{locales.content.event.waiting}</p>
+                            <p>{locales.route.content.event.waiting}</p>
                           </div>
                         ) : null}
                         {canUserBeAddedToWaitingList(event) &&
@@ -1522,7 +1533,7 @@ function Index() {
                               to={`/event/${event.slug}`}
                               className="btn btn-primary"
                             >
-                              {locales.content.event.more}
+                              {locales.route.content.event.more}
                             </Link>
                           </div>
                         ) : null}
@@ -1533,7 +1544,7 @@ function Index() {
                               className="btn btn-primary"
                               to={`/login?login_redirect=/event/${event.slug}`}
                             >
-                              {locales.content.event.register}
+                              {locales.route.content.event.register}
                             </Link>
                           </div>
                         ) : null}
@@ -1547,7 +1558,7 @@ function Index() {
             {loaderData.event.teamMembers.length > 0 ? (
               <>
                 <h3 className="mt-16 mb-8 font-bold">
-                  {locales.content.event.team}
+                  {locales.route.content.event.team}
                 </h3>
                 <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4">
                   {loaderData.event.teamMembers.map((member) => {
@@ -1595,7 +1606,7 @@ function Index() {
                   id="responsible-organizations"
                   className="mt-16 mb-8 font-bold"
                 >
-                  {locales.content.event.organizedBy}
+                  {locales.route.content.event.organizedBy}
                 </h3>
                 <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4">
                   {loaderData.event.responsibleOrganizations.map((item) => {
@@ -1663,7 +1674,7 @@ function Index() {
             loaderData.event.participants.length > 0 ? (
               <>
                 <h3 className="mt-16 mb-8 font-bold">
-                  {locales.content.event.participants}
+                  {locales.route.content.event.participants}
                 </h3>
                 <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4">
                   {loaderData.event.participants.map((participant) => {

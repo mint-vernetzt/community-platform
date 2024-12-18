@@ -11,7 +11,6 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -334,7 +333,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return { ...offer, vectorCount, isChecked };
   });
 
-  return json({
+  return {
     isLoggedIn,
     profiles: enhancedProfiles,
     areas: enhancedAreas,
@@ -345,7 +344,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filteredByVisibilityCount,
     profilesCount,
     locales: routeLocales,
-  });
+  };
 };
 
 export default function ExploreProfiles() {
@@ -378,9 +377,9 @@ export default function ExploreProfiles() {
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
         <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {loaderData.locales.headline}
+          {loaderData.locales.route.headline}
         </H1>
-        <p>{loaderData.locales.intro}</p>
+        <p>{loaderData.locales.route.intro}</p>
       </section>
 
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -403,12 +402,14 @@ export default function ExploreProfiles() {
             <input name="showFilters" defaultValue="on" hidden />
           )}
           <ShowFiltersButton>
-            {loaderData.locales.filter.showFiltersLabel}
+            {loaderData.locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
           <Filters
             showFilters={searchParams.get(fields.showFilters.name) === "on"}
           >
-            <Filters.Title>{loaderData.locales.filter.title}</Filters.Title>
+            <Filters.Title>
+              {loaderData.locales.route.filter.title}
+            </Filters.Title>
 
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
@@ -416,7 +417,7 @@ export default function ExploreProfiles() {
             >
               <Dropdown>
                 <Dropdown.Label>
-                  {loaderData.locales.filter.offers}
+                  {loaderData.locales.route.filter.offers}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedOffers
@@ -485,7 +486,7 @@ export default function ExploreProfiles() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {loaderData.locales.filter.areas}
+                  {loaderData.locales.route.filter.areas}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedAreas
@@ -581,19 +582,19 @@ export default function ExploreProfiles() {
                         });
                       }}
                       placeholder={
-                        loaderData.locales.filter.searchAreaPlaceholder
+                        loaderData.locales.route.filter.searchAreaPlaceholder
                       }
                     >
                       <Input.Label htmlFor={fields.search.id} hidden>
-                        {loaderData.locales.filter.searchAreaPlaceholder}
+                        {loaderData.locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>
-                        {loaderData.locales.filter.searchAreaHelper}
+                        {loaderData.locales.route.filter.searchAreaHelper}
                       </Input.HelperText>
                       <Input.Controls>
                         <noscript>
                           <Button>
-                            {loaderData.locales.filter.searchAreaButton}
+                            {loaderData.locales.route.filter.searchAreaButton}
                           </Button>
                         </noscript>
                       </Input.Controls>
@@ -601,7 +602,7 @@ export default function ExploreProfiles() {
                   </div>
                   {loaderData.areas.state.length > 0 && (
                     <Dropdown.Legend>
-                      {loaderData.locales.filter.stateLabel}
+                      {loaderData.locales.route.filter.stateLabel}
                     </Dropdown.Legend>
                   )}
                   {loaderData.areas.state.length > 0 &&
@@ -633,7 +634,7 @@ export default function ExploreProfiles() {
                     )}
                   {loaderData.areas.district.length > 0 && (
                     <Dropdown.Legend>
-                      {loaderData.locales.filter.districtLabel}
+                      {loaderData.locales.route.filter.districtLabel}
                     </Dropdown.Legend>
                   )}
                   {loaderData.areas.district.length > 0 &&
@@ -666,12 +667,12 @@ export default function ExploreProfiles() {
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
-                    {loaderData.locales.filter.sortBy.label}
+                    {loaderData.locales.route.filter.sortBy.label}
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {
-                      loaderData.locales.filter.sortBy[
+                      loaderData.locales.route.filter.sortBy[
                         currentSortValue || sortValues[0]
                       ]
                     }
@@ -694,7 +695,7 @@ export default function ExploreProfiles() {
                         readOnly
                       >
                         <FormControl.Label>
-                          {loaderData.locales.filter.sortBy[sortValue]}
+                          {loaderData.locales.route.filter.sortBy[sortValue]}
                         </FormControl.Label>
                       </FormControl>
                     );
@@ -709,18 +710,18 @@ export default function ExploreProfiles() {
                   : ""
               }`}
             >
-              {loaderData.locales.filter.reset}
+              {loaderData.locales.route.filter.reset}
             </Filters.ResetButton>
             <Filters.ApplyButton>
               {decideBetweenSingularOrPlural(
-                loaderData.locales.showNumberOfItems_singular,
-                loaderData.locales.showNumberOfItems_plural,
+                loaderData.locales.route.showNumberOfItems_singular,
+                loaderData.locales.route.showNumberOfItems_plural,
                 loaderData.profilesCount
               )}
             </Filters.ApplyButton>
           </Filters>
           <noscript>
-            <Button>{loaderData.locales.filter.apply}</Button>
+            <Button>{loaderData.locales.route.filter.apply}</Button>
           </noscript>
         </Form>
       </section>
@@ -794,7 +795,7 @@ export default function ExploreProfiles() {
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
-                {loaderData.locales.filter.reset}
+                {loaderData.locales.route.filter.reset}
               </Button>
             </Link>
           </div>
@@ -807,8 +808,8 @@ export default function ExploreProfiles() {
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
             {insertParametersIntoLocale(
               decideBetweenSingularOrPlural(
-                loaderData.locales.notShown_singular,
-                loaderData.locales.notShown_plural,
+                loaderData.locales.route.notShown_singular,
+                loaderData.locales.route.notShown_plural,
                 loaderData.filteredByVisibilityCount
               ),
               { count: loaderData.filteredByVisibilityCount }
@@ -818,14 +819,14 @@ export default function ExploreProfiles() {
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.profilesCount}</strong>{" "}
             {decideBetweenSingularOrPlural(
-              loaderData.locales.itemsCountSuffix_singular,
-              loaderData.locales.itemsCountSuffix_plural,
+              loaderData.locales.route.itemsCountSuffix_singular,
+              loaderData.locales.route.itemsCountSuffix_plural,
               loaderData.profilesCount
             )}
           </p>
         ) : (
           <p className="text-center text-gray-700 mb-4">
-            {loaderData.locales.empty}
+            {loaderData.locales.route.empty}
           </p>
         )}
         {loaderData.profiles.length > 0 && (
@@ -855,7 +856,7 @@ export default function ExploreProfiles() {
                     loading={navigation.state === "loading"}
                     disabled={navigation.state === "loading"}
                   >
-                    {loaderData.locales.more}
+                    {loaderData.locales.route.more}
                   </Button>
                 </Link>
               </div>

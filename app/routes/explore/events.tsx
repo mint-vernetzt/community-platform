@@ -394,9 +394,9 @@ export default function ExploreOrganizations() {
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
         <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {locales.title}
+          {locales.route.title}
         </H1>
-        <p>{locales.intro}</p>
+        <p>{locales.route.intro}</p>
       </section>
 
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -418,22 +418,22 @@ export default function ExploreOrganizations() {
             <input name="showFilters" defaultValue="on" hidden />
           )}
           <ShowFiltersButton>
-            {locales.filter.showFiltersLabel}
+            {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
           <Filters
             showFilters={searchParams.get(fields.showFilters.name) === "on"}
           >
-            <Filters.Title>{locales.filter.title}</Filters.Title>
+            <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
               {...getFieldsetProps(fields.filter)}
-              showMore={locales.filter.showMore}
-              showLess={locales.filter.showLess}
+              showMore={locales.route.filter.showMore}
+              showLess={locales.route.filter.showLess}
             >
               <Dropdown>
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
-                    {locales.filter.stage}
+                    {locales.route.filter.stage}
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
@@ -509,7 +509,7 @@ export default function ExploreOrganizations() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {locales.filter.focuses}
+                  {locales.route.filter.focuses}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedFocuses
@@ -582,12 +582,12 @@ export default function ExploreOrganizations() {
               <Dropdown>
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
-                    {locales.filter.periodOfTime.label}
+                    {locales.route.filter.periodOfTime.label}
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {
-                      locales.filter.periodOfTime.values[
+                      locales.route.filter.periodOfTime.values[
                         loaderData.submission.value.filter.periodOfTime
                       ]
                     }
@@ -618,7 +618,7 @@ export default function ExploreOrganizations() {
                       >
                         <FormControl.Label>
                           {
-                            locales.filter.periodOfTime.values[
+                            locales.route.filter.periodOfTime.values[
                               periodOfTimeValue
                             ]
                           }
@@ -630,7 +630,7 @@ export default function ExploreOrganizations() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {locales.filter.targetGroups}
+                  {locales.route.filter.targetGroups}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedTargetGroups
@@ -715,7 +715,7 @@ export default function ExploreOrganizations() {
 
               <Dropdown>
                 <Dropdown.Label>
-                  {locales.filter.areas}
+                  {locales.route.filter.areas}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedAreas
@@ -810,24 +810,26 @@ export default function ExploreOrganizations() {
                           replace: true,
                         });
                       }}
-                      placeholder={locales.filter.searchAreaPlaceholder}
+                      placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
                       <Input.Label htmlFor={fields.search.id} hidden>
-                        {locales.filter.searchAreaPlaceholder}
+                        {locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>
-                        {locales.filter.searchAreaHelper}
+                        {locales.route.filter.searchAreaHelper}
                       </Input.HelperText>
                       <Input.Controls>
                         <noscript>
-                          <Button>{locales.filter.searchAreaButton}</Button>
+                          <Button>
+                            {locales.route.filter.searchAreaButton}
+                          </Button>
                         </noscript>
                       </Input.Controls>
                     </Input>
                   </div>
                   {loaderData.areas.state.length > 0 && (
                     <Dropdown.Legend>
-                      {locales.filter.stateLabel}
+                      {locales.route.filter.stateLabel}
                     </Dropdown.Legend>
                   )}
                   {loaderData.areas.state.length > 0 &&
@@ -859,7 +861,7 @@ export default function ExploreOrganizations() {
                     )}
                   {loaderData.areas.district.length > 0 && (
                     <Dropdown.Legend>
-                      {locales.filter.districtLabel}
+                      {locales.route.filter.districtLabel}
                     </Dropdown.Legend>
                   )}
                   {loaderData.areas.district.length > 0 &&
@@ -892,18 +894,18 @@ export default function ExploreOrganizations() {
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
-                    {locales.filter.sortBy.label}
+                    {locales.route.filter.sortBy.label}
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {(() => {
                       const currentValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
                       let value;
-                      if (currentValue in locales.filter.sortBy.values) {
+                      if (currentValue in locales.route.filter.sortBy.values) {
                         type LocaleKey =
-                          keyof typeof locales.filter.sortBy.values;
+                          keyof typeof locales.route.filter.sortBy.values;
                         value =
-                          locales.filter.sortBy.values[
+                          locales.route.filter.sortBy.values[
                             currentValue as LocaleKey
                           ];
                       } else {
@@ -933,7 +935,7 @@ export default function ExploreOrganizations() {
                         readOnly
                       >
                         <FormControl.Label>
-                          {locales.filter.sortBy.values[sortValue]}
+                          {locales.route.filter.sortBy.values[sortValue]}
                         </FormControl.Label>
                       </FormControl>
                     );
@@ -948,18 +950,18 @@ export default function ExploreOrganizations() {
                   : ""
               }`}
             >
-              {locales.filter.reset}
+              {locales.route.filter.reset}
             </Filters.ResetButton>
             <Filters.ApplyButton>
               {decideBetweenSingularOrPlural(
-                locales.showNumberOfItems_one,
-                locales.showNumberOfItems_other,
+                locales.route.showNumberOfItems_one,
+                locales.route.showNumberOfItems_other,
                 loaderData.eventsCount
               )}
             </Filters.ApplyButton>
           </Filters>
           <noscript>
-            <Button>{locales.filter.apply}</Button>
+            <Button>{locales.route.filter.apply}</Button>
           </noscript>
         </Form>
       </section>
@@ -1067,7 +1069,7 @@ export default function ExploreOrganizations() {
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
-                {locales.filter.reset}
+                {locales.route.filter.reset}
               </Button>
             </Link>
           </div>
@@ -1079,8 +1081,8 @@ export default function ExploreOrganizations() {
         loaderData.filteredByVisibilityCount > 0 ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
             {decideBetweenSingularOrPlural(
-              locales.notShown_one,
-              locales.notShown_other,
+              locales.route.notShown_one,
+              locales.route.notShown_other,
               loaderData.filteredByVisibilityCount
             )}
           </p>
@@ -1088,13 +1090,15 @@ export default function ExploreOrganizations() {
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.eventsCount}</strong>{" "}
             {decideBetweenSingularOrPlural(
-              locales.itemsCountSuffix_one,
-              locales.itemsCountSuffix_other,
+              locales.route.itemsCountSuffix_one,
+              locales.route.itemsCountSuffix_other,
               loaderData.eventsCount
             )}
           </p>
         ) : (
-          <p className="text-center text-gray-700 mb-4">{locales.empty}</p>
+          <p className="text-center text-gray-700 mb-4">
+            {locales.route.empty}
+          </p>
         )}
         {loaderData.events.length > 0 && (
           <>
@@ -1143,7 +1147,7 @@ export default function ExploreOrganizations() {
                     loading={navigation.state === "loading"}
                     disabled={navigation.state === "loading"}
                   >
-                    {locales.more}
+                    {locales.route.more}
                   </Button>
                 </Link>
               </div>

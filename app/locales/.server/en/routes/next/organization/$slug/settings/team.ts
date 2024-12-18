@@ -7,7 +7,7 @@ export const locale = {
       entitiesForInviteNotFound: "Profile or organization for invite not found",
       entitiesForRemovalNotFound:
         "Profile or organization for removal not found",
-      adminCount:
+      teamMemberCount:
         "There must always be a team member. Please add someone else as a team member first.",
     },
   },

@@ -13,10 +13,12 @@ export const locale = {
     description_other: "{{count}} events you signed up for have been canceled.",
   },
   upcoming: {
-    title: "Upcoming Events",
+    title_one: "Upcoming Event",
+    title_other: "Upcoming Events",
   },
   past: {
-    title: "Past Events",
+    title_one: "Past Event",
+    title_other: "Past Events",
   },
   tabBar: {
     adminEvents: "Admin",

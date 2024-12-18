@@ -74,7 +74,7 @@ import { languageModuleMap } from "~/locales/.server";
 
 const createSchema = (locales: GeneralEventSettingsLocales) => {
   return object({
-    name: string().required(locales.validation.name.required),
+    name: string().required(locales.route.validation.name.required),
     startDate: string()
       .transform((value) => {
         value = value.trim();
@@ -86,7 +86,7 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
         }
         return undefined;
       })
-      .required(locales.validation.startDate.required),
+      .required(locales.route.validation.startDate.required),
     startTime: string()
       .transform((value: string) => {
         value = value.trim();
@@ -95,48 +95,48 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
         }
         return undefined;
       })
-      .required(locales.validation.startTime.required),
+      .required(locales.route.validation.startTime.required),
     endDate: greaterThanDate(
       "endDate",
       "startDate",
-      locales.validation.endDate.required,
-      locales.validation.endDate.greaterThan
+      locales.route.validation.endDate.required,
+      locales.route.validation.endDate.greaterThan
     ),
     endTime: greaterThanTimeOnSameDate(
       "endTime",
       "startTime",
       "startDate",
       "endDate",
-      locales.validation.endTime.required,
-      locales.validation.endTime.greaterThan
+      locales.route.validation.endTime.required,
+      locales.route.validation.endTime.greaterThan
     ),
     participationUntilDate: greaterThanDate(
       "participationUntilDate",
       "participationFromDate",
-      locales.validation.participationUntilDate.required,
-      locales.validation.participationUntilDate.greaterThan
+      locales.route.validation.participationUntilDate.required,
+      locales.route.validation.participationUntilDate.greaterThan
     ),
     participationUntilTime: greaterThanTimeOnSameDate(
       "participationUntilTime",
       "participationFromTime",
       "participationUntilDate",
       "participationFromDate",
-      locales.validation.participationUntilTime.required,
-      locales.validation.participationUntilTime.greaterThan
+      locales.route.validation.participationUntilTime.required,
+      locales.route.validation.participationUntilTime.greaterThan
     ),
     participationFromDate: greaterThanDate(
       "startDate",
       "participationFromDate",
-      locales.validation.participationFromDate.required,
-      locales.validation.participationFromDate.greaterThan
+      locales.route.validation.participationFromDate.required,
+      locales.route.validation.participationFromDate.greaterThan
     ),
     participationFromTime: greaterThanTimeOnSameDate(
       "startTime",
       "participationFromTime",
       "startDate",
       "participationFromDate",
-      locales.validation.participationFromTime.required,
-      locales.validation.participationFromTime.greaterThan
+      locales.route.validation.participationFromTime.required,
+      locales.route.validation.participationFromTime.greaterThan
     ),
     subline: nullOrString(multiline()),
     description: nullOrString(multiline()),
@@ -178,10 +178,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.error.notFound, { status: 404 });
+  invariantResponse(event, locales.route.error.notFound, { status: 404 });
   const eventVisibilities = await getEventVisibilitiesBySlugOrThrow(slug);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
 
@@ -225,9 +225,9 @@ export const action = async (args: ActionFunctionArgs) => {
   const sessionUser = await getSessionUserOrThrow(authClient);
 
   const event = await getEventBySlugForAction(slug);
-  invariantResponse(event, locales.error.notFound, { status: 404 });
+  invariantResponse(event, locales.route.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
 
@@ -607,10 +607,12 @@ function General() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
-      <h4 className="mb-4 font-semibold">{locales.content.start.headline}</h4>
+      <h1 className="mb-8">{locales.route.content.headline}</h1>
+      <h4 className="mb-4 font-semibold">
+        {locales.route.content.start.headline}
+      </h4>
 
-      <p className="mb-4">{locales.content.start.intro}</p>
+      <p className="mb-4">{locales.route.content.start.intro}</p>
       <div className="flex mb-4">
         <RemixFormsForm
           schema={cancelSchema}
@@ -629,8 +631,8 @@ function General() {
                 <div className="mt-2">
                   <Button className="btn btn-outline-primary ml-auto btn-small">
                     {event.canceled
-                      ? locales.content.revert
-                      : locales.content.cancel}
+                      ? locales.route.content.revert
+                      : locales.route.content.cancel}
                   </Button>
                 </div>
               </>
@@ -652,7 +654,7 @@ function General() {
               <InputText
                 {...register("startDate")}
                 id="startDate"
-                label={locales.form.startDate.label}
+                label={locales.route.form.startDate.label}
                 defaultValue={event.startDate}
                 errorMessage={errors?.startDate?.message}
                 type="date"
@@ -665,7 +667,7 @@ function General() {
               <InputText
                 {...register("startTime")}
                 id="startTime"
-                label={locales.form.startTime.label}
+                label={locales.route.form.startTime.label}
                 defaultValue={event.startTime}
                 errorMessage={errors?.startTime?.message}
                 type="time"
@@ -682,7 +684,7 @@ function General() {
               <InputText
                 {...register("endDate")}
                 id="endDate"
-                label={locales.form.endDate.label}
+                label={locales.route.form.endDate.label}
                 defaultValue={event.endDate}
                 errorMessage={errors?.endDate?.message}
                 type="date"
@@ -695,7 +697,7 @@ function General() {
               <InputText
                 {...register("endTime")}
                 id="endTime"
-                label={locales.form.endTime.label}
+                label={locales.route.form.endTime.label}
                 defaultValue={event.endTime}
                 errorMessage={errors?.endTime?.message}
                 type="time"
@@ -713,7 +715,7 @@ function General() {
               <InputText
                 {...register("participationFromDate")}
                 id="participationFromDate"
-                label={locales.form.participationFromDate.label}
+                label={locales.route.form.participationFromDate.label}
                 defaultValue={event.participationFromDate}
                 errorMessage={errors?.participationFromDate?.message}
                 type="date"
@@ -726,7 +728,7 @@ function General() {
               <InputText
                 {...register("participationFromTime")}
                 id="participationFromTime"
-                label={locales.form.participationFromTime.label}
+                label={locales.route.form.participationFromTime.label}
                 defaultValue={event.participationFromTime}
                 errorMessage={errors?.participationFromTime?.message}
                 type="time"
@@ -743,7 +745,7 @@ function General() {
               <InputText
                 {...register("participationUntilDate")}
                 id="participationUntilDate"
-                label={locales.form.participationUntilDate.label}
+                label={locales.route.form.participationUntilDate.label}
                 defaultValue={event.participationUntilDate}
                 errorMessage={errors?.participationUntilDate?.message}
                 type="date"
@@ -756,7 +758,7 @@ function General() {
               <InputText
                 {...register("participationUntilTime")}
                 id="participationUntilTime"
-                label={locales.form.participationUntilTime.label}
+                label={locales.route.form.participationUntilTime.label}
                 defaultValue={event.participationUntilTime}
                 errorMessage={errors?.participationUntilTime?.message}
                 type="time"
@@ -768,13 +770,15 @@ function General() {
               ) : null}
             </div>
           </div>
-          <h4 className="mb-4 font-semibold">{locales.content.location}</h4>
+          <h4 className="mb-4 font-semibold">
+            {locales.route.content.location}
+          </h4>
           <div className="mb-4">
             <SelectField
               {...register("stage")}
               name="stage"
-              label={locales.form.stage.label}
-              placeholder={locales.form.stage.placeholder}
+              label={locales.route.form.stage.label}
+              placeholder={locales.route.form.stage.placeholder}
               options={stageOptions}
               defaultValue={event.stage || ""}
               withPublicPrivateToggle={false}
@@ -786,7 +790,7 @@ function General() {
             <InputText
               {...register("venueName")}
               id="venueName"
-              label={locales.form.venueName.label}
+              label={locales.route.form.venueName.label}
               defaultValue={event.venueName || ""}
               errorMessage={errors?.venueName?.message}
               withPublicPrivateToggle={false}
@@ -801,7 +805,7 @@ function General() {
               <InputText
                 {...register("venueStreet")}
                 id="venueStreet"
-                label={locales.form.venueStreet.label}
+                label={locales.route.form.venueStreet.label}
                 defaultValue={event.venueStreet || ""}
                 errorMessage={errors?.venueStreet?.message}
                 withPublicPrivateToggle={false}
@@ -815,7 +819,7 @@ function General() {
               <InputText
                 {...register("venueStreetNumber")}
                 id="venueStreetNumber"
-                label={locales.form.venueStreetNumber.label}
+                label={locales.route.form.venueStreetNumber.label}
                 defaultValue={event.venueStreetNumber || ""}
                 errorMessage={errors?.venueStreetNumber?.message}
                 withPublicPrivateToggle={false}
@@ -831,7 +835,7 @@ function General() {
               <InputText
                 {...register("venueZipCode")}
                 id="venueZipCode"
-                label={locales.form.venueZipCode.label}
+                label={locales.route.form.venueZipCode.label}
                 defaultValue={event.venueZipCode || ""}
                 errorMessage={errors?.venueZipCode?.message}
                 withPublicPrivateToggle={false}
@@ -845,7 +849,7 @@ function General() {
               <InputText
                 {...register("venueCity")}
                 id="venueCity"
-                label={locales.form.venueCity.label}
+                label={locales.route.form.venueCity.label}
                 defaultValue={event.venueCity || ""}
                 errorMessage={errors?.venueCity?.message}
                 withPublicPrivateToggle={false}
@@ -860,7 +864,7 @@ function General() {
             <InputText
               {...register("conferenceLink")}
               id="conferenceLink"
-              label={locales.form.conferenceLink.label}
+              label={locales.route.form.conferenceLink.label}
               defaultValue={event.conferenceLink || ""}
               placeholder=""
               errorMessage={errors?.conferenceLink?.message}
@@ -876,7 +880,7 @@ function General() {
             <InputText
               {...register("conferenceCode")}
               id="conferenceCode"
-              label={locales.form.conferenceCode.label}
+              label={locales.route.form.conferenceCode.label}
               defaultValue={event.conferenceCode || ""}
               errorMessage={errors?.conferenceCode?.message}
               withClearButton
@@ -889,14 +893,14 @@ function General() {
           </div>
 
           <h4 className="mb-4 font-semibold">
-            {locales.content.generic.headline}
+            {locales.route.content.generic.headline}
           </h4>
-          <p className="mb-8">{locales.content.generic.intro}</p>
+          <p className="mb-8">{locales.route.content.generic.intro}</p>
           <div className="mb-6">
             <InputText
               {...register("name")}
               id="name"
-              label={locales.form.name.label}
+              label={locales.route.form.name.label}
               defaultValue={event.name}
               errorMessage={errors?.name?.message}
               withPublicPrivateToggle={false}
@@ -910,7 +914,7 @@ function General() {
               {...register("subline")}
               id="subline"
               defaultValue={event.subline || ""}
-              label={locales.form.subline.label}
+              label={locales.route.form.subline.label}
               errorMessage={errors?.subline?.message}
               maxCharacters={100}
               withPublicPrivateToggle={false}
@@ -925,7 +929,7 @@ function General() {
               {...register("description")}
               id="description"
               defaultValue={event.description || ""}
-              label={locales.form.description.label}
+              label={locales.route.form.description.label}
               errorMessage={errors?.description?.message}
               maxCharacters={2000}
               withPublicPrivateToggle={false}
@@ -939,8 +943,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="types"
-              label={locales.form.types.label}
-              placeholder={locales.form.types.placeholder}
+              label={locales.route.form.types.label}
+              placeholder={locales.route.form.types.placeholder}
               entries={selectedTypes.map((type) => {
                 let title;
                 if (type.slug in locales.eventTypes) {
@@ -963,8 +967,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="tags"
-              label={locales.form.tags.label}
-              placeholder={locales.form.tags.placeholder}
+              label={locales.route.form.tags.label}
+              placeholder={locales.route.form.tags.placeholder}
               entries={selectedTags.map((tag) => {
                 let title;
                 if (tag.slug in locales.tags) {
@@ -988,8 +992,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="eventTargetGroups"
-              label={locales.form.targetGroups.label}
-              placeholder={locales.form.targetGroups.placeholder}
+              label={locales.route.form.targetGroups.label}
+              placeholder={locales.route.form.targetGroups.placeholder}
               entries={selectedEventTargetGroups.map((targetGroup) => {
                 let title;
                 if (targetGroup.slug in locales.eventTargetGroups) {
@@ -1017,8 +1021,8 @@ function General() {
             <SelectField
               {...register("experienceLevel")}
               name="experienceLevel"
-              label={locales.form.experienceLevel.label}
-              placeholder={locales.form.experienceLevel.placeholder}
+              label={locales.route.form.experienceLevel.label}
+              placeholder={locales.route.form.experienceLevel.placeholder}
               options={experienceLevelOptions}
               defaultValue={event.experienceLevel || ""}
               withPublicPrivateToggle={false}
@@ -1028,8 +1032,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="focuses"
-              label={locales.form.focuses.label}
-              placeholder={locales.form.focuses.placeholder}
+              label={locales.route.form.focuses.label}
+              placeholder={locales.route.form.focuses.placeholder}
               entries={selectedFocuses.map((focus) => {
                 let title;
                 if (focus.slug in locales.focuses) {
@@ -1052,8 +1056,8 @@ function General() {
           <div className="mb-4">
             <SelectAdd
               name="areas"
-              label={locales.form.areas.label}
-              placeholder={locales.form.areas.placeholder}
+              label={locales.route.form.areas.label}
+              placeholder={locales.route.form.areas.placeholder}
               entries={selectedAreas.map((area) => ({
                 label: area.name,
                 value: area.id,
@@ -1075,7 +1079,7 @@ function General() {
                   : "hidden"
               }`}
             >
-              {locales.content.feedback}
+              {locales.route.content.feedback}
             </div>
 
             {isFormChanged ? (
@@ -1084,7 +1088,7 @@ function General() {
                 reloadDocument
                 className={`btn btn-link`}
               >
-                {locales.form.reset.label}
+                {locales.route.form.reset.label}
               </Link>
             ) : null}
             <div></div>
@@ -1096,7 +1100,7 @@ function General() {
               className="btn btn-primary ml-4"
               disabled={isSubmitting || !isFormChanged}
             >
-              {locales.form.submit.label}
+              {locales.route.form.submit.label}
             </button>
           </div>
           <div className="flex flex-row flex-nowrap items-center justify-end mb-4">
@@ -1116,8 +1120,8 @@ function General() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {event.published
-                        ? locales.form.hide.label
-                        : locales.form.publish.label}
+                        ? locales.route.form.hide.label
+                        : locales.route.form.publish.label}
                     </Button>
                   </>
                 );

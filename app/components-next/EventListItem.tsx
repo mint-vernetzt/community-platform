@@ -3,8 +3,10 @@ import classNames from "classnames";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { utcToZonedTime } from "date-fns-tz";
-import { useTranslation } from "react-i18next";
 import React from "react";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type MyEventsLocales } from "~/routes/my/events.server";
 
 function ListItemImage(props: {
   src: string;
@@ -69,13 +71,11 @@ function ListItemImage(props: {
   );
 }
 
-function EventListItemFlag(props: { canceled?: boolean; published?: boolean }) {
-  const { t } = useTranslation([
-    "routes-my-events",
-    "components",
-    "datasets-stages",
-  ]);
-
+function EventListItemFlag(props: {
+  canceled?: boolean;
+  published?: boolean;
+  locales: MyEventsLocales;
+}) {
   const classes = classNames(
     "mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-pr-4 mv-py-6",
     props.canceled
@@ -87,11 +87,11 @@ function EventListItemFlag(props: { canceled?: boolean; published?: boolean }) {
 
   return typeof props.canceled === "boolean" && props.canceled ? (
     <div className={classes}>
-      {t("EventListItemFlag.canceled", { ns: "components" })}
+      {props.locales.components.EventListItemFlag.canceled}
     </div>
   ) : typeof props.published === "boolean" && props.published === false ? (
     <div className={classes}>
-      {t("EventListItemFlag.draft", { ns: "components" })}
+      {props.locales.components.EventListItemFlag.draft}
     </div>
   ) : null;
 }
@@ -112,14 +112,10 @@ function EventListItemContent(props: {
     canceled?: boolean;
     published?: boolean;
   };
+  currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
+  locales: MyEventsLocales;
 }) {
-  const { event } = props;
-
-  const { t, i18n } = useTranslation([
-    "routes-my-events",
-    "components",
-    "datasets-stages",
-  ]);
+  const { event, currentLanguage, locales } = props;
 
   const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
   const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
@@ -129,19 +125,29 @@ function EventListItemContent(props: {
       <div className="mv-py-4 mv-px-4">
         <p className="text-xs mb-1">
           {event.stage !== null
-            ? t(`${event.stage.slug}.title`, { ns: "datasets-stages" }) + " | "
+            ? (() => {
+                let title;
+                if (event.stage.slug in locales.stages) {
+                  type LocaleKey = keyof typeof locales.stages;
+                  title = locales.stages[event.stage.slug as LocaleKey].title;
+                } else {
+                  console.error(
+                    `Event stage ${event.stage.slug} not found in locales`
+                  );
+                  title = event.stage.slug;
+                }
+                return title;
+              })() + " | "
             : ""}
-          {getDuration(startTime, endTime, i18n.language)}
+          {getDuration(startTime, endTime, currentLanguage)}
 
           {event.participantLimit === null &&
-            ` | ${t("EventListItemContent.unlimitedSeats", {
-              ns: "components",
-            })}`}
+            ` | ${locales.components.EventListItemContent.unlimitedSeats}`}
           {event.participantLimit !== null &&
             event.participantLimit - event._count.participants > 0 &&
             ` | ${event.participantLimit - event._count.participants} / ${
               event.participantLimit
-            } ${t("EventListItemContent.seatsFree", { ns: "components" })}`}
+            } ${locales.components.EventListItemContent.seatsFree}`}
 
           {event.participantLimit !== null &&
           event.participantLimit - event._count.participants <= 0 ? (
@@ -150,7 +156,7 @@ function EventListItemContent(props: {
               |{" "}
               <span>
                 {event._count.waitingList}{" "}
-                {t("EventListItemContent.onWaitingList", { ns: "components" })}
+                {locales.components.EventListItemContent.onWaitingList}
               </span>
             </>
           ) : null}
@@ -171,6 +177,7 @@ function EventListItemContent(props: {
       <EventListItemFlag
         canceled={event.canceled}
         published={event.published}
+        locales={locales}
       />
     </>
   );

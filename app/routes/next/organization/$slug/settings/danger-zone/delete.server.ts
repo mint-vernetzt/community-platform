@@ -2,6 +2,6 @@ import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 
-export type SearchProfilesLocales = (typeof languageModuleMap)[ArrayElement<
+export type DeleteOrganizationLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
->]["search/profiles"];
+>]["next/organization/$slug/settings/danger-zone/delete"];

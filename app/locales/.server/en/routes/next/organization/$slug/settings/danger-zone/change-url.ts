@@ -17,7 +17,7 @@ export const locale = {
     prompt:
       "You have unsaved changes. These will be lost if you go one step further now.",
     reach:
-      "Your organization can currently be accessed via the following URL <0></0>.",
+      "Your organization can currently be accessed via the following URL <0>{{url}}<1>{{slug}}</1></0>.",
     note: "If you change the URL of your organization and have already shared the previous link, the organization will no longer be accessible via the old link.",
     action: "Change URL",
   },

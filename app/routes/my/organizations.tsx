@@ -3,7 +3,6 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import {
-  json,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -15,20 +14,17 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import React, { useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import i18next from "~/i18next.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { redirectWithToast } from "~/toast.server";
-
 import { AcceptOrRejectInviteFetcher } from "~/components-next/AcceptOrRejectInviteFetcher";
 import { AcceptOrRejectRequestFetcher } from "~/components-next/AcceptOrRejectRequestFetcher";
 import { AddOrganization } from "~/components-next/AddOrganization";
@@ -36,7 +32,6 @@ import { CancelRequestFetcher } from "~/components-next/CancelRequestFetcher";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { Section } from "~/components-next/MyOrganizationsSection";
-
 import {
   addImageUrlToInvites,
   addImageUrlToOrganizations,
@@ -57,15 +52,11 @@ import {
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
 import { Icon } from "~/components-next/icons/Icon";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-
-export const i18nNS = [
-  "routes-my-organizations",
-  "datasets-organizationTypes",
-  "datasets-focuses",
-] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
+import {
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -76,6 +67,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["my/organizations"];
 
   const organizations = await getOrganizationsFromProfile(sessionUser.id);
   const enhancedOrganizations = addImageUrlToOrganizations(
@@ -100,14 +94,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     adminOrganizationsWithPendingRequests
   );
 
-  return json({
+  return {
     organizations: flattenedOrganizations,
     invites: enhancedInvites,
     organizationsToAdd,
     pendingRequestsToOrganizations,
     adminOrganizationsWithPendingRequests:
       enhancedAdminOrganizationsWithPendingRequests,
-  });
+    locales,
+  };
 };
 
 const inviteSchema = z.object({
@@ -125,8 +120,8 @@ const inviteSchema = z.object({
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["my/organizations"];
 
   const { authClient } = createAuthClient(request);
 
@@ -139,7 +134,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const formData = await request.formData();
   const submission = parseWithZod(formData, { schema: inviteSchema });
   if (submission.status !== "success") {
-    return json(submission.reply());
+    return submission.reply();
   }
 
   // Even if typescript claims that role and intent has the correct type i needed to add the below typecheck to make the compiler happy when running npm run typecheck
@@ -172,94 +167,101 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  await Promise.all(
-    invite.organization.admins.map(async (admin) => {
-      let textTemplatePath:
-        | "mail-templates/invites/profile-to-join-organization/accepted-text.hbs"
-        | "mail-templates/invites/profile-to-join-organization/rejected-text.hbs"
-        | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
-        | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs";
-      let htmlTemplatePath:
-        | "mail-templates/invites/profile-to-join-organization/accepted-html.hbs"
-        | "mail-templates/invites/profile-to-join-organization/rejected-html.hbs"
-        | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
-        | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs";
+  try {
+    await Promise.all(
+      invite.organization.admins.map(async (admin) => {
+        let textTemplatePath:
+          | "mail-templates/invites/profile-to-join-organization/accepted-text.hbs"
+          | "mail-templates/invites/profile-to-join-organization/rejected-text.hbs"
+          | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
+          | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs";
+        let htmlTemplatePath:
+          | "mail-templates/invites/profile-to-join-organization/accepted-html.hbs"
+          | "mail-templates/invites/profile-to-join-organization/rejected-html.hbs"
+          | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
+          | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs";
 
-      let subject: string;
+        let subject: string;
 
-      if (submission.value.intent === "accepted") {
-        textTemplatePath =
-          submission.value.role === "admin"
-            ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
-            : "mail-templates/invites/profile-to-join-organization/accepted-text.hbs";
-        htmlTemplatePath =
-          submission.value.role === "admin"
-            ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
-            : "mail-templates/invites/profile-to-join-organization/accepted-html.hbs";
-        subject =
-          submission.value.role === "admin"
-            ? t("email.inviteAsAdminAccepted.subject")
-            : t("email.inviteAccepted.subject");
-      } else {
-        textTemplatePath =
-          submission.value.role === "admin"
-            ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
-            : "mail-templates/invites/profile-to-join-organization/rejected-text.hbs";
-        htmlTemplatePath =
-          submission.value.role === "admin"
-            ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
-            : "mail-templates/invites/profile-to-join-organization/rejected-html.hbs";
-        subject =
-          submission.value.role === "admin"
-            ? t("email.inviteAsAdminRejected.subject")
-            : t("email.inviteRejected.subject");
-      }
+        if (submission.value.intent === "accepted") {
+          textTemplatePath =
+            submission.value.role === "admin"
+              ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
+              : "mail-templates/invites/profile-to-join-organization/accepted-text.hbs";
+          htmlTemplatePath =
+            submission.value.role === "admin"
+              ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
+              : "mail-templates/invites/profile-to-join-organization/accepted-html.hbs";
+          subject =
+            submission.value.role === "admin"
+              ? locales.route.email.inviteAsAdminAccepted.subject
+              : locales.route.email.inviteAccepted.subject;
+        } else {
+          textTemplatePath =
+            submission.value.role === "admin"
+              ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
+              : "mail-templates/invites/profile-to-join-organization/rejected-text.hbs";
+          htmlTemplatePath =
+            submission.value.role === "admin"
+              ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
+              : "mail-templates/invites/profile-to-join-organization/rejected-html.hbs";
+          subject =
+            submission.value.role === "admin"
+              ? locales.route.email.inviteAsAdminRejected.subject
+              : locales.route.email.inviteRejected.subject;
+        }
 
-      const content = {
-        firstName: admin.profile.firstName,
-        organization: {
-          name: invite.organization.name,
-        },
-        profile: {
-          firstName: invite.profile.firstName,
-          lastName: invite.profile.lastName,
-        },
-      };
+        const content = {
+          firstName: admin.profile.firstName,
+          organization: {
+            name: invite.organization.name,
+          },
+          profile: {
+            firstName: invite.profile.firstName,
+            lastName: invite.profile.lastName,
+          },
+        };
 
-      const text = getCompiledMailTemplate<typeof textTemplatePath>(
-        textTemplatePath,
-        content,
-        "text"
-      );
-      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-        htmlTemplatePath,
-        content,
-        "html"
-      );
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          content,
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          content,
+          "html"
+        );
 
-      await mailer(
-        mailerOptions,
-        sender,
-        admin.profile.email,
-        subject,
-        text,
-        html
-      );
-    })
-  );
+        await mailer(
+          mailerOptions,
+          sender,
+          admin.profile.email,
+          subject,
+          text,
+          html
+        );
+      })
+    );
+  } catch (error) {
+    invariantResponse(false, "Server Error: Mailer", { status: 500 });
+  }
 
   return redirectWithToast("/my/organizations", {
     key: `${submission.value.intent}-${Date.now()}`,
     level: submission.value.intent === "accepted" ? "positive" : "negative",
-    message: `${t(`alerts.${submission.value.intent}`, {
-      organization: invite.organization.name,
-    })}`,
+    message: insertParametersIntoLocale(
+      locales.route.alerts[submission.value.intent],
+      {
+        organization: invite.organization.name,
+      }
+    ),
   });
 };
 
 export default function MyOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(i18nNS);
+  const { locales } = loaderData;
   const [searchParams] = useSearchParams();
 
   // SearchParams as fallback when javascript is disabled (See <Links> in <TabBar>)
@@ -475,7 +477,7 @@ export default function MyOrganizations() {
         <div className="mv-w-full mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl">
           <div className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 @md:mv-gap-6 @lg:mv-gap-8 mv-items-center mv-justify-between">
             <h1 className="mv-mb-0 mv-text-5xl mv-text-primary mv-font-bold mv-leading-9">
-              {t("headline")}
+              {locales.route.headline}
             </h1>
             <Button as="a" href={"/organization/create"}>
               <svg
@@ -490,31 +492,34 @@ export default function MyOrganizations() {
                   fill="currentColor"
                 />
               </svg>
-              {t("cta")}
+              {locales.route.cta}
             </Button>
           </div>
           {/* Information about organization type network Section */}
           <Section additionalClassNames="mv-group">
-            <Section.Headline>{t("networkInfo.headline")}</Section.Headline>
+            <Section.Headline>
+              {locales.route.networkInfo.headline}
+            </Section.Headline>
             <div className="mv-text-neutral-700 mv-text-lg mv-leading-[22px]">
-              <p className="mv-font-semibold">{t("networkInfo.sublineOne")}</p>
+              <p className="mv-font-semibold">
+                {locales.route.networkInfo.sublineOne}
+              </p>
               <p>
-                <Trans
-                  i18nKey="networkInfo.sublineTwo"
-                  ns={i18nNS}
-                  components={[
+                {insertComponentsIntoLocale(
+                  locales.route.networkInfo.sublineTwo,
+                  [
                     <span
                       key="network-info-subline-two-semibold"
                       className="mv-font-semibold"
                     />,
-                  ]}
-                />
+                  ]
+                )}
               </p>
             </div>
 
             <div className="mv-w-full mv-border mv-border-neutral-200 mv-hidden group-has-[:checked]:mv-block" />
             <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-lg mv-font-bold mv-leading-6 mv-hidden group-has-[:checked]:mv-block">
-              {t("networkInfo.steps.headline")}
+              {locales.route.networkInfo.steps.headline}
             </h3>
             <ol className="mv-w-full mv-flex-col mv-gap-6 mv-list-none mv-pr-6 mv-max-w-[964px] mv-hidden group-has-[:checked]:mv-flex">
               <li className="mv-w-full mv-flex mv-gap-2">
@@ -523,19 +528,18 @@ export default function MyOrganizations() {
                 </span>
                 <div className="mv-w-full mv-flex mv-flex-col mv-gap-5">
                   <p className="mv-text-primary mv-font-semibold mv-leading-5">
-                    {t("networkInfo.steps.checkExisting.headline")}
+                    {locales.route.networkInfo.steps.checkExisting.headline}
                   </p>
                   <p className="mv-text-neutral-700 mv-leading-5">
-                    <Trans
-                      i18nKey="networkInfo.steps.checkExisting.description"
-                      ns={i18nNS}
-                      components={[
+                    {insertComponentsIntoLocale(
+                      locales.route.networkInfo.steps.checkExisting.description,
+                      [
                         <span
                           key="network-info-step-check-existing-description-semibold"
                           className="mv-font-semibold"
                         />,
-                      ]}
-                    />
+                      ]
+                    )}
                   </p>
                 </div>
               </li>
@@ -545,23 +549,27 @@ export default function MyOrganizations() {
                 </span>
                 <div className="mv-w-full mv-flex mv-flex-col mv-gap-5">
                   <p className="mv-text-primary mv-font-semibold mv-leading-5">
-                    {t("networkInfo.steps.createNetwork.headline")}
+                    {locales.route.networkInfo.steps.createNetwork.headline}
                   </p>
                   <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-text-neutral-700 mv-leading-5">
                     <p>
-                      <Trans
-                        i18nKey="networkInfo.steps.createNetwork.descriptionOne"
-                        ns={i18nNS}
-                        components={[
+                      {insertComponentsIntoLocale(
+                        locales.route.networkInfo.steps.createNetwork
+                          .descriptionOne,
+                        [
                           <span
                             key="network-info-step-create-network-description-one-semibold"
                             className="mv-font-semibold"
                           />,
-                        ]}
-                      />
+                        ]
+                      )}
                     </p>
-                    {/* TODO: Text change from design requested */}
-                    <p>{t("networkInfo.steps.createNetwork.descriptionTwo")}</p>
+                    <p>
+                      {
+                        locales.route.networkInfo.steps.createNetwork
+                          .descriptionTwo
+                      }
+                    </p>
                   </div>
                 </div>
               </li>
@@ -571,19 +579,19 @@ export default function MyOrganizations() {
                 </span>
                 <div className="mv-w-full mv-flex mv-flex-col mv-gap-5">
                   <p className="mv-text-primary mv-font-semibold mv-leading-5">
-                    {t("networkInfo.steps.addInformation.headline")}
+                    {locales.route.networkInfo.steps.addInformation.headline}
                   </p>
                   <p className="mv-text-neutral-700 mv-leading-5">
-                    <Trans
-                      i18nKey="networkInfo.steps.addInformation.description"
-                      ns={i18nNS}
-                      components={[
+                    {insertComponentsIntoLocale(
+                      locales.route.networkInfo.steps.addInformation
+                        .description,
+                      [
                         <span
                           key="network-info-step-add-information-description-semibold"
                           className="mv-font-semibold"
                         />,
-                      ]}
-                    />
+                      ]
+                    )}
                   </p>
                 </div>
               </li>
@@ -599,10 +607,10 @@ export default function MyOrganizations() {
                 className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
               >
                 <div className="group-has-[:checked]:mv-hidden">
-                  {t("networkInfo.more")}
+                  {locales.route.networkInfo.more}
                 </div>
                 <div className="mv-hidden group-has-[:checked]:mv-block">
-                  {t("networkInfo.less")}
+                  {locales.route.networkInfo.less}
                 </div>
                 <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
                   <Icon type="chevron-right" />
@@ -624,13 +632,13 @@ export default function MyOrganizations() {
                   id="invites-headline"
                   className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
                 >
-                  {t("invites.headline")}
+                  {locales.route.invites.headline}
                 </h2>
                 <p
                   id="invites-subline"
                   className="mv-text-sm mv-text-neutral-700"
                 >
-                  {t("invites.subline")}
+                  {locales.route.invites.subline}
                 </p>
               </div>
               <TabBar>
@@ -653,7 +661,25 @@ export default function MyOrganizations() {
                           id={`tab-description-${key}`}
                           className="mv-flex mv-gap-1.5 mv-items-center"
                         >
-                          <span>{t(`invites.tabbar.${key}`)}</span>
+                          <span>
+                            {(() => {
+                              let title;
+                              if (key in locales.route.invites.tabbar) {
+                                type LocaleKey =
+                                  keyof typeof locales.route.invites.tabbar;
+                                title =
+                                  locales.route.invites.tabbar[
+                                    key as LocaleKey
+                                  ];
+                              } else {
+                                console.error(
+                                  `Tab bar title ${key} not found in locales`
+                                );
+                                title = key;
+                              }
+                              return title;
+                            })()}
+                          </span>
                           <TabBar.Counter active={value.active}>
                             {value.invites.length}
                           </TabBar.Counter>
@@ -673,11 +699,13 @@ export default function MyOrganizations() {
                           listIndex={index}
                           entity={invite.organization}
                           hideAfter={3}
+                          locales={locales}
                         >
                           <AcceptOrRejectInviteFetcher
                             inviteFetcher={inviteFetcher}
                             organizationId={invite.organizationId}
                             tabKey={key}
+                            locales={locales}
                           />
                         </ListItem>
                       );
@@ -695,15 +723,20 @@ export default function MyOrganizations() {
                   id="requests-headline"
                   className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
                 >
-                  {t("requests.headline")}
+                  {locales.route.requests.headline}
                 </h2>
                 <p
                   id="requests-subline"
                   className="mv-text-sm mv-text-neutral-700"
                 >
                   {requestsCount === 1
-                    ? t("requests.singleCountSubline")
-                    : t("requests.subline", { count: requestsCount })}
+                    ? locales.route.requests.singleCountSubline
+                    : insertParametersIntoLocale(
+                        locales.route.requests.subline,
+                        {
+                          count: requestsCount,
+                        }
+                      )}
                 </p>
               </div>
               <TabBar>
@@ -753,6 +786,7 @@ export default function MyOrganizations() {
                             listIndex={index}
                             entity={request.profile}
                             hideAfter={3}
+                            locales={locales}
                           >
                             <AcceptOrRejectRequestFetcher
                               fetcher={acceptOrRejectRequestFetcher}
@@ -771,8 +805,12 @@ export default function MyOrganizations() {
           ) : null}
           {/* Add Organization Section */}
           <Section>
-            <Section.Headline>{t("addOrganization.headline")}</Section.Headline>
-            <Section.Subline>{t("addOrganization.subline")}</Section.Subline>
+            <Section.Headline>
+              {locales.route.addOrganization.headline}
+            </Section.Headline>
+            <Section.Subline>
+              {locales.route.addOrganization.subline}
+            </Section.Subline>
             <AddOrganization
               organizations={loaderData.organizationsToAdd}
               memberOrganizations={loaderData.organizations}
@@ -786,7 +824,7 @@ export default function MyOrganizations() {
               <>
                 <hr />
                 <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
-                  {t("requests.headline")}
+                  {locales.route.requests.headline}
                 </h4>
                 <ListContainer
                   listKey="pending-requests-to-organizations"
@@ -800,6 +838,7 @@ export default function MyOrganizations() {
                           listIndex={index}
                           entity={organization}
                           hideAfter={3}
+                          locales={locales}
                         >
                           <CancelRequestFetcher
                             fetcher={cancelRequestFetcher}
@@ -834,7 +873,25 @@ export default function MyOrganizations() {
                         preventScrollReset
                       >
                         <div className="mv-flex mv-gap-1.5 mv-items-center">
-                          <span>{t(`organizations.tabbar.${key}`)}</span>
+                          <span>
+                            {(() => {
+                              let title;
+                              if (key in locales.route.organizations.tabbar) {
+                                type LocaleKey =
+                                  keyof typeof locales.route.organizations.tabbar;
+                                title =
+                                  locales.route.organizations.tabbar[
+                                    key as LocaleKey
+                                  ];
+                              } else {
+                                console.error(
+                                  `Tab bar title ${key} not found in locales`
+                                );
+                                title = key;
+                              }
+                              return title;
+                            })()}
+                          </span>
                           <TabBar.Counter active={value.active}>
                             {value.organizations.length}
                           </TabBar.Counter>
@@ -860,6 +917,7 @@ export default function MyOrganizations() {
                               mode: key === "admin" ? "admin" : "teamMember",
                               quitOrganizationFetcher: quitOrganizationFetcher,
                             }}
+                            locales={locales}
                           />
                         );
                       })}

@@ -190,14 +190,16 @@ export default function Profiles() {
                   loading={navigation.state === "loading"}
                   disabled={navigation.state === "loading"}
                 >
-                  {loaderData.locales.more}
+                  {loaderData.locales.route.more}
                 </Button>
               </Link>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">{loaderData.locales.empty}</p>
+        <p className="text-center text-primary">
+          {loaderData.locales.route.empty}
+        </p>
       )}
     </section>
   );

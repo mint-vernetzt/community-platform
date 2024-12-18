@@ -11,14 +11,14 @@ import {
 } from "./Card";
 import { getFullName } from "./../../utils";
 import { Image } from "./../../molecules/Image";
-import { type ExploreProfileLocales } from "~/routes/explore/profiles.server";
-import { type SearchProfileLocales } from "~/routes/search/profiles.server";
+import { type ExploreProfilesLocales } from "~/routes/explore/profiles.server";
+import { type SearchProfilesLocales } from "~/routes/search/profiles.server";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 
 export type ProfileCardProps = {
   match?: number;
   publicAccess?: boolean;
-  locales: ExploreProfileLocales | SearchProfileLocales | DashboardLocales;
+  locales: ExploreProfilesLocales | SearchProfilesLocales | DashboardLocales;
   profile: {
     academicTitle?: string | null;
     username: string;
@@ -46,7 +46,9 @@ function ProfileCard(
 
   const fullName = getFullName(profile);
 
-  const emptyMessage = publicAccess ? locales.nonPublic : locales.nonStated;
+  const emptyMessage = publicAccess
+    ? locales.profileCard.nonPublic
+    : locales.profileCard.nonStated;
 
   return (
     <Card to={`/profile/${profile.username}`}>
@@ -61,7 +63,7 @@ function ProfileCard(
         )}
         {props.match !== undefined && (
           <CardStatus>
-            {props.match}% {locales.match}
+            {props.match}% {locales.profileCard.match}
           </CardStatus>
         )}
       </CardHeader>
@@ -86,12 +88,15 @@ function ProfileCard(
           </div>
         }
         <CardBodySection
-          title={locales.areasOfActivity}
+          title={locales.profileCard.areasOfActivity}
           emptyMessage={emptyMessage}
         >
           {profile.areas.length > 0 ? profile.areas.join("/") : ""}
         </CardBodySection>
-        <CardBodySection title={locales.offer} emptyMessage={emptyMessage}>
+        <CardBodySection
+          title={locales.profileCard.offer}
+          emptyMessage={emptyMessage}
+        >
           {profile.offers.length === 0 ? (
             ""
           ) : (

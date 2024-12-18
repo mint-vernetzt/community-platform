@@ -17,15 +17,13 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { searchProfilesI18nNS, searchProfilesSchema } from "~/form-helpers";
+import { searchProfilesSchema } from "~/form-helpers";
 import { SearchProfiles, Deep } from "~/lib/utils/searchParams";
-import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
@@ -40,27 +38,26 @@ import {
   inviteProfileToBeOrganizationAdmin,
   removeAdminFromOrganization,
 } from "./admins.server";
-
-const i18nNS = [
-  "routes-next-organization-settings-admins",
-  ...searchProfilesI18nNS,
-] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["next/organization/$slug/settings/admins"];
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const mode = deriveMode(sessionUser);
 
-  const organization = await getOrganizationWithAdmins({ slug, authClient, t });
+  const organization = await getOrganizationWithAdmins({
+    slug,
+    authClient,
+    locales,
+  });
 
   const pendingAdminInvites = await getPendingAdminInvitesOfOrganization(
     organization.id,
@@ -75,7 +72,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     searchParams: new URL(request.url).searchParams,
     idsToExclude: pendingAndCurrentAdminIds,
     authClient,
-    t,
+    locales,
     mode,
   });
 
@@ -84,6 +81,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     pendingAdminInvites,
     searchedProfiles,
     submission,
+    locales,
   };
 };
 
@@ -91,8 +89,9 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["next/organization/$slug/settings/admins"];
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -112,7 +111,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const intent = formData.get("intent");
   invariantResponse(
     typeof intent === "string",
-    t("error.invariant.noStringIntent"),
+    locales.route.error.invariant.noStringIntent,
     {
       status: 400,
     }
@@ -124,7 +123,7 @@ export const action = async (args: ActionFunctionArgs) => {
     result = await inviteProfileToBeOrganizationAdmin({
       formData: inviteFormData,
       slug,
-      t,
+      locales,
     });
   } else if (intent.startsWith("cancel-admin-invite-")) {
     const cancelAdminInviteFormData = new FormData();
@@ -135,7 +134,7 @@ export const action = async (args: ActionFunctionArgs) => {
     result = await cancelOrganizationAdminInvitation({
       formData: cancelAdminInviteFormData,
       slug,
-      t,
+      locales,
     });
   } else if (intent.startsWith("remove-admin-")) {
     const removeAdminFormData = new FormData();
@@ -143,10 +142,10 @@ export const action = async (args: ActionFunctionArgs) => {
     result = await removeAdminFromOrganization({
       formData: removeAdminFormData,
       slug,
-      t,
+      locales,
     });
   } else {
-    invariantResponse(false, t("error.invariant.wrongIntent"), {
+    invariantResponse(false, locales.route.error.invariant.wrongIntent, {
       status: 400,
     });
   }
@@ -167,6 +166,7 @@ function Admins() {
     pendingAdminInvites,
     searchedProfiles,
     submission: loaderSubmission,
+    locales,
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
@@ -176,19 +176,18 @@ function Admins() {
   const [searchParams] = useSearchParams();
 
   const location = useLocation();
-  const { t } = useTranslation(i18nNS);
 
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
     defaultValue: {
       [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
-    constraint: getZodConstraint(searchProfilesSchema(t)),
+    constraint: getZodConstraint(searchProfilesSchema(locales)),
     // Client side validation onInput, server side validation on submit
     shouldValidate: "onInput",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
-        schema: searchProfilesSchema(t),
+        schema: searchProfilesSchema(locales),
       });
     },
     shouldRevalidate: "onInput",
@@ -213,16 +212,20 @@ function Admins() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{t("content.headline")}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
+      <BackButton to={location.pathname}>
+        {locales.route.content.headline}
+      </BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
 
       {/* Current Admins and Remove Section */}
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {t("content.current.headline", {
-              count: organization.admins.length,
-            })}
+            {decideBetweenSingularOrPlural(
+              locales.route.content.current.headline_one,
+              locales.route.content.current.headline_other,
+              organization.admins.length
+            )}
           </h2>
           <Form
             {...getFormProps(removeAdminForm)}
@@ -235,6 +238,7 @@ function Admins() {
                   <ListItem
                     key={`organization-admin-${relation.profile.username}`}
                     entity={relation.profile}
+                    locales={locales}
                   >
                     {organization.admins.length > 1 && (
                       <Button
@@ -244,7 +248,7 @@ function Admins() {
                         type="submit"
                         fullSize
                       >
-                        {t("content.current.remove")}
+                        {locales.route.content.current.remove}
                       </Button>
                     )}
                   </ListItem>
@@ -256,7 +260,7 @@ function Admins() {
         {/* Search Profiles To Add Section */}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {t("content.add.headline")}
+            {locales.route.content.add.headline}
           </h2>
           <Form
             {...getFormProps(searchForm)}
@@ -278,7 +282,7 @@ function Admins() {
               standalone
             >
               <Input.Label htmlFor={searchFields[SearchProfiles].id}>
-                {t("content.add.search")}
+                {locales.route.content.add.search}
               </Input.Label>
               <Input.SearchIcon />
 
@@ -293,12 +297,14 @@ function Admins() {
                   </Input.Error>
                 ))
               ) : (
-                <Input.HelperText>{t("content.add.criteria")}</Input.HelperText>
+                <Input.HelperText>
+                  {locales.route.content.add.criteria}
+                </Input.HelperText>
               )}
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">
-                    {t("content.add.submitSearch")}
+                    {locales.route.content.add.submitSearch}
                   </Button>
                 </noscript>
               </Input.Controls>
@@ -316,6 +322,7 @@ function Admins() {
                     <ListItem
                       key={`profile-search-result-${profile.username}`}
                       entity={profile}
+                      locales={locales}
                     >
                       <Button
                         name="intent"
@@ -324,7 +331,7 @@ function Admins() {
                         type="submit"
                         fullSize
                       >
-                        {t("content.add.submit")}
+                        {locales.route.content.add.submit}
                       </Button>
                     </ListItem>
                   );
@@ -336,9 +343,9 @@ function Admins() {
           {pendingAdminInvites.length > 0 ? (
             <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
               <h4 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-                {t("content.invites.headline")}
+                {locales.route.content.invites.headline}
               </h4>
-              <p>{t("content.invites.intro")} </p>
+              <p>{locales.route.content.invites.intro} </p>
               <Form
                 {...getFormProps(cancelAdminInviteForm)}
                 method="post"
@@ -350,6 +357,7 @@ function Admins() {
                       <ListItem
                         key={`pending-admin-invite-${profile.username}`}
                         entity={profile}
+                        locales={locales}
                       >
                         <Button
                           name="intent"
@@ -358,7 +366,7 @@ function Admins() {
                           type="submit"
                           fullSize
                         >
-                          {t("content.invites.cancel")}
+                          {locales.route.content.invites.cancel}
                         </Button>
                       </ListItem>
                     );

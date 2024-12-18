@@ -43,7 +43,7 @@ export function Footer(props: { locales?: RootLocales }) {
           </MVLink>
           <p className="mv-text-sm mv-text-primary mv-font-semibold mv-hidden @sm:mv-block">
             {props.locales !== undefined
-              ? props.locales.description
+              ? props.locales.footer.description
               : defaultLanguage === "de"
               ? "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland."
               : "The networking platform for STEM actors in Germany."}
@@ -86,7 +86,7 @@ export function Footer(props: { locales?: RootLocales }) {
         {/* Copyright */}
         <div className="mv-font-bold mv-text-xs">
           {props.locales !== undefined
-            ? props.locales.meta.copyright
+            ? props.locales.footer.meta.copyright
             : defaultLanguage === "de"
             ? "© 2021-2025 matrix gGmbH"
             : "© 2021-2025 matrix gGmbH"}

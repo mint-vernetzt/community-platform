@@ -29,9 +29,11 @@ export const locale = {
     reset: "Alles zurücksetzen",
     sortBy: {
       label: "Sortierung",
-      "name-asc": "Name (A-Z)",
-      "name-desc": "Name (Z-A)",
-      "createdAt-desc": "Neueste zuerst",
+      values: {
+        "name-asc": "Name (A-Z)",
+        "name-desc": "Name (Z-A)",
+        "createdAt-desc": "Neueste zuerst",
+      },
     },
   },
   more: "Weitere laden",

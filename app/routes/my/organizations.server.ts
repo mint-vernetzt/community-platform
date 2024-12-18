@@ -4,6 +4,13 @@ import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
+
+export type MyOrganizationsLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof supportedCookieLanguages
+>]["my/organizations"];
 
 export async function getOrganizationsFromProfile(id: string) {
   const [adminOrganizations, teamMemberOrganizations] =

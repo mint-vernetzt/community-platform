@@ -21,9 +21,11 @@ export const locale = {
     reset: "Reset all",
     sortBy: {
       label: "Sorting",
-      "name-asc": "Name (A-Z)",
-      "name-desc": "Name (Z-A)",
-      "createdAt-desc": "Newest first",
+      values: {
+        "name-asc": "Name (A-Z)",
+        "name-desc": "Name (Z-A)",
+        "createdAt-desc": "Newest first",
+      },
     },
   },
   empty: "Unfortunately, no organizations could be found.",

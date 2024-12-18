@@ -157,22 +157,26 @@ function EventCard(
         )}
         {props.match !== undefined && (
           <CardStatus>
-            {props.match}% {locales.match}
+            {props.match}% {locales.eventCard.match}
           </CardStatus>
         )}
         {event.canceled && event.published && (
-          <CardStatus variant="negative">{locales.cancelled}</CardStatus>
+          <CardStatus variant="negative">
+            {locales.eventCard.cancelled}
+          </CardStatus>
         )}
         {event.endTime.getTime() < now.getTime() && (
-          <CardStatus variant="neutral">{locales.passed}</CardStatus>
+          <CardStatus variant="neutral">{locales.eventCard.passed}</CardStatus>
         )}
         {!event.published && event.isTeamMember && (
           <CardStatus variant="primary" inverted>
-            {locales.draft}
+            {locales.eventCard.draft}
           </CardStatus>
         )}
         {event.published && event.isTeamMember && (
-          <CardStatus variant="positive">{locales.published}</CardStatus>
+          <CardStatus variant="positive">
+            {locales.eventCard.published}
+          </CardStatus>
         )}
         <CardInfoOverlay>
           {event._count.childEvents === 0 &&
@@ -188,7 +192,7 @@ function EventCard(
           {event._count.childEvents === 0 &&
             typeof event.participantLimit !== "number" && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
-                {locales.seats.unlimited}
+                {locales.eventCard.seats.unlimited}
               </span>
             )}
           {event._count.childEvents === 0 &&
@@ -198,8 +202,8 @@ function EventCard(
                 {event.participantLimit - event._count.participants} /{" "}
                 {event.participantLimit}{" "}
                 {decideBetweenSingularOrPlural(
-                  locales.seats.free_one,
-                  locales.seats.free_other,
+                  locales.eventCard.seats.free_one,
+                  locales.eventCard.seats.free_other,
                   event.participantLimit
                 )}
               </span>
@@ -210,8 +214,8 @@ function EventCard(
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
                 {event._count.waitingList}{" "}
                 {decideBetweenSingularOrPlural(
-                  locales.waitingList.places_one,
-                  locales.waitingList.places_other,
+                  locales.eventCard.waitingList.places_one,
+                  locales.eventCard.waitingList.places_other,
                   event._count.waitingList
                 )}
               </span>
@@ -300,7 +304,7 @@ function EventCard(
           !event.canceled &&
           event.isParticipant && (
             <span className="mv-text-xs mv-font-bold mv-text-positive">
-              {locales.registered}
+              {locales.eventCard.registered}
             </span>
           )}
         {!props.publicAccess &&
@@ -310,7 +314,7 @@ function EventCard(
           event.participationUntil.getTime() > Date.now() &&
           event.isOnWaitingList && (
             <span className="mv-text-xs mv-font-bold mv-text-neutral-700">
-              {locales.onWaitingList}
+              {locales.eventCard.onWaitingList}
             </span>
           )}
       </CardFooter>

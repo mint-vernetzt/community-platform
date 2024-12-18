@@ -65,9 +65,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.error.notFound, { status: 404 });
+  invariantResponse(event, locales.route.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
 
@@ -211,10 +211,12 @@ function Events() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
-      <h4 className="mb-4 font-semibold">{locales.content.assign.headline}</h4>
+      <h1 className="mb-8">{locales.route.content.headline}</h1>
+      <h4 className="mb-4 font-semibold">
+        {locales.route.content.assign.headline}
+      </h4>
 
-      <p className="mb-4">{locales.content.assign.intro}</p>
+      <p className="mb-4">{locales.route.content.assign.intro}</p>
       <RemixFormsForm
         schema={setParentSchema}
         fetcher={setParentFetcher}
@@ -235,7 +237,7 @@ function Events() {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
-                    {locales.content.assign.name}
+                    {locales.route.content.assign.name}
                   </label>
                 </div>
               </div>
@@ -272,12 +274,14 @@ function Events() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-4 font-semibold">
-        {locales.content.parent.headline}
+        {locales.route.content.parent.headline}
       </h4>
       <p className="mb-8">
-        {locales.content.parent.intro}
+        {locales.route.content.parent.intro}
         <br></br>
-        {loaderData.parentEvent === null ? locales.content.parent.empty : ""}
+        {loaderData.parentEvent === null
+          ? locales.route.content.parent.empty
+          : ""}
       </p>
       {loaderData.parentEvent !== null ? (
         <div>
@@ -339,9 +343,9 @@ function Events() {
                           {loaderData.parentEvent._count.childEvents === 0 ? (
                             <>
                               {loaderData.parentEvent.participantLimit === null
-                                ? locales.content.parent.seats.unlimited
+                                ? locales.route.content.parent.seats.unlimited
                                 : insertParametersIntoLocale(
-                                    locales.content.parent.seats.exact,
+                                    locales.route.content.parent.seats.exact,
                                     {
                                       number:
                                         loaderData.parentEvent
@@ -364,7 +368,7 @@ function Events() {
                               |{" "}
                               <span>
                                 {insertParametersIntoLocale(
-                                  locales.content.parent.seats.waiting,
+                                  locales.route.content.parent.seats.waiting,
                                   {
                                     number:
                                       loaderData.parentEvent._count.waitingList,
@@ -417,9 +421,11 @@ function Events() {
         </div>
       ) : null}
       <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
-      <h4 className="mb-4 font-semibold">{locales.content.related.headline}</h4>
+      <h4 className="mb-4 font-semibold">
+        {locales.route.content.related.headline}
+      </h4>
 
-      <p className="mb-4">{locales.content.related.intro}</p>
+      <p className="mb-4">{locales.route.content.related.intro}</p>
       <RemixFormsForm
         schema={addChildSchema}
         fetcher={addChildFetcher}
@@ -440,7 +446,7 @@ function Events() {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
-                    {locales.content.related.name}
+                    {locales.route.content.related.name}
                   </label>
                 </div>
               </div>
@@ -477,13 +483,13 @@ function Events() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-4 font-semibold">
-        {locales.content.current.headline}
+        {locales.route.content.current.headline}
       </h4>
       <p className="mb-8">
-        {locales.content.current.intro}
+        {locales.route.content.current.intro}
         <br></br>
         {loaderData.childEvents.length === 0
-          ? locales.content.current.empty
+          ? locales.route.content.current.empty
           : ""}
       </p>
       {loaderData.childEvents.length > 0 ? (
@@ -546,9 +552,11 @@ function Events() {
                               {childEvent._count.childEvents === 0 ? (
                                 <>
                                   {childEvent.participantLimit === null
-                                    ? locales.content.current.seats.unlimited
+                                    ? locales.route.content.current.seats
+                                        .unlimited
                                     : insertParametersIntoLocale(
-                                        locales.content.current.seats.exact,
+                                        locales.route.content.current.seats
+                                          .exact,
                                         {
                                           number:
                                             childEvent.participantLimit -
@@ -568,7 +576,8 @@ function Events() {
                                   |{" "}
                                   <span>
                                     {insertParametersIntoLocale(
-                                      locales.content.current.seats.waiting,
+                                      locales.route.content.current.seats
+                                        .waiting,
                                       {
                                         number: childEvent._count.waitingList,
                                       }
@@ -596,7 +605,7 @@ function Events() {
                         <Field name="childEventId" />
                         <Button
                           className="ml-auto btn-none"
-                          title={locales.form.remove.label}
+                          title={locales.route.form.remove.label}
                         >
                           <svg
                             viewBox="0 0 10 10"
@@ -639,8 +648,8 @@ function Events() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? locales.form.hide.label
-                        : locales.form.publish.label}
+                        ? locales.route.form.hide.label
+                        : locales.route.form.publish.label}
                     </Button>
                   </>
                 );

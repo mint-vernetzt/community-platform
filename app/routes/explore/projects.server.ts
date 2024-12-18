@@ -3,6 +3,12 @@ import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { prismaClient } from "~/prisma.server";
 import { type GetProjectsSchema } from "./projects";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type languageModuleMap } from "~/locales/.server";
+
+export type ExploreProjectsLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof supportedCookieLanguages
+>]["explore/projects"];
 
 export function getTakeParam(page: GetProjectsSchema["page"]) {
   const itemsPerPage = 12;

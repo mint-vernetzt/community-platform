@@ -56,7 +56,7 @@ export function MainMenu(
               <Link to={`/login?login_redirect=${location.pathname}`}>
                 <Button>
                   {props.locales !== undefined
-                    ? props.locales.root.login
+                    ? props.locales.route.root.login
                     : defaultLanguage === "de"
                     ? "Anmelden"
                     : "Login"}
@@ -65,7 +65,7 @@ export function MainMenu(
             </div>
             <div className="mv-hidden sm:mv-block mv-font-semibold mv-text-primary-500">
               {props.locales !== undefined
-                ? props.locales.root.or
+                ? props.locales.route.root.or
                 : defaultLanguage === "de"
                 ? "oder"
                 : "or"}
@@ -74,7 +74,7 @@ export function MainMenu(
               <Link to={`/register?login_redirect=${location.pathname}`}>
                 <Button variant="outline">
                   {props.locales !== undefined
-                    ? props.locales.root.register
+                    ? props.locales.route.root.register
                     : defaultLanguage === "de"
                     ? "Registrieren"
                     : "Register"}
@@ -104,7 +104,7 @@ export function MainMenu(
                   )}
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
-                      ? props.locales.root.menu.overview
+                      ? props.locales.route.root.menu.overview
                       : defaultLanguage === "de"
                       ? "Überblick"
                       : "Overview"}
@@ -130,7 +130,7 @@ export function MainMenu(
                     )}
                     <div className="mv-font-semibold">
                       {props.locales !== undefined
-                        ? props.locales.root.menu.personalSpace.label
+                        ? props.locales.route.root.menu.personalSpace.label
                         : defaultLanguage === "de"
                         ? "Mein MINT-Bereich"
                         : "My space"}
@@ -142,7 +142,7 @@ export function MainMenu(
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {props.locales !== undefined
-                      ? props.locales.root.menu.personalSpace.myProfile
+                      ? props.locales.route.root.menu.personalSpace.myProfile
                       : defaultLanguage === "de"
                       ? "Mein Profil"
                       : "My profile"}
@@ -153,7 +153,8 @@ export function MainMenu(
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {props.locales !== undefined
-                      ? props.locales.root.menu.personalSpace.myOrganizations
+                      ? props.locales.route.root.menu.personalSpace
+                          .myOrganizations
                       : defaultLanguage === "de"
                       ? "Meine Organisationen"
                       : "My organizations"}
@@ -164,7 +165,7 @@ export function MainMenu(
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {props.locales !== undefined
-                      ? props.locales.root.menu.personalSpace.myEvents
+                      ? props.locales.route.root.menu.personalSpace.myEvents
                       : defaultLanguage === "de"
                       ? "Meine Veranstaltungen"
                       : "My events"}
@@ -175,7 +176,7 @@ export function MainMenu(
                     openNavBarMenuKey={props.openNavBarMenuKey}
                   >
                     {props.locales !== undefined
-                      ? props.locales.root.menu.personalSpace.myProjects
+                      ? props.locales.route.root.menu.personalSpace.myProjects
                       : defaultLanguage === "de"
                       ? "Meine Projekte"
                       : "My projects"}
@@ -197,7 +198,7 @@ export function MainMenu(
                 )}
                 <div className="mv-font-semibold">
                   {props.locales !== undefined
-                    ? props.locales.root.menu.explore.label
+                    ? props.locales.route.root.menu.explore.label
                     : defaultLanguage === "de"
                     ? "Entdecken"
                     : "Explore"}
@@ -209,7 +210,7 @@ export function MainMenu(
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined
-                  ? props.locales.root.menu.explore.profiles
+                  ? props.locales.route.root.menu.explore.profiles
                   : defaultLanguage === "de"
                   ? "Profile"
                   : "Profiles"}
@@ -220,7 +221,7 @@ export function MainMenu(
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined
-                  ? props.locales.root.menu.explore.organizations
+                  ? props.locales.route.root.menu.explore.organizations
                   : defaultLanguage === "de"
                   ? "Organisationen"
                   : "Organizations"}
@@ -231,7 +232,7 @@ export function MainMenu(
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined
-                  ? props.locales.root.menu.explore.projects
+                  ? props.locales.route.root.menu.explore.projects
                   : defaultLanguage === "de"
                   ? "Projekte"
                   : "Projects"}
@@ -242,7 +243,7 @@ export function MainMenu(
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined
-                  ? props.locales.root.menu.explore.events
+                  ? props.locales.route.root.menu.explore.events
                   : defaultLanguage === "de"
                   ? "Veranstaltungen"
                   : "Events"}
@@ -253,7 +254,7 @@ export function MainMenu(
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined
-                  ? props.locales.root.menu.explore.fundings
+                  ? props.locales.route.root.menu.explore.fundings
                   : defaultLanguage === "de"
                   ? "Förderungen"
                   : "Fundings"}
@@ -272,7 +273,7 @@ export function MainMenu(
                 <Icon type="briefcase-outline" />
                 <div className="mv-font-semibold">
                   {props.locales !== undefined
-                    ? props.locales.root.menu.ressources.label
+                    ? props.locales.route.root.menu.ressources.label
                     : defaultLanguage === "de"
                     ? "Ressourcen"
                     : "Ressources"}
@@ -283,7 +284,7 @@ export function MainMenu(
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined
-                  ? props.locales.root.menu.ressources.imageArchive
+                  ? props.locales.route.root.menu.ressources.imageArchive
                   : defaultLanguage === "de"
                   ? "MINT-Mediendatenbank"
                   : "MINT-Mediendatenbank"}
@@ -295,7 +296,7 @@ export function MainMenu(
                   openNavBarMenuKey={props.openNavBarMenuKey}
                 >
                   {props.locales !== undefined
-                    ? props.locales.root.menu.ressources.sharepic
+                    ? props.locales.route.root.menu.ressources.sharepic
                     : defaultLanguage === "de"
                     ? "MINT-Sharepic Generator"
                     : "MINT-Sharepic Generator"}
@@ -308,7 +309,7 @@ export function MainMenu(
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined
-                  ? props.locales.root.menu.ressources.website
+                  ? props.locales.route.root.menu.ressources.website
                   : defaultLanguage === "de"
                   ? "MINTvernetzt Webseite"
                   : "MINTvernetzt Website"}
@@ -320,7 +321,7 @@ export function MainMenu(
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined
-                  ? props.locales.root.menu.ressources.datalab
+                  ? props.locales.route.root.menu.ressources.datalab
                   : defaultLanguage === "de"
                   ? "MINT-DataLab"
                   : "MINT-DataLab"}
@@ -332,7 +333,7 @@ export function MainMenu(
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined
-                  ? props.locales.root.menu.ressources.campus
+                  ? props.locales.route.root.menu.ressources.campus
                   : defaultLanguage === "de"
                   ? "MINT-Campus"
                   : "MINT-Campus"}
@@ -344,7 +345,7 @@ export function MainMenu(
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined
-                  ? props.locales.root.menu.ressources.github
+                  ? props.locales.route.root.menu.ressources.github
                   : defaultLanguage === "de"
                   ? "MINTvernetzt GitHub"
                   : "MINTvernetzt GitHub"}
@@ -374,7 +375,7 @@ export function MainMenu(
               )}
               <div className="mv-font-semibold">
                 {props.locales !== undefined
-                  ? props.locales.root.menu.help
+                  ? props.locales.route.root.menu.help
                   : defaultLanguage === "de"
                   ? "Hilfe"
                   : "Help"}
@@ -397,7 +398,7 @@ export function MainMenu(
                   )}
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
-                      ? props.locales.root.menu.settings
+                      ? props.locales.route.root.menu.settings
                       : defaultLanguage === "de"
                       ? "Einstellungen"
                       : "Settings"}
@@ -413,7 +414,7 @@ export function MainMenu(
                   <Icon type="door-closed-outline" />
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
-                      ? props.locales.root.menu.logout
+                      ? props.locales.route.root.menu.logout
                       : defaultLanguage === "de"
                       ? "Ausloggen"
                       : "Logout"}
@@ -432,7 +433,7 @@ export function MainMenu(
               to="/imprint"
             >
               {props.locales !== undefined
-                ? props.locales.root.menu.imprint
+                ? props.locales.route.root.menu.imprint
                 : defaultLanguage === "de"
                 ? "Impressum"
                 : "Imprint"}
@@ -443,7 +444,7 @@ export function MainMenu(
               to="https://mint-vernetzt.de/privacy-policy-community-platform/"
             >
               {props.locales !== undefined
-                ? props.locales.root.menu.privacy
+                ? props.locales.route.root.menu.privacy
                 : defaultLanguage === "de"
                 ? "Datenschutz"
                 : "Privacy policy"}
@@ -454,7 +455,7 @@ export function MainMenu(
               to="https://mint-vernetzt.de/terms-of-use-community-platform/"
             >
               {props.locales !== undefined
-                ? props.locales.root.menu.terms
+                ? props.locales.route.root.menu.terms
                 : defaultLanguage === "de"
                 ? "Nutzungsbedingungen"
                 : "Terms of use"}

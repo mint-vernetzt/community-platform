@@ -377,6 +377,9 @@ import { locale as frExploreFundings } from "./fr/routes/explore/fundings";
 import { locale as frExploreProfiles } from "./fr/routes/explore/profiles";
 // meta
 import { locale as frMeta } from "./fr/meta";
+import { add } from "date-fns";
+import { profile } from "console";
+import { searchProfilesSchema } from "~/form-helpers";
 
 /**
  * This is the map of all language modules.
@@ -398,7 +401,7 @@ import { locale as frMeta } from "./fr/meta";
 
 const de = {
   // root
-  root: { ...deMeta, ...deFooter },
+  root: { route: deMeta, footer: deFooter },
   // event routes
   "event/$slug/settings/admins/add-admin": deAddEventAdmin,
   "event/$slug/settings/admins/remove-admin": deRemoveEventAdmin,
@@ -432,11 +435,11 @@ const de = {
   "event/$slug/settings/delete": deDeleteEvent,
   "event/$slug/settings/documents": deEventDocuments,
   "event/$slug/settings/events": {
-    ...deConnectEventsWithEvent,
+    route: deConnectEventsWithEvent,
     stages: deStages,
   },
   "event/$slug/settings/general": {
-    ...deGeneralEventSettings,
+    route: deGeneralEventSettings,
     stages: deStages,
     experienceLevels: deExperienceLevels,
     eventTypes: deEventTypes,
@@ -445,7 +448,7 @@ const de = {
     eventTargetGroups: deEventTargetGroups,
   },
   "event/$slug/settings/organizations": {
-    ...deResponsibleOrganizationsOfEvent,
+    route: deResponsibleOrganizationsOfEvent,
     organizationTypes: deOrganizationTypes,
   },
   "event/$slug/settings/participants": deEventParticipants,
@@ -454,7 +457,7 @@ const de = {
   "event/$slug/settings/waiting-list": deEventWaitingList,
   "event/$slug/documents-download": deDownloadEventDocuments,
   "event/$slug/index": {
-    ...deEventDetail,
+    route: deEventDetail,
     stages: deStages,
     experienceLevels: deExperienceLevels,
     focuses: deFocuses,
@@ -469,37 +472,78 @@ const de = {
   "event/create": deCreateEvent,
   // explore routes
   "explore/events": {
-    ...deExploreEvents,
+    route: deExploreEvents,
     focuses: deFocuses,
     stages: deStages,
     eventTargetGroups: deEventTargetGroups,
-    ...deEventCard,
+    eventCard: deEventCard,
   },
   "explore/fundings": deExploreFundings,
-  "explore/organizations": deExploreOrganizations,
-  "explore/profiles": {
-    ...deExploreProfiles,
-    offers: { ...deOffers },
-    ...deProfileCard,
+  "explore/organizations": {
+    route: deExploreOrganizations,
+    organizationTypes: deOrganizationTypes,
+    focuses: deFocuses,
+    organizationCard: deOrganizationCard,
   },
-  "explore/projects": deExploreProjects,
+  "explore/profiles": {
+    route: deExploreProfiles,
+    offers: deOffers,
+    profileCard: deProfileCard,
+  },
+  "explore/projects": {
+    route: deExploreProjects,
+    financings: deFinancings,
+    disciplines: deDisciplines,
+    additionalDisciplines: deAdditionalDisciplines,
+    projectTargetGroups: deProjectTargetGroups,
+    formats: deFormats,
+    specialTargetGroups: deSpecialTargetGroups,
+    projectCard: deProjectCard,
+  },
   // login routes
   "login/index": deLogin,
   // my routes
-  "my/events": deMyEvents,
-  "my/organizations": deMyOrganizations,
-  "my/projects": deMyProjects,
+  "my/events": {
+    route: deMyEvents,
+    stages: deStages,
+    components: deComponents,
+  },
+  "my/organizations": {
+    route: deMyOrganizations,
+    organizationTypes: deOrganizationTypes,
+    focuses: deFocuses,
+    organizationCard: deOrganizationCard,
+  },
+  "my/projects": { route: deMyProjects, projectCard: deProjectCard },
   // next routes
-  "next/organization/$slug/settings/danger-zone/change-url":
-    deNextChangeOrganizationUrl,
+  "next/organization/$slug/settings/danger-zone/change-url": {
+    route: deNextChangeOrganizationUrl,
+    components: deComponents,
+  },
   "next/organization/$slug/settings/danger-zone/delete":
     deNextDeleteOrganization,
-  "next/organization/$slug/settings/admins": deNextOrganizationAdmins,
+  "next/organization/$slug/settings/admins": {
+    route: deNextOrganizationAdmins,
+    searchProfilesSchema: deSearchProfilesSchema,
+    organizationTypes: deOrganizationTypes,
+  },
   "next/organization/$slug/settings/danger-zone": deNextOrganizationDangerZone,
-  "next/organization/$slug/settings/team": deNextOrganizationTeam,
-  "next/organization/$slug/settings/web-social": deNextOrganizationWebAndSocial,
+  "next/organization/$slug/settings/team": {
+    route: deNextOrganizationTeam,
+    searchProfilesSchema: deSearchProfilesSchema,
+    organizationTypes: deOrganizationTypes,
+  },
+  "next/organization/$slug/settings/web-social": {
+    route: deNextOrganizationWebAndSocial,
+    components: deComponents,
+    webAndSocialSchemas: deSchemas,
+  },
   "next/organization/$slug/settings": deNextOrganizationSettings,
-  "next/organization/create": deNextCreateOrganization,
+  "next/organization/create": {
+    route: deNextCreateOrganization,
+    organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
+  },
   // organization routes
   "organization/$slug/detail/about": deAboutOrganization,
   "organization/$slug/detail/events": deOrganizationEvents,
@@ -573,7 +617,11 @@ const de = {
   "search/events": deSearchEvents,
   "search/fundings": deSearchFundings,
   "search/organizations": deSearchOrganizations,
-  "search/profiles": { ...deSearchProfiles, offers: { ...deOffers } },
+  "search/profiles": {
+    route: deSearchProfiles,
+    offers: deOffers,
+    profileCard: deProfileCard,
+  },
   "search/projects": deSearchProjects,
   // upload routes
   "upload/delete": deDeleteImage,
@@ -582,14 +630,15 @@ const de = {
   "accept-terms": deAcceptTerms,
   // dashboard route
   dashboard: {
-    ...deDashboard,
-    ...deProfileCard,
-    offers: { ...deOffers },
-    ...deOrganizationCard,
-    focuses: { ...deFocuses },
-    organizationTypes: { ...deOrganizationTypes },
-    ...deEventCard,
-    stages: { ...deStages },
+    route: deDashboard,
+    profileCard: deProfileCard,
+    offers: deOffers,
+    organizationCard: deOrganizationCard,
+    focuses: deFocuses,
+    organizationTypes: deOrganizationTypes,
+    eventCard: deEventCard,
+    stages: deStages,
+    projectCard: deProjectCard,
   },
   // goodbye route
   goodbye: deGoodbye,
@@ -605,7 +654,7 @@ const de = {
 
 const en = {
   // root
-  root: { ...enMeta, ...enFooter },
+  root: { route: enMeta, footer: enFooter },
   // event routes
   "event/$slug/settings/admins/add-admin": enAddEventAdmin,
   "event/$slug/settings/admins/remove-admin": enRemoveEventAdmin,
@@ -639,11 +688,11 @@ const en = {
   "event/$slug/settings/delete": enDeleteEvent,
   "event/$slug/settings/documents": enEventDocuments,
   "event/$slug/settings/events": {
-    ...enConnectEventsWithEvent,
+    route: enConnectEventsWithEvent,
     stages: enStages,
   },
   "event/$slug/settings/general": {
-    ...enGeneralEventSettings,
+    route: enGeneralEventSettings,
     stages: enStages,
     experienceLevels: enExperienceLevels,
     focuses: enFocuses,
@@ -652,7 +701,7 @@ const en = {
     tags: enTags,
   },
   "event/$slug/settings/organizations": {
-    ...enResponsibleOrganizationsOfEvent,
+    route: enResponsibleOrganizationsOfEvent,
     organizationTypes: enOrganizationTypes,
   },
   "event/$slug/settings/participants": enEventParticipants,
@@ -661,7 +710,7 @@ const en = {
   "event/$slug/settings/waiting-list": enEventWaitingList,
   "event/$slug/documents-download": enDownloadEventDocuments,
   "event/$slug/index": {
-    ...enEventDetail,
+    route: enEventDetail,
     stages: enStages,
     experienceLevels: enExperienceLevels,
     focuses: enFocuses,
@@ -676,37 +725,78 @@ const en = {
   "event/create": enCreateEvent,
   // explore routes
   "explore/events": {
-    ...enExploreEvents,
+    route: enExploreEvents,
     focuses: enFocuses,
     stages: enStages,
     eventTargetGroups: enEventTargetGroups,
-    ...enEventCard,
+    eventCard: enEventCard,
   },
   "explore/fundings": enExploreFundings,
-  "explore/organizations": enExploreOrganizations,
-  "explore/profiles": {
-    ...enExploreProfiles,
-    offers: { ...enOffers },
-    ...enProfileCard,
+  "explore/organizations": {
+    route: enExploreOrganizations,
+    organizationTypes: enOrganizationTypes,
+    focuses: enFocuses,
+    organizationCard: enOrganizationCard,
   },
-  "explore/projects": enExploreProjects,
+  "explore/profiles": {
+    route: enExploreProfiles,
+    offers: enOffers,
+    profileCard: enProfileCard,
+  },
+  "explore/projects": {
+    route: enExploreProjects,
+    financings: enFinancings,
+    disciplines: enDisciplines,
+    projectTargetGroups: enProjectTargetGroups,
+    specialTargetGroups: enSpecialTargetGroups,
+    formats: enFormats,
+    additionalDisciplines: enAdditionalDisciplines,
+    projectCard: enProjectCard,
+  },
   // login routes
   "login/index": enLogin,
   // my routes
-  "my/events": enMyEvents,
-  "my/organizations": enMyOrganizations,
-  "my/projects": enMyProjects,
+  "my/events": {
+    route: enMyEvents,
+    stages: enStages,
+    components: enComponents,
+  },
+  "my/organizations": {
+    route: enMyOrganizations,
+    organizationTypes: enOrganizationTypes,
+    focuses: enFocuses,
+    organizationCard: enOrganizationCard,
+  },
+  "my/projects": { route: enMyProjects, projectCard: enProjectCard },
   // next routes
-  "next/organization/$slug/settings/danger-zone/change-url":
-    enNextChangeOrganizationUrl,
+  "next/organization/$slug/settings/danger-zone/change-url": {
+    route: enNextChangeOrganizationUrl,
+    components: enComponents,
+  },
   "next/organization/$slug/settings/danger-zone/delete":
     enNextDeleteOrganization,
-  "next/organization/$slug/settings/admins": enNextOrganizationAdmins,
+  "next/organization/$slug/settings/admins": {
+    route: enNextOrganizationAdmins,
+    searchProfilesSchema: enSearchProfilesSchema,
+    organizationTypes: enOrganizationTypes,
+  },
   "next/organization/$slug/settings/danger-zone": enNextOrganizationDangerZone,
-  "next/organization/$slug/settings/team": enNextOrganizationTeam,
-  "next/organization/$slug/settings/web-social": enNextOrganizationWebAndSocial,
+  "next/organization/$slug/settings/team": {
+    route: enNextOrganizationTeam,
+    searchProfilesSchema: enSearchProfilesSchema,
+    organizationTypes: enOrganizationTypes,
+  },
+  "next/organization/$slug/settings/web-social": {
+    route: enNextOrganizationWebAndSocial,
+    components: enComponents,
+    webAndSocialSchemas: enSchemas,
+  },
   "next/organization/$slug/settings": enNextOrganizationSettings,
-  "next/organization/create": enNextCreateOrganization,
+  "next/organization/create": {
+    route: enNextCreateOrganization,
+    organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
+  },
   // organization routes
   "organization/$slug/detail/about": enAboutOrganization,
   "organization/$slug/detail/events": enOrganizationEvents,
@@ -780,7 +870,11 @@ const en = {
   "search/events": enSearchEvents,
   "search/fundings": enSearchFundings,
   "search/organizations": enSearchOrganizations,
-  "search/profiles": { ...enSearchProfiles, offers: { ...enOffers } },
+  "search/profiles": {
+    route: enSearchProfiles,
+    offers: enOffers,
+    profileCard: enProfileCard,
+  },
   "search/projects": enSearchProjects,
   // upload routes
   "upload/delete": enDeleteImage,
@@ -789,14 +883,15 @@ const en = {
   "accept-terms": enAcceptTerms,
   // dashboard route
   dashboard: {
-    ...enDashboard,
-    ...enProfileCard,
-    offers: { ...enOffers },
-    ...enOrganizationCard,
-    focuses: { ...enFocuses },
-    organizationTypes: { ...enOrganizationTypes },
-    ...enEventCard,
-    stages: { ...enStages },
+    route: enDashboard,
+    profileCard: enProfileCard,
+    offers: enOffers,
+    organizationCard: enOrganizationCard,
+    focuses: enFocuses,
+    organizationTypes: enOrganizationTypes,
+    eventCard: enEventCard,
+    stages: enStages,
+    projectCard: enProjectCard,
   },
   // goodbye route
   goodbye: enGoodbye,
@@ -815,13 +910,13 @@ const fr = {
   // missing routes from en
   ...en,
   // root
-  root: { ...frMeta, ...frFooter },
+  root: { route: frMeta, footer: frFooter },
   // explore routes
   "explore/fundings": frExploreFundings,
   "explore/profiles": {
-    ...frExploreProfiles,
-    offers: { ...frOffers },
-    ...frProfileCard,
+    route: frExploreProfiles,
+    offers: frOffers,
+    profileCard: frProfileCard,
   },
 } as const;
 

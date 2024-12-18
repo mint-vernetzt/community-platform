@@ -32,7 +32,7 @@ export function LoginOrRegisterCTA(props: {
     <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-px-6 mv-py-6 mv-text-primary mv-bg-primary-50">
       <div className="mv-flex mv-justify-between mv-w-full">
         <p className="mv-block mv-font-semibold">
-          {locales.root.loginOrRegisterCTA.info}
+          {locales.route.root.loginOrRegisterCTA.info}
         </p>
 
         <Form
@@ -70,17 +70,19 @@ export function LoginOrRegisterCTA(props: {
           className="text-primary font-semibold hover:underline mv-flex-grow @sm:mv-flex-grow-0"
         >
           <Button variant="outline" fullSize>
-            {locales.root.loginOrRegisterCTA.login}
+            {locales.route.root.loginOrRegisterCTA.login}
           </Button>
         </Link>
         <p className="mv-text-xs mv-flex-grow-0">
-          {locales.root.loginOrRegisterCTA.or}
+          {locales.route.root.loginOrRegisterCTA.or}
         </p>
         <Link
           to={`/register?login_redirect=${location.pathname}`}
           className="text-primary font-semibold hover:underline mv-flex-grow @sm:mv-flex-grow-0"
         >
-          <Button fullSize>{locales.root.loginOrRegisterCTA.register}</Button>
+          <Button fullSize>
+            {locales.route.root.loginOrRegisterCTA.register}
+          </Button>
         </Link>
       </div>
     </div>

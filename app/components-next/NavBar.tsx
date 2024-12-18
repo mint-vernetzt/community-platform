@@ -74,7 +74,7 @@ export function NavBar(props: NavBarProps) {
             <Search
               placeholder={
                 props.locales !== undefined
-                  ? props.locales.root.search.placeholder
+                  ? props.locales.route.root.search.placeholder
                   : defaultLanguage === "de"
                   ? "Suche (min. 3 Zeichen)"
                   : "Search (min. 3 characters)"
@@ -115,7 +115,7 @@ export function NavBar(props: NavBarProps) {
                   <Button variant="ghost">
                     <span className="mv-underline">
                       {props.locales !== undefined
-                        ? props.locales.root.login
+                        ? props.locales.route.root.login
                         : defaultLanguage === "de"
                         ? "Anmelden"
                         : "Login"}
@@ -127,7 +127,7 @@ export function NavBar(props: NavBarProps) {
                 <Link to={`/register?login_redirect=${location.pathname}`}>
                   <Button>
                     {props.locales !== undefined
-                      ? props.locales.root.register
+                      ? props.locales.route.root.register
                       : defaultLanguage === "de"
                       ? "Registrieren"
                       : "Register"}

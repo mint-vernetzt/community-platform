@@ -56,9 +56,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.error.notFound, { status: 404 });
+  invariantResponse(event, locales.route.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
 
@@ -183,12 +183,12 @@ function Organizations() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
-      <p className="mb-8">{locales.content.headline}</p>
+      <h1 className="mb-8">{locales.route.content.headline}</h1>
+      <p className="mb-8">{locales.route.content.headline}</p>
       <h4 className="mb-4 mt-4 font-semibold">
-        {locales.content.add.headline}
+        {locales.route.content.add.headline}
       </h4>
-      <p className="mb-8">{locales.content.add.intro}</p>
+      <p className="mb-8">{locales.route.content.add.intro}</p>
       <RemixFormsForm
         schema={addOrganizationSchema}
         fetcher={addOrganizationFetcher}
@@ -208,7 +208,7 @@ function Organizations() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      {locales.content.add.label}
+                      {locales.route.content.add.label}
                     </label>
                   </div>
                 </div>
@@ -250,9 +250,9 @@ function Organizations() {
       {loaderData.ownOrganizationsSuggestions.length > 0 ? (
         <>
           <h4 className="mb-4 mt-16 font-semibold">
-            {locales.content.own.headline}
+            {locales.route.content.own.headline}
           </h4>
-          <p className="mb-8">{locales.content.own.intro}</p>
+          <p className="mb-8">{locales.route.content.own.intro}</p>
           <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
             <ul>
               {loaderData.ownOrganizationsSuggestions.map((organization) => {
@@ -332,7 +332,7 @@ function Organizations() {
                               title="Hinzufügen"
                               type="submit"
                             >
-                              {locales.content.own.label}
+                              {locales.route.content.own.label}
                             </button>
                           </>
                         );
@@ -347,9 +347,9 @@ function Organizations() {
       ) : null}
 
       <h4 className="mb-4 mt-16 font-semibold">
-        {locales.content.current.headline}
+        {locales.route.content.current.headline}
       </h4>
-      <p className="mb-8">{locales.content.current.intro}</p>
+      <p className="mb-8">{locales.route.content.current.intro}</p>
       <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
         <ul>
           {loaderData.responsibleOrganizations.map((organization) => {
@@ -425,7 +425,7 @@ function Organizations() {
                         <Field name="organizationId" />
                         <Button
                           className="ml-auto btn-none"
-                          title={locales.content.current.remove}
+                          title={locales.route.content.current.remove}
                         >
                           <svg
                             viewBox="0 0 10 10"
@@ -468,8 +468,8 @@ function Organizations() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? locales.content.hide
-                        : locales.content.publish}
+                        ? locales.route.content.hide
+                        : locales.route.content.publish}
                     </Button>
                   </>
                 );

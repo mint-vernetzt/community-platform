@@ -4,6 +4,8 @@ import { Card } from "./Card";
 import React from "react";
 import { Image } from "./../../molecules/Image";
 import { type DashboardLocales } from "~/routes/dashboard.server";
+import { type ExploreProjectsLocales } from "~/routes/explore/projects.server";
+import { type MyProjectsLocales } from "~/routes/my/projects.server";
 
 export type ProjectCardProps = {
   project: {
@@ -24,7 +26,7 @@ export type ProjectCardProps = {
       };
     }[];
   };
-  locales: DashboardLocales;
+  locales: DashboardLocales | ExploreProjectsLocales | MyProjectsLocales;
   mode?: "admin" | "teamMember";
 };
 
@@ -68,7 +70,7 @@ function ProjectCard(props: ProjectCardProps) {
           {typeof project.published !== "undefined" &&
             project.published === false && (
               <Card.Status variant="primary" inverted>
-                {locales.draft}
+                {locales.projectCard.draft}
               </Card.Status>
             )}
           <Avatar {...project} size="xl" />
@@ -164,7 +166,7 @@ function ProjectCard(props: ProjectCardProps) {
                         fill="CurrentColor"
                       />
                     </svg>
-                    <span>{locales.edit}</span>
+                    <span>{locales.projectCard.edit}</span>
                   </Link>
                 </li>
                 <div
@@ -200,7 +202,7 @@ function ProjectCard(props: ProjectCardProps) {
                   className="mv-appearance-none"
                   type="submit"
                 >
-                  {locales.quit}
+                  {locales.projectCard.quit}
                 </button>
               </label>
             </li>

@@ -1,4 +1,4 @@
-import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getOrganizationsToAdd } from "./get-organizations-to-add.server";
 
@@ -12,7 +12,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const sessionUser = await getSessionUser(authClient);
 
   if (sessionUser === null) {
-    return json([]);
+    return [];
   }
 
   const url = new URL(request.url);
@@ -30,5 +30,5 @@ export async function loader(args: LoaderFunctionArgs) {
   }
 
   const organizations = await getOrganizationsToAdd(request, sessionUser);
-  return json(organizations);
+  return organizations;
 }

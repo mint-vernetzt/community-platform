@@ -6,7 +6,7 @@ import { type GetProfilesSchema } from "./profiles";
 import { type languageModuleMap } from "~/locales/.server";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 
-export type ExploreProfileLocales = (typeof languageModuleMap)[ArrayElement<
+export type ExploreProfilesLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
 >]["explore/profiles"];
 

@@ -7,7 +7,7 @@ import {
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { type LoaderFunctionArgs, json } from "@remix-run/node";
+import { type LoaderFunctionArgs } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -396,7 +396,7 @@ export async function loader(args: LoaderFunctionArgs) {
     };
   });
 
-  return json({
+  return {
     fundings,
     fundingTypes: enhancedFundingTypes,
     selectedFundingTypes,
@@ -409,7 +409,7 @@ export async function loader(args: LoaderFunctionArgs) {
     submission,
     count,
     locales,
-  } as const);
+  };
 }
 
 function Fundings() {

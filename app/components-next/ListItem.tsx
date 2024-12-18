@@ -1,8 +1,10 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Link } from "@remix-run/react";
 import React from "react";
-import { useTranslation } from "react-i18next";
-import { i18nNS as organizationsI18nNS } from "~/routes/my/organizations";
+import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
+import { type OrganizationAdminSettingsLocales } from "~/routes/next/organization/$slug/settings/admins.server";
+import { type OrganizationTeamSettingsLocales } from "~/routes/next/organization/$slug/settings/team.server";
+import { type CreateOrganizationLocales } from "~/routes/next/organization/create.server";
 
 type ListOrganization = {
   logo: string | null;
@@ -41,12 +43,16 @@ type Entity = ListOrganization | ListProfile | ListProject;
 export function ListItem(
   props: React.PropsWithChildren<{
     entity: Entity;
+    locales:
+      | MyOrganizationsLocales
+      | OrganizationAdminSettingsLocales
+      | OrganizationTeamSettingsLocales
+      | CreateOrganizationLocales;
     listIndex?: number;
     hideAfter?: number;
   }>
 ) {
-  const { entity, children, listIndex, hideAfter } = props;
-  const { t } = useTranslation(organizationsI18nNS);
+  const { entity, children, listIndex, hideAfter, locales } = props;
 
   const validChildren = React.Children.toArray(children).filter((child) => {
     return React.isValidElement(child);
@@ -99,9 +105,23 @@ export function ListItem(
                     .join(", ")
                 : entity.types
                     .map((relation) => {
-                      return t(`${relation.organizationType.slug}.title`, {
-                        ns: "datasets-organizationTypes",
-                      });
+                      let title;
+                      if (
+                        relation.organizationType.slug in
+                        locales.organizationTypes
+                      ) {
+                        type LocaleKey = keyof typeof locales.organizationTypes;
+                        title =
+                          locales.organizationTypes[
+                            relation.organizationType.slug as LocaleKey
+                          ].title;
+                      } else {
+                        console.error(
+                          `Focus ${relation.organizationType.slug} not found in locales`
+                        );
+                        title = relation.organizationType.slug;
+                      }
+                      return title;
                     })
                     .join(", ")}
             </p>

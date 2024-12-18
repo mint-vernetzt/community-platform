@@ -95,17 +95,29 @@ export const locale = {
     rejected: "You have declined to join the {{organization}} organization.",
   },
   email: {
-    createRequst: {
-      subject: "Deine Organisation hat eine Mitgliedsanfrage erhalten.",
+    createRequest: {
+      subject: "Your organization has received a membership request.",
       button: {
-        text: "Zur Community Plattform",
+        text: "To the community platform",
       },
     },
     acceptRequest: {
-      subject: "Deine Anfrage wurde bestätigt.",
+      subject: "Your request has been accepted.",
     },
     rejectRequest: {
-      subject: "Deine Anfrage wurde abgelehnt.",
+      subject: "Your request has been declined.",
+    },
+    inviteAccepted: {
+      subject: "Your invitation has been accepted.",
+    },
+    inviteAsAdminAccepted: {
+      subject: "Your invitation has been accepted.",
+    },
+    inviteRejected: {
+      subject: "Your invitation has been declined.",
+    },
+    inviteAsAdminRejected: {
+      subject: "Your invitation has been declined.",
     },
   },
 } as const;

@@ -5,7 +5,7 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -13,17 +13,14 @@ import {
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
-import { type TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
-import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { Container } from "~/components-next/MyProjectsCreateOrganizationContainer";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
@@ -32,6 +29,7 @@ import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
 import {
   countOrganizationsBySearchQuery,
+  type CreateOrganizationLocales,
   createOrganizationOnProfile,
   getAllNetworkTypes,
   getAllOrganizationTypes,
@@ -41,24 +39,17 @@ import {
 import { ConformSelect } from "~/components-next/ConformSelect";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { redirectWithAlert } from "~/alert.server";
+import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
-const i18nNS = [
-  "routes-next-organization-create",
-  "datasets-organizationTypes",
-  "datasets-networkTypes",
-] as const;
-export const handle = {
-  i18n: i18nNS,
-};
-
-const createSchema = (t: TFunction) => {
+const createSchema = (locales: CreateOrganizationLocales) => {
   return z.object({
     organizationName: z
       .string({
-        required_error: t("validation.organizationName.required"),
+        required_error: locales.route.validation.organizationName.required,
       })
-      .min(3, t("validation.organizationName.min"))
-      .max(80, t("validation.organizationName.max")),
+      .min(3, locales.route.validation.organizationName.min)
+      .max(80, locales.route.validation.organizationName.max),
     organizationTypes: z.array(z.string().uuid()),
     networkTypes: z.array(z.string().uuid()),
   });
@@ -75,6 +66,9 @@ export async function loader(args: LoaderFunctionArgs) {
   }
 
   await checkFeatureAbilitiesOrThrow(authClient, ["next-organization-create"]);
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["next/organization/create"];
 
   const url = new URL(request.url);
 
@@ -125,7 +119,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const allOrganizationTypes = await getAllOrganizationTypes();
   const allNetworkTypes = await getAllNetworkTypes();
 
-  return json({ searchResult, allOrganizationTypes, allNetworkTypes });
+  return { searchResult, allOrganizationTypes, allNetworkTypes, locales };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -140,11 +134,11 @@ export async function action(args: ActionFunctionArgs) {
 
   const queryString = url.searchParams.get("search");
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["next/organization/create"];
 
   const formData = await request.formData();
-  const submission = parse(formData, { schema: createSchema(t) });
+  const submission = parse(formData, { schema: createSchema(locales) });
 
   if (typeof submission.value !== "undefined" && submission.value !== null) {
     if (submission.intent === "submit") {
@@ -178,7 +172,7 @@ export async function action(args: ActionFunctionArgs) {
           slug
         );
         return redirectWithAlert(`/organization/${slug}/detail/about`, {
-          message: t("successAlert", {
+          message: insertParametersIntoLocale(locales.route.successAlert, {
             name: submission.value.organizationName,
             slug: slug,
           }),
@@ -197,22 +191,22 @@ export async function action(args: ActionFunctionArgs) {
     }
   }
 
-  return json(submission);
+  return submission;
 }
 
 function CreateOrganization() {
   const loaderData = useLoaderData<typeof loader>();
-  const { searchResult, allOrganizationTypes, allNetworkTypes } = loaderData;
+  const { searchResult, allOrganizationTypes, allNetworkTypes, locales } =
+    loaderData;
   const actionData = useActionData<typeof action>();
 
   const [searchParams] = useSearchParams();
 
   const searchQuery = searchParams.get("search") || "";
 
-  const { t } = useTranslation(i18nNS);
   const [form, fields] = useForm({
     id: "create-organization-form",
-    constraint: getFieldsetConstraint(createSchema(t)),
+    constraint: getFieldsetConstraint(createSchema(locales)),
     lastSubmission: actionData,
     defaultValue: {
       organizationName: searchQuery,
@@ -220,7 +214,7 @@ function CreateOrganization() {
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",
     onValidate({ formData }) {
-      return parse(formData, { schema: createSchema(t) });
+      return parse(formData, { schema: createSchema(locales) });
     },
   });
   const organizationTypeList = useFieldList(form.ref, fields.organizationTypes);
@@ -249,21 +243,21 @@ function CreateOrganization() {
       <button form={form.id} type="submit" hidden />
       <TextButton weight="thin" variant="neutral" arrowLeft>
         <Link to="/my/organizations" prefetch="intent">
-          {t("back")}
+          {locales.route.back}
         </Link>
       </TextButton>
       <h1 className="mv-mb-0 mv-text-primary mv-text-5xl mv-font-bold mv-leading-9">
-        {t("headline")}
+        {locales.route.headline}
       </h1>
       <Section>
         <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
           {/* Organization name Section */}
           <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
-            {t("form.organizationName.headline")}
+            {locales.route.form.organizationName.headline}
           </h2>
           <Input {...conform.input(fields.organizationName)}>
             <Input.Label htmlFor={fields.organizationName.id}>
-              {t("form.organizationName.label")}
+              {locales.route.form.organizationName.label}
             </Input.Label>
             {typeof fields.organizationName.error !== "undefined" && (
               <Input.Error>{fields.organizationName.error}</Input.Error>
@@ -273,9 +267,12 @@ function CreateOrganization() {
           {searchResult.length > 0 && (
             <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-8">
               <p>
-                {t("form.organizationName.sameOrganization", {
-                  searchQuery,
-                })}
+                {insertParametersIntoLocale(
+                  locales.route.form.organizationName.sameOrganization,
+                  {
+                    searchQuery,
+                  }
+                )}
               </p>
               <ListContainer listKey="already-existing-organizations">
                 {searchResult.map((organization, index) => {
@@ -284,6 +281,7 @@ function CreateOrganization() {
                       key={`already-existing-organization-${organization.id}`}
                       listIndex={index}
                       entity={organization}
+                      locales={locales}
                     />
                   );
                 })}
@@ -294,17 +292,17 @@ function CreateOrganization() {
         {/* Organization types section */}
         <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
           <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
-            {t("form.organizationTypes.headline")}
+            {locales.route.form.organizationTypes.headline}
           </h2>
           <ConformSelect
             id={fields.organizationTypes.id}
-            cta={t("form.organizationTypes.cta")}
+            cta={locales.route.form.organizationTypes.cta}
           >
             <ConformSelect.Label htmlFor={fields.organizationTypes.id}>
-              {t("form.organizationTypes.label")}
+              {locales.route.form.organizationTypes.label}
             </ConformSelect.Label>
             <ConformSelect.HelperText>
-              {t("form.organizationTypes.helperText")}
+              {locales.route.form.organizationTypes.helperText}
             </ConformSelect.HelperText>
             {allOrganizationTypes
               .filter((organizationType) => {
@@ -315,6 +313,21 @@ function CreateOrganization() {
                 });
               })
               .map((filteredOrganizationType) => {
+                let title;
+                if (
+                  filteredOrganizationType.slug in locales.organizationTypes
+                ) {
+                  type LocaleKey = keyof typeof locales.organizationTypes;
+                  title =
+                    locales.organizationTypes[
+                      filteredOrganizationType.slug as LocaleKey
+                    ].title;
+                } else {
+                  console.error(
+                    `Organization type ${filteredOrganizationType.slug} not found in locales`
+                  );
+                  title = filteredOrganizationType.slug;
+                }
                 return (
                   <button
                     {...list.insert(fields.organizationTypes.name, {
@@ -324,9 +337,7 @@ function CreateOrganization() {
                     key={filteredOrganizationType.id}
                     className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                   >
-                    {t(`${filteredOrganizationType.slug}.title`, {
-                      ns: "datasets-organizationTypes",
-                    })}
+                    {title}
                   </button>
                 );
               })}
@@ -340,17 +351,28 @@ function CreateOrganization() {
                       type="hidden"
                       {...conform.input(listOrganizationType)}
                     />
-                    {t(
-                      `${
-                        allOrganizationTypes.find((organizationType) => {
-                          return (
-                            organizationType.id ===
-                            listOrganizationType.defaultValue
-                          );
-                        })?.slug
-                      }.title`,
-                      { ns: "datasets-organizationTypes" }
-                    ) || t("form.organizationTypes.notFound")}
+                    {(() => {
+                      let value;
+                      if (listOrganizationType.defaultValue === undefined) {
+                        return null;
+                      }
+                      if (
+                        listOrganizationType.defaultValue in
+                        locales.organizationTypes
+                      ) {
+                        type LocaleKey = keyof typeof locales.organizationTypes;
+                        value =
+                          locales.organizationTypes[
+                            listOrganizationType.defaultValue as LocaleKey
+                          ].title;
+                      } else {
+                        console.error(
+                          `Organization type ${listOrganizationType.defaultValue} not found in locales`
+                        );
+                        value = listOrganizationType.defaultValue;
+                      }
+                      return value;
+                    })() || locales.route.form.organizationTypes.notFound}
                     <Chip.Delete>
                       <button
                         {...list.remove(fields.organizationTypes.name, {
@@ -373,25 +395,25 @@ function CreateOrganization() {
               isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
             }`}
           >
-            {t("form.networkTypes.headline")}
+            {locales.route.form.networkTypes.headline}
           </h2>
           <ConformSelect
             id={fields.networkTypes.id}
-            cta={t("form.networkTypes.cta")}
+            cta={locales.route.form.networkTypes.cta}
             disabled={isNetwork === false}
           >
             <ConformSelect.Label htmlFor={fields.networkTypes.id}>
               <span
                 className={isNetwork === false ? "mv-text-neutral-300" : ""}
               >
-                {t("form.networkTypes.label")}
+                {locales.route.form.networkTypes.label}
               </span>
             </ConformSelect.Label>
             <ConformSelect.HelperText>
               <span
                 className={isNetwork === false ? "mv-text-neutral-300" : ""}
               >
-                {t("form.networkTypes.helperText")}
+                {locales.route.form.networkTypes.helperText}
               </span>
             </ConformSelect.HelperText>
             {allNetworkTypes
@@ -401,6 +423,18 @@ function CreateOrganization() {
                 });
               })
               .map((filteredNetworkType) => {
+                let title;
+                if (filteredNetworkType.slug in locales.networkTypes) {
+                  type LocaleKey = keyof typeof locales.networkTypes;
+                  title =
+                    locales.networkTypes[filteredNetworkType.slug as LocaleKey]
+                      .title;
+                } else {
+                  console.error(
+                    `Network type ${filteredNetworkType.slug} not found in locales`
+                  );
+                  title = filteredNetworkType.slug;
+                }
                 return (
                   <button
                     {...list.insert(fields.networkTypes.name, {
@@ -411,9 +445,7 @@ function CreateOrganization() {
                     disabled={!isNetwork}
                     className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                   >
-                    {t(`${filteredNetworkType.slug}.title`, {
-                      ns: "datasets-networkTypes",
-                    })}
+                    {title}
                   </button>
                 );
               })}
@@ -424,16 +456,27 @@ function CreateOrganization() {
                 return (
                   <Chip key={listNetworkType.key}>
                     <Input type="hidden" {...conform.input(listNetworkType)} />
-                    {t(
-                      `${
-                        allNetworkTypes.find((networkType) => {
-                          return (
-                            networkType.id === listNetworkType.defaultValue
-                          );
-                        })?.slug
-                      }.title`,
-                      { ns: "datasets-networkTypes" }
-                    ) || t("form.networkTypes.notFound")}
+                    {(() => {
+                      let value;
+                      if (listNetworkType.defaultValue === undefined) {
+                        return null;
+                      }
+                      if (
+                        listNetworkType.defaultValue in locales.networkTypes
+                      ) {
+                        type LocaleKey = keyof typeof locales.networkTypes;
+                        value =
+                          locales.networkTypes[
+                            listNetworkType.defaultValue as LocaleKey
+                          ].title;
+                      } else {
+                        console.error(
+                          `Organization type ${listNetworkType.defaultValue} not found in locales`
+                        );
+                        value = listNetworkType.defaultValue;
+                      }
+                      return value;
+                    })() || locales.route.form.networkTypes.notFound}
                     <Chip.Delete>
                       <button
                         {...list.remove(fields.networkTypes.name, { index })}
@@ -452,14 +495,14 @@ function CreateOrganization() {
 
       <div className="mv-w-full mv-flex mv-flex-col @sm:mv-flex-row mv-justify-between mv-items-end @sm:mv-items-start mv-gap-4 @sm:mv-px-6">
         <p className="mv-text-neutral-700 mv-text-xs mv-leading-4">
-          {t("form.helperText")}
+          {locales.route.form.helperText}
         </p>
         <div className="mv-flex mv-gap-2 ">
           <Button as="a" href="/my/organizations" variant="outline">
-            {t("form.cancel")}
+            {locales.route.form.cancel}
           </Button>
           <Button form={form.id} type="submit">
-            {t("form.submit")}
+            {locales.route.form.submit}
           </Button>
         </div>
       </div>

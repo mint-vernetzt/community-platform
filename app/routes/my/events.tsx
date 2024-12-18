@@ -1,9 +1,8 @@
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -17,16 +16,12 @@ import { Placeholder } from "~/components-next/Placeholder";
 import { Section } from "~/components-next/MyEventsProjectsSection";
 import { TabBarTitle } from "~/components-next/TabBarTitle";
 import { getEvents } from "./events.server";
-
-export const i18nNS = [
-  "routes-my-events",
-  "datasets-stages",
-  "components",
-] as const;
-
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -39,6 +34,9 @@ export async function loader(args: LoaderFunctionArgs) {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["my/events"];
 
   const upcomingEvents = await getEvents({
     profileId: sessionUser.id,
@@ -54,12 +52,19 @@ export async function loader(args: LoaderFunctionArgs) {
     return event.canceled;
   });
 
-  return json({ upcomingEvents, pastEvents, canceledEvents, abilities });
+  return {
+    upcomingEvents,
+    pastEvents,
+    canceledEvents,
+    abilities,
+    locales,
+    language,
+  };
 }
 
 function MyEvents() {
-  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
+  const { locales, language } = loaderData;
 
   const firstUpcoming = Object.entries(loaderData.upcomingEvents.count).find(
     ([_, value]) => {
@@ -126,32 +131,47 @@ function MyEvents() {
   return (
     <Container>
       <Container.Header>
-        <Container.Title>{t("title")}</Container.Title>
+        <Container.Title>{locales.route.title}</Container.Title>
         {loaderData.abilities["events"].hasAccess ? (
           <Button as="a" href="/event/create">
             <Add />
-            {t("create")}
+            {locales.route.create}
           </Button>
         ) : null}
       </Container.Header>
       {hasUpcomingEvents === false && hasPastEvents === false ? (
         <Placeholder>
-          <Placeholder.Title>{t("placeholder.title")}</Placeholder.Title>
-          <Placeholder.Text>{t("placeholder.description")}</Placeholder.Text>
+          <Placeholder.Title>
+            {locales.route.placeholder.title}
+          </Placeholder.Title>
+          <Placeholder.Text>
+            {locales.route.placeholder.description}
+          </Placeholder.Text>
           <Button as="a" href="/explore/events" variant="outline">
-            {t("placeholder.cta")}
+            {locales.route.placeholder.cta}
           </Button>
         </Placeholder>
       ) : null}
       {hasCanceledEvents ? (
         <Container.Section>
           <Section.Title id="canceled">
-            {t("canceled.title", { count: loaderData.canceledEvents.length })}
+            {decideBetweenSingularOrPlural(
+              locales.route.canceled.title_one,
+              locales.route.canceled.title_other,
+              loaderData.canceledEvents.length
+            )}
           </Section.Title>
           <Section.Text>
-            {t("canceled.description", {
-              count: loaderData.canceledEvents.length,
-            })}
+            {decideBetweenSingularOrPlural(
+              locales.route.canceled.description_one,
+              insertParametersIntoLocale(
+                locales.route.canceled.description_other,
+                {
+                  count: loaderData.canceledEvents.length,
+                }
+              ),
+              loaderData.canceledEvents.length
+            )}
           </Section.Text>
           <ListContainer listKey="canceled">
             {loaderData.canceledEvents.map((event, index) => {
@@ -166,7 +186,11 @@ function MyEvents() {
                     blurredSrc={event.blurredBackground}
                     alt={event.name}
                   />
-                  <EventListItem.Content event={event} />
+                  <EventListItem.Content
+                    event={event}
+                    currentLanguage={language}
+                    locales={locales}
+                  />
                 </EventListItem>
               );
             })}
@@ -176,9 +200,11 @@ function MyEvents() {
       {hasUpcomingEvents ? (
         <Container.Section>
           <Section.Title id="upcoming">
-            {t("upcoming.title", {
-              count: upcomingEventsCount,
-            })}
+            {decideBetweenSingularOrPlural(
+              locales.route.upcoming.title_one,
+              locales.route.upcoming.title_other,
+              upcomingEventsCount
+            )}
           </Section.Title>
           <Section.TabBar>
             {Object.entries(loaderData.upcomingEvents.count).map(
@@ -206,7 +232,19 @@ function MyEvents() {
                       preventScrollReset
                     >
                       <TabBarTitle>
-                        {t(`tabBar.${key}`)}
+                        {(() => {
+                          let title;
+                          if (key in locales.route.tabBar) {
+                            type LocaleKey = keyof typeof locales.route.tabBar;
+                            title = locales.route.tabBar[key as LocaleKey];
+                          } else {
+                            console.error(
+                              `Tab bar title ${key} not found in locales`
+                            );
+                            title = key;
+                          }
+                          return title;
+                        })()}
                         <TabBar.Counter active={upcoming === key}>
                           {loaderData.upcomingEvents.count[typedKey]}
                         </TabBar.Counter>
@@ -232,7 +270,11 @@ function MyEvents() {
                       blurredSrc={event.blurredBackground}
                       alt={event.name}
                     />
-                    <EventListItem.Content event={event} />
+                    <EventListItem.Content
+                      event={event}
+                      locales={locales}
+                      currentLanguage={language}
+                    />
                   </EventListItem>
                 );
               }
@@ -243,7 +285,11 @@ function MyEvents() {
       {hasPastEvents ? (
         <Container.Section>
           <Section.Title id="past">
-            {t("past.title", { count: pastEventsCount })}
+            {decideBetweenSingularOrPlural(
+              locales.route.past.title_one,
+              locales.route.past.title_other,
+              pastEventsCount
+            )}
           </Section.Title>
           <Section.TabBar>
             {Object.entries(loaderData.pastEvents.count).map(([key, value]) => {
@@ -266,7 +312,19 @@ function MyEvents() {
                     preventScrollReset
                   >
                     <TabBarTitle>
-                      {t(`tabBar.${key}`)}
+                      {(() => {
+                        let title;
+                        if (key in locales.route.tabBar) {
+                          type LocaleKey = keyof typeof locales.route.tabBar;
+                          title = locales.route.tabBar[key as LocaleKey];
+                        } else {
+                          console.error(
+                            `Tab bar title ${key} not found in locales`
+                          );
+                          title = key;
+                        }
+                        return title;
+                      })()}
                       <TabBar.Counter active={past === key}>
                         {loaderData.pastEvents.count[typedKey]}
                       </TabBar.Counter>
@@ -291,7 +349,11 @@ function MyEvents() {
                       blurredSrc={event.blurredBackground}
                       alt={event.name}
                     />
-                    <EventListItem.Content event={event} />
+                    <EventListItem.Content
+                      event={event}
+                      locales={locales}
+                      currentLanguage={language}
+                    />
                   </EventListItem>
                 );
               }

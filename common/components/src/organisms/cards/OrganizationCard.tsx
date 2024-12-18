@@ -13,11 +13,16 @@ import { Link, type useFetcher } from "@remix-run/react";
 import { type action as quitAction } from "~/routes/my/organizations/quit";
 import { Image } from "./../../molecules/Image";
 import { type DashboardLocales } from "~/routes/dashboard.server";
+import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
+import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
 
 export type OrganizationCardProps = {
   match?: number;
   publicAccess?: boolean;
-  locales: DashboardLocales;
+  locales:
+    | DashboardLocales
+    | ExploreOrganizationsLocales
+    | MyOrganizationsLocales;
   menu?: {
     mode: "admin" | "teamMember";
     quitOrganizationFetcher: ReturnType<typeof useFetcher<typeof quitAction>>;
@@ -46,7 +51,9 @@ function OrganizationCard(
 ) {
   const { organization, publicAccess = false, menu, locales } = props;
 
-  const emptyMessage = publicAccess ? locales.nonPublic : locales.nonStated;
+  const emptyMessage = publicAccess
+    ? locales.organizationCard.nonPublic
+    : locales.organizationCard.nonStated;
 
   const [checked, setChecked] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -90,7 +97,7 @@ function OrganizationCard(
           )}
           {props.match !== undefined && (
             <CardStatus>
-              {props.match}% {locales.match}
+              {props.match}% {locales.organizationCard.match}
             </CardStatus>
           )}
         </CardHeader>
@@ -123,12 +130,15 @@ function OrganizationCard(
             </div>
           }
           <CardBodySection
-            title={locales.areasOfActivity}
+            title={locales.organizationCard.areasOfActivity}
             emptyMessage={emptyMessage}
           >
             {organization.areas.length > 0 ? organization.areas.join("/") : ""}
           </CardBodySection>
-          <CardBodySection title={locales.focus} emptyMessage={emptyMessage}>
+          <CardBodySection
+            title={locales.organizationCard.focus}
+            emptyMessage={emptyMessage}
+          >
             {organization.focuses.length === 0 ? (
               ""
             ) : (
@@ -219,7 +229,7 @@ function OrganizationCard(
                         fill="CurrentColor"
                       />
                     </svg>
-                    <span>{locales.edit}</span>
+                    <span>{locales.organizationCard.edit}</span>
                   </Link>
                 </li>
                 <div
@@ -255,7 +265,7 @@ function OrganizationCard(
                   className="mv-appearance-none"
                   type="submit"
                 >
-                  {locales.quit}
+                  {locales.organizationCard.quit}
                 </button>
               </label>
             </li>

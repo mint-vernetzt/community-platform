@@ -1,18 +1,15 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { type useFetcher } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
-import {
-  i18nNS as organizationsI18nNS,
-  type action,
-} from "~/routes/my/organizations";
+import { type action } from "~/routes/my/organizations";
+import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
 
 export function AcceptOrRejectInviteFetcher(props: {
   inviteFetcher: ReturnType<typeof useFetcher<typeof action>>;
   organizationId: string;
   tabKey: string;
+  locales: MyOrganizationsLocales;
 }) {
-  const { inviteFetcher, organizationId, tabKey } = props;
-  const { t } = useTranslation(organizationsI18nNS);
+  const { inviteFetcher, organizationId, tabKey, locales } = props;
 
   return (
     <inviteFetcher.Form
@@ -44,7 +41,7 @@ export function AcceptOrRejectInviteFetcher(props: {
         value="rejected"
         aria-describedby={`invites-headline tab-description-${tabKey} reject-invite-${organizationId} invites-subline`}
       >
-        {t("invites.decline")}
+        {locales.invites.decline}
       </Button>
       <Button
         id={`accept-invite-${organizationId}`}
@@ -54,7 +51,7 @@ export function AcceptOrRejectInviteFetcher(props: {
         value="accepted"
         aria-describedby={`invites-headline tab-description-${tabKey} accept-invite-${organizationId} invites-subline`}
       >
-        {t("invites.accept")}
+        {locales.invites.accept}
       </Button>
     </inviteFetcher.Form>
   );
