@@ -28,6 +28,7 @@ export default defineConfig({
     remix({
       future: {
         v3_singleFetch: true,
+        v3_fetcherPersist: true,
       },
       ignoredRouteFiles: ["**/*"],
       routes(defineRoutes) {
