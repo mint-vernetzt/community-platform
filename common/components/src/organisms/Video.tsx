@@ -1,9 +1,10 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { Button } from "./../molecules/Button";
+import { type AboutProjectLocales } from "~/routes/project/$slug/detail/about.server";
 
 export type VideoProps = {
   src: string;
+  locales: AboutProjectLocales;
 };
 
 function VideoSubline(props: React.PropsWithChildren<{}>) {
@@ -15,6 +16,7 @@ function VideoSubline(props: React.PropsWithChildren<{}>) {
 }
 
 function Video(props: React.PropsWithChildren<VideoProps>) {
+  const { locales } = props;
   const [cookiesAccepted, setCookiesAccepted] = React.useState(false);
 
   const handleClick = () => {
@@ -25,8 +27,6 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
     return React.isValidElement(child) && child.type === VideoSubline;
   });
 
-  const { t } = useTranslation(["organisms-video"]);
-
   return (
     <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
       <div className="mv-w-full mv-aspect-video">
@@ -34,10 +34,10 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
           {!cookiesAccepted ? (
             <>
               <Button variant="outline" onClick={handleClick}>
-                {t("cookieAction")}
+                {locales.video.cookieAction}
               </Button>
               <p className="mv-text-white mv-text-sm @md:mv-text-base mv-text-center mv-px-4">
-                {t("cookieActionDescription")}
+                {locales.video.cookieActionDescription}
               </p>
             </>
           ) : (
@@ -46,7 +46,7 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
               height="100%"
               src={props.src}
               title="YouTube video player"
-              frameBorder="0"
+              className="mv-border-none mv-rounded-sm"
               allow=""
               allowFullScreen
             ></iframe>

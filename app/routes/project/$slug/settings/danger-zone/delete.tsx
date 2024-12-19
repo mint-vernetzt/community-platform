@@ -3,49 +3,47 @@ import { parse } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import {
-  json,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { type TFunction } from "i18next";
-import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import { redirectWithAlert } from "~/alert.server";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import { Deep } from "~/lib/utils/searchParams";
+import { type DeleteProjectLocales } from "./delete.server";
+import { languageModuleMap } from "~/locales/.server";
+import {
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 
-const i18nNS = ["routes-project-settings-danger-zone-delete"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
-
-function createSchema(t: TFunction, name: string) {
+function createSchema(locales: DeleteProjectLocales, name: string) {
   return z.object({
     name: z.string().refine((value) => {
       return value === name;
-    }, t("validation.name.noMatch")),
+    }, locales.validation.name.noMatch),
   });
 }
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["project/$slug/settings/danger-zone/delete"];
 
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
+  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
     status: 400,
   });
 
@@ -67,27 +65,29 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, t("error.projectNotFound"), {
+  invariantResponse(project !== null, locales.error.projectNotFound, {
     status: 404,
   });
 
-  return json({
+  return {
     project,
-  });
+    locales,
+  };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["project/$slug/settings/danger-zone/delete"];
 
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
+  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
     status: 400,
   });
 
@@ -110,13 +110,13 @@ export const action = async (args: ActionFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, t("error.projectNotFound"), {
+  invariantResponse(project !== null, locales.error.projectNotFound, {
     status: 404,
   });
 
   const formData = await request.formData();
   const submission = parse(formData, {
-    schema: createSchema(t, project.name),
+    schema: createSchema(locales, project.name),
   });
 
   if (typeof submission.value !== "undefined" && submission.value !== null) {
@@ -126,23 +126,25 @@ export const action = async (args: ActionFunctionArgs) => {
       },
     });
     return redirectWithAlert(`/dashboard`, {
-      message: t("content.success", { name: project.name }),
+      message: insertParametersIntoLocale(locales.content.success, {
+        name: project.name,
+      }),
     });
   }
 
-  return json(submission);
+  return submission;
 };
 
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
-  const { t } = useTranslation(i18nNS);
 
   const [form, fields] = useForm({
     shouldValidate: "onSubmit",
     onValidate: (values) => {
       return parse(values.formData, {
-        schema: createSchema(t, loaderData.project.name),
+        schema: createSchema(locales, loaderData.project.name),
       });
     },
     shouldRevalidate: "onSubmit",
@@ -152,22 +154,20 @@ function Delete() {
   return (
     <>
       <p>
-        <Trans
-          i18nKey="content.confirmation"
-          ns={i18nNS}
-          values={{
+        {insertComponentsIntoLocale(
+          insertParametersIntoLocale(locales.content.confirmation, {
             name: loaderData.project.name,
-          }}
-          components={[<strong key="delete-project-confirmation" />]}
-        />
+          }),
+          [<strong key="delete-project-confirmation" />]
+        )}
       </p>
-      <p>{t("content.explanation")}</p>
+      <p>{locales.content.explanation}</p>
       <Form method="post" {...form.props}>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <Input name={Deep} defaultValue="true" type="hidden" />
           <Input id="name">
             <Input.Label htmlFor={fields.name.id}>
-              {t("content.label")}
+              {locales.content.label}
             </Input.Label>
             {typeof fields.name.error !== "undefined" && (
               <Input.Error>{fields.name.error}</Input.Error>
@@ -176,7 +176,7 @@ function Delete() {
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
               <Button type="submit" level="negative" fullSize>
-                {t("content.action")}
+                {locales.content.action}
               </Button>
             </div>
           </div>

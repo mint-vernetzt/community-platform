@@ -1,19 +1,18 @@
 import { useSearchParams, type useFetcher } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import {
   AddToOrganizationRequest,
   type action,
 } from "~/routes/my/organizations/requests";
-import { i18nNS as organizationsI18nNS } from "~/routes/my/organizations";
 import { GetOrganizationsToAdd } from "~/routes/my/organizations/get-organizations-to-add";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
 
 export function CancelRequestFetcher(props: {
   fetcher: ReturnType<typeof useFetcher<typeof action>>;
   organizationId: string;
+  locales: MyOrganizationsLocales;
 }) {
-  const { fetcher, organizationId } = props;
-  const { t } = useTranslation(organizationsI18nNS);
+  const { fetcher, organizationId, locales } = props;
 
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get(GetOrganizationsToAdd.SearchParam) ?? "";
@@ -48,7 +47,7 @@ export function CancelRequestFetcher(props: {
         type="submit"
         disabled={fetcher.state === "submitting"}
       >
-        {t("addOrganization.cancelRequest")}
+        {locales.route.addOrganization.cancelRequest}
       </Button>
     </fetcher.Form>
   );

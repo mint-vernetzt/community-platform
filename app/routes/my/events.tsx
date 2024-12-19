@@ -173,7 +173,7 @@ function MyEvents() {
               loaderData.canceledEvents.length
             )}
           </Section.Text>
-          <ListContainer listKey="canceled">
+          <ListContainer listKey="canceled" locales={locales}>
             {loaderData.canceledEvents.map((event, index) => {
               return (
                 <EventListItem
@@ -255,7 +255,7 @@ function MyEvents() {
               }
             )}
           </Section.TabBar>
-          <ListContainer listKey="upcoming" hideAfter={3}>
+          <ListContainer listKey="upcoming" hideAfter={3} locales={locales}>
             {loaderData.upcomingEvents[upcoming as "adminEvents"].map(
               (event, index) => {
                 return (
@@ -334,7 +334,7 @@ function MyEvents() {
               );
             })}
           </Section.TabBar>
-          <ListContainer listKey="past" hideAfter={3}>
+          <ListContainer listKey="past" hideAfter={3} locales={locales}>
             {loaderData.pastEvents[past as "adminEvents"].map(
               (event, index) => {
                 return (

@@ -5,5 +5,7 @@ export const locale = {
     region: "Fördergebiet",
     eligibleEntity: "Wer wird gefördert?",
     area: "Was wird gefördert?",
+    toFunding: "Zur Förderung",
+    notProvided: "-nicht angegeben-",
   },
 } as const;

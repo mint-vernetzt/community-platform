@@ -2,7 +2,6 @@ import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import {
-  json,
   redirect,
   unstable_composeUploadHandlers,
   unstable_createMemoryUploadHandler,
@@ -18,22 +17,20 @@ import {
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
-import { type TFunction } from "i18next";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import i18next from "~/i18next.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { Modal } from "~/components-next/Modal";
 import { getPublicURL } from "~/storage.server";
 import { BackButton } from "~/components-next/BackButton";
 import { MaterialList } from "~/components-next/MaterialList";
 import {
   hasValidMimeType,
+  type ProjectAttachmentSettingsLocales,
   storeDocument,
   storeImage,
 } from "./attachments.server";
@@ -50,13 +47,11 @@ import { Deep } from "~/lib/utils/searchParams";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Toast } from "@mint-vernetzt/components/src/molecules/Toast";
+import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { redirectWithToast } from "~/toast.server";
 
 const MAX_UPLOAD_SIZE = 6 * 1024 * 1024; // 6MB
-const i18nNS = ["routes-project-settings-attachments"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
 
 export function getExtension(filename: string) {
   return filename.substring(filename.lastIndexOf(".") + 1, filename.length);
@@ -64,7 +59,9 @@ export function getExtension(filename: string) {
 
 const documentMimeTypes = ["application/pdf", "image/jpeg"];
 
-const createDocumentUploadSchema = (t: TFunction) =>
+const createDocumentUploadSchema = (
+  locales: ProjectAttachmentSettingsLocales
+) =>
   z.object({
     filename: z.string().transform((filename) => {
       const extension = getExtension(filename);
@@ -76,15 +73,15 @@ const createDocumentUploadSchema = (t: TFunction) =>
       .instanceof(File)
       .refine((file) => {
         return file.size <= MAX_UPLOAD_SIZE;
-      }, t("validation.document.size"))
+      }, locales.validation.document.size)
       .refine((file) => {
         return documentMimeTypes.includes(file.type);
-      }, t("validation.document.type")),
+      }, locales.validation.document.type),
   });
 
 const imageMimeTypes = ["image/png", "image/jpeg"];
 
-const createImageUploadSchema = (t: TFunction) =>
+const createImageUploadSchema = (locales: ProjectAttachmentSettingsLocales) =>
   z.object({
     filename: z.string().transform((filename) => {
       const extension = getExtension(filename);
@@ -97,10 +94,10 @@ const createImageUploadSchema = (t: TFunction) =>
       .refine((file) => {
         console.log(typeof file);
         return file.size <= MAX_UPLOAD_SIZE;
-      }, t("validation.image.size"))
+      }, locales.validation.image.size)
       .refine((file) => {
         return imageMimeTypes.includes(file.type);
-      }, t("validation.image.type")),
+      }, locales.validation.image.type),
   });
 
 const actionSchema = z.object({
@@ -110,15 +107,16 @@ const actionSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["project/$slug/settings/attachments"];
 
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
+  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
     status: 400,
   });
 
@@ -173,7 +171,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, t("error.projectNotFound"), {
+  invariantResponse(project !== null, locales.error.projectNotFound, {
     status: 404,
   });
 
@@ -211,20 +209,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
     images,
   };
 
-  return json({ project: enhancedProject });
+  return { project: enhancedProject, locales };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["project/$slug/settings/attachments"];
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
+  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
     status: 400,
   });
 
@@ -258,35 +257,35 @@ export const action = async (args: ActionFunctionArgs) => {
         intent === "delete_image" ||
         intent === "validate/document" ||
         intent === "validate/image"),
-    t("error.invalidAction"),
+    locales.error.invalidAction,
     {
       status: 400,
     }
   );
 
   let submission;
-
+  let toast;
   if (intent === "upload_document" || intent === "validate/document") {
-    const documentUploadSchema = createDocumentUploadSchema(t);
+    const documentUploadSchema = createDocumentUploadSchema(locales);
     submission = parse(formData, {
       schema: documentUploadSchema,
     });
 
     invariantResponse(
       typeof submission.value !== "undefined" && submission.value !== null,
-      t("error.invalidSubmission"),
+      locales.error.invalidSubmission,
       { status: 400 }
     );
 
     if (intent === "validate/document") {
-      return json({ status: "idle", submission } as const);
+      return { status: "idle", submission, hash: getHash(submission) };
     }
 
     const mimeTypeIsValid = await hasValidMimeType(
       submission.value.document,
       documentMimeTypes
     );
-    invariantResponse(mimeTypeIsValid, t("error.onStoring"), {
+    invariantResponse(mimeTypeIsValid, locales.error.onStoring, {
       status: 400,
     });
 
@@ -298,29 +297,36 @@ export const action = async (args: ActionFunctionArgs) => {
       document,
     });
 
-    invariantResponse(error === null, t("error.onStoring"), {
+    invariantResponse(error === null, locales.error.onStoring, {
       status: 400,
     });
+    toast = {
+      id: "upload-document-toast",
+      key: getHash(submission),
+      message: insertParametersIntoLocale(locales.content.document.added, {
+        name: submission.value.filename,
+      }),
+    };
   } else if (intent === "upload_image" || intent === "validate/image") {
-    const imageUploadSchema = createImageUploadSchema(t);
+    const imageUploadSchema = createImageUploadSchema(locales);
     submission = parse(formData, {
       schema: imageUploadSchema,
     });
     invariantResponse(
       typeof submission.value !== "undefined" && submission.value !== null,
-      t("error.invalidSubmission"),
+      locales.error.invalidSubmission,
       { status: 400 }
     );
 
     if (intent === "validate/image") {
-      return json({ status: "idle", submission } as const);
+      return { status: "idle", submission, hash: getHash(submission) };
     }
 
     const mimeTypeIsValid = await hasValidMimeType(
       submission.value.image,
       imageMimeTypes
     );
-    invariantResponse(mimeTypeIsValid, t("error.onStoring"), {
+    invariantResponse(mimeTypeIsValid, locales.error.onStoring, {
       status: 400,
     });
 
@@ -333,9 +339,16 @@ export const action = async (args: ActionFunctionArgs) => {
       image,
     });
 
-    invariantResponse(error === null, t("error.onStoring"), {
+    invariantResponse(error === null, locales.error.onStoring, {
       status: 400,
     });
+    toast = {
+      id: "upload-image-toast",
+      key: getHash(submission),
+      message: insertParametersIntoLocale(locales.content.image.added, {
+        name: submission.value.filename,
+      }),
+    };
   } else if (intent === "delete_document") {
     submission = parse(formData, {
       schema: actionSchema,
@@ -343,7 +356,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
     invariantResponse(
       typeof submission.value !== "undefined" && submission.value !== null,
-      t("error.invalidSubmission"),
+      locales.error.invalidSubmission,
       { status: 400 }
     );
 
@@ -353,6 +366,13 @@ export const action = async (args: ActionFunctionArgs) => {
         id,
       },
     });
+    toast = {
+      id: "delete-document-toast",
+      key: getHash(submission),
+      message: insertParametersIntoLocale(locales.content.document.deleted, {
+        name: submission.value.filename,
+      }),
+    };
   } else if (intent === "delete_image") {
     submission = parse(formData, {
       schema: actionSchema,
@@ -360,7 +380,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
     invariantResponse(
       typeof submission.value !== "undefined" && submission.value !== null,
-      t("error.invalidSubmission"),
+      locales.error.invalidSubmission,
       { status: 400 }
     );
 
@@ -370,16 +390,20 @@ export const action = async (args: ActionFunctionArgs) => {
         id,
       },
     });
+    toast = {
+      id: "delete-image-toast",
+      key: getHash(submission),
+      message: insertParametersIntoLocale(locales.content.image.deleted, {
+        name: submission.value.filename,
+      }),
+    };
+  } else {
+    invariantResponse(false, "Bad request", {
+      status: 400,
+    });
   }
 
-  const submissionHash =
-    typeof submission !== "undefined" ? getHash(submission) : null;
-
-  return json({
-    status: "success",
-    submission,
-    hash: submissionHash,
-  } as const);
+  return redirectWithToast(request.url, toast);
 };
 
 function Attachments() {
@@ -388,12 +412,11 @@ function Attachments() {
   const [documentName, setDocumentName] = React.useState<string | null>(null);
   const [imageName, setImageName] = React.useState<string | null>(null);
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
   const editFetcher = useFetcher<typeof EditAction>();
 
-  const { t } = useTranslation(i18nNS);
-
-  const documentUploadSchema = createDocumentUploadSchema(t);
+  const documentUploadSchema = createDocumentUploadSchema(locales);
   const [documentUploadForm, documentUploadFields] = useForm({
     shouldValidate: "onInput",
     onValidate: (values) => {
@@ -405,7 +428,7 @@ function Attachments() {
     shouldRevalidate: "onInput",
   });
 
-  const imageUploadSchema = createImageUploadSchema(t);
+  const imageUploadSchema = createImageUploadSchema(locales);
   const [imageUploadForm, imageUploadFields] = useForm({
     shouldValidate: "onInput",
     onValidate: (values) => {
@@ -495,14 +518,14 @@ function Attachments() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{t("content.description")}</p>
+      <BackButton to={location.pathname}>{locales.content.back}</BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.content.description}</p>
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {t("content.document.upload")}
+            {locales.content.document.upload}
           </h2>
-          <p>{t("content.document.type")}</p>
+          <p>{locales.content.document.type}</p>
           {/* TODO: no-JS version */}
           <Form
             method="post"
@@ -520,7 +543,7 @@ function Attachments() {
                 htmlFor={documentUploadFields.document.id}
                 className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
               >
-                {t("content.document.select")}
+                {locales.content.document.select}
                 <input
                   id={documentUploadFields.document.id}
                   name={documentUploadFields.document.name}
@@ -544,17 +567,20 @@ function Attachments() {
                 name={conform.INTENT}
                 value="upload_document"
               >
-                {t("content.document.action")}
+                {locales.content.document.action}
               </Button>
             </div>
             <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
               {typeof documentUploadFields.document.error === "undefined" && (
                 <p>
                   {documentName === null
-                    ? t("content.document.selection.empty")
-                    : t("content.document.selection.selected", {
-                        name: documentName,
-                      })}
+                    ? locales.content.document.selection.empty
+                    : insertParametersIntoLocale(
+                        locales.content.document.selection.selected,
+                        {
+                          name: documentName,
+                        }
+                      )}
                 </p>
               )}
               {typeof documentUploadFields.document.error !== "undefined" && (
@@ -562,26 +588,13 @@ function Attachments() {
                   {documentUploadFields.document.error}
                 </p>
               )}
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.status === "success" &&
-                typeof actionData.submission !== "undefined" &&
-                actionData.submission.intent === "upload_document" &&
-                typeof actionData.submission.value !== "undefined" &&
-                actionData.submission.value !== null && (
-                  <Toast key={actionData.hash}>
-                    {t("content.document.added", {
-                      name: actionData.submission.value.filename,
-                    })}
-                  </Toast>
-                )}
             </div>
           </Form>
         </div>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <>
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.document.current")}
+              {locales.content.document.current}
             </h2>
             {loaderData.project.documents.length > 0 ? (
               <>
@@ -591,7 +604,7 @@ function Attachments() {
                       <div key={`document-${relation.document.id}`}>
                         <Modal searchParam={`modal-${relation.document.id}`}>
                           <Modal.Title>
-                            {t("content.editModal.editDocument")}
+                            {locales.content.editModal.editDocument}
                           </Modal.Title>
                           <Modal.Section>
                             <editFetcher.Form
@@ -609,7 +622,7 @@ function Attachments() {
                                   }
                                 >
                                   <Input.Label>
-                                    {t("content.editModal.title")}
+                                    {locales.content.editModal.title}
                                   </Input.Label>
                                   {typeof editDocumentFields.title.error !==
                                     "undefined" && (
@@ -628,7 +641,10 @@ function Attachments() {
                                   maxLength={80}
                                 >
                                   <Input.Label>
-                                    {t("content.editModal.description.label")}
+                                    {
+                                      locales.content.editModal.description
+                                        .label
+                                    }
                                   </Input.Label>
                                   {typeof editDocumentFields.description
                                     .error !== "undefined" && (
@@ -653,10 +669,10 @@ function Attachments() {
                           <Modal.SubmitButton
                             form={`form-${relation.document.id}`}
                           >
-                            {t("content.editModal.submit")}
+                            {locales.content.editModal.submit}
                           </Modal.SubmitButton>
                           <Modal.CloseButton>
-                            {t("content.editModal.reset")}
+                            {locales.content.editModal.reset}
                           </Modal.CloseButton>
                         </Modal>
                         <MaterialList.Item
@@ -734,7 +750,7 @@ function Attachments() {
                     variant="outline"
                     fullSize
                   >
-                    {t("content.document.downloadAll")}
+                    {locales.content.document.downloadAll}
                   </Button>
                 </div>
                 {/* <Link to={`./download?type=documents`} reloadDocument>
@@ -742,28 +758,15 @@ function Attachments() {
                 </Link> */}
               </>
             ) : (
-              <p>{t("content.document.empty")}</p>
+              <p>{locales.content.document.empty}</p>
             )}
-            {typeof actionData !== "undefined" &&
-              actionData !== null &&
-              actionData.status === "success" &&
-              typeof actionData.submission !== "undefined" &&
-              actionData.submission.intent === "delete_document" &&
-              typeof actionData.submission.value !== "undefined" &&
-              actionData.submission.value !== null && (
-                <Toast key={actionData.hash}>
-                  {t("content.document.deleted", {
-                    name: actionData.submission.value.filename,
-                  })}
-                </Toast>
-              )}
           </>
         </div>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {t("content.image.upload")}
+            {locales.content.image.upload}
           </h2>
-          <p>{t("content.image.requirements")}</p>
+          <p>{locales.content.image.requirements}</p>
           {/* TODO: no-JS version */}
           <Form
             method="post"
@@ -781,7 +784,7 @@ function Attachments() {
                 htmlFor={imageUploadFields.image.id}
                 className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
               >
-                {t("content.image.select")}
+                {locales.content.image.select}
                 <input
                   id={imageUploadFields.image.id}
                   name={imageUploadFields.image.name}
@@ -805,17 +808,20 @@ function Attachments() {
                 name={conform.INTENT}
                 value="upload_image"
               >
-                {t("content.image.action")}
+                {locales.content.image.action}
               </Button>
             </div>
             <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
               {typeof imageUploadFields.image.error === "undefined" && (
                 <p>
                   {imageName === null
-                    ? t("content.image.selection.empty")
-                    : t("content.image.selection.selected", {
-                        name: imageName,
-                      })}
+                    ? locales.content.image.selection.empty
+                    : insertParametersIntoLocale(
+                        locales.content.image.selection.selected,
+                        {
+                          name: imageName,
+                        }
+                      )}
                 </p>
               )}
               {typeof imageUploadFields.image.error !== "undefined" && (
@@ -823,25 +829,12 @@ function Attachments() {
                   {imageUploadFields.image.error}
                 </p>
               )}
-              {typeof actionData !== "undefined" &&
-                actionData !== null &&
-                actionData.status === "success" &&
-                typeof actionData.submission !== "undefined" &&
-                actionData.submission.intent === "upload_image" &&
-                typeof actionData.submission.value !== "undefined" &&
-                actionData.submission.value !== null && (
-                  <Toast key={actionData.hash}>
-                    {t("content.image.added", {
-                      name: actionData.submission.value.filename,
-                    })}
-                  </Toast>
-                )}
             </div>
           </Form>
         </div>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {t("content.image.current")}
+            {locales.content.image.current}
           </h2>
           {loaderData.project.images.length > 0 ? (
             <>
@@ -851,7 +844,7 @@ function Attachments() {
                     <div key={`image-${relation.image.id}`}>
                       <Modal searchParam={`modal-${relation.image.id}`}>
                         <Modal.Title>
-                          {t("content.editModal.editImage")}
+                          {locales.content.editModal.editImage}
                         </Modal.Title>
                         <Modal.Section>
                           <editFetcher.Form
@@ -867,7 +860,7 @@ function Attachments() {
                                 defaultValue={relation.image.title || undefined}
                               >
                                 <Input.Label>
-                                  {t("content.editModal.title")}
+                                  {locales.content.editModal.title}
                                 </Input.Label>
                                 {typeof editImageFields.title.error !==
                                   "undefined" && (
@@ -885,10 +878,10 @@ function Attachments() {
                                 maxLength={80}
                               >
                                 <Input.Label>
-                                  {t("content.editModal.credits.label")}
+                                  {locales.content.editModal.credits.label}
                                 </Input.Label>
                                 <Input.HelperText>
-                                  {t("content.editModal.credits.helper")}
+                                  {locales.content.editModal.credits.helper}
                                 </Input.HelperText>
                                 {typeof editImageFields.credits.error !==
                                   "undefined" && (
@@ -906,10 +899,10 @@ function Attachments() {
                                 maxLength={80}
                               >
                                 <Input.Label>
-                                  {t("content.editModal.description.label")}
+                                  {locales.content.editModal.description.label}
                                 </Input.Label>
                                 <Input.HelperText>
-                                  {t("content.editModal.description.helper")}
+                                  {locales.content.editModal.description.helper}
                                 </Input.HelperText>
 
                                 {typeof editImageFields.description.error !==
@@ -929,10 +922,10 @@ function Attachments() {
                           </editFetcher.Form>
                         </Modal.Section>
                         <Modal.SubmitButton form={`form-${relation.image.id}`}>
-                          {t("content.editModal.submit")}
+                          {locales.content.editModal.submit}
                         </Modal.SubmitButton>
                         <Modal.CloseButton>
-                          {t("content.editModal.reset")}
+                          {locales.content.editModal.reset}
                         </Modal.CloseButton>
                       </Modal>
                       <MaterialList.Item
@@ -1009,26 +1002,13 @@ function Attachments() {
                   variant="outline"
                   fullSize
                 >
-                  {t("content.image.downloadAll")}
+                  {locales.content.image.downloadAll}
                 </Button>
               </div>
             </>
           ) : (
-            <p>{t("content.image.empty")}</p>
+            <p>{locales.content.image.empty}</p>
           )}
-          {typeof actionData !== "undefined" &&
-            actionData !== null &&
-            actionData.status === "success" &&
-            typeof actionData.submission !== "undefined" &&
-            actionData.submission.intent === "delete_image" &&
-            typeof actionData.submission.value !== "undefined" &&
-            actionData.submission.value !== null && (
-              <Toast key={actionData.hash}>
-                {t("content.image.deleted", {
-                  name: actionData.submission.value.filename,
-                })}
-              </Toast>
-            )}
         </div>
       </div>
     </Section>

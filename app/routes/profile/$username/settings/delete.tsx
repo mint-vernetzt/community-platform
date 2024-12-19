@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -16,27 +16,23 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveProfileMode } from "../utils.server";
 import {
+  type DeleteProfileLocales,
   getProfileByUsername,
   getProfileWithAdministrations,
 } from "./delete.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { useLoaderData } from "@remix-run/react";
 
-const i18nNS = ["routes-profile-settings-delete"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
-
-const createSchema = (t: TFunction) => {
+const createSchema = (locales: DeleteProfileLocales) => {
   return z.object({
     confirmedToken: z
       .string()
       .regex(
-        new RegExp(t("validation.confirmed.regex")),
-        t("validation.confirmed.message")
+        new RegExp(locales.validation.confirmed.regex),
+        locales.validation.confirmed.message
       ),
   });
 };
@@ -49,12 +45,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes-profile-settings-delete"]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["profile/$username/settings/delete"];
 
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    throw json({ message: t("error.profileNotFound") }, { status: 404 });
+    invariantResponse(false, locales.error.profileNotFound, { status: 404 });
   }
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
@@ -63,21 +60,21 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+  invariantResponse(mode === "owner", locales.error.notPrivileged, {
     status: 403,
   });
 
-  return null;
+  return { locales };
 };
 
-const createMutation = (t: TFunction) => {
+const createMutation = (locales: DeleteProfileLocales) => {
   return makeDomainFunction(
-    createSchema(t),
+    createSchema(locales),
     environmentSchema
   )(async (values, environment) => {
     const profile = await getProfileWithAdministrations(environment.userId);
     if (profile === null) {
-      throw t("error.notFound");
+      throw locales.error.notFound;
     }
     let lastAdminOrganizations: string[] = [];
     profile.administeredOrganizations.map((relation) => {
@@ -109,27 +106,29 @@ const createMutation = (t: TFunction) => {
       const errors: string[] = [];
       if (lastAdminOrganizations.length > 0) {
         errors.push(
-          t("error.lastAdmin.organizations", {
+          insertParametersIntoLocale(locales.error.lastAdmin.organizations, {
             organizations: lastAdminOrganizations.join(", "),
           })
         );
       }
       if (lastAdminEvents.length > 0) {
         errors.push(
-          t("error.lastAdmin.events", { events: lastAdminEvents.join(", ") })
+          insertParametersIntoLocale(locales.error.lastAdmin.events, {
+            events: lastAdminEvents.join(", "),
+          })
         );
       }
       if (lastAdminProjects.length > 0) {
         errors.push(
-          t("error.lastAdmin.projects", {
-            events: lastAdminProjects.join(", "),
+          insertParametersIntoLocale(locales.error.lastAdmin.projects, {
+            projects: lastAdminProjects.join(", "),
           })
         );
       }
 
-      throw `${t("error.lastAdmin.intro")} ${errors.join(", ")} ${t(
-        "error.lastAdmin.outro"
-      )}`;
+      throw `${locales.error.lastAdmin.intro} ${errors.join(", ")} ${
+        locales.error.lastAdmin.outro
+      }`;
     }
 
     return values;
@@ -139,26 +138,28 @@ const createMutation = (t: TFunction) => {
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, ["routes-profile-settings-delete"]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["profile/$username/settings/delete"];
 
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+  invariantResponse(mode === "owner", locales.error.notPrivileged, {
     status: 403,
   });
 
   const result = await performMutation({
     request,
-    schema: createSchema(t),
-    mutation: createMutation(t),
+    schema: createSchema(locales),
+    mutation: createMutation(locales),
     environment: { userId: sessionUser.id },
   });
   if (result.success) {
     const { error, headers } = await signOut(request);
     if (error !== null) {
-      throw json({ message: error.message }, { status: 500 });
+      console.error(error.message);
+      invariantResponse(false, locales.error.serverError, { status: 500 });
     }
 
     const adminAuthClient = createAdminAuthClient();
@@ -166,25 +167,25 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     const result = await deleteUserByUid(adminAuthClient, sessionUser.id);
     if (result.error !== null) {
       console.error(result.error.message);
-      throw t("error.serverError");
+      throw locales.error.serverError;
     }
 
     return redirect("/goodbye", { headers });
   }
-  return json(result);
+  return result;
 };
 
 export default function Index() {
-  const { t } = useTranslation(i18nNS);
-  const schema = createSchema(t);
+  const { locales } = useLoaderData<typeof loader>();
+  const schema = createSchema(locales);
 
   return (
     <>
-      <h1 className="mb-8">{t("content.headline")}</h1>
+      <h1 className="mb-8">{locales.content.headline}</h1>
 
-      <h4 className="mb-4 font-semibold">{t("content.subline")}</h4>
+      <h4 className="mb-4 font-semibold">{locales.content.subline}</h4>
 
-      <p className="mb-8">{t("content.headline")}</p>
+      <p className="mb-8">{locales.content.headline}</p>
 
       <RemixFormsForm method="post" schema={schema}>
         {({ Field, Button, Errors, register }) => (
@@ -194,8 +195,8 @@ export default function Index() {
                 <>
                   <Input
                     id="confirmedToken"
-                    label={t("form.confirmed.label")}
-                    placeholder={t("form.confirmed.placeholder")}
+                    label={locales.form.confirmed.label}
+                    placeholder={locales.form.confirmed.placeholder}
                     {...register("confirmedToken")}
                   />
                   <Errors />
@@ -206,7 +207,7 @@ export default function Index() {
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small"
             >
-              {t("form.submit.label")}
+              {locales.form.submit.label}
             </button>
             <Errors />
           </>

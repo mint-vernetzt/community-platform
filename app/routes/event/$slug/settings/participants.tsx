@@ -53,7 +53,9 @@ import { languageModuleMap } from "~/locales/.server";
 const createParticipantLimitSchema = (locales: EventParticipantsLocales) => {
   return z.object({
     participantLimit: z
-      .string({ invalid_type_error: locales.validation.participantLimit.type })
+      .string({
+        invalid_type_error: locales.route.validation.participantLimit.type,
+      })
       .regex(/^\d+$/)
       .optional()
       .transform((value) => {
@@ -92,9 +94,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.error.notFound, { status: 404 });
+  invariantResponse(event, locales.route.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
 
@@ -175,6 +177,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       fullDepthParticipants.length > 0 &&
       event._count.childEvents !== 0,
     locales,
+    language,
   };
 };
 
@@ -185,7 +188,10 @@ const createMutation = (locales: EventParticipantsLocales) => {
   )(async (values, environment) => {
     if (values.participantLimit !== null) {
       if (environment.participantsCount > values.participantLimit) {
-        throw new InputError(locales.error.inputError, "participantLimit");
+        throw new InputError(
+          locales.route.error.inputError,
+          "participantLimit"
+        );
       }
     }
     return values;
@@ -225,7 +231,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, language } = loaderData;
   const addParticipantFetcher = useFetcher<typeof addParticipantAction>();
   const removeParticipantFetcher = useFetcher<typeof removeParticipantAction>();
   const publishFetcher = useFetcher<typeof publishAction>();
@@ -238,10 +244,12 @@ function Participants() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
-      <p className="mb-8">{locales.content.intro}</p>
-      <h4 className="mb-4 font-semibold">{locales.content.limit.headline}</h4>
-      <p className="mb-8">{locales.content.limit.intro}</p>
+      <h1 className="mb-8">{locales.route.content.headline}</h1>
+      <p className="mb-8">{locales.route.content.intro}</p>
+      <h4 className="mb-4 font-semibold">
+        {locales.route.content.limit.headline}
+      </h4>
+      <p className="mb-8">{locales.route.content.limit.intro}</p>
       <RemixFormsForm schema={participantLimitSchema}>
         {({ Field, Errors, Button, register }) => {
           return (
@@ -252,7 +260,7 @@ function Participants() {
                     <InputText
                       {...register("participantLimit")}
                       id="participantLimit"
-                      label={locales.content.limit.label}
+                      label={locales.route.content.limit.label}
                       defaultValue={loaderData.participantLimit || undefined}
                       type="number"
                     />
@@ -262,22 +270,24 @@ function Participants() {
               </Field>
               <div className="flex flex-row">
                 <Button type="submit" className="btn btn-primary mb-8">
-                  {locales.content.limit.submit}
+                  {locales.route.content.limit.submit}
                 </Button>
                 <div
                   className={`text-green-500 text-bold ml-4 mt-2 ${
                     actionData?.success ? "block animate-fade-out" : "hidden"
                   }`}
                 >
-                  {locales.content.limit.feedback}
+                  {locales.route.content.limit.feedback}
                 </div>
               </div>
             </>
           );
         }}
       </RemixFormsForm>
-      <h4 className="mb-4 font-semibold">{locales.content.add.headline}</h4>
-      <p className="mb-8">{locales.content.add.intro}</p>
+      <h4 className="mb-4 font-semibold">
+        {locales.route.content.add.headline}
+      </h4>
+      <p className="mb-8">{locales.route.content.add.intro}</p>
       <div className="mb-8">
         <RemixFormsForm
           schema={addParticipantSchema}
@@ -301,7 +311,7 @@ function Participants() {
                         htmlFor="Name"
                         className="label"
                       >
-                        {locales.content.add.label}
+                        {locales.route.content.add.label}
                       </label>
                     </div>
                   </div>
@@ -319,6 +329,8 @@ function Participants() {
                             defaultValue={suggestionsQuery || ""}
                             {...register("profileId")}
                             searchParameter="autocomplete_query"
+                            locales={locales}
+                            currentLanguage={language}
                           />
                         </>
                       )}
@@ -342,9 +354,9 @@ function Participants() {
         ) : null}
       </div>
       <h4 className="mb-4 mt-16 font-semibold">
-        {locales.content.current.headline}
+        {locales.route.content.current.headline}
       </h4>
-      <p className="mb-4">{locales.content.current.intro}</p>
+      <p className="mb-4">{locales.route.content.current.intro}</p>
       {loaderData.participants.length > 0 ? (
         <p className="mb-4">
           <Link
@@ -352,7 +364,7 @@ function Participants() {
             to="../csv-download?type=participants&amp;depth=single"
             reloadDocument
           >
-            {locales.content.current.download1}
+            {locales.route.content.current.download1}
           </Link>
         </p>
       ) : null}
@@ -363,7 +375,7 @@ function Participants() {
             to="../csv-download?type=participants&amp;depth=full"
             reloadDocument
           >
-            {locales.content.current.download2}
+            {locales.route.content.current.download2}
           </Link>
         </p>
       ) : null}
@@ -421,7 +433,7 @@ function Participants() {
                       <Field name="profileId" />
                       <Button
                         className="ml-auto btn-none"
-                        title={locales.content.current.remove}
+                        title={locales.route.content.current.remove}
                       >
                         <svg
                           viewBox="0 0 10 10"
@@ -463,8 +475,8 @@ function Participants() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? locales.content.hide
-                        : locales.content.publish}
+                        ? locales.route.content.hide
+                        : locales.route.content.publish}
                     </Button>
                   </>
                 );

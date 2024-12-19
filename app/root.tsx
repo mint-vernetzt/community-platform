@@ -3,7 +3,7 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   Link,
@@ -46,6 +46,7 @@ import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { ModalRoot } from "./components-next/ModalRoot";
+import { invariantResponse } from "./lib/utils/response";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -147,7 +148,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         blurredAvatar,
       };
     } else {
-      throw json({ message: "profile not found." }, { status: 404 });
+      invariantResponse(false, "profile not found.", { status: 404 });
     }
   }
 
@@ -155,8 +156,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { toast, headers: toastHeaders } = await getToast(request);
 
   const mode = deriveMode(user);
-
-  // console.log(isContentSmallerThanScreen());
 
   return json(
     {
@@ -438,8 +437,6 @@ export default function App() {
       </div>
     </div>
   );
-
-  // console.log(isContentSmallerThanScreen());
 
   return (
     <html lang={currentLanguage} data-theme="light">

@@ -166,13 +166,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     responsibleOrganizationSuggestions,
     ownOrganizationsSuggestions: enhancedOwnOrganizations,
     locales,
+    language,
   };
 };
 
 function Organizations() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, language } = loaderData;
   const addOrganizationFetcher = useFetcher<typeof addOrganizationAction>();
   const removeOrganizationFetcher =
     useFetcher<typeof removeOrganizationAction>();
@@ -226,6 +227,8 @@ function Organizations() {
                           defaultValue={suggestionsQuery || ""}
                           {...register("organizationId")}
                           searchParameter="autocomplete_query"
+                          locales={locales}
+                          currentLanguage={language}
                         />
                       </>
                     )}

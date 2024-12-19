@@ -41,7 +41,7 @@ export function AcceptOrRejectInviteFetcher(props: {
         value="rejected"
         aria-describedby={`invites-headline tab-description-${tabKey} reject-invite-${organizationId} invites-subline`}
       >
-        {locales.invites.decline}
+        {locales.route.invites.decline}
       </Button>
       <Button
         id={`accept-invite-${organizationId}`}
@@ -51,7 +51,7 @@ export function AcceptOrRejectInviteFetcher(props: {
         value="accepted"
         aria-describedby={`invites-headline tab-description-${tabKey} accept-invite-${organizationId} invites-subline`}
       >
-        {locales.invites.accept}
+        {locales.route.invites.accept}
       </Button>
     </inviteFetcher.Form>
   );

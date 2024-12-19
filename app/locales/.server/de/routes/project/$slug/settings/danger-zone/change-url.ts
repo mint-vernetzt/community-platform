@@ -16,7 +16,8 @@ export const locale = {
     feedback: "URL wurde geändert.",
     prompt:
       "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
-    reach: "Aktuell ist Dein Projekt über folgende URL <0></0> zu erreichen.",
+    reach:
+      "Aktuell ist Dein Projekt über folgende URL <0>{{url}}<1>{{slug}}</1></0> zu erreichen.",
     note: "Wenn Du die URL deines Projekts änderst und den bisherigen Link bereits geteilt hast, wird das Projekt über den alten Link nicht mehr erreichbar sein.",
     action: "URL ändern",
   },

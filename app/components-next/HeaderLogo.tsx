@@ -30,7 +30,7 @@ export function HeaderLogo(props: { locales?: RootLocales }) {
       </svg>
       <span className="hidden lg:block font-bold text-primary ml-2">
         {props.locales !== undefined
-          ? props.locales.root.community
+          ? props.locales.route.root.community
           : defaultLanguage === "de"
           ? "Community"
           : "Community"}

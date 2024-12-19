@@ -1,6 +1,6 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -9,7 +9,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -17,11 +16,10 @@ import {
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import i18next from "~/i18next.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { deriveOrganizationMode } from "../utils.server";
 import {
@@ -41,19 +39,14 @@ import {
   removeMemberSchema,
   type action as removeMemberAction,
 } from "./team/remove-member";
-
-const i18nNS = ["routes-organization-settings-team"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes-organization-settings-team",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["organization/$slug/settings/team"];
 
   const { authClient } = createAuthClient(request);
 
@@ -65,11 +58,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
   const organization = await getOrganizationBySlug(slug);
-  invariantResponse(organization, t("error.notFound"), { status: 404 });
+  invariantResponse(organization, locales.route.error.notFound, {
+    status: 404,
+  });
 
   const members = await getMembersOfOrganization(authClient, organization.id);
 
@@ -96,33 +91,37 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  return json({
+  return {
     members,
     invitedProfiles,
     memberSuggestions,
     organizationId: organization.id,
     slug: slug,
-  });
+    locales,
+    language,
+  };
 };
 
 function Index() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
+  const { locales, language } = loaderData;
   const addMemberFetcher = useFetcher<typeof addMemberAction>();
   const cancelInviteFetcher = useFetcher<typeof cancelInviteAction>();
   const removeMemberFetcher = useFetcher<typeof removeMemberAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(i18nNS);
 
   return (
     <>
-      <h1 className="mb-8">{t("content.headline")}</h1>
-      <p className="mb-2">{t("content.intro1")}</p>
-      <p className="mb-8">{t("content.intro2")}</p>
-      <h4 className="mb-4 font-semibold">{t("content.add.headline")}</h4>
-      <p className="mb-8">{t("content.add.intro")}</p>
+      <h1 className="mb-8">{locales.route.content.headline}</h1>
+      <p className="mb-2">{locales.route.content.intro1}</p>
+      <p className="mb-8">{locales.route.content.intro2}</p>
+      <h4 className="mb-4 font-semibold">
+        {locales.route.content.add.headline}
+      </h4>
+      <p className="mb-8">{locales.route.content.add.intro}</p>
       <RemixFormsForm
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
@@ -141,7 +140,7 @@ function Index() {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="Name" className="label">
-                    {t("content.add.label")}
+                    {locales.route.content.add.label}
                   </label>
                 </div>
               </div>
@@ -157,6 +156,8 @@ function Index() {
                         defaultValue={suggestionsQuery || ""}
                         {...register("profileId")}
                         searchParameter="autocomplete_query"
+                        locales={locales}
+                        currentLanguage={language}
                       />
                     </>
                   )}
@@ -186,9 +187,9 @@ function Index() {
       {loaderData.invitedProfiles.length > 0 ? (
         <>
           <h4 className="mb-4 mt-16 font-semibold">
-            {t("content.invites.headline")}
+            {locales.route.content.invites.headline}
           </h4>
-          <p className="mb-8">{t("content.invites.intro")} </p>
+          <p className="mb-8">{locales.route.content.invites.intro} </p>
           {loaderData.invitedProfiles.map((profile) => {
             const initials = getInitials(profile);
             return (
@@ -240,7 +241,7 @@ function Index() {
                         <>
                           <Button
                             className="ml-auto btn-none"
-                            title={t("content.invites.cancel")}
+                            title={locales.route.content.invites.cancel}
                           >
                             <svg
                               viewBox="0 0 10 10"
@@ -268,9 +269,9 @@ function Index() {
         </>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
-        {t("content.current.headline")}
+        {locales.route.content.current.headline}
       </h4>
-      <p className="mb-8">{t("content.current.intro")} </p>
+      <p className="mb-8">{locales.route.content.current.intro} </p>
       <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
         {loaderData.members.map((profile) => {
           const initials = getInitials(profile);
@@ -324,7 +325,7 @@ function Index() {
                         {loaderData.members.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
-                            title={t("content.current.remove")}
+                            title={locales.route.content.current.remove}
                           >
                             <svg
                               viewBox="0 0 10 10"

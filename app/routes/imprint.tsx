@@ -1,36 +1,40 @@
-import { useTranslation } from "react-i18next";
+import { type LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
-const i18nNS = ["routes-imprint"] as const;
-export const handle = {
-  i18n: i18nNS,
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["imprint"];
+  return {
+    locales,
+  };
 };
 
 export default function Imprint() {
-  const { t } = useTranslation(i18nNS);
+  const { locales } = useLoaderData<typeof loader>();
 
   return (
     <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl my-8 @md:mv-my-10 @lg:mv-my-20">
-      <h1>{t("title")}</h1>
-      <p className="mb-2">{t("project.title")}</p>
+      <h1>{locales.title}</h1>
+      <p className="mb-2">{locales.project.title}</p>
       <ul className="mb-4">
-        {t("project.members")
-          .split(";")
-          .map((s: string, index) => (
-            <li key={index}>- {s.trim()}</li>
-          ))}
+        {locales.project.members.split(";").map((s: string, index) => (
+          <li key={index}>- {s.trim()}</li>
+        ))}
       </ul>
-      <p className="mb-2">{t("serviceProvider.intro")}</p>
-      <p>{t("serviceProvider.name")}</p>
-      <p>{t("serviceProvider.address1")}</p>
-      <p>{t("serviceProvider.address2")}</p>
-      <p className="mb-4">{t("serviceProvider.address3")}</p>
-      <h6 className="mb-2">{t("represented.title")}</h6>
+      <p className="mb-2">{locales.serviceProvider.intro}</p>
+      <p>{locales.serviceProvider.name}</p>
+      <p>{locales.serviceProvider.address1}</p>
+      <p>{locales.serviceProvider.address2}</p>
+      <p className="mb-4">{locales.serviceProvider.address3}</p>
+      <h6 className="mb-2">{locales.represented.title}</h6>
       <p>Gregor Frankenstein-von der Beeck</p>
       <p>Guido Lohnherr</p>
       <p>Tel.: +49(0)211-75707-910</p>
       <p>Fax: +49(0)211-987300</p>
       <p>
-        {t("represented.email")}{" "}
+        {locales.represented.email}{" "}
         <a
           className="text-primary hover:underline"
           href="mailto:info@matrix-ggmbh.de"
@@ -40,10 +44,10 @@ export default function Imprint() {
           info@matrix-ggmbh.de
         </a>
       </p>
-      <p>{t("represented.vat")} DE 329043660</p>
-      <p>{t("represented.register")} HRB 33341</p>
-      <p className="mb-2">{t("represented.appointed")}</p>
-      <p>{t("represented.responsible")}</p>
+      <p>{locales.represented.vat} DE 329043660</p>
+      <p>{locales.represented.register} HRB 33341</p>
+      <p className="mb-2">{locales.represented.appointed}</p>
+      <p>{locales.represented.responsible}</p>
     </section>
   );
 }

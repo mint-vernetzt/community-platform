@@ -85,7 +85,7 @@ export async function action(args: ActionFunctionArgs) {
     return redirectWithToast(redirectURL.toString(), {
       key: `${submission.value.slug}-${Date.now()}`,
       level: "negative",
-      message: locales.quit.lastAdmin,
+      message: locales.route.quit.lastAdmin,
     });
   }
 
@@ -128,7 +128,7 @@ export async function action(args: ActionFunctionArgs) {
   return redirectWithToast(redirectURL.toString(), {
     key: `${submission.value.slug}-${Date.now()}`,
     level: "positive",
-    message: insertParametersIntoLocale(locales.quit.success, {
+    message: insertParametersIntoLocale(locales.route.quit.success, {
       organization: organization.name,
     }),
   });

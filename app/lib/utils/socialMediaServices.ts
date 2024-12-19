@@ -1,5 +1,6 @@
 import type { Organization, Profile } from "@prisma/client";
-import { TFunction } from "i18next";
+import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
+import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
 
 type SocialMediaIdType =
   | keyof Pick<
@@ -44,19 +45,30 @@ const socialMediaServiceIds: SocialMediaIdType[] = [
 ];
 
 export const createSocialMediaServices = (
-  t: TFunction
+  locales: GeneralProfileSettingsLocales | GeneralOrganizationSettingsLocales
 ): SocialMediaService[] => {
   return socialMediaServiceIds.map(
     (id: SocialMediaIdType): SocialMediaService => {
+      let label;
+      let placeholder;
+      let organizationPlaceholder;
+      if (id in locales.socialMediaServices) {
+        type LocaleKey = keyof typeof locales.socialMediaServices;
+        label = locales.socialMediaServices[id as LocaleKey].label;
+        placeholder = locales.socialMediaServices[id as LocaleKey].placeholder;
+        organizationPlaceholder =
+          locales.socialMediaServices[id as LocaleKey].organizationPlaceholder;
+      } else {
+        console.error(`Social Media label ${id} not found in locales`);
+        label = id;
+        placeholder = id;
+        organizationPlaceholder = id;
+      }
       return {
         id: id,
-        label: t(`${id}.label`, { ns: "utils-social-media-services" }),
-        placeholder: t(`${id}.placeholder`, {
-          ns: "utils-social-media-services",
-        }),
-        organizationPlaceholder: t(`${id}.organizationPlaceholder`, {
-          ns: "utils-social-media-services",
-        }),
+        label: label,
+        placeholder: placeholder,
+        organizationPlaceholder: organizationPlaceholder,
       };
     }
   );

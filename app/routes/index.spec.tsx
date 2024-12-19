@@ -3,11 +3,9 @@
  */
 import { createRemixStub } from "@remix-run/testing";
 import { render, screen } from "@testing-library/react";
-import { I18nextProvider } from "react-i18next";
 import { expect, test, vi } from "vitest";
 import { createServerClient } from "~/__mocks__/auth.server";
 import { prismaClient } from "~/__mocks__/prisma.server";
-import i18n from "./../../tests/i18n-for-tests";
 import { consoleError } from "./../../tests/setup-test-env";
 import { default as LandingPageRoute, loader } from "./index";
 import { AuthError } from "@supabase/supabase-js";
@@ -72,11 +70,7 @@ test("Landing page is rendered without errors", async () => {
   ]);
 
   const routeUrl = `/`;
-  await render(
-    <I18nextProvider i18n={i18n}>
-      <LandingPage initialEntries={[routeUrl]} />
-    </I18nextProvider>
-  );
+  await render(<LandingPage initialEntries={[routeUrl]} />);
 
   const heading = await screen.findByRole("heading", {
     level: 1,

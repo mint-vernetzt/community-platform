@@ -1,10 +1,34 @@
-import { useTranslation } from "react-i18next";
+import { type MyEventsLocales } from "~/routes/my/events.server";
 import { Icon } from "./icons/Icon";
+import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
+import { type OrganizationAdminSettingsLocales } from "~/routes/next/organization/$slug/settings/admins.server";
+import { type OrganizationTeamSettingsLocales } from "~/routes/next/organization/$slug/settings/team.server";
+import { type CreateOrganizationLocales } from "~/routes/next/organization/create.server";
+import { type OrganizationEventsLocales } from "~/routes/organization/$slug/detail/events.server";
+import { type OrganizationNetworkLocales } from "~/routes/organization/$slug/detail/network.server";
+import { type OrganizationProjectsLocales } from "~/routes/organization/$slug/detail/projects.server";
+import { type OrganizationTeamLocales } from "~/routes/organization/$slug/detail/team.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+
+type Locales =
+  | MyEventsLocales
+  | MyOrganizationsLocales
+  | OrganizationAdminSettingsLocales
+  | OrganizationTeamSettingsLocales
+  | CreateOrganizationLocales
+  | OrganizationEventsLocales
+  | OrganizationNetworkLocales
+  | OrganizationProjectsLocales
+  | OrganizationTeamLocales;
 
 export function ListContainer(
-  props: React.PropsWithChildren<{ listKey?: string; hideAfter?: number }>
+  props: React.PropsWithChildren<{
+    listKey?: string;
+    hideAfter?: number;
+    locales: Locales;
+  }>
 ) {
-  const { children, listKey, hideAfter } = props;
+  const { children, listKey, hideAfter, locales } = props;
 
   if (listKey === undefined && hideAfter !== undefined) {
     console.error(
@@ -12,7 +36,6 @@ export function ListContainer(
     );
   }
 
-  const { t } = useTranslation("components");
   return (
     <ul className="mv-flex mv-flex-col mv-gap-4 @lg:mv-gap-6 mv-group">
       {children}
@@ -29,14 +52,20 @@ export function ListContainer(
             className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
           >
             <div className="group-has-[:checked]:mv-hidden">
-              {t("ListContainer.more", {
-                count: children.length - 3,
-              })}
+              {insertParametersIntoLocale(
+                locales.components.ListContainer.more,
+                {
+                  count: children.length - 3,
+                }
+              )}
             </div>
             <div className="mv-hidden group-has-[:checked]:mv-block">
-              {t("ListContainer.less", {
-                count: children.length - 3,
-              })}
+              {insertParametersIntoLocale(
+                locales.components.ListContainer.less,
+                {
+                  count: children.length - 3,
+                }
+              )}
             </div>
             <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
               <Icon type="chevron-right" />

@@ -6,6 +6,7 @@ import { Image } from "./../../molecules/Image";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 import { type ExploreProjectsLocales } from "~/routes/explore/projects.server";
 import { type MyProjectsLocales } from "~/routes/my/projects.server";
+import { type SearchProjectsLocales } from "~/routes/search/projects.server";
 
 export type ProjectCardProps = {
   project: {
@@ -26,7 +27,11 @@ export type ProjectCardProps = {
       };
     }[];
   };
-  locales: DashboardLocales | ExploreProjectsLocales | MyProjectsLocales;
+  locales:
+    | DashboardLocales
+    | ExploreProjectsLocales
+    | MyProjectsLocales
+    | SearchProjectsLocales;
   mode?: "admin" | "teamMember";
 };
 

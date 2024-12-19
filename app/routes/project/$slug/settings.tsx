@@ -5,28 +5,18 @@ import {
   useLocation,
   useSearchParams,
 } from "@remix-run/react";
-import {
-  json,
-  redirect,
-  type LoaderFunctionArgs,
-} from "@remix-run/server-runtime";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/server-runtime";
 import classNames from "classnames";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { getToast } from "~/toast.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
-import { type TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
 import { Deep } from "~/lib/utils/searchParams";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { Toast } from "@mint-vernetzt/components/src/molecules/Toast";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-
-const i18nNS = ["routes-project-settings"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
+import { type ProjectSettingsLocales } from "./settings.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -60,44 +50,40 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   invariantResponse(project !== null, "Project not found", { status: 404 });
 
-  const { toast, headers: toastHeaders } = await getToast(request);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/settings"];
 
-  return json(
-    {
-      project,
-      toast,
-    },
-    {
-      headers: toastHeaders || undefined,
-    }
-  );
+  return {
+    project,
+    locales,
+  };
 };
 
-const createNavLinks = (t: TFunction) => [
-  { to: "./general", label: t("links.general") },
-  { to: "./web-social", label: t("links.webSocial") },
-  { to: "./details", label: t("links.details") },
-  { to: "./requirements", label: t("links.requirements") },
-  { to: "./responsible-orgs", label: t("links.responsibleOrgs") },
-  { to: "./team", label: t("links.team") },
-  { to: "./admins", label: t("links.admins") },
-  { to: "./attachments", label: t("links.attachments") },
-  { to: "./danger-zone", label: t("links.dangerZone"), variant: "negative" },
+const createNavLinks = (locales: ProjectSettingsLocales) => [
+  { to: "./general", label: locales.links.general },
+  { to: "./web-social", label: locales.links.webSocial },
+  { to: "./details", label: locales.links.details },
+  { to: "./requirements", label: locales.links.requirements },
+  { to: "./responsible-orgs", label: locales.links.responsibleOrgs },
+  { to: "./team", label: locales.links.team },
+  { to: "./admins", label: locales.links.admins },
+  { to: "./attachments", label: locales.links.attachments },
+  { to: "./danger-zone", label: locales.links.dangerZone, variant: "negative" },
 ];
 
 function ProjectSettings() {
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const location = useLocation();
   const pathnameWithoutSlug = location.pathname.replace(
     loaderData.project.slug,
     ""
   );
   const [searchParams] = useSearchParams();
-  const { t } = useTranslation(i18nNS);
 
   const deep = searchParams.get(Deep);
 
-  const navLinks = createNavLinks(t);
+  const navLinks = createNavLinks(locales);
 
   const menuClasses = classNames(
     "mv-w-full @md:mv-w-1/3 @2xl:mv-w-1/4 mv-max-h-screen @md:mv-max-h-fit mv-flex mv-flex-col mv-absolute @md:mv-relative mv-top-0 mv-bg-white @md:mv-border-l @md:mv-border-b @md:mv-rounded-bl-xl @md:mv-self-start",
@@ -115,31 +101,23 @@ function ProjectSettings() {
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
           <TextButton weight="thin" variant="neutral" arrowLeft>
             <Link to={`/project/${loaderData.project.slug}`} prefetch="intent">
-              {t("content.toProject")}
+              {locales.content.toProject}
             </Link>
           </TextButton>
-          <h3 className="mv-mb-0 mv-font-bold">{t("content.edit")}</h3>
+          <h3 className="mv-mb-0 mv-font-bold">{locales.content.edit}</h3>
         </div>
       </div>
-      {loaderData.toast !== null &&
-        loaderData.toast.id === "settings-toast" && (
-          <div id={loaderData.toast.id} className="@md:mv-py-4">
-            <Toast key={loaderData.toast.key} level={loaderData.toast.level}>
-              {loaderData.toast.message}
-            </Toast>
-          </div>
-        )}
       <div className="mv-hidden @md:mv-block">
         <Section variant="primary" withBorder>
           <Section.Header>{loaderData.project.name}</Section.Header>
-          <Section.Body>{t("content.share")}</Section.Body>
+          <Section.Body>{locales.content.share}</Section.Body>
         </Section>
       </div>
       <div className="mv-w-full @md:mv-flex @md:mv-mb-20 @lg:mv-mb-0">
         <div className={menuClasses}>
           <div className="mv-flex mv-gap-2 mv-items-center mv-justify-between @md:mv-hidden">
             <span className="mv-p-6">
-              <h1 className="mv-text-2xl mv-m-0">{t("content.settings")}</h1>
+              <h1 className="mv-text-2xl mv-m-0">{locales.content.settings}</h1>
             </span>
             <Link
               to={`/project/${loaderData.project.slug}`}

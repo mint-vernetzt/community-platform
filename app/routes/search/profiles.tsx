@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Link,
   useLoaderData,
@@ -137,7 +136,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     enhancedProfiles.push(imageEnhancedProfile);
   }
 
-  return json({
+  return {
     profiles: enhancedProfiles,
     count: profilesCount,
     isLoggedIn: sessionUser !== null,
@@ -146,7 +145,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       itemsPerPage,
     },
     locales,
-  });
+  };
 };
 
 export default function Profiles() {

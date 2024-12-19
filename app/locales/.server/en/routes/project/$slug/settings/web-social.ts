@@ -20,7 +20,7 @@ export const locale = {
       headline: "Website",
       url: {
         label: "URL",
-        placeholder: "subdomain.domain.tld/...",
+        placeholder: "domain.tld/...",
       },
     },
     socialNetworks: {
@@ -43,7 +43,7 @@ export const locale = {
       },
       mastodon: {
         label: "Mastodon",
-        placeholder: "subdomain.domain.tld/...",
+        placeholder: "domain.tld/...",
       },
       tiktok: {
         label: "TikTok",

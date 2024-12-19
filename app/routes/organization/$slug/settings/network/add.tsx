@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   useFetcher,
   useParams,
@@ -21,20 +21,12 @@ import {
   getOrganizationById,
   getOrganizationIdBySlug,
 } from "../utils.server";
-import { useTranslation } from "react-i18next";
-import i18next from "~/i18next.server";
-import { type TFunction } from "i18next";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
-
-const i18nNS = [
-  "routes-organization-settings-network-index",
-  "routes-organization-settings-network-add",
-  "datasets-organizationTypes",
-] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { type AddOrganizationNetworkMemberLocales } from "./add.server";
+import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { defaultLanguage } from "~/i18n.shared";
 
 const schema = z.object({
   organizationId: z.string(),
@@ -44,7 +36,7 @@ const environmentSchema = z.object({
   slug: z.string(),
 });
 
-const createMutation = (t: TFunction) => {
+const createMutation = (locales: AddOrganizationNetworkMemberLocales) => {
   return makeDomainFunction(
     schema,
     environmentSchema
@@ -53,13 +45,13 @@ const createMutation = (t: TFunction) => {
 
     const network = await getOrganizationIdBySlug(environment.slug);
     if (network === null) {
-      throw t("error.notFound");
+      throw locales.route.error.notFound;
     }
 
     const organization = await getOrganizationById(organizationId);
     if (organization === null) {
       throw new InputError(
-        t("error.inputError.doesNotExist"),
+        locales.route.error.inputError.doesNotExist,
         "organizationId"
       );
     }
@@ -70,7 +62,7 @@ const createMutation = (t: TFunction) => {
 
     if (alreadyNetworkMember) {
       throw new InputError(
-        t("error.inputError.alreadyMember"),
+        locales.route.error.inputError.alreadyMember,
         "organizationId"
       );
     }
@@ -80,7 +72,7 @@ const createMutation = (t: TFunction) => {
       network.id
     );
     if (result === null) {
-      throw t("error.serverError");
+      throw locales.route.error.serverError;
     }
 
     return { ...values, name: organization.name };
@@ -93,29 +85,34 @@ export const loader = async () => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["organization/$slug/settings/network/add"];
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
 
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(t),
+    mutation: createMutation(locales),
     environment: { slug: slug },
   });
   if (result.success) {
-    return json({
-      message: t("feedback", { title: result.data.name }),
-    });
+    return {
+      message: insertParametersIntoLocale(locales.route.feedback, {
+        title: result.data.name,
+      }),
+      locales,
+      language,
+    };
   }
 
-  return json(result);
+  return { result, locales, language };
 };
 
 type NetworkMemberProps = {
@@ -125,15 +122,26 @@ type NetworkMemberProps = {
 function Add(props: NetworkMemberProps) {
   const { slug } = useParams();
   const fetcher = useFetcher<typeof action>();
+  const locales = fetcher.data !== undefined ? fetcher.data.locales : undefined;
+  const language =
+    fetcher.data !== undefined ? fetcher.data.language : undefined;
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
-  const { t } = useTranslation(i18nNS);
 
   return (
     <>
-      <h4 className="mb-4 font-semibold">{t("content.headline")}</h4>
-      <p className="mb-8">{t("content.intro")}</p>
+      <h4 className="mb-4 font-semibold">
+        {locales !== undefined
+          ? locales.route.content.headline
+          : "Add network member"}
+      </h4>
+      <p className="mb-8">
+        {locales !== undefined
+          ? locales.route.content.intro
+          : "Add an existing organization to your network here"}
+      </p>
+
       <RemixFormsForm
         schema={schema}
         fetcher={fetcher}
@@ -152,9 +160,9 @@ function Add(props: NetworkMemberProps) {
               <div className="flex flex-row items-center mb-2">
                 <div className="flex-auto">
                   <label id="label-for-name" htmlFor="name" className="label">
-                    {t("content.label", {
-                      ns: "routes-organization-settings-network-add",
-                    })}
+                    {locales !== undefined
+                      ? locales.route.content.label
+                      : "Name of the organization"}
                   </label>
                 </div>
               </div>
@@ -170,6 +178,8 @@ function Add(props: NetworkMemberProps) {
                         defaultValue={suggestionsQuery || ""}
                         {...register("organizationId")}
                         searchParameter="autocomplete_query"
+                        locales={locales}
+                        currentLanguage={language || defaultLanguage}
                       />
                     </>
                   )}

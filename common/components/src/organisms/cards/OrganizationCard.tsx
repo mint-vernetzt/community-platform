@@ -15,6 +15,7 @@ import { Image } from "./../../molecules/Image";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
+import { type SearchOrganizationsLocales } from "~/routes/search/organizations.server";
 
 export type OrganizationCardProps = {
   match?: number;
@@ -22,6 +23,7 @@ export type OrganizationCardProps = {
   locales:
     | DashboardLocales
     | ExploreOrganizationsLocales
+    | SearchOrganizationsLocales
     | MyOrganizationsLocales;
   menu?: {
     mode: "admin" | "teamMember";

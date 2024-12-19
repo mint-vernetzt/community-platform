@@ -1,11 +1,13 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { type ExploreFundingsLocales } from "~/routes/explore/fundings.server";
+import { type SearchFundingsLocales } from "~/routes/search/fundings.server";
 
-const i18nNS = ["routes-explore-fundings"] as const;
-
-export function FundingCard(props: { url: string; children: React.ReactNode }) {
-  const { t } = useTranslation(i18nNS);
-
+export function FundingCard(props: {
+  url: string;
+  children: React.ReactNode;
+  locales: ExploreFundingsLocales | SearchFundingsLocales;
+}) {
+  const { locales } = props;
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
       return React.isValidElement(child);
@@ -30,7 +32,9 @@ export function FundingCard(props: { url: string; children: React.ReactNode }) {
       {subtitle}
       {title}
       {categories}
-      <FundingCard.Link to={props.url}>{t("card.toFunding")}</FundingCard.Link>
+      <FundingCard.Link to={props.url}>
+        {locales.card.toFunding}
+      </FundingCard.Link>
     </li>
   );
 }
@@ -110,8 +114,9 @@ function FundingCardLink(props: { to: string; children: React.ReactNode }) {
 function FundingCardCategory(props: {
   children: React.ReactNode;
   items: string[];
+  locales: ExploreFundingsLocales | SearchFundingsLocales;
 }) {
-  const { t } = useTranslation(i18nNS);
+  const { locales } = props;
 
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
@@ -132,7 +137,7 @@ function FundingCardCategory(props: {
           </span>
         ) : (
           <span className="mv-text-neutral-400 mv-text-sm mv-tracking-wide">
-            {t("card.notProvided")}
+            {locales.card.notProvided}
           </span>
         )}
       </div>

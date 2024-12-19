@@ -2,6 +2,13 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import { triggerEntityScore } from "~/utils.server";
 import type { UploadKey } from "./utils.server";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
+
+export type DeleteImageLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof supportedCookieLanguages
+>]["upload/delete"];
 
 export async function removeImageFromProfile(
   profileId: string,

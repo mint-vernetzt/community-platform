@@ -1,32 +1,23 @@
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { useLoaderData } from "@remix-run/react";
-import { json, type LoaderFunctionArgs } from "@remix-run/server-runtime";
+import { type LoaderFunctionArgs } from "@remix-run/server-runtime";
 import { RichText } from "~/components/Richtext/RichText";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
-import i18next from "~/i18next.server";
-
-const i18nNS = [
-  "routes-project-detail-requirements",
-  "datasets-financings",
-] as const;
-
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["project/$slug/detail/requirements"];
 
   // check slug exists (throw bad request if not)
   invariantResponse(
     params.slug !== undefined,
-    t("error.invariant.invalidRoute"),
+    locales.route.error.invariant.invalidRoute,
     {
       status: 400,
     }
@@ -58,22 +49,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, t("error.invariant.notFound"), {
+  invariantResponse(project !== null, locales.route.error.invariant.notFound, {
     status: 404,
   });
 
-  return json({ project });
+  return { project, locales };
 };
 
 function Requirements() {
   const loaderData = useLoaderData<typeof loader>();
-  const { project } = loaderData;
-  const { t } = useTranslation(i18nNS);
+  const { project, locales } = loaderData;
 
   return (
     <>
       <p className="mv-font-normal mv-text-neutral-800">
-        {t("content.information")}
+        {locales.route.content.information}
       </p>
 
       {project.timeframe === null &&
@@ -87,16 +77,16 @@ function Requirements() {
         project.roomSituation === null &&
         project.furtherRoomSituation === null && (
           <p className="mv-font-normal mv-text-neutral-800">
-            {t("content.confirmation")}
+            {locales.route.content.confirmation}
           </p>
         )}
       {project.timeframe !== null && (
         <>
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {t("content.timeFrame.headline")}
+            {locales.route.content.timeFrame.headline}
           </h2>
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {t("content.timeFrame.intro")}
+            {locales.route.content.timeFrame.intro}
           </h3>
           <RichText html={project.timeframe} />
         </>
@@ -105,12 +95,12 @@ function Requirements() {
         project.furtherJobFillings !== null) && (
         <>
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {t("content.jobFillings.headline")}
+            {locales.route.content.jobFillings.headline}
           </h2>
           {project.jobFillings !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.jobFillings.intro")}
+                {locales.route.content.jobFillings.intro}
               </h3>
               <RichText html={project.jobFillings} />
             </>
@@ -118,7 +108,7 @@ function Requirements() {
           {project.furtherJobFillings !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.furtherJobFillings.headline")}
+                {locales.route.content.furtherJobFillings.headline}
               </h3>
               <RichText html={project.furtherJobFillings} />
             </>
@@ -130,12 +120,12 @@ function Requirements() {
         project.furtherFinancings !== null) && (
         <>
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {t("content.finance.headline")}
+            {locales.route.content.finance.headline}
           </h2>
           {project.yearlyBudget !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.finance.yearlyBudget")}
+                {locales.route.content.finance.yearlyBudget}
               </h3>
               <p className="mv-font-normal mv-text-neutral-800">
                 {project.yearlyBudget}
@@ -145,15 +135,25 @@ function Requirements() {
           {project.financings.length > 0 && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.finance.financings")}
+                {locales.route.content.finance.financings}
               </h3>
               <Chip.Container>
                 {project.financings.map((relation) => {
+                  let title;
+                  if (relation.financing.slug in locales.financings) {
+                    type LocaleKey = keyof typeof locales.financings;
+                    title =
+                      locales.financings[relation.financing.slug as LocaleKey]
+                        .title;
+                  } else {
+                    console.error(
+                      `Focus ${relation.financing.slug} not found in locales`
+                    );
+                    title = relation.financing.slug;
+                  }
                   return (
                     <Chip key={relation.financing.slug} color="primary">
-                      {t(`${relation.financing.slug}.title`, {
-                        ns: "datasets-financings",
-                      })}
+                      {title}
                     </Chip>
                   );
                 })}
@@ -163,7 +163,7 @@ function Requirements() {
           {project.furtherFinancings !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.finance.moreInformation")}
+                {locales.route.content.finance.moreInformation}
               </h3>
               <RichText html={project.furtherFinancings} />
             </>
@@ -174,12 +174,12 @@ function Requirements() {
         project.furtherTechnicalRequirements !== null) && (
         <>
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {t("content.technical.headline")}
+            {locales.route.content.technical.headline}
           </h2>
           {project.technicalRequirements !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.technical.technicalRequirements")}
+                {locales.route.content.technical.technicalRequirements}
               </h3>
               <RichText html={project.technicalRequirements} />
             </>
@@ -187,7 +187,7 @@ function Requirements() {
           {project.furtherTechnicalRequirements !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.technical.furtherTechnicalRequirements")}
+                {locales.route.content.technical.furtherTechnicalRequirements}
               </h3>
               <RichText html={project.furtherTechnicalRequirements} />
             </>
@@ -198,12 +198,12 @@ function Requirements() {
         project.furtherRoomSituation !== null) && (
         <>
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {t("content.rooms.headline")}
+            {locales.route.content.rooms.headline}
           </h2>
           {project.roomSituation !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.rooms.roomSituation")}
+                {locales.route.content.rooms.roomSituation}
               </h3>
               <RichText html={project.roomSituation} />
             </>
@@ -211,7 +211,7 @@ function Requirements() {
           {project.furtherRoomSituation !== null && (
             <>
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.rooms.furtherRoomSituation")}
+                {locales.route.content.rooms.furtherRoomSituation}
               </h3>
               <RichText html={project.furtherRoomSituation} />
             </>

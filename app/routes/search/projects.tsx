@@ -1,12 +1,10 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Link,
   useLoaderData,
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import {
@@ -23,14 +21,14 @@ import {
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-
-const i18nNS = ["routes-search-projects"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["search/projects"];
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { take, page, itemsPerPage } = getTakeParam(request);
@@ -141,16 +139,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     enhancedProjects.push(imageEnhancedProject);
   }
 
-  return json({
+  return {
     projects: enhancedProjects,
     count: projectsCount,
     pagination: { page, itemsPerPage },
-  });
+    locales,
+  };
 };
 
 export default function SearchView() {
-  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const [searchParams] = useSearchParams();
 
   const navigation = useNavigation();
@@ -169,6 +168,7 @@ export default function SearchView() {
                   <ProjectCard
                     key={`project-${project.id}`}
                     project={project}
+                    locales={locales}
                   />
                 );
               })}
@@ -187,14 +187,14 @@ export default function SearchView() {
                   loading={navigation.state === "loading"}
                   disabled={navigation.state === "loading"}
                 >
-                  {t("more")}
+                  {locales.route.more}
                 </Button>
               </Link>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">{t("empty")}</p>
+        <p className="text-center text-primary">{locales.route.empty}</p>
       )}
     </>
   );

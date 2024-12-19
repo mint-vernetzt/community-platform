@@ -232,7 +232,7 @@ function Admins() {
             method="post"
             preventScrollReset
           >
-            <ListContainer>
+            <ListContainer locales={locales}>
               {organization.admins.map((relation) => {
                 return (
                   <ListItem
@@ -316,7 +316,7 @@ function Admins() {
               method="post"
               preventScrollReset
             >
-              <ListContainer>
+              <ListContainer locales={locales}>
                 {searchedProfiles.map((profile) => {
                   return (
                     <ListItem
@@ -351,7 +351,7 @@ function Admins() {
                 method="post"
                 preventScrollReset
               >
-                <ListContainer>
+                <ListContainer locales={locales}>
                   {pendingAdminInvites.map((profile) => {
                     return (
                       <ListItem

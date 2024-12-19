@@ -1,7 +1,6 @@
 import { conform, useForm } from "@conform-to/react";
 import { type Prisma, type Profile } from "@prisma/client";
 import {
-  json,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -12,16 +11,14 @@ import {
   useLocation,
   useSearchParams,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { getPublicURL } from "~/storage.server";
-import { getToast, redirectWithToast } from "~/toast.server";
+import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
 import {
   getRedirectPathOnProtectedProjectRoute,
@@ -29,29 +26,25 @@ import {
 } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { Toast } from "@mint-vernetzt/components/src/molecules/Toast";
 import { List } from "@mint-vernetzt/components/src/organisms/List";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-
-const i18nNS = ["routes-project-settings-team"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/settings/team"];
 
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
+  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
     status: 400,
   });
 
@@ -94,7 +87,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, t("error.notFound"), {
+  invariantResponse(project !== null, locales.error.notFound, {
     status: 404,
   });
 
@@ -204,26 +197,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
   }
 
-  const { toast, headers: toastHeaders } = await getToast(request);
-
-  return json(
-    { project: enhancedProject, searchResult, toast },
-    { headers: toastHeaders || undefined }
-  );
+  return { project: enhancedProject, searchResult, locales };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   // get action type
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/settings/team"];
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
+  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
     status: 400,
   });
 
@@ -262,7 +250,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
     invariantResponse(
       project !== null && profile !== null,
-      t("error.notFound"),
+      locales.error.notFound,
       {
         status: 404,
       }
@@ -285,7 +273,7 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirectWithToast(request.url, {
       id: "add-member-toast",
       key: hash,
-      message: t("content.added", {
+      message: insertParametersIntoLocale(locales.content.added, {
         firstName: profile.firstName,
         lastName: profile.lastName,
       }),
@@ -311,7 +299,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
     invariantResponse(
       project !== null && profile !== null,
-      t("error.notFound"),
+      locales.error.notFound,
       {
         status: 404,
       }
@@ -329,18 +317,18 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirectWithToast(request.url, {
       id: "remove-member-toast",
       key: hash,
-      message: t("content.removed", {
+      message: insertParametersIntoLocale(locales.content.removed, {
         firstName: profile.firstName,
         lastName: profile.lastName,
       }),
     });
   }
 
-  return json({ success: false, action, profile: null });
+  return { success: false, action, profile: null };
 };
 
 function Team() {
-  const { project, searchResult, toast } = useLoaderData<typeof loader>();
+  const { project, searchResult, locales } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useDebounceSubmit();
@@ -351,26 +339,18 @@ function Team() {
       [Deep]: "true",
     },
   });
-  const { t } = useTranslation(i18nNS);
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
+      <BackButton to={location.pathname}>{locales.content.back}</BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.content.intro}</p>
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-        {toast !== null && toast.id === "remove-member-toast" && (
-          <div id={toast.id}>
-            <Toast key={toast.key} level={toast.level}>
-              {toast.message}
-            </Toast>
-          </div>
-        )}
         {project.teamMembers.length > 0 && (
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.current.headline")}
+              {locales.content.current.headline}
             </h2>
-            <p>{t("content.current.intro")}</p>
+            <p>{locales.content.current.intro}</p>
             <Form method="post" preventScrollReset>
               <List>
                 {project.teamMembers.map((teamMember) => {
@@ -388,8 +368,8 @@ function Team() {
                             teamMember.profile.username
                           );
                         })
-                          ? t("content.current.member.admin")
-                          : t("content.current.member.team")}
+                          ? locales.content.current.member.admin
+                          : locales.content.current.member.team}
                       </List.Item.Subtitle>
                       <List.Item.Controls>
                         <Button
@@ -398,7 +378,7 @@ function Team() {
                           value={`remove_${teamMember.profile.username}`}
                           type="submit"
                         >
-                          {t("content.current.remove")}
+                          {locales.content.current.remove}
                         </Button>
                       </List.Item.Controls>
                     </List.Item>
@@ -408,16 +388,9 @@ function Team() {
             </Form>
           </div>
         )}
-        {toast !== null && toast.id === "add-member-toast" && (
-          <div id={toast.id}>
-            <Toast key={toast.key} level={toast.level}>
-              {toast.message}
-            </Toast>
-          </div>
-        )}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {t("content.add.headline")}
+            {locales.content.add.headline}
           </h2>
           <Form
             method="get"
@@ -432,11 +405,11 @@ function Team() {
             <Input {...conform.input(fields[Deep])} type="hidden" />
             <Input {...conform.input(fields.search)} standalone>
               <Input.Label htmlFor={fields.search.id}>
-                {t("content.add.search")}
+                {locales.content.add.search}
               </Input.Label>
               <Input.SearchIcon />
               <Input.HelperText>
-                {t("content.add.requirements")}
+                {locales.content.add.requirements}
               </Input.HelperText>
               {typeof fields.search.error !== "undefined" && (
                 <Input.Error>{fields.search.error}</Input.Error>
@@ -459,7 +432,7 @@ function Team() {
                         value={`add_${profile.username}`}
                         type="submit"
                       >
-                        {t("content.add.add")}
+                        {locales.content.add.add}
                       </Button>
                     </List.Item.Controls>
                   </List.Item>

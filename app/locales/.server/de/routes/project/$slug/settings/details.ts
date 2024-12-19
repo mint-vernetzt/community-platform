@@ -8,7 +8,7 @@ export const locale = {
   },
   validation: {
     targetGroupAdditions: {
-      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
+      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 250.",
     },
     excerpt: {
       max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 250.",

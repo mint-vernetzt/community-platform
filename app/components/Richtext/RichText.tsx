@@ -7,9 +7,9 @@ interface RichTextProps {
 }
 
 export function RichText({ html, additionalClassNames, id }: RichTextProps) {
-  const isRichtext = html.indexOf("<p>") !== -1;
+  const hasParagraph = html.indexOf("<p>") !== -1;
 
-  if (isRichtext) {
+  if (hasParagraph) {
     return (
       <div
         id={id}

@@ -51,9 +51,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEvent(slug);
-  invariantResponse(event, locales.error.notFound, { status: 404 });
+  invariantResponse(event, locales.route.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
 
@@ -112,13 +112,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     teamMembers: enhancedTeamMembers,
     teamMemberSuggestions,
     locales,
+    language,
   };
 };
 
 function Team() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, language } = loaderData;
   const addMemberFetcher = useFetcher<typeof addMemberAction>();
   const removeMemberFetcher = useFetcher<typeof removeMemberAction>();
   const publishFetcher = useFetcher<typeof publishAction>();
@@ -128,13 +129,13 @@ function Team() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
-      <p className="mb-2">{locales.content.intro1}</p>
-      <p className="mb-8">{locales.content.intro2}</p>
+      <h1 className="mb-8">{locales.route.content.headline}</h1>
+      <p className="mb-2">{locales.route.content.intro1}</p>
+      <p className="mb-8">{locales.route.content.intro2}</p>
       <h4 className="mb-4 mt-4 font-semibold">
-        {locales.content.add.headline}
+        {locales.route.content.add.headline}
       </h4>
-      <p className="mb-8">{locales.content.add.intro}</p>
+      <p className="mb-8">{locales.route.content.add.intro}</p>
       <RemixFormsForm
         schema={addMemberSchema}
         fetcher={addMemberFetcher}
@@ -154,7 +155,7 @@ function Team() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      {locales.content.add.label}
+                      {locales.route.content.add.label}
                     </label>
                   </div>
                 </div>
@@ -170,6 +171,8 @@ function Team() {
                           defaultValue={suggestionsQuery || ""}
                           {...register("profileId")}
                           searchParameter="autocomplete_query"
+                          locales={locales}
+                          currentLanguage={language}
                         />
                       </>
                     )}
@@ -192,9 +195,9 @@ function Team() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
-        {locales.content.current.headline}
+        {locales.route.content.current.headline}
       </h4>
-      <p className="mb-8">{locales.content.current.intro} </p>
+      <p className="mb-8">{locales.route.content.current.intro} </p>
       <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
         {loaderData.teamMembers.map((teamMember) => {
           const initials = getInitials(teamMember);
@@ -294,8 +297,8 @@ function Team() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? locales.content.hide
-                        : locales.content.publish}
+                        ? locales.route.content.hide
+                        : locales.route.content.publish}
                     </Button>
                   </>
                 );

@@ -1,7 +1,6 @@
 import { conform, useForm } from "@conform-to/react";
 import { type Prisma, type Profile } from "@prisma/client";
 import {
-  json,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -13,16 +12,14 @@ import {
   useLocation,
   useSearchParams,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { getPublicURL } from "~/storage.server";
-import { getToast, redirectWithToast } from "~/toast.server";
+import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
 import {
   getRedirectPathOnProtectedProjectRoute,
@@ -31,22 +28,21 @@ import {
 import { Deep } from "~/lib/utils/searchParams";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { Toast } from "@mint-vernetzt/components/src/molecules/Toast";
 import { List } from "@mint-vernetzt/components/src/organisms/List";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-
-const i18nNS = ["routes-project-settings-admins"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/settings/admins"];
 
   const { authClient } = createAuthClient(request);
 
@@ -55,7 +51,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // check slug exists (throw bad request if not)
   invariantResponse(
     params.slug !== undefined,
-    t("error.invariant.invalidRoute"),
+    locales.error.invariant.invalidRoute,
     { status: 400 }
   );
 
@@ -91,7 +87,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, t("error.invariant.notFound"), {
+  invariantResponse(project !== null, locales.error.invariant.notFound, {
     status: 404,
   });
 
@@ -200,22 +196,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
   }
 
-  const { toast, headers: toastHeaders } = await getToast(request);
-
-  return json(
-    { project: enhancedProject, searchResult, toast },
-    {
-      headers: toastHeaders || undefined,
-    }
-  );
+  return { project: enhancedProject, searchResult, locales };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   // get action type
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/settings/admins"];
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -223,7 +212,7 @@ export const action = async (args: ActionFunctionArgs) => {
   // check slug exists (throw bad request if not)
   invariantResponse(
     params.slug !== undefined,
-    t("error.invariant.invalidRoute"),
+    locales.error.invariant.invalidRoute,
     { status: 400 }
   );
 
@@ -263,7 +252,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
       invariantResponse(
         project !== null && profile !== null,
-        t("error.invariant.notFound"),
+        locales.error.invariant.notFound,
         { status: 404 }
       );
 
@@ -284,7 +273,7 @@ export const action = async (args: ActionFunctionArgs) => {
       return redirectWithToast(request.url, {
         id: "add-admin-toast",
         key: hash,
-        message: t("content.profileAdded", {
+        message: insertParametersIntoLocale(locales.content.profileAdded, {
           firstName: profile.firstName,
           lastName: profile.lastName,
         }),
@@ -310,7 +299,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
       invariantResponse(
         project !== null && profile !== null,
-        t("error.invariant.notFound"),
+        locales.error.invariant.notFound,
         { status: 404 }
       );
 
@@ -321,7 +310,7 @@ export const action = async (args: ActionFunctionArgs) => {
       });
 
       if (adminCount <= 1) {
-        return json({ success: false, action, profile: null });
+        return { success: false, action, profile: null };
       }
 
       await prismaClient.adminOfProject.delete({
@@ -336,7 +325,7 @@ export const action = async (args: ActionFunctionArgs) => {
       return redirectWithToast(request.url, {
         id: "remove-admin-toast",
         key: hash,
-        message: t("content.profileRemoved", {
+        message: insertParametersIntoLocale(locales.content.profileRemoved, {
           firstName: profile.firstName,
           lastName: profile.lastName,
         }),
@@ -344,16 +333,15 @@ export const action = async (args: ActionFunctionArgs) => {
     }
   }
 
-  return json({ success: false, action, profile: null });
+  return { success: false, action, profile: null };
 };
 
 function Admins() {
-  const { project, searchResult, toast } = useLoaderData<typeof loader>();
+  const { project, searchResult, locales } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useDebounceSubmit();
-  const { t } = useTranslation(i18nNS);
 
   const [searchForm, searchFields] = useForm({
     defaultValue: {
@@ -364,29 +352,27 @@ function Admins() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{t("content.headline")}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
+      <BackButton to={location.pathname}>{locales.content.headline}</BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.content.intro}</p>
       {typeof actionData !== "undefined" &&
         actionData !== null &&
         actionData.action !== null &&
         typeof actionData.action === "string" &&
         actionData.success === false && (
           <Alert level="negative" key={actionData.action}>
-            {actionData.action.startsWith("remove_") && t("content.ups.remove")}
-            {actionData.action.startsWith("add_") && t("content.ups.add")}
+            {actionData.action.startsWith("remove_") &&
+              locales.content.ups.remove}
+            {actionData.action.startsWith("add_") && locales.content.ups.add}
           </Alert>
         )}
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-        {toast !== null && toast.id === "remove-admin-toast" && (
-          <div id={toast.id}>
-            <Toast key={toast.key} level={toast.level}>
-              {toast.message}
-            </Toast>
-          </div>
-        )}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {t("content.current.headline", { count: project.admins.length })}
+            {decideBetweenSingularOrPlural(
+              locales.content.current.headline_one,
+              locales.content.current.headline_other,
+              project.admins.length
+            )}
           </h2>
           <Form method="post" preventScrollReset>
             <List>
@@ -398,7 +384,7 @@ function Admins() {
                       {admins.profile.firstName} {admins.profile.lastName}
                     </List.Item.Title>
                     <List.Item.Subtitle>
-                      {t("content.current.title")}
+                      {locales.content.current.title}
                     </List.Item.Subtitle>
                     {project.admins.length > 1 && (
                       <List.Item.Controls>
@@ -408,7 +394,7 @@ function Admins() {
                           value={`remove_${admins.profile.username}`}
                           type="submit"
                         >
-                          {t("content.current.remove")}
+                          {locales.content.current.remove}
                         </Button>
                       </List.Item.Controls>
                     )}
@@ -418,16 +404,9 @@ function Admins() {
             </List>
           </Form>
         </div>
-        {toast !== null && toast.id === "add-admin-toast" && (
-          <div id={toast.id}>
-            <Toast key={toast.key} level={toast.level}>
-              {toast.message}
-            </Toast>
-          </div>
-        )}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {t("content.add.headline")}
+            {locales.content.add.headline}
           </h2>
           <Form
             method="get"
@@ -442,10 +421,12 @@ function Admins() {
             <Input {...conform.input(searchFields[Deep])} type="hidden" />
             <Input {...conform.input(searchFields.search)} standalone>
               <Input.Label htmlFor={searchFields.search.id}>
-                {t("content.add.search")}
+                {locales.content.add.search}
               </Input.Label>
               <Input.SearchIcon />
-              <Input.HelperText>{t("content.add.criteria")}</Input.HelperText>
+              <Input.HelperText>
+                {locales.content.add.criteria}
+              </Input.HelperText>
               {typeof searchFields.search.error !== "undefined" && (
                 <Input.Error>{searchFields.search.error}</Input.Error>
               )}
@@ -467,7 +448,7 @@ function Admins() {
                         value={`add_${profile.username}`}
                         type="submit"
                       >
-                        {t("content.add.submit")}
+                        {locales.content.add.submit}
                       </Button>
                     </List.Item.Controls>
                   </List.Item>

@@ -832,7 +832,11 @@ function Fundings() {
         <FundingCard.Container>
           {loaderData.fundings.map((funding) => {
             return (
-              <FundingCard key={funding.url} url={funding.url}>
+              <FundingCard
+                key={funding.url}
+                url={funding.url}
+                locales={loaderData.locales}
+              >
                 <FundingCard.Subtitle>
                   {funding.types
                     .map((relation) => {
@@ -845,18 +849,25 @@ function Fundings() {
                   items={funding.regions.map((relation) => {
                     return relation.area.name;
                   })}
+                  locales={loaderData.locales}
                 >
                   <FundingCard.Category.Title>
                     {loaderData.locales.card.region}
                   </FundingCard.Category.Title>
                 </FundingCard.Category>
-                <FundingCard.Category items={funding.sourceEntities}>
+                <FundingCard.Category
+                  items={funding.sourceEntities}
+                  locales={loaderData.locales}
+                >
                   <FundingCard.Category.Title>
                     {loaderData.locales.card.eligibleEntity}
                   </FundingCard.Category.Title>
                 </FundingCard.Category>
 
-                <FundingCard.Category items={funding.sourceAreas}>
+                <FundingCard.Category
+                  items={funding.sourceAreas}
+                  locales={loaderData.locales}
+                >
                   <FundingCard.Category.Title>
                     {loaderData.locales.card.area}
                   </FundingCard.Category.Title>

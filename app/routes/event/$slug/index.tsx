@@ -744,6 +744,7 @@ function Index() {
                         slug={loaderData.event.slug}
                         redirect={`/event/${loaderData.event.slug}`}
                         modalSearchParam="modal-background"
+                        locales={locales}
                       >
                         <Background />
                       </ImageCropper>

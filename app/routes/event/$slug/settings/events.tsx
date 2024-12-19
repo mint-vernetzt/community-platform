@@ -253,6 +253,8 @@ function Events() {
                         defaultValue={parentEventSuggestionsQuery || ""}
                         {...register("parentEventId")}
                         searchParameter="parent_autocomplete_query"
+                        locales={locales}
+                        currentLanguage={language}
                       />
                     </>
                   )}
@@ -461,6 +463,8 @@ function Events() {
                         defaultValue={childEventSuggestionsQuery || ""}
                         {...register("childEventId")}
                         searchParameter="child_autocomplete_query"
+                        locales={locales}
+                        currentLanguage={language}
                       />
                       <Errors />
                     </>

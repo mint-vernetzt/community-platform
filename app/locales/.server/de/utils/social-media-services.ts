@@ -1,42 +1,42 @@
 export const locale = {
   facebook: {
     label: "facebook",
-    placeholder: "facebook.com/<Nutzername>",
-    organizationPlaceholder: "facebook.com/<Organisationsname>",
+    placeholder: "facebook.com/...",
+    organizationPlaceholder: "facebook.com/...",
   },
   linkedin: {
     label: "LinkedIn",
-    placeholder: "linkedin.com/in/<Nutzername>",
-    organizationPlaceholder: "linkedin.com/company/<Organisationsname>",
+    placeholder: "linkedin.com/...",
+    organizationPlaceholder: "linkedin.com/company/...",
   },
   twitter: {
     label: "Twitter",
-    placeholder: "twitter.com/<Nutzername>",
-    organizationPlaceholder: "twitter.com/<Organisationsname>",
+    placeholder: "twitter.com/...",
+    organizationPlaceholder: "twitter.com/...",
   },
   youtube: {
     label: "YouTube",
-    placeholder: "youtube.com/<Nutzername>",
-    organizationPlaceholder: "youtube.com/<Organisationsname>",
+    placeholder: "youtube.com/...",
+    organizationPlaceholder: "youtube.com/...",
   },
   instagram: {
     label: "Instagram",
-    placeholder: "instagram.com/<Nutzername>",
-    organizationPlaceholder: "instagram.com/<Organisationsname>",
+    placeholder: "instagram.com/...",
+    organizationPlaceholder: "instagram.com/...",
   },
   xing: {
     label: "Xing",
-    placeholder: "xing.com/profile/<Nutzername>",
-    organizationPlaceholder: "xing.com/pages/<Organisationsname>",
+    placeholder: "xing.com/...",
+    organizationPlaceholder: "xing.com/pages/...",
   },
   mastodon: {
     label: "Mastodon",
-    placeholder: "<Instanz>/@<Nutzername>",
-    organizationPlaceholder: "<Instanz>/@<Organisationsname>",
+    placeholder: "domain.tld/...",
+    organizationPlaceholder: "domain.tld/...",
   },
   tiktok: {
     label: "TikTok",
-    placeholder: "tiktok.com/@<Nutzername>",
-    organizationPlaceholder: "tiktok.com/@<Organisationsname>",
+    placeholder: "tiktok.com/<Nutzername>",
+    organizationPlaceholder: "tiktok.com/...",
   },
 } as const;

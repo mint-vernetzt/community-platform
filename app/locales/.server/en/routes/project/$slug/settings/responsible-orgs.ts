@@ -5,6 +5,7 @@ export const locale = {
   },
   content: {
     added: "Added {{name}}.",
+    removed: "Removed {{name}}.",
     back: "Responsible organizations",
     intro:
       "Which organizations are behind the project? Manage the responsible organizations here.",

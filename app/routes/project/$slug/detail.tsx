@@ -4,7 +4,6 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   type MetaFunction,
-  json,
 } from "@remix-run/node";
 import {
   Form,
@@ -20,7 +19,6 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import { Modal } from "~/components-next/Modal";
-import i18next from "~/i18next.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
@@ -28,8 +26,7 @@ import { getParamValue } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveProjectMode } from "../utils.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { Header } from "@mint-vernetzt/components/src/organisms/Header";
 import { Status } from "@mint-vernetzt/components/src/molecules/Status";
@@ -38,12 +35,7 @@ import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Con
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
-
-const i18nNS = ["routes-project-detail", "components-image-cropper"] as const;
-
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
 
 export function links() {
   return [
@@ -171,15 +163,19 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/detail"];
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const slug = getParamValue(params, "slug");
-  invariantResponse(slug !== undefined, t("error.invariant.undefinedSlug"), {
-    status: 404,
-  });
+  invariantResponse(
+    slug !== undefined,
+    locales.route.error.invariant.undefinedSlug,
+    {
+      status: 404,
+    }
+  );
 
   const mode = await deriveProjectMode(sessionUser, slug);
 
@@ -209,13 +205,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
       slug,
     },
   });
-  invariantResponse(project !== null, t("error.invariant.projectNotFound"), {
-    status: 404,
-  });
+  invariantResponse(
+    project !== null,
+    locales.route.error.invariant.projectNotFound,
+    {
+      status: 404,
+    }
+  );
 
   invariantResponse(
     project.published || mode === "admin",
-    t("error.invariant.projectNotPublished"),
+    locales.route.error.invariant.projectNotPublished,
     { status: 403 }
   );
 
@@ -256,41 +256,54 @@ export const loader = async (args: LoaderFunctionArgs) => {
     blurredLogo,
   };
 
-  return json({
+  return {
     project: enhancedProject,
     mode,
     meta: {
       baseUrl: process.env.COMMUNITY_BASE_URL,
       url: request.url,
     },
-  });
+    locales,
+  };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/detail"];
 
-  const { authClient, response } = createAuthClient(request);
+  const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const slug = getParamValue(params, "slug");
-  invariantResponse(slug !== undefined, t("error.invariant.undefinedSlug"), {
-    status: 404,
-  });
+  invariantResponse(
+    slug !== undefined,
+    locales.route.error.invariant.undefinedSlug,
+    {
+      status: 404,
+    }
+  );
   const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.invariant.adminsOnly"), {
-    status: 403,
-  });
+  invariantResponse(
+    mode === "admin",
+    locales.route.error.invariant.adminsOnly,
+    {
+      status: 403,
+    }
+  );
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT);
-  invariantResponse(action !== null, t("error.invariant.missingConfirmation"), {
-    status: 400,
-  });
+  invariantResponse(
+    action !== null,
+    locales.route.error.invariant.missingConfirmation,
+    {
+      status: 400,
+    }
+  );
   invariantResponse(
     typeof action === "string",
-    t("error.invariant.invalidIntent"),
+    locales.route.error.invariant.invalidIntent,
     {
       status: 400,
     }
@@ -304,7 +317,7 @@ export const action = async (args: ActionFunctionArgs) => {
         published: true,
       },
     });
-    return json({ success: true }, { headers: response.headers });
+    return { success: true };
   } else if (action === "unpublish") {
     await prismaClient.project.update({
       where: {
@@ -314,20 +327,19 @@ export const action = async (args: ActionFunctionArgs) => {
         published: false,
       },
     });
-    return json({ success: true }, { headers: response.headers });
+    return { success: true };
   }
-  return json({ success: false }, { headers: response.headers });
+  return { success: false };
 };
 
 function ProjectDetail() {
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
-  const { project, mode } = loaderData;
+  const { project, mode, locales } = loaderData;
   const matches = useMatches();
   let pathname = "";
 
   const lastMatch = matches[matches.length - 1];
-  const { t } = useTranslation(i18nNS);
 
   if (typeof lastMatch.pathname !== "undefined") {
     pathname = lastMatch.pathname;
@@ -338,14 +350,14 @@ function ProjectDetail() {
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
         <TextButton weight="thin" variant="neutral" arrowLeft>
           <Link to="/explore/projects" prefetch="intent">
-            {t("content.back")}
+            {locales.route.content.back}
           </Link>
         </TextButton>
       </section>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
         <Header>
           {mode === "admin" && project.published === false && (
-            <Status>{t("content.draft")}</Status>
+            <Status>{locales.route.content.draft}</Status>
           )}
           <Image
             src={project.background}
@@ -405,7 +417,9 @@ function ProjectDetail() {
                     >
                       <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                     </svg>
-                    <span className="ml-2">{t("content.changeImage")}</span>
+                    <span className="ml-2">
+                      {locales.route.content.changeImage}
+                    </span>
                   </button>
                 </Form>
               </Controls>
@@ -421,7 +435,7 @@ function ProjectDetail() {
             <Header.Footer>
               <Controls>
                 <Button as="a" href="./../settings" fullSize>
-                  {t("content.edit")}
+                  {locales.route.content.edit}
                 </Button>
                 <Button
                   name={conform.INTENT}
@@ -431,7 +445,12 @@ function ProjectDetail() {
                   form="publish-form"
                   fullSize
                 >
-                  {t(`content.publish.${project.published ? "hide" : "show"}`)}
+                  {(() => {
+                    let localeKey = project.published
+                      ? ("hide" as const)
+                      : ("show" as const);
+                    return locales.route.content.publish[localeKey];
+                  })()}
                 </Button>
               </Controls>
             </Header.Footer>
@@ -444,7 +463,9 @@ function ProjectDetail() {
       {mode === "admin" && (
         <>
           <Modal searchParam="modal-background">
-            <Modal.Title>{t("cropper.background.headline")}</Modal.Title>
+            <Modal.Title>
+              {locales.route.cropper.background.headline}
+            </Modal.Title>
             <Modal.Section>
               <ImageCropper
                 subject="project"
@@ -459,6 +480,7 @@ function ProjectDetail() {
                 slug={project.slug}
                 redirect={pathname}
                 modalSearchParam="modal-background"
+                locales={locales}
               >
                 {project.background !== undefined ? (
                   <Image
@@ -473,7 +495,7 @@ function ProjectDetail() {
             </Modal.Section>
           </Modal>
           <Modal searchParam="modal-logo">
-            <Modal.Title>{t("cropper.logo.headline")}</Modal.Title>
+            <Modal.Title>{locales.route.cropper.logo.headline}</Modal.Title>
             <Modal.Section>
               <ImageCropper
                 subject="project"
@@ -489,6 +511,7 @@ function ProjectDetail() {
                 redirect={pathname}
                 modalSearchParam="modal-logo"
                 circularCrop={true}
+                locales={locales}
               >
                 <Avatar
                   name={project.name}
@@ -511,7 +534,7 @@ function ProjectDetail() {
             <TabBar>
               <TabBar.Item active={pathname.endsWith("/about")}>
                 <Link to="./about" preventScrollReset>
-                  {t("content.about")}
+                  {locales.route.content.about}
                 </Link>
               </TabBar.Item>
               {(project.timeframe !== null ||
@@ -526,14 +549,14 @@ function ProjectDetail() {
                 project.furtherRoomSituation !== null) && (
                 <TabBar.Item active={pathname.endsWith("/requirements")}>
                   <Link to="./requirements" preventScrollReset>
-                    {t("content.conditions")}
+                    {locales.route.content.conditions}
                   </Link>
                 </TabBar.Item>
               )}
               {(project.documents.length > 0 || project.images.length > 0) && (
                 <TabBar.Item active={pathname.endsWith("/attachments")}>
                   <Link to="./attachments" preventScrollReset>
-                    {t("content.material")}
+                    {locales.route.content.material}
                   </Link>
                 </TabBar.Item>
               )}

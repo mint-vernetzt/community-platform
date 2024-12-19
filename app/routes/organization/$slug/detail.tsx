@@ -1,8 +1,4 @@
-import {
-  type LoaderFunctionArgs,
-  type MetaFunction,
-  json,
-} from "@remix-run/node";
+import { type LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -11,15 +7,13 @@ import {
   useLocation,
 } from "@remix-run/react";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
-import { useTranslation } from "react-i18next";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
-import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { Modal } from "~/components-next/Modal";
 import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
@@ -28,7 +22,7 @@ import {
   hasNetworkData,
   hasProjectsData,
   hasTeamData,
-} from "./__detail.shared";
+} from "./detail.shared";
 import {
   addImgUrls,
   filterOrganization,
@@ -41,16 +35,7 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
-
-const i18nNS = [
-  "routes-organization-detail",
-  "datasets-organizationTypes",
-  "components-image-cropper",
-] as const;
-
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
 
 export function links() {
   return [
@@ -182,8 +167,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["organization/$slug/detail"];
 
   const abilities = await getFeatureAbilities(authClient, [
     "next-organization-create",
@@ -192,7 +177,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const organization = await getOrganization(slug);
   invariantResponse(
     organization !== null,
-    t("server.error.organizationNotFound"),
+    locales.route.server.error.organizationNotFound,
     {
       status: 404,
     }
@@ -207,7 +192,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const enhancedOrganization = addImgUrls(authClient, filteredOrganization);
 
-  return json({
+  return {
     organization: enhancedOrganization,
     mode,
     meta: {
@@ -215,13 +200,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
       url: request.url,
     },
     abilities,
-  } as const);
+    locales,
+  };
 };
 
 function OrganizationDetail() {
-  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
-  const { organization, mode } = loaderData;
+  const { organization, mode, locales } = loaderData;
   const location = useLocation();
   const pathname = location.pathname;
 
@@ -234,7 +219,7 @@ function OrganizationDetail() {
       <Container.Section className="">
         <TextButton weight="thin" variant="neutral" arrowLeft>
           <Link to="/explore/organizations" prefetch="intent">
-            {t("back")}
+            {locales.route.back}
           </Link>
         </TextButton>
       </Container.Section>
@@ -242,7 +227,7 @@ function OrganizationDetail() {
       <Container.Section className="mv-relative mv-flex mv-flex-col mv-items-center mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl mv-overflow-hidden">
         <div className="mv-w-full mv-h-[196px] @lg:mv-h-[168px]">
           <Image
-            alt={`${t("header.image.alt")} ${organization.name}`}
+            alt={`${locales.route.header.image.alt} ${organization.name}`}
             src={organization.background || undefined}
             blurredSrc={organization.blurredBackground}
             resizeType="fill"
@@ -271,7 +256,7 @@ function OrganizationDetail() {
                         >
                           <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                         </svg>
-                        <span>{t("header.controls.logo")}</span>
+                        <span>{locales.route.header.controls.logo}</span>
                       </div>
                     </div>
                   </TextButton>
@@ -284,9 +269,23 @@ function OrganizationDetail() {
                 <p className="mv-px-8 @lg:mv-px-0 mv-text-neutral-600 mv-text-lg mv-font-semibold mv-leading-6">
                   {organization.types
                     .map((relation) => {
-                      return t(`${relation.organizationType.slug}.title`, {
-                        ns: "datasets-organizationTypes",
-                      });
+                      let title;
+                      if (
+                        relation.organizationType.slug in
+                        locales.organizationTypes
+                      ) {
+                        type LocaleKey = keyof typeof locales.organizationTypes;
+                        title =
+                          locales.organizationTypes[
+                            relation.organizationType.slug as LocaleKey
+                          ].title;
+                      } else {
+                        console.error(
+                          `Organization type ${relation.organizationType.slug} not found in locales`
+                        );
+                        title = relation.organizationType.slug;
+                      }
+                      return title;
                     })
                     .join(" / ")}
                 </p>
@@ -337,7 +336,7 @@ function OrganizationDetail() {
                     />
                   </svg>
                   <span className="mv-ml-2">
-                    {t("header.controls.edit")} next
+                    {locales.route.header.controls.edit} next
                   </span>
                 </Button>
               )}
@@ -358,7 +357,9 @@ function OrganizationDetail() {
                     fill="white"
                   />
                 </svg>
-                <span className="mv-ml-2">{t("header.controls.edit")}</span>
+                <span className="mv-ml-2">
+                  {locales.route.header.controls.edit}
+                </span>
               </Button>
               <div className="@lg:mv-hidden mv-w-full">
                 <Button
@@ -378,7 +379,7 @@ function OrganizationDetail() {
                       <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                     </svg>
                     <span className="ml-2 ">
-                      {t("header.controls.background")}
+                      {locales.route.header.controls.background}
                     </span>
                   </div>
                 </Button>
@@ -390,7 +391,7 @@ function OrganizationDetail() {
           <div className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-[196px] @lg:mv-h-[168px] mv-opacity-0 hover:mv-opacity-100 focus-within:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 focus-within:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center">
             <div className="mv-flex mv-flex-col mv-items-center mv-gap-4">
               <p className="mv-text-white mv-text-lg mv-font-bold">
-                {t("header.controls.backgroundLong")}
+                {locales.route.header.controls.backgroundLong}
               </p>
               <Button type="submit" form="modal-background-form">
                 <div className="mv-flex mv-flex-nowrap">
@@ -404,7 +405,7 @@ function OrganizationDetail() {
                     <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                   </svg>
                   <span className="ml-2">
-                    {t("header.controls.backgroundEdit")}
+                    {locales.route.header.controls.backgroundEdit}
                   </span>
                 </div>
               </Button>
@@ -450,7 +451,7 @@ function OrganizationDetail() {
                     </svg>
                   </div>
                   <p className="mv-text-white mv-text-sm mv-font-semibold mv-leading-4">
-                    {t("header.controls.edit")}
+                    {locales.route.header.controls.edit}
                   </p>
                 </div>
               </button>
@@ -470,7 +471,9 @@ function OrganizationDetail() {
             <input hidden name="modal-background" defaultValue="true" />
           </Form>
           <Modal searchParam="modal-background">
-            <Modal.Title>{t("cropper.background.headline")}</Modal.Title>
+            <Modal.Title>
+              {locales.route.cropper.background.headline}
+            </Modal.Title>
             <Modal.Section>
               <ImageCropper
                 subject="organization"
@@ -485,11 +488,12 @@ function OrganizationDetail() {
                 slug={organization.slug}
                 redirect={pathname}
                 modalSearchParam="modal-background"
+                locales={locales}
               >
                 {organization.background !== null ? (
                   <Image
                     src={organization.background || undefined}
-                    alt={`${t("header.image.alt")} ${organization.name}`}
+                    alt={`${locales.route.header.image.alt} ${organization.name}`}
                     blurredSrc={organization.blurredBackground}
                   />
                 ) : (
@@ -508,7 +512,7 @@ function OrganizationDetail() {
             <input hidden name="modal-logo" defaultValue="true" />
           </Form>
           <Modal searchParam="modal-logo">
-            <Modal.Title>{t("cropper.logo.headline")}</Modal.Title>
+            <Modal.Title>{locales.route.cropper.logo.headline}</Modal.Title>
             <Modal.Section>
               <ImageCropper
                 subject="organization"
@@ -524,6 +528,7 @@ function OrganizationDetail() {
                 redirect={pathname}
                 modalSearchParam="modal-logo"
                 circularCrop={true}
+                locales={locales}
               >
                 <Avatar
                   name={organization.name}
@@ -542,34 +547,34 @@ function OrganizationDetail() {
         <TabBar>
           <TabBar.Item active={pathname.endsWith("/about")}>
             <Link to="./about" preventScrollReset>
-              {t("tabbar.about")}
+              {locales.route.tabbar.about}
             </Link>
           </TabBar.Item>
           {hasNetworkData(organization) ? (
             <TabBar.Item active={pathname.endsWith("/network")}>
               <Link to="./network" preventScrollReset>
-                {t("tabbar.network")}
+                {locales.route.tabbar.network}
               </Link>
             </TabBar.Item>
           ) : null}
           {hasTeamData(organization) ? (
             <TabBar.Item active={pathname.endsWith("/team")}>
               <Link to="./team" preventScrollReset>
-                {t("tabbar.team")}
+                {locales.route.tabbar.team}
               </Link>
             </TabBar.Item>
           ) : null}
           {hasEventsData(organization) ? (
             <TabBar.Item active={pathname.endsWith("/events")}>
               <Link to="./events" preventScrollReset>
-                {t("tabbar.events")}
+                {locales.route.tabbar.events}
               </Link>
             </TabBar.Item>
           ) : null}
           {hasProjectsData(organization) ? (
             <TabBar.Item active={pathname.endsWith("/projects")}>
               <Link to="./projects" preventScrollReset>
-                {t("tabbar.projects")}
+                {locales.route.tabbar.projects}
               </Link>
             </TabBar.Item>
           ) : null}

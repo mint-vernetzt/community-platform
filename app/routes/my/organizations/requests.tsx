@@ -84,7 +84,7 @@ export async function action(args: ActionFunctionArgs) {
       "mail-templates/requests/organization-to-add-profile/text.hbs";
     const htmlTemplatePath =
       "mail-templates/requests/organization-to-add-profile/html.hbs";
-    const subject = locales.email.createRequest.subject;
+    const subject = locales.route.email.createRequest.subject;
     const sender = process.env.SYSTEM_MAIL_SENDER;
     try {
       await Promise.all(
@@ -99,7 +99,7 @@ export async function action(args: ActionFunctionArgs) {
               name: result.organization.name,
             },
             button: {
-              text: locales.email.createRequest.button.text,
+              text: locales.route.email.createRequest.button.text,
               url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
             },
           };
@@ -181,7 +181,7 @@ export async function action(args: ActionFunctionArgs) {
         "mail-templates/requests/organization-to-add-profile/rejected-text.hbs";
       htmlTemplatePath =
         "mail-templates/requests/organization-to-add-profile/rejected-html.hbs";
-      subject = locales.email.rejectRequest.subject;
+      subject = locales.route.email.rejectRequest.subject;
     } else {
       result = await acceptRequestFromProfile(
         submission.value.organizationId,
@@ -198,7 +198,7 @@ export async function action(args: ActionFunctionArgs) {
         "mail-templates/requests/organization-to-add-profile/accepted-text.hbs";
       htmlTemplatePath =
         "mail-templates/requests/organization-to-add-profile/accepted-html.hbs";
-      subject = locales.email.acceptRequest.subject;
+      subject = locales.route.email.acceptRequest.subject;
     }
 
     const text = getCompiledMailTemplate<typeof textTemplatePath>(
@@ -244,13 +244,13 @@ export async function action(args: ActionFunctionArgs) {
       submission.value.intent === AddToOrganizationRequest.Create ||
       submission.value.intent === AddToOrganizationRequest.Cancel
         ? insertParametersIntoLocale(
-            locales.requests[submission.value.intent],
+            locales.route.requests[submission.value.intent],
             {
               organization,
             }
           )
         : insertParametersIntoLocale(
-            locales.requests[submission.value.intent],
+            locales.route.requests[submission.value.intent],
             {
               academicTitle: profile?.academicTitle
                 ? `${profile.academicTitle} `

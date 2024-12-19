@@ -235,7 +235,7 @@ function Team() {
             method="post"
             preventScrollReset
           >
-            <ListContainer>
+            <ListContainer locales={locales}>
               {organization.teamMembers.map((relation) => {
                 return (
                   <ListItem
@@ -319,7 +319,7 @@ function Team() {
               method="post"
               preventScrollReset
             >
-              <ListContainer>
+              <ListContainer locales={locales}>
                 {searchedProfiles.map((profile) => {
                   return (
                     <ListItem
@@ -354,7 +354,7 @@ function Team() {
                 method="post"
                 preventScrollReset
               >
-                <ListContainer>
+                <ListContainer locales={locales}>
                   {pendingTeamMemberInvites.map((profile) => {
                     return (
                       <ListItem

@@ -87,7 +87,6 @@ import { locale as deNextCreateOrganization } from "./de/routes/next/organizatio
 // organization routes
 import { locale as deAboutOrganization } from "./de/routes/organization/$slug/detail/about";
 import { locale as deOrganizationEvents } from "./de/routes/organization/$slug/detail/events";
-import { locale as deOrganizationDetailIndex } from "./de/routes/organization/$slug/detail/index";
 import { locale as deOrganizationNetwork } from "./de/routes/organization/$slug/detail/network";
 import { locale as deOrganizationProjects } from "./de/routes/organization/$slug/detail/projects";
 import { locale as deOrganizationTeam } from "./de/routes/organization/$slug/detail/team";
@@ -271,7 +270,6 @@ import { locale as enNextCreateOrganization } from "./en/routes/next/organizatio
 // organization routes
 import { locale as enAboutOrganization } from "./en/routes/organization/$slug/detail/about";
 import { locale as enOrganizationEvents } from "./en/routes/organization/$slug/detail/events";
-import { locale as enOrganizationDetailIndex } from "./en/routes/organization/$slug/detail/index";
 import { locale as enOrganizationNetwork } from "./en/routes/organization/$slug/detail/network";
 import { locale as enOrganizationProjects } from "./en/routes/organization/$slug/detail/projects";
 import { locale as enOrganizationTeam } from "./en/routes/organization/$slug/detail/team";
@@ -377,9 +375,6 @@ import { locale as frExploreFundings } from "./fr/routes/explore/fundings";
 import { locale as frExploreProfiles } from "./fr/routes/explore/profiles";
 // meta
 import { locale as frMeta } from "./fr/meta";
-import { add } from "date-fns";
-import { profile } from "console";
-import { searchProfilesSchema } from "~/form-helpers";
 
 /**
  * This is the map of all language modules.
@@ -430,12 +425,17 @@ const de = {
     deMoveProfileFromEventWaitingListToParticipants,
   "event/$slug/settings/waiting-list/remove-from-waiting-list":
     deRemoveProfileFromEventWaitingList,
-  "event/$slug/settings/admins": deEventAdmins,
+  "event/$slug/settings/admins": {
+    route: deEventAdmins,
+    organizationTypes: deOrganizationTypes,
+    stages: deStages,
+  },
   "event/$slug/settings/csv-download": deEventCsvDownload,
   "event/$slug/settings/delete": deDeleteEvent,
   "event/$slug/settings/documents": deEventDocuments,
   "event/$slug/settings/events": {
     route: deConnectEventsWithEvent,
+    organizationTypes: deOrganizationTypes,
     stages: deStages,
   },
   "event/$slug/settings/general": {
@@ -450,11 +450,28 @@ const de = {
   "event/$slug/settings/organizations": {
     route: deResponsibleOrganizationsOfEvent,
     organizationTypes: deOrganizationTypes,
+    stages: deStages,
   },
-  "event/$slug/settings/participants": deEventParticipants,
-  "event/$slug/settings/speakers": deAddSpeakersToEvent,
-  "event/$slug/settings/team": deEventTeam,
-  "event/$slug/settings/waiting-list": deEventWaitingList,
+  "event/$slug/settings/participants": {
+    route: deEventParticipants,
+    organizationTypes: deOrganizationTypes,
+    stages: deStages,
+  },
+  "event/$slug/settings/speakers": {
+    route: deAddSpeakersToEvent,
+    organizationTypes: deOrganizationTypes,
+    stages: deStages,
+  },
+  "event/$slug/settings/team": {
+    route: deEventTeam,
+    organizationTypes: deOrganizationTypes,
+    stages: deStages,
+  },
+  "event/$slug/settings/waiting-list": {
+    route: deEventWaitingList,
+    organizationTypes: deOrganizationTypes,
+    stages: deStages,
+  },
   "event/$slug/documents-download": deDownloadEventDocuments,
   "event/$slug/index": {
     route: deEventDetail,
@@ -513,6 +530,7 @@ const de = {
     organizationTypes: deOrganizationTypes,
     focuses: deFocuses,
     organizationCard: deOrganizationCard,
+    components: deComponents,
   },
   "my/projects": { route: deMyProjects, projectCard: deProjectCard },
   // next routes
@@ -526,63 +544,129 @@ const de = {
     route: deNextOrganizationAdmins,
     searchProfilesSchema: deSearchProfilesSchema,
     organizationTypes: deOrganizationTypes,
+    components: deComponents,
   },
   "next/organization/$slug/settings/danger-zone": deNextOrganizationDangerZone,
   "next/organization/$slug/settings/team": {
     route: deNextOrganizationTeam,
     searchProfilesSchema: deSearchProfilesSchema,
     organizationTypes: deOrganizationTypes,
+    components: deComponents,
   },
   "next/organization/$slug/settings/web-social": {
     route: deNextOrganizationWebAndSocial,
     components: deComponents,
-    webAndSocialSchemas: deSchemas,
+    schemas: deSchemas,
   },
   "next/organization/$slug/settings": deNextOrganizationSettings,
   "next/organization/create": {
     route: deNextCreateOrganization,
     organizationTypes: deOrganizationTypes,
     networkTypes: deNetworkTypes,
+    components: deComponents,
   },
   // organization routes
-  "organization/$slug/detail/about": deAboutOrganization,
-  "organization/$slug/detail/events": deOrganizationEvents,
-  "organization/$slug/detail/index": deOrganizationDetailIndex,
-  "organization/$slug/detail/network": deOrganizationNetwork,
-  "organization/$slug/detail/projects": deOrganizationProjects,
-  "organization/$slug/detail/team": deOrganizationTeam,
+  "organization/$slug/detail/about": {
+    route: deAboutOrganization,
+    focuses: deFocuses,
+  },
+  "organization/$slug/detail/events": {
+    route: deOrganizationEvents,
+    stages: deStages,
+    components: deComponents,
+  },
+  "organization/$slug/detail/network": {
+    route: deOrganizationNetwork,
+    organizationTypes: deOrganizationTypes,
+    components: deComponents,
+  },
+  "organization/$slug/detail/projects": {
+    route: deOrganizationProjects,
+    organizationTypes: deOrganizationTypes,
+    components: deComponents,
+  },
+  "organization/$slug/detail/team": {
+    route: deOrganizationTeam,
+    organizationTypes: deOrganizationTypes,
+    components: deComponents,
+  },
   "organization/$slug/settings/admins/add-admin": deAddOrganizationAdmin,
   "organization/$slug/settings/admins/cancel-invite":
     deCancelOrganizationAdminInvite,
   "organization/$slug/settings/admins/remove-admin": deRemoveOrganizationAdmin,
-  "organization/$slug/settings/network/add": deAddOrganizationNetworkMember,
+  "organization/$slug/settings/network/add": {
+    route: deAddOrganizationNetworkMember,
+    organizationTypes: deOrganizationTypes,
+    stages: deStages,
+  },
   "organization/$slug/settings/network/index": deOrganizationNetworkSettings,
-  "organization/$slug/settings/network/remove":
-    deRemoveOrganizationNetworkMember,
+  "organization/$slug/settings/network/remove": {
+    route: deRemoveOrganizationNetworkMember,
+    organizationTypes: deOrganizationTypes,
+  },
   "organization/$slug/settings/team/add-member": deAddOrganizationTeamMember,
   "organization/$slug/settings/team/cancel-invite":
     deCancelOrganizationTeamMemberInvite,
   "organization/$slug/settings/team/remove-member":
     deRemoveOrganizationTeamMember,
-  "organization/$slug/settings/admins": deOrganizationAdmins,
+  "organization/$slug/settings/admins": {
+    route: deOrganizationAdmins,
+    organizationTypes: deOrganizationTypes,
+    stages: deStages,
+  },
   "organization/$slug/settings/delete": deDeleteOrganization,
-  "organization/$slug/settings/general": deGeneralOrganizationSettings,
-  "organization/$slug/settings/team": deOrganizationTeamSettings,
-  "organization/$slug/detail": deOrganizationDetail,
+  "organization/$slug/settings/general": {
+    route: deGeneralOrganizationSettings,
+    organizationTypes: deOrganizationTypes,
+    focuses: deFocuses,
+    socialMediaServices: deSocialMediaServices,
+  },
+  "organization/$slug/settings/team": {
+    route: deOrganizationTeamSettings,
+    organizationTypes: deOrganizationTypes,
+    stages: deStages,
+  },
+  "organization/$slug/detail": {
+    route: deOrganizationDetail,
+    organizationTypes: deOrganizationTypes,
+    imageCropper: deImageCropper,
+  },
   "organization/$slug/settings": deOrganizationSettings,
   "organization/create": deCreateOrganization,
   // profile routes
   "profile/$username/settings/delete": deDeleteProfile,
-  "profile/$username/settings/general": deGeneralProfileSettings,
+  "profile/$username/settings/general": {
+    route: deGeneralProfileSettings,
+    offers: deOffers,
+    socialMediaServices: deSocialMediaServices,
+  },
   "profile/$username/settings/notifications": deProfileNotifications,
   "profile/$username/settings/security": deProfileSecurity,
-  "profile/$username/index": deProfileDetail,
+  "profile/$username/index": {
+    route: deProfileDetail,
+    offers: deOffers,
+    stages: deStages,
+    organizationTypes: deOrganizationTypes,
+    imageCropper: deImageCropper,
+  },
   "profile/$username/settings": deProfileSettings,
   // project routes
   "project/$slug/detail/attachments/download": deDownloadProjectAttachments,
-  "project/$slug/detail/about": deAboutProject,
+  "project/$slug/detail/about": {
+    route: deAboutProject,
+    formats: deFormats,
+    disciplines: deDisciplines,
+    additionalDisciplines: deAdditionalDisciplines,
+    projectTargetGroups: deProjectTargetGroups,
+    specialTargetGroups: deSpecialTargetGroups,
+    organizationTypes: deOrganizationTypes,
+    video: deVideo,
+  },
   "project/$slug/detail/attachments": deProjectAttachments,
-  "project/$slug/detail/requirements": deProjectRequirements,
+  "project/$slug/detail/requirements": {
+    route: deProjectRequirements,
+    financings: deFinancings,
+  },
   "project/$slug/settings/attachments/download":
     deDownloadProjectAttachmentsFromSettings,
   "project/$slug/settings/attachments/edit": deEditProjectAttachments,
@@ -592,15 +676,35 @@ const de = {
   "project/$slug/settings/admins": deProjectAdmins,
   "project/$slug/settings/attachments": deProjectAttachmentsSettings,
   "project/$slug/settings/danger-zone": deProjectDangerZone,
-  "project/$slug/settings/details": deProjectDetails,
-  "project/$slug/settings/general": deGeneralProjectSettings,
+  "project/$slug/settings/details": {
+    route: deProjectDetails,
+    schemas: deSchemas,
+    disciplines: deDisciplines,
+    additionalDisciplines: deAdditionalDisciplines,
+    projectTargetGroups: deProjectTargetGroups,
+    specialTargetGroups: deSpecialTargetGroups,
+  },
+  "project/$slug/settings/general": {
+    route: deGeneralProjectSettings,
+    schemas: deSchemas,
+    formats: deFormats,
+  },
   "project/$slug/settings/index": deProjectSettingsIndex,
-  "project/$slug/settings/requirements": deProjectRequirementsSettings,
+  "project/$slug/settings/requirements": {
+    route: deProjectRequirementsSettings,
+    financings: deFinancings,
+  },
   "project/$slug/settings/responsible-orgs":
     deResponsibleOrganizationsOfProject,
   "project/$slug/settings/team": deProjectTeam,
-  "project/$slug/settings/web-social": deProjectWebAndSocial,
-  "project/$slug/detail": deProjectDetail,
+  "project/$slug/settings/web-social": {
+    route: deProjectWebAndSocial,
+    schemas: deSchemas,
+  },
+  "project/$slug/detail": {
+    route: deProjectDetail,
+    imageCropper: deImageCropper,
+  },
   "project/$slug/settings": deProjectSettings,
   "project/create": deCreateProject,
   // register routes
@@ -614,15 +718,24 @@ const de = {
   "reset/set-email": deSetNewEmail,
   "reset/set-password": deSetNewPassword,
   // search routes
-  "search/events": deSearchEvents,
+  "search/events": {
+    route: deSearchEvents,
+    stages: deStages,
+    eventCard: deEventCard,
+  },
   "search/fundings": deSearchFundings,
-  "search/organizations": deSearchOrganizations,
+  "search/organizations": {
+    route: deSearchOrganizations,
+    focuses: deFocuses,
+    organizationTypes: deOrganizationTypes,
+    organizationCard: deOrganizationCard,
+  },
   "search/profiles": {
     route: deSearchProfiles,
     offers: deOffers,
     profileCard: deProfileCard,
   },
-  "search/projects": deSearchProjects,
+  "search/projects": { route: deSearchProjects, projectCard: deProjectCard },
   // upload routes
   "upload/delete": deDeleteImage,
   "upload/image": deUploadImage,
@@ -642,10 +755,12 @@ const de = {
   },
   // goodbye route
   goodbye: deGoodbye,
+  // help route
+  help: deHelp,
   // imprint route
   imprint: deImprint,
   // landing route
-  index: deLanding,
+  index: { route: deLanding, faq: deHelp.faq, roadmap: deRoadmap },
   // search route
   search: deSearch,
   // verification route
@@ -683,13 +798,18 @@ const en = {
     enMoveProfileFromEventWaitingListToParticipants,
   "event/$slug/settings/waiting-list/remove-from-waiting-list":
     enRemoveProfileFromEventWaitingList,
-  "event/$slug/settings/admins": enEventAdmins,
+  "event/$slug/settings/admins": {
+    route: enEventAdmins,
+    stages: enStages,
+    organizationTypes: enOrganizationTypes,
+  },
   "event/$slug/settings/csv-download": enEventCsvDownload,
   "event/$slug/settings/delete": enDeleteEvent,
   "event/$slug/settings/documents": enEventDocuments,
   "event/$slug/settings/events": {
     route: enConnectEventsWithEvent,
     stages: enStages,
+    organizationTypes: enOrganizationTypes,
   },
   "event/$slug/settings/general": {
     route: enGeneralEventSettings,
@@ -703,11 +823,28 @@ const en = {
   "event/$slug/settings/organizations": {
     route: enResponsibleOrganizationsOfEvent,
     organizationTypes: enOrganizationTypes,
+    stages: enStages,
   },
-  "event/$slug/settings/participants": enEventParticipants,
-  "event/$slug/settings/speakers": enAddSpeakersToEvent,
-  "event/$slug/settings/team": enEventTeam,
-  "event/$slug/settings/waiting-list": enEventWaitingList,
+  "event/$slug/settings/participants": {
+    route: enEventParticipants,
+    stages: enStages,
+    organizationTypes: enOrganizationTypes,
+  },
+  "event/$slug/settings/speakers": {
+    route: enAddSpeakersToEvent,
+    stages: enStages,
+    organizationTypes: enOrganizationTypes,
+  },
+  "event/$slug/settings/team": {
+    route: enEventTeam,
+    organizationTypes: enOrganizationTypes,
+    stages: enStages,
+  },
+  "event/$slug/settings/waiting-list": {
+    route: enEventWaitingList,
+    organizationTypes: enOrganizationTypes,
+    stages: enStages,
+  },
   "event/$slug/documents-download": enDownloadEventDocuments,
   "event/$slug/index": {
     route: enEventDetail,
@@ -766,6 +903,7 @@ const en = {
     organizationTypes: enOrganizationTypes,
     focuses: enFocuses,
     organizationCard: enOrganizationCard,
+    components: enComponents,
   },
   "my/projects": { route: enMyProjects, projectCard: enProjectCard },
   // next routes
@@ -779,63 +917,129 @@ const en = {
     route: enNextOrganizationAdmins,
     searchProfilesSchema: enSearchProfilesSchema,
     organizationTypes: enOrganizationTypes,
+    components: enComponents,
   },
   "next/organization/$slug/settings/danger-zone": enNextOrganizationDangerZone,
   "next/organization/$slug/settings/team": {
     route: enNextOrganizationTeam,
     searchProfilesSchema: enSearchProfilesSchema,
     organizationTypes: enOrganizationTypes,
+    components: enComponents,
   },
   "next/organization/$slug/settings/web-social": {
     route: enNextOrganizationWebAndSocial,
     components: enComponents,
-    webAndSocialSchemas: enSchemas,
+    schemas: enSchemas,
   },
   "next/organization/$slug/settings": enNextOrganizationSettings,
   "next/organization/create": {
     route: enNextCreateOrganization,
     organizationTypes: enOrganizationTypes,
     networkTypes: enNetworkTypes,
+    components: enComponents,
   },
   // organization routes
-  "organization/$slug/detail/about": enAboutOrganization,
-  "organization/$slug/detail/events": enOrganizationEvents,
-  "organization/$slug/detail/index": enOrganizationDetailIndex,
-  "organization/$slug/detail/network": enOrganizationNetwork,
-  "organization/$slug/detail/projects": enOrganizationProjects,
-  "organization/$slug/detail/team": enOrganizationTeam,
+  "organization/$slug/detail/about": {
+    route: enAboutOrganization,
+    focuses: enFocuses,
+  },
+  "organization/$slug/detail/events": {
+    route: enOrganizationEvents,
+    stages: enStages,
+    components: enComponents,
+  },
+  "organization/$slug/detail/network": {
+    route: enOrganizationNetwork,
+    organizationTypes: enOrganizationTypes,
+    components: enComponents,
+  },
+  "organization/$slug/detail/projects": {
+    route: enOrganizationProjects,
+    organizationTypes: enOrganizationTypes,
+    components: enComponents,
+  },
+  "organization/$slug/detail/team": {
+    route: enOrganizationTeam,
+    organizationTypes: enOrganizationTypes,
+    components: enComponents,
+  },
   "organization/$slug/settings/admins/add-admin": enAddOrganizationAdmin,
   "organization/$slug/settings/admins/cancel-invite":
     enCancelOrganizationAdminInvite,
   "organization/$slug/settings/admins/remove-admin": enRemoveOrganizationAdmin,
-  "organization/$slug/settings/network/add": enAddOrganizationNetworkMember,
+  "organization/$slug/settings/network/add": {
+    route: enAddOrganizationNetworkMember,
+    organizationTypes: enOrganizationTypes,
+    stages: enStages,
+  },
   "organization/$slug/settings/network/index": enOrganizationNetworkSettings,
-  "organization/$slug/settings/network/remove":
-    enRemoveOrganizationNetworkMember,
+  "organization/$slug/settings/network/remove": {
+    route: enRemoveOrganizationNetworkMember,
+    organizationTypes: enOrganizationTypes,
+  },
   "organization/$slug/settings/team/add-member": enAddOrganizationTeamMember,
   "organization/$slug/settings/team/cancel-invite":
     enCancelOrganizationTeamMemberInvite,
   "organization/$slug/settings/team/remove-member":
     enRemoveOrganizationTeamMember,
-  "organization/$slug/settings/admins": enOrganizationAdmins,
+  "organization/$slug/settings/admins": {
+    route: enOrganizationAdmins,
+    organizationTypes: enOrganizationTypes,
+    stages: enStages,
+  },
   "organization/$slug/settings/delete": enDeleteOrganization,
-  "organization/$slug/settings/general": enGeneralOrganizationSettings,
-  "organization/$slug/settings/team": enOrganizationTeamSettings,
-  "organization/$slug/detail": enOrganizationDetail,
+  "organization/$slug/settings/general": {
+    route: enGeneralOrganizationSettings,
+    organizationTypes: enOrganizationTypes,
+    focuses: enFocuses,
+    socialMediaServices: enSocialMediaServices,
+  },
+  "organization/$slug/settings/team": {
+    route: enOrganizationTeamSettings,
+    organizationTypes: enOrganizationTypes,
+    stages: enStages,
+  },
+  "organization/$slug/detail": {
+    route: enOrganizationDetail,
+    organizationTypes: enOrganizationTypes,
+    imageCropper: enImageCropper,
+  },
   "organization/$slug/settings": enOrganizationSettings,
   "organization/create": enCreateOrganization,
   // profile routes
   "profile/$username/settings/delete": enDeleteProfile,
-  "profile/$username/settings/general": enGeneralProfileSettings,
+  "profile/$username/settings/general": {
+    route: enGeneralProfileSettings,
+    offers: enOffers,
+    socialMediaServices: enSocialMediaServices,
+  },
   "profile/$username/settings/notifications": enProfileNotifications,
   "profile/$username/settings/security": enProfileSecurity,
-  "profile/$username/index": enProfileDetail,
+  "profile/$username/index": {
+    route: enProfileDetail,
+    offers: enOffers,
+    stages: enStages,
+    organizationTypes: enOrganizationTypes,
+    imageCropper: enImageCropper,
+  },
   "profile/$username/settings": enProfileSettings,
   // project routes
   "project/$slug/detail/attachments/download": enDownloadProjectAttachments,
-  "project/$slug/detail/about": enAboutProject,
+  "project/$slug/detail/about": {
+    route: enAboutProject,
+    formats: enFormats,
+    disciplines: enDisciplines,
+    additionalDisciplines: enAdditionalDisciplines,
+    projectTargetGroups: enProjectTargetGroups,
+    specialTargetGroups: enSpecialTargetGroups,
+    organizationTypes: enOrganizationTypes,
+    video: enVideo,
+  },
   "project/$slug/detail/attachments": enProjectAttachments,
-  "project/$slug/detail/requirements": enProjectRequirements,
+  "project/$slug/detail/requirements": {
+    route: enProjectRequirements,
+    financings: enFinancings,
+  },
   "project/$slug/settings/attachments/download":
     enDownloadProjectAttachmentsFromSettings,
   "project/$slug/settings/attachments/edit": enEditProjectAttachments,
@@ -845,15 +1049,35 @@ const en = {
   "project/$slug/settings/admins": enProjectAdmins,
   "project/$slug/settings/attachments": enProjectAttachmentsSettings,
   "project/$slug/settings/danger-zone": enProjectDangerZone,
-  "project/$slug/settings/details": enProjectDetails,
-  "project/$slug/settings/general": enGeneralProjectSettings,
+  "project/$slug/settings/details": {
+    route: enProjectDetails,
+    schemas: enSchemas,
+    disciplines: enDisciplines,
+    additionalDisciplines: enAdditionalDisciplines,
+    projectTargetGroups: enProjectTargetGroups,
+    specialTargetGroups: enSpecialTargetGroups,
+  },
+  "project/$slug/settings/general": {
+    route: enGeneralProjectSettings,
+    schemas: enSchemas,
+    formats: enFormats,
+  },
   "project/$slug/settings/index": enProjectSettingsIndex,
-  "project/$slug/settings/requirements": enProjectRequirementsSettings,
+  "project/$slug/settings/requirements": {
+    route: enProjectRequirementsSettings,
+    financings: enFinancings,
+  },
   "project/$slug/settings/responsible-orgs":
     enResponsibleOrganizationsOfProject,
   "project/$slug/settings/team": enProjectTeam,
-  "project/$slug/settings/web-social": enProjectWebAndSocial,
-  "project/$slug/detail": enProjectDetail,
+  "project/$slug/settings/web-social": {
+    route: enProjectWebAndSocial,
+    schemas: enSchemas,
+  },
+  "project/$slug/detail": {
+    route: enProjectDetail,
+    imageCropper: enImageCropper,
+  },
   "project/$slug/settings": enProjectSettings,
   "project/create": enCreateProject,
   // register routes
@@ -867,15 +1091,24 @@ const en = {
   "reset/set-email": enSetNewEmail,
   "reset/set-password": enSetNewPassword,
   // search routes
-  "search/events": enSearchEvents,
+  "search/events": {
+    route: enSearchEvents,
+    stages: enStages,
+    eventCard: enEventCard,
+  },
   "search/fundings": enSearchFundings,
-  "search/organizations": enSearchOrganizations,
+  "search/organizations": {
+    route: enSearchOrganizations,
+    focuses: enFocuses,
+    organizationTypes: enOrganizationTypes,
+    organizationCard: enOrganizationCard,
+  },
   "search/profiles": {
     route: enSearchProfiles,
     offers: enOffers,
     profileCard: enProfileCard,
   },
-  "search/projects": enSearchProjects,
+  "search/projects": { route: enSearchProjects, projectCard: enProjectCard },
   // upload routes
   "upload/delete": enDeleteImage,
   "upload/image": enUploadImage,
@@ -895,10 +1128,12 @@ const en = {
   },
   // goodbye route
   goodbye: enGoodbye,
+  // help route
+  help: enHelp,
   // imprint route
   imprint: enImprint,
   // landing route
-  index: enLanding,
+  index: { route: enLanding, faq: enHelp.faq, roadmap: enRoadmap },
   // search route
   search: enSearch,
   // verification route

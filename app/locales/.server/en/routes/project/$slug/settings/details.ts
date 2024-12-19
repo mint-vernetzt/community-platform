@@ -8,7 +8,7 @@ export const locale = {
   },
   validation: {
     targetGroupAdditions: {
-      max: "Your entry exceeds the maximum permitted number of characters of 200.",
+      max: "Your entry exceeds the maximum permitted number of characters of 250.",
     },
     excerpt: {
       max: "Your entry exceeds the maximum permitted number of characters of 250.",

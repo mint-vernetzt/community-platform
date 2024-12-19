@@ -1,5 +1,12 @@
 import { prismaClient } from "~/prisma.server";
 import { type ProfileMode } from "./utils.server";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
+
+export type ProfileDetailLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof supportedCookieLanguages
+>]["profile/$username/index"];
 
 export type ProfileQuery = NonNullable<
   Awaited<ReturnType<typeof getProfileByUsername>>

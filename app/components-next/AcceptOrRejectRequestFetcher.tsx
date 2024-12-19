@@ -1,20 +1,19 @@
 import { type useFetcher } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import {
   AddToOrganizationRequest,
   type action,
 } from "~/routes/my/organizations/requests";
-import { i18nNS as organizationsI18nNS } from "~/routes/my/organizations";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
 
 export function AcceptOrRejectRequestFetcher(props: {
   fetcher: ReturnType<typeof useFetcher<typeof action>>;
   profileId: string;
   organizationId: string;
   tabKey: string;
+  locales: MyOrganizationsLocales;
 }) {
-  const { fetcher, profileId, organizationId, tabKey } = props;
-  const { t } = useTranslation(organizationsI18nNS);
+  const { fetcher, profileId, organizationId, tabKey, locales } = props;
 
   return (
     <fetcher.Form
@@ -46,7 +45,7 @@ export function AcceptOrRejectRequestFetcher(props: {
         value={AddToOrganizationRequest.Reject}
         aria-describedby={`requests-headline tab-description-${tabKey} reject-request-${profileId}-${organizationId} requests-subline`}
       >
-        {t("requests.decline")}
+        {locales.route.requests.decline}
       </Button>
       <Button
         id={`accept-request-${profileId}-${organizationId}`}
@@ -56,7 +55,7 @@ export function AcceptOrRejectRequestFetcher(props: {
         value={AddToOrganizationRequest.Accept}
         aria-describedby={`requests-headline tab-description-${tabKey} accept-request-${profileId}-${organizationId} requests-subline`}
       >
-        {t("requests.accept")}
+        {locales.route.requests.accept}
       </Button>
     </fetcher.Form>
   );

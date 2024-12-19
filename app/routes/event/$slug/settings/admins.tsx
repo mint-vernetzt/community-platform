@@ -58,9 +58,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEvent(slug);
-  invariantResponse(event, locales.error.notFound, { status: 404 });
+  invariantResponse(event, locales.route.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
 
@@ -119,6 +119,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     admins: enhancedAdmins,
     adminSuggestions,
     locales,
+    language,
   };
 };
 
@@ -134,14 +135,14 @@ function Admins() {
 
   return (
     <>
-      <h1 className="mb-8">{loaderData.locales.content.headline}</h1>
-      <p className="mb-2">{loaderData.locales.content.intro.who}</p>
-      <p className="mb-2">{loaderData.locales.content.intro.what}</p>
-      <p className="mb-8">{loaderData.locales.content.intro.whom}</p>
+      <h1 className="mb-8">{loaderData.locales.route.content.headline}</h1>
+      <p className="mb-2">{loaderData.locales.route.content.intro.who}</p>
+      <p className="mb-2">{loaderData.locales.route.content.intro.what}</p>
+      <p className="mb-8">{loaderData.locales.route.content.intro.whom}</p>
       <h4 className="mb-4 mt-4 font-semibold">
-        {loaderData.locales.content.add.headline}
+        {loaderData.locales.route.content.add.headline}
       </h4>
-      <p className="mb-8">{loaderData.locales.content.add.intro}</p>
+      <p className="mb-8">{loaderData.locales.route.content.add.intro}</p>
       <RemixFormsForm
         schema={addAdminSchema}
         fetcher={addAdminFetcher}
@@ -161,7 +162,7 @@ function Admins() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      {loaderData.locales.form.name.label}
+                      {loaderData.locales.route.form.name.label}
                     </label>
                   </div>
                 </div>
@@ -177,6 +178,8 @@ function Admins() {
                           defaultValue={suggestionsQuery || ""}
                           {...register("profileId")}
                           searchParameter="autocomplete_query"
+                          locales={loaderData.locales}
+                          currentLanguage={loaderData.language}
                         />
                       </>
                     )}
@@ -200,15 +203,15 @@ function Admins() {
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
         {decideBetweenSingularOrPlural(
-          loaderData.locales.content.current.headline_one,
-          loaderData.locales.content.current.headline_other,
+          loaderData.locales.route.content.current.headline_one,
+          loaderData.locales.route.content.current.headline_other,
           loaderData.admins.length
         )}
       </h4>
       <p className="mb-8">
         {decideBetweenSingularOrPlural(
-          loaderData.locales.content.current.intro_one,
-          loaderData.locales.content.current.intro_other,
+          loaderData.locales.route.content.current.intro_one,
+          loaderData.locales.route.content.current.intro_other,
           loaderData.admins.length
         )}
       </p>
@@ -267,7 +270,7 @@ function Admins() {
                         {loaderData.admins.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
-                            title={loaderData.locales.form.remove.label}
+                            title={loaderData.locales.route.form.remove.label}
                           >
                             <svg
                               viewBox="0 0 10 10"
@@ -311,8 +314,8 @@ function Admins() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? loaderData.locales.form.hide.label
-                        : loaderData.locales.form.publish.label}
+                        ? loaderData.locales.route.form.hide.label
+                        : loaderData.locales.route.form.publish.label}
                     </Button>
                   </>
                 );

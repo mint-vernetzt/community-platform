@@ -1,6 +1,7 @@
 import { Form, useFetcher, useSearchParams } from "@remix-run/react";
 import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 import {
+  type MyOrganizationsLocales,
   type addImageUrlToInvites,
   type flattenOrganizationRelations,
 } from "~/routes/my/organizations.server";
@@ -15,8 +16,6 @@ import {
   type loader as organizationsToAddLoader,
 } from "~/routes/my/organizations/get-organizations-to-add";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { useTranslation } from "react-i18next";
-import { i18nNS as organizationsI18nNS } from "~/routes/my/organizations";
 import React from "react";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
@@ -31,6 +30,7 @@ export function AddOrganization(props: {
   >;
   invites: Jsonify<ReturnType<typeof addImageUrlToInvites>>;
   createRequestFetcher: ReturnType<typeof useFetcher<typeof requestsAction>>;
+  locales: MyOrganizationsLocales;
 }) {
   const {
     organizations = [],
@@ -38,14 +38,13 @@ export function AddOrganization(props: {
     memberOrganizations,
     pendingRequestsToOrganizations,
     invites,
+    locales,
   } = props;
 
   const [searchParams] = useSearchParams();
   const getOrganizationsToAddFetcher =
     useFetcher<typeof organizationsToAddLoader>();
   const isHydrated = useHydrated();
-
-  const { t } = useTranslation(organizationsI18nNS);
 
   const [searchQuery, setSearchQuery] = React.useState(
     searchParams.get(GetOrganizationsToAdd.SearchParam) ?? ""
@@ -147,11 +146,14 @@ export function AddOrganization(props: {
             .includes(word.toLowerCase());
         });
       }) === false ? (
-        <CreateOrganization name={searchQuery} />
+        <CreateOrganization name={searchQuery} locales={locales} />
       ) : null}
       {Array.isArray(data) && data.length > 0 ? (
         <>
-          <ListContainer listKey="send-request-to-organization">
+          <ListContainer
+            listKey="send-request-to-organization"
+            locales={locales}
+          >
             {data.map((organization, index) => {
               if (organization === null) {
                 return null;
@@ -161,6 +163,7 @@ export function AddOrganization(props: {
                   key={`send-request-to-${organization.id}`}
                   listIndex={index}
                   entity={organization}
+                  locales={locales}
                 >
                   <createRequestFetcher.Form
                     preventScrollReset
@@ -191,7 +194,7 @@ export function AddOrganization(props: {
                       type="submit"
                       disabled={createRequestFetcher.state === "submitting"}
                     >
-                      {t("addOrganization.createRequest")}
+                      {locales.route.addOrganization.createRequest}
                     </Button>
                   </createRequestFetcher.Form>
                 </ListItem>
@@ -204,8 +207,11 @@ export function AddOrganization(props: {
   );
 }
 
-function CreateOrganization(props: { name: string }) {
-  const { t } = useTranslation(organizationsI18nNS);
+function CreateOrganization(props: {
+  name: string;
+  locales: MyOrganizationsLocales;
+}) {
+  const { locales } = props;
   return (
     <div className="mv-flex mv-flex-col mv-gap-4 mv-group">
       <div className="mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center mv-flex">
@@ -219,7 +225,7 @@ function CreateOrganization(props: { name: string }) {
         </div>
         <Form method="get" action="/organization/create">
           <input type="hidden" name="search" value={props.name} />
-          <Button type="submit">{t("addOrganization.create")}</Button>
+          <Button type="submit">{locales.route.addOrganization.create}</Button>
         </Form>
       </div>
     </div>

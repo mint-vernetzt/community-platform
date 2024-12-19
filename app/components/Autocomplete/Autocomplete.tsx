@@ -1,14 +1,25 @@
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import type { Event, Organization, Profile } from "@prisma/client";
 import { useSearchParams, useSubmit } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import React, { useEffect, useRef, useState } from "react";
+import { type supportedCookieLanguages } from "~/i18n.shared";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDuration } from "~/lib/utils/time";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type OrganizationAdminSettingsLocales } from "~/routes/organization/$slug/settings/admins.server";
+import { type AddOrganizationNetworkMemberLocales } from "~/routes/organization/$slug/settings/network/add.server";
+import { type OrganizationTeamSettingsLocales } from "~/routes/organization/$slug/settings/team.server";
 import { H3 } from "../Heading/Heading";
-import { useTranslation } from "react-i18next";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { type EventWaitingListSettingsLocales } from "~/routes/event/$slug/settings/waiting-list.server";
+import { type EventTeamSettingsLocales } from "~/routes/event/$slug/settings/team.server";
+import { type EventAdminsSettingsLocales } from "~/routes/event/$slug/settings/admins.server";
+import { type ConnectedEventsSettingsLocales } from "~/routes/event/$slug/settings/events.server";
+import { type EventOrganizationsSettingsLocales } from "~/routes/event/$slug/settings/organizations.server";
+import { type EventParticipantsLocales } from "~/routes/event/$slug/settings/participants.server";
+import { type EventSpeakersSettingsLocales } from "~/routes/event/$slug/settings/speakers.server";
 
 export interface AutocompleteProps {
   suggestions:
@@ -46,6 +57,18 @@ export interface AutocompleteProps {
   suggestionsLoaderPath: string;
   defaultValue: string;
   searchParameter: string;
+  locales?:
+    | AddOrganizationNetworkMemberLocales
+    | EventWaitingListSettingsLocales
+    | EventTeamSettingsLocales
+    | EventAdminsSettingsLocales
+    | ConnectedEventsSettingsLocales
+    | EventOrganizationsSettingsLocales
+    | EventParticipantsLocales
+    | EventSpeakersSettingsLocales
+    | OrganizationAdminSettingsLocales
+    | OrganizationTeamSettingsLocales;
+  currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
 }
 
 const Autocomplete = React.forwardRef(
@@ -58,6 +81,8 @@ const Autocomplete = React.forwardRef(
       suggestionsLoaderPath,
       defaultValue,
       searchParameter,
+      locales,
+      currentLanguage,
       ...rest
     } = props;
 
@@ -140,11 +165,6 @@ const Autocomplete = React.forwardRef(
       }
     };
 
-    const { i18n, t } = useTranslation([
-      "datasets-stages",
-      "datasets-organizationTypes",
-    ]);
-
     return (
       <>
         <input
@@ -194,9 +214,27 @@ const Autocomplete = React.forwardRef(
                         <p className="font-bold text-sm text-left">
                           {suggestion.types
                             .map((item) => {
-                              return t(`${item.organizationType.slug}.title`, {
-                                ns: "datasets-organizationTypes",
-                              });
+                              let title;
+                              if (locales === undefined) {
+                                return item.organizationType.slug;
+                              }
+                              if (
+                                item.organizationType.slug in
+                                locales.organizationTypes
+                              ) {
+                                type LocaleKey =
+                                  keyof typeof locales.organizationTypes;
+                                title =
+                                  locales.organizationTypes[
+                                    item.organizationType.slug as LocaleKey
+                                  ].title;
+                              } else {
+                                console.error(
+                                  `Organization type ${item.organizationType.slug} not found in locales`
+                                );
+                                title = item.organizationType.slug;
+                              }
+                              return title;
                             })
                             .join(" / ")}
                         </p>
@@ -270,14 +308,30 @@ const Autocomplete = React.forwardRef(
                       <p className="text-xs mb-1">
                         {/* TODO: Display icons (see figma) */}
                         {suggestion.stage !== null
-                          ? t(`${suggestion.stage.slug}.title`, {
-                              ns: "datasets-stages",
-                            }) + " | "
+                          ? (() => {
+                              let title;
+                              if (locales === undefined) {
+                                return suggestion.stage.slug;
+                              }
+                              if (suggestion.stage.slug in locales.stages) {
+                                type LocaleKey = keyof typeof locales.stages;
+                                title =
+                                  locales.stages[
+                                    suggestion.stage.slug as LocaleKey
+                                  ].title;
+                              } else {
+                                console.error(
+                                  `Event stage ${suggestion.stage.slug} not found in locales`
+                                );
+                                title = suggestion.stage.slug;
+                              }
+                              return title;
+                            })() + " | "
                           : ""}
                         {getDuration(
                           eventStartTime,
                           eventEndTime,
-                          i18n.language
+                          currentLanguage
                         )}
                         {suggestion._count.childEvents === 0 ? (
                           <>

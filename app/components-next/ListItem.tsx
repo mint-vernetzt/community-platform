@@ -5,6 +5,9 @@ import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
 import { type OrganizationAdminSettingsLocales } from "~/routes/next/organization/$slug/settings/admins.server";
 import { type OrganizationTeamSettingsLocales } from "~/routes/next/organization/$slug/settings/team.server";
 import { type CreateOrganizationLocales } from "~/routes/next/organization/create.server";
+import { type OrganizationNetworkLocales } from "~/routes/organization/$slug/detail/network.server";
+import { type OrganizationProjectsLocales } from "~/routes/organization/$slug/detail/projects.server";
+import { type OrganizationTeamLocales } from "~/routes/organization/$slug/detail/team.server";
 
 type ListOrganization = {
   logo: string | null;
@@ -40,14 +43,19 @@ type ListProject = {
 
 type Entity = ListOrganization | ListProfile | ListProject;
 
+type Locales =
+  | MyOrganizationsLocales
+  | OrganizationAdminSettingsLocales
+  | OrganizationTeamSettingsLocales
+  | OrganizationNetworkLocales
+  | OrganizationProjectsLocales
+  | OrganizationTeamLocales
+  | CreateOrganizationLocales;
+
 export function ListItem(
   props: React.PropsWithChildren<{
     entity: Entity;
-    locales:
-      | MyOrganizationsLocales
-      | OrganizationAdminSettingsLocales
-      | OrganizationTeamSettingsLocales
-      | CreateOrganizationLocales;
+    locales: Locales;
     listIndex?: number;
     hideAfter?: number;
   }>

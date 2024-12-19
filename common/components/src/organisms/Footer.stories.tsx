@@ -1,9 +1,11 @@
+import { languageModuleMap } from "~/locales/.server";
 import { Footer } from "./Footer";
 
 export function FooterPlayground() {
+  const locales = languageModuleMap["de"]["root"];
   return (
     <div className="mv-mt-8">
-      <Footer />
+      <Footer locales={locales} />
     </div>
   );
 }

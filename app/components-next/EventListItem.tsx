@@ -7,6 +7,7 @@ import React from "react";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type MyEventsLocales } from "~/routes/my/events.server";
+import { type OrganizationEventsLocales } from "~/routes/organization/$slug/detail/events.server";
 
 function ListItemImage(props: {
   src: string;
@@ -74,7 +75,7 @@ function ListItemImage(props: {
 function EventListItemFlag(props: {
   canceled?: boolean;
   published?: boolean;
-  locales: MyEventsLocales;
+  locales: MyEventsLocales | OrganizationEventsLocales;
 }) {
   const classes = classNames(
     "mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-pr-4 mv-py-6",
@@ -113,7 +114,7 @@ function EventListItemContent(props: {
     published?: boolean;
   };
   currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
-  locales: MyEventsLocales;
+  locales: MyEventsLocales | OrganizationEventsLocales;
 }) {
   const { event, currentLanguage, locales } = props;
 

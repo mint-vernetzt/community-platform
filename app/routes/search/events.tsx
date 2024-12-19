@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Link,
   useLoaderData,
@@ -7,7 +6,6 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import {
   BlurFactor,
@@ -30,15 +28,15 @@ import {
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-
-const i18nNS = ["routes-search-events", "datasets-stages"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/i18n.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["search/events"];
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { take, page, itemsPerPage } = getTakeParam(request);
@@ -129,7 +127,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const enhancedEventsWithParticipationStatus =
     await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
-  return json({
+  return {
     events: enhancedEventsWithParticipationStatus,
     count: eventsCount,
     userId: sessionUser?.id || undefined,
@@ -137,12 +135,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       page,
       itemsPerPage,
     },
-  });
+    locales,
+    language,
+  };
 };
 
 export default function SearchView() {
-  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
+  const { locales, language } = loaderData;
   const [searchParams] = useSearchParams();
 
   const navigation = useNavigation();
@@ -184,11 +184,13 @@ export default function SearchView() {
                             (relation) => relation.organization
                           ),
                       }}
+                      locales={locales}
+                      currentLanguage={language}
                     />
                   );
                 })
               ) : (
-                <p>{t("empty.events")}</p>
+                <p>{locales.route.empty.events}</p>
               )}
             </CardContainer>
           </section>
@@ -205,14 +207,14 @@ export default function SearchView() {
                   loading={navigation.state === "loading"}
                   disabled={navigation.state === "loading"}
                 >
-                  {t("more")}
+                  {locales.route.more}
                 </Button>
               </Link>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">{t("empty.events")}</p>
+        <p className="text-center text-primary">{locales.route.empty.events}</p>
       )}
     </>
   );

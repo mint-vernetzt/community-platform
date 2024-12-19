@@ -274,7 +274,10 @@ function CreateOrganization() {
                   }
                 )}
               </p>
-              <ListContainer listKey="already-existing-organizations">
+              <ListContainer
+                listKey="already-existing-organizations"
+                locales={locales}
+              >
                 {searchResult.map((organization, index) => {
                   return (
                     <ListItem

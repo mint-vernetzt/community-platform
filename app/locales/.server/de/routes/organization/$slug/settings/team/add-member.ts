@@ -9,7 +9,8 @@ export const locale = {
     },
   },
   invite: {
-    success: "Einladung wurde erfolgreich versendet.",
+    success:
+      "Einladung an {{firstName}} {{lastName}} wurde erfolgreich versendet.",
     error: "Einladung konnte nicht versendet werden.",
   },
   email: {

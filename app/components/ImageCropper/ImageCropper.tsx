@@ -10,10 +10,13 @@ import { type Subject, type UploadKey } from "~/routes/upload/utils.server";
 import { InputFile } from "./InputFile";
 import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
-import { useTranslation } from "react-i18next";
 import { RemixFormsForm } from "../RemixFormsForm/RemixFormsForm";
 import { Form, type SubmitFunction, useSubmit } from "@remix-run/react";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { type OrganizationDetailLocales } from "~/routes/organization/$slug/detail.server";
+import { type EventDetailLocales } from "~/routes/event/$slug/index.server";
+import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
+import { type ProjectDetailLocales } from "~/routes/project/$slug/detail.server";
 
 export interface ImageCropperProps {
   id: string;
@@ -31,6 +34,11 @@ export interface ImageCropperProps {
   children: React.ReactNode;
   circularCrop?: boolean;
   modalSearchParam?: string;
+  locales:
+    | OrganizationDetailLocales
+    | EventDetailLocales
+    | ProfileDetailLocales
+    | ProjectDetailLocales;
 }
 
 /**
@@ -77,8 +85,6 @@ function ImageCropper(props: ImageCropperProps) {
   const [scale, setScale] = useState(DEFAULT_SCALE);
   const aspect = props.aspect === undefined ? DEFAULT_ASPECT : props.aspect;
 
-  const { t } = useTranslation(["components-image-cropper"]);
-
   const {
     id,
     image,
@@ -88,6 +94,7 @@ function ImageCropper(props: ImageCropperProps) {
     maxTargetHeight,
     handleCancel,
     circularCrop = false,
+    locales,
   } = props;
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -212,7 +219,7 @@ function ImageCropper(props: ImageCropperProps) {
 
                 console.error({ err });
 
-                alert(t("imageCropper.error"));
+                alert(locales.imageCropper.imageCropper.error);
               })
               .finally(() => {
                 submit(e.currentTarget, { preventScrollReset: true });
@@ -224,7 +231,7 @@ function ImageCropper(props: ImageCropperProps) {
       }
     } catch (exception) {
       console.log({ exception });
-      alert(t("imageCropper.error"));
+      alert(locales.imageCropper.imageCropper.error);
     }
   }
 
@@ -276,7 +283,9 @@ function ImageCropper(props: ImageCropperProps) {
                     type="submit"
                     disabled={isSaving}
                     onClick={(e) => {
-                      if (!confirm(t("imageCropper.confirmation"))) {
+                      if (
+                        !confirm(locales.imageCropper.imageCropper.confirmation)
+                      ) {
                         e.preventDefault();
                       } else {
                         submit(e.currentTarget);
@@ -343,6 +352,7 @@ function ImageCropper(props: ImageCropperProps) {
           id={`${id}-file`}
           onSelectFile={onSelectFile}
           hasImage={image !== undefined}
+          locales={locales}
         />
         {imgSrc && (
           <div className="flex items-center w-full mb-2">
@@ -412,7 +422,7 @@ function ImageCropper(props: ImageCropperProps) {
               handleCancel && handleCancel();
             }}
           >
-            {t("imageCropper.reset")}
+            {locales.imageCropper.imageCropper.reset}
           </Button>
         </Form>
 
@@ -431,7 +441,7 @@ function ImageCropper(props: ImageCropperProps) {
               handleSave(event, submit);
             }}
           >
-            {t("imageCropper.submit")}
+            {locales.imageCropper.imageCropper.submit}
             {isSaving && "..."}
           </Button>
         </Form>

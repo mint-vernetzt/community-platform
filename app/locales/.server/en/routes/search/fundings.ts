@@ -5,5 +5,7 @@ export const locale = {
     region: "Funding region",
     eligibleEntity: "Who will receive funding?",
     area: "What is being funded?",
+    toFunding: "To funding",
+    notProvided: "-not provided-",
   },
 } as const;

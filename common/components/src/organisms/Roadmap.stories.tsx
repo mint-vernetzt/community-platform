@@ -1,9 +1,11 @@
+import { languageModuleMap } from "~/locales/.server";
 import { Roadmap } from "./Roadmap";
 
 export function RoadmapPlayground() {
+  const locales = languageModuleMap["de"]["index"];
   return (
     <div className="mv-mt-8">
-      <Roadmap />
+      <Roadmap locales={locales} />
     </div>
   );
 }

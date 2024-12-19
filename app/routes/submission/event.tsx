@@ -1,5 +1,4 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { cors } from "remix-utils/cors";
 import type { EventFormData } from "../../lib/submissions/forms/event/eventFormData";
 import * as schema from "../../lib/submissions/forms/event/validation.schema.json";

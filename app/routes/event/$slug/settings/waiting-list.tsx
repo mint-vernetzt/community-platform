@@ -60,9 +60,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.error.notFound, { status: 404 });
+  invariantResponse(event, locales.route.error.notFound, { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
 
@@ -144,13 +144,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
       fullDepthWaitingList.length > 0 &&
       event._count.childEvents !== 0,
     locales,
+    language,
   };
 };
 
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, language } = loaderData;
   const addToWaitingListFetcher = useFetcher<typeof addToWaitingListAction>();
   const removeFromWaitingListFetcher =
     useFetcher<typeof removeFromWaitingListAction>();
@@ -163,10 +164,12 @@ function Participants() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
-      <p className="mb-8">{locales.content.intro}</p>
-      <h4 className="mb-4 font-semibold">{locales.content.add.headline}</h4>
-      <p className="mb-8">{locales.content.add.intro}</p>
+      <h1 className="mb-8">{locales.route.content.headline}</h1>
+      <p className="mb-8">{locales.route.content.intro}</p>
+      <h4 className="mb-4 font-semibold">
+        {locales.route.content.add.headline}
+      </h4>
+      <p className="mb-8">{locales.route.content.add.intro}</p>
       <RemixFormsForm
         schema={addToWaitingListSchema}
         fetcher={addToWaitingListFetcher}
@@ -185,7 +188,7 @@ function Participants() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      {locales.content.add.label}
+                      {locales.route.content.add.label}
                     </label>
                   </div>
                 </div>
@@ -203,6 +206,8 @@ function Participants() {
                           defaultValue={suggestionsQuery || ""}
                           {...register("profileId")}
                           searchParameter="autocomplete_query"
+                          locales={locales}
+                          currentLanguage={language}
                         />
                       </>
                     )}
@@ -227,9 +232,9 @@ function Participants() {
       {loaderData.waitingList.length > 0 ? (
         <>
           <h4 className="mb-4 mt-16 font-semibold">
-            {locales.content.current.headline}
+            {locales.route.content.current.headline}
           </h4>
-          <p className="mb-4">{locales.content.current.intro}</p>
+          <p className="mb-4">{locales.route.content.current.intro}</p>
         </>
       ) : null}
       {loaderData.waitingList.length > 0 ? (
@@ -239,7 +244,7 @@ function Participants() {
             to="../csv-download?type=waitingList&amp;depth=single"
             reloadDocument
           >
-            {locales.content.current.download1}
+            {locales.route.content.current.download1}
           </Link>
         </p>
       ) : null}
@@ -250,7 +255,7 @@ function Participants() {
             to="../csv-download?type=waitingList&amp;depth=full"
             reloadDocument
           >
-            {locales.content.current.download2}
+            {locales.route.content.current.download2}
           </Link>
         </p>
       ) : null}
@@ -258,7 +263,7 @@ function Participants() {
       {moveToParticipantsFetcher.data !== undefined &&
         "success" in moveToParticipantsFetcher.data &&
         moveToParticipantsFetcher.data.success === true && (
-          <div>{locales.content.current.feedback}</div>
+          <div>{locales.route.content.current.feedback}</div>
         )}
       {loaderData.waitingList.length > 0 ? (
         <div className="mb-4 mt-8 @md:mv-max-h-[630px] overflow-auto">
@@ -317,7 +322,7 @@ function Participants() {
                           <Errors />
                           <Field name="profileId" />
                           <Button className="btn btn-outline-primary ml-auto btn-small">
-                            {locales.content.current.action}
+                            {locales.route.content.current.action}
                           </Button>
                         </>
                       );
@@ -340,7 +345,7 @@ function Participants() {
                           <Field name="profileId" />
                           <Button
                             className="ml-auto btn-none"
-                            title={locales.content.current.remove}
+                            title={locales.route.content.current.remove}
                           >
                             <svg
                               viewBox="0 0 10 10"
@@ -384,8 +389,8 @@ function Participants() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? locales.content.hide
-                        : locales.content.publish}
+                        ? locales.route.content.hide
+                        : locales.route.content.publish}
                     </Button>
                   </>
                 );

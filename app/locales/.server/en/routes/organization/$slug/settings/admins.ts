@@ -22,9 +22,12 @@ export const locale = {
       cancel: "Cancel",
     },
     current: {
-      headline: "Current administrators",
-      intro:
-        "Here you can see all the administrators of the organization at a glance.",
+      headline_one: "Current administrator",
+      headline_other: "Current administrators",
+      intro_one:
+        "Here you can see the administrator of the organization at a glance.",
+      intro_other:
+        "Here you can see the administrators of the organization at a glance.",
       remove: "Remove",
     },
   },

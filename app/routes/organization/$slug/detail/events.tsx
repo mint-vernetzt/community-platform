@@ -1,25 +1,19 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { ListContainer } from "~/components-next/ListContainer";
 import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import { EventListItem } from "~/components-next/EventListItem";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
-import { i18nNS } from "./__events.shared";
 import {
   addImgUrls,
   filterOrganization,
   getOrganization,
 } from "./events.server";
-
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -28,13 +22,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["organization/$slug/detail/events"];
 
   const organization = await getOrganization(slug);
   invariantResponse(
     organization !== null,
-    t("server.error.organizationNotFound"),
+    locales.route.server.error.organizationNotFound,
     {
       status: 404,
     }
@@ -49,24 +44,25 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const enhancedOrganization = addImgUrls(authClient, filteredOrganization);
 
-  return json({
+  return {
     organization: enhancedOrganization,
-  });
+    locales,
+    language,
+  };
 };
 
 function Network() {
-  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
-  const { organization } = loaderData;
+  const { organization, locales, language } = loaderData;
 
   return (
     <Container.Section className="-mv-mt-4 @md:-mv-mt-6 @lg:-mv-mt-8 mv-pt-10 @sm:mv-py-8 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-10 @sm:mv-border-b @sm:mv-border-x @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-b-2xl">
       {organization.futureEvents.length > 0 ? (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
-            {t("headlines.futureEvents")}
+            {locales.route.headlines.futureEvents}
           </h2>
-          <ListContainer listKey="future-events">
+          <ListContainer listKey="future-events" locales={locales}>
             {organization.futureEvents.map((relation, index) => {
               return (
                 <EventListItem
@@ -79,7 +75,11 @@ function Network() {
                     blurredSrc={relation.event.blurredBackground}
                     alt={relation.event.name}
                   />
-                  <EventListItem.Content event={relation.event} />
+                  <EventListItem.Content
+                    event={relation.event}
+                    locales={locales}
+                    currentLanguage={language}
+                  />
                 </EventListItem>
               );
             })}
@@ -89,9 +89,9 @@ function Network() {
       {organization.pastEvents.length > 0 ? (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
-            {t("headlines.pastEvents")}
+            {locales.route.headlines.pastEvents}
           </h2>
-          <ListContainer listKey="past-events" hideAfter={3}>
+          <ListContainer listKey="past-events" hideAfter={3} locales={locales}>
             {organization.pastEvents.map((relation, index) => {
               return (
                 <EventListItem
@@ -105,7 +105,11 @@ function Network() {
                     blurredSrc={relation.event.blurredBackground}
                     alt={relation.event.name}
                   />
-                  <EventListItem.Content event={relation.event} />
+                  <EventListItem.Content
+                    event={relation.event}
+                    locales={locales}
+                    currentLanguage={language}
+                  />
                 </EventListItem>
               );
             })}

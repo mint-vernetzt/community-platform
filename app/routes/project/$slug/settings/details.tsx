@@ -1,7 +1,6 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import {
-  json,
   redirect,
   type ActionFunctionArgs,
   type LinksFunction,
@@ -35,30 +34,18 @@ import {
   getHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
+import { type ProjectDetailsSettingsLocales } from "./details.server";
+import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
-const i18nNS = [
-  "routes-project-settings-details",
-  "utils-schemas",
-  "datasets-disciplines",
-  "datasets-additionalDisciplines",
-  "datasets-projectTargetGroups",
-  "datasets-specialTargetGroups",
-] as const;
-export const handle = {
-  i18n: i18nNS,
-};
-
-const createDetailSchema = (t: TFunction) =>
+const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
   z.object({
     disciplines: z.array(z.string().uuid()),
     additionalDisciplines: z.array(z.string().uuid()),
@@ -77,7 +64,7 @@ const createDetailSchema = (t: TFunction) =>
     specialTargetGroups: z.array(z.string().uuid()),
     targetGroupAdditions: z
       .string()
-      .max(200, t("validation.targetGroupAdditions.max"))
+      .max(200, locales.route.validation.targetGroupAdditions.max)
       .optional()
       .transform((value) => {
         if (value === undefined) {
@@ -88,7 +75,7 @@ const createDetailSchema = (t: TFunction) =>
       }),
     excerpt: z
       .string()
-      .max(250, t("validation.targetGroupAdditions.excerpt"))
+      .max(250, locales.route.validation.targetGroupAdditions.max)
       .optional()
       .transform((value) => {
         if (value === undefined) {
@@ -115,7 +102,7 @@ const createDetailSchema = (t: TFunction) =>
           );
         },
         {
-          message: t("validation.idea.message"),
+          message: locales.route.validation.idea.message,
         }
       ),
     goals: z
@@ -136,7 +123,7 @@ const createDetailSchema = (t: TFunction) =>
           );
         },
         {
-          message: t("validation.goals.message"),
+          message: locales.route.validation.goals.message,
         }
       ),
     implementation: z
@@ -157,7 +144,7 @@ const createDetailSchema = (t: TFunction) =>
           );
         },
         {
-          message: t("validation.implementation.message"),
+          message: locales.route.validation.implementation.message,
         }
       ),
     furtherDescription: z
@@ -178,7 +165,7 @@ const createDetailSchema = (t: TFunction) =>
           );
         },
         {
-          message: t("validation.furtherDescription.message"),
+          message: locales.route.validation.furtherDescription.message,
         }
       ),
     targeting: z
@@ -199,7 +186,7 @@ const createDetailSchema = (t: TFunction) =>
           );
         },
         {
-          message: t("validation.targeting.message"),
+          message: locales.route.validation.targeting.message,
         }
       ),
     hints: z
@@ -220,13 +207,13 @@ const createDetailSchema = (t: TFunction) =>
           );
         },
         {
-          message: t("validation.hints.message"),
+          message: locales.route.validation.hints.message,
         }
       ),
-    video: createYoutubeEmbedSchema(t),
+    video: createYoutubeEmbedSchema(locales),
     videoSubline: z
       .string()
-      .max(80, t("validation.videoSubline.max"))
+      .max(80, locales.route.validation.videoSubline.max)
       .optional()
       .transform((value) => {
         if (value === undefined) {
@@ -244,17 +231,21 @@ export const links: LinksFunction = () => [
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/settings/details"];
 
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    locales.route.error.invalidRoute,
+    {
+      status: 400,
+    }
+  );
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
@@ -326,7 +317,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, t("error.projectNotFound"), {
+  invariantResponse(project !== null, locales.route.error.projectNotFound, {
     status: 404,
   });
 
@@ -363,25 +354,30 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
-  return json({
+  return {
     project,
     allDisciplines,
     allAdditionalDisciplines,
     allProjectTargetGroups,
     allSpecialTargetGroups,
-  });
+    locales,
+  };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/settings/details"];
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    locales.route.error.invalidRoute,
+    {
+      status: 400,
+    }
+  );
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
     slug: params.slug,
@@ -399,12 +395,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, t("error.projectNotFound"), {
+  invariantResponse(project !== null, locales.route.error.projectNotFound, {
     status: 404,
   });
   // Validation
   const formData = await request.formData();
-  const detailsSchema = createDetailSchema(t);
+  const detailsSchema = createDetailSchema(locales);
 
   const submission = await parse(formData, {
     schema: (intent) =>
@@ -421,7 +417,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             // Its working if you map this error to a normal input (f.e. path: ["excerpt"])
             // Current workarround is to show an alert below the save button
             path: ["additionalDisciplines"],
-            message: t("validation.custom.message"),
+            message: locales.route.validation.custom.message,
           });
           return z.NEVER;
         }
@@ -537,7 +533,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           console.warn(e);
           ctx.addIssue({
             code: "custom",
-            message: t("error.storage"),
+            message: locales.route.error.storage,
           });
           return z.NEVER;
         }
@@ -550,24 +546,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const hash = getHash(submission);
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission, hash } as const);
+    return { status: "idle", submission, hash };
   }
   if (!submission.value) {
-    return json({ status: "error", submission, hash } as const, {
-      status: 400,
-    });
+    return { status: "error", submission, hash };
   }
 
-  return redirectWithToast(
-    request.url,
-    { id: "settings-toast", key: hash, message: t("content.feedback") },
-    { scrollToToast: true }
-  );
+  return redirectWithToast(request.url, {
+    id: "change-project-details-toast",
+    key: hash,
+    message: locales.route.content.feedback,
+  });
 }
 
 function Details() {
   const location = useLocation();
-  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
   const {
     project,
@@ -575,6 +568,7 @@ function Details() {
     allAdditionalDisciplines,
     allProjectTargetGroups,
     allSpecialTargetGroups,
+    locales,
   } = loaderData;
   const {
     disciplines,
@@ -586,7 +580,7 @@ function Details() {
   const actionData = useActionData<typeof action>();
   const formId = "details-form";
 
-  const detailsSchema = createDetailSchema(t);
+  const detailsSchema = createDetailSchema(locales);
   const [form, fields] = useForm({
     id: formId,
     constraint: getFieldsetConstraint(detailsSchema),
@@ -624,7 +618,7 @@ function Details() {
                 // TODO: Investigate why auto scroll to error is not working on lists
                 // Its working if you map this error to a normal input (f.e. path: ["excerpt"])
                 path: ["additionalDisciplines"],
-                message: t("validation.custom.message"),
+                message: locales.route.validation.custom.message,
               });
               return z.NEVER;
             }
@@ -660,7 +654,7 @@ function Details() {
       isDirty && currentLocation.pathname !== nextLocation.pathname
   );
   if (blocker.state === "blocked") {
-    const confirmed = confirm(t("content.nonPersistent"));
+    const confirmed = confirm(locales.route.content.nonPersistent);
     if (confirmed === true) {
       // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
       if (blocker.state !== "proceeding") {
@@ -674,8 +668,10 @@ function Details() {
   // AKI stop
   return (
     <Section>
-      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{t("content.description")}</p>
+      <BackButton to={location.pathname}>
+        {locales.route.content.back}
+      </BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.description}</p>
       <Form
         method="post"
         {...form.props}
@@ -706,18 +702,18 @@ function Details() {
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.disciplines.headline")}
+              {locales.route.content.disciplines.headline}
             </h2>
 
             <ConformSelect
               id={fields.disciplines.id}
-              cta={t("content.disciplines.choose")}
+              cta={locales.route.content.disciplines.choose}
             >
               <ConformSelect.Label htmlFor={fields.disciplines.id}>
-                {t("content.disciplines.intro")}
+                {locales.route.content.disciplines.intro}
               </ConformSelect.Label>
               <ConformSelect.HelperText>
-                {t("content.disciplines.helper")}
+                {locales.route.content.disciplines.helper}
               </ConformSelect.HelperText>
               {allDisciplines
                 .filter((discipline) => {
@@ -726,6 +722,18 @@ function Details() {
                   });
                 })
                 .map((filteredDiscipline) => {
+                  let title;
+                  if (filteredDiscipline.slug in locales.disciplines) {
+                    type LocaleKey = keyof typeof locales.disciplines;
+                    title =
+                      locales.disciplines[filteredDiscipline.slug as LocaleKey]
+                        .title;
+                  } else {
+                    console.error(
+                      `Focus ${filteredDiscipline.slug} not found in locales`
+                    );
+                    title = filteredDiscipline.slug;
+                  }
                   return (
                     <button
                       key={filteredDiscipline.id}
@@ -734,9 +742,7 @@ function Details() {
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
-                      {t(`${filteredDiscipline.slug}.title`, {
-                        ns: "datasets-disciplines",
-                      })}
+                      {title}
                     </button>
                   );
                 })}
@@ -744,18 +750,30 @@ function Details() {
             {disciplineList.length > 0 && (
               <Chip.Container>
                 {disciplineList.map((listDiscipline, index) => {
+                  let disciplineSlug = allDisciplines.find((discipline) => {
+                    return discipline.id === listDiscipline.defaultValue;
+                  })?.slug;
+                  let title;
+                  if (disciplineSlug === undefined) {
+                    console.error(
+                      `Discipline with id ${listDiscipline.id} not found in allDisciplines`
+                    );
+                    title = null;
+                  } else {
+                    if (disciplineSlug in locales.disciplines) {
+                      type LocaleKey = keyof typeof locales.disciplines;
+                      title =
+                        locales.disciplines[disciplineSlug as LocaleKey].title;
+                    } else {
+                      console.error(
+                        `Discipline ${disciplineSlug} not found in locales`
+                      );
+                      title = disciplineSlug;
+                    }
+                  }
                   return (
                     <Chip key={listDiscipline.key}>
-                      {t(
-                        `${
-                          allDisciplines.find((discipline) => {
-                            return (
-                              discipline.id === listDiscipline.defaultValue
-                            );
-                          })?.slug
-                        }.title`,
-                        { ns: "datasets-disciplines" }
-                      ) || "Not Found"}
+                      {title || locales.route.error.notFound}
                       <Input type="hidden" {...conform.input(listDiscipline)} />
                       <Chip.Delete>
                         <button
@@ -770,13 +788,13 @@ function Details() {
 
             <ConformSelect
               id={fields.additionalDisciplines.id}
-              cta={t("content.additionalDisciplines.choose")}
+              cta={locales.route.content.additionalDisciplines.choose}
             >
               <ConformSelect.Label htmlFor={fields.additionalDisciplines.id}>
-                {t("content.additionalDisciplines.headline")}
+                {locales.route.content.additionalDisciplines.headline}
               </ConformSelect.Label>
               <ConformSelect.HelperText>
-                {t("content.additionalDisciplines.helper")}
+                {locales.route.content.additionalDisciplines.helper}
               </ConformSelect.HelperText>
               {allAdditionalDisciplines
                 .filter((additionalDiscipline) => {
@@ -790,6 +808,22 @@ function Details() {
                   );
                 })
                 .map((filteredAdditionalDiscipline) => {
+                  let title;
+                  if (
+                    filteredAdditionalDiscipline.slug in
+                    locales.additionalDisciplines
+                  ) {
+                    type LocaleKey = keyof typeof locales.additionalDisciplines;
+                    title =
+                      locales.additionalDisciplines[
+                        filteredAdditionalDiscipline.slug as LocaleKey
+                      ].title;
+                  } else {
+                    console.error(
+                      `Additional discipline ${filteredAdditionalDiscipline.slug} not found in locales`
+                    );
+                    title = filteredAdditionalDiscipline.slug;
+                  }
                   return (
                     <button
                       key={filteredAdditionalDiscipline.id}
@@ -798,9 +832,7 @@ function Details() {
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
-                      {t(`${filteredAdditionalDiscipline.slug}.title`, {
-                        ns: "datasets-additionalDisciplines",
-                      })}
+                      {title}
                     </button>
                   );
                 })}
@@ -809,23 +841,36 @@ function Details() {
               <Chip.Container>
                 {additionalDisciplineList.map(
                   (listAdditionalDiscipline, index) => {
+                    let disciplineSlug = allAdditionalDisciplines.find(
+                      (discipline) => {
+                        return (
+                          discipline.id ===
+                          listAdditionalDiscipline.defaultValue
+                        );
+                      }
+                    )?.slug;
+                    let title;
+                    if (disciplineSlug === undefined) {
+                      console.error(
+                        `Additional discipline with id ${listAdditionalDiscipline.id} not found in allAdditionalDisciplines`
+                      );
+                      title = null;
+                    } else {
+                      if (disciplineSlug in locales.disciplines) {
+                        type LocaleKey = keyof typeof locales.disciplines;
+                        title =
+                          locales.disciplines[disciplineSlug as LocaleKey]
+                            .title;
+                      } else {
+                        console.error(
+                          `Discipline ${disciplineSlug} not found in locales`
+                        );
+                        title = disciplineSlug;
+                      }
+                    }
                     return (
                       <Chip key={listAdditionalDiscipline.key}>
-                        {t(
-                          `${
-                            allAdditionalDisciplines.find(
-                              (additionalDiscipline) => {
-                                return (
-                                  additionalDiscipline.id ===
-                                  listAdditionalDiscipline.defaultValue
-                                );
-                              }
-                            )?.slug
-                          }.title`,
-                          {
-                            ns: "datasets-additionalDisciplines",
-                          }
-                        ) || t("error.notFound")}
+                        {title || locales.route.error.notFound}
                         <Input
                           type="hidden"
                           {...conform.input(listAdditionalDiscipline)}
@@ -851,10 +896,10 @@ function Details() {
                 onChange={handleFurtherDisciplineInputChange}
               >
                 <Input.Label htmlFor={fields.furtherDisciplines.id}>
-                  {t("content.furtherDisciplines.headline")}
+                  {locales.route.content.furtherDisciplines.headline}
                 </Input.Label>
                 <Input.HelperText>
-                  {t("content.furtherDisciplines.helper")}
+                  {locales.route.content.furtherDisciplines.helper}
                 </Input.HelperText>
                 <Input.Controls>
                   <Button
@@ -864,7 +909,7 @@ function Details() {
                     variant="ghost"
                     disabled={furtherDiscipline === ""}
                   >
-                    {t("content.furtherDisciplines.choose")}
+                    {locales.route.content.furtherDisciplines.choose}
                   </Button>
                 </Input.Controls>
               </Input>
@@ -877,7 +922,7 @@ function Details() {
                   return (
                     <Chip key={listFurtherDiscipline.key}>
                       {listFurtherDiscipline.defaultValue ||
-                        t("error.notFound")}
+                        locales.route.error.notFound}
                       <Input
                         type="hidden"
                         {...conform.input(listFurtherDiscipline)}
@@ -898,30 +943,30 @@ function Details() {
 
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.participants.headline")}
+              {locales.route.content.participants.headline}
             </h2>
 
             <Input {...conform.input(fields.participantLimit)}>
               <Input.Label htmlFor={fields.participantLimit.id}>
-                {t("content.participants.intro")}
+                {locales.route.content.participants.intro}
               </Input.Label>
               {typeof fields.participantLimit.error !== "undefined" && (
                 <Input.Error>{fields.participantLimit.error}</Input.Error>
               )}
               <Input.HelperText>
-                {t("content.participants.helper")}
+                {locales.route.content.participants.helper}
               </Input.HelperText>
             </Input>
 
             <ConformSelect
               id={fields.projectTargetGroups.id}
-              cta={t("content.projectTargetGroups.choose")}
+              cta={locales.route.content.projectTargetGroups.choose}
             >
               <ConformSelect.Label htmlFor={fields.projectTargetGroups.id}>
-                {t("content.projectTargetGroups.intro")}
+                {locales.route.content.projectTargetGroups.intro}
               </ConformSelect.Label>
               <ConformSelect.HelperText>
-                {t("content.projectTargetGroups.helper")}
+                {locales.route.content.projectTargetGroups.helper}
               </ConformSelect.HelperText>
               {allProjectTargetGroups
                 .filter((targetGroup) => {
@@ -930,6 +975,19 @@ function Details() {
                   });
                 })
                 .map((filteredTargetGroup) => {
+                  let title;
+                  if (filteredTargetGroup.slug in locales.projectTargetGroups) {
+                    type LocaleKey = keyof typeof locales.projectTargetGroups;
+                    title =
+                      locales.projectTargetGroups[
+                        filteredTargetGroup.slug as LocaleKey
+                      ].title;
+                  } else {
+                    console.error(
+                      `Project target group ${filteredTargetGroup.slug} not found in locales`
+                    );
+                    title = filteredTargetGroup.slug;
+                  }
                   return (
                     <button
                       key={filteredTargetGroup.id}
@@ -938,9 +996,7 @@ function Details() {
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
-                      {t(`${filteredTargetGroup.slug}.title`, {
-                        ns: "datasets-projectTargetGroups",
-                      })}
+                      {title}
                     </button>
                   );
                 })}
@@ -948,20 +1004,34 @@ function Details() {
             {targetGroupList.length > 0 && (
               <Chip.Container>
                 {targetGroupList.map((listTargetGroup, index) => {
+                  let targetGroupSlug = allProjectTargetGroups.find(
+                    (targetGroup) => {
+                      return targetGroup.id === listTargetGroup.defaultValue;
+                    }
+                  )?.slug;
+                  let title;
+                  if (targetGroupSlug === undefined) {
+                    console.error(
+                      `Project target group with id ${listTargetGroup.id} not found in allAdditionalDisciplines`
+                    );
+                    title = null;
+                  } else {
+                    if (targetGroupSlug in locales.projectTargetGroups) {
+                      type LocaleKey = keyof typeof locales.projectTargetGroups;
+                      title =
+                        locales.projectTargetGroups[
+                          targetGroupSlug as LocaleKey
+                        ].title;
+                    } else {
+                      console.error(
+                        `Project target group ${targetGroupSlug} not found in locales`
+                      );
+                      title = targetGroupSlug;
+                    }
+                  }
                   return (
                     <Chip key={listTargetGroup.key}>
-                      {t(
-                        `${
-                          allProjectTargetGroups.find((targetGroup) => {
-                            return (
-                              targetGroup.id === listTargetGroup.defaultValue
-                            );
-                          })?.slug
-                        }.title`,
-                        {
-                          ns: "datasets-projectTargetGroups",
-                        }
-                      ) || t("error.notFound")}
+                      {title || locales.route.error.notFound}
                       <Input
                         type="hidden"
                         {...conform.input(listTargetGroup)}
@@ -981,13 +1051,13 @@ function Details() {
 
             <ConformSelect
               id={fields.specialTargetGroups.id}
-              cta={t("content.specialTargetGroups.choose")}
+              cta={locales.route.content.specialTargetGroups.choose}
             >
               <ConformSelect.Label htmlFor={fields.specialTargetGroups.id}>
-                {t("content.specialTargetGroups.intro")}
+                {locales.route.content.specialTargetGroups.intro}
               </ConformSelect.Label>
               <ConformSelect.HelperText>
-                {t("content.specialTargetGroups.helper")}
+                {locales.route.content.specialTargetGroups.helper}
               </ConformSelect.HelperText>
               {allSpecialTargetGroups
                 .filter((specialTargetGroup) => {
@@ -1001,6 +1071,22 @@ function Details() {
                   );
                 })
                 .map((filteredSpecialTargetGroup) => {
+                  let title;
+                  if (
+                    filteredSpecialTargetGroup.slug in
+                    locales.specialTargetGroups
+                  ) {
+                    type LocaleKey = keyof typeof locales.specialTargetGroups;
+                    title =
+                      locales.specialTargetGroups[
+                        filteredSpecialTargetGroup.slug as LocaleKey
+                      ].title;
+                  } else {
+                    console.error(
+                      `Special target group ${filteredSpecialTargetGroup.slug} not found in locales`
+                    );
+                    title = filteredSpecialTargetGroup.slug;
+                  }
                   return (
                     <button
                       key={filteredSpecialTargetGroup.id}
@@ -1009,9 +1095,7 @@ function Details() {
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
-                      {t(`${filteredSpecialTargetGroup.slug}.title`, {
-                        ns: "datasets-specialTargetGroups",
-                      })}
+                      {title}
                     </button>
                   );
                 })}
@@ -1019,21 +1103,37 @@ function Details() {
             {specialTargetGroupList.length > 0 && (
               <Chip.Container>
                 {specialTargetGroupList.map((listSpecialTargetGroup, index) => {
+                  let specialTargetGroupSlug = allSpecialTargetGroups.find(
+                    (specialTargetGroup) => {
+                      return (
+                        specialTargetGroup.id ===
+                        listSpecialTargetGroup.defaultValue
+                      );
+                    }
+                  )?.slug;
+                  let title;
+                  if (specialTargetGroupSlug === undefined) {
+                    console.error(
+                      `Special target group with id ${listSpecialTargetGroup.id} not found in allAdditionalDisciplines`
+                    );
+                    title = null;
+                  } else {
+                    if (specialTargetGroupSlug in locales.specialTargetGroups) {
+                      type LocaleKey = keyof typeof locales.specialTargetGroups;
+                      title =
+                        locales.specialTargetGroups[
+                          specialTargetGroupSlug as LocaleKey
+                        ].title;
+                    } else {
+                      console.error(
+                        `Special target group ${specialTargetGroupSlug} not found in locales`
+                      );
+                      title = specialTargetGroupSlug;
+                    }
+                  }
                   return (
                     <Chip key={listSpecialTargetGroup.key}>
-                      {t(
-                        `${
-                          allSpecialTargetGroups.find((specialTargetGroup) => {
-                            return (
-                              specialTargetGroup.id ===
-                              listSpecialTargetGroup.defaultValue
-                            );
-                          })?.slug
-                        }.title`,
-                        {
-                          ns: "datasets-specialTargetGroups",
-                        }
-                      ) || t("error.notFound")}
+                      {title || locales.route.error.notFound}
                       <Input
                         type="hidden"
                         {...conform.input(listSpecialTargetGroup)}
@@ -1053,7 +1153,7 @@ function Details() {
 
             <Input {...conform.input(fields.targetGroupAdditions)}>
               <Input.Label htmlFor={fields.targetGroupAdditions.id}>
-                {t("content.targetGroupAdditions.more")}
+                {locales.route.content.targetGroupAdditions.more}
               </Input.Label>
               {typeof fields.targetGroupAdditions.error !== "undefined" && (
                 <Input.Error>{fields.targetGroupAdditions.error}</Input.Error>
@@ -1063,13 +1163,13 @@ function Details() {
 
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.shortDescription.headline")}
+              {locales.route.content.shortDescription.headline}
             </h2>
-            <p>{t("content.shortDescription.intro")}</p>
+            <p>{locales.route.content.shortDescription.intro}</p>
 
             <Input {...conform.input(fields.excerpt)}>
               <Input.Label htmlFor={fields.excerpt.id}>
-                {t("content.shortDescription.label")}
+                {locales.route.content.shortDescription.label}
               </Input.Label>
               {typeof fields.excerpt.error !== "undefined" && (
                 <Input.Error>{fields.excerpt.error}</Input.Error>
@@ -1079,16 +1179,16 @@ function Details() {
 
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.extendedDescription.headline")}
+              {locales.route.content.extendedDescription.headline}
             </h2>
 
-            <p>{t("content.extendedDescription.intro")}</p>
+            <p>{locales.route.content.extendedDescription.intro}</p>
 
             <TextAreaWithCounter
               {...conform.textarea(fields.idea)}
               id={fields.idea.id || ""}
-              label={t("content.extendedDescription.idea.label")}
-              helperText={t("content.extendedDescription.idea.helper")}
+              label={locales.route.content.extendedDescription.idea.label}
+              helperText={locales.route.content.extendedDescription.idea.helper}
               errorMessage={fields.idea.error}
               maxCharacters={2000}
               rte
@@ -1097,8 +1197,10 @@ function Details() {
             <TextAreaWithCounter
               {...conform.textarea(fields.goals)}
               id={fields.goals.id || ""}
-              label={t("content.extendedDescription.goals.label")}
-              helperText={t("content.extendedDescription.goals.helper")}
+              label={locales.route.content.extendedDescription.goals.label}
+              helperText={
+                locales.route.content.extendedDescription.goals.helper
+              }
               errorMessage={fields.goals.error}
               maxCharacters={2000}
               rte
@@ -1107,10 +1209,12 @@ function Details() {
             <TextAreaWithCounter
               {...conform.textarea(fields.implementation)}
               id={fields.implementation.id || ""}
-              label={t("content.extendedDescription.implementation.label")}
-              helperText={t(
-                "content.extendedDescription.implementation.helper"
-              )}
+              label={
+                locales.route.content.extendedDescription.implementation.label
+              }
+              helperText={
+                locales.route.content.extendedDescription.implementation.helper
+              }
               errorMessage={fields.implementation.error}
               maxCharacters={2000}
               rte
@@ -1119,10 +1223,14 @@ function Details() {
             <TextAreaWithCounter
               {...conform.textarea(fields.furtherDescription)}
               id={fields.furtherDescription.id || ""}
-              label={t("content.extendedDescription.furtherDescription.label")}
-              helperText={t(
-                "content.extendedDescription.furtherDescription.helper"
-              )}
+              label={
+                locales.route.content.extendedDescription.furtherDescription
+                  .label
+              }
+              helperText={
+                locales.route.content.extendedDescription.furtherDescription
+                  .helper
+              }
               errorMessage={fields.furtherDescription.error}
               maxCharacters={8000}
               rte
@@ -1131,8 +1239,10 @@ function Details() {
             <TextAreaWithCounter
               {...conform.textarea(fields.targeting)}
               id={fields.targeting.id || ""}
-              label={t("content.extendedDescription.targeting.label")}
-              helperText={t("content.extendedDescription.targeting.helper")}
+              label={locales.route.content.extendedDescription.targeting.label}
+              helperText={
+                locales.route.content.extendedDescription.targeting.helper
+              }
               errorMessage={fields.targeting.error}
               maxCharacters={800}
               rte
@@ -1141,8 +1251,10 @@ function Details() {
             <TextAreaWithCounter
               {...conform.textarea(fields.hints)}
               id={fields.hints.id || ""}
-              label={t("content.extendedDescription.hints.label")}
-              helperText={t("content.extendedDescription.hints.helper")}
+              label={locales.route.content.extendedDescription.hints.label}
+              helperText={
+                locales.route.content.extendedDescription.hints.helper
+              }
               errorMessage={fields.hints.error}
               maxCharacters={800}
               rte
@@ -1151,7 +1263,7 @@ function Details() {
 
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.video.headline")}
+              {locales.route.content.video.headline}
             </h2>
 
             <Input
@@ -1159,19 +1271,19 @@ function Details() {
               placeholder="youtube.com/watch?v=<videoCode>"
             >
               <Input.Label htmlFor={fields.video.id}>
-                {t("content.video.video.label")}
+                {locales.route.content.video.video.label}
               </Input.Label>
               {typeof fields.video.error !== "undefined" && (
                 <Input.Error>{fields.video.error}</Input.Error>
               )}
               <Input.HelperText>
-                {t("content.video.video.helper")}
+                {locales.route.content.video.video.helper}
               </Input.HelperText>
             </Input>
 
             <Input {...conform.input(fields.videoSubline)}>
               <Input.Label htmlFor={fields.videoSubline.id}>
-                {t("content.video.videoSubline.label")}
+                {locales.route.content.video.videoSubline.label}
               </Input.Label>
               {typeof fields.videoSubline.error !== "undefined" && (
                 <Input.Error>{fields.videoSubline.error}</Input.Error>
@@ -1198,7 +1310,7 @@ function Details() {
                   }}
                   className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
                 >
-                  {t("content.reset")}
+                  {locales.route.content.reset}
                 </Button>
                 {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
                 {/* <Button type="reset" variant="outline" fullSize>
@@ -1213,53 +1325,80 @@ function Details() {
                     setIsDirty(false);
                   }}
                 >
-                  {t("content.submit")}
+                  {locales.route.content.submit}
                 </Button>
               </Controls>
             </div>
           </div>
           {/* Workarround error messages because conform mapping and error displaying is not working yet with Select and RTE components */}
-          {fields.additionalDisciplines.error !== undefined && (
-            <Alert level="negative">
-              {t("content.error.additionalDisciplines", {
-                list: fields.additionalDisciplines.error,
-              })}
-            </Alert>
-          )}
-          {fields.idea.error !== undefined && (
-            <Alert level="negative">
-              {t("content.error.idea", { list: fields.idea.error })}
-            </Alert>
-          )}
-          {fields.goals.error !== undefined && (
-            <Alert level="negative">
-              {t("content.error.goals", { list: fields.goals.error })}
-            </Alert>
-          )}
-          {fields.implementation.error !== undefined && (
-            <Alert level="negative">
-              {t("content.error.implementation", {
-                list: fields.implementation.error,
-              })}
-            </Alert>
-          )}
-          {fields.furtherDescription.error !== undefined && (
-            <Alert level="negative">
-              {t("content.error.furtherDescription", {
-                list: fields.furtherDescription.error,
-              })}
-            </Alert>
-          )}
-          {fields.targeting.error !== undefined && (
-            <Alert level="negative">
-              {t("content.error.targeting", { list: fields.targeting.error })}
-            </Alert>
-          )}
-          {fields.hints.error !== undefined && (
-            <Alert level="negative">
-              {t("content.error.hints", { list: fields.hints.error })}
-            </Alert>
-          )}
+          {fields.additionalDisciplines.errors !== undefined &&
+            fields.additionalDisciplines.errors.length > 0 && (
+              <Alert level="negative">
+                {insertParametersIntoLocale(
+                  locales.route.content.error.additionalDisciplines,
+                  {
+                    list: fields.additionalDisciplines.errors.join(", "),
+                  }
+                )}
+              </Alert>
+            )}
+          {fields.idea.errors !== undefined &&
+            fields.idea.errors.length > 0 && (
+              <Alert level="negative">
+                {insertParametersIntoLocale(locales.route.content.error.idea, {
+                  list: fields.idea.errors.join(", "),
+                })}
+              </Alert>
+            )}
+          {fields.goals.errors !== undefined &&
+            fields.goals.errors.length > 0 && (
+              <Alert level="negative">
+                {insertParametersIntoLocale(locales.route.content.error.goals, {
+                  list: fields.goals.errors.join(", "),
+                })}
+              </Alert>
+            )}
+          {fields.implementation.errors !== undefined &&
+            fields.implementation.errors.length > 0 && (
+              <Alert level="negative">
+                {insertParametersIntoLocale(
+                  locales.route.content.error.implementation,
+                  {
+                    list: fields.implementation.errors.join(", "),
+                  }
+                )}
+              </Alert>
+            )}
+          {fields.furtherDescription.errors !== undefined &&
+            fields.furtherDescription.errors.length > 0 && (
+              <Alert level="negative">
+                {insertParametersIntoLocale(
+                  locales.route.content.error.furtherDescription,
+                  {
+                    list: fields.furtherDescription.errors.join(", "),
+                  }
+                )}
+              </Alert>
+            )}
+          {fields.targeting.errors !== undefined &&
+            fields.targeting.errors.length > 0 && (
+              <Alert level="negative">
+                {insertParametersIntoLocale(
+                  locales.route.content.error.targeting,
+                  {
+                    list: fields.targeting.errors.join(", "),
+                  }
+                )}
+              </Alert>
+            )}
+          {fields.hints.errors !== undefined &&
+            fields.hints.errors.length > 0 && (
+              <Alert level="negative">
+                {insertParametersIntoLocale(locales.route.content.error.hints, {
+                  list: fields.hints.errors.join(", "),
+                })}
+              </Alert>
+            )}
         </div>
       </Form>
     </Section>

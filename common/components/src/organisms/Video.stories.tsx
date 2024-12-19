@@ -1,3 +1,4 @@
+import { languageModuleMap } from "~/locales/.server";
 import { Video } from "./Video";
 
 type VideoPlaygroundProps = {
@@ -6,8 +7,9 @@ type VideoPlaygroundProps = {
 };
 
 export function VideoPlayground(props: VideoPlaygroundProps) {
+  const locales = languageModuleMap["de"]["project/$slug/detail/about"];
   return (
-    <Video src={props.src}>
+    <Video src={props.src} locales={locales}>
       {typeof props.subline !== "undefined" && props.subline === "" && (
         <Video.Subline>{props.subline}</Video.Subline>
       )}

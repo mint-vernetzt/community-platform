@@ -9,7 +9,7 @@ export const locale = {
     },
   },
   invite: {
-    success: "Invitation was sent successfully.",
+    success: "Invitation to {{firstName}} {{lastName}} was sent successfully.",
     error: "Invitation could not be sent.",
   },
   email: {

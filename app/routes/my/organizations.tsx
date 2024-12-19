@@ -691,7 +691,11 @@ export default function MyOrganizations() {
               </TabBar>
               {Object.entries(invites).map(([key, value]) => {
                 return value.active && value.invites.length > 0 ? (
-                  <ListContainer key={key} listKey={`${key}-list`}>
+                  <ListContainer
+                    key={key}
+                    listKey={`${key}-list`}
+                    locales={locales}
+                  >
                     {value.invites.map((invite, index) => {
                       return (
                         <ListItem
@@ -777,6 +781,7 @@ export default function MyOrganizations() {
                     key={key}
                     listKey={`${key}-list`}
                     hideAfter={3}
+                    locales={locales}
                   >
                     {value.organization.profileJoinRequests.map(
                       (request, index) => {
@@ -793,6 +798,7 @@ export default function MyOrganizations() {
                               organizationId={value.organization.id}
                               profileId={request.profile.id}
                               tabKey={key}
+                              locales={locales}
                             />
                           </ListItem>
                         );
@@ -819,6 +825,7 @@ export default function MyOrganizations() {
               }
               invites={loaderData.invites}
               createRequestFetcher={createRequestFetcher}
+              locales={locales}
             />
             {loaderData.pendingRequestsToOrganizations.length > 0 ? (
               <>
@@ -829,6 +836,7 @@ export default function MyOrganizations() {
                 <ListContainer
                   listKey="pending-requests-to-organizations"
                   hideAfter={3}
+                  locales={locales}
                 >
                   {loaderData.pendingRequestsToOrganizations.map(
                     (organization, index) => {
@@ -843,6 +851,7 @@ export default function MyOrganizations() {
                           <CancelRequestFetcher
                             fetcher={cancelRequestFetcher}
                             organizationId={organization.id}
+                            locales={locales}
                           />
                         </ListItem>
                       );

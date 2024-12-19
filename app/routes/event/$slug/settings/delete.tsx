@@ -2,7 +2,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
-import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
@@ -26,6 +25,7 @@ import {
 import { publishSchema, type action as publishAction } from "./events/publish";
 import { deleteEventBySlug } from "./utils.server";
 import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const schema = z.object({
   eventName: z.string().optional(),
@@ -122,14 +122,15 @@ function Delete() {
   const { locales } = loaderData;
   const { slug } = useParams();
   const publishFetcher = useFetcher<typeof publishAction>();
-  const { t } = useTranslation(["routes-event-settings-delete"]);
 
   return (
     <>
       <h1 className="mb-8">{locales.content.headline}</h1>
 
       <p className="mb-8">
-        {t("content.intro", { name: loaderData.eventName })}
+        {insertParametersIntoLocale(locales.content.intro, {
+          name: loaderData.eventName,
+        })}
       </p>
 
       {loaderData.childEvents.length > 0 ? (

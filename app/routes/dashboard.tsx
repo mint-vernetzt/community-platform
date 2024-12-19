@@ -1,7 +1,7 @@
 import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
 import type { Organization, Profile } from "@prisma/client";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import Cookies from "js-cookie";
@@ -49,6 +49,7 @@ import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/Proje
 import { languageModuleMap } from "~/locales/.server";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { type AtLeastOne } from "~/lib/utils/types";
+import { invariantResponse } from "~/lib/utils/response";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -69,10 +70,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const profile = await getProfileById(sessionUser.id);
   if (profile === null) {
-    throw json(
-      { message: locales.route.error.profileNotFound },
-      { status: 404 }
-    );
+    invariantResponse(false, locales.route.error.profileNotFound, {
+      status: 404,
+    });
   }
 
   const numberOfProfiles = 4;
@@ -483,7 +483,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     sessionUser
   );
 
-  return json({
+  return {
     communityCounter,
     profiles,
     organizations,
@@ -497,7 +497,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     upcomingCanceledEvents,
     locales,
     language,
-  });
+  };
 };
 
 function getDataForExternalTeasers() {

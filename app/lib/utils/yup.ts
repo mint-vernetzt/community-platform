@@ -1,4 +1,3 @@
-import { json } from "@remix-run/server-runtime";
 import { format } from "date-fns";
 import type {
   AnyObject,
@@ -9,6 +8,7 @@ import type {
   TestContext,
 } from "yup";
 import { ValidationError, mixed, number, string } from "yup";
+import { invariantResponse } from "./response";
 
 type Error = {
   type: string;
@@ -344,7 +344,7 @@ export async function getFormDataValidationResultOrThrow<
     data = result.data;
   } catch (error) {
     console.error(error);
-    throw json({ message: "Validation failed" }, { status: 400 });
+    invariantResponse(false, "Validation failed", { status: 400 });
   }
   return { errors, data };
 }

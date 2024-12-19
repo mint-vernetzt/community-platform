@@ -2,7 +2,7 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { List } from "@mint-vernetzt/components/src/organisms/List";
 import { Video } from "@mint-vernetzt/components/src/organisms/Video";
-import { type LoaderFunctionArgs, json } from "@remix-run/node";
+import { type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
@@ -10,7 +10,6 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-
 import { Avatar as AvatarIcon } from "~/components-next/Avatar";
 import { Envelope } from "~/components-next/icons/Envelope";
 import { Facebook } from "~/components-next/icons/Facebook";
@@ -24,34 +23,20 @@ import { TikTok } from "~/components-next/icons/TikTok";
 import { Twitter } from "~/components-next/icons/Twitter";
 import { Xing } from "~/components-next/icons/Xing";
 import { YouTube } from "~/components-next/icons/YouTube";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
-
-const i18nNS = [
-  "routes-project-detail-about",
-  "datasets-formats",
-  "datasets-disciplines",
-  "datasets-projectTargetGroups",
-  "datasets-specialTargetGroups",
-  "datasets-organizationTypes",
-] as const;
-
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const locale = await detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/detail/about"];
 
   const { authClient } = createAuthClient(request);
 
   // check slug exists (throw bad request if not)
   invariantResponse(
     params.slug !== undefined,
-    t("error.invariant.invalidRoute"),
+    locales.route.error.invariant.invalidRoute,
     {
       status: 400,
     }
@@ -95,6 +80,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
       disciplines: {
         select: {
           discipline: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+      additionalDisciplines: {
+        select: {
+          additionalDiscipline: {
             select: {
               slug: true,
             },
@@ -175,7 +169,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, t("error.invariant.notFound"), {
+  invariantResponse(project !== null, locales.route.error.invariant.notFound, {
     status: 404,
   });
 
@@ -263,16 +257,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     responsibleOrganizations,
   };
 
-  return json({ project: enhancedProject });
+  return { project: enhancedProject, locales };
 };
 
 function About() {
   const loaderData = useLoaderData<typeof loader>();
-  const { t } = useTranslation(i18nNS);
+  const { locales } = loaderData;
 
-  // TODO:
-
-  // Question: Why dont we do this on the server? Is this executed when js is disabled? (Keyword Accessibility)
   const street = `${
     loaderData.project.street !== null ? loaderData.project.street : ""
   } ${
@@ -303,15 +294,24 @@ function About() {
       {loaderData.project.formats.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {t("content.formats")}
+            {locales.route.content.formats}
           </h3>
           <Chip.Container>
             {loaderData.project.formats.map((relation) => {
+              let title;
+              if (relation.format.slug in locales.formats) {
+                type LocaleKey = keyof typeof locales.formats;
+                title =
+                  locales.formats[relation.format.slug as LocaleKey].title;
+              } else {
+                console.error(
+                  `Format ${relation.format.slug} not found in locales`
+                );
+                title = relation.format.slug;
+              }
               return (
                 <Chip key={relation.format.slug} color="primary">
-                  {t(`${relation.format.slug}.title`, {
-                    ns: "datasets-formats",
-                  })}
+                  {title}
                 </Chip>
               );
             })}
@@ -321,7 +321,7 @@ function About() {
       {loaderData.project.furtherFormats.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {t("content.furtherFormats")}
+            {locales.route.content.furtherFormats}
           </h3>
           <Chip.Container>
             {loaderData.project.furtherFormats.map((furtherFormat) => {
@@ -334,28 +334,67 @@ function About() {
           </Chip.Container>
         </div>
       )}
-      {loaderData.project.disciplines.length > 0 && (
+      {(loaderData.project.disciplines.length > 0 ||
+        loaderData.project.additionalDisciplines.length > 0) && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {t("content.disciplines")}
+            {locales.route.content.disciplines}
           </h3>
           <Chip.Container>
-            {loaderData.project.disciplines.map((relation) => {
-              return (
-                <Chip key={relation.discipline.slug} color="primary">
-                  {t(`${relation.discipline.slug}.title`, {
-                    ns: "datasets-disciplines",
-                  })}
-                </Chip>
-              );
-            })}
+            {loaderData.project.disciplines.length > 0 &&
+              loaderData.project.disciplines.map((relation) => {
+                let title;
+                if (relation.discipline.slug in locales.disciplines) {
+                  type LocaleKey = keyof typeof locales.disciplines;
+                  title =
+                    locales.disciplines[relation.discipline.slug as LocaleKey]
+                      .title;
+                } else {
+                  console.error(
+                    `Discipline ${relation.discipline.slug} not found in locales`
+                  );
+                  title = relation.discipline.slug;
+                }
+                return (
+                  <Chip key={relation.discipline.slug} color="primary">
+                    {title}
+                  </Chip>
+                );
+              })}
+            {loaderData.project.additionalDisciplines.length > 0 &&
+              loaderData.project.additionalDisciplines.map((relation) => {
+                let title;
+                if (
+                  relation.additionalDiscipline.slug in
+                  locales.additionalDisciplines
+                ) {
+                  type LocaleKey = keyof typeof locales.additionalDisciplines;
+                  title =
+                    locales.additionalDisciplines[
+                      relation.additionalDiscipline.slug as LocaleKey
+                    ].title;
+                } else {
+                  console.error(
+                    `Additional discipline ${relation.additionalDiscipline.slug} not found in locales`
+                  );
+                  title = relation.additionalDiscipline.slug;
+                }
+                return (
+                  <Chip
+                    key={relation.additionalDiscipline.slug}
+                    color="primary"
+                  >
+                    {title}
+                  </Chip>
+                );
+              })}
           </Chip.Container>
         </div>
       )}
       {loaderData.project.furtherDisciplines.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {t("content.furtherDisciplines")}
+            {locales.route.content.furtherDisciplines}
           </h3>
           <div className="mv-flex mv-flex-wrap mv-gap-2">
             <ul className="mv-list-disc mv-list-inside mv-font-normal mv-text-neutral-800 mv-px-2">
@@ -369,15 +408,28 @@ function About() {
       {loaderData.project.projectTargetGroups.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {t("content.projectTargetGroups")}
+            {locales.route.content.projectTargetGroups}
           </h3>
           <Chip.Container>
             {loaderData.project.projectTargetGroups.map((relation) => {
+              let title;
+              if (
+                relation.projectTargetGroup.slug in locales.projectTargetGroups
+              ) {
+                type LocaleKey = keyof typeof locales.projectTargetGroups;
+                title =
+                  locales.projectTargetGroups[
+                    relation.projectTargetGroup.slug as LocaleKey
+                  ].title;
+              } else {
+                console.error(
+                  `Project target group ${relation.projectTargetGroup.slug} not found in locales`
+                );
+                title = relation.projectTargetGroup.slug;
+              }
               return (
                 <Chip key={relation.projectTargetGroup.slug} color="primary">
-                  {t(`${relation.projectTargetGroup.slug}.title`, {
-                    ns: "datasets-projectTargetGroups",
-                  })}
+                  {title}
                 </Chip>
               );
             })}
@@ -387,15 +439,28 @@ function About() {
       {loaderData.project.specialTargetGroups.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {t("content.specialTargetGroups")}
+            {locales.route.content.specialTargetGroups}
           </h3>
           <Chip.Container>
             {loaderData.project.specialTargetGroups.map((relation) => {
+              let title;
+              if (
+                relation.specialTargetGroup.slug in locales.specialTargetGroups
+              ) {
+                type LocaleKey = keyof typeof locales.specialTargetGroups;
+                title =
+                  locales.specialTargetGroups[
+                    relation.specialTargetGroup.slug as LocaleKey
+                  ].title;
+              } else {
+                console.error(
+                  `Focus ${relation.specialTargetGroup.slug} not found in locales`
+                );
+                title = relation.specialTargetGroup.slug;
+              }
               return (
                 <Chip key={relation.specialTargetGroup.slug} color="primary">
-                  {t(`${relation.specialTargetGroup.slug}.title`, {
-                    ns: "datasets-specialTargetGroups",
-                  })}
+                  {title}
                 </Chip>
               );
             })}
@@ -405,7 +470,7 @@ function About() {
       {loaderData.project.targetGroupAdditions !== null && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {t("content.targetGroupAdditions")}
+            {locales.route.content.targetGroupAdditions}
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.targetGroupAdditions}
@@ -415,7 +480,7 @@ function About() {
       {loaderData.project.participantLimit !== null && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {t("content.participantLimit")}
+            {locales.route.content.participantLimit}
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.participantLimit}
@@ -425,7 +490,7 @@ function About() {
       {loaderData.project.areas.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {t("content.areas")}
+            {locales.route.content.areas}
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.areas
@@ -442,7 +507,7 @@ function About() {
         loaderData.project.hints !== null) && (
         <>
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {t("content.furtherDescription")}
+            {locales.route.content.furtherDescription}
           </h2>
           {/* only further description */}
           {loaderData.project.furtherDescription !== null &&
@@ -456,7 +521,7 @@ function About() {
           {loaderData.project.idea !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.idea")}
+                {locales.route.content.idea}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -467,7 +532,7 @@ function About() {
           {loaderData.project.goals !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.goals")}
+                {locales.route.content.goals}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -478,7 +543,7 @@ function About() {
           {loaderData.project.implementation !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.implementation")}
+                {locales.route.content.implementation}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -489,7 +554,7 @@ function About() {
           {loaderData.project.targeting !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.targeting")}
+                {locales.route.content.targeting}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -500,7 +565,7 @@ function About() {
           {loaderData.project.hints !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {t("content.hints")}
+                {locales.route.content.hints}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -517,7 +582,7 @@ function About() {
               loaderData.project.hints !== null) && (
               <div className="mv-flex mv-flex-col mv-gap-4">
                 <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                  {t("content.furtherDescription2")}
+                  {locales.route.content.furtherDescription2}
                 </h3>
                 <RichText
                   additionalClassNames="mv-text-lg"
@@ -528,7 +593,7 @@ function About() {
         </>
       )}
       {loaderData.project.video !== null && (
-        <Video src={loaderData.project.video}>
+        <Video src={loaderData.project.video} locales={locales}>
           {loaderData.project.videoSubline !== null && (
             <Video.Subline>{loaderData.project.videoSubline}</Video.Subline>
           )}
@@ -537,7 +602,7 @@ function About() {
       {loaderData.project.teamMembers.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-2">
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {t("content.team")}
+            {locales.route.content.team}
           </h2>
           <List maxColumns={2}>
             {loaderData.project.teamMembers.map((relation) => {
@@ -569,7 +634,7 @@ function About() {
       {loaderData.project.responsibleOrganizations.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-2">
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {t("content.responsibleOrganizations")}
+            {locales.route.content.responsibleOrganizations}
           </h2>
           <List maxColumns={2}>
             {loaderData.project.responsibleOrganizations.map((relation) => {
@@ -587,12 +652,24 @@ function About() {
                       <List.Item.Subtitle>
                         {relation.organization.types
                           .map((relation) => {
-                            return t(
-                              `${relation.organizationType.slug}.title`,
-                              {
-                                ns: "datasets-organizationTypes",
-                              }
-                            );
+                            let title;
+                            if (
+                              relation.organizationType.slug in
+                              locales.organizationTypes
+                            ) {
+                              type LocaleKey =
+                                keyof typeof locales.organizationTypes;
+                              title =
+                                locales.organizationTypes[
+                                  relation.organizationType.slug as LocaleKey
+                                ].title;
+                            } else {
+                              console.error(
+                                `Organization type ${relation.organizationType.slug} not found in locales`
+                              );
+                              title = relation.organizationType.slug;
+                            }
+                            return title;
                           })
                           .join(", ")}
                       </List.Item.Subtitle>

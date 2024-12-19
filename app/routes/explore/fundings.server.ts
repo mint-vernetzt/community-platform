@@ -3,6 +3,12 @@ import { type FilterKey, type GetFundingsSchema } from "./fundings";
 import { json } from "@remix-run/server-runtime";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type languageModuleMap } from "~/locales/.server";
+
+export type ExploreFundingsLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof supportedCookieLanguages
+>]["explore/fundings"];
 
 export function getKeys(key: FilterKey) {
   let singularKey;

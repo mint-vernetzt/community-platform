@@ -1,12 +1,11 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { type LoaderFunctionArgs, json } from "@remix-run/node";
+import { type LoaderFunctionArgs } from "@remix-run/node";
 import {
   Link,
   useLoaderData,
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { FundingCard } from "~/components-next/FundingCard";
 import {
   countSearchedFundings,
@@ -14,11 +13,8 @@ import {
   getTakeParam,
   searchFundingsViaLike,
 } from "./utils.server";
-
-const i18nNS = ["routes-search-fundings", "routes-explore-fundings"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/i18n.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -31,16 +27,20 @@ export async function loader(args: LoaderFunctionArgs) {
   const fundings = await searchFundingsViaLike(searchQuery, take);
   const fundingsCount = await countSearchedFundings(searchQuery);
 
-  return json({
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["search/fundings"];
+
+  return {
     fundings,
     count: fundingsCount,
     pagination: { page, itemsPerPage },
-  });
+    locales,
+  };
 }
 
 function SearchFundings() {
-  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const [searchParams] = useSearchParams();
 
   const navigation = useNavigation();
@@ -56,7 +56,11 @@ function SearchFundings() {
             <FundingCard.Container>
               {loaderData.fundings.map((funding) => {
                 return (
-                  <FundingCard key={funding.url} url={funding.url}>
+                  <FundingCard
+                    key={funding.url}
+                    url={funding.url}
+                    locales={locales}
+                  >
                     <FundingCard.Subtitle>
                       {funding.types
                         .map((relation) => {
@@ -69,20 +73,27 @@ function SearchFundings() {
                       items={funding.regions.map((relation) => {
                         return relation.area.name;
                       })}
+                      locales={locales}
                     >
                       <FundingCard.Category.Title>
-                        {t("card.region")}
+                        {locales.card.region}
                       </FundingCard.Category.Title>
                     </FundingCard.Category>
-                    <FundingCard.Category items={funding.sourceEntities}>
+                    <FundingCard.Category
+                      items={funding.sourceEntities}
+                      locales={locales}
+                    >
                       <FundingCard.Category.Title>
-                        {t("card.eligibleEntity")}
+                        {locales.card.eligibleEntity}
                       </FundingCard.Category.Title>
                     </FundingCard.Category>
 
-                    <FundingCard.Category items={funding.sourceAreas}>
+                    <FundingCard.Category
+                      items={funding.sourceAreas}
+                      locales={locales}
+                    >
                       <FundingCard.Category.Title>
-                        {t("card.area")}
+                        {locales.card.area}
                       </FundingCard.Category.Title>
                     </FundingCard.Category>
                   </FundingCard>
@@ -103,14 +114,14 @@ function SearchFundings() {
                     loading={navigation.state === "loading"}
                     disabled={navigation.state === "loading"}
                   >
-                    {t("more")}
+                    {locales.more}
                   </Button>
                 </Link>
               </div>
             )}
           </>
         ) : (
-          <p className="text-center text-primary">{t("empty")}</p>
+          <p className="text-center text-primary">{locales.empty}</p>
         )}
       </section>
     </>
