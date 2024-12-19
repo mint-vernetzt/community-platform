@@ -1,5 +1,11 @@
 {
+  "error": {
+    "notFound": "Organization or organization visibility not found",
+    "invalidRoute": "Invalid route",
+    "updateFailed": "Data could not be saved. Please try again or contact support"
+  },
   "content": {
+    "success": "Data saved!",
     "contact": {
       "headline": "Name and contact",
       "name": {

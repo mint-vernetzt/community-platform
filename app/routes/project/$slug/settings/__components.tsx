@@ -315,7 +315,7 @@ function ButtonSelectInput(props: {
         disabled={disabled === true}
       />
       <label
-        className={`mv-bg-white mv-bg-select-arrow mv-bg-no-repeat mv-bg-[right_0.5rem_center] mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-p-2 mv-pr-12 mv-text-base mv-leading-snug mv-font-semibold group-focus-within:mv-border-blue-400 ${
+        className={`mv-bg-white mv-bg-select-arrow mv-bg-no-repeat mv-bg-[right_0.5rem_center] mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-p-2 mv-pr-12 mv-text-base mv-leading-snug mv-font-semibold group-focus-within/button-select:mv-border-blue-400 ${
           disabled === true ? "mv-text-neutral-300" : "mv-text-neutral-800"
         }`}
         htmlFor={id}
@@ -323,7 +323,7 @@ function ButtonSelectInput(props: {
       >
         {cta}
       </label>
-      <ul className="mv-w-full mv-hidden group-has-[:checked]:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300">
+      <ul className="mv-w-full mv-hidden group-has-[:checked]/button-select:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300">
         {listItems.map((button) => {
           if (React.isValidElement(button)) {
             if (button.type === "button") {
@@ -413,10 +413,10 @@ function ButtonSelect(props: ButtonSelectProps) {
   return (
     <div className="w-full">
       {label}
-      <div className="mv-group mv-flex mv-flex-col mv-w-full">
-        {typeof controls !== "undefined" ? (
+      {typeof controls !== "undefined" ? (
+        <div className="mv-flex mv-flex-col mv-w-full">
           <div className="mv-flex mv-w-full mv-gap-2">
-            <div className="mv-flex w-full mv-flex-col">
+            <div className="mv-group/button-select mv-flex w-full mv-flex-col">
               <ButtonSelectInput
                 id={`expand-${props.id}`}
                 disabled={disabled}
@@ -426,15 +426,17 @@ function ButtonSelect(props: ButtonSelectProps) {
             </div>
             {controls}
           </div>
-        ) : (
+        </div>
+      ) : (
+        <div className="mv-group/button-select mv-flex mv-flex-col mv-w-full">
           <ButtonSelectInput
             id={`expand-${props.id}`}
             disabled={disabled}
             cta={props.cta}
             listItems={listItems}
           />
-        )}
-      </div>
+        </div>
+      )}
       {helperText}
       {error}
     </div>

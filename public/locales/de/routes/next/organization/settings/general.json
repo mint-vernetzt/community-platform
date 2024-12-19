@@ -1,5 +1,11 @@
 {
+  "error": {
+    "notFound": "Organisation oder Sichtbarkeit der Organisation nicht gefunden",
+    "invalidRoute": "Ungültige Route",
+    "updateFailed": "Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support"
+  },
   "content": {
+    "success": "Daten gespeichert!",
     "contact": {
       "headline": "Name und Kontakt",
       "name": {
