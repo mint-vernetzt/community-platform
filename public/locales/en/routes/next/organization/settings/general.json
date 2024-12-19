@@ -5,6 +5,7 @@
     "updateFailed": "Data could not be saved. Please try again or contact support"
   },
   "content": {
+    "back": "Back to organisation",
     "success": "Data saved!",
     "contact": {
       "headline": "Name and contact",

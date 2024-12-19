@@ -5,6 +5,7 @@
     "updateFailed": "Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support"
   },
   "content": {
+    "back": "Zurück zur Organisation",
     "success": "Daten gespeichert!",
     "contact": {
       "headline": "Name und Kontakt",
