@@ -7,7 +7,7 @@ import type {
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import * as Sentry from "@sentry/remix";
-import { isbot } from "isbot";
+import * as isbotModule from "isbot";
 import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
 import { getEnv, init } from "./env.server";
@@ -26,19 +26,11 @@ Sentry.init({
 
 export function handleError(
   error: unknown,
-  { request }: LoaderFunctionArgs | ActionFunctionArgs
-): void {
-  // Skip capturing if the request is aborted as Remix docs suggest
-  // Ref: https://remix.run/docs/en/main/file-conventions/entry.server#handleerror
-  if (request.signal.aborted) {
-    return;
-  }
-  if (error instanceof Error) {
-    console.error(error.stack);
+  { request, params, context }: LoaderFunctionArgs | ActionFunctionArgs
+) {
+  if (!request.signal.aborted) {
+    console.error({ error });
     void Sentry.captureRemixServerException(error, "remix.server", request);
-  } else {
-    console.error(error);
-    Sentry.captureException(error);
   }
 }
 
@@ -52,7 +44,10 @@ export default async function handleRequest(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadContext: AppLoadContext
 ) {
-  return isbot(request.headers.get("user-agent"))
+  let prohibitOutOfOrderStreaming =
+    isBotRequest(request.headers.get("user-agent")) || remixContext.isSpaMode;
+
+  return prohibitOutOfOrderStreaming
     ? handleBotRequest(
         request,
         responseStatusCode,
@@ -65,6 +60,16 @@ export default async function handleRequest(
         responseHeaders,
         remixContext
       );
+}
+
+function isBotRequest(userAgent: string | null) {
+  if (!userAgent) {
+    return false;
+  }
+  if ("isbot" in isbotModule && typeof isbotModule.isbot === "function") {
+    return isbotModule.isbot(userAgent);
+  }
+  return false;
 }
 
 function handleBotRequest(
@@ -104,6 +109,7 @@ function handleBotRequest(
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
             console.error(error);
+            Sentry.captureException(error);
           }
         },
       }
@@ -150,6 +156,7 @@ function handleBrowserRequest(
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
             console.error(error);
+            Sentry.captureException(error);
           }
         },
       }
