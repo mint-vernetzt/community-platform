@@ -181,7 +181,7 @@ export default function Index() {
                 </div>
                 <h1 className="mb-8">{locales.content.headline}</h1>
 
-                {loginError !== null ? (
+                {loginError !== null && loginError !== undefined ? (
                   <Errors className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md">
                     {"supportMail" in loginError && "type" in loginError
                       ? insertComponentsIntoLocale(

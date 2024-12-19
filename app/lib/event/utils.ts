@@ -43,11 +43,11 @@ export function combineEventsSortChronologically<
 }
 
 function reachedParticipateDeadline(event: {
-  participationUntil: string;
-  participationFrom: string;
+  participationUntil: Date;
+  participationFrom: Date;
 }) {
-  const participationUntil = new Date(event.participationUntil).getTime();
-  const participationFrom = new Date(event.participationFrom).getTime();
+  const participationUntil = event.participationUntil.getTime();
+  const participationFrom = event.participationFrom.getTime();
   const now = Date.now();
   return now > participationUntil || now < participationFrom;
 }
@@ -63,8 +63,8 @@ function reachedParticipantLimit(
 }
 
 export function canUserParticipate(event: {
-  participationFrom: string;
-  participationUntil: string;
+  participationFrom: Date;
+  participationUntil: Date;
   participantLimit: number | null;
   published: boolean;
   canceled: boolean;
@@ -92,8 +92,8 @@ export function canUserParticipate(event: {
 }
 
 export function canUserBeAddedToWaitingList(event: {
-  participationFrom: string;
-  participationUntil: string;
+  participationFrom: Date;
+  participationUntil: Date;
   participantLimit: number | null;
   published: boolean;
   canceled: boolean;

@@ -103,8 +103,8 @@ function EventListItemContent(props: {
     subline: string | null;
     description: string | null;
     stage: { slug: string } | null;
-    startTime: string;
-    endTime: string;
+    startTime: Date;
+    endTime: Date;
     participantLimit: number | null;
     _count: {
       participants: number;

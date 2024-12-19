@@ -2,10 +2,13 @@ import { vitePlugin as remix } from "@remix-run/dev";
 import { createRoutesFromFolders } from "@remix-run/v1-route-convention";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import { installGlobals } from "@remix-run/node";
 import { envOnlyMacros } from "vite-env-only";
 
-installGlobals();
+declare module "@remix-run/node" {
+  interface Future {
+    v3_singleFetch: true;
+  }
+}
 
 export default defineConfig({
   server: {
@@ -24,7 +27,7 @@ export default defineConfig({
   plugins: [
     remix({
       future: {
-        // TODO: Add future flags
+        v3_singleFetch: true,
       },
       ignoredRouteFiles: ["**/*"],
       routes(defineRoutes) {

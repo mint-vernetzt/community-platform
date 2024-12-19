@@ -49,8 +49,8 @@ export interface AutocompleteProps {
           participants: number;
           waitingList: number;
         };
-        startTime: string;
-        endTime: string;
+        startTime: Date;
+        endTime: Date;
         background: string;
         blurredBackground?: string;
       })[];

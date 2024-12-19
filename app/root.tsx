@@ -3,7 +3,7 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { data, redirect } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   Link,
@@ -157,7 +157,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const mode = deriveMode(user);
 
-  return json(
+  return data(
     {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
