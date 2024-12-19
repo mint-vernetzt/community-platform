@@ -1545,7 +1545,7 @@ export function VisibilityCheckbox(props: VisibilityCheckboxProps) {
   const { hidden, id } = props;
 
   return (
-    <div hidden={hidden} className="mv-group">
+    <div hidden={hidden} className="mv-group/visibility">
       {/* <div hidden={hidden} className="ml-2 toggle-checkbox"> */}
       <input {...props} className="mv-absolute mv-w-0 mv-h-0 mv-opacity-0" />
       <label
@@ -1559,7 +1559,7 @@ export function VisibilityCheckbox(props: VisibilityCheckboxProps) {
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="group-has-[:checked]:mv-hidden"
+          className="group-has-[:checked]/visibility:mv-hidden"
         >
           <path
             fillRule="evenodd"
@@ -1575,7 +1575,7 @@ export function VisibilityCheckbox(props: VisibilityCheckboxProps) {
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="mv-hidden group-has-[:checked]:mv-block"
+          className="mv-hidden group-has-[:checked]/visibility:mv-block"
         >
           <path
             fillRule="evenodd"
