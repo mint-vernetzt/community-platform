@@ -29,6 +29,7 @@ export default defineConfig({
       future: {
         v3_singleFetch: true,
         v3_fetcherPersist: true,
+        v3_relativeSplatPath: true,
       },
       ignoredRouteFiles: ["**/*"],
       routes(defineRoutes) {
