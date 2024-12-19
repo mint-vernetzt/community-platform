@@ -1,14 +1,20 @@
-import { Link } from "./../../index";
+import { Link } from "./../molecules/Link";
 import classNames from "classnames";
-import { useTranslation } from "react-i18next";
-import LocaleSwitch from "./buttons/LocaleSwitch";
+import { LocaleSwitch } from "./buttons/LocaleSwitch";
+import { defaultLanguage, type supportedCookieLanguages } from "~/i18n.shared";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type RootLocales } from "~/root.server";
 
-function Footer(props: { isSettings?: boolean }) {
+function Footer(props: {
+  isSettings?: boolean;
+  currentLanguage?: ArrayElement<typeof supportedCookieLanguages>;
+  locales: RootLocales;
+}) {
+  const { locales } = props;
   const classes = classNames(
     "mv-shadow-md",
     props.isSettings && "hidden md:block"
   );
-  const { t } = useTranslation(["organisms/footer"]);
 
   return (
     <div className={classes}>
@@ -17,13 +23,13 @@ function Footer(props: { isSettings?: boolean }) {
           <hr className="mv-hidden lg:mv-block lg:mv-order-2" />
           <div className="lg:mv-order-3 mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl lg:mv-py-6 lg:mv-flex ">
             <div className="mv-font-bold mv-hidden lg:mv-block lg:mv-w-3/12">
-              {t("meta.copyright")}
+              {locales.footer.meta.copyright}
             </div>
             <div className="mv-pb-4 mv-pt-8 lg:mv-py-0 lg:mv-w-6/12">
               <ul className="mv-flex mv-flex-col lg:mv-flex-row lg:mv-justify-center mv-gap-4 lg:mv-gap-6">
                 <li>
                   <Link as="a" to="/imprint" isExternal>
-                    {t("meta.imprint")}
+                    {locales.footer.meta.imprint}
                   </Link>
                 </li>
                 <li>
@@ -33,7 +39,7 @@ function Footer(props: { isSettings?: boolean }) {
                     className=""
                     isExternal
                   >
-                    {t("meta.privacyPolicy")}
+                    {locales.footer.meta.privacyPolicy}
                   </Link>
                 </li>
                 <li>
@@ -43,7 +49,7 @@ function Footer(props: { isSettings?: boolean }) {
                     className=""
                     isExternal
                   >
-                    {t("meta.termsOfUse")}
+                    {locales.footer.meta.termsOfUse}
                   </Link>
                 </li>
                 <li>
@@ -53,7 +59,7 @@ function Footer(props: { isSettings?: boolean }) {
                     className=""
                     isExternal
                   >
-                    {t("meta.contact")}
+                    {locales.footer.meta.contact}
                   </Link>
                 </li>
               </ul>
@@ -164,10 +170,7 @@ function Footer(props: { isSettings?: boolean }) {
                   </span>
                 </Link>
                 <span className="mv-block mv-text-sm mv-text-primary mv-font-semibold">
-                  {t(
-                    "description",
-                    "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland."
-                  )}
+                  {locales.footer.description}
                 </span>
               </div>
             </div>
@@ -175,34 +178,34 @@ function Footer(props: { isSettings?: boolean }) {
             <div className="mv-py-4 mv-flex mv-flex-col mv-gap-4 lg:mv-py-0 lg:mv-pt-3 lg:mv-flex-row lg:mv-gap-16">
               <div className="">
                 <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
-                  {t("discover.title")}
+                  {locales.footer.discover.title}
                 </h5>
                 <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                   <li>
                     <Link to="/explore/profiles" className="">
-                      {t("discover.profiles")}
+                      {locales.footer.discover.profiles}
                     </Link>
                   </li>
                   <li>
                     <Link to="/explore/organizations" className="">
-                      {t("discover.organizations")}
+                      {locales.footer.discover.organizations}
                     </Link>
                   </li>
                   <li>
                     <Link to="/explore/events" className="">
-                      {t("discover.events")}
+                      {locales.footer.discover.events}
                     </Link>
                   </li>
                   <li>
                     <Link to="/explore/projects" className="">
-                      {t("discover.projects")}
+                      {locales.footer.discover.projects}
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="">
                 <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
-                  {t("participate.title")}
+                  {locales.footer.participate.title}
                 </h5>
                 <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                   <li>
@@ -211,14 +214,14 @@ function Footer(props: { isSettings?: boolean }) {
                       to="https://github.com/mint-vernetzt/community-platform"
                       isExternal
                     >
-                      {t("participate.github")}
+                      {locales.footer.participate.github}
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="">
                 <h5 className="mv-text-sm mv-text-primary mv-font-semibold mv-mb-4 lg:mv-mb-2">
-                  {t("learnMore.title")}
+                  {locales.footer.learnMore.title}
                 </h5>
                 <ul className="mv-flex mv-flex-col lg:mv-justify-center mv-gap-4 lg:mv-gap-1">
                   <li>
@@ -228,13 +231,15 @@ function Footer(props: { isSettings?: boolean }) {
                       className=""
                       isExternal
                     >
-                      {t("learnMore.website")}
+                      {locales.footer.learnMore.website}
                     </Link>
                   </li>
                 </ul>
               </div>
               <div>
-                <LocaleSwitch />
+                <LocaleSwitch
+                  currentLanguage={props.currentLanguage || defaultLanguage}
+                />
               </div>
             </div>
 
@@ -270,13 +275,13 @@ function Footer(props: { isSettings?: boolean }) {
               </Link>
             </div>
             <div className="mv-font-bold mv-text-xs lg:mv-hidden mv-pt-4 mv-pb-2">
-              {t("meta.copyright")}
+              {locales.footer.meta.copyright}
             </div>
           </div>
         </div>
 
         <div className="mv-py-4 mv-bg-primary-400 mv-text-white mv-text-center mv-text-xs mv-font-semibold">
-          {t("meta.needHelp")}{" "}
+          {locales.footer.meta.needHelp}{" "}
           <Link as="a" to="mailto:support@mint-vernetzt.de">
             support@mint-vernetzt.de
           </Link>
@@ -286,4 +291,4 @@ function Footer(props: { isSettings?: boolean }) {
   );
 }
 
-export default Footer;
+export { Footer };

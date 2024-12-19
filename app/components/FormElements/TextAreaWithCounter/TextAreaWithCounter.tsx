@@ -105,7 +105,7 @@ const TextAreaWithCounter = React.forwardRef(
             </div>
             <div className="flex flex-row">
               <div className="flex-auto">
-                {rte === true && (
+                {rte === true && quillRef.current !== null && (
                   <ClientOnly>
                     {() => {
                       return (

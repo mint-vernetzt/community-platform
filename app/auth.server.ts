@@ -1,100 +1,72 @@
 import type { Profile } from "@prisma/client";
-import { json } from "@remix-run/server-runtime";
+import * as Sentry from "@sentry/remix";
 import {
   createServerClient,
   parseCookieHeader,
   serializeCookieHeader,
 } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { invariantResponse } from "./lib/utils/response";
 import { prismaClient } from "./prisma.server";
-import * as Sentry from "@sentry/remix";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
 const SESSION_NAME = "sb2";
 
 export const createAuthClient = (request: Request) => {
-  if (
-    process.env.SUPABASE_URL !== undefined &&
-    process.env.SUPABASE_ANON_KEY !== undefined
-  ) {
-    const headers = new Headers();
-
-    const authClient = createServerClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() {
-            return parseCookieHeader(request.headers.get("Cookie") ?? "");
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              headers.append(
-                "Set-Cookie",
-                serializeCookieHeader(name, value, options)
-              )
-            );
-          },
+  const headers = new Headers();
+  const authClient = createServerClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return parseCookieHeader(request.headers.get("Cookie") ?? "");
         },
-        cookieOptions: {
-          name: SESSION_NAME,
-          // normally you want this to be `secure: true`
-          // but that doesn't work on localhost for Safari
-          // https://web.dev/when-to-use-local-https/
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          path: "/",
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            headers.append(
+              "Set-Cookie",
+              serializeCookieHeader(name, value, options)
+            )
+          );
         },
-        auth: {
-          flowType: "pkce",
-        },
-      }
-    );
-
-    // Normally i would only return the headers and add them to the response on the caller side
-    // To avoid refactoring i return an empty response with only the updated headers,
-    // so the current code base can persist (adding additional headers via response.headers)
-    const response = new Response(null, {
-      headers,
-    });
-
-    return { authClient, response, headers };
-  } else {
-    throw json(
-      {
-        message:
-          "Could not find SUPABASE_URL or SUPABASE_ANON_KEY in the .env file.",
       },
-      { status: 500 }
-    );
-  }
+      cookieOptions: {
+        name: SESSION_NAME,
+        // normally you want this to be `secure: true`
+        // but that doesn't work on localhost for Safari
+        // https://web.dev/when-to-use-local-https/
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+      },
+      auth: {
+        flowType: "pkce",
+      },
+    }
+  );
+  // Normally i would only return the headers and add them to the response on the caller side
+  // To avoid refactoring i return an empty response with only the updated headers,
+  // so the current code base can persist (adding additional headers via response.headers)
+  const response = new Response(null, {
+    headers,
+  });
+  return { authClient, response, headers };
 };
 
 export const createAdminAuthClient = () => {
-  if (
-    process.env.SUPABASE_URL !== undefined &&
-    process.env.SERVICE_ROLE_KEY !== undefined
-  ) {
-    const adminAuthClient = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SERVICE_ROLE_KEY,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-          flowType: "pkce",
-        },
-      }
-    );
-    return adminAuthClient;
-  }
-  throw json(
+  const adminAuthClient = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SERVICE_ROLE_KEY,
     {
-      message:
-        "Could not find SUPABASE_URL or SERVICE_ROLE_KEY in the .env file.",
-    },
-    { status: 500 }
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        flowType: "pkce",
+      },
+    }
   );
+  return adminAuthClient;
 };
 
 export const signUp = async (
@@ -166,7 +138,7 @@ export const getSession = async (authClient: SupabaseClient) => {
     const { data } = await authClient.auth.getSession();
     session = data.session;
   } catch (error) {
-    console.error(error);
+    console.error({ error });
     Sentry.captureException(error);
   }
   if (session !== undefined && session !== null) {
@@ -178,12 +150,8 @@ export const getSession = async (authClient: SupabaseClient) => {
 export const getSessionOrThrow = async (authClient: SupabaseClient) => {
   const session = await getSession(authClient);
   if (session === null) {
-    throw json(
-      {
-        message: "No session found",
-      },
-      { status: 401 }
-    );
+    console.error("No session found");
+    invariantResponse(false, "No session found", { status: 401 });
   }
   return session;
 };
@@ -215,12 +183,10 @@ export const getSessionUser = async (authClient: SupabaseClient) => {
 export const getSessionUserOrThrow = async (authClient: SupabaseClient) => {
   const result = await getSessionUser(authClient);
   if (result === null) {
-    throw json(
-      {
-        message: "No session or session user found",
-      },
-      { status: 401 }
-    );
+    console.error("No session or session user found");
+    invariantResponse(false, "No session or session user found", {
+      status: 401,
+    });
   }
   return result;
 };

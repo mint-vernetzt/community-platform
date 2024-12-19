@@ -1,13 +1,11 @@
-import {
-  Avatar,
-  Button,
-  CircleButton,
-  Controls,
-  Image,
-  type ImageProps,
-  Status,
-} from "./../../index";
-import Header from "./Header";
+import { Avatar } from "./../molecules/Avatar";
+import { Button } from "./../molecules/Button";
+import { CircleButton } from "./../molecules/CircleButton";
+import { Controls } from "./../organisms/containers/Controls";
+import { Image, type ImageProps } from "./../molecules/Image";
+import { Status } from "./../molecules/Status";
+
+import { Header } from "./Header";
 
 type HeaderPlaygroundProps = {
   status: boolean;

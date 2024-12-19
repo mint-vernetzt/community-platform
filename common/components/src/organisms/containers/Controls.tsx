@@ -27,4 +27,4 @@ function Controls(props: ControlsProps) {
   return <div className={classes}>{children}</div>;
 }
 
-export default Controls;
+export { Controls };

@@ -1,13 +1,10 @@
-import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Link,
   useLoaderData,
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import {
@@ -21,17 +18,17 @@ import {
   getTakeParam,
   searchProfilesViaLike,
 } from "./utils.server";
-// import styles from "../../../common/design/styles/styles.css";
-
-// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
-
-const i18nNS = ["routes/search/profiles", "datasets/offers"];
-export const handle = {
-  i18n: i18nNS,
-};
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["search/profiles"];
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { take, page, itemsPerPage } = getTakeParam(request);
@@ -139,7 +136,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     enhancedProfiles.push(imageEnhancedProfile);
   }
 
-  return json({
+  return {
     profiles: enhancedProfiles,
     count: profilesCount,
     isLoggedIn: sessionUser !== null,
@@ -147,11 +144,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       page,
       itemsPerPage,
     },
-  });
+    locales,
+  };
 };
 
 export default function Profiles() {
-  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
 
@@ -174,6 +171,7 @@ export default function Profiles() {
                   key={`profile-${profile.id}`}
                   publicAccess={!loaderData.isLoggedIn}
                   profile={profile}
+                  locales={loaderData.locales}
                 />
               );
             })}
@@ -191,14 +189,16 @@ export default function Profiles() {
                   loading={navigation.state === "loading"}
                   disabled={navigation.state === "loading"}
                 >
-                  {t("more")}
+                  {loaderData.locales.route.more}
                 </Button>
               </Link>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">{t("empty")}</p>
+        <p className="text-center text-primary">
+          {loaderData.locales.route.empty}
+        </p>
       )}
     </section>
   );

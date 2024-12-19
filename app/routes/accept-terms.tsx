@@ -1,10 +1,9 @@
 import {
-  json,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "@remix-run/node";
-import { useSearchParams, useSubmit } from "@remix-run/react";
+import { useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import React from "react";
 import { makeDomainFunction } from "domain-functions";
@@ -13,15 +12,10 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { prismaClient } from "~/prisma.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { Trans, useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
-
-const i18nNS = ["routes/accept-terms"];
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
+import { type AcceptTermsLocales } from "./accept-terms.server";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 const schema = z.object({
   termsAccepted: z.boolean(),
@@ -43,13 +37,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
       if (profile.termsAccepted === true) {
         return redirect("/dashboard");
       }
-      return json({ profile });
+      const language = await detectLanguage(request);
+      const locales = languageModuleMap[language]["accept-terms"];
+      return { profile, locales };
     }
   }
   return redirect("/");
 };
 
-const createMutation = (t: TFunction) => {
+const createMutation = (locales: AcceptTermsLocales) => {
   return makeDomainFunction(
     schema,
     z.object({ authClient: z.unknown() })
@@ -58,13 +54,13 @@ const createMutation = (t: TFunction) => {
     const { authClient } = environment;
 
     if (!termsAccepted) {
-      throw t("error.notAccepted");
+      throw locales.error.notAccepted;
     }
     // TODO: can this type assertion be removed and proofen by code?
     const sessionUser = await getSessionUser(authClient as SupabaseClient);
 
     if (sessionUser === null) {
-      throw t("error.unauthorized");
+      throw locales.error.unauthorized;
     }
     await prismaClient.profile.update({
       where: { id: sessionUser.id },
@@ -78,14 +74,14 @@ const createMutation = (t: TFunction) => {
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["accept-terms"];
   const { authClient } = createAuthClient(request);
 
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(t),
+    mutation: createMutation(locales),
     environment: { authClient: authClient },
   });
 
@@ -96,6 +92,7 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 function AcceptTerms() {
+  const { locales } = useLoaderData<typeof loader>();
   const [urlSearchParams] = useSearchParams();
   const redirectTo = urlSearchParams.get("redirect_to");
 
@@ -111,13 +108,11 @@ function AcceptTerms() {
     }
   };
 
-  const { t } = useTranslation(i18nNS);
-
   return (
     <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative pt-20 pb-44">
       <div className="flex -mx-4 justify-center">
         <div className="@md:mv-shrink-0 @md:mv-grow-0 @md:mv-basis-1/2 px-4 pt-10 @lg:mv-pt-0">
-          <h1 className="mb-4">{t("content.headline")}</h1>
+          <h1 className="mb-4">{locales.content.headline}</h1>
           <RemixFormsForm
             method="post"
             schema={schema}
@@ -137,15 +132,14 @@ function AcceptTerms() {
                         {({ Errors }) => {
                           const ForwardRefComponent = React.forwardRef<
                             HTMLInputElement,
-                            JSX.IntrinsicElements["input"]
+                            React.DetailedHTMLProps<
+                              React.InputHTMLAttributes<HTMLInputElement>,
+                              HTMLInputElement
+                            >
                           >((props, ref) => {
                             return (
                               <>
-                                <input
-                                  // TODO: can this type assertion be removed and proofen by code?
-                                  ref={ref as React.RefObject<HTMLInputElement>}
-                                  {...props}
-                                />
+                                <input ref={ref} {...props} />
                               </>
                             );
                           });
@@ -162,10 +156,9 @@ function AcceptTerms() {
                         }}
                       </Field>
                       <span className="label-text">
-                        <Trans
-                          i18nKey="content.confirmation"
-                          ns={i18nNS}
-                          components={[
+                        {insertComponentsIntoLocale(
+                          locales.content.confirmation,
+                          [
                             <a
                               key="terms-of-use-confirmation"
                               href="https://mint-vernetzt.de/terms-of-use-community-platform"
@@ -184,15 +177,15 @@ function AcceptTerms() {
                             >
                               {" "}
                             </a>,
-                          ]}
-                        />
+                          ]
+                        )}
                       </span>
                     </label>
                   </div>
                 </div>
                 <div className="mb-8">
                   <button type="submit" className="btn btn-primary">
-                    {t("content.submit")}
+                    {locales.content.submit}
                   </button>
                 </div>
                 <Errors />

@@ -1,5 +1,5 @@
 import type { Profile } from "@prisma/client";
-import { json } from "@remix-run/server-runtime";
+import { invariantResponse } from "./lib/utils/response";
 import type { EntitySubset } from "./lib/utils/types";
 import { prismaClient } from "./prisma.server";
 
@@ -40,7 +40,10 @@ export async function filterProfileByVisibility<
     },
   });
   if (profileVisibility === null) {
-    throw json({ message: "Profile visibilities not found." }, { status: 404 });
+    console.error(`Profile visibilities for profile ${profile.id} not found.`);
+    invariantResponse(false, "Profile visibilities not found.", {
+      status: 404,
+    });
   }
 
   for (const key in profile) {

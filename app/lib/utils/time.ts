@@ -1,3 +1,6 @@
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type ArrayElement } from "./types";
+
 // @ts-ignore
 const transformParts = (parts: DateTimeRangeFormatPart[]): string => {
   const mapped = parts
@@ -22,7 +25,11 @@ const transformParts = (parts: DateTimeRangeFormatPart[]): string => {
     .replace(/\u202F/g, "\u0020");
 };
 
-export const getDuration = (start: Date, end: Date, language: string) => {
+export const getDuration = (
+  start: Date,
+  end: Date,
+  language: ArrayElement<typeof supportedCookieLanguages>
+) => {
   const formatTimestamp: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "long",
@@ -70,80 +77,10 @@ export const getDuration = (start: Date, end: Date, language: string) => {
     : result;
 };
 
-export function getDurationOLD(
-  startTime: Date,
-  endTime: Date,
-  language: string
-) {
-  let duration: string;
-
-  const formattedStartDate = startTime.toLocaleDateString(language, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-
-  const formattedEndDate = endTime.toLocaleDateString(language, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-
-  const sameYear = startTime.getFullYear() === endTime.getFullYear();
-  const sameMonth = sameYear && startTime.getMonth() === endTime.getMonth();
-  const sameDay = formattedStartDate === formattedEndDate;
-  const sameTime = startTime.getTime() === endTime.getTime();
-
-  if (sameTime) {
-    // 01. Januar 2022 | 12:00 Uhr
-    duration = `${startTime.toLocaleDateString(language, {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    })} | ${startTime.toLocaleTimeString(language, {
-      hour: "2-digit",
-      minute: "2-digit",
-    })} Uhr`;
-  } else if (sameDay) {
-    // 01. Januar 2022 | 12:00 - 14:00 Uhr
-    duration = `${startTime.toLocaleDateString(language, {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    })} | ${startTime.toLocaleTimeString(language, {
-      hour: "2-digit",
-      minute: "2-digit",
-    })} – ${endTime.toLocaleTimeString(language, {
-      hour: "2-digit",
-      minute: "2-digit",
-    })} Uhr`;
-  } else if (sameMonth) {
-    // 01. - 02. Januar 2022
-    duration = `${startTime.toLocaleDateString(language, {
-      day: "2-digit",
-    })}. – ${endTime.toLocaleDateString(language, {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    })}`;
-  } else if (sameYear) {
-    // 01. Jan - 02. Feb 2022
-    duration = `${startTime.toLocaleDateString(language, {
-      day: "2-digit",
-      month: "short",
-    })} – ${formattedEndDate}`;
-  } else {
-    // 01. Jan 2022 - 02. Feb 2023
-    duration = `${formattedStartDate} - ${formattedEndDate}`;
-  }
-
-  return duration;
-}
-
 export function getDateDuration(
   startTime: Date,
   endTime: Date,
-  language: string
+  language: ArrayElement<typeof supportedCookieLanguages>
 ) {
   const formatLong: Intl.DateTimeFormatOptions = {
     year: "numeric",
@@ -166,7 +103,10 @@ export function getDateDuration(
   return transformParts(formatter.formatRangeToParts(startTime, endTime));
 }
 
-export function getFormattedDate(date: Date, language: string) {
+export function getFormattedDate(
+  date: Date,
+  language: ArrayElement<typeof supportedCookieLanguages>
+) {
   return date.toLocaleDateString(language, {
     year: "numeric",
     month: "long",
@@ -177,7 +117,7 @@ export function getFormattedDate(date: Date, language: string) {
 export function getTimeDuration(
   startTime: Date,
   endTime: Date,
-  language: string
+  language: ArrayElement<typeof supportedCookieLanguages>
 ) {
   const format: Intl.DateTimeFormatOptions = {
     hour: "2-digit",

@@ -114,4 +114,4 @@ function Button(
   return element;
 }
 
-export default Button;
+export { Button };

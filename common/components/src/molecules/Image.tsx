@@ -57,7 +57,7 @@ function Image(props: ImageProps) {
                   : "mv-opacity-0 mv-invisible mv-h-0 mv-w-0"
               }`}
             />
-            <noscript>
+            <noscript className="mv-absolute">
               <img
                 src={props.src}
                 alt={props.alt || ""}
@@ -73,4 +73,4 @@ function Image(props: ImageProps) {
   );
 }
 
-export default Image;
+export { Image };

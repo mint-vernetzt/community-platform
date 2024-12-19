@@ -5,8 +5,9 @@ import {
   useForm,
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import { Button, Chip } from "@mint-vernetzt/components";
-import { type LoaderFunctionArgs, json } from "@remix-run/node";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { type LoaderFunctionArgs } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -19,20 +20,22 @@ import {
 import { z } from "zod";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import {
-  Dropdown,
-  Filters,
-  FormControl,
-  ShowFiltersButton,
-  FundingCard,
-} from "./__components";
+import { Dropdown } from "~/components-next/Dropdown";
+import { Filters, ShowFiltersButton } from "~/components-next/Filters";
+import { FormControl } from "~/components-next/FormControl";
+import { FundingCard } from "~/components-next/FundingCard";
 import {
   getFilterCountForSlug,
   getFundingFilterVector,
   getKeys,
 } from "./fundings.server";
-import { Trans, useTranslation } from "react-i18next";
 import { H1 } from "~/components/Heading/Heading";
+import { detectLanguage } from "~/root.server";
+import {
+  decideBetweenSingularOrPlural,
+  insertComponentsIntoLocale,
+} from "~/lib/utils/i18n";
+import { languageModuleMap } from "~/locales/.server";
 
 const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 
@@ -99,6 +102,9 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(submission.status === "success", "Bad request", {
     status: 400,
   });
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["explore/fundings"];
 
   const take = submission.value.page * 12;
 
@@ -390,7 +396,7 @@ export async function loader(args: LoaderFunctionArgs) {
     };
   });
 
-  return json({
+  return {
     fundings,
     fundingTypes: enhancedFundingTypes,
     selectedFundingTypes,
@@ -402,17 +408,11 @@ export async function loader(args: LoaderFunctionArgs) {
     selectedEligibleEntities,
     submission,
     count,
-  } as const);
+    locales,
+  };
 }
 
-const i18nNS = ["routes/explore/fundings"];
-export const handle = {
-  i18n: i18nNS,
-};
-
 function Fundings() {
-  const { t } = useTranslation(i18nNS);
-
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
@@ -426,6 +426,13 @@ function Fundings() {
 
   const filter = fields.filter.getFieldset();
 
+  const currentSortValue = sortValues.find((value) => {
+    return (
+      value ===
+      `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+    );
+  });
+
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
@@ -435,17 +442,16 @@ function Fundings() {
               BETA
             </span>
             <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-              {t("title")}
+              {loaderData.locales.title}
             </H1>
-            <p>{t("intro")}</p>
+            <p>{loaderData.locales.intro}</p>
           </div>
           <div className="mv-p-4 @lg:mv-pr-12 mv-bg-primary-50 mv-rounded-lg mv-text-left mv-flex mv-flex-col mv-gap-2.5">
-            <p className="mv-font-bold">{t("survey.title")}</p>
+            <p className="mv-font-bold">{loaderData.locales.survey.title}</p>
             <p>
-              <Trans
-                ns={i18nNS}
-                i18nKey="survey.description"
-                components={{
+              {insertComponentsIntoLocale(
+                loaderData.locales.survey.description,
+                {
                   link1: (
                     <Link
                       to="mailto:community@mint-vernetzt.de"
@@ -454,8 +460,8 @@ function Fundings() {
                       {" "}
                     </Link>
                   ),
-                }}
-              />
+                }
+              )}
             </p>
           </div>
         </div>
@@ -479,7 +485,9 @@ function Fundings() {
             <input name="showFilters" defaultValue="on" hidden />
           )}
 
-          <ShowFiltersButton>{t("showFiltersLabel")}</ShowFiltersButton>
+          <ShowFiltersButton>
+            {loaderData.locales.showFiltersLabel}
+          </ShowFiltersButton>
           <Filters
             showFilters={searchParams.get(fields.showFilters.name) === "on"}
           >
@@ -487,13 +495,13 @@ function Fundings() {
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
               {...getFieldsetProps(fields.filter)}
-              showMore={t("filter.showMore")}
-              showLess={t("filter.showLess")}
+              showMore={loaderData.locales.filter.showMore}
+              showLess={loaderData.locales.filter.showLess}
               hideAfter={4}
             >
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.type")}
+                  {loaderData.locales.filter.type}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedFundingTypes
@@ -530,7 +538,7 @@ function Fundings() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.area")}
+                  {loaderData.locales.filter.area}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedFundingAreas
@@ -569,7 +577,7 @@ function Fundings() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.region")}
+                  {loaderData.locales.filter.region}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedRegions
@@ -608,7 +616,7 @@ function Fundings() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.eligibleEntity")}
+                  {loaderData.locales.filter.eligibleEntity}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedEligibleEntities
@@ -650,18 +658,19 @@ function Fundings() {
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
-                    {t("filter.sortBy.label")}
+                    {loaderData.locales.filter.sortBy.label}
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
-                    {t(
-                      `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
-                    )}
+                    {
+                      loaderData.locales.filter.sortBy[
+                        currentSortValue || sortValues[0]
+                      ]
+                    }
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
                   {sortValues.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
                     return (
                       <FormControl
                         {...getInputProps(fields.sortBy, {
@@ -672,11 +681,11 @@ function Fundings() {
                         // The Checkbox UI does not rerender when using the delete chips or the reset filter button
                         // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
                         defaultChecked={undefined}
-                        checked={submissionSortValue === sortValue}
+                        checked={currentSortValue === sortValue}
                         readOnly
                       >
                         <FormControl.Label>
-                          {t(`filter.sortBy.${sortValue}`)}
+                          {loaderData.locales.filter.sortBy[sortValue]}
                         </FormControl.Label>
                       </FormControl>
                     );
@@ -685,16 +694,18 @@ function Fundings() {
               </Dropdown>
             </Filters.Fieldset>
             <Filters.ResetButton to={`${location.pathname}`}>
-              {t("filter.reset")}
+              {loaderData.locales.filter.reset}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {t("showNumberOfItems", {
-                count: loaderData.count,
-              })}
+              {decideBetweenSingularOrPlural(
+                loaderData.locales.showNumberOfItems_singular,
+                loaderData.locales.showNumberOfItems_plural,
+                loaderData.count
+              )}
             </Filters.ApplyButton>
           </Filters>
           <noscript>
-            <Button>{t("filter.apply")}</Button>
+            <Button>{loaderData.locales.filter.apply}</Button>
           </noscript>
         </Form>
         <div className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -806,16 +817,26 @@ function Fundings() {
         {loaderData.count > 0 ? (
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.count}</strong>{" "}
-            {t("itemsCountSuffix", { count: loaderData.count })}
+            {decideBetweenSingularOrPlural(
+              loaderData.locales.itemsCountSuffix_one,
+              loaderData.locales.itemsCountSuffix_other,
+              loaderData.count
+            )}
           </p>
         ) : (
-          <p className="text-center text-gray-700 mb-4">{t("empty")}</p>
+          <p className="text-center text-gray-700 mb-4">
+            {loaderData.locales.empty}
+          </p>
         )}
 
         <FundingCard.Container>
           {loaderData.fundings.map((funding) => {
             return (
-              <FundingCard key={funding.url} url={funding.url}>
+              <FundingCard
+                key={funding.url}
+                url={funding.url}
+                locales={loaderData.locales}
+              >
                 <FundingCard.Subtitle>
                   {funding.types
                     .map((relation) => {
@@ -828,20 +849,27 @@ function Fundings() {
                   items={funding.regions.map((relation) => {
                     return relation.area.name;
                   })}
+                  locales={loaderData.locales}
                 >
                   <FundingCard.Category.Title>
-                    {t("card.region")}
+                    {loaderData.locales.card.region}
                   </FundingCard.Category.Title>
                 </FundingCard.Category>
-                <FundingCard.Category items={funding.sourceEntities}>
+                <FundingCard.Category
+                  items={funding.sourceEntities}
+                  locales={loaderData.locales}
+                >
                   <FundingCard.Category.Title>
-                    {t("card.eligibleEntity")}
+                    {loaderData.locales.card.eligibleEntity}
                   </FundingCard.Category.Title>
                 </FundingCard.Category>
 
-                <FundingCard.Category items={funding.sourceAreas}>
+                <FundingCard.Category
+                  items={funding.sourceAreas}
+                  locales={loaderData.locales}
+                >
                   <FundingCard.Category.Title>
-                    {t("card.area")}
+                    {loaderData.locales.card.area}
                   </FundingCard.Category.Title>
                 </FundingCard.Category>
               </FundingCard>
@@ -862,7 +890,7 @@ function Fundings() {
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
-                {t("more")}
+                {loaderData.locales.more}
               </Button>
             </Link>
           </div>

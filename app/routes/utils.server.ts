@@ -1,7 +1,6 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type Organization, type Prisma, type Profile } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { type TFunction } from "i18next";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
@@ -9,6 +8,8 @@ import { searchProfilesSchema } from "~/form-helpers";
 import { SearchProfiles } from "~/lib/utils/searchParams";
 import { getPublicURL } from "~/storage.server";
 import { type Mode } from "~/utils.server";
+import { type OrganizationAdminSettingsLocales } from "./next/organization/$slug/settings/admins.server";
+import { type OrganizationTeamSettingsLocales } from "./next/organization/$slug/settings/team.server";
 
 export async function getProfileCount() {
   return await prismaClient.profile.count();
@@ -240,10 +241,10 @@ export async function searchProfiles(options: {
   searchParams: URLSearchParams;
   idsToExclude?: string[];
   authClient: SupabaseClient;
-  t: TFunction;
+  locales: OrganizationAdminSettingsLocales | OrganizationTeamSettingsLocales;
   mode: Mode;
 }) {
-  const { searchParams, idsToExclude, authClient, t, mode } = options;
+  const { searchParams, idsToExclude, authClient, locales, mode } = options;
   type WhereStatements = (
     | {
         OR: {
@@ -286,7 +287,7 @@ export async function searchProfiles(options: {
   };
 
   const submission = parseWithZod(searchParams, {
-    schema: searchProfilesSchema(t),
+    schema: searchProfilesSchema(locales),
   });
   if (
     submission.status !== "success" ||

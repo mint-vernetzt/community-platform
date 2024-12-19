@@ -1,21 +1,16 @@
 import { parse } from "@conform-to/zod";
-import { json, redirect, type ActionFunctionArgs } from "@remix-run/node";
+import { redirect, type ActionFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getHash,
 } from "../utils.server";
 import { Deep } from "~/lib/utils/searchParams";
-
-const i18nNS = ["routes/project/settings/attachments/edit"];
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
 
 export const documentSchema = z.object({
   id: z.string(),
@@ -65,15 +60,16 @@ export const imageSchema = z.object({
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["project/$slug/settings/attachments/edit"];
 
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
+  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
     status: 400,
   });
 
@@ -121,9 +117,7 @@ export const action = async (args: ActionFunctionArgs) => {
       });
     }
   } else {
-    return json({ status: "error", submission, hash } as const, {
-      status: 400,
-    });
+    return { status: "error", submission, hash };
   }
 
   const redirectUrl = new URL("./", request.url);

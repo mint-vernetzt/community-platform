@@ -1,17 +1,19 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { detectLanguage } from "~/i18n.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
-import { updateDocument } from "./edit-document.server";
-import i18next from "~/i18next.server";
-import { type TFunction } from "i18next";
-import { detectLanguage } from "~/root.server";
+import {
+  type EditEventDocumentLocales,
+  updateDocument,
+} from "./edit-document.server";
 
 const schema = z.object({
   documentId: z.string(),
@@ -22,7 +24,7 @@ const schema = z.object({
 
 export const editDocumentSchema = schema;
 
-const createMutation = (t: TFunction) => {
+const createMutation = (locales: EditEventDocumentLocales) => {
   return makeDomainFunction(schema)(async (values) => {
     let title;
     if (values.title !== undefined) {
@@ -40,7 +42,7 @@ const createMutation = (t: TFunction) => {
         description: values.description || null,
       });
     } catch (error) {
-      throw t("error.server");
+      throw locales.error.server;
     }
     return values;
   });
@@ -48,15 +50,14 @@ const createMutation = (t: TFunction) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/documents/edit-document",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["event/$slug/settings/documents/edit-document"];
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.error.notPrivileged, {
     status: 403,
   });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -64,7 +65,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(t),
+    mutation: createMutation(locales),
   });
 
   if (result.success) {
@@ -76,5 +77,5 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirect(`${redirectUrl.pathname}${currentUrl.search}`);
   }
 
-  return json(result);
+  return { ...result };
 };

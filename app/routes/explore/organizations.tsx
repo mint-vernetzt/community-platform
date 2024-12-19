@@ -5,15 +5,12 @@ import {
   useForm,
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import {
-  Button,
-  CardContainer,
-  Chip,
-  Input,
-  OrganizationCard,
-} from "@mint-vernetzt/components";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -24,7 +21,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -37,12 +33,9 @@ import {
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import {
-  Dropdown,
-  Filters,
-  FormControl,
-  ShowFiltersButton,
-} from "./__components";
+import { Dropdown } from "~/components-next/Dropdown";
+import { Filters, ShowFiltersButton } from "~/components-next/Filters";
+import { FormControl } from "~/components-next/FormControl";
 import {
   getAllFocuses,
   getAllOrganizationTypes,
@@ -54,18 +47,9 @@ import {
   getVisibilityFilteredOrganizationsCount,
 } from "./organizations.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-// import styles from "../../../common/design/styles/styles.css";
-
-// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
-
-const i18nNS = [
-  "routes/explore/organizations",
-  "datasets/organizationTypes",
-  "datasets/focuses",
-];
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 
 const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
 
@@ -138,6 +122,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "Validation failed for get request",
     { status: 400 }
   );
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["explore/organizations"];
+
   const take = getTakeParam(submission.value.page);
   const { authClient } = createAuthClient(request);
 
@@ -347,7 +335,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return { ...focus, vectorCount, isChecked };
   });
 
-  return json({
+  return {
     isLoggedIn,
     organizations: enhancedOrganizations,
     areas: enhancedAreas,
@@ -359,17 +347,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
     submission,
     filteredByVisibilityCount,
     organizationsCount,
-  });
+    locales,
+  };
 };
 
 export default function ExploreOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
   const debounceSubmit = useDebounceSubmit();
-  const { t } = useTranslation(i18nNS);
 
   const [form, fields] = useForm<GetOrganizationsSchema>({});
 
@@ -386,9 +375,9 @@ export default function ExploreOrganizations() {
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
         <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {t("title")}
+          {locales.route.title}
         </H1>
-        <p>{t("intro")}</p>
+        <p>{locales.route.intro}</p>
       </section>
 
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -409,25 +398,37 @@ export default function ExploreOrganizations() {
           {searchParams.get(fields.showFilters.name) === null && (
             <input name="showFilters" defaultValue="on" hidden />
           )}
-          <ShowFiltersButton>{t("filter.showFiltersLabel")}</ShowFiltersButton>
+          <ShowFiltersButton>
+            {locales.route.filter.showFiltersLabel}
+          </ShowFiltersButton>
           <Filters
             showFilters={searchParams.get(fields.showFilters.name) === "on"}
           >
-            <Filters.Title>{t("filter.title")}</Filters.Title>
+            <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
               {...getFieldsetProps(fields.filter)}
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
             >
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.types")}
+                  {locales.route.filter.types}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedTypes
                       .map((type) => {
-                        return t(`${type}.title`, {
-                          ns: "datasets/organizationTypes",
-                        });
+                        let title;
+                        if (type in locales.organizationTypes) {
+                          type LocaleKey =
+                            keyof typeof locales.organizationTypes;
+                          title =
+                            locales.organizationTypes[type as LocaleKey].title;
+                        } else {
+                          console.error(
+                            `Organization type ${type} not found in locales`
+                          );
+                          title = type;
+                        }
+                        return title;
                       })
                       .join(", ")}
                   </span>
@@ -449,18 +450,36 @@ export default function ExploreOrganizations() {
                         disabled={type.vectorCount === 0 && !type.isChecked}
                       >
                         <FormControl.Label>
-                          {t(`${type.slug}.title`, {
-                            ns: "datasets/organizationTypes",
-                          })}
-                          {t(`${type.slug}.description`, {
-                            ns: "datasets/organizationTypes",
-                          }) !== `${type.slug}.description` ? (
-                            <p className="mv-text-sm">
-                              {t(`${type.slug}.description`, {
-                                ns: "datasets/organizationTypes",
-                              })}
-                            </p>
-                          ) : null}
+                          {(() => {
+                            let title;
+                            let description;
+                            if (type.slug in locales.organizationTypes) {
+                              type LocaleKey =
+                                keyof typeof locales.organizationTypes;
+                              title =
+                                locales.organizationTypes[
+                                  type.slug as LocaleKey
+                                ].title;
+                              description =
+                                locales.organizationTypes[
+                                  type.slug as LocaleKey
+                                ].description;
+                            } else {
+                              console.error(
+                                `Organization type ${type.slug} not found in locales`
+                              );
+                              title = type.slug;
+                              description = null;
+                            }
+                            return (
+                              <>
+                                {title}
+                                {description !== null ? (
+                                  <p className="mv-text-sm">{description}</p>
+                                ) : null}
+                              </>
+                            );
+                          })()}
                         </FormControl.Label>
                         <FormControl.Counter>
                           {type.vectorCount}
@@ -472,12 +491,20 @@ export default function ExploreOrganizations() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.focuses")}
+                  {locales.route.filter.focuses}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedFocuses
                       .map((focus) => {
-                        return t(`${focus}.title`, { ns: "datasets/focuses" });
+                        let title;
+                        if (focus in locales.focuses) {
+                          type LocaleKey = keyof typeof locales.focuses;
+                          title = locales.focuses[focus as LocaleKey].title;
+                        } else {
+                          console.error(`Focus ${focus} not found in locales`);
+                          title = focus;
+                        }
+                        return title;
                       })
                       .join(", ")}
                   </span>
@@ -499,16 +526,32 @@ export default function ExploreOrganizations() {
                         disabled={focus.vectorCount === 0 && !focus.isChecked}
                       >
                         <FormControl.Label>
-                          {t(`${focus.slug}.title`, { ns: "datasets/focuses" })}
-                          {t(`${focus.slug}.description`, {
-                            ns: "datasets/focuses",
-                          }) !== `${focus.slug}.description` ? (
-                            <p className="mv-text-sm">
-                              {t(`${focus.slug}.description`, {
-                                ns: "datasets/focuses",
-                              })}
-                            </p>
-                          ) : null}
+                          {(() => {
+                            let title;
+                            let description;
+                            if (focus.slug in locales.focuses) {
+                              type LocaleKey = keyof typeof locales.focuses;
+                              title =
+                                locales.focuses[focus.slug as LocaleKey].title;
+                              description =
+                                locales.focuses[focus.slug as LocaleKey]
+                                  .description;
+                            } else {
+                              console.error(
+                                `Focus ${focus.slug} not found in locales`
+                              );
+                              title = focus.slug;
+                              description = null;
+                            }
+                            return (
+                              <>
+                                {title}
+                                {description !== null ? (
+                                  <p className="mv-text-sm">{description}</p>
+                                ) : null}
+                              </>
+                            );
+                          })()}
                         </FormControl.Label>
                         <FormControl.Counter>
                           {focus.vectorCount}
@@ -520,7 +563,7 @@ export default function ExploreOrganizations() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.areas")}
+                  {locales.route.filter.areas}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedAreas
@@ -615,23 +658,27 @@ export default function ExploreOrganizations() {
                           replace: true,
                         });
                       }}
-                      placeholder={t("filter.searchAreaPlaceholder")}
+                      placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
                       <Input.Label htmlFor={fields.search.id} hidden>
-                        {t("filter.searchAreaPlaceholder")}
+                        {locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>
-                        {t("filter.searchAreaHelper")}
+                        {locales.route.filter.searchAreaHelper}
                       </Input.HelperText>
                       <Input.Controls>
                         <noscript>
-                          <Button>{t("filter.searchAreaButton")}</Button>
+                          <Button>
+                            {locales.route.filter.searchAreaButton}
+                          </Button>
                         </noscript>
                       </Input.Controls>
                     </Input>
                   </div>
                   {loaderData.areas.state.length > 0 && (
-                    <Dropdown.Legend>{t("filter.stateLabel")}</Dropdown.Legend>
+                    <Dropdown.Legend>
+                      {locales.route.filter.stateLabel}
+                    </Dropdown.Legend>
                   )}
                   {loaderData.areas.state.length > 0 &&
                     loaderData.areas.state.map((area) => {
@@ -662,7 +709,7 @@ export default function ExploreOrganizations() {
                     )}
                   {loaderData.areas.district.length > 0 && (
                     <Dropdown.Legend>
-                      {t("filter.districtLabel")}
+                      {locales.route.filter.districtLabel}
                     </Dropdown.Legend>
                   )}
                   {loaderData.areas.district.length > 0 &&
@@ -695,13 +742,28 @@ export default function ExploreOrganizations() {
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
-                    {t("filter.sortBy.label")}
+                    {locales.route.filter.sortBy.label}
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
-                    {t(
-                      `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
-                    )}
+                    {(() => {
+                      const currentValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                      let value;
+                      if (currentValue in locales.route.filter.sortBy.values) {
+                        type LocaleKey =
+                          keyof typeof locales.route.filter.sortBy.values;
+                        value =
+                          locales.route.filter.sortBy.values[
+                            currentValue as LocaleKey
+                          ];
+                      } else {
+                        console.error(
+                          `Sort by value ${currentValue} not found in locales`
+                        );
+                        value = currentValue;
+                      }
+                      return value;
+                    })()}
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
@@ -721,7 +783,7 @@ export default function ExploreOrganizations() {
                         readOnly
                       >
                         <FormControl.Label>
-                          {t(`filter.sortBy.${sortValue}`)}
+                          {locales.route.filter.sortBy.values[sortValue]}
                         </FormControl.Label>
                       </FormControl>
                     );
@@ -736,16 +798,18 @@ export default function ExploreOrganizations() {
                   : ""
               }`}
             >
-              {t("filter.reset")}
+              {locales.route.filter.reset}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {t("showNumberOfItems", {
-                count: loaderData.organizationsCount,
-              })}
+              {decideBetweenSingularOrPlural(
+                locales.route.showNumberOfItems_one,
+                locales.route.showNumberOfItems_other,
+                loaderData.organizationsCount
+              )}
             </Filters.ApplyButton>
           </Filters>
           <noscript>
-            <Button>{t("filter.apply")}</Button>
+            <Button>{locales.route.filter.apply}</Button>
           </noscript>
         </Form>
       </section>
@@ -761,11 +825,20 @@ export default function ExploreOrganizations() {
               {loaderData.selectedTypes.map((selectedType) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.type.name, selectedType);
+                let title;
+                if (selectedType in locales.organizationTypes) {
+                  type LocaleKey = keyof typeof locales.organizationTypes;
+                  title =
+                    locales.organizationTypes[selectedType as LocaleKey].title;
+                } else {
+                  console.error(
+                    `Organization type ${selectedType} not found in locales`
+                  );
+                  title = selectedType;
+                }
                 return (
                   <Chip key={selectedType} size="medium">
-                    {t(`${selectedType}.title`, {
-                      ns: "datasets/organizationTypes",
-                    })}
+                    {title}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -782,9 +855,17 @@ export default function ExploreOrganizations() {
               {loaderData.selectedFocuses.map((selectedFocus) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.focus.name, selectedFocus);
+                let title;
+                if (selectedFocus in locales.focuses) {
+                  type LocaleKey = keyof typeof locales.focuses;
+                  title = locales.focuses[selectedFocus as LocaleKey].title;
+                } else {
+                  console.error(`Focus ${selectedFocus} not found in locales`);
+                  title = selectedFocus;
+                }
                 return (
                   <Chip key={selectedFocus} size="medium">
-                    {t(`${selectedFocus}.title`, { ns: "datasets/focuses" })}
+                    {title}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -832,7 +913,7 @@ export default function ExploreOrganizations() {
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
-                {t("filter.reset")}
+                {locales.route.filter.reset}
               </Button>
             </Link>
           </div>
@@ -843,15 +924,25 @@ export default function ExploreOrganizations() {
         {loaderData.filteredByVisibilityCount !== undefined &&
         loaderData.filteredByVisibilityCount > 0 ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
-            {t("notShown", { count: loaderData.filteredByVisibilityCount })}
+            {decideBetweenSingularOrPlural(
+              locales.route.notShown_one,
+              locales.route.notShown_other,
+              loaderData.filteredByVisibilityCount
+            )}
           </p>
         ) : loaderData.organizationsCount > 0 ? (
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.organizationsCount}</strong>{" "}
-            {t("itemsCountSuffix", { count: loaderData.organizationsCount })}
+            {decideBetweenSingularOrPlural(
+              locales.route.itemsCountSuffix_one,
+              locales.route.itemsCountSuffix_other,
+              loaderData.organizationsCount
+            )}
           </p>
         ) : (
-          <p className="text-center text-gray-700 mb-4">{t("empty")}</p>
+          <p className="text-center text-gray-700 mb-4">
+            {locales.route.empty}
+          </p>
         )}
         {loaderData.organizations.length > 0 && (
           <>
@@ -859,6 +950,7 @@ export default function ExploreOrganizations() {
               {loaderData.organizations.map((organization) => {
                 return (
                   <OrganizationCard
+                    locales={locales}
                     key={`organization-${organization.id}`}
                     publicAccess={!loaderData.isLoggedIn}
                     organization={organization}
@@ -880,7 +972,7 @@ export default function ExploreOrganizations() {
                     loading={navigation.state === "loading"}
                     disabled={navigation.state === "loading"}
                   >
-                    {t("more")}
+                    {locales.route.more}
                   </Button>
                 </Link>
               </div>

@@ -1,4 +1,4 @@
-import Status, { type StatusProps } from "./Status";
+import { Status, type StatusProps } from "./Status";
 
 type StatusPlaygroundProps = {
   variant: StatusProps["variant"];

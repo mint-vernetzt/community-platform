@@ -28,7 +28,7 @@ const TextArea = React.forwardRef(
       ...rest
     } = props;
 
-    const quillRef = React.useRef<ReactQuill>(
+    const quillRef = React.useRef<ReactQuill | null>(
       props.quillRef !== undefined ? props.quillRef.current : null
     );
 
@@ -53,7 +53,7 @@ const TextArea = React.forwardRef(
         </div>
         <div className="flex flex-row">
           <div className="flex-auto">
-            {rte === true && (
+            {rte === true && quillRef.current !== null && (
               <ClientOnly>
                 {() => {
                   return (

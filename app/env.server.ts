@@ -5,6 +5,7 @@ const schema = z.object({
   SUPABASE_ANON_KEY: z.string(),
   SESSION_SECRET: z.string(),
   SUPABASE_URL: z.string(),
+  SUPABASE_IMAGE_URL: z.string().optional(),
   HASH_SECRET: z.string(),
   IMGPROXY_URL: z.string(),
   IMGPROXY_KEY: z.string(),

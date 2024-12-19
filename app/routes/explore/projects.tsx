@@ -5,15 +5,12 @@ import {
   useForm,
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import {
-  Button,
-  CardContainer,
-  Chip,
-  Input,
-  ProjectCard,
-} from "@mint-vernetzt/components";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -24,7 +21,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -37,12 +33,9 @@ import {
   filterProjectByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import {
-  Dropdown,
-  Filters,
-  FormControl,
-  ShowFiltersButton,
-} from "./__components";
+import { Dropdown } from "~/components-next/Dropdown";
+import { Filters, ShowFiltersButton } from "~/components-next/Filters";
+import { FormControl } from "~/components-next/FormControl";
 import {
   getAllAdditionalDisciplines,
   getAllDisciplines,
@@ -58,22 +51,9 @@ import {
   getVisibilityFilteredProjectsCount,
 } from "./projects.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-// import styles from "../../../common/design/styles/styles.css";
-
-// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
-
-const i18nNS = [
-  "routes/explore/projects",
-  "datasets/financings",
-  "datasets/disciplines",
-  "datasets/additionalDisciplines",
-  "datasets/projectTargetGroups",
-  "datasets/formats",
-  "datasets/specialTargetGroups",
-];
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 
 const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
 
@@ -154,6 +134,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "Validation failed for get request",
     { status: 400 }
   );
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["explore/projects"];
+
   const take = getTakeParam(submission.value.page);
   const { authClient } = createAuthClient(request);
 
@@ -410,7 +394,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return { ...financing, vectorCount, isChecked };
   });
 
-  return json({
+  return {
     projects: enhancedProjects,
     disciplines: enhancedDisciplines,
     selectedDisciplines: submission.value.filter.discipline,
@@ -429,17 +413,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
     submission,
     filteredByVisibilityCount,
     projectsCount,
-  });
+    locales,
+  };
 };
 
 export default function ExploreProjects() {
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
   const debounceSubmit = useDebounceSubmit();
-  const { t } = useTranslation(i18nNS);
 
   const [form, fields] = useForm<GetProjectsSchema>({});
 
@@ -456,9 +441,9 @@ export default function ExploreProjects() {
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
         <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {t("title")}
+          {locales.route.title}
         </H1>
-        <p>{t("intro")}</p>
+        <p>{locales.route.intro}</p>
       </section>
 
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -479,34 +464,60 @@ export default function ExploreProjects() {
           {searchParams.get(fields.showFilters.name) === null && (
             <input name="showFilters" defaultValue="on" hidden />
           )}
-          <ShowFiltersButton>{t("filter.showFiltersLabel")}</ShowFiltersButton>
+          <ShowFiltersButton>
+            {locales.route.filter.showFiltersLabel}
+          </ShowFiltersButton>
           <Filters
             showFilters={searchParams.get(fields.showFilters.name) === "on"}
           >
-            <Filters.Title>{t("filter.title")}</Filters.Title>
+            <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
               {...getFieldsetProps(fields.filter)}
-              showMore={t("filter.showMore")}
-              showLess={t("filter.showLess")}
+              showMore={locales.route.filter.showMore}
+              showLess={locales.route.filter.showLess}
             >
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.disciplines")}
+                  {locales.route.filter.disciplines}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedDisciplines
                       .map((discipline) => {
-                        return t(`${discipline}.title`, {
-                          ns: "datasets/disciplines",
-                        });
+                        let title;
+                        if (discipline in locales.disciplines) {
+                          type LocaleKey = keyof typeof locales.disciplines;
+                          title =
+                            locales.disciplines[discipline as LocaleKey].title;
+                        } else {
+                          console.error(
+                            `Discipline ${discipline} not found in locales`
+                          );
+                          title = discipline;
+                        }
+                        return title;
                       })
                       .concat(
                         loaderData.selectedAdditionalDisciplines.map(
                           (additionalDiscipline) => {
-                            return t(`${additionalDiscipline}.title`, {
-                              ns: "datasets/additionalDisciplines",
-                            });
+                            let title;
+                            if (
+                              additionalDiscipline in
+                              locales.additionalDisciplines
+                            ) {
+                              type LocaleKey =
+                                keyof typeof locales.additionalDisciplines;
+                              title =
+                                locales.additionalDisciplines[
+                                  additionalDiscipline as LocaleKey
+                                ].title;
+                            } else {
+                              console.error(
+                                `Additional discipline ${additionalDiscipline} not found in locales`
+                              );
+                              title = additionalDiscipline;
+                            }
+                            return title;
                           }
                         )
                       )
@@ -532,19 +543,42 @@ export default function ExploreProjects() {
                         }
                       >
                         <FormControl.Label>
-                          {t(`${discipline.slug}.title`, {
-                            ns: "datasets/disciplines",
-                          })}
+                          {(() => {
+                            let title;
+                            if (discipline.slug in locales.disciplines) {
+                              type LocaleKey = keyof typeof locales.disciplines;
+                              title =
+                                locales.disciplines[
+                                  discipline.slug as LocaleKey
+                                ].title;
+                            } else {
+                              console.error(
+                                `Discipline ${discipline.slug} not found in locales`
+                              );
+                              title = discipline.slug;
+                            }
+                            return title;
+                          })()}
                         </FormControl.Label>
-                        {t(`${discipline.slug}.description`, {
-                          ns: "datasets/disciplines",
-                        }) !== `${discipline.slug}.description` && (
-                          <FormControl.Info id={discipline.slug}>
-                            {t(`${discipline.slug}.description`, {
-                              ns: "datasets/disciplines",
-                            })}
-                          </FormControl.Info>
-                        )}
+                        {(() => {
+                          let description;
+                          if (discipline.slug in locales.disciplines) {
+                            type LocaleKey = keyof typeof locales.disciplines;
+                            description =
+                              locales.disciplines[discipline.slug as LocaleKey]
+                                .description;
+                          } else {
+                            console.error(
+                              `Discipline ${discipline.slug} not found in locales`
+                            );
+                            description = null;
+                          }
+                          return description !== null ? (
+                            <FormControl.Info id={discipline.slug}>
+                              {description}
+                            </FormControl.Info>
+                          ) : null;
+                        })()}
                         <FormControl.Counter>
                           {discipline.vectorCount}
                         </FormControl.Counter>
@@ -553,7 +587,7 @@ export default function ExploreProjects() {
                   })}
                   <Dropdown.Divider />
                   <Dropdown.Category>
-                    {t("filter.additionalDisciplines")}
+                    {locales.route.filter.additionalDisciplines}
                   </Dropdown.Category>
                   {loaderData.additionalDisciplines.map(
                     (additionalDiscipline) => {
@@ -575,19 +609,51 @@ export default function ExploreProjects() {
                           }
                         >
                           <FormControl.Label>
-                            {t(`${additionalDiscipline.slug}.title`, {
-                              ns: "datasets/additionalDisciplines",
-                            })}
+                            {(() => {
+                              let title;
+                              if (
+                                additionalDiscipline.slug in
+                                locales.additionalDisciplines
+                              ) {
+                                type LocaleKey =
+                                  keyof typeof locales.additionalDisciplines;
+                                title =
+                                  locales.additionalDisciplines[
+                                    additionalDiscipline.slug as LocaleKey
+                                  ].title;
+                              } else {
+                                console.error(
+                                  `Additional discipline ${additionalDiscipline.slug} not found in locales`
+                                );
+                                title = additionalDiscipline.slug;
+                              }
+                              return title;
+                            })()}
                           </FormControl.Label>
-                          {t(`${additionalDiscipline.slug}.description`, {
-                            ns: "datasets/additionalDisciplines",
-                          }) !== `${additionalDiscipline.slug}.description` && (
-                            <FormControl.Info id={additionalDiscipline.slug}>
-                              {t(`${additionalDiscipline.slug}.description`, {
-                                ns: "datasets/additionalDisciplines",
-                              })}
-                            </FormControl.Info>
-                          )}
+                          {(() => {
+                            let description;
+                            if (
+                              additionalDiscipline.slug in
+                              locales.additionalDisciplines
+                            ) {
+                              type LocaleKey =
+                                keyof typeof locales.additionalDisciplines;
+                              description =
+                                locales.additionalDisciplines[
+                                  additionalDiscipline.slug as LocaleKey
+                                ].description;
+                            } else {
+                              console.error(
+                                `Additional discipline ${additionalDiscipline.slug} not found in locales`
+                              );
+                              description = null;
+                            }
+                            return description !== null ? (
+                              <FormControl.Info id={additionalDiscipline.slug}>
+                                {description}
+                              </FormControl.Info>
+                            ) : null;
+                          })()}
                           <FormControl.Counter>
                             {additionalDiscipline.vectorCount}
                           </FormControl.Counter>
@@ -599,14 +665,26 @@ export default function ExploreProjects() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.targetGroups")}
+                  {locales.route.filter.targetGroups}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedTargetGroups
                       .map((targetGroup) => {
-                        return t(`${targetGroup}.title`, {
-                          ns: "datasets/projectTargetGroups",
-                        });
+                        let title;
+                        if (targetGroup in locales.projectTargetGroups) {
+                          type LocaleKey =
+                            keyof typeof locales.projectTargetGroups;
+                          title =
+                            locales.projectTargetGroups[
+                              targetGroup as LocaleKey
+                            ].title;
+                        } else {
+                          console.error(
+                            `Project target group ${targetGroup} not found in locales`
+                          );
+                          title = targetGroup;
+                        }
+                        return title;
                       })
                       .join(", ")}
                   </span>
@@ -631,19 +709,47 @@ export default function ExploreProjects() {
                         }
                       >
                         <FormControl.Label>
-                          {t(`${targetGroup.slug}.title`, {
-                            ns: "datasets/projectTargetGroups",
-                          })}
+                          {(() => {
+                            let title;
+                            if (
+                              targetGroup.slug in locales.projectTargetGroups
+                            ) {
+                              type LocaleKey =
+                                keyof typeof locales.projectTargetGroups;
+                              title =
+                                locales.projectTargetGroups[
+                                  targetGroup.slug as LocaleKey
+                                ].title;
+                            } else {
+                              console.error(
+                                `Project target group ${targetGroup.slug} not found in locales`
+                              );
+                              title = targetGroup.slug;
+                            }
+                            return title;
+                          })()}
                         </FormControl.Label>
-                        {t(`${targetGroup.slug}.description`, {
-                          ns: "datasets/projectTargetGroups",
-                        }) !== `${targetGroup.slug}.description` && (
-                          <FormControl.Info id={targetGroup.slug}>
-                            {t(`${targetGroup.slug}.description`, {
-                              ns: "datasets/projectTargetGroups",
-                            })}
-                          </FormControl.Info>
-                        )}
+                        {(() => {
+                          let description;
+                          if (targetGroup.slug in locales.projectTargetGroups) {
+                            type LocaleKey =
+                              keyof typeof locales.projectTargetGroups;
+                            description =
+                              locales.projectTargetGroups[
+                                targetGroup.slug as LocaleKey
+                              ].description;
+                          } else {
+                            console.error(
+                              `Project target group ${targetGroup.slug} not found in locales`
+                            );
+                            description = null;
+                          }
+                          return description !== null ? (
+                            <FormControl.Info id={targetGroup.slug}>
+                              {description}
+                            </FormControl.Info>
+                          ) : null;
+                        })()}
                         <FormControl.Counter>
                           {targetGroup.vectorCount}
                         </FormControl.Counter>
@@ -654,7 +760,7 @@ export default function ExploreProjects() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.areas")}
+                  {locales.route.filter.areas}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedAreas
@@ -749,23 +855,27 @@ export default function ExploreProjects() {
                           replace: true,
                         });
                       }}
-                      placeholder={t("filter.searchAreaPlaceholder")}
+                      placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
                       <Input.Label htmlFor={fields.search.id} hidden>
-                        {t("filter.searchAreaPlaceholder")}
+                        {locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>
-                        {t("filter.searchAreaHelper")}
+                        {locales.route.filter.searchAreaHelper}
                       </Input.HelperText>
                       <Input.Controls>
                         <noscript>
-                          <Button>{t("filter.searchAreaButton")}</Button>
+                          <Button>
+                            {locales.route.filter.searchAreaButton}
+                          </Button>
                         </noscript>
                       </Input.Controls>
                     </Input>
                   </div>
                   {loaderData.areas.state.length > 0 && (
-                    <Dropdown.Legend>{t("filter.stateLabel")}</Dropdown.Legend>
+                    <Dropdown.Legend>
+                      {locales.route.filter.stateLabel}
+                    </Dropdown.Legend>
                   )}
                   {loaderData.areas.state.length > 0 &&
                     loaderData.areas.state.map((area) => {
@@ -796,7 +906,7 @@ export default function ExploreProjects() {
                     )}
                   {loaderData.areas.district.length > 0 && (
                     <Dropdown.Legend>
-                      {t("filter.districtLabel")}
+                      {locales.route.filter.districtLabel}
                     </Dropdown.Legend>
                   )}
                   {loaderData.areas.district.length > 0 &&
@@ -826,14 +936,22 @@ export default function ExploreProjects() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.formats")}
+                  {locales.route.filter.formats}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedFormats
                       .map((format) => {
-                        return t(`${format}.title`, {
-                          ns: "datasets/formats",
-                        });
+                        let title;
+                        if (format in locales.formats) {
+                          type LocaleKey = keyof typeof locales.formats;
+                          title = locales.formats[format as LocaleKey].title;
+                        } else {
+                          console.error(
+                            `Format ${format} not found in locales`
+                          );
+                          title = format;
+                        }
+                        return title;
                       })
                       .join(", ")}
                   </span>
@@ -855,19 +973,40 @@ export default function ExploreProjects() {
                         disabled={format.vectorCount === 0 && !format.isChecked}
                       >
                         <FormControl.Label>
-                          {t(`${format.slug}.title`, {
-                            ns: "datasets/formats",
-                          })}
+                          {(() => {
+                            let title;
+                            if (format.slug in locales.formats) {
+                              type LocaleKey = keyof typeof locales.formats;
+                              title =
+                                locales.formats[format.slug as LocaleKey].title;
+                            } else {
+                              console.error(
+                                `Format ${format.slug} not found in locales`
+                              );
+                              title = format.slug;
+                            }
+                            return title;
+                          })()}
                         </FormControl.Label>
-                        {t(`${format.slug}.description`, {
-                          ns: "datasets/formats",
-                        }) !== `${format.slug}.description` && (
-                          <FormControl.Info id={format.slug}>
-                            {t(`${format.slug}.description`, {
-                              ns: "datasets/formats",
-                            })}
-                          </FormControl.Info>
-                        )}
+                        {(() => {
+                          let description;
+                          if (format.slug in locales.formats) {
+                            type LocaleKey = keyof typeof locales.formats;
+                            description =
+                              locales.formats[format.slug as LocaleKey]
+                                .description;
+                          } else {
+                            console.error(
+                              `Format ${format.slug} not found in locales`
+                            );
+                            description = null;
+                          }
+                          return description !== null ? (
+                            <FormControl.Info id={format.slug}>
+                              {description}
+                            </FormControl.Info>
+                          ) : null;
+                        })()}
                         <FormControl.Counter>
                           {format.vectorCount}
                         </FormControl.Counter>
@@ -878,14 +1017,26 @@ export default function ExploreProjects() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.specialTargetGroups")}
+                  {locales.route.filter.specialTargetGroups}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedSpecialTargetGroups
                       .map((targetGroup) => {
-                        return t(`${targetGroup}.title`, {
-                          ns: "datasets/specialTargetGroups",
-                        });
+                        let title;
+                        if (targetGroup in locales.specialTargetGroups) {
+                          type LocaleKey =
+                            keyof typeof locales.specialTargetGroups;
+                          title =
+                            locales.specialTargetGroups[
+                              targetGroup as LocaleKey
+                            ].title;
+                        } else {
+                          console.error(
+                            `Special target group ${targetGroup} not found in locales`
+                          );
+                          title = targetGroup;
+                        }
+                        return title;
                       })
                       .join(", ")}
                   </span>
@@ -910,19 +1061,47 @@ export default function ExploreProjects() {
                         }
                       >
                         <FormControl.Label>
-                          {t(`${targetGroup.slug}.title`, {
-                            ns: "datasets/specialTargetGroups",
-                          })}
+                          {(() => {
+                            let title;
+                            if (
+                              targetGroup.slug in locales.specialTargetGroups
+                            ) {
+                              type LocaleKey =
+                                keyof typeof locales.specialTargetGroups;
+                              title =
+                                locales.specialTargetGroups[
+                                  targetGroup.slug as LocaleKey
+                                ].title;
+                            } else {
+                              console.error(
+                                `Special target group ${targetGroup.slug} not found in locales`
+                              );
+                              title = targetGroup.slug;
+                            }
+                            return title;
+                          })()}
                         </FormControl.Label>
-                        {t(`${targetGroup.slug}.description`, {
-                          ns: "datasets/specialTargetGroups",
-                        }) !== `${targetGroup.slug}.description` && (
-                          <FormControl.Info id={targetGroup.slug}>
-                            {t(`${targetGroup.slug}.description`, {
-                              ns: "datasets/specialTargetGroups",
-                            })}
-                          </FormControl.Info>
-                        )}
+                        {(() => {
+                          let description;
+                          if (targetGroup.slug in locales.specialTargetGroups) {
+                            type LocaleKey =
+                              keyof typeof locales.specialTargetGroups;
+                            description =
+                              locales.specialTargetGroups[
+                                targetGroup.slug as LocaleKey
+                              ].description;
+                          } else {
+                            console.error(
+                              `Special target group ${targetGroup.slug} not found in locales`
+                            );
+                            description = null;
+                          }
+                          return description !== null ? (
+                            <FormControl.Info id={targetGroup.slug}>
+                              {description}
+                            </FormControl.Info>
+                          ) : null;
+                        })()}
                         <FormControl.Counter>
                           {targetGroup.vectorCount}
                         </FormControl.Counter>
@@ -933,14 +1112,23 @@ export default function ExploreProjects() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  {t("filter.financings")}
+                  {locales.route.filter.financings}
                   <span className="mv-font-normal @lg:mv-hidden">
                     <br />
                     {loaderData.selectedFinancings
                       .map((financing) => {
-                        return t(`${financing}.title`, {
-                          ns: "datasets/financings",
-                        });
+                        let title;
+                        if (financing in locales.financings) {
+                          type LocaleKey = keyof typeof locales.financings;
+                          title =
+                            locales.financings[financing as LocaleKey].title;
+                        } else {
+                          console.error(
+                            `Financing ${financing} not found in locales`
+                          );
+                          title = financing;
+                        }
+                        return title;
                       })
                       .join(", ")}
                   </span>
@@ -964,19 +1152,41 @@ export default function ExploreProjects() {
                         }
                       >
                         <FormControl.Label>
-                          {t(`${financing.slug}.title`, {
-                            ns: "datasets/financings",
-                          })}
+                          {(() => {
+                            let title;
+                            if (financing.slug in locales.financings) {
+                              type LocaleKey = keyof typeof locales.financings;
+                              title =
+                                locales.financings[financing.slug as LocaleKey]
+                                  .title;
+                            } else {
+                              console.error(
+                                `Financings ${financing.slug} not found in locales`
+                              );
+                              title = financing.slug;
+                            }
+                            return title;
+                          })()}
                         </FormControl.Label>
-                        {t(`${financing.slug}.description`, {
-                          ns: "datasets/financings",
-                        }) !== `${financing.slug}.description` && (
-                          <FormControl.Info id={financing.slug}>
-                            {t(`${financing.slug}.description`, {
-                              ns: "datasets/financings",
-                            })}
-                          </FormControl.Info>
-                        )}
+                        {(() => {
+                          let description;
+                          if (financing.slug in locales.financings) {
+                            type LocaleKey = keyof typeof locales.financings;
+                            description =
+                              locales.financings[financing.slug as LocaleKey]
+                                .description;
+                          } else {
+                            console.error(
+                              `Financings ${financing.slug} not found in locales`
+                            );
+                            description = null;
+                          }
+                          return description !== null ? (
+                            <FormControl.Info id={financing.slug}>
+                              {description}
+                            </FormControl.Info>
+                          ) : null;
+                        })()}
                         <FormControl.Counter>
                           {financing.vectorCount}
                         </FormControl.Counter>
@@ -990,13 +1200,28 @@ export default function ExploreProjects() {
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
-                    {t("filter.sortBy.label")}
+                    {locales.route.filter.sortBy.label}
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
-                    {t(
-                      `filter.sortBy.${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
-                    )}
+                    {(() => {
+                      const currentValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                      let value;
+                      if (currentValue in locales.route.filter.sortBy.values) {
+                        type LocaleKey =
+                          keyof typeof locales.route.filter.sortBy.values;
+                        value =
+                          locales.route.filter.sortBy.values[
+                            currentValue as LocaleKey
+                          ];
+                      } else {
+                        console.error(
+                          `Sort by value ${currentValue} not found in locales`
+                        );
+                        value = currentValue;
+                      }
+                      return value;
+                    })()}
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
@@ -1016,7 +1241,7 @@ export default function ExploreProjects() {
                         readOnly
                       >
                         <FormControl.Label>
-                          {t(`filter.sortBy.${sortValue}`)}
+                          {locales.route.filter.sortBy.values[sortValue]}
                         </FormControl.Label>
                       </FormControl>
                     );
@@ -1031,16 +1256,18 @@ export default function ExploreProjects() {
                   : ""
               }`}
             >
-              {t("filter.reset")}
+              {locales.route.filter.reset}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {t("showNumberOfItems", {
-                count: loaderData.projectsCount,
-              })}
+              {decideBetweenSingularOrPlural(
+                locales.route.showNumberOfItems_one,
+                locales.route.showNumberOfItems_other,
+                loaderData.projectsCount
+              )}
             </Filters.ApplyButton>
           </Filters>
           <noscript>
-            <Button>{t("filter.apply")}</Button>
+            <Button>{locales.route.filter.apply}</Button>
           </noscript>
         </Form>
       </section>
@@ -1063,11 +1290,20 @@ export default function ExploreProjects() {
                   filter.discipline.name,
                   selectedDiscipline
                 );
+                let title;
+                if (selectedDiscipline in locales.disciplines) {
+                  type LocaleKey = keyof typeof locales.disciplines;
+                  title =
+                    locales.disciplines[selectedDiscipline as LocaleKey].title;
+                } else {
+                  console.error(
+                    `Discipline ${selectedDiscipline} not found in locales`
+                  );
+                  title = selectedDiscipline;
+                }
                 return (
                   <Chip key={selectedDiscipline} size="medium">
-                    {t(`${selectedDiscipline}.title`, {
-                      ns: "datasets/disciplines",
-                    })}
+                    {title}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -1088,11 +1324,25 @@ export default function ExploreProjects() {
                     filter.additionalDiscipline.name,
                     selectedAdditionalDiscipline
                   );
+                  let title;
+                  if (
+                    selectedAdditionalDiscipline in
+                    locales.additionalDisciplines
+                  ) {
+                    type LocaleKey = keyof typeof locales.additionalDisciplines;
+                    title =
+                      locales.additionalDisciplines[
+                        selectedAdditionalDiscipline as LocaleKey
+                      ].title;
+                  } else {
+                    console.error(
+                      `Additional discipline ${selectedAdditionalDiscipline} not found in locales`
+                    );
+                    title = selectedAdditionalDiscipline;
+                  }
                   return (
                     <Chip key={selectedAdditionalDiscipline} size="medium">
-                      {t(`${selectedAdditionalDiscipline}.title`, {
-                        ns: "datasets/additionalDisciplines",
-                      })}
+                      {title}
                       <Chip.Delete>
                         <Link
                           to={`${
@@ -1113,11 +1363,22 @@ export default function ExploreProjects() {
                   filter.projectTargetGroup.name,
                   selectedTargetGroup
                 );
+                let title;
+                if (selectedTargetGroup in locales.projectTargetGroups) {
+                  type LocaleKey = keyof typeof locales.projectTargetGroups;
+                  title =
+                    locales.projectTargetGroups[
+                      selectedTargetGroup as LocaleKey
+                    ].title;
+                } else {
+                  console.error(
+                    `Project target group ${selectedTargetGroup} not found in locales`
+                  );
+                  title = selectedTargetGroup;
+                }
                 return (
                   <Chip key={selectedTargetGroup} size="medium">
-                    {t(`${selectedTargetGroup}.title`, {
-                      ns: "datasets/projectTargetGroups",
-                    })}
+                    {title}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -1153,11 +1414,19 @@ export default function ExploreProjects() {
               {loaderData.selectedFormats.map((selectedFormat) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(filter.format.name, selectedFormat);
+                let title;
+                if (selectedFormat in locales.formats) {
+                  type LocaleKey = keyof typeof locales.formats;
+                  title = locales.formats[selectedFormat as LocaleKey].title;
+                } else {
+                  console.error(
+                    `Format ${selectedFormat} not found in locales`
+                  );
+                  title = selectedFormat;
+                }
                 return (
                   <Chip key={selectedFormat} size="medium">
-                    {t(`${selectedFormat}.title`, {
-                      ns: "datasets/formats",
-                    })}
+                    {title}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -1178,11 +1447,24 @@ export default function ExploreProjects() {
                     filter.specialTargetGroup.name,
                     selectedSpecialTargetGroup
                   );
+                  let title;
+                  if (
+                    selectedSpecialTargetGroup in locales.specialTargetGroups
+                  ) {
+                    type LocaleKey = keyof typeof locales.specialTargetGroups;
+                    title =
+                      locales.specialTargetGroups[
+                        selectedSpecialTargetGroup as LocaleKey
+                      ].title;
+                  } else {
+                    console.error(
+                      `Special target group ${selectedSpecialTargetGroup} not found in locales`
+                    );
+                    title = selectedSpecialTargetGroup;
+                  }
                   return (
                     <Chip key={selectedSpecialTargetGroup} size="medium">
-                      {t(`${selectedSpecialTargetGroup}.title`, {
-                        ns: "datasets/specialTargetGroups",
-                      })}
+                      {title}
                       <Chip.Delete>
                         <Link
                           to={`${
@@ -1203,11 +1485,20 @@ export default function ExploreProjects() {
                   filter.financing.name,
                   selectedFinancing
                 );
+                let title;
+                if (selectedFinancing in locales.financings) {
+                  type LocaleKey = keyof typeof locales.financings;
+                  title =
+                    locales.financings[selectedFinancing as LocaleKey].title;
+                } else {
+                  console.error(
+                    `Financing ${selectedFinancing} not found in locales`
+                  );
+                  title = selectedFinancing;
+                }
                 return (
                   <Chip key={selectedFinancing} size="medium">
-                    {t(`${selectedFinancing}.title`, {
-                      ns: "datasets/financings",
-                    })}
+                    {title}
                     <Chip.Delete>
                       <Link
                         to={`${
@@ -1236,7 +1527,7 @@ export default function ExploreProjects() {
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
-                {t("filter.reset")}
+                {locales.route.filter.reset}
               </Button>
             </Link>
           </div>
@@ -1247,15 +1538,25 @@ export default function ExploreProjects() {
         {loaderData.filteredByVisibilityCount !== undefined &&
         loaderData.filteredByVisibilityCount > 0 ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
-            {t("notShown", { count: loaderData.filteredByVisibilityCount })}
+            {decideBetweenSingularOrPlural(
+              locales.route.notShown_one,
+              locales.route.notShown_other,
+              loaderData.filteredByVisibilityCount
+            )}
           </p>
         ) : loaderData.projectsCount > 0 ? (
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.projectsCount}</strong>{" "}
-            {t("itemsCountSuffix", { count: loaderData.projectsCount })}
+            {decideBetweenSingularOrPlural(
+              locales.route.itemsCountSuffix_one,
+              locales.route.itemsCountSuffix_other,
+              loaderData.projectsCount
+            )}
           </p>
         ) : (
-          <p className="text-center text-gray-700 mb-4">{t("empty")}</p>
+          <p className="text-center text-gray-700 mb-4">
+            {locales.route.empty}
+          </p>
         )}
         {loaderData.projects.length > 0 && (
           <>
@@ -1263,6 +1564,7 @@ export default function ExploreProjects() {
               {loaderData.projects.map((project) => {
                 return (
                   <ProjectCard
+                    locales={locales}
                     key={`project-${project.id}`}
                     project={project}
                   />
@@ -1282,7 +1584,7 @@ export default function ExploreProjects() {
                     loading={navigation.state === "loading"}
                     disabled={navigation.state === "loading"}
                   >
-                    {t("more")}
+                    {locales.route.more}
                   </Button>
                 </Link>
               </div>

@@ -1,8 +1,13 @@
-import { json } from "@remix-run/server-runtime";
+import { type supportedCookieLanguages } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetProjectsSchema } from "./projects";
+
+export type ExploreProjectsLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof supportedCookieLanguages
+>]["explore/projects"];
 
 export function getTakeParam(page: GetProjectsSchema["page"]) {
   const itemsPerPage = 12;
@@ -229,7 +234,8 @@ export async function getProjectFilterVector(options: {
         }
       );
     } catch (error: any) {
-      throw json({ message: "Server error" }, { status: 500 });
+      console.log({ error });
+      invariantResponse(false, "Server error", { status: 500 });
     }
 
     for (const slug of filterValues) {

@@ -1,6 +1,8 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
-import { Button, Input, Section } from "@mint-vernetzt/components";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
   redirect,
   type ActionFunctionArgs,
@@ -15,18 +17,17 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { searchProfilesI18nNS, searchProfilesSchema } from "~/form-helpers";
+import { searchProfilesSchema } from "~/form-helpers";
 import { SearchProfiles, Deep } from "~/lib/utils/searchParams";
-import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/root.server";
-import { ListContainer, ListItem } from "~/routes/my/__components";
+import { detectLanguage } from "~/i18n.server";
+import { ListContainer } from "~/components-next/ListContainer";
+import { ListItem } from "~/components-next/ListItem";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { BackButton } from "~/routes/project/$slug/settings/__components";
+import { BackButton } from "~/components-next/BackButton";
 import { searchProfiles } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
 import { deriveMode } from "~/utils.server";
@@ -37,21 +38,16 @@ import {
   inviteProfileToBeOrganizationTeamMember,
   removeTeamMemberFromOrganization,
 } from "./team.server";
-
-const i18nNS = [
-  "routes/next/organization/settings/team",
-  ...searchProfilesI18nNS,
-];
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["next/organization/$slug/settings/team"];
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -60,7 +56,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const organization = await getOrganizationWithTeamMembers({
     slug,
     authClient,
-    t,
+    locales,
   });
 
   const pendingTeamMemberInvites =
@@ -77,7 +73,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     searchParams: new URL(request.url).searchParams,
     idsToExclude: pendingAndCurrentTeamMemberIds,
     authClient,
-    t,
+    locales,
     mode,
   });
 
@@ -86,6 +82,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     pendingTeamMemberInvites,
     searchedProfiles,
     submission,
+    locales,
   };
 };
 
@@ -93,8 +90,9 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["next/organization/$slug/settings/team"];
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -114,7 +112,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const intent = formData.get("intent");
   invariantResponse(
     typeof intent === "string",
-    t("error.invariant.noStringIntent"),
+    locales.route.error.invariant.noStringIntent,
     {
       status: 400,
     }
@@ -126,7 +124,7 @@ export const action = async (args: ActionFunctionArgs) => {
     result = await inviteProfileToBeOrganizationTeamMember({
       formData: inviteFormData,
       slug,
-      t,
+      locales,
     });
   } else if (intent.startsWith("cancel-team-member-invite-")) {
     const cancelAdminInviteFormData = new FormData();
@@ -137,7 +135,7 @@ export const action = async (args: ActionFunctionArgs) => {
     result = await cancelOrganizationTeamMemberInvitation({
       formData: cancelAdminInviteFormData,
       slug,
-      t,
+      locales,
     });
   } else if (intent.startsWith("remove-team-member-")) {
     const removeAdminFormData = new FormData();
@@ -148,10 +146,10 @@ export const action = async (args: ActionFunctionArgs) => {
     result = await removeTeamMemberFromOrganization({
       formData: removeAdminFormData,
       slug,
-      t,
+      locales,
     });
   } else {
-    invariantResponse(false, t("error.invariant.wrongIntent"), {
+    invariantResponse(false, locales.route.error.invariant.wrongIntent, {
       status: 400,
     });
   }
@@ -172,6 +170,7 @@ function Team() {
     pendingTeamMemberInvites,
     searchedProfiles,
     submission: loaderSubmission,
+    locales,
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
@@ -181,19 +180,18 @@ function Team() {
   const [searchParams] = useSearchParams();
 
   const location = useLocation();
-  const { t } = useTranslation(i18nNS);
 
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
     defaultValue: {
       [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
-    constraint: getZodConstraint(searchProfilesSchema(t)),
+    constraint: getZodConstraint(searchProfilesSchema(locales)),
     // Client side validation onInput, server side validation on submit
     shouldValidate: "onInput",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
-        schema: searchProfilesSchema(t),
+        schema: searchProfilesSchema(locales),
       });
     },
     shouldRevalidate: "onInput",
@@ -217,28 +215,33 @@ function Team() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{t("content.headline")}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
+      <BackButton to={location.pathname}>
+        {locales.route.content.headline}
+      </BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
 
       {/* Current Admins and Remove Section */}
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {t("content.current.headline", {
-              count: organization.teamMembers.length,
-            })}
+            {decideBetweenSingularOrPlural(
+              locales.route.content.current.headline_one,
+              locales.route.content.current.headline_other,
+              organization.teamMembers.length
+            )}
           </h2>
           <Form
             {...getFormProps(removeTeamMemberForm)}
             method="post"
             preventScrollReset
           >
-            <ListContainer>
+            <ListContainer locales={locales}>
               {organization.teamMembers.map((relation) => {
                 return (
                   <ListItem
                     key={`organization-team-member-${relation.profile.username}`}
                     entity={relation.profile}
+                    locales={locales}
                   >
                     {organization.teamMembers.length > 1 && (
                       <Button
@@ -248,7 +251,7 @@ function Team() {
                         type="submit"
                         fullSize
                       >
-                        {t("content.current.remove")}
+                        {locales.route.content.current.remove}
                       </Button>
                     )}
                   </ListItem>
@@ -260,7 +263,7 @@ function Team() {
         {/* Search Profiles To Add Section */}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {t("content.add.headline")}
+            {locales.route.content.add.headline}
           </h2>
           <Form
             {...getFormProps(searchForm)}
@@ -282,7 +285,7 @@ function Team() {
               standalone
             >
               <Input.Label htmlFor={searchFields[SearchProfiles].id}>
-                {t("content.add.search")}
+                {locales.route.content.add.search}
               </Input.Label>
               <Input.SearchIcon />
 
@@ -297,12 +300,14 @@ function Team() {
                   </Input.Error>
                 ))
               ) : (
-                <Input.HelperText>{t("content.add.criteria")}</Input.HelperText>
+                <Input.HelperText>
+                  {locales.route.content.add.criteria}
+                </Input.HelperText>
               )}
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">
-                    {t("content.add.submitSearch")}
+                    {locales.route.content.add.submitSearch}
                   </Button>
                 </noscript>
               </Input.Controls>
@@ -314,12 +319,13 @@ function Team() {
               method="post"
               preventScrollReset
             >
-              <ListContainer>
+              <ListContainer locales={locales}>
                 {searchedProfiles.map((profile) => {
                   return (
                     <ListItem
                       key={`profile-search-result-${profile.username}`}
                       entity={profile}
+                      locales={locales}
                     >
                       <Button
                         name="intent"
@@ -328,7 +334,7 @@ function Team() {
                         type="submit"
                         fullSize
                       >
-                        {t("content.add.submit")}
+                        {locales.route.content.add.submit}
                       </Button>
                     </ListItem>
                   );
@@ -340,20 +346,21 @@ function Team() {
           {pendingTeamMemberInvites.length > 0 ? (
             <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
               <h4 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-                {t("content.invites.headline")}
+                {locales.route.content.invites.headline}
               </h4>
-              <p>{t("content.invites.intro")} </p>
+              <p>{locales.route.content.invites.intro} </p>
               <Form
                 {...getFormProps(cancelTeamMemberInviteForm)}
                 method="post"
                 preventScrollReset
               >
-                <ListContainer>
+                <ListContainer locales={locales}>
                   {pendingTeamMemberInvites.map((profile) => {
                     return (
                       <ListItem
                         key={`pending-team-member-invite-${profile.username}`}
                         entity={profile}
+                        locales={locales}
                       >
                         <Button
                           name="intent"
@@ -362,7 +369,7 @@ function Team() {
                           type="submit"
                           fullSize
                         >
-                          {t("content.invites.cancel")}
+                          {locales.route.content.invites.cancel}
                         </Button>
                       </ListItem>
                     );

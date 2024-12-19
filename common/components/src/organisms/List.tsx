@@ -1,7 +1,7 @@
 import React from "react";
-import Avatar from "../molecules/Avatar";
+import { Avatar } from "../molecules/Avatar";
 import classNames from "classnames";
-import { type ImageProps } from "./../../index";
+import { type ImageProps } from "./../molecules/Image";
 
 type Size = "sm" | "md";
 
@@ -103,11 +103,13 @@ function ListItemInfo(props: React.PropsWithChildren<{ size?: Size }>) {
 
   if (typeof title !== "undefined") {
     titleClone = React.cloneElement(title as React.ReactElement, {
+      // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
   if (typeof subtitle !== "undefined") {
     subtitleClone = React.cloneElement(subtitle as React.ReactElement, {
+      // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
@@ -168,9 +170,13 @@ export function ListItem(
       return React.isValidElement(child) && child.type !== ListItemControls;
     });
     const wrapper = childrenWithoutControls[0];
-    const wrapperChildren = React.Children.toArray(
-      (wrapper as React.ReactElement).props.children
-    );
+    const wrapperChildren =
+      typeof wrapper.props === "object" &&
+      wrapper.props !== null &&
+      "children" in wrapper.props &&
+      React.isValidElement(wrapper.props.children)
+        ? React.Children.toArray(wrapper.props.children)
+        : [];
     avatar = wrapperChildren.find((child) => {
       return React.isValidElement(child) && child.type === Avatar;
     }) as React.ReactElement;
@@ -181,6 +187,7 @@ export function ListItem(
     let infoClone: React.ReactElement | undefined;
     if (typeof info !== "undefined") {
       infoClone = React.cloneElement(info as React.ReactElement, {
+        // @ts-ignore - We should look at our cloneElement implementation.
         size,
       });
     }
@@ -190,6 +197,7 @@ export function ListItem(
     const wrapperClone = React.cloneElement(
       wrapper as React.ReactElement,
       {
+        // @ts-ignore - We should look at our cloneElement implementation.
         className: wrapperClasses,
       },
       <>
@@ -214,6 +222,7 @@ export function ListItem(
 
   if (typeof info !== "undefined") {
     infoClone = React.cloneElement(info as React.ReactElement, {
+      // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   } else {
@@ -230,11 +239,13 @@ export function ListItem(
 
   if (typeof title !== "undefined") {
     titleClone = React.cloneElement(title as React.ReactElement, {
+      // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
   if (typeof subtitle !== "undefined") {
     subtitleClone = React.cloneElement(subtitle as React.ReactElement, {
+      // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
@@ -276,4 +287,4 @@ ListItem.Preview = ListItemPreview;
 
 List.Item = ListItem;
 
-export default List;
+export { List };

@@ -1,4 +1,5 @@
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
+import { type supportedCookieLanguages } from "~/i18n.shared";
 import {
   BlurFactor,
   DefaultImages,
@@ -6,8 +7,14 @@ import {
   GravityType,
   ImageSizes,
 } from "~/images.server";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+
+export type DashboardLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof supportedCookieLanguages
+>]["dashboard"];
 
 export async function getProfileById(id: string) {
   const profile = await prismaClient.profile.findUnique({

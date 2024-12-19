@@ -1,17 +1,10 @@
-import {
-  Button,
-  CardContainer,
-  OrganizationCard,
-} from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Link,
   useLoaderData,
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import {
@@ -25,21 +18,17 @@ import {
   getTakeParam,
   searchOrganizationsViaLike,
 } from "./utils.server";
-// import styles from "../../../common/design/styles/styles.css";
-
-// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
-
-const i18nNS = [
-  "routes/search/organizations",
-  "datasets/organizationTypes",
-  "datasets/focuses",
-];
-export const handle = {
-  i18n: i18nNS,
-};
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["search/organizations"];
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { take, page, itemsPerPage } = getTakeParam(request);
@@ -152,7 +141,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     enhancedOrganizations.push(imageEnhancedOrganization);
   }
 
-  return json({
+  return {
     organizations: enhancedOrganizations,
     count: organizationsCount,
     isLoggedIn: sessionUser !== null,
@@ -160,12 +149,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       page,
       itemsPerPage,
     },
-  });
+    locales,
+  };
 };
 
 export default function SearchView() {
-  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const [searchParams] = useSearchParams();
 
   const navigation = useNavigation();
@@ -187,6 +177,7 @@ export default function SearchView() {
                   key={`profile-${organization.id}`}
                   publicAccess={!loaderData.isLoggedIn}
                   organization={organization}
+                  locales={locales}
                 />
               );
             })}
@@ -204,14 +195,14 @@ export default function SearchView() {
                   loading={navigation.state === "loading"}
                   disabled={navigation.state === "loading"}
                 >
-                  {t("more")}
+                  {locales.route.more}
                 </Button>
               </Link>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">{t("empty")}</p>
+        <p className="text-center text-primary">{locales.route.empty}</p>
       )}
     </section>
   );

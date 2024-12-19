@@ -1,6 +1,5 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { type TFunction } from "i18next";
 import {
   cancelOrganizationAdminInvitationSchema,
   inviteProfileToBeOrganizationAdminSchema,
@@ -12,14 +11,22 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { type Toast } from "~/toast.server";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+
+export type OrganizationAdminSettingsLocales =
+  (typeof languageModuleMap)[ArrayElement<
+    typeof supportedCookieLanguages
+  >]["next/organization/$slug/settings/admins"];
 
 export async function getOrganizationWithAdmins(options: {
   slug: string;
   authClient: SupabaseClient;
-  t: TFunction;
+  locales: OrganizationAdminSettingsLocales;
 }) {
-  const { slug, authClient, t } = options;
+  const { slug, authClient, locales } = options;
   const organization = await prismaClient.organization.findFirst({
     where: {
       slug,
@@ -44,9 +51,13 @@ export async function getOrganizationWithAdmins(options: {
     },
   });
 
-  invariantResponse(organization !== null, t("error.invariant.notFound"), {
-    status: 404,
-  });
+  invariantResponse(
+    organization !== null,
+    locales.route.error.invariant.notFound,
+    {
+      status: 404,
+    }
+  );
 
   // enhance admins with avatar
   const admins = organization.admins.map((relation) => {
@@ -139,9 +150,9 @@ export async function getPendingAdminInvitesOfOrganization(
 export async function inviteProfileToBeOrganizationAdmin(options: {
   formData: FormData;
   slug: string;
-  t: TFunction;
+  locales: OrganizationAdminSettingsLocales;
 }) {
-  const { formData, slug, t } = options;
+  const { formData, slug, locales } = options;
 
   const submission = parseWithZod(formData, {
     schema: inviteProfileToBeOrganizationAdminSchema,
@@ -170,7 +181,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
 
   invariantResponse(
     organization !== null && profile !== null,
-    t("error.invariant.entitiesForInviteNotFound"),
+    locales.route.error.invariant.entitiesForInviteNotFound,
     {
       status: 404,
     }
@@ -196,7 +207,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = t("email.subject");
+  const subject = locales.route.email.subject;
   const recipient = profile.email;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-organization/as-admin-text.hbs";
@@ -209,7 +220,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
     },
     button: {
       url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-      text: t("email.button.text"),
+      text: locales.route.email.button.text,
     },
   };
 
@@ -238,10 +249,13 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
     toast: {
       id: "invite-admin-toast",
       key: `${new Date().getTime()}`,
-      message: t("content.profileAdded", {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-      }),
+      message: insertParametersIntoLocale(
+        locales.route.content.profileInvited,
+        {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+        }
+      ),
     },
   };
 }
@@ -249,9 +263,9 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
 export async function cancelOrganizationAdminInvitation(options: {
   formData: FormData;
   slug: string;
-  t: TFunction;
+  locales: OrganizationAdminSettingsLocales;
 }) {
-  const { formData, slug, t } = options;
+  const { formData, slug, locales } = options;
 
   const submission = parseWithZod(formData, {
     schema: cancelOrganizationAdminInvitationSchema,
@@ -276,7 +290,7 @@ export async function cancelOrganizationAdminInvitation(options: {
   });
   invariantResponse(
     organization !== null && profile !== null,
-    t("error.invariant.entitiesForInviteNotFound"),
+    locales.route.error.invariant.entitiesForInviteNotFound,
     { status: 404 }
   );
 
@@ -298,10 +312,13 @@ export async function cancelOrganizationAdminInvitation(options: {
     toast: {
       id: "cancel-invite-toast",
       key: `${new Date().getTime()}`,
-      message: t("content.inviteCancelled", {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-      }),
+      message: insertParametersIntoLocale(
+        locales.route.content.inviteCancelled,
+        {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+        }
+      ),
     },
   };
 }
@@ -309,9 +326,9 @@ export async function cancelOrganizationAdminInvitation(options: {
 export async function removeAdminFromOrganization(options: {
   formData: FormData;
   slug: string;
-  t: TFunction;
+  locales: OrganizationAdminSettingsLocales;
 }) {
-  const { formData, slug, t } = options;
+  const { formData, slug, locales } = options;
 
   const submission = parseWithZod(formData, {
     schema: removeAdminFromOrganizationSchema,
@@ -341,12 +358,12 @@ export async function removeAdminFromOrganization(options: {
   });
   invariantResponse(
     organization !== null && profile !== null,
-    t("error.invariant.entitiesForRemovalNotFound"),
+    locales.route.error.invariant.entitiesForRemovalNotFound,
     { status: 404 }
   );
   invariantResponse(
     organization._count.admins > 1,
-    t("error.invariant.adminCount"),
+    locales.route.error.invariant.adminCount,
     {
       status: 400,
     }
@@ -366,10 +383,13 @@ export async function removeAdminFromOrganization(options: {
     toast: {
       id: "remove-admin-toast",
       key: `${new Date().getTime()}`,
-      message: t("content.profileRemoved", {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-      }),
+      message: insertParametersIntoLocale(
+        locales.route.content.profileRemoved,
+        {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+        }
+      ),
     },
   };
 }

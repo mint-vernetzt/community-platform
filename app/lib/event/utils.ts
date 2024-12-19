@@ -1,12 +1,5 @@
 import type { Event } from "@prisma/client";
 import { Prisma } from "@prisma/client";
-import {
-  getIsOnWaitingList,
-  getIsParticipant,
-  getIsSpeaker,
-  getIsTeamMember,
-} from "~/routes/event/$slug/utils.server";
-import type { ArrayElement } from "../utils/types";
 
 const eventRelations = Prisma.validator<Prisma.EventDefaultArgs>()({
   select: {
@@ -49,33 +42,12 @@ export function combineEventsSortChronologically<
   });
 }
 
-export async function addUserParticipationStatus<
-  T extends {
-    event: Pick<Event, "id">;
-  }[]
->(events: T, userId?: string) {
-  const result = await Promise.all(
-    events.map(async (item) => {
-      return {
-        event: {
-          ...item.event,
-          isParticipant: await getIsParticipant(item.event.id, userId),
-          isOnWaitingList: await getIsOnWaitingList(item.event.id, userId),
-          isTeamMember: await getIsTeamMember(item.event.id, userId),
-          isSpeaker: await getIsSpeaker(item.event.id, userId),
-        },
-      };
-    })
-  );
-  return result as Array<ArrayElement<T> & ArrayElement<typeof result>>;
-}
-
 function reachedParticipateDeadline(event: {
-  participationUntil: string;
-  participationFrom: string;
+  participationUntil: Date;
+  participationFrom: Date;
 }) {
-  const participationUntil = new Date(event.participationUntil).getTime();
-  const participationFrom = new Date(event.participationFrom).getTime();
+  const participationUntil = event.participationUntil.getTime();
+  const participationFrom = event.participationFrom.getTime();
   const now = Date.now();
   return now > participationUntil || now < participationFrom;
 }
@@ -91,8 +63,8 @@ function reachedParticipantLimit(
 }
 
 export function canUserParticipate(event: {
-  participationFrom: string;
-  participationUntil: string;
+  participationFrom: Date;
+  participationUntil: Date;
   participantLimit: number | null;
   published: boolean;
   canceled: boolean;
@@ -120,8 +92,8 @@ export function canUserParticipate(event: {
 }
 
 export function canUserBeAddedToWaitingList(event: {
-  participationFrom: string;
-  participationUntil: string;
+  participationFrom: Date;
+  participationUntil: Date;
   participantLimit: number | null;
   published: boolean;
   canceled: boolean;

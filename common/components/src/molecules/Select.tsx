@@ -1,5 +1,5 @@
 import React from "react";
-import Input from "./Input";
+import { Input, type InputLabelProps } from "./Input";
 
 export type SelectProps = React.HTMLProps<HTMLSelectElement>;
 
@@ -18,9 +18,13 @@ function Select(props: SelectProps) {
   });
   const labelComponent = validChildren.find((child) => {
     return React.isValidElement(child) && child.type === Input.Label;
-  }) as React.ReactElement;
+  });
+  type LabelComponentType = React.DetailedReactHTMLElement<
+    React.PropsWithChildren<InputLabelProps>,
+    HTMLLabelElement
+  > & { ref: React.RefObject<HTMLLabelElement> };
 
-  let label: React.ReactElement<typeof Input.Label> | undefined;
+  let label: LabelComponentType | React.ReactElement | undefined;
   if (typeof labelString !== "undefined") {
     label = (
       <Input.Label
@@ -32,9 +36,12 @@ function Select(props: SelectProps) {
       </Input.Label>
     );
   } else if (typeof labelComponent !== "undefined") {
-    label = React.cloneElement(labelComponent, {
-      hasError: typeof error !== "undefined",
-    });
+    label = React.cloneElement<React.PropsWithChildren<InputLabelProps>>(
+      labelComponent as LabelComponentType,
+      {
+        hasError: typeof error !== "undefined",
+      }
+    );
   }
 
   if (typeof label === "undefined") {
@@ -73,4 +80,4 @@ Select.Label = Input.Label;
 Select.HelperText = Input.HelperText;
 Select.Error = Input.Error;
 
-export default Select;
+export { Select };

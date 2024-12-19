@@ -1,5 +1,5 @@
-import { Button } from "./../../../index";
-import Controls, { type ControlsProps } from "./Controls";
+import { Button } from "./../../molecules/Button";
+import { Controls, type ControlsProps } from "./Controls";
 
 type ControlsPlaygroundProps = {
   direction: ControlsProps["direction"];

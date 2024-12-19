@@ -1,10 +1,9 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Button } from "@mint-vernetzt/components";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-  json,
   redirect,
 } from "@remix-run/node";
 import {
@@ -23,14 +22,8 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { prismaClient } from "~/prisma.server";
 import { deriveProfileMode } from "../utils.server";
 import { z } from "zod";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
-
-const i18nNS = ["routes/profile/settings/notifications"];
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
 const schema = z.object({
   updates: z
@@ -46,10 +39,9 @@ const schema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/profile/settings/notifications",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["profile/$username/settings/notifications"];
   const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const profile = await prismaClient.profile.findFirst({
@@ -59,7 +51,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
   if (profile === null) {
-    throw json(t("error.profileNotFound"), { status: 404 });
+    invariantResponse(false, locales.error.profileNotFound, { status: 404 });
   }
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
@@ -68,7 +60,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+  invariantResponse(mode === "owner", locales.error.notPrivileged, {
     status: 403,
   });
 
@@ -76,20 +68,19 @@ export const loader = async (args: LoaderFunctionArgs) => {
     updates: false,
   };
 
-  return json({ profile: { ...profile, notificationSettings } });
+  return { profile: { ...profile, notificationSettings }, locales };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/profile/settings/notifications",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["profile/$username/settings/notifications"];
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const username = getParamValueOrThrow(params, "username");
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", t("error.notPrivileged"), {
+  invariantResponse(mode === "owner", locales.error.notPrivileged, {
     status: 403,
   });
 
@@ -115,11 +106,12 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  return json(submission);
+  return submission;
 };
 
 function Notifications() {
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
   const submit = useSubmit();
   const [form, fields] = useForm({
@@ -142,17 +134,15 @@ function Notifications() {
     lastSubmission: actionData,
   });
 
-  const { t } = useTranslation(i18nNS);
-
   return (
     <>
-      <h1 className="mv-mb-8">{t("content.headline")}</h1>
+      <h1 className="mv-mb-8">{locales.content.headline}</h1>
       {loaderData.profile.notificationSettings !== null ? (
         <ul>
           <Form method="post" {...form.props}>
             <div className="mv-flex mv-justify-between">
               <label className="mv-font-semibold" htmlFor={fields.updates.name}>
-                {t("form.updates.label")}
+                {locales.form.updates.label}
               </label>
               <input {...conform.input(fields.updates, { type: "checkbox" })} />
             </div>
@@ -163,13 +153,13 @@ function Notifications() {
             )}
             <noscript>
               <div className="mv-mt-2">
-                <Button variant="outline">{t("form.submit.label")}</Button>
+                <Button variant="outline">{locales.form.submit.label}</Button>
               </div>
             </noscript>
           </Form>
         </ul>
       ) : (
-        <>{t("content.empty")}</>
+        <>{locales.content.empty}</>
       )}
     </>
   );

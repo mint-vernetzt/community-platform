@@ -1,26 +1,22 @@
-import {
-  Button,
-  CardContainer,
-  ProjectCard,
-  TabBar,
-} from "@mint-vernetzt/components";
-import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import { AddIcon, Container, Placeholder } from "./__components";
-import { Section, TabBarTitle } from "./__events.components";
+import { Add } from "~/components-next/icons/Add";
+import { Container } from "~/components-next/MyProjectsCreateOrganizationContainer";
+import { Placeholder } from "~/components-next/Placeholder";
+import { Section } from "~/components-next/MyEventsProjectsSection";
+import { TabBarTitle } from "~/components-next/TabBarTitle";
 import { getProjects } from "./projects.server";
-
-export const i18nNS = ["routes/my/projects"];
-
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/i18n.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -32,15 +28,17 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(redirectPath);
   }
 
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["my/projects"];
+
   const projects = await getProjects({ profileId: sessionUser.id, authClient });
 
-  return json({ projects });
+  return { projects, locales };
 }
 
 function MyProjects() {
-  const { t } = useTranslation(i18nNS);
-
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
 
   const firstProject = Object.entries(loaderData.projects.count).find(
     ([, value]) => {
@@ -75,18 +73,22 @@ function MyProjects() {
   return (
     <Container>
       <Container.Header>
-        <Container.Title>{t("title")}</Container.Title>
+        <Container.Title>{locales.route.title}</Container.Title>
         <Button as="a" href="/project/create">
-          <AddIcon />
-          {t("create")}
+          <Add />
+          {locales.route.create}
         </Button>
       </Container.Header>
       {hasProjects === false ? (
         <Placeholder>
-          <Placeholder.Title>{t("placeholder.title")}</Placeholder.Title>
-          <Placeholder.Text>{t("placeholder.description")}</Placeholder.Text>
+          <Placeholder.Title>
+            {locales.route.placeholder.title}
+          </Placeholder.Title>
+          <Placeholder.Text>
+            {locales.route.placeholder.description}
+          </Placeholder.Text>
           <Button as="a" href="/project/create" variant="outline">
-            {t("placeholder.cta")}
+            {locales.route.placeholder.cta}
           </Button>
         </Placeholder>
       ) : (
@@ -112,7 +114,19 @@ function MyProjects() {
                     preventScrollReset
                   >
                     <TabBarTitle>
-                      {t(`tabBar.${key}`)}
+                      {(() => {
+                        let title;
+                        if (key in locales.route.tabBar) {
+                          type LocaleKey = keyof typeof locales.route.tabBar;
+                          title = locales.route.tabBar[key as LocaleKey];
+                        } else {
+                          console.error(
+                            `Tab bar title ${key} not found in locales`
+                          );
+                          title = key;
+                        }
+                        return title;
+                      })()}
                       <TabBar.Counter active={projects === key}>
                         {loaderData.projects.count[typedKey]}
                       </TabBar.Counter>
@@ -133,6 +147,7 @@ function MyProjects() {
                       mode={
                         projects === "adminProjects" ? "admin" : "teamMember"
                       }
+                      locales={locales}
                     />
                   );
                 }

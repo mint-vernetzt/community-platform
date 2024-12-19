@@ -1,4 +1,4 @@
-import Toast, { type ToastLevel } from "./Toast";
+import { Toast, type ToastLevel } from "./Toast";
 
 export function ToastPlayground(props: {
   text: string;

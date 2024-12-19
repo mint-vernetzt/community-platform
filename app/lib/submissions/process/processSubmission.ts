@@ -1,5 +1,4 @@
 import { type Schema } from "jsonschema";
-import { json } from "@remix-run/node";
 import { cors } from "remix-utils/cors";
 import { formMapper } from "../formMapper/formMapper";
 import { mailerOptions } from "../mailer/mailerOptions";
@@ -34,15 +33,18 @@ export async function processSubmission<T>(
     } catch (error) {
       return await sendCorsResponse(
         request,
-        json(null, { statusText: "mailer Issue", status: 500 })
+        new Response(null, { statusText: "mailer Issue", status: 500 })
       );
     }
 
     return await sendCorsResponse(
       request,
-      json(null, { statusText: "submitted" })
+      new Response(null, { statusText: "submitted", status: 200 })
     );
   }
 
-  return await sendCorsResponse(request, json(errors, { status: 400 }));
+  return await sendCorsResponse(
+    request,
+    Response.json(errors, { statusText: "validation failed", status: 400 })
+  );
 }

@@ -1,4 +1,4 @@
-import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -8,20 +8,14 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
 import { deriveEventMode } from "../utils.server";
 import { getDocumentById, getEventBySlug } from "./documents-download.server";
-import { detectLanguage } from "~/root.server";
-import i18next from "~/i18next.server";
+import { detectLanguage } from "~/i18n.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
-
-const i18nNS = ["routes/event/documents-download"];
-
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["event/$slug/documents-download"];
 
   const { authClient } = createAuthClient(request);
 
@@ -37,7 +31,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const mode = await deriveEventMode(sessionUser, slug);
 
   if (mode !== "admin" && event.published === false) {
-    throw json({ message: "Event not published" }, { status: 403 });
+    invariantResponse(false, "Event not published", { status: 403 });
   }
   const url = new URL(request.url);
   const documentId = url.searchParams.get("document_id");
@@ -69,12 +63,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   } else {
     const document = await getDocumentById(documentId);
     if (document === null) {
-      throw json(
-        {
-          message: "Das angeforderte Dokument konnte nicht gefunden werden.",
-        },
-        { status: 500 }
-      );
+      invariantResponse(false, "Document not found", { status: 500 });
     }
     const escapedDocument = {
       ...document,
@@ -83,7 +72,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     documents = [escapedDocument];
   }
   const escapedEventName = escapeFilenameSpecialChars(event.name);
-  const zipFilename = `${escapedEventName} ${t("zipSuffix")}`;
+  const zipFilename = `${escapedEventName} ${locales.zipSuffix}`;
 
   const documentResponse = getDownloadDocumentsResponse(
     authClient,
