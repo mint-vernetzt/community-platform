@@ -803,11 +803,7 @@ function General() {
                   variant="outline"
                   fullSize
                   // Don't disable button when js is disabled
-                  disabled={
-                    isHydrated
-                      ? form.dirty === false || form.valid === false
-                      : false
-                  }
+                  disabled={isHydrated ? form.dirty === false : false}
                 >
                   {t("form.reset")}
                 </Button>
