@@ -97,7 +97,7 @@
       "form": {
         "website": {
           "label": "Website",
-          "placeholder": "domainname.tld"
+          "placeholder": "https://domain.tld/..."
         }
       }
     },

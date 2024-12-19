@@ -17,7 +17,7 @@
       "headline": "Website",
       "url": {
         "label": "URL",
-        "placeholder": "subdomain.domain.tld/..."
+        "placeholder": "https://domain.tld/..."
       }
     },
     "socialNetworks": {
@@ -40,7 +40,7 @@
       },
       "mastodon": {
         "label": "Mastodon",
-        "placeholder": "subdomain.domain.tld/..."
+        "placeholder": "https://domain.tld/..."
       },
       "tiktok": {
         "label": "TikTok",
