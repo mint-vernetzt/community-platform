@@ -80,6 +80,7 @@ import { locale as deNextChangeOrganizationUrl } from "./de/routes/next/organiza
 import { locale as deNextDeleteOrganization } from "./de/routes/next/organization/$slug/settings/danger-zone/delete";
 import { locale as deNextOrganizationAdmins } from "./de/routes/next/organization/$slug/settings/admins";
 import { locale as deNextOrganizationDangerZone } from "./de/routes/next/organization/$slug/settings/danger-zone";
+import { locale as deNextGeneralOrganizationSettings } from "./de/routes/next/organization/$slug/settings/general";
 import { locale as deNextOrganizationTeam } from "./de/routes/next/organization/$slug/settings/team";
 import { locale as deNextOrganizationWebAndSocial } from "./de/routes/next/organization/$slug/settings/web-social";
 import { locale as deNextOrganizationSettings } from "./de/routes/next/organization/$slug/settings";
@@ -263,6 +264,7 @@ import { locale as enNextChangeOrganizationUrl } from "./en/routes/next/organiza
 import { locale as enNextDeleteOrganization } from "./en/routes/next/organization/$slug/settings/danger-zone/delete";
 import { locale as enNextOrganizationAdmins } from "./en/routes/next/organization/$slug/settings/admins";
 import { locale as enNextOrganizationDangerZone } from "./en/routes/next/organization/$slug/settings/danger-zone";
+import { locale as enNextGeneralOrganizationSettings } from "./en/routes/next/organization/$slug/settings/general";
 import { locale as enNextOrganizationTeam } from "./en/routes/next/organization/$slug/settings/team";
 import { locale as enNextOrganizationWebAndSocial } from "./en/routes/next/organization/$slug/settings/web-social";
 import { locale as enNextOrganizationSettings } from "./en/routes/next/organization/$slug/settings";
@@ -535,6 +537,12 @@ const de = {
     components: deComponents,
   },
   "next/organization/$slug/settings/danger-zone": deNextOrganizationDangerZone,
+  "next/organization/$slug/settings/general": {
+    route: deNextGeneralOrganizationSettings,
+    focuses: deFocuses,
+    components: deComponents,
+    schemas: deSchemas,
+  },
   "next/organization/$slug/settings/team": {
     route: deNextOrganizationTeam,
     searchProfilesSchema: deSearchProfilesSchema,
@@ -908,6 +916,12 @@ const en = {
     components: enComponents,
   },
   "next/organization/$slug/settings/danger-zone": enNextOrganizationDangerZone,
+  "next/organization/$slug/settings/general": {
+    route: enNextGeneralOrganizationSettings,
+    focuses: enFocuses,
+    components: enComponents,
+    schemas: enSchemas,
+  },
   "next/organization/$slug/settings/team": {
     route: enNextOrganizationTeam,
     searchProfilesSchema: enSearchProfilesSchema,

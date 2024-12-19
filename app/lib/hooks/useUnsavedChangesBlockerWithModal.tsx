@@ -11,11 +11,15 @@ import { Modal } from "~/components-next/Modal";
 import { extendSearchParams } from "../utils/searchParams";
 import { type ChangeOrganizationUrlLocales } from "~/routes/next/organization/$slug/settings/danger-zone/change-url.server";
 import { type OrganizationWebAndSocialLocales } from "~/routes/next/organization/$slug/settings/web-social.server";
+import { type GeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
 
 export function useUnsavedChangesBlockerWithModal(options: {
   searchParam: string;
   formMetadataToCheck: FormMetadata<any> | FormMetadata<any>[];
-  locales: ChangeOrganizationUrlLocales | OrganizationWebAndSocialLocales;
+  locales:
+    | ChangeOrganizationUrlLocales
+    | OrganizationWebAndSocialLocales
+    | GeneralOrganizationSettingsLocales;
 }) {
   const { searchParam, formMetadataToCheck, locales } = options;
   let forms = formMetadataToCheck;

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { type GeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
 import { type OrganizationWebAndSocialLocales } from "~/routes/next/organization/$slug/settings/web-social.server";
 import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
 import { type GeneralProjectSettingsLocales } from "~/routes/project/$slug/settings/general.server";
@@ -26,7 +27,10 @@ export const fileUploadSchema = z.object({
 });
 
 export const createPhoneSchema = (
-  locales: OrganizationWebAndSocialLocales | GeneralProjectSettingsLocales
+  locales:
+    | OrganizationWebAndSocialLocales
+    | GeneralProjectSettingsLocales
+    | GeneralOrganizationSettingsLocales
 ) =>
   z.string().regex(
     // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
