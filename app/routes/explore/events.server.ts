@@ -1,11 +1,10 @@
-import { json } from "@remix-run/server-runtime";
 import { type User } from "@supabase/supabase-js";
+import { type supportedCookieLanguages } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetEventsSchema } from "./events";
-import { type supportedCookieLanguages } from "~/i18n.shared";
-import { type languageModuleMap } from "~/locales/.server";
 
 export type ExploreEventsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -568,7 +567,8 @@ export async function getEventFilterVector(options: {
           },
         });
       } catch (error: any) {
-        throw json({ message: "Server error" }, { status: 500 });
+        console.error({ error });
+        invariantResponse(false, "Server error", { status: 500 });
       }
       const filterValues = options.filter[typedFilterKey];
       for (const slug of filterValues) {

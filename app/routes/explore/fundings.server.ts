@@ -1,10 +1,9 @@
-import { prismaClient } from "~/prisma.server";
-import { type FilterKey, type GetFundingsSchema } from "./fundings";
-import { json } from "@remix-run/server-runtime";
+import { type supportedCookieLanguages } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
-import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { type FilterKey, type GetFundingsSchema } from "./fundings";
 
 export type ExploreFundingsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -144,7 +143,7 @@ export async function getFundingFilterVector(options: {
       );
     } catch (error: any) {
       console.log({ error });
-      throw json({ message: "Server error" }, { status: 500 });
+      invariantResponse(false, "Server error", { status: 500 });
     }
 
     for (const slug of filterValues) {

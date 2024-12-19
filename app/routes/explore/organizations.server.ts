@@ -1,10 +1,9 @@
-import { json } from "@remix-run/server-runtime";
+import { type supportedCookieLanguages } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetOrganizationsSchema } from "./organizations";
-import { type supportedCookieLanguages } from "~/i18n.shared";
-import { type languageModuleMap } from "~/locales/.server";
 
 export type ExploreOrganizationsLocales =
   (typeof languageModuleMap)[ArrayElement<
@@ -272,7 +271,8 @@ export async function getOrganizationFilterVector(options: {
         },
       });
     } catch (error: any) {
-      throw json({ message: "Server error" }, { status: 500 });
+      console.log({ error });
+      invariantResponse(false, "Server error", { status: 500 });
     }
 
     for (const slug of filterValues) {

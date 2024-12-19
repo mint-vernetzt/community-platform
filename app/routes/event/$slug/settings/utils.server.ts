@@ -8,13 +8,12 @@ import {
   getImageURL,
   ImageSizes,
 } from "~/images.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
 import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type getEventBySlug } from "./general.server";
-import { json } from "@remix-run/server-runtime";
-import { invariantResponse } from "~/lib/utils/response";
 
 export function validateTimePeriods(
   // TODO: fix any type
@@ -213,7 +212,7 @@ export async function updateEventById(
     },
   });
   if (eventVisibility === null) {
-    throw json("Event visibilities not found", { status: 404 });
+    invariantResponse(false, "Event visibilities not found", { status: 404 });
   }
 
   let visibility: keyof typeof eventVisibility;

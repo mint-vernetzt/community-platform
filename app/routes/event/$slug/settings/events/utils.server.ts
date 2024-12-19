@@ -2,8 +2,8 @@ import { prismaClient } from "~/prisma.server";
 // important for testing nested calls (https://stackoverflow.com/a/55193363)
 // maybe move helper functions like getUserByRequest to other module
 // then we can just mock external modules
+import { invariantResponse } from "~/lib/utils/response";
 import * as self from "./utils.server";
-import { json } from "@remix-run/server-runtime";
 
 export async function updateParentEventRelationOrThrow(
   slug: string,
@@ -24,8 +24,8 @@ export async function updateParentEventRelationOrThrow(
       });
     }
   } catch (error) {
-    console.error(error);
-    throw json({ message: "Couldn't set parent event" }, { status: 500 });
+    console.error({ error });
+    invariantResponse(false, "Couldn't set parent event", { status: 500 });
   }
 }
 
@@ -46,8 +46,8 @@ export async function addChildEventRelationOrThrow(
       },
     });
   } catch (error) {
-    console.error(error);
-    throw json({ message: "Couldn't add child event" }, { status: 500 });
+    console.error({ error });
+    invariantResponse(false, "Couldn't add child event", { status: 500 });
   }
 }
 
@@ -68,8 +68,8 @@ export async function removeChildEventRelationOrThrow(
       },
     });
   } catch (error) {
-    console.error(error);
-    throw json({ message: "Couldn't remove child event" }, { status: 500 });
+    console.error({ error });
+    invariantResponse(false, "Couldn't remove child event", { status: 500 });
   }
 }
 
