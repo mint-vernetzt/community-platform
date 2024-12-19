@@ -364,18 +364,6 @@ import { locale as enHelp } from "./en/help";
 // meta
 import { locale as enMeta } from "./en/meta";
 
-/* fr (poc) */
-// datasets
-import { locale as frOffers } from "./fr/datasets/offers";
-// organisms
-import { locale as frFooter } from "./fr/organisms/footer";
-import { locale as frProfileCard } from "./fr/organisms/cards/profile-card";
-// explore routes
-import { locale as frExploreFundings } from "./fr/routes/explore/fundings";
-import { locale as frExploreProfiles } from "./fr/routes/explore/profiles";
-// meta
-import { locale as frMeta } from "./fr/meta";
-
 /**
  * This is the map of all language modules.
  *
@@ -386,7 +374,7 @@ import { locale as frMeta } from "./fr/meta";
  *
  * 1. Copy an existing language folder and rename it to the new language code.
  * 2. Translate all files in the new language folder.
- * 3. Add the new language to the `supportedCookieLanguages` array in `i18n.ts`.
+ * 3. Add the new language to the `supportedCookieLanguages` array in `i18n.shared.ts`.
  * - Dont panic if all modules have type errors, the next steps fix these.
  * 4. Add the new language to the `supportedHeaderLanguages` array and transform them into a single value inside the schema in `i18n.server.ts`.
  * - Full list: https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
@@ -1140,24 +1128,7 @@ const en = {
   verification: enVerification,
 } as const;
 
-// poc
-const fr = {
-  // missing routes from en
-  ...en,
-  // root
-  root: { route: frMeta, footer: frFooter },
-  // explore routes
-  "explore/fundings": frExploreFundings,
-  "explore/profiles": {
-    route: frExploreProfiles,
-    offers: frOffers,
-    profileCard: frProfileCard,
-  },
-} as const;
-
 export const languageModuleMap = {
   de,
   en,
-  // poc
-  fr,
 } as const;
