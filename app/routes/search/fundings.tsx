@@ -15,6 +15,7 @@ import {
 } from "./utils.server";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/i18n.server";
+import { prismaClient } from "~/prisma.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -24,8 +25,19 @@ export async function loader(args: LoaderFunctionArgs) {
     itemsPerPage: 6,
   });
 
-  const fundings = await searchFundingsViaLike(searchQuery, take);
-  const fundingsCount = await countSearchedFundings(searchQuery);
+  let fundingsCount: Awaited<ReturnType<typeof countSearchedFundings>>;
+  let fundings: Awaited<ReturnType<typeof searchFundingsViaLike>>;
+  if (searchQuery.length === 0) {
+    fundingsCount = 0;
+    fundings = [];
+  } else {
+    const fundingsCountQuery = countSearchedFundings(searchQuery);
+    const rawFundingsQuery = searchFundingsViaLike(searchQuery, take);
+    const [fundingsCountResult, rawFundingsResult] =
+      await prismaClient.$transaction([fundingsCountQuery, rawFundingsQuery]);
+    fundingsCount = fundingsCountResult;
+    fundings = rawFundingsResult;
+  }
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["search/fundings"];

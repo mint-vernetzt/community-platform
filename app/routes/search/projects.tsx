@@ -23,6 +23,7 @@ import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/Proje
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -35,13 +36,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const sessionUser = await getSessionUser(authClient);
 
-  const projectsCount = await countSearchedProjects(searchQuery, sessionUser);
-
-  const rawProjects = await searchProjectsViaLike(
-    searchQuery,
-    sessionUser,
-    take
-  );
+  let projectsCount: Awaited<ReturnType<typeof countSearchedProjects>>;
+  let rawProjects: Awaited<ReturnType<typeof searchProjectsViaLike>>;
+  if (searchQuery.length === 0) {
+    projectsCount = 0;
+    rawProjects = [];
+  } else {
+    const projectsCountQuery = countSearchedProjects(searchQuery, sessionUser);
+    const rawProjectsQuery = searchProjectsViaLike(
+      searchQuery,
+      sessionUser,
+      take
+    );
+    const [projectsCountResult, rawProjectsResult] =
+      await prismaClient.$transaction([projectsCountQuery, rawProjectsQuery]);
+    projectsCount = projectsCountResult;
+    rawProjects = rawProjectsResult;
+  }
 
   const enhancedProjects = [];
 

@@ -30,6 +30,7 @@ import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCa
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/i18n.server";
+import { prismaClient } from "~/prisma.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -41,9 +42,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { take, page, itemsPerPage } = getTakeParam(request);
 
-  const eventsCount = await countSearchedEvents(searchQuery, sessionUser);
-
-  const rawEvents = await searchEventsViaLike(searchQuery, sessionUser, take);
+  let eventsCount: Awaited<ReturnType<typeof countSearchedEvents>>;
+  let rawEvents: Awaited<ReturnType<typeof searchEventsViaLike>>;
+  if (searchQuery.length === 0) {
+    eventsCount = 0;
+    rawEvents = [];
+  } else {
+    const eventsCountQuery = countSearchedEvents(searchQuery, sessionUser);
+    const rawEventsQuery = searchEventsViaLike(searchQuery, sessionUser, take);
+    const [eventsCountResult, rawEventsResult] =
+      await prismaClient.$transaction([eventsCountQuery, rawEventsQuery]);
+    eventsCount = eventsCountResult;
+    rawEvents = rawEventsResult;
+  }
 
   const enhancedEvents = [];
 

@@ -23,6 +23,7 @@ import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -35,16 +36,31 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const sessionUser = await getSessionUser(authClient);
 
-  const organizationsCount = await countSearchedOrganizations(
-    searchQuery,
-    sessionUser
-  );
-
-  const rawOrganizations = await searchOrganizationsViaLike(
-    searchQuery,
-    sessionUser,
-    take
-  );
+  let organizationsCount: Awaited<
+    ReturnType<typeof countSearchedOrganizations>
+  >;
+  let rawOrganizations: Awaited<ReturnType<typeof searchOrganizationsViaLike>>;
+  if (searchQuery.length === 0) {
+    organizationsCount = 0;
+    rawOrganizations = [];
+  } else {
+    const organizationsCountQuery = countSearchedOrganizations(
+      searchQuery,
+      sessionUser
+    );
+    const rawOrganizationsQuery = searchOrganizationsViaLike(
+      searchQuery,
+      sessionUser,
+      take
+    );
+    const [organizationsCountResult, rawOrganizationsResult] =
+      await prismaClient.$transaction([
+        organizationsCountQuery,
+        rawOrganizationsQuery,
+      ]);
+    organizationsCount = organizationsCountResult;
+    rawOrganizations = rawOrganizationsResult;
+  }
 
   const enhancedOrganizations = [];
 

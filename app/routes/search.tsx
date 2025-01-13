@@ -20,6 +20,7 @@ import {
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/i18n.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { prismaClient } from "~/prisma.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
@@ -38,25 +39,33 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     fundings: 0,
   };
   if (searchQuery !== null) {
-    const promises = [
-      countSearchedProfiles(searchQuery, sessionUser),
-      countSearchedOrganizations(searchQuery, sessionUser),
-      countSearchedEvents(searchQuery, sessionUser),
-      countSearchedProjects(searchQuery, sessionUser),
-      countSearchedFundings(searchQuery),
-    ];
-    const [
-      profilesCount,
-      organizationsCount,
-      eventsCount,
-      projectsCount,
-      fundingsCount,
-    ] = await Promise.all(promises);
-    countData.profiles = profilesCount;
-    countData.organizations = organizationsCount;
-    countData.events = eventsCount;
-    countData.projects = projectsCount;
-    countData.fundings = fundingsCount;
+    if (searchQuery.length === 0) {
+      countData.profiles = 0;
+      countData.organizations = 0;
+      countData.events = 0;
+      countData.projects = 0;
+      countData.fundings = 0;
+    } else {
+      const queries = [
+        countSearchedProfiles(searchQuery, sessionUser),
+        countSearchedOrganizations(searchQuery, sessionUser),
+        countSearchedEvents(searchQuery, sessionUser),
+        countSearchedProjects(searchQuery, sessionUser),
+        countSearchedFundings(searchQuery),
+      ];
+      const [
+        profilesCount,
+        organizationsCount,
+        eventsCount,
+        projectsCount,
+        fundingsCount,
+      ] = await prismaClient.$transaction(queries);
+      countData.profiles = profilesCount;
+      countData.organizations = organizationsCount;
+      countData.events = eventsCount;
+      countData.projects = projectsCount;
+      countData.fundings = fundingsCount;
+    }
   }
 
   return {

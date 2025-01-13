@@ -23,6 +23,7 @@ import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/Profi
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -35,13 +36,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const sessionUser = await getSessionUser(authClient);
 
-  const profilesCount = await countSearchedProfiles(searchQuery, sessionUser);
-
-  const rawProfiles = await searchProfilesViaLike(
-    searchQuery,
-    sessionUser,
-    take
-  );
+  let profilesCount: Awaited<ReturnType<typeof countSearchedProfiles>>;
+  let rawProfiles: Awaited<ReturnType<typeof searchProfilesViaLike>>;
+  if (searchQuery.length === 0) {
+    profilesCount = 0;
+    rawProfiles = [];
+  } else {
+    const profilesCountQuery = countSearchedProfiles(searchQuery, sessionUser);
+    const rawProfilesQuery = searchProfilesViaLike(
+      searchQuery,
+      sessionUser,
+      take
+    );
+    const [profilesCountResult, rawProfilesResult] =
+      await prismaClient.$transaction([profilesCountQuery, rawProfilesQuery]);
+    profilesCount = profilesCountResult;
+    rawProfiles = rawProfilesResult;
+  }
 
   const enhancedProfiles = [];
 

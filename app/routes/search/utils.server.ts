@@ -37,16 +37,13 @@ export function getTakeParam(
 // - Search on arrays is possible
 // - Search on relations is possible
 
-export async function searchProfilesViaLike(
+export function searchProfilesViaLike(
   searchQuery: string[],
   sessionUser: User | null,
   take?: number
 ) {
-  if (searchQuery.length === 0) {
-    return [];
-  }
   const whereQueries = getProfileWhereQueries(searchQuery, sessionUser);
-  const profiles = await prismaClient.profile.findMany({
+  const profilesQuery = prismaClient.profile.findMany({
     select: {
       id: true,
       academicTitle: true,
@@ -126,23 +123,20 @@ export async function searchProfilesViaLike(
       { firstName: "asc" },
     ],
   });
-  return profiles;
+  return profilesQuery;
 }
 
-export async function countSearchedProfiles(
+export function countSearchedProfiles(
   searchQuery: string[],
   sessionUser: User | null
 ) {
-  if (searchQuery.length === 0) {
-    return 0;
-  }
   const whereQueries = getProfileWhereQueries(searchQuery, sessionUser);
-  const profileCount = await prismaClient.profile.count({
+  const profileCountQuery = prismaClient.profile.count({
     where: {
       AND: whereQueries,
     },
   });
-  return profileCount;
+  return profileCountQuery;
 }
 
 function getProfileWhereQueries(
@@ -504,16 +498,13 @@ function getProfileWhereQueries(
   return whereQueries;
 }
 
-export async function searchOrganizationsViaLike(
+export function searchOrganizationsViaLike(
   searchQuery: string[],
   sessionUser: User | null,
   take?: number
 ) {
-  if (searchQuery.length === 0) {
-    return [];
-  }
   const whereQueries = getOrganizationWhereQueries(searchQuery, sessionUser);
-  const organizations = await prismaClient.organization.findMany({
+  const organizationsQuery = prismaClient.organization.findMany({
     select: {
       id: true,
       slug: true,
@@ -597,23 +588,20 @@ export async function searchOrganizationsViaLike(
       { name: "asc" },
     ],
   });
-  return organizations;
+  return organizationsQuery;
 }
 
-export async function countSearchedOrganizations(
+export function countSearchedOrganizations(
   searchQuery: string[],
   sessionUser: User | null
 ) {
-  if (searchQuery.length === 0) {
-    return 0;
-  }
   const whereQueries = getOrganizationWhereQueries(searchQuery, sessionUser);
-  const organizationCount = await prismaClient.organization.count({
+  const organizationCountQuery = prismaClient.organization.count({
     where: {
       AND: whereQueries,
     },
   });
-  return organizationCount;
+  return organizationCountQuery;
 }
 
 function getOrganizationWhereQueries(
@@ -1052,16 +1040,13 @@ function getOrganizationWhereQueries(
   return whereQueries;
 }
 
-export async function searchEventsViaLike(
+export function searchEventsViaLike(
   searchQuery: string[],
   sessionUser: User | null,
   take?: number
 ) {
-  if (searchQuery.length === 0) {
-    return [];
-  }
   const whereQueries = getEventWhereQueries(searchQuery, sessionUser);
-  const events = await prismaClient.event.findMany({
+  const eventsQuery = prismaClient.event.findMany({
     select: {
       id: true,
       name: true,
@@ -1139,23 +1124,20 @@ export async function searchEventsViaLike(
       startTime: "desc",
     },
   });
-  return events;
+  return eventsQuery;
 }
 
-export async function countSearchedEvents(
+export function countSearchedEvents(
   searchQuery: string[],
   sessionUser: User | null
 ) {
-  if (searchQuery.length === 0) {
-    return 0;
-  }
   const whereQueries = getEventWhereQueries(searchQuery, sessionUser);
-  const eventCount = await prismaClient.event.count({
+  const eventCountQuery = prismaClient.event.count({
     where: {
       AND: [{ published: true }, ...whereQueries],
     },
   });
-  return eventCount;
+  return eventCountQuery;
 }
 
 function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
@@ -1505,16 +1487,13 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
   return whereQueries;
 }
 
-export async function searchProjectsViaLike(
+export function searchProjectsViaLike(
   searchQuery: string[],
   sessionUser: User | null,
   take?: number
 ) {
-  if (searchQuery.length === 0) {
-    return [];
-  }
   const whereQueries = getProjectWhereQueries(searchQuery, sessionUser);
-  const projects = await prismaClient.project.findMany({
+  const projectsQuery = prismaClient.project.findMany({
     select: {
       id: true,
       slug: true,
@@ -1562,23 +1541,20 @@ export async function searchProjectsViaLike(
       name: "asc",
     },
   });
-  return projects;
+  return projectsQuery;
 }
 
-export async function countSearchedProjects(
+export function countSearchedProjects(
   searchQuery: string[],
   sessionUser: User | null
 ) {
-  if (searchQuery.length === 0) {
-    return 0;
-  }
   const whereQueries = getProjectWhereQueries(searchQuery, sessionUser);
-  const projectCount = await prismaClient.project.count({
+  const projectCountQuery = prismaClient.project.count({
     where: {
       AND: [...whereQueries, { published: true }],
     },
   });
-  return projectCount;
+  return projectCountQuery;
 }
 
 function getProjectWhereQueries(
@@ -2003,15 +1979,9 @@ function getProjectWhereQueries(
   return whereQueries;
 }
 
-export async function searchFundingsViaLike(
-  searchQuery: string[],
-  take?: number
-) {
-  if (searchQuery.length === 0) {
-    return [];
-  }
+export function searchFundingsViaLike(searchQuery: string[], take?: number) {
   const whereQueries = getFundingWhereQueries(searchQuery);
-  const fundings = await prismaClient.funding.findMany({
+  const fundingsQuery = prismaClient.funding.findMany({
     select: {
       title: true,
       url: true,
@@ -2076,20 +2046,17 @@ export async function searchFundingsViaLike(
       title: "asc",
     },
   });
-  return fundings;
+  return fundingsQuery;
 }
 
-export async function countSearchedFundings(searchQuery: string[]) {
-  if (searchQuery.length === 0) {
-    return 0;
-  }
+export function countSearchedFundings(searchQuery: string[]) {
   const whereQueries = getFundingWhereQueries(searchQuery);
-  const fundingCount = await prismaClient.funding.count({
+  const fundingCountQuery = prismaClient.funding.count({
     where: {
       AND: [...whereQueries],
     },
   });
-  return fundingCount;
+  return fundingCountQuery;
 }
 
 function getFundingWhereQueries(searchQuery: string[]) {
