@@ -1,8 +1,8 @@
 import * as React from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
-import { RTE } from "./RTE.client";
-import { ClientOnly } from "remix-utils/client-only";
 import type ReactQuill from "react-quill";
+import { RTE } from "../../../components-next/RTE";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export interface TextAreaProps {
   id: string;
@@ -28,9 +28,7 @@ const TextArea = React.forwardRef(
       ...rest
     } = props;
 
-    const quillRef = React.useRef<ReactQuill | null>(
-      props.quillRef !== undefined ? props.quillRef.current : null
-    );
+    const isHydrated = useHydrated();
 
     return (
       <div className="form-control w-full">
@@ -53,26 +51,19 @@ const TextArea = React.forwardRef(
         </div>
         <div className="flex flex-row">
           <div className="flex-auto">
-            {rte === true && quillRef.current !== null && (
-              <ClientOnly>
-                {() => {
-                  return (
-                    <RTE
-                      id={id}
-                      defaultValue={`${rest.defaultValue || ""}`}
-                      maxLength={rest.maxLength}
-                      quillRef={quillRef}
-                    />
-                  );
-                }}
-              </ClientOnly>
-            )}
+            {rte === true && isHydrated ? (
+              <RTE
+                defaultValue={`${rest.defaultValue || ""}`}
+                placeholder="Enter your text here"
+                maxLength={rest.maxLength}
+              />
+            ) : null}
             <textarea
               {...rest}
               id={id}
               className={`textarea textarea-bordered h-24 w-full ${
                 props.className
-              }${rte === true ? " hidden" : ""}`}
+              }${rte === true && isHydrated ? " hidden" : ""}`}
             ></textarea>
           </div>
           {withPublicPrivateToggle !== undefined &&

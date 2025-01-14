@@ -1,11 +1,9 @@
 import classNames from "classnames";
-import type { FormEventHandler } from "react";
-import React from "react";
-import type ReactQuill from "react-quill";
+import React, { type FormEventHandler } from "react";
 import Counter from "../../Counter/Counter";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
-import { ClientOnly } from "remix-utils/client-only";
-import { RTE } from "../TextArea/RTE.client";
+import { RTE } from "../../../components-next/RTE";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export interface TextAreaWithCounterProps {
   id: string;
@@ -39,7 +37,8 @@ const TextAreaWithCounter = React.forwardRef(
       ...rest
     } = props;
 
-    const quillRef = React.useRef<ReactQuill>(null);
+    const isHydrated = useHydrated();
+
     const [characterCount, updateCharacterCount] = React.useState(
       props.defaultValue?.toString().length || 0
     );
@@ -51,26 +50,20 @@ const TextAreaWithCounter = React.forwardRef(
       if (defaultOnChange) {
         defaultOnChange(event);
       }
-      if (quillRef.current !== null) {
-        // Getting the right character count from quills trimmed content
-        const trimmedContent = quillRef.current.getEditor().getText().trim();
-        updateCharacterCount(trimmedContent.length);
-      } else {
-        let tmpValue = event.currentTarget.value;
-        const currentLength = event.currentTarget.value.length;
-        if (maxCharacters !== undefined && currentLength > maxCharacters) {
-          // Check the delta to also cut copy paste input
-          const delta = currentLength - maxCharacters;
-          // Use slice to cut the string right were the cursor currently is at (Thats the place were to many characters got inserted, so there they have to be removed)
-          const currentCursorIndex = event.currentTarget.selectionEnd;
-          tmpValue = `${tmpValue.slice(
-            0,
-            currentCursorIndex - delta
-          )}${tmpValue.slice(currentCursorIndex, currentLength)}`;
+      let tmpValue = event.currentTarget.value;
+      const currentLength = event.currentTarget.value.length;
+      if (maxCharacters !== undefined && currentLength > maxCharacters) {
+        // Check the delta to also cut copy paste input
+        const delta = currentLength - maxCharacters;
+        // Use slice to cut the string right were the cursor currently is at (Thats the place were to many characters got inserted, so there they have to be removed)
+        const currentCursorIndex = event.currentTarget.selectionEnd;
+        tmpValue = `${tmpValue.slice(
+          0,
+          currentCursorIndex - delta
+        )}${tmpValue.slice(currentCursorIndex, currentLength)}`;
 
-          event.currentTarget.value = tmpValue;
-          event.currentTarget.selectionEnd = currentCursorIndex - delta;
-        }
+        event.currentTarget.value = tmpValue;
+        event.currentTarget.selectionEnd = currentCursorIndex - delta;
         updateCharacterCount(tmpValue.length);
       }
     };
@@ -84,7 +77,7 @@ const TextAreaWithCounter = React.forwardRef(
 
     return (
       <>
-        <div className="mv-flex mv-flex-col">
+        <div className="mv-flex mv-flex-col mv-w-full">
           <div className="form-control w-full">
             <div className="flex flex-row items-center mb-2">
               <label htmlFor={id} className="label flex-auto">
@@ -105,20 +98,13 @@ const TextAreaWithCounter = React.forwardRef(
             </div>
             <div className="flex flex-row">
               <div className="flex-auto">
-                {rte === true && quillRef.current !== null && (
-                  <ClientOnly>
-                    {() => {
-                      return (
-                        <RTE
-                          id={id}
-                          defaultValue={`${defaultValue || ""}`}
-                          maxLength={maxCharacters}
-                          quillRef={quillRef}
-                        />
-                      );
-                    }}
-                  </ClientOnly>
-                )}
+                {rte === true && isHydrated ? (
+                  <RTE
+                    defaultValue={`${defaultValue || ""}`}
+                    placeholder="Enter your text here"
+                    maxLength={maxCharacters}
+                  />
+                ) : null}
                 <textarea
                   {...rest}
                   id={id}
@@ -126,7 +112,7 @@ const TextAreaWithCounter = React.forwardRef(
                   onChange={handleTextAreaChange}
                   className={`textarea textarea-bordered h-24 w-full ${
                     props.className
-                  }${rte === true ? " hidden" : ""}`}
+                  }${rte === true && isHydrated ? " hidden" : ""}`}
                 ></textarea>
               </div>
               {withPublicPrivateToggle !== undefined &&
@@ -148,7 +134,7 @@ const TextAreaWithCounter = React.forwardRef(
                   {helperText}
                 </div>
               )}
-              {maxCharacters !== undefined && (
+              {maxCharacters !== undefined && rte === false && (
                 <Counter
                   currentCount={characterCount}
                   maxCount={maxCharacters}
