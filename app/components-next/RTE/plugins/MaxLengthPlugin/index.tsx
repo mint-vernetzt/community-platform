@@ -16,12 +16,12 @@ import {
   type EditorState,
   RootNode,
 } from "lexical";
-import { useEffect } from "react";
+import React from "react";
 
 export function MaxLengthPlugin({ maxLength }: { maxLength: number }): null {
   const [editor] = useLexicalComposerContext();
 
-  useEffect(() => {
+  React.useEffect(() => {
     let lastRestoredEditorState: EditorState | null = null;
 
     return editor.registerNodeTransform(RootNode, (rootNode: RootNode) => {

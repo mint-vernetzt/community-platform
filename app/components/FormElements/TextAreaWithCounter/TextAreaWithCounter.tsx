@@ -4,6 +4,7 @@ import Counter from "../../Counter/Counter";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 import { RTE } from "../../../components-next/RTE/RTE";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 
 export interface TextAreaWithCounterProps {
   id: string;
@@ -100,20 +101,23 @@ const TextAreaWithCounter = React.forwardRef(
               <div className="flex-auto">
                 {rte === true && isHydrated ? (
                   <RTE
+                    {...rest}
+                    id={id}
                     defaultValue={defaultValue}
                     placeholder="Enter your text here"
                     maxLength={maxCharacters}
                   />
-                ) : null}
-                <textarea
-                  {...rest}
-                  id={id}
-                  defaultValue={defaultValue}
-                  onChange={handleTextAreaChange}
-                  className={`textarea textarea-bordered h-24 w-full ${
-                    props.className
-                  }${rte === true && isHydrated ? " hidden" : ""}`}
-                ></textarea>
+                ) : (
+                  <textarea
+                    {...rest}
+                    id={id}
+                    // removeHtmlTags is just for the edge case that someone used RTE already and then turned javascript off at one point.
+                    // We will stay consistent on using rich text for specific fields in the database.
+                    defaultValue={removeHtmlTags(String(defaultValue))}
+                    onChange={handleTextAreaChange}
+                    className={`textarea textarea-bordered h-24 w-full ${props.className}`}
+                  ></textarea>
+                )}
               </div>
               {withPublicPrivateToggle !== undefined &&
                 props.isPublic !== undefined &&
