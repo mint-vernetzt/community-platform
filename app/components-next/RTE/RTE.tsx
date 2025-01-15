@@ -1,4 +1,3 @@
-import { CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { ORDERED_LIST, UNORDERED_LIST } from "@lexical/markdown";
@@ -23,14 +22,13 @@ import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { QuoteNode } from "@lexical/rich-text";
-import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import {
   type EditorState,
   type EditorThemeClasses,
   type LexicalEditor,
 } from "lexical";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
 
 const theme: EditorThemeClasses = {
   text: {
@@ -62,19 +60,14 @@ function onError(error: Error) {
 }
 
 const URL_REGEX =
-  /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
+  /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)(?<![-.+():%])/;
 
 const EMAIL_REGEX =
   /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
 
 const MATCHERS = [
   createLinkMatcherWithRegExp(URL_REGEX, (text) => {
-    const textWithProtocol =
-      text.startsWith("https://") === false &&
-      text.startsWith("http://") === false
-        ? `https://${text}`
-        : text;
-    return textWithProtocol;
+    return text.startsWith("http") ? text : `https://${text}`;
   }),
   createLinkMatcherWithRegExp(EMAIL_REGEX, (text) => {
     return `mailto:${text}`;
@@ -92,7 +85,7 @@ export function validateUrl(url: string): boolean {
 }
 
 function RTE(props: {
-  defaultValue: string;
+  defaultValue: string | number | readonly string[];
   placeholder?: string;
   maxLength?: number;
 }) {
@@ -107,16 +100,8 @@ function RTE(props: {
       AutoLinkNode,
       ListNode,
       ListItemNode,
-      TableNode,
-      TableCellNode,
-      TableRowNode,
       HorizontalRuleNode,
-      CodeNode,
-      // HeadingNode,
       LinkNode,
-      ListNode,
-      ListItemNode,
-      QuoteNode,
       OverflowNode,
     ],
     onError,
@@ -128,7 +113,7 @@ function RTE(props: {
         <RichTextPlugin
           contentEditable={
             <ContentEditable
-              defaultValue={removeHtmlTags(defaultValue)}
+              defaultValue={removeHtmlTags(String(defaultValue))}
               className="mv-p-2 mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-h-full mv-overflow-y-scroll"
             />
           }
@@ -153,17 +138,26 @@ function RTE(props: {
         <MarkdownShortcutPlugin transformers={[UNORDERED_LIST, ORDERED_LIST]} />
         <HorizontalRulePlugin />
         {maxLength !== undefined ? (
-          <CharacterLimitPlugin
-            charset="UTF-8"
-            maxLength={maxLength}
-            renderer={({ remainingCharacters }) => (
-              <div className="mv-flex mv-w-full mv-mt-2 mv-justify-end">
-                <div className="mv-text-sm mv-text-gray-700">
-                  {maxLength - remainingCharacters}/{maxLength}
+          <>
+            <CharacterLimitPlugin
+              charset="UTF-8"
+              maxLength={maxLength}
+              renderer={({ remainingCharacters }) => (
+                <div className="mv-flex mv-w-full mv-mt-2 mv-justify-end">
+                  <div
+                    className={`mv-text-sm ${
+                      remainingCharacters < 0
+                        ? "mv-text-red-500"
+                        : "mv-text-gray-700"
+                    }`}
+                  >
+                    {maxLength - remainingCharacters}/{maxLength}
+                  </div>
                 </div>
-              </div>
-            )}
-          />
+              )}
+            />
+            <MaxLengthPlugin maxLength={maxLength} />
+          </>
         ) : null}
       </LexicalComposer>
     </div>

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 import type ReactQuill from "react-quill";
-import { RTE } from "../../../components-next/RTE";
+import { RTE } from "../../../components-next/RTE/RTE";
 import { useHydrated } from "remix-utils/use-hydrated";
 
 export interface TextAreaProps {

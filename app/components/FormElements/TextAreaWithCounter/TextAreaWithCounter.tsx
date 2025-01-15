@@ -2,7 +2,7 @@ import classNames from "classnames";
 import React, { type FormEventHandler } from "react";
 import Counter from "../../Counter/Counter";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
-import { RTE } from "../../../components-next/RTE";
+import { RTE } from "../../../components-next/RTE/RTE";
 import { useHydrated } from "remix-utils/use-hydrated";
 
 export interface TextAreaWithCounterProps {
@@ -100,7 +100,7 @@ const TextAreaWithCounter = React.forwardRef(
               <div className="flex-auto">
                 {rte === true && isHydrated ? (
                   <RTE
-                    defaultValue={`${defaultValue || ""}`}
+                    defaultValue={defaultValue}
                     placeholder="Enter your text here"
                     maxLength={maxCharacters}
                   />
