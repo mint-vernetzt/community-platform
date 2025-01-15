@@ -123,7 +123,8 @@ function OrganizationCard(
                           return type;
                         }
                         type LocaleKey = keyof typeof locales.organizationTypes;
-                        return locales.organizationTypes[type as LocaleKey];
+                        return locales.organizationTypes[type as LocaleKey]
+                          .title;
                       })
                       .join("/")}
                   </p>
