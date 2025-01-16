@@ -4,7 +4,7 @@ export function ArrowCounterClockwise() {
       xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
-      fill="#374151"
+      fill="currentColor"
     >
       <path
         fillRule="evenodd"

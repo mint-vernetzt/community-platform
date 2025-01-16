@@ -31,6 +31,7 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
 
+  const linkInputRef = React.useRef<HTMLInputElement>(null);
   const [linkInputValue, setLinkInputValue] = React.useState("https://");
   const [showInsertLinkMenu, setShowInsertLinkMenu] = React.useState(false);
   const [canInsertLink, setCanInsertLink] = React.useState(false);
@@ -186,7 +187,7 @@ function ToolbarPlugin() {
             variant="ghost"
             size="x-small"
             htmlFor="add-link"
-            className="mv-cursor-pointer"
+            className={canInsertLink === true ? "mv-cursor-pointer" : undefined}
           >
             <LinkIcon />
           </Button>
@@ -198,14 +199,18 @@ function ToolbarPlugin() {
             checked={showInsertLinkMenu}
             onChange={(event) => {
               setShowInsertLinkMenu(event.currentTarget.checked);
+              if (linkInputRef.current !== null) {
+                linkInputRef.current.focus();
+              }
             }}
           />
         </div>
-        <div className="mv-absolute">
-          <div className="group-has-[:checked]:mv-block mv-hidden mv-bg-white mv-rounded-md mv-border mv-border-gray-200 mv-p-2">
+        <div className="mv-absolute mv-left-0 mv-w-full">
+          <div className="group-has-[:checked]:mv-block mv-hidden mv-bg-white mv-border mv-border-gray-200 mv-px-2 mv-pb-2">
             <div className="mv-flex mv-gap-1 mv-items-center mv-abolute mv-top-0">
               <Input
                 id="linkInput"
+                ref={linkInputRef}
                 value={linkInputValue}
                 onChange={(event) =>
                   setLinkInputValue(event.currentTarget.value)
