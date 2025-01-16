@@ -4,19 +4,82 @@ import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
 } from "@lexical/list";
-import { FORMAT_TEXT_COMMAND, REDO_COMMAND, UNDO_COMMAND } from "lexical";
+import {
+  $getSelection,
+  $isRangeSelection,
+  CAN_REDO_COMMAND,
+  CAN_UNDO_COMMAND,
+  COMMAND_PRIORITY_LOW,
+  FORMAT_TEXT_COMMAND,
+  REDO_COMMAND,
+  SELECTION_CHANGE_COMMAND,
+  UNDO_COMMAND,
+} from "lexical";
 import React from "react";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Bold } from "~/components-next/icons/Bold";
+import { ArrowCounterClockwise } from "~/components-next/icons/ArrowCounterClockwise";
+import { ArrowClockwise } from "~/components-next/icons/ArrowClockwise";
+import { Italic } from "~/components-next/icons/Italic";
+import { Underline } from "~/components-next/icons/Underline";
+import { UnorderedList } from "~/components-next/icons/UnorderedList";
+import { OrderedList } from "~/components-next/icons/OrderedList";
+import { LinkIcon } from "~/components-next/icons/LinkIcon";
+import { Add } from "~/components-next/icons/Add";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 
 function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
 
   const [linkInputValue, setLinkInputValue] = React.useState("https://");
+  const [showInsertLinkMenu, setShowInsertLinkMenu] = React.useState(false);
+  const [canInsertLink, setCanInsertLink] = React.useState(false);
+  const [canUndo, setCanUndo] = React.useState(false);
+  const [canRedo, setCanRedo] = React.useState(false);
+
+  React.useEffect(() => {
+    editor.registerCommand(
+      CAN_UNDO_COMMAND,
+      (payload) => {
+        setCanUndo(payload);
+        return payload;
+      },
+      COMMAND_PRIORITY_LOW
+    );
+    editor.registerCommand(
+      CAN_REDO_COMMAND,
+      (payload) => {
+        setCanRedo(payload);
+        return payload;
+      },
+      COMMAND_PRIORITY_LOW
+    );
+    editor.registerCommand(
+      SELECTION_CHANGE_COMMAND,
+      () => {
+        const selection = $getSelection();
+        if (selection !== null && $isRangeSelection(selection)) {
+          if (selection.getTextContent().length > 0) {
+            setCanInsertLink(true);
+          } else {
+            setCanInsertLink(false);
+          }
+        } else {
+          setCanInsertLink(false);
+        }
+        return true;
+      },
+      COMMAND_PRIORITY_LOW
+    );
+  }, [editor]);
 
   return (
-    // TODO: Add styles and disabled
-    <div className="mv-flex mv-gap-1 mv-w-full mv-h-10 mv-items-center">
-      <button
-        onClick={(event) => {
+    <div className="mv-flex mv-gap-1 mv-w-full mv-h-10 mv-items-center mv-border-x mv-border-t mv-border-gray-200 mv-rounded-t-lg">
+      <Button
+        variant="ghost"
+        size="x-small"
+        disabled={canUndo === false}
+        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
           event.preventDefault();
           editor.dispatchCommand(UNDO_COMMAND, undefined);
@@ -25,10 +88,13 @@ function ToolbarPlugin() {
         aria-label="Undo"
         type="button"
       >
-        Undo
-      </button>
-      <button
-        onClick={(event) => {
+        <ArrowCounterClockwise />
+      </Button>
+      <Button
+        variant="ghost"
+        size="x-small"
+        disabled={canRedo === false}
+        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
           event.preventDefault();
           editor.dispatchCommand(REDO_COMMAND, undefined);
@@ -37,11 +103,13 @@ function ToolbarPlugin() {
         aria-label="Redo"
         type="button"
       >
-        Redo
-      </button>
+        <ArrowClockwise />
+      </Button>
       {/* TODO: Divider */}
-      <button
-        onClick={(event) => {
+      <Button
+        variant="ghost"
+        size="x-small"
+        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
           event.preventDefault();
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
@@ -50,10 +118,12 @@ function ToolbarPlugin() {
         aria-label="Bold"
         type="button"
       >
-        Bold
-      </button>
-      <button
-        onClick={(event) => {
+        <Bold />
+      </Button>
+      <Button
+        variant="ghost"
+        size="x-small"
+        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
           event.preventDefault();
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
@@ -62,10 +132,12 @@ function ToolbarPlugin() {
         aria-label="Italic"
         type="button"
       >
-        Italic
-      </button>
-      <button
-        onClick={(event) => {
+        <Italic />
+      </Button>
+      <Button
+        variant="ghost"
+        size="x-small"
+        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
           event.preventDefault();
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
@@ -74,11 +146,13 @@ function ToolbarPlugin() {
         aria-label="Underline"
         type="button"
       >
-        Underline
-      </button>
+        <Underline />
+      </Button>
       {/* TODO: Divider */}
-      <button
-        onClick={(event) => {
+      <Button
+        variant="ghost"
+        size="x-small"
+        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
           event.preventDefault();
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
@@ -87,10 +161,12 @@ function ToolbarPlugin() {
         aria-label="Insert bullet list"
         type="button"
       >
-        Bullet list
-      </button>
-      <button
-        onClick={(event) => {
+        <UnorderedList />
+      </Button>
+      <Button
+        variant="ghost"
+        size="x-small"
+        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
           event.preventDefault();
           editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
@@ -99,51 +175,68 @@ function ToolbarPlugin() {
         aria-label="Insert numbered list"
         type="button"
       >
-        Numbered list
-      </button>
+        <OrderedList />
+      </Button>
       {/* TODO: Divider */}
       <div className="mv-group">
         <div>
-          <label
+          <Button
+            as="label"
+            disabled={canInsertLink === false}
+            variant="ghost"
+            size="x-small"
             htmlFor="add-link"
-            className="mv-cursor-pointer mv-select-none"
+            className="mv-cursor-pointer"
           >
-            Link
-          </label>
+            <LinkIcon />
+          </Button>
           <input
             id="add-link"
+            disabled={canInsertLink === false}
             type="checkbox"
             className="mv-absolute mv-w-0 mv-h-0 mv-opacity-0"
-            defaultChecked={false}
+            checked={showInsertLinkMenu}
+            onChange={(event) => {
+              setShowInsertLinkMenu(event.currentTarget.checked);
+            }}
           />
         </div>
-        <div className="group-has-[:checked]:mv-block mv-hidden">
-          <label
-            htmlFor="linkInput"
-            className="mv-cursor-pointer mv-select-none"
-          >
-            Insert Link
-          </label>
-          <div className="mv-flex mv-gap-1 mv-items-center">
-            <input
-              id="linkInput"
-              value={linkInputValue}
-              onChange={(event) => setLinkInputValue(event.currentTarget.value)}
-            />
-            <button
-              // TODO: Link insertion menu
-              onClick={(event) => {
-                event.stopPropagation();
-                event.preventDefault();
-                editor.dispatchCommand(TOGGLE_LINK_COMMAND, linkInputValue);
-                setLinkInputValue("https://");
-              }}
-              title="Insert link"
-              aria-label="Insert link"
-              type="button"
-            >
-              Link
-            </button>
+        <div className="mv-absolute">
+          <div className="group-has-[:checked]:mv-block mv-hidden mv-bg-white mv-rounded-md mv-border mv-border-gray-200 mv-p-2">
+            <div className="mv-flex mv-gap-1 mv-items-center mv-abolute mv-top-0">
+              <Input
+                id="linkInput"
+                value={linkInputValue}
+                onChange={(event) =>
+                  setLinkInputValue(event.currentTarget.value)
+                }
+              >
+                <Input.Label htmlFor="linkInput">Insert Link</Input.Label>
+                <Input.Controls>
+                  <Button
+                    variant="outline"
+                    size="x-small"
+                    onClick={(
+                      event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+                    ) => {
+                      event.stopPropagation();
+                      event.preventDefault();
+                      editor.dispatchCommand(
+                        TOGGLE_LINK_COMMAND,
+                        linkInputValue
+                      );
+                      setLinkInputValue("https://");
+                      setShowInsertLinkMenu(false);
+                    }}
+                    title="Insert link"
+                    aria-label="Insert link"
+                    type="button"
+                  >
+                    <Add />
+                  </Button>
+                </Input.Controls>
+              </Input>
+            </div>
           </div>
         </div>
       </div>

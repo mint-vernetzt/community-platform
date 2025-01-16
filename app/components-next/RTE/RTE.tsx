@@ -85,7 +85,7 @@ function RTE(
         <RichTextPlugin
           contentEditable={
             <ContentEditable
-              className="mv-p-2 mv-rounded-bl-lg mv-rounded-br-lg mv-h-24 mv-border mv-border-gray-300 mv-w-full mv-overflow-y-scroll"
+              className="mv-p-2 mv-rounded-bl-lg mv-rounded-br-lg mv-h-24 mv-border mv-border-gray-200 mv-w-full mv-overflow-y-scroll"
               placeholder={
                 placeholder !== undefined ? (
                   <div className="mv-absolute mv-top-12 mv-left-2 mv-pointer-events-none">
