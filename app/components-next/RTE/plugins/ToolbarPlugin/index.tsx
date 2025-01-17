@@ -37,7 +37,12 @@ function ToolbarPlugin() {
   const [canInsertLink, setCanInsertLink] = React.useState(false);
   const [canUndo, setCanUndo] = React.useState(false);
   const [canRedo, setCanRedo] = React.useState(false);
-
+  // TODO: Check isBold/Italic/Underline and set buttons classNames accordingly
+  const baseButtonClassName =
+    "mv-appearance-none mv-w-fit mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-text-xs mv-p-2 mv-leading-4";
+  const disabledClassName = "mv-bg-neutral-50 mv-text-neutral-300";
+  const enabledClassName =
+    "mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-50 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-cursor-pointer peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500";
   React.useEffect(() => {
     editor.registerCommand(
       CAN_UNDO_COMMAND,
@@ -75,10 +80,11 @@ function ToolbarPlugin() {
   }, [editor]);
 
   return (
-    <div className="mv-flex mv-gap-1 mv-w-full mv-h-10 mv-items-center mv-border-x mv-border-t mv-border-gray-200 mv-rounded-t-lg">
-      <Button
-        variant="ghost"
-        size="x-small"
+    <div className="mv-flex mv-gap-1 mv-w-full mv-h-10 mv-items-center mv-border-b mv-border-gray-200 mv-pl-1">
+      <button
+        className={`${baseButtonClassName} ${
+          canUndo === true ? enabledClassName : disabledClassName
+        }`}
         disabled={canUndo === false}
         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
@@ -90,10 +96,11 @@ function ToolbarPlugin() {
         type="button"
       >
         <ArrowCounterClockwise />
-      </Button>
-      <Button
-        variant="ghost"
-        size="x-small"
+      </button>
+      <button
+        className={`${baseButtonClassName} ${
+          canRedo === true ? enabledClassName : disabledClassName
+        }`}
         disabled={canRedo === false}
         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
@@ -105,11 +112,9 @@ function ToolbarPlugin() {
         type="button"
       >
         <ArrowClockwise />
-      </Button>
-      {/* TODO: Divider */}
-      <Button
-        variant="ghost"
-        size="x-small"
+      </button>
+      <button
+        className={`${baseButtonClassName} ${enabledClassName}`}
         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
           event.preventDefault();
@@ -120,10 +125,9 @@ function ToolbarPlugin() {
         type="button"
       >
         <Bold />
-      </Button>
-      <Button
-        variant="ghost"
-        size="x-small"
+      </button>
+      <button
+        className={`${baseButtonClassName} ${enabledClassName}`}
         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
           event.preventDefault();
@@ -134,10 +138,9 @@ function ToolbarPlugin() {
         type="button"
       >
         <Italic />
-      </Button>
-      <Button
-        variant="ghost"
-        size="x-small"
+      </button>
+      <button
+        className={`${baseButtonClassName} ${enabledClassName}`}
         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           event.stopPropagation();
           event.preventDefault();
@@ -148,54 +151,14 @@ function ToolbarPlugin() {
         type="button"
       >
         <Underline />
-      </Button>
-      {/* TODO: Divider */}
-      <Button
-        variant="ghost"
-        size="x-small"
-        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.stopPropagation();
-          event.preventDefault();
-          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-        }}
-        title="Insert bullet list"
-        aria-label="Insert bullet list"
-        type="button"
-      >
-        <UnorderedList />
-      </Button>
-      <Button
-        variant="ghost"
-        size="x-small"
-        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.stopPropagation();
-          event.preventDefault();
-          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-        }}
-        title="Insert numbered list"
-        aria-label="Insert numbered list"
-        type="button"
-      >
-        <OrderedList />
-      </Button>
-      {/* TODO: Divider */}
+      </button>
       <div className="mv-group">
         <div>
-          <Button
-            as="label"
-            disabled={canInsertLink === false}
-            variant="ghost"
-            size="x-small"
-            htmlFor="add-link"
-            className={canInsertLink === true ? "mv-cursor-pointer" : undefined}
-          >
-            <LinkIcon />
-          </Button>
           <input
             id="add-link"
             disabled={canInsertLink === false}
             type="checkbox"
-            className="mv-absolute mv-w-0 mv-h-0 mv-opacity-0"
+            className="mv-peer mv-fixed mv-w-0 mv-h-0 mv-opacity-0 mv-top-0 mv-left-0 group-has-[:checked]:mv-w-screen group-has-[:checked]:mv-h-dvh"
             checked={showInsertLinkMenu}
             onChange={(event) => {
               setShowInsertLinkMenu(event.currentTarget.checked);
@@ -203,10 +166,21 @@ function ToolbarPlugin() {
                 linkInputRef.current.focus();
               }
             }}
+            onFocus={() => {
+              setShowInsertLinkMenu(false);
+            }}
           />
+          <label
+            htmlFor="add-link"
+            className={`${baseButtonClassName} ${
+              canInsertLink === true ? enabledClassName : disabledClassName
+            }`}
+          >
+            <LinkIcon />
+          </label>
         </div>
-        <div className="mv-absolute mv-left-0 mv-w-full">
-          <div className="group-has-[:checked]:mv-block mv-hidden mv-bg-white mv-border mv-border-gray-200 mv-px-2 mv-pb-2">
+        <div className="mv-absolute mv-left-0 mv-max-w-1/2 mv-mt-1">
+          <div className="group-has-[:checked]:mv-block mv-hidden mv-bg-white mv-border-x mv-border-b mv-border-gray-200 mv-px-2 mv-pb-2 mv-rounded-br-lg">
             <div className="mv-flex mv-gap-1 mv-items-center mv-abolute mv-top-0">
               <Input
                 id="linkInput"
@@ -220,7 +194,6 @@ function ToolbarPlugin() {
                 <Input.Controls>
                   <Button
                     variant="outline"
-                    size="x-small"
                     onClick={(
                       event: React.MouseEvent<HTMLButtonElement, MouseEvent>
                     ) => {
@@ -245,8 +218,146 @@ function ToolbarPlugin() {
           </div>
         </div>
       </div>
+      <button
+        className={`${baseButtonClassName} ${enabledClassName}`}
+        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          event.stopPropagation();
+          event.preventDefault();
+          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+        }}
+        onFocus={() => {
+          setShowInsertLinkMenu(false);
+        }}
+        title="Insert bullet list"
+        aria-label="Insert bullet list"
+        type="button"
+      >
+        <UnorderedList />
+      </button>
+      <button
+        className={`${baseButtonClassName} ${enabledClassName}`}
+        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          event.stopPropagation();
+          event.preventDefault();
+          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+        }}
+        title="Insert numbered list"
+        aria-label="Insert numbered list"
+        type="button"
+      >
+        <OrderedList />
+      </button>
     </div>
   );
 }
 
-export { ToolbarPlugin };
+function LoadingToolbar() {
+  const buttonClassName =
+    "mv-appearance-none mv-w-fit mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-text-xs mv-p-2 mv-leading-4 mv-bg-neutral-50 mv-text-neutral-300";
+  return (
+    <div className="mv-flex mv-gap-1 mv-w-full mv-h-10 mv-items-center mv-border-b mv-border-gray-200 mv-pl-1">
+      <button
+        className={buttonClassName}
+        disabled={true}
+        title="Undo (Ctrl+Z or ⌘+Z)"
+        aria-label="Undo"
+        type="button"
+      >
+        <ArrowCounterClockwise />
+      </button>
+      <button
+        className={buttonClassName}
+        disabled={true}
+        title="Redo (Ctrl+Shift+Z or ⌘+Shift+Z)"
+        aria-label="Redo"
+        type="button"
+      >
+        <ArrowClockwise />
+      </button>
+      <button
+        className={buttonClassName}
+        disabled={true}
+        title="Bold (Ctrl+B or ⌘+B)"
+        aria-label="Bold"
+        type="button"
+      >
+        <Bold />
+      </button>
+      <button
+        className={buttonClassName}
+        disabled={true}
+        title="Italic (Ctrl+I or ⌘+I)"
+        aria-label="Italic"
+        type="button"
+      >
+        <Italic />
+      </button>
+      <button
+        className={buttonClassName}
+        disabled={true}
+        title="Underline (Ctrl+U or ⌘+U)"
+        aria-label="Underline"
+        type="button"
+      >
+        <Underline />
+      </button>
+      <div className="mv-group">
+        <div>
+          <input
+            id="add-link"
+            disabled={true}
+            type="checkbox"
+            className="mv-peer mv-fixed mv-w-0 mv-h-0 mv-opacity-0 mv-top-0 mv-left-0 group-has-[:checked]:mv-w-screen group-has-[:checked]:mv-h-dvh"
+            defaultChecked={false}
+          />
+          <label
+            className={`${buttonClassName} mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-50 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-cursor-pointer peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500`}
+            htmlFor="add-link"
+          >
+            <LinkIcon />
+          </label>
+        </div>
+        <div className="mv-absolute mv-left-0 mv-max-w-1/2 mv-mt-1">
+          <div className="group-has-[:checked]:mv-block mv-hidden mv-bg-white mv-border-x mv-border-b mv-border-gray-200 mv-px-2 mv-pb-2 mv-rounded-br-lg">
+            <div className="mv-flex mv-gap-1 mv-items-center mv-abolute mv-top-0">
+              <Input id="linkInput" disabled={true} defaultValue="https://">
+                <Input.Label htmlFor="linkInput">Insert Link</Input.Label>
+                <Input.Controls>
+                  <Button
+                    disabled={true}
+                    variant="outline"
+                    title="Insert link"
+                    aria-label="Insert link"
+                    type="button"
+                  >
+                    <Add />
+                  </Button>
+                </Input.Controls>
+              </Input>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button
+        className={buttonClassName}
+        disabled={true}
+        title="Insert bullet list"
+        aria-label="Insert bullet list"
+        type="button"
+      >
+        <UnorderedList />
+      </button>
+      <button
+        className={buttonClassName}
+        disabled={true}
+        title="Insert numbered list"
+        aria-label="Insert numbered list"
+        type="button"
+      >
+        <OrderedList />
+      </button>
+    </div>
+  );
+}
+
+export { ToolbarPlugin, LoadingToolbar };

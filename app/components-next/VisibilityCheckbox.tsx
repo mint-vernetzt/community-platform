@@ -5,10 +5,13 @@ export function VisibilityCheckbox(props: VisibilityCheckboxProps) {
 
   return (
     <div hidden={hidden} className="mv-group/visibility">
-      <input {...props} className="mv-absolute mv-w-0 mv-h-0 mv-opacity-0" />
+      <input
+        {...props}
+        className="mv-peer mv-fixed mv-w-0 mv-h-0 mv-opacity-0"
+      />
       <label
         htmlFor={id}
-        className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-py-2 mv-px-[10px] mv-rounded-lg mv-border-2 mv-border-neutral-300 hover:mv-bg-neutral-50 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-cursor-pointer"
+        className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-py-2 mv-px-[10px] mv-rounded-lg mv-border mv-border-gray-300 hover:mv-bg-neutral-50 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 peer-focus:mv-border-blue-400 peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500 mv-cursor-pointer"
       >
         {/* Visibility is currently private */}
         <svg

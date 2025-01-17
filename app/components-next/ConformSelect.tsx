@@ -19,54 +19,25 @@ function ConformSelectInput(props: {
   listItems: React.ReactNode[];
 }) {
   const { id, disabled = false, cta, listItems } = props;
-  const [checked, setChecked] = React.useState(false);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const labelRef = React.useRef<HTMLLabelElement>(null);
-
-  const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
-    event.stopPropagation();
-    setChecked(!checked);
-  };
-
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (
-        labelRef.current !== null &&
-        inputRef.current !== null &&
-        target !== labelRef.current &&
-        target !== inputRef.current
-      ) {
-        setChecked(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [labelRef, inputRef]);
 
   return (
     <>
       <input
         id={id}
         type="checkbox"
-        className="mv-w-0 mv-h-0 mv-opacity-0"
-        checked={checked}
-        onChange={handleChange}
-        ref={inputRef}
+        className="mv-peer mv-fixed mv-w-0 mv-h-0 mv-opacity-0 mv-top-0 mv-left-0 group-has-[:checked]/conform-select:mv-w-screen group-has-[:checked]/conform-select:mv-h-dvh"
+        defaultChecked={false}
         disabled={disabled === true}
       />
       <label
-        className={`mv-bg-white mv-bg-select-arrow mv-bg-no-repeat mv-bg-[right_0.5rem_center] mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-p-2 mv-pr-12 mv-text-base mv-leading-snug mv-font-semibold group-focus-within/button-select:mv-border-blue-400 ${
+        className={`mv-bg-white mv-bg-select-arrow mv-bg-no-repeat mv-bg-[right_0.5rem_center] mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-p-2 mv-pr-12 mv-text-base mv-leading-snug mv-font-semibold group-focus-within/conform-select:mv-border-blue-400 peer-focus:mv-border-blue-400 peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500 ${
           disabled === true ? "mv-text-neutral-300" : "mv-text-neutral-800"
         }`}
         htmlFor={id}
-        ref={labelRef}
       >
         {cta}
       </label>
-      <ul className="mv-w-full mv-hidden group-has-[:checked]/button-select:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300">
+      <ul className="mv-w-full mv-hidden group-has-[:checked]/conform-select:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300">
         {listItems.map((button) => {
           if (React.isValidElement(button)) {
             if (button.type === "button") {
@@ -167,7 +138,7 @@ function ConformSelect(props: ConformSelectProps) {
       {typeof controls !== "undefined" ? (
         <div className="mv-flex mv-flex-col mv-w-full">
           <div className="mv-flex mv-w-full mv-gap-2">
-            <div className="mv-group/button-select mv-flex w-full mv-flex-col">
+            <div className="mv-group/conform-select mv-flex w-full mv-flex-col">
               <ConformSelectInput
                 id={`expand-${props.id}`}
                 disabled={disabled}
@@ -179,7 +150,7 @@ function ConformSelect(props: ConformSelectProps) {
           </div>
         </div>
       ) : (
-        <div className="mv-group/button-select mv-flex mv-flex-col mv-w-full">
+        <div className="mv-group/conform-select mv-flex mv-flex-col mv-w-full">
           <ConformSelectInput
             id={`expand-${props.id}`}
             disabled={disabled}

@@ -1,3 +1,4 @@
+import { $generateHtmlFromNodes } from "@lexical/html";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { ORDERED_LIST, UNORDERED_LIST } from "@lexical/markdown";
@@ -27,11 +28,11 @@ import {
   type EditorThemeClasses,
   type LexicalEditor,
 } from "lexical";
-import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
-import { ToolbarPlugin } from "./plugins/ToolbarPlugin";
-import { DefaultValuePlugin } from "./plugins/DefaultValuePlugin";
-import { $generateHtmlFromNodes } from "@lexical/html";
 import React from "react";
+import { DefaultValuePlugin } from "./plugins/DefaultValuePlugin";
+import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
+import { LoadingToolbar, ToolbarPlugin } from "./plugins/ToolbarPlugin";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 const theme: EditorThemeClasses = {
   text: {
@@ -39,7 +40,7 @@ const theme: EditorThemeClasses = {
     italic: "mv-italic",
     underline: "mv-underline mv-underline-offset-2",
   },
-  link: "mv-text-primary mv-font-semibold hover:mv-underline active:mv-underline mv-underline-offset-4 mv-cursor-pointer",
+  link: "mv-text-primary mv-font-semibold hover:mv-underline active:mv-underline mv-underline-offset-2 mv-cursor-pointer",
   list: {
     ul: "mv-pl-8 mv-list-disc",
     ol: "mv-pl-8 mv-list-decimal",
@@ -55,6 +56,7 @@ function RTE(
   const { id, defaultValue, placeholder, maxLength, ...rest } = props;
 
   const [textAreaValue, setTextAreaValue] = React.useState(defaultValue);
+  const isHydrated = useHydrated();
 
   const initialConfig: InitialConfigType = {
     namespace: "RTE",
@@ -78,14 +80,27 @@ function RTE(
   const EMAIL_REGEX =
     /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
 
-  return (
-    <div className="mv-relative mv-w-full mv-rounded-lg">
+  return isHydrated === false ? (
+    <div
+      title="Rich text editor is loading"
+      className="mv-w-full mv-h-[234px] mv-border mv-border-gray-200 mv-rounded-lg"
+    >
+      <LoadingToolbar />
+      <textarea
+        {...rest}
+        id={id}
+        defaultValue={textAreaValue}
+        className="hidden"
+      ></textarea>
+    </div>
+  ) : (
+    <div className="mv-relative mv-w-full mv-h-[234px] mv-border mv-border-gray-200 mv-rounded-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400">
       <LexicalComposer initialConfig={initialConfig}>
         <ToolbarPlugin />
         <RichTextPlugin
           contentEditable={
             <ContentEditable
-              className="mv-p-2 mv-rounded-bl-lg mv-rounded-br-lg mv-h-48 mv-border mv-border-gray-200 mv-w-full mv-overflow-y-scroll"
+              className="mv-p-2 mv-rounded-bl-lg mv-rounded-br-lg mv-h-48 mv-w-full mv-overflow-y-scroll focus:mv-outline-none"
               placeholder={
                 placeholder !== undefined ? (
                   <div className="mv-absolute mv-top-12 mv-left-2 mv-pointer-events-none">
@@ -107,6 +122,7 @@ function RTE(
           ) => {
             editor.read(() => {
               const htmlString = $generateHtmlFromNodes(editor);
+              // TODO: defaultValue vs textAreaValue for dirty state
               const textAreaValue =
                 htmlString === "<p><br></p>" ? "" : `<div>${htmlString}</div>`;
               setTextAreaValue(textAreaValue);

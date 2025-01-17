@@ -99,7 +99,7 @@ const TextAreaWithCounter = React.forwardRef(
             </div>
             <div className="flex flex-row">
               <div className="flex-auto">
-                {rte === true && isHydrated ? (
+                {rte === true ? (
                   <RTE
                     {...rest}
                     id={id}
@@ -107,17 +107,20 @@ const TextAreaWithCounter = React.forwardRef(
                     placeholder="Enter your text here"
                     maxLength={maxCharacters}
                   />
-                ) : (
-                  <textarea
-                    {...rest}
-                    id={id}
-                    // removeHtmlTags is just for the edge case that someone used RTE already and then turned javascript off at one point.
-                    // We will stay consistent on using rich text for specific fields in the database.
-                    defaultValue={removeHtmlTags(String(defaultValue))}
-                    onChange={handleTextAreaChange}
-                    className={`textarea textarea-bordered h-24 w-full ${props.className}`}
-                  ></textarea>
-                )}
+                ) : null}
+                {isHydrated === false ? (
+                  <noscript>
+                    <textarea
+                      {...rest}
+                      id={id}
+                      // removeHtmlTags is just for the edge case that someone used RTE already and then turned javascript off at one point.
+                      // We will stay consistent on using rich text for specific fields in the database.
+                      defaultValue={removeHtmlTags(String(defaultValue))}
+                      onChange={handleTextAreaChange}
+                      className={`textarea textarea-bordered h-24 w-full ${props.className}`}
+                    ></textarea>
+                  </noscript>
+                ) : null}
               </div>
               {withPublicPrivateToggle !== undefined &&
                 props.isPublic !== undefined &&

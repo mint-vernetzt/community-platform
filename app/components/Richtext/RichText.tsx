@@ -13,7 +13,7 @@ export function RichText({ html, additionalClassNames, id }: RichTextProps) {
     return (
       <div
         id={id}
-        className={`rte-content ${additionalClassNames ?? ""}`}
+        className={additionalClassNames}
         dangerouslySetInnerHTML={{
           __html: html,
         }}
@@ -23,7 +23,9 @@ export function RichText({ html, additionalClassNames, id }: RichTextProps) {
     return (
       <p
         id={id}
-        className={`mb-6 ${additionalClassNames ?? ""}`}
+        className={`mb-6 ${
+          additionalClassNames !== undefined ? additionalClassNames : ""
+        }`}
         dangerouslySetInnerHTML={{
           __html: nl2br(html, true),
         }}
