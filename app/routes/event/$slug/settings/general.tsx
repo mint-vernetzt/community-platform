@@ -26,7 +26,7 @@ import {
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
-import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { TextArea } from "~/components-next/TextArea";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import {
   createAreaOptionFromData,
@@ -910,13 +910,13 @@ function General() {
           </div>
 
           <div className="mb-4">
-            <TextAreaWithCounter
+            <TextArea
               {...register("subline")}
               id="subline"
               defaultValue={event.subline || ""}
               label={locales.route.form.subline.label}
               errorMessage={errors?.subline?.message}
-              maxCharacters={100}
+              maxLength={100}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.subline}
             />
@@ -925,13 +925,13 @@ function General() {
             ) : null}
           </div>
           <div className="mb-4">
-            <TextAreaWithCounter
+            <TextArea
               {...register("description")}
               id="description"
               defaultValue={event.description || ""}
               label={locales.route.form.description.label}
               errorMessage={errors?.description?.message}
-              maxCharacters={2000}
+              maxLength={2000}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.description}
               rte

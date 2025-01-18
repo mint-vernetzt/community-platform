@@ -17,7 +17,7 @@ import React from "react";
 import quillStyles from "react-quill/dist/quill.snow.css?url";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { TextArea } from "~/components-next/TextArea";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   removeHtmlTags,
@@ -442,15 +442,23 @@ function Requirements() {
   const location = useLocation();
   const loaderData = useLoaderData<typeof loader>();
   const { project, allFinancings, locales } = loaderData;
-  const { financings, ...rest } = project;
   const actionData = useActionData<typeof action>();
   const requirementsSchema = createRequirementsSchema(locales);
   const [form, fields] = useForm({
     id: "requirements-form",
     constraint: getFieldsetConstraint(requirementsSchema),
     defaultValue: {
-      // TODO: Investigate: Why can i spread here (defaultValue also accepts null values) and not on web-social?
-      ...rest,
+      // TODO: On old conform version null values are not converted to undefined -> use conform v1
+      jobFillings: project.jobFillings || undefined,
+      furtherJobFillings: project.furtherJobFillings || undefined,
+      yearlyBudget: project.yearlyBudget || undefined,
+      furtherFinancings: project.furtherFinancings || undefined,
+      technicalRequirements: project.technicalRequirements || undefined,
+      furtherTechnicalRequirements:
+        project.furtherTechnicalRequirements || undefined,
+      roomSituation: project.roomSituation || undefined,
+      furtherRoomSituation: project.furtherRoomSituation || undefined,
+      timeframe: project.timeframe || undefined,
       financings: project.financings.map((relation) => relation.financing.id),
     },
     lastSubmission: actionData?.submission,
@@ -520,12 +528,12 @@ function Requirements() {
                 {locales.route.form.timeframe.headline}
               </h2>
 
-              <TextAreaWithCounter
+              <TextArea
                 {...conform.textarea(fields.timeframe)}
                 id={fields.timeframe.id || ""}
                 label={locales.route.form.timeframe.label}
                 errorMessage={fields.timeframe.error}
-                maxCharacters={200}
+                maxLength={200}
                 rte
               />
             </div>
@@ -535,7 +543,7 @@ function Requirements() {
                 {locales.route.form.personellSituation.headline}
               </h2>
 
-              <TextAreaWithCounter
+              <TextArea
                 {...conform.textarea(fields.jobFillings)}
                 id={fields.jobFillings.id || ""}
                 label={locales.route.form.personellSituation.jobFillings.label}
@@ -543,11 +551,11 @@ function Requirements() {
                   locales.route.form.personellSituation.jobFillings.helper
                 }
                 errorMessage={fields.jobFillings.error}
-                maxCharacters={800}
+                maxLength={800}
                 rte
               />
 
-              <TextAreaWithCounter
+              <TextArea
                 {...conform.textarea(fields.furtherJobFillings)}
                 id={fields.furtherJobFillings.id || ""}
                 label={
@@ -558,7 +566,7 @@ function Requirements() {
                     .helper
                 }
                 errorMessage={fields.furtherJobFillings.error}
-                maxCharacters={200}
+                maxLength={200}
                 rte
               />
             </div>
@@ -664,13 +672,13 @@ function Requirements() {
                 </Chip.Container>
               )}
 
-              <TextAreaWithCounter
+              <TextArea
                 {...conform.textarea(fields.furtherFinancings)}
                 id={fields.furtherFinancings.id || ""}
                 label={locales.route.form.budget.furtherFinancings.label}
                 helperText={locales.route.form.budget.furtherFinancings.helper}
                 errorMessage={fields.furtherFinancings.error}
-                maxCharacters={800}
+                maxLength={800}
                 rte
               />
             </div>
@@ -680,18 +688,18 @@ function Requirements() {
                 {locales.route.form.technicalFrame.headline}
               </h2>
 
-              <TextAreaWithCounter
+              <TextArea
                 {...conform.textarea(fields.technicalRequirements)}
                 id={fields.technicalRequirements.id || ""}
                 label={
                   locales.route.form.technicalFrame.technicalRequirements.label
                 }
                 errorMessage={fields.technicalRequirements.error}
-                maxCharacters={500}
+                maxLength={500}
                 rte
               />
 
-              <TextAreaWithCounter
+              <TextArea
                 {...conform.textarea(fields.furtherTechnicalRequirements)}
                 id={fields.furtherTechnicalRequirements.id || ""}
                 label={
@@ -699,7 +707,7 @@ function Requirements() {
                     .label
                 }
                 errorMessage={fields.furtherTechnicalRequirements.error}
-                maxCharacters={500}
+                maxLength={500}
                 rte
               />
             </div>
@@ -709,7 +717,7 @@ function Requirements() {
                 {locales.route.form.spatialSituation.headline}
               </h2>
 
-              <TextAreaWithCounter
+              <TextArea
                 {...conform.textarea(fields.roomSituation)}
                 id={fields.roomSituation.id || ""}
                 label={locales.route.form.spatialSituation.roomSituation.label}
@@ -717,18 +725,18 @@ function Requirements() {
                   locales.route.form.spatialSituation.roomSituation.helper
                 }
                 errorMessage={fields.roomSituation.error}
-                maxCharacters={200}
+                maxLength={200}
                 rte
               />
 
-              <TextAreaWithCounter
+              <TextArea
                 {...conform.textarea(fields.furtherRoomSituation)}
                 id={fields.furtherRoomSituation.id || ""}
                 label={
                   locales.route.form.spatialSituation.furtherRoomSituation.label
                 }
                 errorMessage={fields.furtherRoomSituation.error}
-                maxCharacters={200}
+                maxLength={200}
                 rte
               />
             </div>

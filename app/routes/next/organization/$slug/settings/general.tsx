@@ -22,12 +22,7 @@ import {
   useLocation,
   useNavigation,
 } from "@remix-run/react";
-import {
-  getFormProps,
-  getInputProps,
-  getTextareaProps,
-  useForm,
-} from "@conform-to/react-v1";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
@@ -35,7 +30,7 @@ import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Con
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { BackButton } from "~/components-next/BackButton";
-import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { TextArea } from "~/components-next/TextArea";
 import quillStyles from "react-quill/dist/quill.snow.css?url";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import React from "react";
@@ -375,6 +370,7 @@ function General() {
     id: _id,
     ...rest
   } = organization;
+
   const defaultValues = {
     ...rest,
     areas: areas.map((relation) => relation.area.id),
@@ -555,8 +551,8 @@ function General() {
             </h2>
             <p>{locales.route.content.about.intro}</p>
             <div className="mv-flex mv-gap-2">
-              <TextAreaWithCounter
-                {...getTextareaProps(fields.bio)}
+              <TextArea
+                {...getInputProps(fields.bio, { type: "text" })}
                 key="bio"
                 id={fields.bio.id || ""}
                 label={locales.route.content.bio.label}
@@ -567,7 +563,6 @@ function General() {
                     ? fields.bio.errors.join(", ")
                     : undefined
                 }
-                maxCharacters={2000}
                 rte
               />
               <div className="mv-min-w-[44px] mv-pt-[32px]">

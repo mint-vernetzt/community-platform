@@ -26,7 +26,7 @@ import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
-import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { TextArea } from "~/components-next/TextArea";
 import {
   createAreaOptionFromData,
   objectListOperationResolver,
@@ -486,7 +486,7 @@ export default function Index() {
             <p className="mb-8">{locales.route.aboutMe.intro}</p>
 
             <div className="mb-4">
-              <TextAreaWithCounter
+              <TextArea
                 {...register("bio")}
                 id="bio"
                 label={locales.route.aboutMe.form.description.label}
@@ -495,7 +495,7 @@ export default function Index() {
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.bio}
                 errorMessage={errors?.bio?.message}
-                maxCharacters={500}
+                maxLength={500}
                 rte
               />
             </div>

@@ -17,7 +17,7 @@ import React from "react";
 import quillStyles from "react-quill/dist/quill.snow.css?url";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { TextArea } from "~/components-next/TextArea";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   removeHtmlTags,
@@ -570,13 +570,6 @@ function Details() {
     allSpecialTargetGroups,
     locales,
   } = loaderData;
-  const {
-    disciplines,
-    additionalDisciplines,
-    projectTargetGroups,
-    specialTargetGroups,
-    ...rest
-  } = project;
   const actionData = useActionData<typeof action>();
   const formId = "details-form";
 
@@ -585,8 +578,19 @@ function Details() {
     id: formId,
     constraint: getFieldsetConstraint(detailsSchema),
     defaultValue: {
-      // TODO: Investigate: Why can i spread here (defaultValue also accepts null values) and not on web-social?
-      ...rest,
+      // TODO: On old conform version null values are not converted to undefined -> use conform v1
+      participantLimit: project.participantLimit || undefined,
+      video: project.video || undefined,
+      furtherDisciplines: project.furtherDisciplines || undefined,
+      targetGroupAdditions: project.targetGroupAdditions || undefined,
+      excerpt: project.excerpt || undefined,
+      idea: project.idea || undefined,
+      goals: project.goals || undefined,
+      implementation: project.implementation || undefined,
+      furtherDescription: project.furtherDescription || undefined,
+      targeting: project.targeting || undefined,
+      hints: project.hints || undefined,
+      videoSubline: project.videoSubline || undefined,
       disciplines: project.disciplines.map(
         (relation) => relation.discipline.id
       ),
@@ -1184,17 +1188,17 @@ function Details() {
 
             <p>{locales.route.content.extendedDescription.intro}</p>
 
-            <TextAreaWithCounter
+            <TextArea
               {...conform.textarea(fields.idea)}
               id={fields.idea.id || ""}
               label={locales.route.content.extendedDescription.idea.label}
               helperText={locales.route.content.extendedDescription.idea.helper}
               errorMessage={fields.idea.error}
-              maxCharacters={2000}
+              maxLength={2000}
               rte
             />
 
-            <TextAreaWithCounter
+            <TextArea
               {...conform.textarea(fields.goals)}
               id={fields.goals.id || ""}
               label={locales.route.content.extendedDescription.goals.label}
@@ -1202,11 +1206,11 @@ function Details() {
                 locales.route.content.extendedDescription.goals.helper
               }
               errorMessage={fields.goals.error}
-              maxCharacters={2000}
+              maxLength={2000}
               rte
             />
 
-            <TextAreaWithCounter
+            <TextArea
               {...conform.textarea(fields.implementation)}
               id={fields.implementation.id || ""}
               label={
@@ -1216,11 +1220,11 @@ function Details() {
                 locales.route.content.extendedDescription.implementation.helper
               }
               errorMessage={fields.implementation.error}
-              maxCharacters={2000}
+              maxLength={2000}
               rte
             />
 
-            <TextAreaWithCounter
+            <TextArea
               {...conform.textarea(fields.furtherDescription)}
               id={fields.furtherDescription.id || ""}
               label={
@@ -1232,11 +1236,11 @@ function Details() {
                   .helper
               }
               errorMessage={fields.furtherDescription.error}
-              maxCharacters={8000}
+              maxLength={8000}
               rte
             />
 
-            <TextAreaWithCounter
+            <TextArea
               {...conform.textarea(fields.targeting)}
               id={fields.targeting.id || ""}
               label={locales.route.content.extendedDescription.targeting.label}
@@ -1244,11 +1248,11 @@ function Details() {
                 locales.route.content.extendedDescription.targeting.helper
               }
               errorMessage={fields.targeting.error}
-              maxCharacters={800}
+              maxLength={800}
               rte
             />
 
-            <TextAreaWithCounter
+            <TextArea
               {...conform.textarea(fields.hints)}
               id={fields.hints.id || ""}
               label={locales.route.content.extendedDescription.hints.label}
@@ -1256,7 +1260,7 @@ function Details() {
                 locales.route.content.extendedDescription.hints.helper
               }
               errorMessage={fields.hints.error}
-              maxCharacters={800}
+              maxLength={800}
               rte
             />
           </div>

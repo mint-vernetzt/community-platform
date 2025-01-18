@@ -102,11 +102,18 @@ function InputControls(props: React.PropsWithChildren<{}>) {
 
 export type InputProps = React.HTMLProps<HTMLInputElement> & {
   standalone?: boolean;
+  withoutName?: boolean;
 };
 
 function Input(props: InputProps) {
-  const { type = "text", children, standalone, ...inputProps } = props;
-  const name = props.name || props.id;
+  const {
+    type = "text",
+    children,
+    standalone,
+    withoutName,
+    ...inputProps
+  } = props;
+  const name = withoutName === true ? undefined : props.name || props.id;
 
   const defaultValueLength = props.defaultValue
     ? props.defaultValue.toString().length

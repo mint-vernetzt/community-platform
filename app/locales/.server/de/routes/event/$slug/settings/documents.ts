@@ -18,7 +18,7 @@ export const locale = {
       label: "Titel",
     },
     description: {
-      label: "Titel",
+      label: "Beschreibung",
     },
     submit: {
       label: "Speichern",

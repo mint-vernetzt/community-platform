@@ -24,7 +24,7 @@ import {
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
-import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { TextArea } from "~/components-next/TextArea";
 import {
   createAreaOptionFromData,
   objectListOperationResolver,
@@ -516,7 +516,7 @@ function Index() {
           <p className="mb-8">{locales.route.content.about.intro}</p>
 
           <div className="mb-4">
-            <TextAreaWithCounter
+            <TextArea
               {...register("bio")}
               id="bio"
               defaultValue={organization.bio || ""}
@@ -524,7 +524,7 @@ function Index() {
               withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.bio}
               errorMessage={errors?.bio?.message}
-              maxCharacters={500}
+              maxLength={500}
               rte
             />
           </div>
@@ -607,14 +607,14 @@ function Index() {
             />
           </div>
           <div className="mb-4">
-            <TextAreaWithCounter
+            <TextArea
               {...register("quote")}
               id="quote"
               label={locales.route.form.quote.label}
               withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.quote}
               errorMessage={errors?.quote?.message}
-              maxCharacters={300}
+              maxLength={300}
             />
           </div>
           <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2 w-full">

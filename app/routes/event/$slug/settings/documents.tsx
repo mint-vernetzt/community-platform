@@ -14,7 +14,7 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
-import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { TextArea } from "~/components-next/TextArea";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
@@ -166,8 +166,8 @@ function Documents() {
                                 {({ Errors }) => (
                                   <>
                                     <InputText
-                                      {...register("title")}
                                       id="title"
+                                      name="title"
                                       label={locales.form.title.label}
                                       defaultValue={
                                         item.document.title ||
@@ -181,14 +181,14 @@ function Documents() {
                               <Field name="description">
                                 {({ Errors }) => (
                                   <>
-                                    <TextAreaWithCounter
-                                      {...register("description")}
+                                    <TextArea
                                       id="description"
+                                      name="description"
                                       label={locales.form.description.label}
                                       defaultValue={
                                         item.document.description || ""
                                       }
-                                      maxCharacters={100}
+                                      maxLength={100}
                                     />
                                     <Errors />
                                   </>

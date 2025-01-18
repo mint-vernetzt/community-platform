@@ -1,4 +1,3 @@
-import { $generateHtmlFromNodes } from "@lexical/html";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { ORDERED_LIST, UNORDERED_LIST } from "@lexical/markdown";
@@ -21,42 +20,44 @@ import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
-import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import {
-  type EditorState,
+  $setSelection,
+  SELECTION_CHANGE_COMMAND,
   type EditorThemeClasses,
   type LexicalEditor,
 } from "lexical";
 import React from "react";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { DefaultValuePlugin } from "./plugins/DefaultValuePlugin";
 import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
 import { LoadingToolbar, ToolbarPlugin } from "./plugins/ToolbarPlugin";
-import { useHydrated } from "remix-utils/use-hydrated";
+import { EditorRefPlugin } from "@lexical/react/LexicalEditorRefPlugin";
+import { InputForFormPlugin } from "./plugins/InputForFormPlugin";
 
-const theme: EditorThemeClasses = {
-  text: {
-    bold: "mv-font-semibold",
-    italic: "mv-italic",
-    underline: "mv-underline mv-underline-offset-2",
-  },
-  link: "mv-text-primary mv-font-semibold hover:mv-underline active:mv-underline mv-underline-offset-2 mv-cursor-pointer",
-  list: {
-    ul: "mv-pl-8 mv-list-disc",
-    ol: "mv-pl-8 mv-list-decimal",
-  },
-};
+export type OverrideableInputProps = Omit<
+  React.HTMLProps<HTMLInputElement>,
+  "value" | "onChange" | "className" | "readOnly" | "tabIndex"
+>;
 
-function RTE(
-  props: Omit<
-    React.HTMLProps<HTMLTextAreaElement>,
-    "value" | "onChange" | "className"
-  >
-) {
-  const { id, defaultValue, placeholder, maxLength, ...rest } = props;
+function RTE(props: OverrideableInputProps) {
+  const { defaultValue, placeholder, maxLength, ...rest } = props;
 
-  const [textAreaValue, setTextAreaValue] = React.useState(defaultValue);
+  const editorRef = React.useRef<LexicalEditor | null>(null);
   const isHydrated = useHydrated();
+
+  const theme: EditorThemeClasses = {
+    text: {
+      bold: "mv-font-semibold",
+      italic: "mv-italic",
+      underline: "mv-underline mv-underline-offset-2",
+    },
+    link: "mv-text-primary mv-font-semibold hover:mv-underline active:mv-underline mv-underline-offset-2 mv-cursor-pointer",
+    list: {
+      ul: "mv-pl-8 mv-list-disc",
+      ol: "mv-pl-8 mv-list-decimal",
+    },
+  };
 
   const initialConfig: InitialConfigType = {
     namespace: "RTE",
@@ -80,117 +81,112 @@ function RTE(
   const EMAIL_REGEX =
     /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
 
-  return isHydrated === false ? (
-    <div
-      title="Rich text editor is loading"
-      className="mv-w-full mv-h-[234px] mv-border mv-border-gray-200 mv-rounded-lg"
-    >
-      <LoadingToolbar />
-      <textarea
-        {...rest}
-        id={id}
-        defaultValue={textAreaValue}
-        className="hidden"
-      ></textarea>
-    </div>
-  ) : (
-    <div className="mv-relative mv-w-full mv-h-[234px] mv-border mv-border-gray-200 mv-rounded-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400">
-      <LexicalComposer initialConfig={initialConfig}>
-        <ToolbarPlugin />
-        <RichTextPlugin
-          contentEditable={
-            <ContentEditable
-              className="mv-p-2 mv-rounded-bl-lg mv-rounded-br-lg mv-h-48 mv-w-full mv-overflow-y-scroll focus:mv-outline-none"
-              placeholder={
-                placeholder !== undefined ? (
-                  <div className="mv-absolute mv-top-12 mv-left-2 mv-pointer-events-none">
-                    {placeholder}
-                  </div>
-                ) : null
+  return (
+    <>
+      {isHydrated === false ? (
+        <div
+          title="Rich text editor is loading"
+          className="mv-w-full mv-h-[234px] mv-border mv-border-gray-200 mv-rounded-lg"
+        >
+          <LoadingToolbar />
+        </div>
+      ) : (
+        <div
+          onBlur={(event) => {
+            if (editorRef.current !== null) {
+              const currentTarget = event.currentTarget;
+              const relatedTarget = event.relatedTarget;
+              // Focus has moved outside the editor
+              if (!currentTarget.contains(relatedTarget)) {
+                editorRef.current.update(() => {
+                  $setSelection(null);
+                });
+                editorRef.current.dispatchCommand(
+                  SELECTION_CHANGE_COMMAND,
+                  undefined
+                );
               }
-              aria-placeholder={placeholder || ""}
-            />
-          }
-          ErrorBoundary={LexicalErrorBoundary}
-        />
-        <DefaultValuePlugin defaultValue={String(defaultValue)} />
-        <OnChangePlugin
-          onChange={(
-            _editorState: EditorState,
-            editor: LexicalEditor,
-            _tags: Set<string>
-          ) => {
-            editor.read(() => {
-              const htmlString = $generateHtmlFromNodes(editor);
-              // TODO: defaultValue vs textAreaValue for dirty state
-              const textAreaValue =
-                htmlString === "<p><br></p>" ? "" : `<div>${htmlString}</div>`;
-              setTextAreaValue(textAreaValue);
-            });
+            }
           }}
-        />
-        <HistoryPlugin />
-        <LinkPlugin
-          validateUrl={(url: string) => {
-            const urlRegExp = new RegExp(URL_REGEX);
-            const emailRegExp = new RegExp(EMAIL_REGEX);
-            const isValidUrl =
-              urlRegExp.test(url) &&
-              (url.startsWith("http://") || url.startsWith("https://"));
-            const isValidMailTo =
-              emailRegExp.test(url) && url.startsWith("mailto:");
-            return isValidUrl || isValidMailTo;
-          }}
-          attributes={{ target: "_blank", rel: "noopener noreferrer" }}
-        />
-        <AutoLinkPlugin
-          matchers={[
-            createLinkMatcherWithRegExp(URL_REGEX, (text) => {
-              return text.startsWith("http") ? text : `https://${text}`;
-            }),
-            createLinkMatcherWithRegExp(EMAIL_REGEX, (text) => {
-              return `mailto:${text}`;
-            }),
-          ]}
-        />
-        <ClickableLinkPlugin />
-        <ListPlugin />
-        <MarkdownShortcutPlugin transformers={[UNORDERED_LIST, ORDERED_LIST]} />
-        <HorizontalRulePlugin />
-        {maxLength !== undefined ? (
-          <>
-            <CharacterLimitPlugin
-              charset="UTF-8"
-              maxLength={maxLength}
-              renderer={({ remainingCharacters }) => (
-                <div className="mv-flex mv-w-full mv-mt-2 mv-justify-end">
-                  <div
-                    className={`mv-text-sm ${
-                      remainingCharacters < 0
-                        ? "mv-text-red-500"
-                        : "mv-text-gray-700"
-                    }`}
-                  >
-                    {maxLength - remainingCharacters}/{maxLength}
-                  </div>
-                </div>
-              )}
+          className="mv-relative mv-w-full mv-h-[234px] mv-border mv-border-gray-200 mv-rounded-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400"
+        >
+          <LexicalComposer initialConfig={initialConfig}>
+            <EditorRefPlugin editorRef={editorRef} />
+            <ToolbarPlugin />
+            <RichTextPlugin
+              contentEditable={
+                <ContentEditable
+                  className="mv-p-2 mv-rounded-bl-lg mv-rounded-br-lg mv-h-48 mv-w-full mv-overflow-y-scroll focus:mv-outline-none"
+                  placeholder={
+                    placeholder !== undefined ? (
+                      <div className="mv-absolute mv-top-12 mv-left-2 mv-pointer-events-none">
+                        {placeholder}
+                      </div>
+                    ) : null
+                  }
+                  aria-placeholder={placeholder || ""}
+                />
+              }
+              ErrorBoundary={LexicalErrorBoundary}
             />
-            <MaxLengthPlugin maxLength={maxLength} />
-          </>
-        ) : null}
-      </LexicalComposer>
-      <textarea
-        {...rest}
-        id={id}
-        value={textAreaValue}
-        onChange={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-        }}
-        className="hidden"
-      ></textarea>
-    </div>
+            <DefaultValuePlugin defaultValue={defaultValue} />
+            <InputForFormPlugin {...rest} defaultValue={defaultValue} />
+            <HistoryPlugin />
+            <LinkPlugin
+              validateUrl={(url: string) => {
+                const urlRegExp = new RegExp(URL_REGEX);
+                const emailRegExp = new RegExp(EMAIL_REGEX);
+                const isValidUrl =
+                  urlRegExp.test(url) &&
+                  (url.startsWith("http://") || url.startsWith("https://"));
+                const isValidMailTo =
+                  emailRegExp.test(url) && url.startsWith("mailto:");
+                return isValidUrl || isValidMailTo;
+              }}
+              attributes={{ target: "_blank", rel: "noopener noreferrer" }}
+            />
+            <AutoLinkPlugin
+              matchers={[
+                createLinkMatcherWithRegExp(URL_REGEX, (text) => {
+                  return text.startsWith("http") ? text : `https://${text}`;
+                }),
+                createLinkMatcherWithRegExp(EMAIL_REGEX, (text) => {
+                  return `mailto:${text}`;
+                }),
+              ]}
+            />
+            <ClickableLinkPlugin />
+            <ListPlugin />
+            <MarkdownShortcutPlugin
+              transformers={[UNORDERED_LIST, ORDERED_LIST]}
+            />
+            <HorizontalRulePlugin />
+            {maxLength !== undefined ? (
+              <>
+                <CharacterLimitPlugin
+                  charset="UTF-8"
+                  maxLength={maxLength}
+                  renderer={({ remainingCharacters }) => (
+                    <div className="mv-flex mv-w-full mv-mt-2 mv-justify-end">
+                      <div
+                        className={`mv-text-sm ${
+                          remainingCharacters < 0
+                            ? "mv-text-red-500"
+                            : "mv-text-gray-700"
+                        }`}
+                      >
+                        {maxLength - remainingCharacters}/{maxLength}
+                      </div>
+                    </div>
+                  )}
+                />
+                <MaxLengthPlugin maxLength={maxLength} />
+              </>
+            ) : null}
+          </LexicalComposer>
+        </div>
+      )}
+    </>
   );
 }
 

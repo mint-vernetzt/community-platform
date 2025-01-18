@@ -37,18 +37,22 @@ function ToolbarPlugin() {
   const [canInsertLink, setCanInsertLink] = React.useState(false);
   const [canUndo, setCanUndo] = React.useState(false);
   const [canRedo, setCanRedo] = React.useState(false);
-  // TODO: Check isBold/Italic/Underline and set buttons classNames accordingly
+  const [isBoldActive, setIsBoldActive] = React.useState(false);
+  const [isItalicActive, setIsItalicActive] = React.useState(false);
+  const [isUnderlineActive, setIsUnderlineActive] = React.useState(false);
+
   const baseButtonClassName =
     "mv-appearance-none mv-w-fit mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-text-xs mv-p-2 mv-leading-4";
   const disabledClassName = "mv-bg-neutral-50 mv-text-neutral-300";
   const enabledClassName =
     "mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-50 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-cursor-pointer peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500";
+
   React.useEffect(() => {
     editor.registerCommand(
       CAN_UNDO_COMMAND,
       (payload) => {
         setCanUndo(payload);
-        return payload;
+        return false;
       },
       COMMAND_PRIORITY_LOW
     );
@@ -56,7 +60,21 @@ function ToolbarPlugin() {
       CAN_REDO_COMMAND,
       (payload) => {
         setCanRedo(payload);
-        return payload;
+        return false;
+      },
+      COMMAND_PRIORITY_LOW
+    );
+    editor.registerCommand(
+      FORMAT_TEXT_COMMAND,
+      (payload) => {
+        if (payload === "bold") {
+          setIsBoldActive(!isBoldActive);
+        } else if (payload === "italic") {
+          setIsItalicActive(!isItalicActive);
+        } else if (payload === "underline") {
+          setIsUnderlineActive(!isUnderlineActive);
+        }
+        return false;
       },
       COMMAND_PRIORITY_LOW
     );
@@ -64,7 +82,10 @@ function ToolbarPlugin() {
       SELECTION_CHANGE_COMMAND,
       () => {
         const selection = $getSelection();
-        if (selection !== null && $isRangeSelection(selection)) {
+        if ($isRangeSelection(selection)) {
+          setIsBoldActive(selection.hasFormat("bold"));
+          setIsItalicActive(selection.hasFormat("italic"));
+          setIsUnderlineActive(selection.hasFormat("underline"));
           if (selection.getTextContent().length > 0) {
             setCanInsertLink(true);
           } else {
@@ -72,12 +93,15 @@ function ToolbarPlugin() {
           }
         } else {
           setCanInsertLink(false);
+          setIsBoldActive(false);
+          setIsItalicActive(false);
+          setIsUnderlineActive(false);
         }
-        return true;
+        return false;
       },
       COMMAND_PRIORITY_LOW
     );
-  }, [editor]);
+  }, [editor, isBoldActive, isItalicActive, isUnderlineActive]);
 
   return (
     <div className="mv-flex mv-gap-1 mv-w-full mv-h-10 mv-items-center mv-border-b mv-border-gray-200 mv-pl-1">
@@ -86,9 +110,7 @@ function ToolbarPlugin() {
           canUndo === true ? enabledClassName : disabledClassName
         }`}
         disabled={canUndo === false}
-        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.stopPropagation();
-          event.preventDefault();
+        onClick={() => {
           editor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
         title="Undo (Ctrl+Z or ⌘+Z)"
@@ -102,9 +124,7 @@ function ToolbarPlugin() {
           canRedo === true ? enabledClassName : disabledClassName
         }`}
         disabled={canRedo === false}
-        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.stopPropagation();
-          event.preventDefault();
+        onClick={() => {
           editor.dispatchCommand(REDO_COMMAND, undefined);
         }}
         title="Redo (Ctrl+Shift+Z or ⌘+Shift+Z)"
@@ -114,10 +134,10 @@ function ToolbarPlugin() {
         <ArrowClockwise />
       </button>
       <button
-        className={`${baseButtonClassName} ${enabledClassName}`}
-        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.stopPropagation();
-          event.preventDefault();
+        className={`${baseButtonClassName} ${enabledClassName}${
+          isBoldActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
+        }`}
+        onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
         }}
         title="Bold (Ctrl+B or ⌘+B)"
@@ -127,10 +147,10 @@ function ToolbarPlugin() {
         <Bold />
       </button>
       <button
-        className={`${baseButtonClassName} ${enabledClassName}`}
-        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.stopPropagation();
-          event.preventDefault();
+        className={`${baseButtonClassName} ${enabledClassName}${
+          isItalicActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
+        }`}
+        onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
         }}
         title="Italic (Ctrl+I or ⌘+I)"
@@ -140,10 +160,10 @@ function ToolbarPlugin() {
         <Italic />
       </button>
       <button
-        className={`${baseButtonClassName} ${enabledClassName}`}
-        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.stopPropagation();
-          event.preventDefault();
+        className={`${baseButtonClassName} ${enabledClassName}${
+          isUnderlineActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
+        }`}
+        onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
         }}
         title="Underline (Ctrl+U or ⌘+U)"
@@ -151,6 +171,28 @@ function ToolbarPlugin() {
         type="button"
       >
         <Underline />
+      </button>
+      <button
+        className={`${baseButtonClassName} ${enabledClassName}`}
+        onClick={() => {
+          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+        }}
+        title="Insert bullet list"
+        aria-label="Insert bullet list"
+        type="button"
+      >
+        <UnorderedList />
+      </button>
+      <button
+        className={`${baseButtonClassName} ${enabledClassName}`}
+        onClick={() => {
+          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+        }}
+        title="Insert numbered list"
+        aria-label="Insert numbered list"
+        type="button"
+      >
+        <OrderedList />
       </button>
       <div className="mv-group">
         <div>
@@ -166,15 +208,16 @@ function ToolbarPlugin() {
                 linkInputRef.current.focus();
               }
             }}
-            onFocus={() => {
-              setShowInsertLinkMenu(false);
-            }}
           />
           <label
             htmlFor="add-link"
             className={`${baseButtonClassName} ${
               canInsertLink === true ? enabledClassName : disabledClassName
             }`}
+            onMouseDown={(event) => {
+              // Prevent editor focus loss on click
+              event.preventDefault();
+            }}
           >
             <LinkIcon />
           </label>
@@ -184,6 +227,7 @@ function ToolbarPlugin() {
             <div className="mv-flex mv-gap-1 mv-items-center mv-abolute mv-top-0">
               <Input
                 id="linkInput"
+                withoutName
                 ref={linkInputRef}
                 value={linkInputValue}
                 onChange={(event) =>
@@ -194,11 +238,7 @@ function ToolbarPlugin() {
                 <Input.Controls>
                   <Button
                     variant="outline"
-                    onClick={(
-                      event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-                    ) => {
-                      event.stopPropagation();
-                      event.preventDefault();
+                    onClick={() => {
                       editor.dispatchCommand(
                         TOGGLE_LINK_COMMAND,
                         linkInputValue
@@ -218,35 +258,6 @@ function ToolbarPlugin() {
           </div>
         </div>
       </div>
-      <button
-        className={`${baseButtonClassName} ${enabledClassName}`}
-        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.stopPropagation();
-          event.preventDefault();
-          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-        }}
-        onFocus={() => {
-          setShowInsertLinkMenu(false);
-        }}
-        title="Insert bullet list"
-        aria-label="Insert bullet list"
-        type="button"
-      >
-        <UnorderedList />
-      </button>
-      <button
-        className={`${baseButtonClassName} ${enabledClassName}`}
-        onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          event.stopPropagation();
-          event.preventDefault();
-          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-        }}
-        title="Insert numbered list"
-        aria-label="Insert numbered list"
-        type="button"
-      >
-        <OrderedList />
-      </button>
     </div>
   );
 }
