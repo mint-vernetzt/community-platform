@@ -13,12 +13,10 @@ function InputForFormPlugin(props: OverrideableInputProps) {
     return editor.registerUpdateListener(() => {
       editor.read(() => {
         const htmlString = $generateHtmlFromNodes(editor);
-        const newValue =
-          htmlString === "<p><br></p>" ? "" : `<div>${htmlString}</div>`;
-        setValue(newValue);
+        setValue(htmlString);
       });
     });
-  }, [editor]);
+  }, [editor, defaultValue]);
 
   return (
     <input
@@ -27,6 +25,11 @@ function InputForFormPlugin(props: OverrideableInputProps) {
       value={value}
       readOnly
       className="mv-hidden"
+      onFocus={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        editor.focus();
+      }}
     ></input>
   );
 }

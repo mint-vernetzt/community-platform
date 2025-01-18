@@ -118,12 +118,13 @@ export function social(service: keyof typeof socialValidation) {
     .matches(socialValidation[service].match, socialValidation[service].error);
 }
 
-function removeMoreThan2ConsecutiveLineBreaks(string: string) {
-  return string.replace(/(\r\n|\n|\r){3,}/gm, "\n\n");
-}
-
 export function multiline() {
-  return string().transform(removeMoreThan2ConsecutiveLineBreaks);
+  return string().transform((value: string | undefined) => {
+    if (value === undefined || value === "" || value === "<p><br></p>") {
+      return null;
+    }
+    return value.trim();
+  });
 }
 
 export function greaterThanTimeOnSameDate(

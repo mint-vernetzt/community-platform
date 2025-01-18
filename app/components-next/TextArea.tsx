@@ -158,6 +158,11 @@ const TextArea = (
             )}
           </div>
         )}
+        {errorMessage !== undefined && (
+          <div className="mv-text-sm mv-font-semibold mv-text-negative-600 mv-mt-2">
+            {errorMessage}
+          </div>
+        )}
       </div>
     </>
   );

@@ -55,71 +55,64 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
       .email(locales.route.validation.email)
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     phone: createPhoneSchema(locales)
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     street: z
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     streetNumber: z
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     zipCode: z
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     city: z
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     bio: z
       .string()
       .max(2000, locales.route.validation.bio.max)
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     supportedBy: z
       .array(z.string().transform((value) => value.trim()))
@@ -563,6 +556,7 @@ function General() {
                     ? fields.bio.errors.join(", ")
                     : undefined
                 }
+                maxLength={undefined}
                 rte
               />
               <div className="mv-min-w-[44px] mv-pt-[32px]">

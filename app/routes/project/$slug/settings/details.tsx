@@ -54,11 +54,10 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     projectTargetGroups: z.array(z.string().uuid()),
     specialTargetGroups: z.array(z.string().uuid()),
@@ -67,32 +66,29 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       .max(200, locales.route.validation.targetGroupAdditions.max)
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     excerpt: z
       .string()
       .max(250, locales.route.validation.targetGroupAdditions.max)
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     idea: z
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -109,11 +105,10 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -130,11 +125,10 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -151,11 +145,10 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -172,11 +165,10 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -193,11 +185,10 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -216,11 +207,10 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       .max(80, locales.route.validation.videoSubline.max)
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
   });
 

@@ -52,11 +52,10 @@ const createRequirementsSchema = (
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -73,11 +72,10 @@ const createRequirementsSchema = (
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -94,11 +92,10 @@ const createRequirementsSchema = (
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -116,22 +113,20 @@ const createRequirementsSchema = (
       .max(80, locales.route.validation.yearlyBudget.max)
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       }),
     financings: z.array(z.string().uuid()),
     furtherFinancings: z
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -148,11 +143,10 @@ const createRequirementsSchema = (
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -169,11 +163,10 @@ const createRequirementsSchema = (
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -190,11 +183,10 @@ const createRequirementsSchema = (
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -211,11 +203,10 @@ const createRequirementsSchema = (
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
           return null;
         }
-        const trimmedValue = value.trim();
-        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
+        return value.trim();
       })
       .refine(
         (value) => {
@@ -744,16 +735,9 @@ function Requirements() {
             <div className="mv-flex mv-w-full mv-justify-end">
               <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
                 <Controls>
-                  {/* <Link
-                    to="."
-                    reloadDocument
-                    className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
-                  >
-                    Änderungen verwerfen
-                  </Link> */}
+                  {/* TODO: Add diabled attribute. organization settings are blueprint with conform v1 */}
                   <Button
-                    as="a"
-                    href="./details"
+                    type="reset"
                     variant="outline"
                     onClick={() => {
                       setIsDirty(false);
@@ -762,12 +746,6 @@ function Requirements() {
                   >
                     {locales.route.form.reset}
                   </Button>
-                  {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
-                  {/* <Button type="reset" variant="outline" fullSize>
-                    Änderungen verwerfen
-                  </Button> */}
-                  {/* TODO: Add diabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
-
                   <Button
                     type="submit"
                     fullSize
