@@ -13,7 +13,11 @@ function InputForFormPlugin(props: OverrideableInputProps) {
     return editor.registerUpdateListener(() => {
       editor.read(() => {
         const htmlString = $generateHtmlFromNodes(editor);
-        setValue(htmlString);
+        if (htmlString === "<p><br></p>") {
+          setValue("");
+        } else {
+          setValue(htmlString);
+        }
       });
     });
   }, [editor, defaultValue]);

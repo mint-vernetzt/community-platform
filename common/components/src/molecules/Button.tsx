@@ -109,7 +109,9 @@ function Button(
 
   const element = React.createElement(as, {
     ...otherProps,
-    className: `${classes} ${otherProps.className}`,
+    className: `${classes}${
+      otherProps.className !== undefined ? ` ${otherProps.className}` : ""
+    }`,
   });
 
   return element;

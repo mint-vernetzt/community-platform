@@ -829,6 +829,9 @@ function General() {
               <Controls>
                 <Button
                   type="reset"
+                  onClick={() => {
+                    setTimeout(() => form.reset(), 0);
+                  }}
                   variant="outline"
                   fullSize
                   // Don't disable button when js is disabled
