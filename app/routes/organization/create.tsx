@@ -176,10 +176,14 @@ function Create() {
   return (
     <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
       {loaderData.abilities["next-organization-create"].hasAccess ? (
-        <TextButton weight="thin" variant="neutral" arrowRight>
-          <Link to="/next/organization/create">
-            Hier gehts zur neuen Organisationserstellung
-          </Link>
+        <TextButton
+          as="a"
+          href="/next/organization/create"
+          weight="thin"
+          variant="neutral"
+          arrowRight
+        >
+          Hier gehts zur neuen Organisationserstellung
         </TextButton>
       ) : null}
       <div className="flex -mx-4 justify-center mv-w-full">

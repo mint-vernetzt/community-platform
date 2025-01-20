@@ -76,6 +76,8 @@ function TextButton(
     variant = "primary",
     size = "medium",
     weight = "normal",
+    arrowLeft = false,
+    arrowRight = false,
     ...otherProps
   } = props;
 
@@ -116,15 +118,14 @@ function TextButton(
       );
       return clone;
     }
-
     return null;
   }
 
   const children = (
     <>
-      {props.arrowLeft && <ChevronLeft size={size} />}
+      {arrowLeft && <ChevronLeft size={size} />}
       {props.children}
-      {props.arrowRight && <ChevronRight size={size} />}
+      {arrowRight && <ChevronRight size={size} />}
     </>
   );
 

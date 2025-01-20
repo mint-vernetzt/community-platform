@@ -99,10 +99,15 @@ function ProjectSettings() {
     <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-px-4 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
       <div className="mv-hidden @md:mv-block mv-mb-8">
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
-          <TextButton weight="thin" variant="neutral" arrowLeft>
-            <Link to={`/project/${loaderData.project.slug}`} prefetch="intent">
-              {locales.content.toProject}
-            </Link>
+          {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+          <TextButton
+            as="a"
+            href={`/project/${loaderData.project.slug}`}
+            weight="thin"
+            variant="neutral"
+            arrowLeft
+          >
+            {locales.content.toProject}
           </TextButton>
           <h3 className="mv-mb-0 mv-font-bold">{locales.content.edit}</h3>
         </div>

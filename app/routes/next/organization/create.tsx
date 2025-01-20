@@ -8,39 +8,38 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import {
   Form,
-  Link,
   useActionData,
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
 import { z } from "zod";
+import { redirectWithAlert } from "~/alert.server";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
-import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
-import { detectLanguage } from "~/i18n.server";
-import { Container } from "~/components-next/MyProjectsCreateOrganizationContainer";
+import { ConformSelect } from "~/components-next/ConformSelect";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { Section } from "~/components-next/MyOrganizationsSection";
+import { Container } from "~/components-next/MyProjectsCreateOrganizationContainer";
+import { detectLanguage } from "~/i18n.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
+import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { languageModuleMap } from "~/locales/.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
 import {
   countOrganizationsBySearchQuery,
-  type CreateOrganizationLocales,
   createOrganizationOnProfile,
   getAllNetworkTypes,
   getAllOrganizationTypes,
   getOrganizationTypesWithSlugs,
   searchForOrganizationsByName,
+  type CreateOrganizationLocales,
 } from "./create.server";
-import { ConformSelect } from "~/components-next/ConformSelect";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { redirectWithAlert } from "~/alert.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const createSchema = (locales: CreateOrganizationLocales) => {
   return z.object({
@@ -241,10 +240,15 @@ function CreateOrganization() {
     <Container>
       <Form method="post" {...form.props} className="mv-absolute" />
       <button form={form.id} type="submit" hidden />
-      <TextButton weight="thin" variant="neutral" arrowLeft>
-        <Link to="/my/organizations" prefetch="intent">
-          {locales.route.back}
-        </Link>
+      {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+      <TextButton
+        as="a"
+        href="/my/organizations"
+        weight="thin"
+        variant="neutral"
+        arrowLeft
+      >
+        {locales.route.back}
       </TextButton>
       <h1 className="mv-mb-0 mv-text-primary mv-text-5xl mv-font-bold mv-leading-9">
         {locales.route.headline}

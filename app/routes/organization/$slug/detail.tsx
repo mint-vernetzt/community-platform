@@ -217,10 +217,15 @@ function OrganizationDetail() {
     >
       {/* Back Button Section */}
       <Container.Section className="">
-        <TextButton weight="thin" variant="neutral" arrowLeft>
-          <Link to="/explore/organizations" prefetch="intent">
-            {locales.route.back}
-          </Link>
+        {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+        <TextButton
+          as="a"
+          href="/explore/organizations"
+          weight="thin"
+          variant="neutral"
+          arrowLeft
+        >
+          {locales.route.back}
         </TextButton>
       </Container.Section>
       {/* Header Section */}

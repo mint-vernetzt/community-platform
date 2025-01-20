@@ -19,7 +19,7 @@ export const locale = {
   },
   content: {
     notFound: "Nicht gefunden",
-    back: "Zurück zur Organisation",
+    headline: "Allgemein",
     success: "Daten gespeichert!",
     contact: {
       headline: "Name und Kontakt",

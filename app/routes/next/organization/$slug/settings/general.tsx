@@ -403,7 +403,7 @@ function General() {
     <Section>
       {UnsavedChangesBlockerModal}
       <BackButton to={location.pathname}>
-        {locales.route.content.back}
+        {locales.route.content.headline}
       </BackButton>
       <Form
         {...getFormProps(form)}

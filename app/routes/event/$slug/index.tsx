@@ -575,20 +575,30 @@ function Index() {
         <div className="font-semi text-neutral-500 flex flex-wrap items-center mv-mb-4">
           {loaderData.event.parentEvent !== null ? (
             <>
-              <TextButton weight="thin" variant="neutral" arrowRight>
-                <Link to={`/event/${loaderData.event.parentEvent.slug}`}>
-                  {loaderData.event.parentEvent.name}
-                </Link>
+              {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+              <TextButton
+                as="a"
+                href={`/event/${loaderData.event.parentEvent.slug}`}
+                weight="thin"
+                variant="neutral"
+                arrowRight
+              >
+                {loaderData.event.parentEvent.name}
               </TextButton>
               <span className="w-full @md:mv-w-auto mv-text-neutral mv-font-thin">
                 {loaderData.event.name}
               </span>
             </>
           ) : (
-            <TextButton weight="thin" variant="neutral" arrowLeft>
-              <Link to="/explore/events" prefetch="intent">
-                {locales.route.content.back}
-              </Link>
+            // TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside.
+            <TextButton
+              as="a"
+              href="explore/events"
+              weight="thin"
+              variant="neutral"
+              arrowLeft
+            >
+              {locales.route.content.back}
             </TextButton>
           )}
         </div>

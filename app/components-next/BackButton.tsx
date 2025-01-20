@@ -1,5 +1,4 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { Link } from "@remix-run/react";
 import { type PropsWithChildren } from "react";
 
 export type BackButtonProps = {
@@ -9,10 +8,9 @@ export type BackButtonProps = {
 export function BackButton(props: PropsWithChildren<BackButtonProps>) {
   return (
     <div className="@md:mv-hidden">
-      <TextButton arrowLeft size="large">
-        <Link to={props.to} prefetch="intent">
-          {props.children}
-        </Link>
+      {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+      <TextButton as="a" href={props.to} arrowLeft size="large">
+        {props.children}
       </TextButton>
     </div>
   );

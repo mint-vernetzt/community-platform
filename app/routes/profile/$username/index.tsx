@@ -412,10 +412,15 @@ export default function Index() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <TextButton weight="thin" variant="neutral" arrowLeft>
-          <Link to="/explore/profiles" prefetch="intent">
-            {locales.route.back}
-          </Link>
+        {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+        <TextButton
+          as="a"
+          href="/explore/profiles"
+          weight="thin"
+          variant="neutral"
+          arrowLeft
+        >
+          {locales.route.back}
         </TextButton>
       </section>
       <section className="hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">

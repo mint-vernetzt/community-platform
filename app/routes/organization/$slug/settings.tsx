@@ -1,6 +1,6 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -42,10 +42,15 @@ function Settings() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <TextButton weight="thin" variant="neutral" arrowLeft>
-          <Link to={`/organization/${loaderData.slug}`} prefetch="intent">
-            {locales.back}
-          </Link>
+        {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+        <TextButton
+          as="a"
+          href={`/organization/${loaderData.slug}`}
+          weight="thin"
+          variant="neutral"
+          arrowLeft
+        >
+          {locales.back}
         </TextButton>
       </section>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">

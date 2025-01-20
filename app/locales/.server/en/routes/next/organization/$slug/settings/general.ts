@@ -18,7 +18,7 @@ export const locale = {
   },
   content: {
     notFound: "Not found",
-    back: "Back to organisation",
+    headline: "General",
     success: "Data saved!",
     contact: {
       headline: "Name and contact",
