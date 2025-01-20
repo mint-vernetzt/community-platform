@@ -1,6 +1,7 @@
 /* de */
 // components
 import { locale as deImageCropper } from "./de/components/image-cropper";
+import { locale as deRTE } from "./de/components/rte";
 // datasets
 import { locale as deAdditionalDisciplines } from "./de/datasets/additionalDisciplines";
 import { locale as deDisciplines } from "./de/datasets/disciplines";
@@ -185,6 +186,7 @@ import { locale as deMeta } from "./de/meta";
 /* en */
 // components
 import { locale as enImageCropper } from "./en/components/image-cropper";
+import { locale as enRTE } from "./en/components/rte";
 // datasets
 import { locale as enAdditionalDisciplines } from "./en/datasets/additionalDisciplines";
 import { locale as enDisciplines } from "./en/datasets/disciplines";
@@ -436,6 +438,7 @@ const de = {
     focuses: deFocuses,
     tags: deTags,
     eventTargetGroups: deEventTargetGroups,
+    rte: deRTE,
   },
   "event/$slug/settings/organizations": {
     route: deResponsibleOrganizationsOfEvent,
@@ -542,6 +545,7 @@ const de = {
     focuses: deFocuses,
     components: deComponents,
     schemas: deSchemas,
+    rte: deRTE,
   },
   "next/organization/$slug/settings/team": {
     route: deNextOrganizationTeam,
@@ -616,6 +620,7 @@ const de = {
     organizationTypes: deOrganizationTypes,
     focuses: deFocuses,
     socialMediaServices: deSocialMediaServices,
+    rte: deRTE,
   },
   "organization/$slug/settings/team": {
     route: deOrganizationTeamSettings,
@@ -635,6 +640,7 @@ const de = {
     route: deGeneralProfileSettings,
     offers: deOffers,
     socialMediaServices: deSocialMediaServices,
+    rte: deRTE,
   },
   "profile/$username/settings/notifications": deProfileNotifications,
   "profile/$username/settings/security": deProfileSecurity,
@@ -679,6 +685,7 @@ const de = {
     additionalDisciplines: deAdditionalDisciplines,
     projectTargetGroups: deProjectTargetGroups,
     specialTargetGroups: deSpecialTargetGroups,
+    rte: deRTE,
   },
   "project/$slug/settings/general": {
     route: deGeneralProjectSettings,
@@ -689,6 +696,7 @@ const de = {
   "project/$slug/settings/requirements": {
     route: deProjectRequirementsSettings,
     financings: deFinancings,
+    rte: deRTE,
   },
   "project/$slug/settings/responsible-orgs":
     deResponsibleOrganizationsOfProject,
@@ -815,6 +823,7 @@ const en = {
     eventTypes: enEventTypes,
     eventTargetGroups: enEventTargetGroups,
     tags: enTags,
+    rte: enRTE,
   },
   "event/$slug/settings/organizations": {
     route: enResponsibleOrganizationsOfEvent,
@@ -921,6 +930,7 @@ const en = {
     focuses: enFocuses,
     components: enComponents,
     schemas: enSchemas,
+    rte: enRTE,
   },
   "next/organization/$slug/settings/team": {
     route: enNextOrganizationTeam,
@@ -995,6 +1005,7 @@ const en = {
     organizationTypes: enOrganizationTypes,
     focuses: enFocuses,
     socialMediaServices: enSocialMediaServices,
+    rte: enRTE,
   },
   "organization/$slug/settings/team": {
     route: enOrganizationTeamSettings,
@@ -1014,6 +1025,7 @@ const en = {
     route: enGeneralProfileSettings,
     offers: enOffers,
     socialMediaServices: enSocialMediaServices,
+    rte: enRTE,
   },
   "profile/$username/settings/notifications": enProfileNotifications,
   "profile/$username/settings/security": enProfileSecurity,
@@ -1058,6 +1070,7 @@ const en = {
     additionalDisciplines: enAdditionalDisciplines,
     projectTargetGroups: enProjectTargetGroups,
     specialTargetGroups: enSpecialTargetGroups,
+    rte: enRTE,
   },
   "project/$slug/settings/general": {
     route: enGeneralProjectSettings,
@@ -1068,6 +1081,7 @@ const en = {
   "project/$slug/settings/requirements": {
     route: enProjectRequirementsSettings,
     financings: enFinancings,
+    rte: enRTE,
   },
   "project/$slug/settings/responsible-orgs":
     enResponsibleOrganizationsOfProject,

@@ -1179,7 +1179,7 @@ function Details() {
               helperText={locales.route.content.extendedDescription.idea.helper}
               errorMessage={fields.idea.error}
               maxLength={2000}
-              rte
+              rte={{ locales: locales }}
             />
 
             <TextArea
@@ -1191,7 +1191,7 @@ function Details() {
               }
               errorMessage={fields.goals.error}
               maxLength={2000}
-              rte
+              rte={{ locales: locales }}
             />
 
             <TextArea
@@ -1205,7 +1205,7 @@ function Details() {
               }
               errorMessage={fields.implementation.error}
               maxLength={2000}
-              rte
+              rte={{ locales: locales }}
             />
 
             <TextArea
@@ -1221,7 +1221,7 @@ function Details() {
               }
               errorMessage={fields.furtherDescription.error}
               maxLength={8000}
-              rte
+              rte={{ locales: locales }}
             />
 
             <TextArea
@@ -1233,7 +1233,7 @@ function Details() {
               }
               errorMessage={fields.targeting.error}
               maxLength={800}
-              rte
+              rte={{ locales: locales }}
             />
 
             <TextArea
@@ -1245,7 +1245,7 @@ function Details() {
               }
               errorMessage={fields.hints.error}
               maxLength={800}
-              rte
+              rte={{ locales: locales }}
             />
           </div>
 

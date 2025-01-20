@@ -551,7 +551,7 @@ function General() {
                     : undefined
                 }
                 maxLength={undefined}
-                rte
+                rte={{ locales: locales }}
               />
               <div className="mv-min-w-[44px] mv-pt-[32px]">
                 <VisibilityCheckbox

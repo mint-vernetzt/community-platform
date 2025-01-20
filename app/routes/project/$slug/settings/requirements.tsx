@@ -519,7 +519,7 @@ function Requirements() {
                 label={locales.route.form.timeframe.label}
                 errorMessage={fields.timeframe.error}
                 maxLength={200}
-                rte
+                rte={{ locales: locales }}
               />
             </div>
 
@@ -537,7 +537,7 @@ function Requirements() {
                 }
                 errorMessage={fields.jobFillings.error}
                 maxLength={800}
-                rte
+                rte={{ locales: locales }}
               />
 
               <TextArea
@@ -552,7 +552,7 @@ function Requirements() {
                 }
                 errorMessage={fields.furtherJobFillings.error}
                 maxLength={200}
-                rte
+                rte={{ locales: locales }}
               />
             </div>
 
@@ -664,7 +664,7 @@ function Requirements() {
                 helperText={locales.route.form.budget.furtherFinancings.helper}
                 errorMessage={fields.furtherFinancings.error}
                 maxLength={800}
-                rte
+                rte={{ locales: locales }}
               />
             </div>
 
@@ -681,7 +681,7 @@ function Requirements() {
                 }
                 errorMessage={fields.technicalRequirements.error}
                 maxLength={500}
-                rte
+                rte={{ locales: locales }}
               />
 
               <TextArea
@@ -693,7 +693,7 @@ function Requirements() {
                 }
                 errorMessage={fields.furtherTechnicalRequirements.error}
                 maxLength={500}
-                rte
+                rte={{ locales: locales }}
               />
             </div>
 
@@ -711,7 +711,7 @@ function Requirements() {
                 }
                 errorMessage={fields.roomSituation.error}
                 maxLength={200}
-                rte
+                rte={{ locales: locales }}
               />
 
               <TextArea
@@ -722,7 +722,7 @@ function Requirements() {
                 }
                 errorMessage={fields.furtherRoomSituation.error}
                 maxLength={200}
-                rte
+                rte={{ locales: locales }}
               />
             </div>
 

@@ -516,7 +516,7 @@ function Index() {
               isPublic={organizationVisibilities.bio}
               errorMessage={errors?.bio?.message}
               maxLength={500}
-              rte
+              rte={{ locales: locales }}
             />
           </div>
           <div className="mb-4">

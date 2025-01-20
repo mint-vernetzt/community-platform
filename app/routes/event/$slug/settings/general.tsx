@@ -925,7 +925,7 @@ function General() {
               maxLength={2000}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.description}
-              rte
+              rte={{ locales: locales }}
             />
             {errors?.description?.message ? (
               <div>{errors.description.message}</div>

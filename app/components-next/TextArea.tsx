@@ -4,6 +4,13 @@ import Counter from "../components/Counter/Counter";
 import { ToggleCheckbox } from "../components/FormElements/Checkbox/ToggleCheckbox";
 import { RTE } from "./RTE/RTE";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
+import { type ProjectRequirementsSettingsLocales } from "~/routes/project/$slug/settings/requirements.server";
+import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
+import { type GeneralOrganizationSettingsLocales as NextGeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
+import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
+import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
+import { type EventDocumentsSettingsLocales } from "~/routes/event/$slug/settings/documents.server";
 
 export interface TextAreaProps {
   id: string;
@@ -12,7 +19,16 @@ export interface TextAreaProps {
   withPublicPrivateToggle?: boolean;
   errorMessage?: string;
   publicPosition?: "top" | "side";
-  rte?: boolean;
+  rte?: {
+    locales:
+      | GeneralProfileSettingsLocales
+      | GeneralOrganizationSettingsLocales
+      | NextGeneralOrganizationSettingsLocales
+      | ProjectDetailsSettingsLocales
+      | ProjectRequirementsSettingsLocales
+      | GeneralEventSettingsLocales
+      | EventDocumentsSettingsLocales;
+  };
   helperText?: string;
 }
 
@@ -27,7 +43,7 @@ const TextArea = (
     placeholder,
     errorMessage,
     publicPosition = "side",
-    rte = false,
+    rte,
     maxLength,
     defaultValue = "",
     helperText,
@@ -95,7 +111,7 @@ const TextArea = (
           </div>
           <div className="flex flex-row">
             <div className="flex-auto">
-              {rte === true ? (
+              {rte !== undefined ? (
                 <>
                   <RTE
                     {...rteInputProps}
@@ -103,6 +119,7 @@ const TextArea = (
                     maxLength={maxLength}
                     defaultValue={defaultValue}
                     placeholder="Enter your text here"
+                    locales={rte.locales}
                   />
                   <noscript>
                     <textarea
@@ -117,7 +134,7 @@ const TextArea = (
                   </noscript>
                 </>
               ) : null}
-              {rte === false ? (
+              {rte === undefined ? (
                 <textarea
                   {...rest}
                   id={id}
@@ -153,7 +170,7 @@ const TextArea = (
                 {helperText}
               </div>
             )}
-            {maxLength !== undefined && rte === false && (
+            {maxLength !== undefined && rte === undefined && (
               <Counter currentCount={characterCount} maxCount={maxLength} />
             )}
           </div>

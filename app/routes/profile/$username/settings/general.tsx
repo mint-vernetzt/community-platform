@@ -487,7 +487,7 @@ export default function Index() {
                 isPublic={profileVisibilities.bio}
                 errorMessage={errors?.bio?.message}
                 maxLength={500}
-                rte
+                rte={{ locales: locales }}
               />
             </div>
 

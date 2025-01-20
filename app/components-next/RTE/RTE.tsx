@@ -34,14 +34,32 @@ import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
 import { LoadingToolbar, ToolbarPlugin } from "./plugins/ToolbarPlugin";
 import { EditorRefPlugin } from "@lexical/react/LexicalEditorRefPlugin";
 import { InputForFormPlugin } from "./plugins/InputForFormPlugin";
+import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
+import { type ProjectRequirementsSettingsLocales } from "~/routes/project/$slug/settings/requirements.server";
+import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
+import { type GeneralOrganizationSettingsLocales as NextGeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
+import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
+import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
+import { type EventDocumentsSettingsLocales } from "~/routes/event/$slug/settings/documents.server";
 
 export type OverrideableInputProps = Omit<
   React.HTMLProps<HTMLInputElement>,
   "value" | "onChange" | "className" | "readOnly" | "tabIndex"
 >;
 
-function RTE(props: OverrideableInputProps) {
-  const { defaultValue, placeholder, maxLength, ...rest } = props;
+function RTE(
+  props: OverrideableInputProps & {
+    locales:
+      | GeneralProfileSettingsLocales
+      | GeneralOrganizationSettingsLocales
+      | NextGeneralOrganizationSettingsLocales
+      | ProjectDetailsSettingsLocales
+      | ProjectRequirementsSettingsLocales
+      | GeneralEventSettingsLocales
+      | EventDocumentsSettingsLocales;
+  }
+) {
+  const { defaultValue, placeholder, maxLength, locales, ...rest } = props;
 
   const editorRef = React.useRef<LexicalEditor | null>(null);
   const isHydrated = useHydrated();
@@ -85,10 +103,10 @@ function RTE(props: OverrideableInputProps) {
     <>
       {isHydrated === false ? (
         <div
-          title="Rich text editor is loading"
+          title="Rich text editor is loading..."
           className="mv-w-full mv-h-[234px] mv-border mv-border-gray-200 mv-rounded-lg"
         >
-          <LoadingToolbar />
+          <LoadingToolbar locales={locales} />
         </div>
       ) : (
         <div
@@ -112,7 +130,7 @@ function RTE(props: OverrideableInputProps) {
         >
           <LexicalComposer initialConfig={initialConfig}>
             <EditorRefPlugin editorRef={editorRef} />
-            <ToolbarPlugin />
+            <ToolbarPlugin locales={locales} />
             <RichTextPlugin
               contentEditable={
                 <ContentEditable
@@ -125,6 +143,7 @@ function RTE(props: OverrideableInputProps) {
                     ) : null
                   }
                   aria-placeholder={placeholder || ""}
+                  title={locales.rte.title}
                 />
               }
               ErrorBoundary={LexicalErrorBoundary}
@@ -174,6 +193,7 @@ function RTE(props: OverrideableInputProps) {
                             ? "mv-text-red-500"
                             : "mv-text-gray-700"
                         }`}
+                        title={locales.rte.remainingCharacters}
                       >
                         {maxLength - remainingCharacters}/{maxLength}
                       </div>
