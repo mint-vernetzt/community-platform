@@ -4,7 +4,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import {
   Form,
-  Link,
   useActionData,
   useLoaderData,
   useSearchParams,
@@ -221,13 +220,18 @@ function Create() {
               <List>
                 {loaderData.searchResult.map((organization) => {
                   return (
-                    <List.Item key={organization.slug} interactive>
-                      <Link to={`/organization/${organization.slug}`}>
-                        <List.Item.Info>
-                          <List.Item.Title>{organization.name}</List.Item.Title>
-                        </List.Item.Info>
-                        <Avatar {...organization} />
-                      </Link>
+                    <List.Item
+                      key={organization.slug}
+                      interactive
+                      as={{
+                        type: "link",
+                        props: { to: `/organization/${organization.slug}` },
+                      }}
+                    >
+                      <List.Item.Info>
+                        <List.Item.Title>{organization.name}</List.Item.Title>
+                      </List.Item.Info>
+                      <Avatar {...organization} />
                     </List.Item>
                   );
                 })}

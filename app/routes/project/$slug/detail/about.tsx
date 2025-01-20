@@ -3,7 +3,7 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { List } from "@mint-vernetzt/components/src/organisms/List";
 import { Video } from "@mint-vernetzt/components/src/organisms/Video";
 import { type LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
@@ -607,24 +607,30 @@ function About() {
           <List maxColumns={2}>
             {loaderData.project.teamMembers.map((relation) => {
               return (
-                <List.Item key={relation.profile.username} noBorder interactive>
-                  <Link to={`/profile/${relation.profile.username}`}>
-                    <List.Item.Info>
-                      <List.Item.Title>
-                        {relation.profile.firstName} {relation.profile.lastName}
-                      </List.Item.Title>
-                      <List.Item.Subtitle>
-                        {relation.profile.position}
-                      </List.Item.Subtitle>
-                    </List.Item.Info>
+                <List.Item
+                  key={relation.profile.username}
+                  noBorder
+                  interactive
+                  as={{
+                    type: "link",
+                    props: { to: `/profile/${relation.profile.username}` },
+                  }}
+                >
+                  <List.Item.Info>
+                    <List.Item.Title>
+                      {relation.profile.firstName} {relation.profile.lastName}
+                    </List.Item.Title>
+                    <List.Item.Subtitle>
+                      {relation.profile.position}
+                    </List.Item.Subtitle>
+                  </List.Item.Info>
 
-                    <Avatar
-                      firstName={relation.profile.firstName}
-                      lastName={relation.profile.lastName}
-                      avatar={relation.profile.avatar}
-                      blurredAvatar={relation.profile.blurredAvatar}
-                    />
-                  </Link>
+                  <Avatar
+                    firstName={relation.profile.firstName}
+                    lastName={relation.profile.lastName}
+                    avatar={relation.profile.avatar}
+                    blurredAvatar={relation.profile.blurredAvatar}
+                  />
                 </List.Item>
               );
             })}
@@ -643,44 +649,48 @@ function About() {
                   key={relation.organization.slug}
                   noBorder
                   interactive
+                  as={{
+                    type: "link",
+                    props: {
+                      to: `/organization/${relation.organization.slug}`,
+                    },
+                  }}
                 >
-                  <Link to={`/organization/${relation.organization.slug}`}>
-                    <List.Item.Info>
-                      <List.Item.Title>
-                        {relation.organization.name}
-                      </List.Item.Title>
-                      <List.Item.Subtitle>
-                        {relation.organization.types
-                          .map((relation) => {
-                            let title;
-                            if (
-                              relation.organizationType.slug in
-                              locales.organizationTypes
-                            ) {
-                              type LocaleKey =
-                                keyof typeof locales.organizationTypes;
-                              title =
-                                locales.organizationTypes[
-                                  relation.organizationType.slug as LocaleKey
-                                ].title;
-                            } else {
-                              console.error(
-                                `Organization type ${relation.organizationType.slug} not found in locales`
-                              );
-                              title = relation.organizationType.slug;
-                            }
-                            return title;
-                          })
-                          .join(", ")}
-                      </List.Item.Subtitle>
-                    </List.Item.Info>
+                  <List.Item.Info>
+                    <List.Item.Title>
+                      {relation.organization.name}
+                    </List.Item.Title>
+                    <List.Item.Subtitle>
+                      {relation.organization.types
+                        .map((relation) => {
+                          let title;
+                          if (
+                            relation.organizationType.slug in
+                            locales.organizationTypes
+                          ) {
+                            type LocaleKey =
+                              keyof typeof locales.organizationTypes;
+                            title =
+                              locales.organizationTypes[
+                                relation.organizationType.slug as LocaleKey
+                              ].title;
+                          } else {
+                            console.error(
+                              `Organization type ${relation.organizationType.slug} not found in locales`
+                            );
+                            title = relation.organizationType.slug;
+                          }
+                          return title;
+                        })
+                        .join(", ")}
+                    </List.Item.Subtitle>
+                  </List.Item.Info>
 
-                    <Avatar
-                      name={relation.organization.name}
-                      logo={relation.organization.logo}
-                      blurredLogo={relation.organization.blurredLogo}
-                    />
-                  </Link>
+                  <Avatar
+                    name={relation.organization.name}
+                    logo={relation.organization.logo}
+                    blurredLogo={relation.organization.blurredLogo}
+                  />
                 </List.Item>
               );
             })}

@@ -2,6 +2,7 @@ import React from "react";
 import { Avatar } from "../molecules/Avatar";
 import classNames from "classnames";
 import { type ImageProps } from "./../molecules/Image";
+import { Link, type LinkProps } from "@remix-run/react";
 
 type Size = "sm" | "md";
 
@@ -136,9 +137,13 @@ export function ListItem(
     noBorder?: boolean;
     interactive?: boolean;
     size?: Size;
+    as?: {
+      type: "link";
+      props: LinkProps;
+    };
   }>
 ) {
-  const { noBorder = false, interactive = false, size = "md" } = props;
+  const { noBorder = false, interactive = false, size = "md", as } = props;
 
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
@@ -169,18 +174,10 @@ export function ListItem(
     const childrenWithoutControls = validChildren.filter((child) => {
       return React.isValidElement(child) && child.type !== ListItemControls;
     });
-    const wrapper = childrenWithoutControls[0];
-    const wrapperChildren =
-      typeof wrapper.props === "object" &&
-      wrapper.props !== null &&
-      "children" in wrapper.props &&
-      React.isValidElement(wrapper.props.children)
-        ? React.Children.toArray(wrapper.props.children)
-        : [];
-    avatar = wrapperChildren.find((child) => {
+    avatar = childrenWithoutControls.find((child) => {
       return React.isValidElement(child) && child.type === Avatar;
     }) as React.ReactElement;
-    info = wrapperChildren.find((child) => {
+    info = childrenWithoutControls.find((child) => {
       return React.isValidElement(child) && child.type === ListItemInfo;
     }) as React.ReactElement;
 
@@ -194,19 +191,23 @@ export function ListItem(
 
     const wrapperClasses = classNames(containerClasses, "mv-flex-1");
 
-    const wrapperClone = React.cloneElement(
-      wrapper as React.ReactElement,
-      {
-        // @ts-ignore - We should look at our cloneElement implementation.
-        className: wrapperClasses,
-      },
-      <>
-        {typeof avatar !== "undefined" && avatar}
-        {typeof infoClone !== "undefined" && infoClone}
-      </>
+    return as !== undefined && as.type === "link" ? (
+      <li className={listItemClasses}>
+        <Link {...as.props}>
+          <div className={wrapperClasses}>
+            {typeof avatar !== "undefined" && avatar}
+            {typeof infoClone !== "undefined" && infoClone}
+          </div>
+        </Link>
+      </li>
+    ) : (
+      <li className={listItemClasses}>
+        <div className={wrapperClasses}>
+          {typeof avatar !== "undefined" && avatar}
+          {typeof infoClone !== "undefined" && infoClone}
+        </div>
+      </li>
     );
-
-    return <li className={listItemClasses}>{wrapperClone}</li>;
   }
 
   avatar = validChildren.find((child) => {
@@ -254,7 +255,31 @@ export function ListItem(
     return React.isValidElement(child) && child.type === ListItemPreview;
   });
 
-  return (
+  return as !== undefined && as.type === "link" ? (
+    <li className={listItemClasses}>
+      <Link {...as.props}>
+        {typeof preview !== "undefined" && (
+          <div className="mv-w-[138px] mv-h-[92px]">{preview}</div>
+        )}
+        {typeof avatar === "undefined" &&
+        typeof info === "undefined" &&
+        typeof infoClone === "undefined" ? null : (
+          <div className={containerClasses}>
+            {typeof avatar !== "undefined" && avatar}
+            {typeof infoClone !== "undefined" ? (
+              infoClone
+            ) : (
+              <ListItemInfo size={size}>
+                {typeof titleClone !== "undefined" && titleClone}
+                {typeof subtitleClone !== "undefined" && subtitleClone}
+              </ListItemInfo>
+            )}
+            {typeof controls !== "undefined" && controls}
+          </div>
+        )}
+      </Link>
+    </li>
+  ) : (
     <li className={listItemClasses}>
       {typeof preview !== "undefined" && (
         <div className="mv-w-[138px] mv-h-[92px]">{preview}</div>
