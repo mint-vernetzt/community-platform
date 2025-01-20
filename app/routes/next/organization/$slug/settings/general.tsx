@@ -1,6 +1,5 @@
 import {
   type ActionFunctionArgs,
-  type LinksFunction,
   type LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
@@ -31,7 +30,6 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { BackButton } from "~/components-next/BackButton";
 import { TextArea } from "~/components-next/TextArea";
-import quillStyles from "react-quill/dist/quill.snow.css?url";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import React from "react";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
@@ -342,10 +340,6 @@ export async function action(args: ActionFunctionArgs) {
     message: locales.route.content.success,
   });
 }
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: quillStyles },
-];
 
 function General() {
   const location = useLocation();

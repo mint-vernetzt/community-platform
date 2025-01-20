@@ -1,8 +1,4 @@
-import type {
-  ActionFunctionArgs,
-  LinksFunction,
-  LoaderFunctionArgs,
-} from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import {
   Form,
@@ -14,7 +10,6 @@ import {
 } from "@remix-run/react";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import quillStyles from "react-quill/dist/quill.snow.css?url";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import {
@@ -140,10 +135,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   return { profile, profileVisibilities, areas, offers, locales };
 };
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: quillStyles },
-];
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const language = await detectLanguage(request);

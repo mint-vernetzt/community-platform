@@ -3,7 +3,6 @@ import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import {
   redirect,
   type ActionFunctionArgs,
-  type LinksFunction,
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import {
@@ -14,7 +13,6 @@ import {
   useLocation,
 } from "@remix-run/react";
 import React from "react";
-import quillStyles from "react-quill/dist/quill.snow.css?url";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { TextArea } from "~/components-next/TextArea";
@@ -213,10 +211,6 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         return value.trim();
       }),
   });
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: quillStyles },
-];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;

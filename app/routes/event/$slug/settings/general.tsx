@@ -1,8 +1,4 @@
-import type {
-  ActionFunctionArgs,
-  LinksFunction,
-  LoaderFunctionArgs,
-} from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import {
   Form,
@@ -60,7 +56,6 @@ import {
   updateEventById,
   validateTimePeriods,
 } from "./utils.server";
-import quillStyles from "react-quill/dist/quill.snow.css?url";
 import { invariantResponse } from "~/lib/utils/response";
 import { deriveEventMode } from "../../utils.server";
 import {
@@ -208,10 +203,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
   };
 };
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: quillStyles },
-];
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
