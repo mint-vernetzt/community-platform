@@ -1,4 +1,4 @@
-import { useLocation } from "@remix-run/react";
+import { Link, useLocation } from "@remix-run/react";
 import { supportedCookieLanguages } from "~/i18n.shared";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { type ArrayElement } from "~/lib/utils/types";
@@ -29,14 +29,13 @@ export function LocaleSwitch(props: {
           <li key={language} className="mv-flex mv-items-center">
             {index > 0 ? <span className="mv-px-2">|</span> : ""}
             <span>
-              {/* TODO: I want preventScrollReset here but the TextButton cannot be used with a remix Link wrapped inside. */}
               <TextButton
-                as="a"
-                href={`?${newSearchParams.toString()}`}
                 variant={variant}
                 weight={language === props.currentLanguage ? "normal" : "thin"}
               >
-                {language.toUpperCase()}
+                <Link to={`?${newSearchParams.toString()}`} preventScrollReset>
+                  {language.toUpperCase()}
+                </Link>
               </TextButton>
             </span>
           </li>

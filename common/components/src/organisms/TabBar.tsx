@@ -59,9 +59,8 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
     const cloneChildren =
       typeof clone.props === "object" &&
       clone.props !== null &&
-      "children" in clone.props &&
-      React.isValidElement(clone.props.children)
-        ? React.Children.toArray(clone.props.children)
+      "children" in clone.props
+        ? React.Children.toArray(clone.props.children as React.ReactNode)
         : [];
 
     if (cloneChildren.length > 0) {
@@ -78,6 +77,7 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
         </li>
       );
     }
+    console.log("Invalid children passed to TabBar.Item");
   }
 
   return null;

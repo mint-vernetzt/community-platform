@@ -112,7 +112,7 @@ function TextButton(
         },
         <>
           {props.arrowLeft && <ChevronLeft size={size} />}
-          {React.isValidElement(elementChildren) ? elementChildren : null}
+          {elementChildren as React.ReactNode}
           {props.arrowRight && <ChevronRight size={size} />}
         </>
       );
