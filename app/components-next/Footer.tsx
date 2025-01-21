@@ -1,8 +1,10 @@
 import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
 import { defaultLanguage } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export function Footer(props: { locales?: RootLocales }) {
+  const currentYear = new Date().getFullYear();
   return (
     <footer className="mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
       {/* CP logo and description */}
@@ -86,10 +88,12 @@ export function Footer(props: { locales?: RootLocales }) {
         {/* Copyright */}
         <div className="mv-font-bold mv-text-xs">
           {props.locales !== undefined
-            ? props.locales.footer.meta.copyright
+            ? insertParametersIntoLocale(props.locales.footer.meta.copyright, {
+                year: currentYear,
+              })
             : defaultLanguage === "de"
-            ? "© 2021-2025 matrix gGmbH"
-            : "© 2021-2025 matrix gGmbH"}
+            ? `© 2021-${currentYear} matrix gGmbH`
+            : `© 2021-${currentYear} matrix gGmbH`}
         </div>
         {/* SoMe icons */}
         <ul className="mv-flex mv-items-center mv-gap-6">

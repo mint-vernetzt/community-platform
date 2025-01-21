@@ -16,7 +16,7 @@ export const locale = {
     website: "MINTvernetzt website",
   },
   meta: {
-    copyright: "© 2021-2025 matrix gGmbH",
+    copyright: "© 2021-{{year}} matrix gGmbH",
     imprint: "Imprint",
     privacyPolicy: "Privacy policy",
     termsOfUse: "Terms of use",
