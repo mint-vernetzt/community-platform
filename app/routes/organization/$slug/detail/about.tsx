@@ -182,6 +182,8 @@ function About() {
                           <Link
                             key={key}
                             to={to}
+                            rel="noopener noreferrer"
+                            target="_blank"
                             className="mv-py-3 mv-px-4 mv-flex mv-gap-4 mv-bg-neutral-100 mv-rounded-lg mv-items-center"
                           >
                             <span className="mv-text-neutral-700 mv-font-semibold">
