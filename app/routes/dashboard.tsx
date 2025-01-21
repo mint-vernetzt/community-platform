@@ -50,6 +50,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { type AtLeastOne } from "~/lib/utils/types";
 import { invariantResponse } from "~/lib/utils/response";
+import { getFeatureAbilities } from "~/lib/utils/application";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -482,6 +483,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     authClient,
     sessionUser
   );
+  const abilities = await getFeatureAbilities(authClient, "news_section");
 
   return {
     communityCounter,
@@ -497,6 +499,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     upcomingCanceledEvents,
     locales,
     language,
+    abilities,
   };
 };
 
@@ -915,81 +918,83 @@ function Dashboard() {
         ) : null}
       </section>
       {/* News Section */}
-      <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
-        <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
-          <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
-            {loaderData.locales.route.content.newsTeaser.headline}
-          </h2>
-          <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
-            <label
-              htmlFor="hide-news"
-              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
-            >
-              {loaderData.locales.route.content.newsTeaser.show}
-            </label>
-            <label
-              htmlFor="hide-news"
-              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
-            >
-              {loaderData.locales.route.content.newsTeaser.hide}
-            </label>
-            <input
-              id="hide-news"
-              type="checkbox"
-              onChange={() => {
-                const hideNews =
-                  Cookies.get("mv-hide-news") === "true" ? false : true;
-                Cookies.set("mv-hide-news", hideNews.toString(), {
-                  sameSite: "strict",
-                });
-                setHideNews(hideNews);
-              }}
-              className="mv-w-0 mv-h-0 mv-opacity-0"
-              checked={hideNews === true}
-            />
+      {loaderData.abilities.news_section.hasAccess ? (
+        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
+          <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
+            <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
+              {loaderData.locales.route.content.newsTeaser.headline}
+            </h2>
+            <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
+              <label
+                htmlFor="hide-news"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
+              >
+                {loaderData.locales.route.content.newsTeaser.show}
+              </label>
+              <label
+                htmlFor="hide-news"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
+              >
+                {loaderData.locales.route.content.newsTeaser.hide}
+              </label>
+              <input
+                id="hide-news"
+                type="checkbox"
+                onChange={() => {
+                  const hideNews =
+                    Cookies.get("mv-hide-news") === "true" ? false : true;
+                  Cookies.set("mv-hide-news", hideNews.toString(), {
+                    sameSite: "strict",
+                  });
+                  setHideNews(hideNews);
+                }}
+                className="mv-w-0 mv-h-0 mv-opacity-0"
+                checked={hideNews === true}
+              />
+            </div>
           </div>
-        </div>
-        {hideNews === false ? (
-          <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
-            {Object.entries(newsTeasers).map(([key, value]) => {
-              // Runtime check to safely use type assertion below
-              if (
-                key in loaderData.locales.route.content.newsTeaser.entries ===
-                false
-              ) {
-                console.error(`No locale found for news teaser ${key}`);
-                return null;
-              }
-              type LocaleKey =
-                keyof typeof loaderData.locales.route.content.newsTeaser.entries;
-              return (
-                <TeaserCard
-                  key={`${key}-news-teaser`}
-                  to={value.link}
-                  external={value.external}
-                  headline={
-                    loaderData.locales.route.content.newsTeaser.entries[
-                      key as LocaleKey
-                    ].headline
-                  }
-                  description={
-                    loaderData.locales.route.content.newsTeaser.entries[
-                      key as LocaleKey
-                    ].description
-                  }
-                  linkDescription={
-                    loaderData.locales.route.content.newsTeaser.entries[
-                      key as LocaleKey
-                    ].linkDescription
-                  }
-                  iconType={value.icon}
-                  type="secondary"
-                />
-              );
-            })}
-          </ul>
-        ) : null}
-      </section>
+          {hideNews === false ? (
+            <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
+              {Object.entries(newsTeasers).map(([key, value]) => {
+                // Runtime check to safely use type assertion below
+                if (
+                  key in loaderData.locales.route.content.newsTeaser.entries ===
+                  false
+                ) {
+                  console.error(`No locale found for news teaser ${key}`);
+                  return null;
+                }
+                type LocaleKey =
+                  keyof typeof loaderData.locales.route.content.newsTeaser.entries;
+                return (
+                  <TeaserCard
+                    key={`${key}-news-teaser`}
+                    to={value.link}
+                    external={value.external}
+                    headline={
+                      loaderData.locales.route.content.newsTeaser.entries[
+                        key as LocaleKey
+                      ].headline
+                    }
+                    description={
+                      loaderData.locales.route.content.newsTeaser.entries[
+                        key as LocaleKey
+                      ].description
+                    }
+                    linkDescription={
+                      loaderData.locales.route.content.newsTeaser.entries[
+                        key as LocaleKey
+                      ].linkDescription
+                    }
+                    iconType={value.icon}
+                    type="secondary"
+                  />
+                );
+              })}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
       {/* Community Counter */}
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-flex-col mv-w-full mv-items-center mv-gap-6 mv-py-6 mv-bg-white mv-border mv-border-neutral-200 mv-rounded-lg">

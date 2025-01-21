@@ -37,8 +37,8 @@ export const locale = {
           linkDescription: "Try now",
         },
         crawler: {
-          headline: "New beta feature",
-          description: "Test our funding search now",
+          headline: "New feature",
+          description: "Find suitable funding with our new funding search",
           linkDescription: "Try now",
         },
         mediaDatabase: {

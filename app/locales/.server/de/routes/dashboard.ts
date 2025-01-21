@@ -38,8 +38,9 @@ export const locale = {
           linkDescription: "Jetzt ausprobieren",
         },
         crawler: {
-          headline: "Neue Beta-Funktion",
-          description: "Teste unsere Fördermittelsuche",
+          headline: "Neue Funktion",
+          description:
+            "Finde passende Förderungen mit unserer neuen Fördermittelsuche",
           linkDescription: "Jetzt ausprobieren",
         },
         mediaDatabase: {
