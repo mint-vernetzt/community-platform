@@ -1,16 +1,17 @@
-import { Button } from "@mint-vernetzt/components";
+import { Button } from "./../molecules/Button";
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { type LandingPageLocales } from "~/routes/index.server";
 
 export type RoadmapColumnProps = {
+  locales: LandingPageLocales;
   title: string;
   id: string;
   children?: React.ReactNode;
 };
 
 function RoadmapColumn(props: RoadmapColumnProps) {
+  const { locales } = props;
   const countRoadmapCards = React.Children.count(props.children);
-  const { t } = useTranslation(["organisms/roadmap"]);
   return (
     <div>
       <h4 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary-600 mv-font-bold mv-leading-[26px]">
@@ -33,10 +34,10 @@ function RoadmapColumn(props: RoadmapColumnProps) {
             className="mv-order-3 mv-mt-4 @lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer group"
           >
             <span className="show-more mv-absolute mv-inset-0 mv-text-center hover:mv-underline mv-decoration-inherit mv-decoration-auto">
-              {t("controls.showMore")}
+              {locales.roadmap.controls.showMore}
             </span>
             <span className="show-less mv-absolute mv-inset-0 mv-text-center hover:mv-underline mv-decoration-inherit mv-decoration-auto">
-              {t("controls.showLess")}
+              {locales.roadmap.controls.showLess}
             </span>
           </label>
         ) : countRoadmapCards > 2 ? (
@@ -46,10 +47,10 @@ function RoadmapColumn(props: RoadmapColumnProps) {
               className="mv-order-3 mv-mt-4 @lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer group @md:mv-hidden mv-underline mv-decoration-inherit mv-decoration-auto"
             >
               <span className="show-more mv-absolute mv-inset-0 mv-text-center group-hover:mv-underline mv-decoration-inherit mv-decoration-auto">
-                {t("controls.showMore")}
+                {locales.roadmap.controls.showMore}
               </span>
               <span className="show-less mv-absolute mv-inset-0 mv-text-center group-hover:mv-underline mv-decoration-inherit mv-decoration-auto">
-                {t("controls.showLess")}
+                {locales.roadmap.controls.showLess}
               </span>
             </label>
             <div className="mv-hidden @md:mv-block mv-mt-4 @lg:mv-mt-6 mv-h-5 mv-order-3"></div>
@@ -76,99 +77,111 @@ function RoadmapCard(props: RoadmapCardProps) {
   );
 }
 
-function Roadmap() {
-  const { t } = useTranslation(["organisms/roadmap"]);
+function Roadmap(props: { locales: LandingPageLocales }) {
+  const { locales } = props;
   return (
     <section
       id="roadmap"
       className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)] mv-py-16"
     >
       <h3 className="mv-text-center mv-mb-4 mv-text-5xl mv-text-primary-600 mv-font-bold mv-all-small-caps mv-subpixel-antialiased mv-leading-9">
-        {t("headline")}
+        {locales.roadmap.headline}
       </h3>
       <p className="mv-text-center mv-mb-16 mv-text-2xl mv-font-semibold mv-leading-[26px] mv-text-primary-600">
-        {t("subline")}
+        {locales.roadmap.subline}
       </p>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-y-8 @md:mv-gap-y-12 @md:mv-gap-x-4 @xl:mv-gap-x-4">
-          <RoadmapColumn title={t("firstColumn.title")} id="1">
+          <RoadmapColumn
+            locales={locales}
+            title={locales.roadmap.firstColumn.title}
+            id="1"
+          >
             <RoadmapCard
-              title={t("firstColumn.firstCard.title")}
-              text={t("firstColumn.firstCard.description")}
+              title={locales.roadmap.firstColumn.firstCard.title}
+              text={locales.roadmap.firstColumn.firstCard.description}
             />
             <RoadmapCard
-              title={t("firstColumn.secondCard.title")}
-              text={t("firstColumn.secondCard.description")}
+              title={locales.roadmap.firstColumn.secondCard.title}
+              text={locales.roadmap.firstColumn.secondCard.description}
             />
             <RoadmapCard
-              title={t("firstColumn.thirdCard.title")}
-              text={t("firstColumn.thirdCard.description")}
+              title={locales.roadmap.firstColumn.thirdCard.title}
+              text={locales.roadmap.firstColumn.thirdCard.description}
             />
             <RoadmapCard
-              title={t("firstColumn.fourthCard.title")}
-              text={t("firstColumn.fourthCard.description")}
+              title={locales.roadmap.firstColumn.fourthCard.title}
+              text={locales.roadmap.firstColumn.fourthCard.description}
             />
             <RoadmapCard
-              title={t("firstColumn.fifthCard.title")}
-              text={t("firstColumn.fifthCard.description")}
-            />
-          </RoadmapColumn>
-
-          <RoadmapColumn title={t("secondColumn.title")} id="2">
-            <RoadmapCard
-              title={t("secondColumn.firstCard.title")}
-              text={t("secondColumn.firstCard.description")}
-            />
-            <RoadmapCard
-              title={t("secondColumn.secondCard.title")}
-              text={t("secondColumn.secondCard.description")}
-            />
-            <RoadmapCard
-              title={t("secondColumn.thirdCard.title")}
-              text={t("secondColumn.thirdCard.description")}
+              title={locales.roadmap.firstColumn.fifthCard.title}
+              text={locales.roadmap.firstColumn.fifthCard.description}
             />
           </RoadmapColumn>
 
-          <RoadmapColumn title={t("thirdColumn.title")} id="3">
+          <RoadmapColumn
+            locales={locales}
+            title={locales.roadmap.secondColumn.title}
+            id="2"
+          >
             <RoadmapCard
-              title={t("thirdColumn.firstCard.title")}
-              text={t("thirdColumn.firstCard.description")}
+              title={locales.roadmap.secondColumn.firstCard.title}
+              text={locales.roadmap.secondColumn.firstCard.description}
             />
             <RoadmapCard
-              title={t("thirdColumn.secondCard.title")}
-              text={t("thirdColumn.secondCard.description")}
+              title={locales.roadmap.secondColumn.secondCard.title}
+              text={locales.roadmap.secondColumn.secondCard.description}
             />
             <RoadmapCard
-              title={t("thirdColumn.thirdCard.title")}
-              text={t("thirdColumn.thirdCard.description")}
+              title={locales.roadmap.secondColumn.thirdCard.title}
+              text={locales.roadmap.secondColumn.thirdCard.description}
+            />
+          </RoadmapColumn>
+
+          <RoadmapColumn
+            locales={locales}
+            title={locales.roadmap.thirdColumn.title}
+            id="3"
+          >
+            <RoadmapCard
+              title={locales.roadmap.thirdColumn.firstCard.title}
+              text={locales.roadmap.thirdColumn.firstCard.description}
             />
             <RoadmapCard
-              title={t("thirdColumn.fourthCard.title")}
-              text={t("thirdColumn.fourthCard.description")}
+              title={locales.roadmap.thirdColumn.secondCard.title}
+              text={locales.roadmap.thirdColumn.secondCard.description}
             />
             <RoadmapCard
-              title={t("thirdColumn.fifthCard.title")}
-              text={t("thirdColumn.fifthCard.description")}
+              title={locales.roadmap.thirdColumn.thirdCard.title}
+              text={locales.roadmap.thirdColumn.thirdCard.description}
             />
             <RoadmapCard
-              title={t("thirdColumn.sixthCard.title")}
-              text={t("thirdColumn.sixthCard.description")}
+              title={locales.roadmap.thirdColumn.fourthCard.title}
+              text={locales.roadmap.thirdColumn.fourthCard.description}
             />
             <RoadmapCard
-              title={t("thirdColumn.seventhCard.title")}
-              text={t("thirdColumn.seventhCard.description")}
+              title={locales.roadmap.thirdColumn.fifthCard.title}
+              text={locales.roadmap.thirdColumn.fifthCard.description}
             />
             <RoadmapCard
-              title={t("thirdColumn.eighthCard.title")}
-              text={t("thirdColumn.eighthCard.description")}
+              title={locales.roadmap.thirdColumn.sixthCard.title}
+              text={locales.roadmap.thirdColumn.sixthCard.description}
             />
             <RoadmapCard
-              title={t("thirdColumn.ninthCard.title")}
-              text={t("thirdColumn.ninthCard.description")}
+              title={locales.roadmap.thirdColumn.seventhCard.title}
+              text={locales.roadmap.thirdColumn.seventhCard.description}
             />
             <RoadmapCard
-              title={t("thirdColumn.tenthCard.title")}
-              text={t("thirdColumn.tenthCard.description")}
+              title={locales.roadmap.thirdColumn.eighthCard.title}
+              text={locales.roadmap.thirdColumn.eighthCard.description}
+            />
+            <RoadmapCard
+              title={locales.roadmap.thirdColumn.ninthCard.title}
+              text={locales.roadmap.thirdColumn.ninthCard.description}
+            />
+            <RoadmapCard
+              title={locales.roadmap.thirdColumn.tenthCard.title}
+              text={locales.roadmap.thirdColumn.tenthCard.description}
             />
           </RoadmapColumn>
         </div>
@@ -178,14 +191,14 @@ function Roadmap() {
             variant="outline"
             href="mailto:community@mint-vernetzt.de"
           >
-            {t("controls.submitIdeas")}
+            {locales.roadmap.controls.submitIdeas}
           </Button>
           <div className="mv-flex mv-flex-col mv-gap-1">
             <p className="mv-text-center mv-leading-[22px] mv-text-primary-600">
-              {t("controls.ctaQuestion")}
+              {locales.roadmap.controls.ctaQuestion}
             </p>
             <p className="mv-text-center mv-leading-[22px] mv-text-primary-600">
-              {t("controls.cta")}
+              {locales.roadmap.controls.cta}
             </p>
           </div>
         </div>
@@ -194,4 +207,4 @@ function Roadmap() {
   );
 }
 
-export default Roadmap;
+export { Roadmap };

@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -10,15 +10,10 @@ import { deriveOrganizationMode } from "../../utils.server";
 import {
   getOrganizationBySlug,
   removeAdminFromOrganization,
+  type RemoveAdminFromOrganizationLocales,
 } from "./remove-admin.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { detectLanguage } from "~/root.server";
-
-const i18nNS = ["routes/organization/settings/admin/remove-admin"];
-export const handle = {
-  i18n: i18nNS,
-};
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -30,13 +25,13 @@ const environmentSchema = z.object({
   adminCount: z.number(),
 });
 
-const createMutation = (t: TFunction) => {
+const createMutation = (locales: RemoveAdminFromOrganizationLocales) => {
   return makeDomainFunction(
     schema,
     environmentSchema
   )(async (values, environment) => {
     if (environment.adminCount === 1) {
-      throw t("error.adminCount");
+      throw locales.error.adminCount;
     }
 
     return values;
@@ -45,24 +40,25 @@ const createMutation = (t: TFunction) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/organization/settings/admin/remove-admin",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language][
+      "organization/$slug/settings/admins/remove-admin"
+    ];
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.error.notPrivileged, {
     status: 403,
   });
   const organization = await getOrganizationBySlug(slug);
-  invariantResponse(organization, t("error.notFound"), { status: 404 });
+  invariantResponse(organization, locales.error.notFound, { status: 404 });
 
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(t),
+    mutation: createMutation(locales),
     environment: { adminCount: organization._count.admins },
   });
 
@@ -72,5 +68,5 @@ export const action = async (args: ActionFunctionArgs) => {
       return redirect(`/organization/${slug}`);
     }
   }
-  return json(result);
+  return result;
 };

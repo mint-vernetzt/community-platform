@@ -1,9 +1,5 @@
-import type {
-  ActionFunctionArgs,
-  LinksFunction,
-  LoaderFunctionArgs,
-} from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -24,7 +20,7 @@ import {
 import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
-import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import { TextArea } from "~/components-next/TextArea";
 import {
   createAreaOptionFromData,
   objectListOperationResolver,
@@ -51,28 +47,20 @@ import {
   getWholeOrganizationBySlug,
   updateOrganizationById,
 } from "./utils.server";
-
-import { type TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
-import quillStyles from "react-quill/dist/quill.snow.css";
-import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { detectLanguage } from "~/root.server";
-import { getOrganizationBySlug } from "./general.server";
+import { detectLanguage } from "~/i18n.server";
+import {
+  type GeneralOrganizationSettingsLocales,
+  getOrganizationBySlug,
+} from "./general.server";
+import { languageModuleMap } from "~/locales/.server";
 
-const i18nNS = [
-  "routes/organization/settings/general",
-  "datasets/organizationTypes",
-  "datasets/focuses",
-];
-export const handle = {
-  i18n: i18nNS,
-};
-
-const createOrganizationSchema = (t: TFunction) => {
+const createOrganizationSchema = (
+  locales: GeneralOrganizationSettingsLocales
+) => {
   return object({
-    name: string().required(t("validation.name.required")),
-    email: nullOrString(string().email(t("validation.email.email"))),
+    name: string().required(locales.route.validation.name.required),
+    email: nullOrString(string().email(locales.route.validation.email.email)),
     phone: nullOrString(phone()),
     street: nullOrString(string()),
     streetNumber: nullOrString(string()),
@@ -118,8 +106,9 @@ function makeFormOrganizationFromDbOrganization(
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["organization/$slug/settings/general"];
   const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
@@ -134,18 +123,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(mode === "admin", "Not privileged", { status: 403 });
   const dbOrganization = await getWholeOrganizationBySlug(slug);
   if (dbOrganization === null) {
-    throw json(
-      {
-        message: t("error.notFound.named", { slug: slug }),
-      },
-      { status: 404 }
-    );
+    invariantResponse(false, locales.route.error.notFound.named, {
+      status: 404,
+    });
   }
   const organizationVisibilities = await getOrganizationVisibilitiesById(
     dbOrganization.id
   );
   if (organizationVisibilities === null) {
-    throw json({ message: t("error.notFound.visibilities") }, { status: 404 });
+    invariantResponse(false, locales.route.error.notFound.visibilities, {
+      status: 404,
+    });
   }
 
   const organization = makeFormOrganizationFromDbOrganization(dbOrganization);
@@ -154,43 +142,39 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const focuses = await getFocuses();
   const areas = await getAreas();
 
-  return json({
+  return {
     organization,
     organizationVisibilities,
     organizationTypes,
     areas,
     focuses,
-  });
+    locales,
+  };
 };
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: quillStyles },
-];
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["organization/$slug/settings/general"];
   const { authClient } = createAuthClient(request);
 
   const slug = getParamValueOrThrow(params, "slug");
 
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
     status: 403,
   });
   const organization = await getOrganizationBySlug(slug);
-  invariantResponse(
-    organization,
-    t('error.notFound.organization"organization visbilities not found."'),
-    { status: 404 }
-  );
+  invariantResponse(organization, locales.route.error.notFound.organization, {
+    status: 404,
+  });
 
   const parsedFormData = await getFormValues<OrganizationSchemaType>(
     request,
-    createOrganizationSchema(t)
+    createOrganizationSchema(locales)
   );
 
   let errors: FormError | null;
@@ -198,14 +182,14 @@ export const action = async (args: ActionFunctionArgs) => {
 
   try {
     let result = await validateForm<OrganizationSchemaType>(
-      createOrganizationSchema(t),
+      createOrganizationSchema(locales),
       parsedFormData
     );
     errors = result.errors;
     data = result.data;
   } catch (error) {
     console.error(error);
-    throw json({ message: t("error.validation") }, { status: 400 });
+    invariantResponse(false, locales.route.error.validation, { status: 400 });
   }
 
   let updated = false;
@@ -225,7 +209,9 @@ export const action = async (args: ActionFunctionArgs) => {
         updated = true;
       } catch (error) {
         console.error(error);
-        throw json({ message: t("error.serverError") }, { status: 500 });
+        invariantResponse(false, locales.route.error.serverError, {
+          status: 500,
+        });
       }
     }
   } else {
@@ -245,12 +231,12 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  return json({
+  return {
     organization: data,
     lastSubmit: (formData.get("submit") as string) ?? "",
     updated,
     errors,
-  });
+  };
 };
 
 function Index() {
@@ -261,12 +247,11 @@ function Index() {
     organizationTypes,
     areas,
     focuses,
+    locales,
   } = useLoaderData<typeof loader>();
 
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
-
-  const { t } = useTranslation(i18nNS);
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = navigation.state === "submitting";
@@ -286,8 +271,16 @@ function Index() {
   const errors = actionData?.errors;
 
   const organizationTypesOptions = organizationTypes.map((type) => {
+    let title;
+    if (type.slug in locales.organizationTypes) {
+      type LocaleKey = keyof typeof locales.organizationTypes;
+      title = locales.organizationTypes[type.slug as LocaleKey].title;
+    } else {
+      console.error(`Focus ${type.slug} not found in locales`);
+      title = type.slug;
+    }
     return {
-      label: t(`${type.slug}.title`, { ns: "datasets/organizationTypes" }),
+      label: title,
       value: type.id,
     };
   });
@@ -296,13 +289,31 @@ function Index() {
     organization.types && organizationTypes
       ? organizationTypes
           .filter((type) => organization.types.includes(type.id))
-          .sort((a, b) =>
-            t(`${a.slug}.title`, {
-              ns: "datasets/organizationTypes",
-            }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets/organizationTypes" })
-            )
-          )
+          .sort((currentType, nextType) => {
+            let currentTitle;
+            let nextTitle;
+            if (currentType.slug in locales.organizationTypes) {
+              type LocaleKey = keyof typeof locales.organizationTypes;
+              currentTitle =
+                locales.organizationTypes[currentType.slug as LocaleKey].title;
+            } else {
+              console.error(
+                `Organization type ${currentType.slug} not found in locales`
+              );
+              currentTitle = currentType.slug;
+            }
+            if (nextType.slug in locales.organizationTypes) {
+              type LocaleKey = keyof typeof locales.organizationTypes;
+              nextTitle =
+                locales.organizationTypes[nextType.slug as LocaleKey].title;
+            } else {
+              console.error(
+                `Organization type ${nextType.slug} not found in locales`
+              );
+              nextTitle = nextType.slug;
+            }
+            return currentTitle.localeCompare(nextTitle);
+          })
       : [];
 
   const selectedAreas =
@@ -315,8 +326,16 @@ function Index() {
   const areaOptions = createAreaOptionFromData(areas);
 
   const focusOptions = focuses.map((focus) => {
+    let title;
+    if (focus.slug in locales.focuses) {
+      type LocaleKey = keyof typeof locales.focuses;
+      title = locales.focuses[focus.slug as LocaleKey].title;
+    } else {
+      console.error(`Focus ${focus.slug} not found in locales`);
+      title = focus.slug;
+    }
     return {
-      label: t(`${focus.slug}.title`, { ns: "datasets/focuses" }),
+      label: title,
       value: focus.id,
     };
   });
@@ -325,11 +344,26 @@ function Index() {
     organization.focuses && focuses
       ? focuses
           .filter((focus) => organization.focuses.includes(focus.id))
-          .sort((a, b) =>
-            t(`${a.slug}.title`, { ns: "datasets/focuses" }).localeCompare(
-              t(`${b.slug}.title`, { ns: "datasets/focuses" })
-            )
-          )
+          .sort((currentFocus, nextFocus) => {
+            let currentTitle;
+            let nextTitle;
+            if (currentFocus.slug in locales.focuses) {
+              type LocaleKey = keyof typeof locales.focuses;
+              currentTitle =
+                locales.focuses[currentFocus.slug as LocaleKey].title;
+            } else {
+              console.error(`Focus ${currentFocus.slug} not found in locales`);
+              currentTitle = currentFocus.slug;
+            }
+            if (nextFocus.slug in locales.focuses) {
+              type LocaleKey = keyof typeof locales.focuses;
+              nextTitle = locales.focuses[nextFocus.slug as LocaleKey].title;
+            } else {
+              console.error(`Focus ${nextFocus.slug} not found in locales`);
+              nextTitle = nextFocus.slug;
+            }
+            return currentTitle.localeCompare(nextTitle);
+          })
       : [];
 
   React.useEffect(() => {
@@ -376,18 +410,18 @@ function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <h1 className="mb-8">{t("content.headline")}</h1>
+          <h1 className="mb-8">{locales.route.content.headline}</h1>
 
           <h4 className="mb-4 font-semibold">
-            {t("content.general.headline")}
+            {locales.route.content.general.headline}
           </h4>
 
-          <p className="mb-8">{t("content.general.intro")}</p>
+          <p className="mb-8">{locales.route.content.general.intro}</p>
           <div className="mb-6">
             <InputText
               {...register("name")}
               id="name"
-              label={t("form.name.label")}
+              label={locales.route.form.name.label}
               withPublicPrivateToggle={false}
               isPublic={organizationVisibilities.name}
               defaultValue={organization.name}
@@ -399,7 +433,7 @@ function Index() {
               <InputText
                 {...register("email")}
                 id="email"
-                label={t("form.email.label")}
+                label={locales.route.form.email.label}
                 errorMessage={errors?.email?.message}
                 withPublicPrivateToggle={true}
                 isPublic={organizationVisibilities.email}
@@ -409,7 +443,7 @@ function Index() {
               <InputText
                 {...register("phone")}
                 id="phone"
-                label={t("form.phone.label")}
+                label={locales.route.form.phone.label}
                 errorMessage={errors?.phone?.message}
                 withPublicPrivateToggle={true}
                 isPublic={organizationVisibilities.phone}
@@ -417,14 +451,14 @@ function Index() {
             </div>
           </div>
           <h4 className="mb-4 font-semibold">
-            {t("content.address.headline")}
+            {locales.route.content.address.headline}
           </h4>
           <div className="flex flex-col @md:mv-flex-row -mx-4">
             <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
               <InputText
                 {...register("street")}
                 id="street"
-                label={t("form.street.label")}
+                label={locales.route.form.street.label}
                 errorMessage={errors?.street?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.street}
@@ -434,7 +468,7 @@ function Index() {
               <InputText
                 {...register("streetNumber")}
                 id="streetNumber"
-                label={t("form.streetNumber.label")}
+                label={locales.route.form.streetNumber.label}
                 errorMessage={errors?.streetNumber?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.streetNumber}
@@ -446,7 +480,7 @@ function Index() {
               <InputText
                 {...register("zipCode")}
                 id="zipCode"
-                label={t("form.zipCode.label")}
+                label={locales.route.form.zipCode.label}
                 errorMessage={errors?.zipCode?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.zipCode}
@@ -456,7 +490,7 @@ function Index() {
               <InputText
                 {...register("city")}
                 id="city"
-                label={t("form.city.label")}
+                label={locales.route.form.city.label}
                 errorMessage={errors?.city?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.city}
@@ -466,37 +500,50 @@ function Index() {
 
           <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
-          <h4 className="font-semibold mb-4">{t("content.about.headline")}</h4>
+          <h4 className="font-semibold mb-4">
+            {locales.route.content.about.headline}
+          </h4>
 
-          <p className="mb-8">{t("content.about.intro")}</p>
+          <p className="mb-8">{locales.route.content.about.intro}</p>
 
           <div className="mb-4">
-            <TextAreaWithCounter
+            <TextArea
               {...register("bio")}
               id="bio"
               defaultValue={organization.bio || ""}
-              label={t("form.bio.label")}
+              label={locales.route.form.bio.label}
               withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.bio}
               errorMessage={errors?.bio?.message}
-              maxCharacters={500}
-              rte
+              maxLength={500}
+              rte={{ locales: locales }}
             />
           </div>
           <div className="mb-4">
             <SelectAdd
               name="types"
-              label={t("form.organizationForm.label")}
-              entries={selectedOrganizationTypes.map((type) => ({
-                label: t(`${type.slug}.title`, {
-                  ns: "datasets/organizationTypes",
-                }),
-                value: type.id,
-              }))}
+              label={locales.route.form.organizationForm.label}
+              entries={selectedOrganizationTypes.map((type) => {
+                let title;
+                if (type.slug in locales.organizationTypes) {
+                  type LocaleKey = keyof typeof locales.organizationTypes;
+                  title =
+                    locales.organizationTypes[type.slug as LocaleKey].title;
+                } else {
+                  console.error(
+                    `Organization type ${type.slug} not found in locales`
+                  );
+                  title = type.slug;
+                }
+                return {
+                  label: title,
+                  value: type.id,
+                };
+              })}
               options={organizationTypesOptions.filter((option) => {
                 return !organization.types.includes(option.value);
               })}
-              placeholder={t("form.organizationForm.placeholder")}
+              placeholder={locales.route.form.organizationForm.placeholder}
               withPublicPrivateToggle={false}
               isPublic={organizationVisibilities.types}
             />
@@ -504,8 +551,8 @@ function Index() {
           <div className="mb-4">
             <SelectAdd
               name="areas"
-              label={t("form.areas.label")}
-              placeholder={t("form.areas.placeholder")}
+              label={locales.route.form.areas.label}
+              placeholder={locales.route.form.areas.placeholder}
               entries={selectedAreas.map((area) => ({
                 label: area.name,
                 value: area.id,
@@ -518,7 +565,7 @@ function Index() {
           <div className="mb-4">
             <InputAdd
               name="supportedBy"
-              label={t("form.supportedBy.label")}
+              label={locales.route.form.supportedBy.label}
               entries={organization.supportedBy ?? []}
               withPublicPrivateToggle={false}
               isPublic={organizationVisibilities.supportedBy}
@@ -527,12 +574,22 @@ function Index() {
           <div className="mb-4">
             <SelectAdd
               name="focuses"
-              label={t("form.focuses.label")}
-              placeholder={t("form.focuses.placeholder")}
-              entries={selectedFocuses.map((focus) => ({
-                label: t(`${focus.slug}.title`, { ns: "datasets/focuses" }),
-                value: focus.id,
-              }))}
+              label={locales.route.form.focuses.label}
+              placeholder={locales.route.form.focuses.placeholder}
+              entries={selectedFocuses.map((focus) => {
+                let title;
+                if (focus.slug in locales.focuses) {
+                  type LocaleKey = keyof typeof locales.focuses;
+                  title = locales.focuses[focus.slug as LocaleKey].title;
+                } else {
+                  console.error(`Focus ${focus.slug} not found in locales`);
+                  title = focus.slug;
+                }
+                return {
+                  label: title,
+                  value: focus.id,
+                };
+              })}
               options={focusOptions.filter((option) => {
                 return !organization.focuses.includes(option.value);
               })}
@@ -541,14 +598,14 @@ function Index() {
             />
           </div>
           <div className="mb-4">
-            <TextAreaWithCounter
+            <TextArea
               {...register("quote")}
               id="quote"
-              label={t("form.quote.label")}
+              label={locales.route.form.quote.label}
               withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.quote}
               errorMessage={errors?.quote?.message}
-              maxCharacters={300}
+              maxLength={300}
             />
           </div>
           <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2 w-full">
@@ -556,7 +613,7 @@ function Index() {
               <InputText
                 {...register("quoteAuthor")}
                 id="quoteAuthor"
-                label={t("form.quoteAuthor.label")}
+                label={locales.route.form.quoteAuthor.label}
                 errorMessage={errors?.quoteAuthor?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.quoteAuthor}
@@ -566,7 +623,7 @@ function Index() {
               <InputText
                 {...register("quoteAuthorInformation")}
                 id="quoteAuthorInformation"
-                label={t("form.quoteAuthorInformation.label")}
+                label={locales.route.form.quoteAuthorInformation.label}
                 errorMessage={errors?.quoteAuthorInformation?.message}
                 withPublicPrivateToggle={false}
                 isPublic={organizationVisibilities.quoteAuthorInformation}
@@ -576,20 +633,24 @@ function Index() {
 
           <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
-          <h2 className="mb-8">{t("content.websiteAndSocial.headline")}</h2>
+          <h2 className="mb-8">
+            {locales.route.content.websiteAndSocial.headline}
+          </h2>
 
           <h4 className="mb-4 font-semibold">
-            {t("content.websiteAndSocial.website.headline")}
+            {locales.route.content.websiteAndSocial.website.headline}
           </h4>
 
-          <p className="mb-8">{t("content.websiteAndSocial.website.intro")}</p>
+          <p className="mb-8">
+            {locales.route.content.websiteAndSocial.website.intro}
+          </p>
 
           <div className="basis-full mb-4">
             <InputText
               {...register("website")}
               id="website"
-              label={t("form.website.label")}
-              placeholder={t("form.website.placeholder")}
+              label={locales.route.form.website.label}
+              placeholder={locales.route.form.website.placeholder}
               withPublicPrivateToggle={true}
               isPublic={organizationVisibilities.website}
               errorMessage={errors?.website?.message}
@@ -600,12 +661,14 @@ function Index() {
           <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
           <h4 className="mb-4 font-semibold">
-            {t("content.websiteAndSocial.social.headline")}
+            {locales.route.content.websiteAndSocial.social.headline}
           </h4>
 
-          <p className="mb-8">{t("content.websiteAndSocial.social.intro")}</p>
+          <p className="mb-8">
+            {locales.route.content.websiteAndSocial.social.intro}
+          </p>
 
-          {createSocialMediaServices(t).map((service) => (
+          {createSocialMediaServices(locales).map((service) => (
             <div className="w-full mb-4" key={service.id}>
               <InputText
                 {...register(service.id)}
@@ -630,7 +693,7 @@ function Index() {
                       : "hidden"
                   }`}
                 >
-                  {t("content.feedback")}
+                  {locales.route.content.feedback}
                 </div>
 
                 {isFormChanged ? (
@@ -639,7 +702,7 @@ function Index() {
                     reloadDocument
                     className={`btn btn-link`}
                   >
-                    {t("form.reset.label")}
+                    {locales.route.form.reset.label}
                   </Link>
                 ) : null}
                 <div></div>
@@ -650,7 +713,7 @@ function Index() {
                   className="btn btn-primary ml-4"
                   disabled={isSubmitting || !isFormChanged}
                 >
-                  {t("form.submit.label")}
+                  {locales.route.form.submit.label}
                 </button>
               </div>
             </div>

@@ -1,25 +1,16 @@
 import { useForm } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
-import {
-  Avatar,
-  Button,
-  Image,
-  Input,
-  TextButton,
-} from "@mint-vernetzt/components";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import { type TFunction } from "i18next";
-import rcSliderStyles from "rc-slider/assets/index.css";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
 import React from "react";
-import { Trans, useTranslation } from "react-i18next";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { z } from "zod";
 import {
   createEventAbuseReport,
@@ -33,7 +24,6 @@ import {
 } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import { RichText } from "~/components/Richtext/RichText";
-import i18next from "~/i18next.server";
 import {
   canUserAccessConferenceLink,
   canUserBeAddedToWaitingList,
@@ -50,8 +40,8 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/root.server";
-import { Modal } from "~/routes/__components";
+import { detectLanguage } from "~/i18n.server";
+import { Modal } from "~/components-next/Modal";
 import { deriveEventMode } from "../utils.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
 import { RemoveParticipantButton } from "./settings/participants/remove-participant";
@@ -74,23 +64,18 @@ import {
   type SpeakersQuery,
 } from "./utils.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
-
-const i18nNS = [
-  "routes/event/index",
-  "datasets/stages",
-  "datasets/experienceLevels",
-  "datasets/focuses",
-  "datasets/eventTypes",
-  "datasets/eventTargetGroups",
-  "datasets/tags",
-  "datasets/eventAbuseReportReasonSuggestions",
-  "datasets/organizationTypes",
-  "components/image-cropper",
-];
-
-export const handle = {
-  i18n: i18nNS,
-};
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { languageModuleMap } from "~/locales/.server";
+import { type EventDetailLocales } from "./index.server";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import {
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 
 export function links() {
   return [
@@ -229,16 +214,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "events",
     "abuse_report",
   ]);
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["event/$slug/index"];
 
   const sessionUser = await getSessionUser(authClient);
 
   const rawEvent = await getEvent(slug);
 
-  if (rawEvent === null) {
-    throw json({ message: t("error.notFound") }, { status: 404 });
-  }
+  invariantResponse(rawEvent !== null, locales.route.error.notFound, {
+    status: 404,
+  });
 
   const mode = await deriveEventMode(sessionUser, slug);
 
@@ -260,7 +245,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   if (mode !== "admin" && !isTeamMember && rawEvent.published === false) {
-    throw json({ message: t("error.notPublished") }, { status: 403 });
+    invariantResponse(false, locales.route.error.notPublished, { status: 403 });
   }
 
   let speakers: SpeakersQuery | FullDepthProfilesQuery = [];
@@ -304,6 +289,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // Filtering by visbility settings
   if (mode === "anon") {
     // TODO: Still async as its using the old filter method for speakers and participants because of raw queries
+    // When refactoring events use the new filter method
     enhancedEvent = await filterEvent(enhancedEvent);
   }
   // Add imgUrls for imgproxy call on client
@@ -364,7 +350,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       },
     });
 
-  return json({
+  return {
     mode,
     event: eventWithParticipationStatus,
     userId: sessionUser?.id || undefined,
@@ -379,7 +365,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       baseUrl: process.env.COMMUNITY_BASE_URL,
       url: request.url,
     },
-  });
+    locales,
+    language,
+  };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -388,8 +376,8 @@ export const action = async (args: ActionFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["event/$slug/index"];
 
   const formData = await request.formData();
   const submission = parseWithZod(formData, {
@@ -398,7 +386,7 @@ export const action = async (args: ActionFunctionArgs) => {
         ctx.addIssue({
           path: ["reasons"],
           code: z.ZodIssueCode.custom,
-          message: t("abuseReport.noReasons"),
+          message: locales.route.abuseReport.noReasons,
         });
         return;
       }
@@ -461,7 +449,7 @@ export const action = async (args: ActionFunctionArgs) => {
   await sendNewReportMailToSupport(report);
 
   return redirectWithAlert(".", {
-    message: t("success.abuseReport"),
+    message: locales.route.success.abuseReport,
   });
 };
 
@@ -519,8 +507,12 @@ function getCallToActionForm(loaderData: {
   }
 }
 
-function formatDateTime(date: Date, language: string, t: TFunction) {
-  return t("content.clock", {
+function formatDateTime(
+  date: Date,
+  language: ArrayElement<typeof supportedCookieLanguages>,
+  locales: EventDetailLocales
+) {
+  return insertParametersIntoLocale(locales.route.content.clock, {
     date: date.toLocaleDateString(language, {
       day: "2-digit",
       month: "long",
@@ -535,6 +527,7 @@ function formatDateTime(date: Date, language: string, t: TFunction) {
 
 function Index() {
   const loaderData = useLoaderData<typeof loader>();
+  const { locales, language } = loaderData;
   const actionData = useActionData<typeof action>();
 
   const now = utcToZonedTime(new Date(), "Europe/Berlin");
@@ -550,8 +543,6 @@ function Index() {
     "Europe/Berlin"
   );
 
-  const { t, i18n } = useTranslation(i18nNS);
-
   const beforeParticipationPeriod = now < participationFrom;
 
   const afterParticipationPeriod = now > participationUntil;
@@ -560,7 +551,7 @@ function Index() {
 
   const CallToActionForm = getCallToActionForm(loaderData);
 
-  const duration = getDuration(startTime, endTime, i18n.language);
+  const duration = getDuration(startTime, endTime, language);
 
   const background = loaderData.event.background;
   const blurredBackground = loaderData.event.blurredBackground;
@@ -584,20 +575,30 @@ function Index() {
         <div className="font-semi text-neutral-500 flex flex-wrap items-center mv-mb-4">
           {loaderData.event.parentEvent !== null ? (
             <>
-              <TextButton weight="thin" variant="neutral" arrowRight>
-                <Link to={`/event/${loaderData.event.parentEvent.slug}`}>
-                  {loaderData.event.parentEvent.name}
-                </Link>
+              {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+              <TextButton
+                as="a"
+                href={`/event/${loaderData.event.parentEvent.slug}`}
+                weight="thin"
+                variant="neutral"
+                arrowRight
+              >
+                {loaderData.event.parentEvent.name}
               </TextButton>
               <span className="w-full @md:mv-w-auto mv-text-neutral mv-font-thin">
                 {loaderData.event.name}
               </span>
             </>
           ) : (
-            <TextButton weight="thin" variant="neutral" arrowLeft>
-              <Link to="/explore/events" prefetch="intent">
-                {t("content.back")}
-              </Link>
+            // TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside.
+            <TextButton
+              as="a"
+              href="explore/events"
+              weight="thin"
+              variant="neutral"
+              arrowLeft
+            >
+              {locales.route.content.back}
             </TextButton>
           )}
         </div>
@@ -606,7 +607,7 @@ function Index() {
           loaderData.alreadyAbuseReported === false && (
             <Form method="get" preventScrollReset>
               <input hidden name="modal-report" defaultValue="true" />
-              <button type="submit">{t("content.report")}</button>
+              <button type="submit">{locales.route.content.report}</button>
             </Form>
           )}
       </section>
@@ -614,8 +615,10 @@ function Index() {
         loaderData.mode === "authenticated" &&
         loaderData.alreadyAbuseReported === false && (
           <Modal searchParam="modal-report">
-            <Modal.Title>{t("abuseReport.title")}</Modal.Title>
-            <Modal.Section>{t("abuseReport.description")}</Modal.Section>
+            <Modal.Title>{locales.route.abuseReport.title}</Modal.Title>
+            <Modal.Section>
+              {locales.route.abuseReport.description}
+            </Modal.Section>
             <Modal.Section>
               <Form
                 id={abuseReportForm.id}
@@ -630,6 +633,22 @@ function Index() {
                 />
                 <div className="mv-flex mv-flex-col mv-gap-6">
                   {loaderData.abuseReportReasons.map((reason) => {
+                    let description;
+                    if (
+                      reason.slug in locales.eventAbuseReportReasonSuggestions
+                    ) {
+                      type LocaleKey =
+                        keyof typeof locales.eventAbuseReportReasonSuggestions;
+                      description =
+                        locales.eventAbuseReportReasonSuggestions[
+                          reason.slug as LocaleKey
+                        ].description;
+                    } else {
+                      console.error(
+                        `Event abuse report reason suggestion ${reason.slug} not found in locales`
+                      );
+                      description = reason.slug;
+                    }
                     return (
                       <label key={reason.slug} className="mv-flex mv-group">
                         <input
@@ -673,11 +692,7 @@ function Index() {
                             />
                           </svg>
                         </div>
-                        <span>
-                          {t(`${reason.slug}.description`, {
-                            ns: "datasets/eventAbuseReportReasonSuggestions",
-                          })}
-                        </span>
+                        <span>{description}</span>
                       </label>
                     );
                   })}
@@ -685,7 +700,9 @@ function Index() {
                     name={abuseReportFields.otherReason.name}
                     maxLength={250}
                   >
-                    <Input.Label>{t("abuseReport.otherReason")}</Input.Label>
+                    <Input.Label>
+                      {locales.route.abuseReport.otherReason}
+                    </Input.Label>
                   </Input>
                   {abuseReportFields.reasons.errors && (
                     <span>{abuseReportFields.reasons.errors}</span>
@@ -694,9 +711,11 @@ function Index() {
               </Form>
             </Modal.Section>
             <Modal.SubmitButton form={abuseReportForm.id}>
-              {t("abuseReport.submit")}
+              {locales.route.abuseReport.submit}
             </Modal.SubmitButton>
-            <Modal.CloseButton>{t("abuseReport.abort")}</Modal.CloseButton>
+            <Modal.CloseButton>
+              {locales.route.abuseReport.abort}
+            </Modal.CloseButton>
           </Modal>
         )}
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mt-6">
@@ -714,11 +733,13 @@ function Index() {
                 <div className="absolute bottom-6 right-6">
                   <Form method="get" preventScrollReset>
                     <input hidden name="modal-background" defaultValue="true" />
-                    <Button type="submit">{t("content.change")}</Button>
+                    <Button type="submit">
+                      {locales.route.content.change}
+                    </Button>
                   </Form>
 
                   <Modal searchParam="modal-background">
-                    <Modal.Title>{t("content.headline")}</Modal.Title>
+                    <Modal.Title>{locales.route.content.headline}</Modal.Title>
                     <Modal.Section>
                       <ImageCropper
                         subject="event"
@@ -733,6 +754,7 @@ function Index() {
                         slug={loaderData.event.slug}
                         redirect={`/event/${loaderData.event.slug}`}
                         modalSearchParam="modal-background"
+                        locales={locales}
                       >
                         <Background />
                       </ImageCropper>
@@ -746,17 +768,17 @@ function Index() {
             <>
               {loaderData.event.canceled ? (
                 <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
-                  {t("content.event.cancelled")}
+                  {locales.route.content.event.cancelled}
                 </div>
               ) : (
                 <>
                   {loaderData.event.published ? (
                     <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-green-600 p-2 text-white">
-                      {t("content.event.published")}
+                      {locales.route.content.event.published}
                     </div>
                   ) : (
                     <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white">
-                      {t("content.event.draft")}
+                      {locales.route.content.event.draft}
                     </div>
                   )}
                 </>
@@ -766,7 +788,7 @@ function Index() {
 
           {loaderData.mode !== "admin" && loaderData.event.canceled ? (
             <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
-              {t("content.event.cancelled")}
+              {locales.route.content.event.cancelled}
             </div>
           ) : null}
           {loaderData.mode !== "admin" ? (
@@ -775,10 +797,10 @@ function Index() {
                 <div className="bg-accent-300 p-8">
                   <p className="font-bold text-center">
                     {laysInThePast
-                      ? t("content.event.alreadyTakenPlace")
+                      ? locales.route.content.event.alreadyTakenPlace
                       : beforeParticipationPeriod
-                      ? t("content.event.registrationNotStarted")
-                      : t("content.event.registrationExpired")}
+                      ? locales.route.content.event.registrationNotStarted
+                      : locales.route.content.event.registrationExpired}
                   </p>
                 </div>
               ) : (
@@ -790,23 +812,24 @@ function Index() {
                         <div className="w-full hidden @lg:mv-flex @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4"></div>
                         <div className="w-full @md:mv-flex-auto px-4">
                           <p className="font-bold @xl:mv-text-center @md:mv-pl-4 @lg:mv-pl-0 pb-4 @md:mv-pb-0">
-                            <Trans
-                              i18nKey="content.event.context"
-                              ns={["routes/event/index"]}
-                              values={{
-                                name: loaderData.event.parentEvent.name,
-                              }}
-                              components={[
+                            {insertComponentsIntoLocale(
+                              insertParametersIntoLocale(
+                                locales.route.content.event.context,
+                                {
+                                  name: loaderData.event.parentEvent.name,
+                                }
+                              ),
+                              [
                                 <Link
                                   key={loaderData.event.parentEvent.slug}
                                   className="underline hover:no-underline"
                                   to={`/event/${loaderData.event.parentEvent.slug}`}
                                   reloadDocument
                                 >
-                                  {t("content.event.context")}
+                                  {" "}
                                 </Link>,
-                              ]}
-                            />
+                              ]
+                            )}
                           </p>
                         </div>
                         <div className="w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4 text-right">
@@ -818,7 +841,7 @@ function Index() {
                                   className="btn btn-primary"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                                 >
-                                  {t("content.event.loginToRegister")}
+                                  {locales.route.content.event.loginToRegister}
                                 </Link>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -837,19 +860,18 @@ function Index() {
                         <div className="w-full hidden @lg:mv-flex @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4"></div>
                         <div className="w-full @md:mv-flex-auto px-4">
                           <p className="font-bold @xl:mv-text-center @md:mv-pl-4 @lg:mv-pl-0 pb-4 @md:mv-pb-0">
-                            <Trans
-                              i18nKey="content.event.select"
-                              ns={["routes/event/index"]}
-                              components={[
+                            {insertComponentsIntoLocale(
+                              locales.route.content.event.select,
+                              [
                                 <a
                                   key="to-child-events"
                                   href="#child-events"
                                   className="underline hover:no-underline"
                                 >
-                                  {t("content.event.select")}
+                                  {" "}
                                 </a>,
-                              ]}
-                            />
+                              ]
+                            )}
                           </p>
                         </div>
                         <div className="w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4 text-right">
@@ -861,7 +883,7 @@ function Index() {
                                   className="btn btn-primary"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                                 >
-                                  {t("content.event.loginToRegister")}
+                                  {locales.route.content.event.loginToRegister}
                                 </Link>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -882,7 +904,7 @@ function Index() {
                             className="btn btn-primary"
                             to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                           >
-                            {t("content.event.loginToRegister")}
+                            {locales.route.content.event.loginToRegister}
                           </Link>
                         ) : null}
                         {loaderData.mode !== "anon" &&
@@ -906,13 +928,13 @@ function Index() {
                   className="btn btn-outline btn-primary ml-4 mb-2 @md:mv-mb-0"
                   to={`/event/${loaderData.event.slug}/settings`}
                 >
-                  {t("content.event.edit")}
+                  {locales.route.content.event.edit}
                 </Link>
                 <Link
                   className="btn btn-primary ml-4"
                   to={`/event/create/?parent=${loaderData.event.id}`}
                 >
-                  {t("content.event.createRelated")}
+                  {locales.route.content.event.createRelated}
                 </Link>
               </p>
             </div>
@@ -942,15 +964,26 @@ function Index() {
               {loaderData.event.types.length > 0 ? (
                 <>
                   <div className="text-xs leading-6">
-                    {t("content.event.type")}
+                    {locales.route.content.event.type}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event.types
-                      .map((item) =>
-                        t(`${item.eventType.slug}.title`, {
-                          ns: "datasets/eventTypes",
-                        })
-                      )
+                      .map((relation) => {
+                        let title;
+                        if (relation.eventType.slug in locales.eventTypes) {
+                          type LocaleKey = keyof typeof locales.eventTypes;
+                          title =
+                            locales.eventTypes[
+                              relation.eventType.slug as LocaleKey
+                            ].title;
+                        } else {
+                          console.error(
+                            `Event type ${relation.eventType.slug} not found in locales`
+                          );
+                          title = relation.eventType.slug;
+                        }
+                        return title;
+                      })
                       .join(" / ")}
                   </div>
                 </>
@@ -959,7 +992,7 @@ function Index() {
               {loaderData.event.venueName !== null ? (
                 <>
                   <div className="text-xs leading-6">
-                    {t("content.event.location")}
+                    {locales.route.content.event.location}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     <p>
@@ -977,7 +1010,7 @@ function Index() {
               loaderData.event.conferenceLink !== "" ? (
                 <>
                   <div className="text-xs leading-6">
-                    {t("content.event.conferenceLink")}
+                    {locales.route.content.event.conferenceLink}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     <a
@@ -994,7 +1027,7 @@ function Index() {
               loaderData.event.conferenceCode !== "" ? (
                 <>
                   <div className="text-xs leading-6">
-                    {t("content.event.conferenceCode")}
+                    {locales.route.content.event.conferenceCode}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event.conferenceCode}
@@ -1003,34 +1036,36 @@ function Index() {
               ) : null}
 
               <div className="text-xs leading-6">
-                {t("content.event.start")}
+                {locales.route.content.event.start}
               </div>
               <div className="pb-3 @md:mv-pb-0">
-                {formatDateTime(startTime, i18n.language, t)}
+                {formatDateTime(startTime, language, locales)}
               </div>
 
-              <div className="text-xs leading-6">{t("content.event.end")}</div>
+              <div className="text-xs leading-6">
+                {locales.route.content.event.end}
+              </div>
               <div className="pb-3 @md:mv-pb-0">
-                {formatDateTime(endTime, i18n.language, t)}
+                {formatDateTime(endTime, language, locales)}
               </div>
 
               {participationFrom > now ? (
                 <>
                   <div className="text-xs leading-6">
-                    {t("content.event.registrationStart")}
+                    {locales.route.content.event.registrationStart}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
-                    {formatDateTime(participationFrom, i18n.language, t)}
+                    {formatDateTime(participationFrom, language, locales)}
                   </div>
                 </>
               ) : null}
               {participationUntil > now ? (
                 <>
                   <div className="text-xs leading-6">
-                    {t("content.event.registrationEnd")}
+                    {locales.route.content.event.registrationEnd}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
-                    {formatDateTime(participationUntil, i18n.language, t)}
+                    {formatDateTime(participationUntil, language, locales)}
                   </div>
                 </>
               ) : null}
@@ -1041,7 +1076,7 @@ function Index() {
                 0 ? (
                 <>
                   <div className="text-xs leading-6">
-                    {t("content.event.numberOfPlaces")}
+                    {locales.route.content.event.numberOfPlaces}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event.participantLimit !== null &&
@@ -1054,7 +1089,7 @@ function Index() {
                         / {loaderData.event.participantLimit}
                       </>
                     ) : (
-                      t("content.event.withoutRestriction")
+                      locales.route.content.event.withoutRestriction
                     )}
                   </div>
                 </>
@@ -1066,11 +1101,11 @@ function Index() {
                 0 ? (
                 <>
                   <div className="text-xs leading-6">
-                    {t("content.event.numberOfWaitingSeats")}
+                    {locales.route.content.event.numberOfWaitingSeats}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event._count.waitingList}{" "}
-                    {t("content.event.onWaitingList")}
+                    {locales.route.content.event.onWaitingList}
                   </div>
                 </>
               ) : null}
@@ -1080,7 +1115,7 @@ function Index() {
               loaderData.isTeamMember === true ? (
                 <>
                   <div className="text-xs leading-6 mt-1">
-                    {t("content.event.calenderItem")}
+                    {locales.route.content.event.calenderItem}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     <Link
@@ -1088,7 +1123,7 @@ function Index() {
                       to="ics-download"
                       reloadDocument
                     >
-                      {t("content.event.download")}
+                      {locales.route.content.event.download}
                     </Link>
                   </div>
                 </>
@@ -1098,7 +1133,7 @@ function Index() {
               loaderData.event.documents.length > 0 ? (
                 <>
                   <div className="text-xs leading-6">
-                    {t("content.event.downloads")}
+                    {locales.route.content.event.downloads}
                   </div>
                   <div className="pb-3 @md:mv-pb-0">
                     {loaderData.event.documents.map((item) => {
@@ -1125,7 +1160,7 @@ function Index() {
                         to={`/event/${loaderData.event.slug}/documents-download`}
                         reloadDocument
                       >
-                        {t("content.event.downloadAll")}
+                        {locales.route.content.event.downloadAll}
                       </Link>
                     ) : null}
                   </div>
@@ -1135,15 +1170,25 @@ function Index() {
               {loaderData.event.focuses.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    {t("content.event.focusAreas")}
+                    {locales.route.content.event.focusAreas}
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
-                    {loaderData.event.focuses.map((item, index) => {
+                    {loaderData.event.focuses.map((relation, index) => {
+                      let title;
+                      if (relation.focus.slug in locales.focuses) {
+                        type LocaleKey = keyof typeof locales.focuses;
+                        title =
+                          locales.focuses[relation.focus.slug as LocaleKey]
+                            .title;
+                      } else {
+                        console.error(
+                          `Focus ${relation.focus.slug} not found in locales`
+                        );
+                        title = relation.focus.slug;
+                      }
                       return (
                         <div key={`focus-${index}`} className="badge">
-                          {t(`${item.focus.slug}.title`, {
-                            ns: "datasets/focuses",
-                          })}
+                          {title}
                         </div>
                       );
                     })}
@@ -1154,21 +1199,38 @@ function Index() {
               {loaderData.event.eventTargetGroups.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    {t("content.event.targetGroups")}
+                    {locales.route.content.event.targetGroups}
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
-                    {loaderData.event.eventTargetGroups.map((item, index) => {
-                      return (
-                        <div
-                          key={`eventTargetGroups-${index}`}
-                          className="badge"
-                        >
-                          {t(`${item.eventTargetGroup.slug}.title`, {
-                            ns: "datasets/eventTargetGroups",
-                          })}
-                        </div>
-                      );
-                    })}
+                    {loaderData.event.eventTargetGroups.map(
+                      (relation, index) => {
+                        let title;
+                        if (
+                          relation.eventTargetGroup.slug in
+                          locales.eventTargetGroups
+                        ) {
+                          type LocaleKey =
+                            keyof typeof locales.eventTargetGroups;
+                          title =
+                            locales.eventTargetGroups[
+                              relation.eventTargetGroup.slug as LocaleKey
+                            ].title;
+                        } else {
+                          console.error(
+                            `Event target group ${relation.eventTargetGroup.slug} not found in locales`
+                          );
+                          title = relation.eventTargetGroup.slug;
+                        }
+                        return (
+                          <div
+                            key={`eventTargetGroups-${index}`}
+                            className="badge"
+                          >
+                            {title}
+                          </div>
+                        );
+                      }
+                    )}
                   </div>
                 </>
               ) : null}
@@ -1176,13 +1238,30 @@ function Index() {
               {loaderData.event.experienceLevel ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    {t("content.event.experienceLevel")}
+                    {locales.route.content.event.experienceLevel}
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
                     <div className="badge">
-                      {t(`${loaderData.event.experienceLevel.slug}.title`, {
-                        ns: "datasets/experienceLevels",
-                      })}
+                      {(() => {
+                        let title;
+                        if (
+                          loaderData.event.experienceLevel.slug in
+                          locales.experienceLevels
+                        ) {
+                          type LocaleKey =
+                            keyof typeof locales.experienceLevels;
+                          title =
+                            locales.experienceLevels[
+                              loaderData.event.experienceLevel.slug as LocaleKey
+                            ].title;
+                        } else {
+                          console.error(
+                            `Focus ${loaderData.event.experienceLevel.slug} not found in locales`
+                          );
+                          title = loaderData.event.experienceLevel.slug;
+                        }
+                        return title;
+                      })()}
                     </div>
                   </div>
                 </>
@@ -1191,13 +1270,24 @@ function Index() {
               {loaderData.event.tags.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    {t("content.event.tags")}
+                    {locales.route.content.event.tags}
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
-                    {loaderData.event.tags.map((item, index) => {
+                    {loaderData.event.tags.map((relation, index) => {
+                      let title;
+                      if (relation.tag.slug in locales.tags) {
+                        type LocaleKey = keyof typeof locales.tags;
+                        title =
+                          locales.tags[relation.tag.slug as LocaleKey].title;
+                      } else {
+                        console.error(
+                          `Tag ${relation.tag.slug} not found in locales`
+                        );
+                        title = relation.tag.slug;
+                      }
                       return (
                         <div key={`tags-${index}`} className="badge">
-                          {t(`${item.tag.slug}.title`, { ns: "datasets/tags" })}
+                          {title}
                         </div>
                       );
                     })}
@@ -1208,7 +1298,7 @@ function Index() {
               {loaderData.event.areas.length > 0 ? (
                 <>
                   <div className="text-xs leading-5 pt-[7px]">
-                    {t("content.event.areas")}
+                    {locales.route.content.event.areas}
                   </div>
                   <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
                     {loaderData.event.areas.map((item, index) => {
@@ -1227,7 +1317,7 @@ function Index() {
             loaderData.event.speakers.length > 0 ? (
               <>
                 <h3 className="mt-16 mb-8 font-bold">
-                  {t("content.event.speakers")}
+                  {locales.route.content.event.speakers}
                 </h3>
                 <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4 mb-16">
                   {loaderData.event.speakers.map((speaker) => {
@@ -1273,12 +1363,15 @@ function Index() {
             {loaderData.event.childEvents.length > 0 ? (
               <>
                 <h3 id="child-events" className="mt-16 font-bold">
-                  {t("content.event.relatedEvents")}
+                  {locales.route.content.event.relatedEvents}
                 </h3>
                 <p className="mb-8">
-                  {t("content.event.eventContext", {
-                    name: loaderData.event.name,
-                  })}
+                  {insertParametersIntoLocale(
+                    locales.route.content.event.eventContext,
+                    {
+                      name: loaderData.event.name,
+                    }
+                  )}
                 </p>
                 <div className="mb-16">
                   {loaderData.event.childEvents.map((event) => {
@@ -1313,27 +1406,44 @@ function Index() {
                             <p className="text-xs mb-1">
                               {/* TODO: Display icons (see figma) */}
                               {event.stage !== null
-                                ? t(`${event.stage.slug}.title`, {
-                                    ns: "datasets/stages",
-                                  }) + " | "
+                                ? (() => {
+                                    let title;
+                                    if (event.stage.slug in locales.stages) {
+                                      type LocaleKey =
+                                        keyof typeof locales.stages;
+                                      title =
+                                        locales.stages[
+                                          event.stage.slug as LocaleKey
+                                        ].title;
+                                    } else {
+                                      console.error(
+                                        `Event stage ${event.stage.slug} not found in locales`
+                                      );
+                                      title = event.stage.slug;
+                                    }
+                                    return title;
+                                  })() + " | "
                                 : ""}
                               {getDuration(
                                 eventStartTime,
                                 eventEndTime,
-                                i18n.language
+                                language
                               )}
                               {event.participantLimit === null &&
-                                t("content.event.unlimitedSeats")}
+                                locales.route.content.event.unlimitedSeats}
                               {event.participantLimit !== null &&
                                 event.participantLimit -
                                   event._count.participants >
                                   0 &&
-                                t("content.event.seatsFree", {
-                                  count:
-                                    event.participantLimit -
-                                    event._count.participants,
-                                  total: event.participantLimit,
-                                })}
+                                insertParametersIntoLocale(
+                                  locales.route.content.event.seatsFree,
+                                  {
+                                    count:
+                                      event.participantLimit -
+                                      event._count.participants,
+                                    total: event.participantLimit,
+                                  }
+                                )}
 
                               {event.participantLimit !== null &&
                               event.participantLimit -
@@ -1343,9 +1453,12 @@ function Index() {
                                   {" "}
                                   |{" "}
                                   <span>
-                                    {t("content.event.waitingList", {
-                                      count: event._count.waitingList,
-                                    })}
+                                    {insertParametersIntoLocale(
+                                      locales.route.content.event.waitingList,
+                                      {
+                                        count: event._count.waitingList,
+                                      }
+                                    )}
                                   </span>
                                 </>
                               ) : null}
@@ -1371,25 +1484,25 @@ function Index() {
                           <>
                             {event.published ? (
                               <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                {t("content.event.published")}
+                                {locales.route.content.event.published}
                               </div>
                             ) : (
                               <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
-                                {t("content.event.draft")}
+                                {locales.route.content.event.draft}
                               </div>
                             )}
                           </>
                         ) : null}
                         {event.canceled ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                            {t("content.event.cancelled")}
+                            {locales.route.content.event.cancelled}
                           </div>
                         ) : null}
                         {event.isParticipant &&
                         !event.canceled &&
                         loaderData.mode !== "admin" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                            <p>{t("content.event.registered")}</p>
+                            <p>{locales.route.content.event.registered}</p>
                           </div>
                         ) : null}
                         {canUserParticipate(event) &&
@@ -1405,7 +1518,7 @@ function Index() {
                         !event.canceled &&
                         loaderData.mode !== "admin" ? (
                           <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                            <p>{t("content.event.waiting")}</p>
+                            <p>{locales.route.content.event.waiting}</p>
                           </div>
                         ) : null}
                         {canUserBeAddedToWaitingList(event) &&
@@ -1431,7 +1544,7 @@ function Index() {
                               to={`/event/${event.slug}`}
                               className="btn btn-primary"
                             >
-                              {t("content.event.more")}
+                              {locales.route.content.event.more}
                             </Link>
                           </div>
                         ) : null}
@@ -1442,7 +1555,7 @@ function Index() {
                               className="btn btn-primary"
                               to={`/login?login_redirect=/event/${event.slug}`}
                             >
-                              {t("content.event.register")}
+                              {locales.route.content.event.register}
                             </Link>
                           </div>
                         ) : null}
@@ -1456,7 +1569,7 @@ function Index() {
             {loaderData.event.teamMembers.length > 0 ? (
               <>
                 <h3 className="mt-16 mb-8 font-bold">
-                  {t("content.event.team")}
+                  {locales.route.content.event.team}
                 </h3>
                 <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4">
                   {loaderData.event.teamMembers.map((member) => {
@@ -1504,7 +1617,7 @@ function Index() {
                   id="responsible-organizations"
                   className="mt-16 mb-8 font-bold"
                 >
-                  {t("content.event.organizedBy")}
+                  {locales.route.content.event.organizedBy}
                 </h3>
                 <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4">
                   {loaderData.event.responsibleOrganizations.map((item) => {
@@ -1536,11 +1649,27 @@ function Index() {
 
                             <p className="text-sm m-0 mv-line-clamp-2">
                               {item.organization.types
-                                .map((item) =>
-                                  t(`${item.organizationType.slug}.title`, {
-                                    ns: "datasets/organizationTypes",
-                                  })
-                                )
+                                .map((relation) => {
+                                  let title;
+                                  if (
+                                    relation.organizationType.slug in
+                                    locales.organizationTypes
+                                  ) {
+                                    type LocaleKey =
+                                      keyof typeof locales.organizationTypes;
+                                    title =
+                                      locales.organizationTypes[
+                                        relation.organizationType
+                                          .slug as LocaleKey
+                                      ].title;
+                                  } else {
+                                    console.error(
+                                      `Organization type ${relation.organizationType.slug} not found in locales`
+                                    );
+                                    title = relation.organizationType.slug;
+                                  }
+                                  return title;
+                                })
                                 .join(", ")}
                             </p>
                           </div>
@@ -1556,7 +1685,7 @@ function Index() {
             loaderData.event.participants.length > 0 ? (
               <>
                 <h3 className="mt-16 mb-8 font-bold">
-                  {t("content.event.participants")}
+                  {locales.route.content.event.participants}
                 </h3>
                 <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4">
                   {loaderData.event.participants.map((participant) => {

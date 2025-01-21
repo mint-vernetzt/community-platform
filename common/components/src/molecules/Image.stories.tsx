@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import Image, { type ImageProps } from "./Image";
+import { Image, type ImageProps } from "./Image";
 
 type ImagePlaygroundProps = {
   imageAspect: AspectType;

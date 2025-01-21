@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Form,
   NavLink,
@@ -7,7 +6,6 @@ import {
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
 import Search from "~/components/Search/Search";
@@ -19,17 +17,19 @@ import {
   countSearchedProjects,
   getQueryValueAsArrayOfWords,
 } from "./search/utils.server";
-
-const i18nNS = ["routes/search"];
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/i18n.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { prismaClient } from "~/prisma.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const searchQuery = getQueryValueAsArrayOfWords(request);
 
   const { authClient } = await createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["search"];
 
   const countData = {
     profiles: 0,
@@ -39,38 +39,48 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     fundings: 0,
   };
   if (searchQuery !== null) {
-    const promises = [
-      countSearchedProfiles(searchQuery, sessionUser),
-      countSearchedOrganizations(searchQuery, sessionUser),
-      countSearchedEvents(searchQuery, sessionUser),
-      countSearchedProjects(searchQuery, sessionUser),
-      countSearchedFundings(searchQuery),
-    ];
-    const [
-      profilesCount,
-      organizationsCount,
-      eventsCount,
-      projectsCount,
-      fundingsCount,
-    ] = await Promise.all(promises);
-    countData.profiles = profilesCount;
-    countData.organizations = organizationsCount;
-    countData.events = eventsCount;
-    countData.projects = projectsCount;
-    countData.fundings = fundingsCount;
+    if (searchQuery.length === 0) {
+      countData.profiles = 0;
+      countData.organizations = 0;
+      countData.events = 0;
+      countData.projects = 0;
+      countData.fundings = 0;
+    } else {
+      const queries = [
+        countSearchedProfiles(searchQuery, sessionUser),
+        countSearchedOrganizations(searchQuery, sessionUser),
+        countSearchedEvents(searchQuery, sessionUser),
+        countSearchedProjects(searchQuery, sessionUser),
+        countSearchedFundings(searchQuery),
+      ];
+      const [
+        profilesCount,
+        organizationsCount,
+        eventsCount,
+        projectsCount,
+        fundingsCount,
+      ] = await prismaClient.$transaction(queries);
+      countData.profiles = profilesCount;
+      countData.organizations = organizationsCount;
+      countData.events = eventsCount;
+      countData.projects = projectsCount;
+      countData.fundings = fundingsCount;
+    }
   }
 
-  return json({
+  return {
     profilesCount: countData.profiles,
     organizationsCount: countData.organizations,
     eventsCount: countData.events,
     projectsCount: countData.projects,
     fundingsCount: countData.fundings,
-  });
+    locales,
+  };
 };
 
 function SearchView() {
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
   const getClassName = (active: boolean) =>
@@ -78,15 +88,17 @@ function SearchView() {
       active ? "border-b-primary" : "border-b-transparent"
     } hover:border-b-primary cursor-pointer`;
 
-  const { t } = useTranslation(i18nNS);
-
   return query !== null && query !== "" ? (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 @md:mv-mb-16 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 text-center">
         <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {t("title.query")}
+          {locales.title.query}
         </H1>
-        <p>{t("results", { query })}</p>
+        <p>
+          {insertParametersIntoLocale(locales.results, {
+            query,
+          })}
+        </p>
       </section>
       <section
         className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-10 @md:mv-mb-20"
@@ -102,7 +114,7 @@ function SearchView() {
             to={`profiles?query=${query}`}
             preventScrollReset
           >
-            {t("profiles")} (<>{loaderData.profilesCount}</>)
+            {locales.profiles} (<>{loaderData.profilesCount}</>)
           </NavLink>
           <NavLink
             id="organization-tab"
@@ -110,7 +122,7 @@ function SearchView() {
             to={`organizations?query=${query}`}
             preventScrollReset
           >
-            {t("organizations")} (<>{loaderData.organizationsCount}</>)
+            {locales.organizations} (<>{loaderData.organizationsCount}</>)
           </NavLink>
           <NavLink
             id="event-tab"
@@ -118,7 +130,7 @@ function SearchView() {
             to={`events?query=${query}`}
             preventScrollReset
           >
-            {t("events")} (<>{loaderData.eventsCount}</>)
+            {locales.events} (<>{loaderData.eventsCount}</>)
           </NavLink>
           <NavLink
             id="project-tab"
@@ -126,7 +138,7 @@ function SearchView() {
             to={`projects?query=${query}`}
             preventScrollReset
           >
-            {t("projects")} (<>{loaderData.projectsCount}</>)
+            {locales.projects} (<>{loaderData.projectsCount}</>)
           </NavLink>
           <NavLink
             id="funding-tab"
@@ -134,7 +146,7 @@ function SearchView() {
             to={`fundings?query=${query}`}
             preventScrollReset
           >
-            {t("fundings")} (<>{loaderData.fundingsCount}</>)
+            {locales.fundings} (<>{loaderData.fundingsCount}</>)
           </NavLink>
         </ul>
       </section>
@@ -143,7 +155,7 @@ function SearchView() {
   ) : (
     <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 @md:mv-mb-16 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 text-center">
       <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-        {t("title.noquery")}
+        {locales.title.noquery}
       </H1>
       <Form
         method="get"
@@ -158,6 +170,7 @@ function SearchView() {
           }
         }}
       >
+        {/* TODO: is this autoFocus intended? Accessibility considerations should be made */}
         <Search id="search-query" autoFocus={true} />
       </Form>
     </section>

@@ -61,6 +61,7 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
   let headerClone = null;
   if (header) {
     headerClone = React.cloneElement(header, {
+      // @ts-ignore - We should look at our cloneElement implementation.
       variant: props.variant,
       withBorder: props.withBorder,
     });
@@ -72,6 +73,7 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
   let bodyClone = null;
   if (body) {
     bodyClone = React.cloneElement(body, {
+      // @ts-ignore - We should look at our cloneElement implementation.
       withBorder: props.withBorder,
     });
   }
@@ -83,6 +85,7 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
   let footerClone = null;
   if (footer) {
     footerClone = React.cloneElement(footer, {
+      // @ts-ignore - We should look at our cloneElement implementation.
       withBorder: props.withBorder,
     });
   }
@@ -119,4 +122,4 @@ Section.Header = SectionHeader;
 Section.Body = SectionBody;
 Section.Footer = SectionFooter;
 
-export default Section;
+export { Section };

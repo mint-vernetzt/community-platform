@@ -1,5 +1,12 @@
-import { Organization, Prisma } from "@prisma/client";
+import { type Organization, type Prisma } from "@prisma/client";
 import { prismaClient } from "~/prisma.server";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
+
+export type CreateOrganizationLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof supportedCookieLanguages
+>]["organization/create"];
 
 export async function createOrganizationOnProfile(
   profileId: string,

@@ -1,0 +1,16 @@
+export const locale = {
+  error: {
+    notFound: "Organization not found",
+    notPrivileged: "Not privileged",
+  },
+  content: {
+    headline: "Your network",
+    intro:
+      "Who is part of your network? Add or remove other organizations here.",
+    current: {
+      headline: "Current network members",
+      intro:
+        "Here you can see all the organizations that are part of your network at a glance.",
+    },
+  },
+} as const;

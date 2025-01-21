@@ -7,17 +7,13 @@ import type {
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import * as Sentry from "@sentry/remix";
-import { createInstance, type i18n } from "i18next";
-import Backend from "i18next-fs-backend";
-import { isbot } from "isbot";
-import { resolve } from "node:path";
+import * as isbotModule from "isbot";
 import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
-import { I18nextProvider, initReactI18next } from "react-i18next";
-import i18nConfig from "~/i18n";
-import i18next from "~/i18next.server";
-import { detectLanguage } from "./root.server";
 import { getEnv, init } from "./env.server";
+
+// Reject/cancel all pending promises after 5 seconds
+export const streamTimeout = 5000;
 
 init();
 global.ENV = getEnv();
@@ -30,23 +26,13 @@ Sentry.init({
 
 export function handleError(
   error: unknown,
-  { request }: LoaderFunctionArgs | ActionFunctionArgs
-): void {
-  // Skip capturing if the request is aborted as Remix docs suggest
-  // Ref: https://remix.run/docs/en/main/file-conventions/entry.server#handleerror
-  if (request.signal.aborted) {
-    return;
-  }
-  if (error instanceof Error) {
-    console.error(error.stack);
+  { request, params, context }: LoaderFunctionArgs | ActionFunctionArgs
+) {
+  if (!request.signal.aborted) {
+    console.error({ error });
     void Sentry.captureRemixServerException(error, "remix.server", request);
-  } else {
-    console.error(error);
-    Sentry.captureException(error);
   }
 }
-
-const ABORT_DELAY = 5_000;
 
 export default async function handleRequest(
   request: Request,
@@ -58,63 +44,44 @@ export default async function handleRequest(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadContext: AppLoadContext
 ) {
-  // i18n
-  const i18nInstance = createInstance();
-  const lng = detectLanguage(request);
-  const ns = i18next.getRouteNamespaces(remixContext);
-  await i18nInstance
-    .use(initReactI18next)
-    .use(Backend)
-    .init({
-      ...i18nConfig,
-      lng,
-      ns,
-      backend: {
-        loadPath: function (lng: string, ns: string) {
-          return resolve(`./public/locales/${lng}/${ns}.json`);
-        },
-      },
-      detection: {
-        order: ["cookie", "htmlTag"],
-        caches: ["cookie"],
-        excludeCacheFor: ["cimode"],
-      },
-    });
+  let prohibitOutOfOrderStreaming =
+    isBotRequest(request.headers.get("user-agent")) || remixContext.isSpaMode;
 
-  return isbot(request.headers.get("user-agent"))
+  return prohibitOutOfOrderStreaming
     ? handleBotRequest(
         request,
         responseStatusCode,
         responseHeaders,
-        remixContext,
-        i18nInstance as i18n
+        remixContext
       )
     : handleBrowserRequest(
         request,
         responseStatusCode,
         responseHeaders,
-        remixContext,
-        i18nInstance as i18n
+        remixContext
       );
+}
+
+function isBotRequest(userAgent: string | null) {
+  if (!userAgent) {
+    return false;
+  }
+  if ("isbot" in isbotModule && typeof isbotModule.isbot === "function") {
+    return isbotModule.isbot(userAgent);
+  }
+  return false;
 }
 
 function handleBotRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext,
-  i18nInstance: i18n
+  remixContext: EntryContext
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <I18nextProvider i18n={i18nInstance}>
-        <RemixServer
-          context={remixContext}
-          url={request.url}
-          abortDelay={ABORT_DELAY}
-        />
-      </I18nextProvider>,
+      <RemixServer context={remixContext} url={request.url} />,
       {
         onAllReady() {
           shellRendered = true;
@@ -142,12 +109,13 @@ function handleBotRequest(
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
             console.error(error);
+            Sentry.captureException(error);
           }
         },
       }
     );
 
-    setTimeout(abort, ABORT_DELAY);
+    setTimeout(abort, streamTimeout + 1000);
   });
 }
 
@@ -155,19 +123,12 @@ function handleBrowserRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext,
-  i18nInstance: i18n
+  remixContext: EntryContext
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <I18nextProvider i18n={i18nInstance}>
-        <RemixServer
-          context={remixContext}
-          url={request.url}
-          abortDelay={ABORT_DELAY}
-        />
-      </I18nextProvider>,
+      <RemixServer context={remixContext} url={request.url} />,
       {
         onShellReady() {
           shellRendered = true;
@@ -195,11 +156,12 @@ function handleBrowserRequest(
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
             console.error(error);
+            Sentry.captureException(error);
           }
         },
       }
     );
 
-    setTimeout(abort, ABORT_DELAY);
+    setTimeout(abort, streamTimeout + 1000);
   });
 }

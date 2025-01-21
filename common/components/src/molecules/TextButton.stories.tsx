@@ -1,5 +1,5 @@
 import React from "react";
-import TextButton, { type TextButtonProps } from "./TextButton";
+import { TextButton, type TextButtonProps } from "./TextButton";
 
 type TextButtonPlaygroundArgs = TextButtonProps & {
   onClick?: () => void;
@@ -50,7 +50,7 @@ export function AsLinkPlayground(args: TextButtonPlaygroundArgs) {
     <TextButton
       {...otherProps}
       as="a"
-      target="__blank"
+      target="_blank"
       rel="noopener noreferrer"
     >
       {text}

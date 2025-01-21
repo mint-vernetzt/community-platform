@@ -1,14 +1,6 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import {
-  Button,
-  Chip,
-  Controls,
-  Input,
-  Section,
-} from "@mint-vernetzt/components";
-import {
-  json,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -27,37 +19,35 @@ import { invariantResponse } from "~/lib/utils/response";
 import { createPhoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
-import { BackButton, ButtonSelect } from "./__components";
-import { createAreaOptions } from "./general.server";
+import { BackButton } from "~/components-next/BackButton";
+import { ConformSelect } from "~/components-next/ConformSelect";
+import {
+  createAreaOptions,
+  type GeneralProjectSettingsLocales,
+} from "./general.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { type TFunction } from "i18next";
-import i18next from "~/i18next.server";
-import { useTranslation } from "react-i18next";
-import { detectLanguage } from "~/root.server";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
-const i18nNS = [
-  "routes/project/settings/general",
-  "utils/schemas",
-  "datasets/formats",
-];
-export const handle = {
-  i18n: i18nNS,
-};
-
-const createGeneralSchema = (t: TFunction) =>
+const createGeneralSchema = (locales: GeneralProjectSettingsLocales) =>
   z.object({
     name: z
       .string({
-        required_error: t("validation.name.required"),
+        required_error: locales.route.validation.name.required,
       })
-      .max(80, t("validation.name.max")),
+      .max(80, locales.route.validation.name.max),
     subline: z
       .string()
-      .max(90, t("validation.subline.max"))
+      .max(90, locales.route.validation.subline.max)
       .optional()
       .transform((value) => {
         if (value === undefined) {
@@ -71,7 +61,7 @@ const createGeneralSchema = (t: TFunction) =>
     areas: z.array(z.string().uuid()),
     email: z
       .string()
-      .email(t("validation.email.email"))
+      .email(locales.route.validation.email.email)
       .optional()
       .transform((value) => {
         if (value === undefined) {
@@ -80,7 +70,7 @@ const createGeneralSchema = (t: TFunction) =>
         const trimmedValue = value.trim();
         return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
       }),
-    phone: createPhoneSchema(t)
+    phone: createPhoneSchema(locales)
       .optional()
       .transform((value) => {
         if (value === undefined) {
@@ -153,17 +143,21 @@ const createGeneralSchema = (t: TFunction) =>
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/settings/general"];
 
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    locales.route.error.invalidRoute,
+    {
+      status: 400,
+    }
+  );
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
@@ -214,7 +208,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, t("error.projectNotFound"), {
+  invariantResponse(project !== null, locales.route.error.projectNotFound, {
     status: 404,
   });
 
@@ -235,19 +229,23 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
   const areaOptions = await createAreaOptions(allAreas);
 
-  return json({ project, allFormats, areaOptions });
+  return { project, allFormats, areaOptions, locales };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["project/$slug/settings/general"];
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    locales.route.error.invalidRoute,
+    {
+      status: 400,
+    }
+  );
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
     slug: params.slug,
@@ -265,12 +263,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
       slug: params.slug,
     },
   });
-  invariantResponse(project !== null, t("error.projectNotFound"), {
+  invariantResponse(project !== null, locales.route.error.projectNotFound, {
     status: 404,
   });
 
   // Validation
-  const generalSchema = createGeneralSchema(t);
+  const generalSchema = createGeneralSchema(locales);
   const formData = await request.formData();
   const submission = await parse(formData, {
     schema: (intent) =>
@@ -325,7 +323,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           console.warn(e);
           ctx.addIssue({
             code: "custom",
-            message: t("error.storage"),
+            message: locales.route.error.storage,
           });
           return z.NEVER;
         }
@@ -338,30 +336,26 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const hash = getHash(submission);
 
   if (submission.intent !== "submit") {
-    return json({ status: "idle", submission, hash } as const);
+    return { status: "idle", submission, hash };
   }
   if (!submission.value) {
-    return json({ status: "error", submission, hash } as const, {
-      status: 400,
-    });
+    return { status: "error", submission, hash };
   }
 
-  return redirectWithToast(
-    request.url,
-    { id: "settings-toast", key: hash, message: t("content.feedback") },
-    { scrollToToast: true }
-  );
+  return redirectWithToast(request.url, {
+    id: "change-project-general-settings-toast",
+    key: hash,
+    message: locales.route.content.feedback,
+  });
 }
 
 function General() {
   const location = useLocation();
   const loaderData = useLoaderData<typeof loader>();
-  const { project, allFormats, areaOptions } = loaderData;
+  const { project, allFormats, areaOptions, locales } = loaderData;
   const { formats, areas, ...rest } = project;
   const actionData = useActionData<typeof action>();
-
-  const { t } = useTranslation(i18nNS);
-  const generalSchema = createGeneralSchema(t);
+  const generalSchema = createGeneralSchema(locales);
 
   const defaultValues = {
     // TODO: Investigate: Why can i spread here (defaultValue also accepts null values) and not on web-social?
@@ -399,7 +393,7 @@ function General() {
       currentLocation.pathname !== nextLocation.pathname
   );
   if (blocker.state === "blocked") {
-    const confirmed = confirm(t("content.prompt"));
+    const confirmed = confirm(locales.route.content.prompt);
     if (confirmed === true) {
       // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
       if (blocker.state !== "proceeding") {
@@ -412,8 +406,10 @@ function General() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
+      <BackButton to={location.pathname}>
+        {locales.route.content.back}
+      </BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
       <Form
         method="post"
         {...form.props}
@@ -432,48 +428,50 @@ function General() {
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="@md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-              {t("content.projectTitle.headline")}
+              {locales.route.content.projectTitle.headline}
             </h2>
             <Input {...conform.input(fields.name)}>
               <Input.Label htmlFor={fields.name.id}>
-                {t("content.projectTitle.label")}
+                {locales.route.content.projectTitle.label}
               </Input.Label>
               {typeof fields.name.error !== "undefined" && (
                 <Input.Error>{fields.name.error}</Input.Error>
               )}
               <Input.HelperText>
-                {t("content.projectTitle.helper")}
+                {locales.route.content.projectTitle.helper}
               </Input.HelperText>
             </Input>
           </div>
 
           <div className="@md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
-              {t("content.subline.headline")}
+              {locales.route.content.subline.headline}
             </h2>
             <Input {...conform.input(fields.subline)}>
-              <Input.Label>{t("content.subline.label")}</Input.Label>
+              <Input.Label>{locales.route.content.subline.label}</Input.Label>
               {typeof fields.subline.error !== "undefined" && (
                 <Input.Error>{fields.subline.error}</Input.Error>
               )}
-              <Input.HelperText>{t("content.subline.helper")}</Input.HelperText>
+              <Input.HelperText>
+                {locales.route.content.subline.helper}
+              </Input.HelperText>
             </Input>
           </div>
 
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.formats.headline")}
+              {locales.route.content.formats.headline}
             </h2>
-            <ButtonSelect
+            <ConformSelect
               id={fields.formats.id}
-              cta={t("content.formats.choose")}
+              cta={locales.route.content.formats.choose}
             >
-              <ButtonSelect.Label htmlFor={fields.formats.id}>
-                {t("content.formats.label")}
-              </ButtonSelect.Label>
-              <ButtonSelect.HelperText>
-                {t("content.formats.helper")}
-              </ButtonSelect.HelperText>
+              <ConformSelect.Label htmlFor={fields.formats.id}>
+                {locales.route.content.formats.label}
+              </ConformSelect.Label>
+              <ConformSelect.HelperText>
+                {locales.route.content.formats.helper}
+              </ConformSelect.HelperText>
               {allFormats
                 .filter((format) => {
                   return !formatList.some((listFormat) => {
@@ -481,6 +479,17 @@ function General() {
                   });
                 })
                 .map((filteredFormat) => {
+                  let title;
+                  if (filteredFormat.slug in locales.formats) {
+                    type LocaleKey = keyof typeof locales.formats;
+                    title =
+                      locales.formats[filteredFormat.slug as LocaleKey].title;
+                  } else {
+                    console.error(
+                      `Format ${filteredFormat.slug} not found in locales`
+                    );
+                    title = filteredFormat.slug;
+                  }
                   return (
                     <button
                       key={filteredFormat.id}
@@ -489,27 +498,38 @@ function General() {
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
-                      {t(`${filteredFormat.slug}.title`, {
-                        ns: "datasets/formats",
-                      })}
+                      {title}
                     </button>
                   );
                 })}
-            </ButtonSelect>
+            </ConformSelect>
             {formatList.length > 0 && (
               <Chip.Container>
                 {formatList.map((listFormat, index) => {
+                  let formatSlug = allFormats.find((format) => {
+                    return format.id === listFormat.defaultValue;
+                  })?.slug;
+                  let title;
+                  if (formatSlug === undefined) {
+                    console.error(
+                      `Format with id ${listFormat.id} not found in allAdditionalDisciplines`
+                    );
+                    title = null;
+                  } else {
+                    if (formatSlug in locales.formats) {
+                      type LocaleKey = keyof typeof locales.formats;
+                      title = locales.formats[formatSlug as LocaleKey].title;
+                    } else {
+                      console.error(
+                        `Format ${formatSlug} not found in locales`
+                      );
+                      title = formatSlug;
+                    }
+                  }
                   return (
                     <Chip key={listFormat.key}>
                       <Input type="hidden" {...conform.input(listFormat)} />
-                      {t(
-                        `${
-                          allFormats.find((format) => {
-                            return format.id === listFormat.defaultValue;
-                          })?.slug
-                        }.title`,
-                        { ns: "datasets/formats" }
-                      ) || t("content.notFound")}
+                      {title || locales.route.content.notFound}
                       <Chip.Delete>
                         <button
                           {...list.remove(fields.formats.name, { index })}
@@ -526,10 +546,10 @@ function General() {
                 onChange={handleFurtherFormatInputChange}
               >
                 <Input.Label htmlFor={fields.furtherFormats.id}>
-                  {t("content.furtherFormats.label")}
+                  {locales.route.content.furtherFormats.label}
                 </Input.Label>
                 <Input.HelperText>
-                  {t("content.furtherFormats.helper")}
+                  {locales.route.content.furtherFormats.helper}
                 </Input.HelperText>
                 <Input.Controls>
                   <Button
@@ -540,7 +560,7 @@ function General() {
                     variant="ghost"
                     disabled={furtherFormat === ""}
                   >
-                    {t("content.furtherFormats.add")}
+                    {locales.route.content.furtherFormats.add}
                   </Button>
                 </Input.Controls>
               </Input>
@@ -568,15 +588,18 @@ function General() {
 
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.areas.headline")}
+              {locales.route.content.areas.headline}
             </h2>
-            <ButtonSelect id={fields.areas.id} cta={t("content.areas.option")}>
-              <ButtonSelect.Label htmlFor={fields.areas.id}>
-                {t("content.areas.label")}
-              </ButtonSelect.Label>
-              <ButtonSelect.HelperText>
-                {t("content.areas.helper")}
-              </ButtonSelect.HelperText>
+            <ConformSelect
+              id={fields.areas.id}
+              cta={locales.route.content.areas.option}
+            >
+              <ConformSelect.Label htmlFor={fields.areas.id}>
+                {locales.route.content.areas.label}
+              </ConformSelect.Label>
+              <ConformSelect.HelperText>
+                {locales.route.content.areas.helper}
+              </ConformSelect.HelperText>
               {areaOptions
                 .filter((option) => {
                   // All options that have a value should only be shown if they are not inside the current selected area list
@@ -617,7 +640,7 @@ function General() {
                     );
                   }
                 })}
-            </ButtonSelect>
+            </ConformSelect>
             {areaList.length > 0 && (
               <Chip.Container>
                 {areaList.map((listArea, index) => {
@@ -626,7 +649,7 @@ function General() {
                       <Input type="hidden" {...conform.input(listArea)} />
                       {areaOptions.find((area) => {
                         return area.value === listArea.defaultValue;
-                      })?.label || t("content.notFound")}
+                      })?.label || locales.route.content.notFound}
                       <Chip.Delete>
                         <button
                           {...list.remove(fields.areas.name, { index })}
@@ -640,11 +663,11 @@ function General() {
           </div>
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.contact.headline")}
+              {locales.route.content.contact.headline}
             </h2>
             <Input {...conform.input(fields.email)}>
               <Input.Label htmlFor={fields.email.id}>
-                {t("content.contact.email.label")}
+                {locales.route.content.contact.email.label}
               </Input.Label>
               {typeof fields.email.error !== "undefined" && (
                 <Input.Error>{fields.email.error}</Input.Error>
@@ -652,7 +675,7 @@ function General() {
             </Input>
             <Input {...conform.input(fields.phone)}>
               <Input.Label htmlFor={fields.phone.id}>
-                {t("content.contact.phone.label")}
+                {locales.route.content.contact.phone.label}
               </Input.Label>
               {typeof fields.phone.error !== "undefined" && (
                 <Input.Error>{fields.phone.error}</Input.Error>
@@ -661,11 +684,11 @@ function General() {
           </div>
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {t("content.address.headline")}
+              {locales.route.content.address.headline}
             </h2>
             <Input {...conform.input(fields.contactName)}>
               <Input.Label htmlFor={fields.contactName.id}>
-                {t("content.address.contactName.label")}
+                {locales.route.content.address.contactName.label}
               </Input.Label>
               {typeof fields.contactName.error !== "undefined" && (
                 <Input.Error>{fields.contactName.error}</Input.Error>
@@ -675,7 +698,7 @@ function General() {
               <div className="mv-w-full @lg:mv-w-1/3">
                 <Input {...conform.input(fields.street)}>
                   <Input.Label htmlFor={fields.street.id}>
-                    {t("content.address.street.label")}
+                    {locales.route.content.address.street.label}
                   </Input.Label>
                   {typeof fields.street.error !== "undefined" && (
                     <Input.Error>{fields.street.error}</Input.Error>
@@ -686,7 +709,7 @@ function General() {
                 <div className="mv-flex-1">
                   <Input {...conform.input(fields.streetNumber)}>
                     <Input.Label htmlFor={fields.streetNumber.id}>
-                      {t("content.address.streetNumber.label")}
+                      {locales.route.content.address.streetNumber.label}
                     </Input.Label>
                     {typeof fields.streetNumber.error !== "undefined" && (
                       <Input.Error>{fields.streetNumber.error}</Input.Error>
@@ -696,7 +719,7 @@ function General() {
                 <div className="mv-flex-1">
                   <Input {...conform.input(fields.streetNumberAddition)}>
                     <Input.Label htmlFor={fields.streetNumberAddition.id}>
-                      {t("content.address.streetNumberAddition.label")}
+                      {locales.route.content.address.streetNumberAddition.label}
                     </Input.Label>
                     {typeof fields.streetNumberAddition.error !==
                       "undefined" && (
@@ -713,7 +736,7 @@ function General() {
               <div className="mv-flex-1">
                 <Input {...conform.input(fields.zipCode)}>
                   <Input.Label htmlFor={fields.zipCode.id}>
-                    {t("content.address.zipCode.label")}
+                    {locales.route.content.address.zipCode.label}
                   </Input.Label>
                   {typeof fields.zipCode.error !== "undefined" && (
                     <Input.Error>{fields.zipCode.error}</Input.Error>
@@ -723,7 +746,7 @@ function General() {
               <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
                 <Input {...conform.input(fields.city)}>
                   <Input.Label htmlFor={fields.city.id}>
-                    {t("content.address.city.label")}
+                    {locales.route.content.address.city.label}
                   </Input.Label>
                   {typeof fields.city.error !== "undefined" && (
                     <Input.Error>{fields.city.error}</Input.Error>
@@ -733,12 +756,12 @@ function General() {
             </div>
           </div>
 
-          <p className="mv-text-sm mv-mt-4">{t("content.hint")}</p>
+          <p className="mv-text-sm mv-mt-4">{locales.route.content.hint}</p>
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
               <Controls>
                 <Button type="reset" variant="outline" fullSize>
-                  {t("content.reset")}
+                  {locales.route.content.reset}
                 </Button>
                 <Button
                   type="submit"
@@ -747,7 +770,7 @@ function General() {
                     setIsDirty(false);
                   }}
                 >
-                  {t("content.submit")}
+                  {locales.route.content.submit}
                 </Button>
               </Controls>
             </div>

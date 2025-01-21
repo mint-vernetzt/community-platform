@@ -1,7 +1,7 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import { combineHeaders } from "./utils.server";
-import { type ToastLevel } from "@mint-vernetzt/components";
 import { ZodError, z } from "zod";
+import { type ToastLevel } from "@mint-vernetzt/components/src/molecules/Toast";
 
 export type Toast = {
   message: string;

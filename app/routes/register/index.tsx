@@ -1,43 +1,49 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   Link,
   useActionData,
+  useLoaderData,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
-import { type TFunction } from "i18next";
 import type { KeyboardEvent } from "react";
 import React from "react";
-import { Trans, useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUser, signUp } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import i18next from "~/i18next.server";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage } from "~/i18n.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
 import SelectField from "../../components/FormElements/SelectField/SelectField";
 import { generateUsername } from "../../utils.server";
+import { type RegisterLocales } from "./index.server";
+import { languageModuleMap } from "~/locales/.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { RichText } from "~/components/Richtext/RichText";
 
-const i18nNS = ["routes/register/index"];
-export const handle = {
-  i18n: i18nNS,
-};
-
-const createSchema = (t: TFunction) => {
+const createSchema = (locales: RegisterLocales) => {
   return z.object({
     // todo: i18n of enums?
-    academicTitle: z.string().optional(), // TODO: empty string to "null"
-    firstName: z.string().min(1, t("validation.firstName.min")),
-    lastName: z.string().min(1, t("validation.lastName.min")),
+    academicTitle: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === "") {
+          return null;
+        }
+        return value;
+      }),
+    firstName: z.string().min(1, locales.validation.firstName.min),
+    lastName: z.string().min(1, locales.validation.lastName.min),
     email: z
       .string()
-      .email(t("validation.email.email"))
-      .min(1, t("validation.email.min")),
-    password: z.string().min(8, t("validation.password.min")),
+      .email(locales.validation.email.email)
+      .min(1, locales.validation.email.min),
+    password: z.string().min(8, locales.validation.password.min),
     termsAccepted: z.boolean(),
     loginRedirect: z.string().optional(),
   });
@@ -57,19 +63,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/dashboard");
   }
 
-  return null;
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["register/index"];
+
+  return { locales };
 };
 
-const createMutation = (t: TFunction) => {
+const createMutation = (locales: RegisterLocales) => {
   return makeDomainFunction(
-    createSchema(t),
+    createSchema(locales),
     environmentSchema
   )(async (values, environment) => {
     // TODO: move to database trigger
     const { firstName, lastName, academicTitle, termsAccepted } = values;
 
     if (!termsAccepted) {
-      throw t("validation.termsAccepted");
+      throw locales.validation.termsAccepted;
     }
 
     const username = `${generateUsername(firstName, lastName)}`;
@@ -99,12 +108,9 @@ const createMutation = (t: TFunction) => {
       error.code !== "user_already_exists" &&
       error.message !== "User already registered"
     ) {
-      throw json(
-        { message: `${error.code}: ${error.message}` },
-        { status: 500 }
-      );
+      console.log({ error });
+      invariantResponse(false, "Server Error", { status: 500 });
     }
-
     return values;
   });
 };
@@ -113,22 +119,23 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
 
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, i18nNS);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["register/index"];
 
   const siteUrl = `${process.env.COMMUNITY_BASE_URL}`;
 
   const result = await performMutation({
     request,
-    schema: createSchema(t),
-    mutation: createMutation(t),
+    schema: createSchema(locales),
+    mutation: createMutation(locales),
     environment: { authClient: authClient, siteUrl: siteUrl },
   });
 
-  return json(result);
+  return result;
 };
 
 export default function Register() {
+  const { locales } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
@@ -143,9 +150,7 @@ export default function Register() {
       }
     }
   };
-
-  const { t } = useTranslation(i18nNS);
-  const schema = createSchema(t);
+  const schema = createSchema(locales);
 
   return (
     <>
@@ -153,32 +158,32 @@ export default function Register() {
         <div className="flex flex-col mv-w-full mv-items-center">
           <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
             <div className="mv-mb-6 mv-mt-12">
-              {t("content.question")}{" "}
+              {locales.content.question}{" "}
               <Link
                 to={`/login${
                   loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                 }`}
                 className="text-primary font-bold"
               >
-                {t("content.login")}
+                {locales.content.login}
               </Link>
             </div>
-            <h1 className="mb-4">{t("content.create")}</h1>
+            <h1 className="mb-4">{locales.content.create}</h1>
             {actionData !== undefined && actionData.success ? (
               <>
                 <p className="mb-4">
-                  <Trans
-                    i18nKey="content.success"
-                    ns="routes/register/index"
-                    values={{ email: actionData.data.email }}
-                  ></Trans>{" "}
+                  <RichText
+                    html={insertParametersIntoLocale(locales.content.success, {
+                      email: actionData.data.email,
+                    })}
+                  />{" "}
                   <Link
                     to={`/reset${
                       loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                     }`}
                     className="text-primary font-bold hover:underline"
                   >
-                    {t("content.reset")}
+                    {locales.content.reset}
                   </Link>
                   .
                 </p>
@@ -195,7 +200,7 @@ export default function Register() {
               >
                 {({ Field, Button, Errors, register }) => (
                   <>
-                    <p className="mb-4">{t("form.intro")}</p>
+                    <p className="mb-4">{locales.form.intro}</p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full @lg:mv-basis-6/12 px-4 mb-4">
                         <Field name="loginRedirect" />
@@ -203,18 +208,18 @@ export default function Register() {
                           {({ Errors }) => (
                             <>
                               <SelectField
-                                label={t("form.title.label")}
+                                label={locales.form.title.label}
                                 options={[
                                   {
-                                    label: t("form.title.options.dr"),
+                                    label: locales.form.title.options.dr,
                                     value: "Dr.",
                                   },
                                   {
-                                    label: t("form.title.options.prof"),
+                                    label: locales.form.title.options.prof,
                                     value: "Prof.",
                                   },
                                   {
-                                    label: t("form.title.options.profdr"),
+                                    label: locales.form.title.options.profdr,
                                     value: "Prof. Dr.",
                                   },
                                 ]}
@@ -234,7 +239,7 @@ export default function Register() {
                             <>
                               <Input
                                 id="firstName"
-                                label={t("form.firstName")}
+                                label={locales.form.firstName}
                                 required
                                 {...register("firstName")}
                               />
@@ -250,7 +255,7 @@ export default function Register() {
                             <>
                               <Input
                                 id="lastName"
-                                label={t("form.lastName")}
+                                label={locales.form.lastName}
                                 required
                                 {...register("lastName")}
                               />
@@ -267,7 +272,7 @@ export default function Register() {
                           <>
                             <Input
                               id="email"
-                              label={t("form.email")}
+                              label={locales.form.email}
                               required
                               {...register("email")}
                             />
@@ -283,7 +288,7 @@ export default function Register() {
                           <>
                             <InputPassword
                               id="password"
-                              label={t("form.password")}
+                              label={locales.form.password}
                               required
                               {...register("password")}
                             />
@@ -304,7 +309,10 @@ export default function Register() {
                             {({ Errors }) => {
                               const ForwardRefComponent = React.forwardRef<
                                 HTMLInputElement,
-                                JSX.IntrinsicElements["input"]
+                                React.DetailedHTMLProps<
+                                  React.InputHTMLAttributes<HTMLInputElement>,
+                                  HTMLInputElement
+                                >
                               >((props, ref) => {
                                 return (
                                   <>
@@ -331,32 +339,32 @@ export default function Register() {
                             }}
                           </Field>
                           <span className="label-text">
-                            {t("form.acknowledgements.intro")}{" "}
+                            {locales.form.acknowledgements.intro}{" "}
                             <a
                               href="https://mint-vernetzt.de/terms-of-use-community-platform"
                               target="_blank"
                               rel="noreferrer"
                               className="text-primary font-bold hover:underline"
                             >
-                              {t("form.acknowledgements.termsOfUse")}
+                              {locales.form.acknowledgements.termsOfUse}
                             </a>
-                            {t("form.acknowledgements.bridge")}{" "}
+                            {locales.form.acknowledgements.bridge}{" "}
                             <a
                               href="https://mint-vernetzt.de/privacy-policy-community-platform"
                               target="_blank"
                               rel="noreferrer"
                               className="text-primary font-bold hover:underline"
                             >
-                              {t("form.acknowledgements.dataProtection")}
+                              {locales.form.acknowledgements.dataProtection}
                             </a>{" "}
-                            {t("form.acknowledgements.outro")}
+                            {locales.form.acknowledgements.outro}
                           </span>
                         </label>
                       </div>
                     </div>
                     <div className="mb-8">
                       <button type="submit" className="btn btn-primary">
-                        {t("form.submit")}
+                        {locales.form.submit}
                       </button>
                     </div>
                     <Errors />

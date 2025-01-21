@@ -1,14 +1,16 @@
-import { type TFunction } from "i18next";
 import { z } from "zod";
 import { SearchProfiles } from "./lib/utils/searchParams";
+import { type OrganizationAdminSettingsLocales } from "./routes/next/organization/$slug/settings/admins.server";
+import { type OrganizationTeamSettingsLocales } from "./routes/next/organization/$slug/settings/team.server";
 
 // List of schemas and their i18n namespaces
-export const searchProfilesI18nNS = ["schemas/searchProfiles"];
-export const searchProfilesSchema = (t: TFunction) => {
+export const searchProfilesSchema = (
+  locales: OrganizationAdminSettingsLocales | OrganizationTeamSettingsLocales
+) => {
   return z.object({
     [SearchProfiles]: z
       .string()
-      .min(3, { message: t("content.add.criteria") })
+      .min(3, { message: locales.searchProfilesSchema.validation.min })
       .optional(),
   });
 };

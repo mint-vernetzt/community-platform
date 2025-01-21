@@ -1,4 +1,12 @@
 import { prismaClient } from "~/prisma.server";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
+
+export type AddOrganizationAdminLocales =
+  (typeof languageModuleMap)[ArrayElement<
+    typeof supportedCookieLanguages
+  >]["organization/$slug/settings/admins/add-admin"];
 
 export async function getProfileById(id: string) {
   return await prismaClient.profile.findUnique({

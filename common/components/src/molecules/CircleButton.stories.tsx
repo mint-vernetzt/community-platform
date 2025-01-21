@@ -1,4 +1,4 @@
-import CircleButton, { type CircleButtonProps } from "./CircleButton";
+import { CircleButton, type CircleButtonProps } from "./CircleButton";
 
 export function CircleButtonPlayground(props: CircleButtonProps) {
   return <CircleButton {...props}>A</CircleButton>;

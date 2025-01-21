@@ -1,6 +1,6 @@
 import React from "react";
 import { removeHtmlTags } from "../../../../../app/lib/utils/sanitizeUserHtml";
-import Avatar, { AvatarList } from "../../molecules/Avatar";
+import { Avatar, AvatarList } from "../../molecules/Avatar";
 import {
   Card,
   CardBody,
@@ -10,13 +10,20 @@ import {
   CardInfoOverlay,
   CardStatus,
 } from "./Card";
-import { useTranslation } from "react-i18next";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
-import { Image } from "@mint-vernetzt/components";
+import { Image } from "../../molecules/Image";
+import { type DashboardLocales } from "~/routes/dashboard.server";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { type ExploreEventsLocales } from "~/routes/explore/events.server";
+import { type SearchEventsLocales } from "~/routes/search/events.server";
 
 export type EventCardProps = {
   match?: number;
   publicAccess?: boolean;
+  locales: DashboardLocales | ExploreEventsLocales | SearchEventsLocales;
+  currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
   event: {
     name: string;
     slug: string;
@@ -98,25 +105,46 @@ function IconHybrid() {
 function EventCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & EventCardProps
 ) {
-  const { event } = props;
-  const { t, i18n } = useTranslation([
-    "organisms/cards/event-card",
-    "datasets/stages",
-  ]);
+  const { event, locales, currentLanguage } = props;
 
   const now = new Date();
 
   const dateDuration = getDateDuration(
     event.startTime,
     event.endTime,
-    i18n.language
+    currentLanguage
   );
   const timeDuration = getTimeDuration(
     event.startTime,
     event.endTime,
-    i18n.language
+    currentLanguage
   );
-  const hasStage = event.stage !== undefined && event.stage !== null;
+
+  const getEventStageElement = (
+    loc: typeof locales,
+    stage: NonNullable<typeof event.stage>
+  ) => {
+    let title;
+    if (stage.slug in loc.stages === false) {
+      console.error(`Event stage ${stage.slug} not found in locales`);
+      title = stage.slug;
+    } else {
+      type LocaleKey = keyof typeof loc.stages;
+      title = loc.stages[stage.slug as LocaleKey].title;
+    }
+    return (
+      <>
+        {stage.slug === "on-site" ? (
+          <IconOnSite />
+        ) : stage.slug === "online" ? (
+          <IconOnline />
+        ) : (
+          <IconHybrid />
+        )}
+        <span className="mv-ml-1">{title}</span>
+      </>
+    );
+  };
 
   return (
     <Card to={`/event/${event.slug}`}>
@@ -130,22 +158,26 @@ function EventCard(
         )}
         {props.match !== undefined && (
           <CardStatus>
-            {props.match}% {t("match")}
+            {props.match}% {locales.eventCard.match}
           </CardStatus>
         )}
         {event.canceled && event.published && (
-          <CardStatus variant="negative">{t("cancelled")}</CardStatus>
+          <CardStatus variant="negative">
+            {locales.eventCard.cancelled}
+          </CardStatus>
         )}
         {event.endTime.getTime() < now.getTime() && (
-          <CardStatus variant="neutral">{t("passed")}</CardStatus>
+          <CardStatus variant="neutral">{locales.eventCard.passed}</CardStatus>
         )}
         {!event.published && event.isTeamMember && (
           <CardStatus variant="primary" inverted>
-            {t("draft")}
+            {locales.eventCard.draft}
           </CardStatus>
         )}
         {event.published && event.isTeamMember && (
-          <CardStatus variant="positive">{t("published")}</CardStatus>
+          <CardStatus variant="positive">
+            {locales.eventCard.published}
+          </CardStatus>
         )}
         <CardInfoOverlay>
           {event._count.childEvents === 0 &&
@@ -161,7 +193,7 @@ function EventCard(
           {event._count.childEvents === 0 &&
             typeof event.participantLimit !== "number" && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
-                {t("organisms/cards/event-card:seats.unlimited")}
+                {locales.eventCard.seats.unlimited}
               </span>
             )}
           {event._count.childEvents === 0 &&
@@ -170,10 +202,11 @@ function EventCard(
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
                 {event.participantLimit - event._count.participants} /{" "}
                 {event.participantLimit}{" "}
-                {t("seats.free", {
-                  default: t("seats.default"),
-                  count: event.participantLimit,
-                })}
+                {decideBetweenSingularOrPlural(
+                  locales.eventCard.seats.free_one,
+                  locales.eventCard.seats.free_other,
+                  event.participantLimit
+                )}
               </span>
             )}
           {event._count.childEvents === 0 &&
@@ -181,10 +214,11 @@ function EventCard(
             event.participantLimit - event._count.participants <= 0 && (
               <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
                 {event._count.waitingList}{" "}
-                {t("waitingList.places", {
-                  count: event._count.waitingList,
-                  default: t("waitingList.default"),
-                })}
+                {decideBetweenSingularOrPlural(
+                  locales.eventCard.waitingList.places_one,
+                  locales.eventCard.waitingList.places_other,
+                  event._count.waitingList
+                )}
               </span>
             )}
         </CardInfoOverlay>
@@ -193,30 +227,9 @@ function EventCard(
             {dateDuration}
           </span>
           <span className="mv-flex mv-items-center mv-text-sm mv-font-semibold">
-            {hasStage && event.stage?.slug === "on-site" && (
-              <>
-                <IconOnSite />
-                <span className="mv-ml-1">
-                  {t(`${event.stage?.slug}.title`, { ns: "datasets/stages" })}
-                </span>
-              </>
-            )}
-            {hasStage && event.stage?.slug === "online" && (
-              <>
-                <IconOnline />
-                <span className="mv-ml-1">
-                  {t(`${event.stage?.slug}.title`, { ns: "datasets/stages" })}
-                </span>
-              </>
-            )}
-            {hasStage && event.stage?.slug === "hybrid" && (
-              <>
-                <IconHybrid />
-                <span className="mv-ml-1">
-                  {t(`${event.stage?.slug}.title`, { ns: "datasets/stages" })}
-                </span>
-              </>
-            )}
+            {typeof event.stage !== "undefined" && event.stage !== null
+              ? getEventStageElement(locales, event.stage)
+              : null}
           </span>
         </CardInfo>
       </CardHeader>
@@ -292,7 +305,7 @@ function EventCard(
           !event.canceled &&
           event.isParticipant && (
             <span className="mv-text-xs mv-font-bold mv-text-positive">
-              {t("registered")}
+              {locales.eventCard.registered}
             </span>
           )}
         {!props.publicAccess &&
@@ -302,7 +315,7 @@ function EventCard(
           event.participationUntil.getTime() > Date.now() &&
           event.isOnWaitingList && (
             <span className="mv-text-xs mv-font-bold mv-text-neutral-700">
-              {t("onWaitingList")}
+              {locales.eventCard.onWaitingList}
             </span>
           )}
       </CardFooter>
@@ -310,4 +323,4 @@ function EventCard(
   );
 }
 
-export default EventCard;
+export { EventCard };

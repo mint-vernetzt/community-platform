@@ -1,17 +1,13 @@
-import { TextButton } from "@mint-vernetzt/components";
-import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
+import { detectLanguage } from "~/i18n.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-
-const i18nNS = ["routes/profile/settings"];
-export const handle = {
-  i18n: i18nNS,
-};
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -26,34 +22,42 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const username = getParamValueOrThrow(params, "username");
 
-  return json({
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["profile/$username/settings"];
+
+  return {
     username,
-  });
+    locales,
+  };
 };
 
 function Index() {
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
     }  hover:text-primary py-3`;
 
-  const { t } = useTranslation(i18nNS);
-
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <TextButton weight="thin" variant="neutral" arrowLeft>
-          <Link to={`/profile/${loaderData.username}`} prefetch="intent">
-            {t("back")}
-          </Link>
+        {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+        <TextButton
+          as="a"
+          href={`/profile/${loaderData.username}`}
+          weight="thin"
+          variant="neutral"
+          arrowLeft
+        >
+          {locales.back}
         </TextButton>
       </section>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
         <div className="flex flex-col @lg:mv-flex-row -mx-4 pt-10 @lg:mv-pt-0">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 @lg:mv-p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">{t("context.headline")}</h3>
+              <h3 className="font-bold mb-7">{locales.context.headline}</h3>
               <menu>
                 <ul>
                   <li>
@@ -62,7 +66,7 @@ function Index() {
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
-                      {t("context.general")}
+                      {locales.context.general}
                     </NavLink>
                   </li>
                   <li>
@@ -71,7 +75,7 @@ function Index() {
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
-                      {t("context.notifications")}
+                      {locales.context.notifications}
                     </NavLink>
                   </li>
                   <li>
@@ -80,7 +84,7 @@ function Index() {
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
-                      {t("context.security")}
+                      {locales.context.security}
                     </NavLink>
                   </li>
                 </ul>
@@ -91,7 +95,7 @@ function Index() {
                     className={({ isActive }) => getClassName(isActive)}
                     preventScrollReset
                   >
-                    {t("context.delete")}
+                    {locales.context.delete}
                   </NavLink>
                 </div>
               </menu>
@@ -114,7 +118,7 @@ function Index() {
                     />
                   </svg>
                 </span>
-                <span>{t("state.public")}</span>
+                <span>{locales.state.public}</span>
               </p>
 
               <p className="text-xs flex items-center mb-4">
@@ -139,7 +143,7 @@ function Index() {
                     />
                   </svg>
                 </span>
-                <span>{t("state.registered")}</span>
+                <span>{locales.state.registered}</span>
               </p>
             </div>
           </div>

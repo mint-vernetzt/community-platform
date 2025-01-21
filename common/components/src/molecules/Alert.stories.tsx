@@ -1,4 +1,4 @@
-import Alert from "./Alert";
+import { Alert } from "./Alert";
 
 type AlertProps = {
   message: string;

@@ -1,4 +1,4 @@
-import TabBar from "./TabBar";
+import { TabBar } from "./TabBar";
 
 export function Playground() {
   return (

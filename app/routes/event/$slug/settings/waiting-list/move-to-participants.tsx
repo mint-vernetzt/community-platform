@@ -1,17 +1,17 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { utcToZonedTime } from "date-fns-tz";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import i18next from "~/i18next.server";
+import { detectLanguage } from "~/i18n.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { languageModuleMap } from "~/locales/.server";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
-import { detectLanguage } from "~/root.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import {
   getEventBySlug,
@@ -34,15 +34,16 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/waiting-list/move-to-participants",
-  ]);
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language][
+      "event/$slug/settings/waiting-list/move-to-participants"
+    ];
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", t("error.notPrivileged"), {
+  invariantResponse(mode === "admin", locales.error.notPrivileged, {
     status: 403,
   });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -51,16 +52,18 @@ export const action = async (args: ActionFunctionArgs) => {
 
   if (result.success === true) {
     const event = await getEventBySlug(slug);
-    invariantResponse(event, t("error.notFound.event"), { status: 404 });
+    invariantResponse(event, locales.error.notFound.event, { status: 404 });
     const profile = await getProfileByUserId(result.data.profileId);
-    invariantResponse(profile, t("error.notFound.profile"), { status: 404 });
+    invariantResponse(profile, locales.error.notFound.profile, { status: 404 });
     await connectParticipantToEvent(event.id, result.data.profileId);
     await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
     // Send info mail
     // -> mail of person which was moved to waitinglist
     const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = profile.email;
-    const subject = t("email.subject", { title: event.name });
+    const subject = insertParametersIntoLocale(locales.email.subject, {
+      title: event.name,
+    });
     const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
     const content = {
       recipient: {
@@ -81,12 +84,12 @@ export const action = async (args: ActionFunctionArgs) => {
         supportContact: {
           firstName:
             event.admins[0].profile.firstName ??
-            t("email.supportContact.firstName"),
+            locales.email.supportContact.firstName,
           lastName:
             event.admins[0].profile.lastName ??
-            t("email.supportContact.lastName"),
+            locales.email.supportContact.lastName,
           email:
-            event.admins[0].profile.email ?? t("email.supportContact.email"),
+            event.admins[0].profile.email ?? locales.email.supportContact.email,
         },
       },
     };
@@ -108,8 +111,8 @@ export const action = async (args: ActionFunctionArgs) => {
     } catch (error) {
       // Throw a 500 -> Mailer issue
       console.error(error);
-      return json({ message: t("error.mailer") }, { status: 500 });
+      invariantResponse(false, locales.error.mailer, { status: 500 });
     }
   }
-  return json({ success: true });
+  return { success: true };
 };

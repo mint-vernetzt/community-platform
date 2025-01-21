@@ -1,4 +1,3 @@
-import { json } from "@remix-run/server-runtime";
 import { format } from "date-fns";
 import type {
   AnyObject,
@@ -9,6 +8,7 @@ import type {
   TestContext,
 } from "yup";
 import { ValidationError, mixed, number, string } from "yup";
+import { invariantResponse } from "./response";
 
 type Error = {
   type: string;
@@ -118,12 +118,13 @@ export function social(service: keyof typeof socialValidation) {
     .matches(socialValidation[service].match, socialValidation[service].error);
 }
 
-function removeMoreThan2ConsecutiveLineBreaks(string: string) {
-  return string.replace(/(\r\n|\n|\r){3,}/gm, "\n\n");
-}
-
 export function multiline() {
-  return string().transform(removeMoreThan2ConsecutiveLineBreaks);
+  return string().transform((value: string | undefined) => {
+    if (value === undefined || value === "" || value === "<p><br></p>") {
+      return null;
+    }
+    return value.trim();
+  });
 }
 
 export function greaterThanTimeOnSameDate(
@@ -344,7 +345,7 @@ export async function getFormDataValidationResultOrThrow<
     data = result.data;
   } catch (error) {
     console.error(error);
-    throw json({ message: "Validation failed" }, { status: 400 });
+    invariantResponse(false, "Validation failed", { status: 400 });
   }
   return { errors, data };
 }

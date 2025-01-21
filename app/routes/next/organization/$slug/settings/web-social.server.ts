@@ -1,13 +1,20 @@
 import { type Organization } from "@prisma/client";
-import { type TFunction } from "i18next";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
+
+export type OrganizationWebAndSocialLocales =
+  (typeof languageModuleMap)[ArrayElement<
+    typeof supportedCookieLanguages
+  >]["next/organization/$slug/settings/web-social"];
 
 export async function getOrganizationWebSocial(options: {
   slug: string;
-  t: TFunction;
+  locales: OrganizationWebAndSocialLocales;
 }) {
-  const { slug, t } = options;
+  const { slug, locales } = options;
 
   const organization = await prismaClient.organization.findUnique({
     select: {
@@ -40,7 +47,7 @@ export async function getOrganizationWebSocial(options: {
   });
   invariantResponse(
     organization !== null && organization.organizationVisibility !== null,
-    t("error.organizationNotFound"),
+    locales.route.error.organizationNotFound,
     {
       status: 404,
     }

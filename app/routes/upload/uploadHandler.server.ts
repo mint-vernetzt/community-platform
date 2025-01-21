@@ -1,7 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { UploadHandler } from "@remix-run/node";
 import {
-  json,
   unstable_composeUploadHandlers,
   unstable_parseMultipartFormData,
 } from "@remix-run/node";
@@ -10,6 +9,7 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { createHashFromString, triggerEntityScore } from "~/utils.server";
 import { uploadKeys } from "./utils.server";
+import { invariantResponse } from "~/lib/utils/response";
 
 const imageUploadKeys = ["avatar", "logo", "background"];
 
@@ -38,40 +38,23 @@ const uploadHandler: UploadHandler = async (part) => {
   const fileTypeResult = await fileTypeFromBuffer(buffer);
 
   if (fileTypeResult === undefined) {
-    console.log("Der Dateityp (MIME type) konnte nicht gelesen werden.");
-    throw json(
-      {
-        message: "Der Dateityp (MIME type) konnte nicht gelesen werden.",
-      },
-      { status: 500 }
+    console.error(
+      "The mime type of the file could not be read from file header."
     );
+    invariantResponse(false, "Server Error", { status: 500 });
   }
   if (name === "document" && fileTypeResult.mime !== "application/pdf") {
-    console.log(
-      "Aktuell können ausschließlich Dateien im PDF-Format hochgeladen werden."
+    console.error(
+      "Document not of type application/pdf and could not be uploaded."
     );
-    throw json(
-      {
-        message:
-          "Aktuell können ausschließlich Dateien im PDF-Format hochgeladen werden.",
-      },
-      { status: 500 }
-    );
+    invariantResponse(false, "Server Error", { status: 500 });
   }
   if (
     imageUploadKeys.includes(name) &&
     !fileTypeResult.mime.includes("image/")
   ) {
-    console.error(
-      "Die Datei entspricht keinem gängigem Bildformat und konnte somit nicht hochgeladen werden."
-    );
-    throw json(
-      {
-        message:
-          "Die Datei entspricht keinem gängigem Bildformat und konnte somit nicht hochgeladen werden.",
-      },
-      { status: 500 }
-    );
+    console.error("Image not of type image/* and could not be uploaded.");
+    invariantResponse(false, "Server Error", { status: 500 });
   }
   const path = generatePathName(fileTypeResult.ext, hash, name);
   const sizeInBytes = buffer.length;
@@ -174,19 +157,14 @@ export const upload = async (
 
     const uploadKey = formData.get("uploadKey");
     if (uploadKey === null) {
-      console.log("No upload Key");
-      throw json(
-        { message: "Something went wrong on upload." },
-        { status: 500 }
-      );
+      console.error("No upload Key");
+      invariantResponse(false, "Server Error", { status: 500 });
     }
     // TODO: can this type assertion be removed and proofen by code?
     const uploadHandlerResponseJSON = formData.get(uploadKey as string);
     if (uploadHandlerResponseJSON === null) {
-      throw json(
-        { message: "Something went wrong on upload." },
-        { status: 500 }
-      );
+      console.error("Upload Handler Response is null");
+      invariantResponse(false, "Server Error", { status: 500 });
     }
     const uploadHandlerResponse: {
       buffer: {
@@ -202,7 +180,8 @@ export const upload = async (
     // Convert buffer data to Buffer
     const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
     if (buffer.length === 0) {
-      throw json({ message: "Cannot upload empty file." }, { status: 400 });
+      console.error("Cannot upload empty file.");
+      invariantResponse(false, "Bad request", { status: 400 });
     }
 
     const { data, error } = await persistUpload(
@@ -222,7 +201,8 @@ export const upload = async (
 
     return formData;
   } catch (exception) {
-    throw json({ message: "Something went wrong on upload." }, { status: 500 });
+    console.error({ exception });
+    invariantResponse(false, "Server Error", { status: 500 });
   }
 };
 // TODO: fix any type
@@ -234,15 +214,12 @@ function validatePersistence(
   bucketName?: string
 ) {
   if (error || data === null) {
-    throw json({ message: "Hochladen fehlgeschlagen." }, { status: 500 });
+    console.error({ error });
+    invariantResponse(false, "Server Error", { status: 500 });
   }
 
   if (getPublicURL(authClient, path, bucketName) === null) {
-    throw json(
-      {
-        message: "Die public URL konnte nicht angefragt werden.",
-      },
-      { status: 500 }
-    );
+    console.error("Requested public url is null.");
+    invariantResponse(false, "Server Error", { status: 500 });
   }
 }

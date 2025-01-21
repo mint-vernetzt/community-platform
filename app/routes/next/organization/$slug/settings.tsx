@@ -1,4 +1,5 @@
-import { Section, TextButton } from "@mint-vernetzt/components";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import {
   Link,
@@ -8,14 +9,15 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import classNames from "classnames";
-import { type TFunction } from "i18next";
-import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
+import { type OrganizationSettingsLocales } from "./settings.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -54,36 +56,39 @@ export async function loader(args: LoaderFunctionArgs) {
     status: 404,
   });
 
-  return { organization };
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["next/organization/$slug/settings"];
+
+  return { organization, locales };
 }
 
-const i18nNS = ["routes/next/organization/settings"];
-export const handle = {
-  i18n: i18nNS,
-};
-
-function createNavLinks(t: TFunction) {
+function createNavLinks(locales: OrganizationSettingsLocales) {
   return [
-    { to: "./general", label: t("links.general") },
-    { to: "./organize", label: t("links.organize") },
-    { to: "./web-social", label: t("links.webSocial") },
-    { to: "./admins", label: t("links.admins") },
-    { to: "./team", label: t("links.team") },
-    { to: "./danger-zone", label: t("links.dangerZone"), variant: "negative" },
+    { to: "./general", label: locales.links.general },
+    { to: "./organize", label: locales.links.organize },
+    { to: "./web-social", label: locales.links.webSocial },
+    { to: "./admins", label: locales.links.admins },
+    { to: "./team", label: locales.links.team },
+    {
+      to: "./danger-zone",
+      label: locales.links.dangerZone,
+      variant: "negative",
+    },
   ];
 }
 
 function Settings() {
   const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const location = useLocation();
   const pathnameWithoutSlug = location.pathname.replace(
     loaderData.organization.slug,
     ""
   );
   const [searchParams] = useSearchParams();
-  const { t } = useTranslation(i18nNS);
 
-  const navLinks = createNavLinks(t);
+  const navLinks = createNavLinks(locales);
 
   const deep = searchParams.get(Deep);
 
@@ -101,15 +106,17 @@ function Settings() {
     <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-px-4 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
       <div className="mv-hidden @md:mv-block mv-mb-8">
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
-          <TextButton weight="thin" variant="neutral" arrowLeft>
-            <Link
-              to={`/organization/${loaderData.organization.slug}`}
-              prefetch="intent"
-            >
-              {t("content.back")}
-            </Link>
+          {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+          <TextButton
+            as="a"
+            href={`/organization/${loaderData.organization.slug}`}
+            weight="thin"
+            variant="neutral"
+            arrowLeft
+          >
+            {locales.content.back}
           </TextButton>
-          <h3 className="mv-mb-0 mv-font-bold">{t("content.edit")}</h3>
+          <h3 className="mv-mb-0 mv-font-bold">{locales.content.edit}</h3>
         </div>
       </div>
       <div className="mv-hidden @md:mv-block">
@@ -121,7 +128,7 @@ function Settings() {
         <div className={menuClasses}>
           <div className="mv-flex mv-gap-2 mv-items-center mv-justify-between @md:mv-hidden">
             <span className="mv-p-6 mv-pr-0">
-              <h1 className="mv-text-2xl mv-m-0">{t("content.settings")}</h1>
+              <h1 className="mv-text-2xl mv-m-0">{locales.content.settings}</h1>
             </span>
             <Link
               to={`/organization/${loaderData.organization.slug}`}

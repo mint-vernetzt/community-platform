@@ -1,11 +1,11 @@
-import { type LoaderFunctionArgs, type ActionFunctionArgs, json } from "@remix-run/node";
+import { type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  return json({});
+  return {};
 }; 
 
 export const action = async (args: ActionFunctionArgs) => {
-  return json({});
+  return {};
 };
 
 export default function {{ pascalCase componentName }}() {
