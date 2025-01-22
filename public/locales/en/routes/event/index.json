@@ -23,6 +23,14 @@
       "registrationExpired": "Registration period has already expired.",
       "context": "This event is part of <0>{{name}}</0>",
       "loginToRegister": "Log in to participate",
+      "removeParticipant": {
+        "action": "Don't participate",
+        "doubleCheck": {
+          "title": "Withdraw your participation",
+          "description": "Are you sure that you no longer wish to take part in this event? If the registration deadline has already passed, you cannot register again.",
+          "abort": "Cancel"
+        }
+      },
       "select": "Select <0>related events</0> you wish to attend.",
       "edit": "Edit Event",
       "createRelated": "Create related events",

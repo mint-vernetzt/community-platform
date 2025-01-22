@@ -54,7 +54,7 @@ import { detectLanguage } from "~/root.server";
 import { Modal } from "~/routes/__components";
 import { deriveEventMode } from "../utils.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
-import { RemoveParticipantButton } from "./settings/participants/remove-participant";
+import { RemoveParticipantForm } from "./settings/participants/remove-participant";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
 import {
@@ -465,18 +465,21 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 };
 
-function getCallToActionForm(loaderData: {
-  userId?: string;
-  isParticipant: boolean;
-  isOnWaitingList: boolean;
-  event: {
-    id: string;
-    participantLimit: number | null;
-    _count: {
-      participants: number;
+function getCallToActionForm(
+  loaderData: {
+    userId?: string;
+    isParticipant: boolean;
+    isOnWaitingList: boolean;
+    event: {
+      id: string;
+      participantLimit: number | null;
+      _count: {
+        participants: number;
+      };
     };
-  };
-}) {
+  },
+  t: TFunction
+) {
   const isParticipating = loaderData.isParticipant;
   const isOnWaitingList = loaderData.isOnWaitingList;
 
@@ -488,10 +491,36 @@ function getCallToActionForm(loaderData: {
 
   if (isParticipating) {
     return (
-      <RemoveParticipantButton
-        action="./settings/participants/remove-participant"
-        profileId={loaderData.userId}
-      />
+      <>
+        <Form method="get" preventScrollReset>
+          <input hidden name="modal-remove-participant" defaultValue="true" />
+          <button type="submit" className="btn btn-primary">
+            {t("content.event.removeParticipant.action")}
+          </button>
+        </Form>
+        <div className="mv-hidden">
+          <RemoveParticipantForm
+            id="remove-participant"
+            action="./settings/participants/remove-participant"
+            profileId={loaderData.userId}
+            modalSearchParam="modal-remove-participant"
+          />
+        </div>
+        <Modal searchParam="modal-remove-participant">
+          <Modal.Title>
+            {t("content.event.removeParticipant.doubleCheck.title")}
+          </Modal.Title>
+          <Modal.Section>
+            {t("content.event.removeParticipant.doubleCheck.description")}
+          </Modal.Section>
+          <Modal.SubmitButton form="remove-participant">
+            {t("content.event.removeParticipant.action")}
+          </Modal.SubmitButton>
+          <Modal.CloseButton>
+            {t("content.event.removeParticipant.doubleCheck.abort")}
+          </Modal.CloseButton>
+        </Modal>
+      </>
     );
   } else if (isOnWaitingList) {
     return (
@@ -558,7 +587,7 @@ function Index() {
 
   const laysInThePast = now > endTime;
 
-  const CallToActionForm = getCallToActionForm(loaderData);
+  const CallToActionForm = getCallToActionForm(loaderData, t);
 
   const duration = getDuration(startTime, endTime, i18n.language);
 
@@ -771,7 +800,9 @@ function Index() {
           ) : null}
           {loaderData.mode !== "admin" ? (
             <>
-              {beforeParticipationPeriod || afterParticipationPeriod ? (
+              {beforeParticipationPeriod ||
+              (afterParticipationPeriod &&
+                loaderData.isParticipant === false) ? (
                 <div className="bg-accent-300 p-8">
                   <p className="font-bold text-center">
                     {laysInThePast

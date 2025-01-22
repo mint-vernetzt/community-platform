@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useSearchParams } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -28,9 +28,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const locale = detectLanguage(request);
-  const t = await i18next.getFixedT(locale, [
-    "routes/event/settings/participants/remove-participant",
-  ]);
+  const t = await i18next.getFixedT(locale, ["routes/event/index"]);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -52,19 +50,27 @@ export const action = async (args: ActionFunctionArgs) => {
   return json(result);
 };
 
-type RemoveParticipantButtonProps = {
+type RemoveParticipantFormProps = {
+  id: string;
   action: string;
   profileId?: string;
+  modalSearchParam?: string;
 };
 
-export function RemoveParticipantButton(props: RemoveParticipantButtonProps) {
+export function RemoveParticipantForm(props: RemoveParticipantFormProps) {
   const fetcher = useFetcher<typeof action>();
+  const [searchParams, setSearchParam] = useSearchParams();
+  const newSearchParams = new URLSearchParams(searchParams);
+  if (props.modalSearchParam !== undefined) {
+    newSearchParams.delete(props.modalSearchParam);
+  }
   const { t } = useTranslation([
     "routes/event/settings/participants/remove-participant",
   ]);
 
   return (
     <RemixFormsForm
+      id={props.id}
       action={props.action}
       fetcher={fetcher}
       schema={schema}
@@ -72,15 +78,26 @@ export function RemoveParticipantButton(props: RemoveParticipantButtonProps) {
       values={{
         profileId: props.profileId,
       }}
+      onSubmit={() => {
+        setSearchParam(newSearchParams);
+      }}
     >
-      {(props) => {
-        const { Field, Errors } = props;
+      {(formProps) => {
+        const { Field, Errors } = formProps;
         return (
           <>
             <Field name="profileId" />
-            <button className="btn btn-primary" type="submit">
-              {t("action")}
-            </button>
+            {props.modalSearchParam === undefined ? (
+              <button className="btn btn-primary" type="submit">
+                {t("removeParticipant.action")}
+              </button>
+            ) : (
+              <input
+                type="hidden"
+                name={props.modalSearchParam}
+                value="false"
+              />
+            )}
             <Errors />
           </>
         );
