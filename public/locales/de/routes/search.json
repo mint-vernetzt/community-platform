@@ -1,6 +1,6 @@
 {
   "title": {
-    "query":  "Deine Suche",
+    "query": "Deine Suche",
     "noquery": "Suche"
   },
   "results": "Hier siehst Du die Ergebnisse zu Deiner Suche \"{{query}}\".",

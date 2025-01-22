@@ -1,7 +1,7 @@
 {
-    "server": {
-        "error": {
-            "organizationNotFound": "Organization not found"
-        }
+  "server": {
+    "error": {
+      "organizationNotFound": "Organization not found"
     }
+  }
 }

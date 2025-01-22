@@ -2,7 +2,6 @@
   "title": "Entdecke inspirierende Projekte",
   "intro": "Finde passende Projekte, lerne von Erfahrungen anderer MINT-Akteur:innen und teile Dein Wissen, indem Du Dein eigenes Projekt anlegst.",
   "filter": {
-
     "title": "Filter",
     "showFiltersLabel": "Projekte filtern",
 
@@ -13,7 +12,6 @@
       "label": "Sortieren nach"
     },
 
-    
     "disciplines": "MINT-Disziplin",
     "additionalDisciplines": "MINT in Verbindung mit weiteren Disziplinen",
     "targetGroups": "Zielgruppe",

@@ -46,7 +46,7 @@
         "datalab": "MINT-DataLab",
         "website": "MINTvernetzt Website",
         "github": "MINTvernetzt GitHub"
-      }, 
+      },
       "explore": {
         "label": "Explore",
         "profiles": "Profiles",
@@ -65,7 +65,7 @@
     "loginOrRegisterCTA": {
       "info": "Log in or register to fully utilize the platform.",
       "login": "Login",
-      "or":"or",
+      "or": "or",
       "register": "Register"
     }
   }

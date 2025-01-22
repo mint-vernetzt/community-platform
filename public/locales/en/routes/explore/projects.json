@@ -2,7 +2,6 @@
   "title": "Find inspiring projects",
   "intro": "Here you can take a look at various projects within the STEM community.",
   "filter": {
-
     "title": "Filter",
     "showFiltersLabel": "Filter projects",
 
@@ -13,7 +12,6 @@
       "label": "Sort by"
     },
 
-    
     "disciplines": "STEM discipline",
     "additionalDisciplines": "STEM in connection with other disciplines",
     "targetGroups": "Target group",

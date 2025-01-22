@@ -1,10 +1,10 @@
 {
-    "server": {
-        "error": {
-            "organizationNotFound": "Organisation nicht gefunden"
-        }
-    },
-    "headlines": {
-        "responsibleForProject": "Verantwortlich für Projekt"
+  "server": {
+    "error": {
+      "organizationNotFound": "Organisation nicht gefunden"
     }
+  },
+  "headlines": {
+    "responsibleForProject": "Verantwortlich für Projekt"
+  }
 }

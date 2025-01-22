@@ -1,5 +1,5 @@
 {
-    "validation": {
-        "min": "At least 3 characters"
-    }
+  "validation": {
+    "min": "At least 3 characters"
+  }
 }

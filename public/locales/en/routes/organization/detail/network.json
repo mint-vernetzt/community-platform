@@ -1,11 +1,11 @@
 {
-    "server": {
-        "error": {
-            "organizationNotFound": "Organization not found"
-        }
-    },
-    "headlines": {
-        "memberOf": "Part of the network",
-        "networkMembers": "Member organizations"
+  "server": {
+    "error": {
+      "organizationNotFound": "Organization not found"
     }
+  },
+  "headlines": {
+    "memberOf": "Part of the network",
+    "networkMembers": "Member organizations"
+  }
 }

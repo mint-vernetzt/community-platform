@@ -50,9 +50,9 @@ export function AutoCompleteReplacementPlayground() {
     reducer,
     defaultUsers
   );
-  const [removedUser, setRemovedUser] = React.useState<typeof users[0] | null>(
-    null
-  );
+  const [removedUser, setRemovedUser] = React.useState<
+    (typeof users)[0] | null
+  >(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;

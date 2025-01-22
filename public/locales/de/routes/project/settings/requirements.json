@@ -43,7 +43,7 @@
   },
   "form": {
     "reset": "Änderungen verwerfen",
-    "submit":  "Speichern",
+    "submit": "Speichern",
     "timeframe": {
       "headline": "Zeitlicher Rahmen",
       "label": "Projektstart bzw. Projektlaufzeit"

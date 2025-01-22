@@ -6,7 +6,7 @@
     "lastAdmin": {
       "intro": "Das Profil ist letzter Administrator in ",
       "organizations": "den Organisationen: {{organizations}}",
-      "events":  "den Veranstaltungen: {{events}}",
+      "events": "den Veranstaltungen: {{events}}",
       "projects": "den Projekten: {{projects}}",
       "outro": "weshalb es nicht gelöscht werden kann. Bitte übertrage die Rechte auf eine andere Person oder lösche zuerst diese Organisationen, Veranstaltungen oder Projekte."
     },
