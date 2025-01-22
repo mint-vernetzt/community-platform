@@ -27,24 +27,9 @@ import { OrderedList } from "~/components-next/icons/OrderedList";
 import { LinkIcon } from "~/components-next/icons/LinkIcon";
 import { Add } from "~/components-next/icons/Add";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
-import { type ProjectRequirementsSettingsLocales } from "~/routes/project/$slug/settings/requirements.server";
-import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
-import { type GeneralOrganizationSettingsLocales as NextGeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
-import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
-import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
-import { type EventDocumentsSettingsLocales } from "~/routes/event/$slug/settings/documents.server";
+import { type RTELocales } from "../../RTE";
 
-function ToolbarPlugin(props: {
-  locales:
-    | GeneralProfileSettingsLocales
-    | GeneralOrganizationSettingsLocales
-    | NextGeneralOrganizationSettingsLocales
-    | ProjectDetailsSettingsLocales
-    | ProjectRequirementsSettingsLocales
-    | GeneralEventSettingsLocales
-    | EventDocumentsSettingsLocales;
-}) {
+function ToolbarPlugin(props: { locales: RTELocales }) {
   const { locales } = props;
   const [editor] = useLexicalComposerContext();
 
@@ -282,16 +267,7 @@ function ToolbarPlugin(props: {
   );
 }
 
-function LoadingToolbar(props: {
-  locales:
-    | GeneralProfileSettingsLocales
-    | GeneralOrganizationSettingsLocales
-    | NextGeneralOrganizationSettingsLocales
-    | ProjectDetailsSettingsLocales
-    | ProjectRequirementsSettingsLocales
-    | GeneralEventSettingsLocales
-    | EventDocumentsSettingsLocales;
-}) {
+function LoadingToolbar(props: { locales: RTELocales }) {
   const { locales } = props;
   const buttonClassName =
     "mv-appearance-none mv-w-fit mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-text-xs mv-p-2 mv-leading-4 mv-bg-neutral-50 mv-text-neutral-300";

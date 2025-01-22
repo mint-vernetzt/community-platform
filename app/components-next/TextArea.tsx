@@ -2,15 +2,8 @@ import classNames from "classnames";
 import React, { type FormEventHandler } from "react";
 import Counter from "../components/Counter/Counter";
 import { ToggleCheckbox } from "../components/FormElements/Checkbox/ToggleCheckbox";
-import { RTE } from "./RTE/RTE";
+import { RTE, type RTELocales } from "./RTE/RTE";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
-import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
-import { type ProjectRequirementsSettingsLocales } from "~/routes/project/$slug/settings/requirements.server";
-import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
-import { type GeneralOrganizationSettingsLocales as NextGeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
-import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
-import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
-import { type EventDocumentsSettingsLocales } from "~/routes/event/$slug/settings/documents.server";
 
 export interface TextAreaProps {
   id: string;
@@ -20,14 +13,7 @@ export interface TextAreaProps {
   errorMessage?: string;
   publicPosition?: "top" | "side";
   rte?: {
-    locales:
-      | GeneralProfileSettingsLocales
-      | GeneralOrganizationSettingsLocales
-      | NextGeneralOrganizationSettingsLocales
-      | ProjectDetailsSettingsLocales
-      | ProjectRequirementsSettingsLocales
-      | GeneralEventSettingsLocales
-      | EventDocumentsSettingsLocales;
+    locales: RTELocales;
   };
   helperText?: string;
 }

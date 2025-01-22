@@ -40,23 +40,23 @@ import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$
 import { type GeneralOrganizationSettingsLocales as NextGeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
 import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
 import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
-import { type EventDocumentsSettingsLocales } from "~/routes/event/$slug/settings/documents.server";
 
 export type OverrideableInputProps = Omit<
   React.HTMLProps<HTMLInputElement>,
   "value" | "onChange" | "className" | "readOnly" | "tabIndex"
 >;
 
+export type RTELocales =
+  | GeneralProfileSettingsLocales
+  | GeneralOrganizationSettingsLocales
+  | NextGeneralOrganizationSettingsLocales
+  | ProjectDetailsSettingsLocales
+  | ProjectRequirementsSettingsLocales
+  | GeneralEventSettingsLocales;
+
 function RTE(
   props: OverrideableInputProps & {
-    locales:
-      | GeneralProfileSettingsLocales
-      | GeneralOrganizationSettingsLocales
-      | NextGeneralOrganizationSettingsLocales
-      | ProjectDetailsSettingsLocales
-      | ProjectRequirementsSettingsLocales
-      | GeneralEventSettingsLocales
-      | EventDocumentsSettingsLocales;
+    locales: RTELocales;
   }
 ) {
   const { defaultValue, placeholder, maxLength, locales, ...rest } = props;
