@@ -1,6 +1,6 @@
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Avatar } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -9,6 +9,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -16,12 +17,13 @@ import {
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -39,13 +41,19 @@ import {
   type action as removeOrganizationAction,
   removeOrganizationSchema,
 } from "./organizations/remove-organization";
-import { languageModuleMap } from "~/locales/.server";
+
+const i18nNS = [
+  "routes/event/settings/organizations",
+  "datasets/organizationTypes",
+];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["event/$slug/settings/organizations"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
@@ -56,9 +64,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.route.error.notFound, { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
 
@@ -160,20 +168,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
       );
   }
 
-  return {
+  return json({
     published: event.published,
     responsibleOrganizations: enhancedOrganizations,
     responsibleOrganizationSuggestions,
     ownOrganizationsSuggestions: enhancedOwnOrganizations,
-    locales,
-    language,
-  };
+  });
 };
 
 function Organizations() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, language } = loaderData;
   const addOrganizationFetcher = useFetcher<typeof addOrganizationAction>();
   const removeOrganizationFetcher =
     useFetcher<typeof removeOrganizationAction>();
@@ -181,15 +186,14 @@ function Organizations() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
-      <h1 className="mb-8">{locales.route.content.headline}</h1>
-      <p className="mb-8">{locales.route.content.headline}</p>
-      <h4 className="mb-4 mt-4 font-semibold">
-        {locales.route.content.add.headline}
-      </h4>
-      <p className="mb-8">{locales.route.content.add.intro}</p>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-8">{t("content.headline")}</p>
+      <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
       <RemixFormsForm
         schema={addOrganizationSchema}
         fetcher={addOrganizationFetcher}
@@ -209,7 +213,7 @@ function Organizations() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      {locales.route.content.add.label}
+                      {t("content.add.label")}
                     </label>
                   </div>
                 </div>
@@ -227,8 +231,6 @@ function Organizations() {
                           defaultValue={suggestionsQuery || ""}
                           {...register("organizationId")}
                           searchParameter="autocomplete_query"
-                          locales={locales}
-                          currentLanguage={language}
                         />
                       </>
                     )}
@@ -253,9 +255,9 @@ function Organizations() {
       {loaderData.ownOrganizationsSuggestions.length > 0 ? (
         <>
           <h4 className="mb-4 mt-16 font-semibold">
-            {locales.route.content.own.headline}
+            {t("content.own.headline")}
           </h4>
-          <p className="mb-8">{locales.route.content.own.intro}</p>
+          <p className="mb-8">{t("content.own.intro")}</p>
           <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
             <ul>
               {loaderData.ownOrganizationsSuggestions.map((organization) => {
@@ -291,24 +293,12 @@ function Organizations() {
                         <p className="font-bold text-sm cursor-default">
                           {organization.types
                             .map((relation) => {
-                              let title;
-                              if (
-                                relation.organizationType.slug in
-                                locales.organizationTypes
-                              ) {
-                                type LocaleKey =
-                                  keyof typeof locales.organizationTypes;
-                                title =
-                                  locales.organizationTypes[
-                                    relation.organizationType.slug as LocaleKey
-                                  ].title;
-                              } else {
-                                console.error(
-                                  `Organization type ${relation.organizationType.slug} not found in locales`
-                                );
-                                title = relation.organizationType.slug;
-                              }
-                              return title;
+                              return t(
+                                `${relation.organizationType.slug}.title`,
+                                {
+                                  ns: "datasets/organizationTypes",
+                                }
+                              );
                             })
                             .join(" / ")}
                         </p>
@@ -335,7 +325,7 @@ function Organizations() {
                               title="Hinzufügen"
                               type="submit"
                             >
-                              {locales.route.content.own.label}
+                              {t("content.own.label")}
                             </button>
                           </>
                         );
@@ -350,9 +340,9 @@ function Organizations() {
       ) : null}
 
       <h4 className="mb-4 mt-16 font-semibold">
-        {locales.route.content.current.headline}
+        {t("content.current.headline")}
       </h4>
-      <p className="mb-8">{locales.route.content.current.intro}</p>
+      <p className="mb-8">{t("content.current.intro")}</p>
       <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
         <ul>
           {loaderData.responsibleOrganizations.map((organization) => {
@@ -387,24 +377,9 @@ function Organizations() {
                     <p className="font-bold text-sm cursor-default">
                       {organization.types
                         .map((relation) => {
-                          let title;
-                          if (
-                            relation.organizationType.slug in
-                            locales.organizationTypes
-                          ) {
-                            type LocaleKey =
-                              keyof typeof locales.organizationTypes;
-                            title =
-                              locales.organizationTypes[
-                                relation.organizationType.slug as LocaleKey
-                              ].title;
-                          } else {
-                            console.error(
-                              `Organization type ${relation.organizationType.slug} not found in locales`
-                            );
-                            title = relation.organizationType.slug;
-                          }
-                          return title;
+                          return t(`${relation.organizationType.slug}.title`, {
+                            ns: "datasets/organizationTypes",
+                          });
                         })
                         .join(" / ")}
                     </p>
@@ -428,7 +403,7 @@ function Organizations() {
                         <Field name="organizationId" />
                         <Button
                           className="ml-auto btn-none"
-                          title={locales.route.content.current.remove}
+                          title={t("content.current.remove")}
                         >
                           <svg
                             viewBox="0 0 10 10"
@@ -471,8 +446,8 @@ function Organizations() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? locales.route.content.hide
-                        : locales.route.content.publish}
+                        ? t("content.hide")
+                        : t("content.publish")}
                     </Button>
                   </>
                 );

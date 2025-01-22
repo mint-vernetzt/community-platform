@@ -1,24 +1,28 @@
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import { type LoaderFunctionArgs } from "@remix-run/node";
+import { Button, Image } from "@mint-vernetzt/components";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
-import { MaterialList } from "~/components-next/MaterialList";
+import { MaterialList } from "../settings/__components";
 import { deriveProjectMode } from "../../utils.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { languageModuleMap } from "~/locales/.server";
+
+const i18nNS = ["routes/project/detail/attachments"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["project/$slug/detail/attachments"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -27,7 +31,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   invariantResponse(
     params.slug !== undefined,
-    locales.error.invariant.invalidRoute,
+    t("error.invatiant.invalidRoute"),
     {
       status: 400,
     }
@@ -73,7 +77,7 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
-  invariantResponse(project !== null, locales.error.invariant.notFound, {
+  invariantResponse(project !== null, t("error.invariant.notFound"), {
     status: 404,
   });
 
@@ -100,24 +104,24 @@ export async function loader(args: LoaderFunctionArgs) {
     images,
   };
 
-  return { project: enhancedProject, mode, locales };
+  return json({ project: enhancedProject, mode });
 }
 
 function Attachments() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
       <h1 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-        {locales.content.headline}
+        {t("content.headline")}
       </h1>
       <div className="mv-flex mv-flex-col mv-gap-6">
         <h2 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-          {locales.content.documents.title}
+          {t("content.documents.title")}
         </h2>
         {loaderData.mode === "anon" ? (
-          <p>{locales.content.documents.anonHint}</p>
+          <p>{t("content.documents.anonHint")}</p>
         ) : null}
         {loaderData.project.documents.length > 0 ? (
           <>
@@ -168,18 +172,18 @@ function Attachments() {
                   variant="outline"
                   fullSize
                 >
-                  {locales.content.documents.downloadAll}
+                  {t("content.documents.downloadAll")}
                 </Button>
               </div>
             ) : null}
           </>
         ) : (
-          <p>{locales.content.documents.empty}</p>
+          <p>{t("content.documents.empty")}</p>
         )}
       </div>
       <div className="mv-flex mv-flex-col mv-gap-6">
         <h2 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-          {locales.content.images.title}
+          {t("content.images.title")}
         </h2>
         {loaderData.project.images.length > 0 ? (
           <>
@@ -230,12 +234,12 @@ function Attachments() {
                 variant="outline"
                 fullSize
               >
-                {locales.content.images.downloadAll}
+                {t("content.images.downloadAll")}
               </Button>
             </div>
           </>
         ) : (
-          <p>{locales.content.images.empty}</p>
+          <p>{t("content.images.empty")}</p>
         )}
       </div>
     </>

@@ -1,7 +1,9 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
@@ -14,37 +16,38 @@ import {
 import Input from "~/components/FormElements/Input/Input";
 import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { deriveProfileMode } from "../utils.server";
-import {
-  getProfileByUsername,
-  type ProfileSecurityLocales,
-} from "./security.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { getProfileByUsername } from "./security.server";
 
-const createEmailSchema = (locales: ProfileSecurityLocales) => {
+const i18nNS = ["routes/profile/settings/security"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createEmailSchema = (t: TFunction) => {
   return z.object({
     email: z
       .string()
-      .min(1, locales.validation.email.min)
-      .email(locales.validation.email.email)
+      .min(1, t("validation.email.min"))
+      .email(t("validation.email.email"))
       .transform((value) => value.trim()),
     confirmEmail: z
       .string()
-      .min(1, locales.validation.confirmEmail.min)
-      .email(locales.validation.confirmEmail.email)
+      .min(1, t("validation.confirmEmail.min"))
+      .email(t("validation.confirmEmail.email"))
       .transform((value) => value.trim()),
     submittedForm: z.string(),
   });
 };
 
-const createPasswordSchema = (locales: ProfileSecurityLocales) => {
+const createPasswordSchema = (t: TFunction) => {
   return z.object({
-    password: z.string().min(8, locales.validation.password.min),
-    confirmPassword: z.string().min(8, locales.validation.confirmPassword.min),
+    password: z.string().min(8, t("validation.password.min")),
+    confirmPassword: z.string().min(8, t("validation.confirmPassword.min")),
     submittedForm: z.string(),
   });
 };
@@ -65,7 +68,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const username = getParamValueOrThrow(params, "username");
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    invariantResponse(false, "Profile not found", { status: 404 });
+    throw json({ message: "profile not found." }, { status: 404 });
   }
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
@@ -76,18 +79,14 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const mode = await deriveProfileMode(sessionUser, username);
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
 
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["profile/$username/settings/security"];
-
   const provider = sessionUser.app_metadata.provider || "email";
 
-  return { provider, locales };
+  return json({ provider });
 };
 
-const createPasswordMutation = (locales: ProfileSecurityLocales) => {
+const createPasswordMutation = (t: TFunction) => {
   return makeDomainFunction(
-    createPasswordSchema(locales),
+    createPasswordSchema(t),
     passwordEnvironmentSchema
   )(async (values, environment) => {
     if (values.confirmPassword !== values.password) {
@@ -111,13 +110,13 @@ const createPasswordMutation = (locales: ProfileSecurityLocales) => {
   });
 };
 
-const createEmailMutation = (locales: ProfileSecurityLocales) => {
+const createEmailMutation = (t: TFunction) => {
   return makeDomainFunction(
-    createEmailSchema(locales),
+    createEmailSchema(t),
     emailEnvironmentSchema
   )(async (values, environment) => {
     if (values.confirmEmail !== values.email) {
-      throw new InputError(locales.error.emailsDontMatch, "confirmEmail"); // -- Field error
+      throw new InputError(t("error.emailsDontMatch"), "confirmEmail"); // -- Field error
     }
 
     const { error } = await sendResetEmailLink(
@@ -135,19 +134,20 @@ const createEmailMutation = (locales: ProfileSecurityLocales) => {
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["profile/$username/settings/security"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/profile/settings/security",
+  ]);
   const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", locales.error.notPrivileged, {
+  invariantResponse(mode === "owner", t("error.notPrivileged"), {
     status: 403,
   });
 
   if (sessionUser.app_metadata.provider === "keycloak") {
-    invariantResponse(false, locales.error.notAllowed, { status: 403 });
+    throw json({ message: t("error.notAllowed") }, { status: 403 });
   }
 
   const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
@@ -159,25 +159,26 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   if (submittedForm === "changeEmail") {
     result = await performMutation({
       request,
-      schema: createEmailSchema(locales),
-      mutation: createEmailMutation(locales),
+      schema: createEmailSchema(t),
+      mutation: createEmailMutation(t),
       environment: { authClient: authClient },
     });
   } else {
     result = await performMutation({
       request,
-      schema: createPasswordSchema(locales),
-      mutation: createPasswordMutation(locales),
+      schema: createPasswordSchema(t),
+      mutation: createPasswordMutation(t),
       environment: { authClient: authClient },
     });
   }
-  return result;
+  return json(result);
 };
 
 export default function Security() {
   const navigation = useNavigation();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+
+  const { t } = useTranslation(i18nNS);
   const actionData = useActionData<typeof action>();
 
   let showPasswordFeedback = false,
@@ -193,38 +194,42 @@ export default function Security() {
       actionData.data.email !== undefined;
   }
 
-  const passwordSchema = createPasswordSchema(locales);
-  const emailSchema = createEmailSchema(locales);
+  const passwordSchema = createPasswordSchema(t);
+  const emailSchema = createEmailSchema(t);
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
       {loaderData.provider === "keycloak" ? (
         <>
           <h4 className="mb-4 font-semibold">
-            {locales.section.changePassword1.headline}
+            {t("section.changePassword1.headline")}
           </h4>
           <p className="mb-8">
-            {insertComponentsIntoLocale(locales.section.changePassword1.intro, [
-              <a
-                key="change-mint-id-password"
-                href="https://mint-id.org"
-                target="_blank"
-                rel="noreferrer"
-                className="text-primary hover:underline"
-              >
-                {" "}
-              </a>,
-            ])}
+            <Trans
+              i18nKey="section.changePassword1.intro"
+              ns={i18nNS}
+              components={[
+                <a
+                  key="change-password"
+                  href="https://mint-id.org"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  {" "}
+                </a>,
+              ]}
+            />
           </p>
         </>
       ) : (
         <fieldset disabled={navigation.state === "submitting"}>
           <h4 className="mb-4 font-semibold">
-            {locales.section.changePassword2.headline}
+            {t("section.changePassword2.headline")}
           </h4>
 
-          <p className="mb-8">{locales.section.changePassword2.intro}</p>
+          <p className="mb-8">{t("section.changePassword2.intro")}</p>
 
           <RemixFormsForm method="post" schema={passwordSchema}>
             {({ Field, Button, Errors, register }) => (
@@ -234,9 +239,7 @@ export default function Security() {
                     <>
                       <InputPassword
                         id="password"
-                        label={
-                          locales.section.changePassword2.form.password.label
-                        }
+                        label={t("section.changePassword2.form.password.label")}
                         {...register("password")}
                       />
                       <Errors />
@@ -249,10 +252,9 @@ export default function Security() {
                     <>
                       <InputPassword
                         id="confirmPassword"
-                        label={
-                          locales.section.changePassword2.form.confirmPassword
-                            .label
-                        }
+                        label={t(
+                          "section.changePassword2.form.confirmPassword.label"
+                        )}
                         {...register("confirmPassword")}
                       />
                       <Errors />
@@ -273,7 +275,7 @@ export default function Security() {
                 </Field>
 
                 <button type="submit" className="btn btn-primary mt-8">
-                  {locales.section.changePassword2.form.submit.label}
+                  {t("section.changePassword2.form.submit.label")}
                 </button>
                 {showPasswordFeedback ? (
                   <span
@@ -281,7 +283,7 @@ export default function Security() {
                       "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
                     }
                   >
-                    {locales.section.changePassword2.feedback}
+                    {t("section.changePassword2.feedback")}
                   </span>
                 ) : null}
                 <Errors />
@@ -291,10 +293,10 @@ export default function Security() {
           <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
           <h4 className="mb-4 font-semibold">
-            {locales.section.changeEmail.headline}
+            {t("section.changeEmail.headline")}
           </h4>
 
-          <p className="mb-8">{locales.section.changeEmail.intro}</p>
+          <p className="mb-8">{t("section.changeEmail.intro")}</p>
           <RemixFormsForm method="post" schema={emailSchema}>
             {({ Field, Button, Errors, register }) => (
               <>
@@ -303,7 +305,7 @@ export default function Security() {
                     <>
                       <Input
                         id="email"
-                        label={locales.section.changeEmail.form.email.label}
+                        label={t("section.changeEmail.form.email.label")}
                         {...register("email")}
                       />
                       <Errors />
@@ -316,9 +318,7 @@ export default function Security() {
                     <>
                       <Input
                         id="confirmEmail"
-                        label={
-                          locales.section.changeEmail.form.confirmEmail.label
-                        }
+                        label={t("section.changeEmail.form.confirmEmail.label")}
                         {...register("confirmEmail")}
                       />
                       <Errors />
@@ -339,7 +339,7 @@ export default function Security() {
                   )}
                 </Field>
                 <button type="submit" className="btn btn-primary mt-8">
-                  {locales.section.changeEmail.form.submit.label}
+                  {t("section.changeEmail.form.submit.label")}
                 </button>
                 {showEmailFeedback ? (
                   <span
@@ -347,7 +347,7 @@ export default function Security() {
                       "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
                     }
                   >
-                    {locales.section.changeEmail.feedback}
+                    {t("section.changeEmail.feedback")}
                   </span>
                 ) : null}
                 <Errors />

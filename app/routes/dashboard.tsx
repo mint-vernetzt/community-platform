@@ -1,15 +1,27 @@
-import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
+import {
+  Avatar,
+  Button,
+  CardContainer,
+  EventCard,
+  Image,
+  Link as MVLink,
+  OrganizationCard,
+  ProfileCard,
+  ProjectCard,
+} from "@mint-vernetzt/components";
 import type { Organization, Profile } from "@prisma/client";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
 import Cookies from "js-cookie";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
+import i18next from "~/i18next.server";
 import {
   BlurFactor,
   DefaultImages,
@@ -18,9 +30,9 @@ import {
 } from "~/images.server";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
-import styles from "../../common/design/styles/styles.css?url";
-import { Icon } from "~/components-next/icons/Icon";
-import { TeaserCard, type TeaserIconType } from "~/components-next/TeaserCard";
+import styles from "../../common/design/styles/styles.css";
+import { Icon } from "./__components";
+import { TeaserCard, type TeaserIconType } from "./__dashboard.components";
 import {
   enhanceEventsWithParticipationStatus,
   getEventsForCards,
@@ -38,27 +50,29 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
-import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
-import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
-import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
-import { languageModuleMap } from "~/locales/.server";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
-import { type AtLeastOne } from "~/lib/utils/types";
-import { invariantResponse } from "~/lib/utils/response";
 import { getFeatureAbilities } from "~/lib/utils/application";
+
+const i18nNS = [
+  "routes/dashboard",
+  "organisms/cards/profile-card",
+  "datasets/offers",
+  "organisms/cards/organization-card",
+  "datasets/focuses",
+  "datasets/organizationTypes",
+  "organisms/cards/event-card",
+  "datasets/stages",
+];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["dashboard"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
 
@@ -71,9 +85,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const profile = await getProfileById(sessionUser.id);
   if (profile === null) {
-    invariantResponse(false, locales.route.error.profileNotFound, {
-      status: 404,
-    });
+    throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
 
   const numberOfProfiles = 4;
@@ -483,9 +495,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     authClient,
     sessionUser
   );
+
   const abilities = await getFeatureAbilities(authClient, "news_section");
 
-  return {
+  return json({
     communityCounter,
     profiles,
     organizations,
@@ -497,24 +510,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organizationsFromInvites,
     profilesFromRequests,
     upcomingCanceledEvents,
-    locales,
-    language,
     abilities,
-  };
+  });
 };
 
-function getDataForExternalTeasers() {
-  type ExternalTeaserKey = keyof Awaited<
-    ReturnType<typeof useLoaderData<typeof loader>>
-  >["locales"]["route"]["content"]["externalTeasers"]["entries"];
-  type ExternalTeaser = {
-    [key in ExternalTeaserKey]: {
-      link: string;
-      icon: TeaserIconType;
-      external: boolean;
-    };
-  };
-  const teaserData: AtLeastOne<ExternalTeaser> = {
+function getDataForExternalLinkTeasers() {
+  const teaserData: {
+    website: { link: string; icon: TeaserIconType; external: boolean };
+    dataLab: { link: string; icon: TeaserIconType; external: boolean };
+    meshMint: { link: string; icon: TeaserIconType; external: boolean };
+  } = {
     website: {
       link: "https://www.mint-vernetzt.de",
       icon: "globe",
@@ -535,17 +540,9 @@ function getDataForExternalTeasers() {
 }
 
 function getDataForUpdateTeasers() {
-  type UpdateTeaserKey = keyof Awaited<
-    ReturnType<typeof useLoaderData<typeof loader>>
-  >["locales"]["route"]["content"]["updateTeasers"]["entries"];
-  type UpdateTeaser = {
-    [key in UpdateTeaserKey]: {
-      link: string;
-      icon: TeaserIconType;
-      external: boolean;
-    };
-  };
-  const teaserData: AtLeastOne<UpdateTeaser> = {
+  const teaserData: {
+    [key: string]: { link: string; icon: TeaserIconType; external: boolean };
+  } = {
     crawler: {
       link: "/explore/fundings",
       icon: "piggy-bank",
@@ -561,17 +558,14 @@ function getDataForUpdateTeasers() {
 }
 
 function getDataForNewsTeasers() {
-  type NewsTeaserKey = keyof Awaited<
-    ReturnType<typeof useLoaderData<typeof loader>>
-  >["locales"]["route"]["content"]["newsTeaser"]["entries"];
-  type NewsTeaser = {
-    [key in NewsTeaserKey]: {
+  const teaserData: {
+    tableMedia: { link: string; icon: TeaserIconType; external: boolean };
+    annualConference: {
       link: string;
       icon: TeaserIconType;
       external: boolean;
     };
-  };
-  const teaserData: AtLeastOne<NewsTeaser> = {
+  } = {
     tableMedia: {
       link: "https://table.media/aktion/mint-vernetzt?utm_source=samail&utm_medium=email&utm_campaign=rt_mintvernetzt_koop_email_job&utm_content=lp_1",
       icon: "lightning-charge",
@@ -588,8 +582,9 @@ function getDataForNewsTeasers() {
 
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
+  const { t } = useTranslation(i18nNS);
 
-  const externalTeasers = getDataForExternalTeasers();
+  const externalLinkTeasers = getDataForExternalLinkTeasers();
   const updateTeasers = getDataForUpdateTeasers();
   const newsTeasers = getDataForNewsTeasers();
 
@@ -618,19 +613,17 @@ function Dashboard() {
       <section className="mv-w-full mv-mx-auto mv-m-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-px-4 @xl:mv-px-6">
           <h1 className="mv-text-primary mv-font-black mv-text-5xl @lg:mv-text-7xl mv-leading-tight mv-mb-2">
-            {loaderData.locales.route.content.welcome}
+            {t("content.welcome")}
             <br />
             {loaderData.firstName} {loaderData.lastName}
           </h1>
-          <p className="mv-font-semibold mv-mb-6">
-            {loaderData.locales.route.content.community}
-          </p>
+          <p className="mv-font-semibold mv-mb-6">{t("content.community")}</p>
           <Button
             variant="outline"
             as="a"
             href={`/profile/${loaderData.username}`}
           >
-            {loaderData.locales.route.content.myProfile}
+            {t("content.myProfile")}
           </Button>
         </div>
       </section>
@@ -665,18 +658,16 @@ function Dashboard() {
             </div>
             <div className="mv-flex-1 mv-text-primary">
               <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
-                {decideBetweenSingularOrPlural(
-                  loaderData.locales.route.content.invites.headline_one,
-                  loaderData.locales.route.content.invites.headline_other,
-                  loaderData.organizationsFromInvites.length
-                )}
+                {t("content.invites.headline", {
+                  count: loaderData.organizationsFromInvites.length,
+                })}
               </h3>
               <p className="mv-text-normal mv-text-sm">
-                {loaderData.locales.route.content.invites.description}
+                {t("content.invites.description")}
               </p>
             </div>
             <Button as="a" href="/my/organizations">
-              {loaderData.locales.route.content.invites.linkDescription}
+              {t("content.invites.linkDescription")}
             </Button>
           </div>
         </section>
@@ -712,18 +703,16 @@ function Dashboard() {
             </div>
             <div className="mv-flex-1 mv-text-primary">
               <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
-                {decideBetweenSingularOrPlural(
-                  loaderData.locales.route.content.requests.headline_one,
-                  loaderData.locales.route.content.requests.headline_other,
-                  loaderData.profilesFromRequests.length
-                )}
+                {t("content.requests.headline", {
+                  count: loaderData.profilesFromRequests.length,
+                })}
               </h3>
               <p className="mv-text-normal mv-text-sm">
-                {loaderData.locales.route.content.invites.description}
+                {t("content.requests.description")}
               </p>
             </div>
             <Button as="a" href="/my/organizations">
-              {loaderData.locales.route.content.invites.linkDescription}
+              {t("content.requests.linkDescription")}
             </Button>
           </div>
         </section>
@@ -733,20 +722,20 @@ function Dashboard() {
         <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
           <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end mv-group">
             <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
-              {loaderData.locales.route.content.notifications.headline}
+              {t("content.notifications.headline")}
             </h2>
             <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
               <label
                 htmlFor="hide-notifications"
                 className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
               >
-                {loaderData.locales.route.content.notifications.show}
+                {t("content.notifications.show")}
               </label>
               <label
                 htmlFor="hide-notifications"
                 className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
               >
-                {loaderData.locales.route.content.notifications.hide}
+                {t("content.notifications.hide")}
               </label>
               <input
                 id="hide-notifications"
@@ -791,10 +780,7 @@ function Dashboard() {
                     </div>
                     <div className="mv-flex mv-flex-col mv-gap-2 @sm:mv-grow">
                       <h3 className="mv-text-negative-700 mv-text-xs mv-font-bold mv-leading-4">
-                        {
-                          loaderData.locales.route.content.notifications
-                            .canceled
-                        }
+                        {t("content.notifications.canceled")}
                       </h3>
                       <p className="mv-line-clamp-2 mv-text-neutral-700 mv-text-2xl mv-font-bold mv-leading-[26px]">
                         {event.name}
@@ -806,7 +792,7 @@ function Dashboard() {
                       href="/my/events"
                       variant="outline"
                     >
-                      {loaderData.locales.route.content.notifications.cta}
+                      {t("content.notifications.cta")}
                     </Button>
                   </li>
                 );
@@ -821,10 +807,10 @@ function Dashboard() {
                     className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
                   >
                     <div className="group-has-[:checked]:mv-hidden">
-                      {loaderData.locales.route.content.notifications.showMore}
+                      {t("content.notifications.showMore")}
                     </div>
                     <div className="mv-hidden group-has-[:checked]:mv-block">
-                      {loaderData.locales.route.content.notifications.showLess}
+                      {t("content.notifications.showLess")}
                     </div>
                     <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
                       <Icon type="chevron-right" />
@@ -845,20 +831,20 @@ function Dashboard() {
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
         <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
           <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
-            {loaderData.locales.route.content.updateTeasers.headline}
+            {t("content.updates.headline")}
           </h2>
           <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
             <label
               htmlFor="hide-updates"
               className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
             >
-              {loaderData.locales.route.content.updateTeasers.show}
+              {t("content.updates.show")}
             </label>
             <label
               htmlFor="hide-updates"
               className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
             >
-              {loaderData.locales.route.content.updateTeasers.hide}
+              {t("content.updates.hide")}
             </label>
             <input
               id="hide-updates"
@@ -879,37 +865,14 @@ function Dashboard() {
         {hideUpdates === false ? (
           <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
             {Object.entries(updateTeasers).map(([key, value]) => {
-              // Runtime check to safely use type assertion below
-              if (
-                key in
-                  loaderData.locales.route.content.updateTeasers.entries ===
-                false
-              ) {
-                console.error(`No locale found for update teaser ${key}`);
-                return null;
-              }
-              type LocaleKey =
-                keyof typeof loaderData.locales.route.content.updateTeasers.entries;
               return (
                 <TeaserCard
                   key={`${key}-update-teaser`}
                   to={value.link}
                   external={value.external}
-                  headline={
-                    loaderData.locales.route.content.updateTeasers.entries[
-                      key as LocaleKey
-                    ].headline
-                  }
-                  description={
-                    loaderData.locales.route.content.updateTeasers.entries[
-                      key as LocaleKey
-                    ].description
-                  }
-                  linkDescription={
-                    loaderData.locales.route.content.updateTeasers.entries[
-                      key as LocaleKey
-                    ].linkDescription
-                  }
+                  headline={t(`content.updates.${key}.headline`)}
+                  description={t(`content.updates.${key}.description`)}
+                  linkDescription={t(`content.updates.${key}.linkDescription`)}
                   iconType={value.icon}
                 />
               );
@@ -922,20 +885,20 @@ function Dashboard() {
         <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
           <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
             <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
-              {loaderData.locales.route.content.newsTeaser.headline}
+              {t("content.news.headline")}
             </h2>
             <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
               <label
                 htmlFor="hide-news"
                 className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
               >
-                {loaderData.locales.route.content.newsTeaser.show}
+                {t("content.news.show")}
               </label>
               <label
                 htmlFor="hide-news"
                 className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
               >
-                {loaderData.locales.route.content.newsTeaser.hide}
+                {t("content.news.hide")}
               </label>
               <input
                 id="hide-news"
@@ -956,36 +919,14 @@ function Dashboard() {
           {hideNews === false ? (
             <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
               {Object.entries(newsTeasers).map(([key, value]) => {
-                // Runtime check to safely use type assertion below
-                if (
-                  key in loaderData.locales.route.content.newsTeaser.entries ===
-                  false
-                ) {
-                  console.error(`No locale found for news teaser ${key}`);
-                  return null;
-                }
-                type LocaleKey =
-                  keyof typeof loaderData.locales.route.content.newsTeaser.entries;
                 return (
                   <TeaserCard
                     key={`${key}-news-teaser`}
                     to={value.link}
                     external={value.external}
-                    headline={
-                      loaderData.locales.route.content.newsTeaser.entries[
-                        key as LocaleKey
-                      ].headline
-                    }
-                    description={
-                      loaderData.locales.route.content.newsTeaser.entries[
-                        key as LocaleKey
-                      ].description
-                    }
-                    linkDescription={
-                      loaderData.locales.route.content.newsTeaser.entries[
-                        key as LocaleKey
-                      ].linkDescription
-                    }
+                    headline={t(`content.news.${key}.headline`)}
+                    description={t(`content.news.${key}.description`)}
+                    linkDescription={t(`content.news.${key}.linkDescription`)}
                     iconType={value.icon}
                     type="secondary"
                   />
@@ -999,20 +940,10 @@ function Dashboard() {
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-flex-col mv-w-full mv-items-center mv-gap-6 mv-py-6 mv-bg-white mv-border mv-border-neutral-200 mv-rounded-lg">
           <h2 className="mv-appearance-none mv-w-full mv-text-primary mv-text-center mv-text-3xl mv-font-semibold mv-leading-7 @lg:mv-leading-8 mv-px-11 @lg:mv-px-6">
-            {loaderData.locales.route.content.communityCounter.headline}
+            {t("content.communityCounter.headline")}
           </h2>
           <ul className="mv-grid mv-grid-cols-2 mv-grid-rows-2 mv-place-items-center mv-w-fit mv-gap-x-6 mv-gap-y-8 mv-px-6 @lg:mv-gap-x-16 @lg:mv-grid-cols-4 @lg:mv-grid-rows-1">
             {Object.entries(loaderData.communityCounter).map(([key, value]) => {
-              // Runtime check to safely use type assertion below
-              if (
-                key in loaderData.locales.route.content.communityCounter ===
-                false
-              ) {
-                console.error(`No locale found for community counter ${key}`);
-                return null;
-              }
-              type LocaleKey =
-                keyof typeof loaderData.locales.route.content.communityCounter;
               return (
                 <li
                   key={`${key}-counter`}
@@ -1022,11 +953,7 @@ function Dashboard() {
                     {value}
                   </div>
                   <div className="mv-text-lg mv-font-bold mv-leading-6 mv-text-primary">
-                    {
-                      loaderData.locales.route.content.communityCounter[
-                        key as LocaleKey
-                      ]
-                    }
+                    {t(`content.communityCounter.${key}`)}
                   </div>
                 </li>
               );
@@ -1038,12 +965,12 @@ function Dashboard() {
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
-            {loaderData.locales.route.content.profiles}
+            {t("content.profiles")}
           </div>
           <div className="mv-text-right">
             <MVLink to="/explore/profiles">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
-                {loaderData.locales.route.content.allProfiles}
+                {t("content.allProfiles")}
               </span>
             </MVLink>
           </div>
@@ -1055,7 +982,6 @@ function Dashboard() {
                 <ProfileCard
                   key={`newest-profile-card-${profile.username}`}
                   profile={profile}
-                  locales={loaderData.locales}
                 />
               );
             })}
@@ -1066,12 +992,12 @@ function Dashboard() {
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
-            {loaderData.locales.route.content.organizations}
+            {t("content.organizations")}
           </div>
           <div className="mv-text-right">
             <MVLink to="/explore/organizations">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
-                {loaderData.locales.route.content.allOrganizations}
+                {t("content.allOrganizations")}
               </span>
             </MVLink>
           </div>
@@ -1083,7 +1009,6 @@ function Dashboard() {
                 <OrganizationCard
                   key={`newest-organization-card-${organization.slug}`}
                   organization={organization}
-                  locales={loaderData.locales}
                 />
               );
             })}
@@ -1094,12 +1019,12 @@ function Dashboard() {
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
-            {loaderData.locales.route.content.projects}
+            {t("content.projects")}
           </div>
           <div className="mv-text-right">
             <MVLink to="/explore/projects">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
-                {loaderData.locales.route.content.allProjects}
+                {t("content.allProjects")}
               </span>
             </MVLink>
           </div>
@@ -1111,7 +1036,6 @@ function Dashboard() {
                 <ProjectCard
                   key={`newest-project-card-${project.slug}`}
                   project={project}
-                  locales={loaderData.locales}
                 />
               );
             })}
@@ -1122,12 +1046,12 @@ function Dashboard() {
       <section className="mv-w-full mv-mb-12 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
-            {loaderData.locales.route.content.events}
+            {t("content.events")}
           </div>
           <div className="mv-text-right">
             <MVLink to="/explore/events">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
-                {loaderData.locales.route.content.allEvents}
+                {t("content.allEvents")}
               </span>
             </MVLink>
           </div>
@@ -1147,8 +1071,6 @@ function Dashboard() {
               return (
                 <EventCard
                   key={`newest-event-card-${event.slug}`}
-                  locales={loaderData.locales}
-                  currentLanguage={loaderData.language}
                   event={{
                     ...event,
                     startTime,
@@ -1168,41 +1090,20 @@ function Dashboard() {
       {/* External Links Section */}
       <section className="mv-w-full mv-mb-24 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <h2 className="mv-appearance-none mv-w-full mv-mb-6 mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold">
-          {loaderData.locales.route.content.externalTeasers.headline}
+          {t("content.externalLinks.headline")}
         </h2>
         <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-3 @xl:mv-grid-rows-1 mv-gap-6 @xl:mv-gap-8 mv-w-full">
-          {Object.entries(externalTeasers).map(([key, value]) => {
-            // Runtime check to safely use type assertion below
-            if (
-              key in
-                loaderData.locales.route.content.externalTeasers.entries ===
-              false
-            ) {
-              console.error(`No locale found for external teaser ${key}`);
-              return null;
-            }
-            type LocaleKey =
-              keyof typeof loaderData.locales.route.content.externalTeasers.entries;
+          {Object.entries(externalLinkTeasers).map(([key, value]) => {
             return (
               <TeaserCard
                 to={value.link}
                 external={value.external}
                 key={`${key}-external-link-teaser`}
-                headline={
-                  loaderData.locales.route.content.externalTeasers.entries[
-                    key as LocaleKey
-                  ].headline
-                }
-                description={
-                  loaderData.locales.route.content.externalTeasers.entries[
-                    key as LocaleKey
-                  ].description
-                }
-                linkDescription={
-                  loaderData.locales.route.content.externalTeasers.entries[
-                    key as LocaleKey
-                  ].linkDescription
-                }
+                headline={t(`content.externalLinks.${key}.headline`)}
+                description={t(`content.externalLinks.${key}.description`)}
+                linkDescription={t(
+                  `content.externalLinks.${key}.linkDescription`
+                )}
                 iconType={value.icon}
               />
             );

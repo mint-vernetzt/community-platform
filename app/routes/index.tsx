@@ -1,5 +1,6 @@
+import { Button, Roadmap } from "@mint-vernetzt/components";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useActionData,
@@ -9,6 +10,7 @@ import {
 } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import type { KeyboardEvent } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import type { FormProps } from "remix-forms";
 import { performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
@@ -19,20 +21,21 @@ import InputPassword from "~/components/FormElements/InputPassword/InputPassword
 import { H1, H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { RichText } from "~/components/Richtext/RichText";
-import { CountUp } from "~/components-next/CountUp";
-import { Accordion } from "~/components-next/Accordion";
+import { CountUp } from "./__components";
+import { Accordion } from "./__help.components";
 import {
   getEventCount,
   getOrganizationCount,
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
-import { languageModuleMap } from "~/locales/.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { detectLanguage } from "~/root.server";
+import i18next from "~/i18next.server";
+
+const i18nNS = ["routes/index", "help"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const schema = z.object({
   email: z
@@ -61,21 +64,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/dashboard");
   }
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["index"];
-
   const profileCount = await getProfileCount();
   const organizationCount = await getOrganizationCount();
   const eventCount = await getEventCount();
   const projectCount = await getProjectCount();
 
-  return {
+  return json({
     profileCount,
     organizationCount,
     eventCount,
     projectCount,
-    locales,
-  };
+  });
 };
 
 const mutation = makeDomainFunction(schema)(async (values) => {
@@ -83,8 +82,8 @@ const mutation = makeDomainFunction(schema)(async (values) => {
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["index"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const submission = await performMutation({
     request,
@@ -104,24 +103,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         error.code === "invalid_credentials" ||
         error.message === "Invalid login credentials"
       ) {
-        return {
+        return json({
           error: {
-            message: locales.route.login.invalidCredentials,
+            message: t("login.invalidCredentials"),
           },
-        };
+        });
       } else if (
         error.code === "email_not_confirmed" ||
         error.message === "Email not confirmed"
       ) {
-        return {
+        return json({
           error: {
-            message: locales.route.login.notConfirmed,
+            message: t("login.notConfirmed"),
             supportMail: process.env.SUPPORT_MAIL,
           },
-        };
+        });
       } else {
-        console.error({ error });
-        invariantResponse(false, "Server error", { status: 500 });
+        throw json(
+          { message: `${error.code}: ${error.message}` },
+          { status: 500 }
+        );
       }
     }
     if (submission.data.loginRedirect) {
@@ -135,13 +136,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   }
 
-  return submission;
+  return json(submission);
 };
 
 export default function Index() {
   const submit = useSubmit();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
   const loginError =
     actionData !== undefined && "error" in actionData ? actionData.error : null;
@@ -153,6 +153,7 @@ export default function Index() {
       submit(event.currentTarget);
     }
   };
+  const { t } = useTranslation(i18nNS);
 
   ///* Verlauf (weiß) */
   //background: linear-gradient(358.45deg, #FFFFFF 12.78%, rgba(255, 255, 255, 0.4) 74.48%, rgba(255, 255, 255, 0.4) 98.12%);
@@ -193,10 +194,10 @@ export default function Index() {
               <div className="@md:mv-col-start-1 @md:mv-col-span-7 @xl:mv-col-start-2 @xl:mv-col-span-5 @md:mv-flex @md:mv-items-center">
                 <div>
                   <H1 className="mv-text-center @sm:mv-text-left mv-text-primary-600 mv-text-7xl mv-font-black mv-leading-[52px]">
-                    {locales.route.welcome}
+                    {t("welcome")}
                   </H1>
                   <p className="mv-mt-8 mv-mb-8 @lg:mv-mb-0 mv-text-primary-600 mv-font-semibold mv-leading-5">
-                    {locales.route.intro}
+                    {t("intro")}
                   </p>
                 </div>
               </div>
@@ -212,9 +213,9 @@ export default function Index() {
                       }`}
                       variant="outline"
                       fullSize
-                      name={locales.route.login.withMintId}
+                      name={t("login.withMintId")}
                     >
-                      {locales.route.login.withMintId}
+                      {t("login.withMintId")}
                     </Button>
                     <a
                       href="https://mint-id.org/faq"
@@ -222,12 +223,12 @@ export default function Index() {
                       rel="noreferrer "
                       className="mv-block mv-py-2 mv-text-primary mv-font-semibold mv-underline"
                     >
-                      {locales.route.login.moreInformation}
+                      {t("login.moreInformation")}
                     </a>
                     <div className="mv-mt-4 mv-mb-8">
                       <hr className="mv-mx-5" />
                       <span className="mv-block -mv-my-3 mv-mx-auto mv-w-fit mv-px-4 mv-text-primary mv-bg-white @sm:mv-mv-bg-neutral-50 mv-font-bold">
-                        {locales.route.login.or}
+                        {t("login.or")}
                       </span>
                     </div>
                   </div>
@@ -244,20 +245,23 @@ export default function Index() {
                       <>
                         {loginError !== null ? (
                           <Errors className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md">
-                            {"supportMail" in loginError
-                              ? insertComponentsIntoLocale(
-                                  locales.route.login.notConfirmed,
-                                  [
-                                    <a
-                                      key="support-mail"
-                                      href={`mailto:${loginError.supportMail}`}
-                                      className="mv-text-primary mv-font-bold hover:mv-underline"
-                                    >
-                                      {" "}
-                                    </a>,
-                                  ]
-                                )
-                              : loginError.message}
+                            {"supportMail" in loginError ? (
+                              <Trans
+                                i18nKey="error.notConfirmed"
+                                ns={i18nNS}
+                                components={[
+                                  <a
+                                    key="support-mail"
+                                    href={`mailto:${loginError.supportMail}`}
+                                    className="mv-text-primary mv-font-bold hover:mv-underline"
+                                  >
+                                    {" "}
+                                  </a>,
+                                ]}
+                              />
+                            ) : (
+                              loginError.message
+                            )}
                           </Errors>
                         ) : null}
 
@@ -266,7 +270,7 @@ export default function Index() {
                             <div className="mv-mb-4">
                               <Input
                                 id="email"
-                                label={locales.route.form.label.email}
+                                label={t("form.label.email")}
                                 {...register("email")}
                               />
                               <Errors />
@@ -278,7 +282,7 @@ export default function Index() {
                             <div className="mv-mb-4">
                               <InputPassword
                                 id="password"
-                                label={locales.route.form.label.password}
+                                label={t("form.label.password")}
                                 {...register("password")}
                               />
                               <Errors />
@@ -291,9 +295,9 @@ export default function Index() {
                           <Button
                             size="large"
                             fullSize
-                            name={locales.route.form.label.submit}
+                            name={t("form.label.submit")}
                           >
-                            {locales.route.form.label.submit}
+                            {t("form.label.submit")}
                           </Button>
                         </div>
                       </>
@@ -309,12 +313,10 @@ export default function Index() {
                         }`}
                         className="mv-text-primary mv-font-bold mv-underline"
                       >
-                        {locales.route.login.passwordForgotten}
+                        {t("login.passwordForgotten")}
                       </Link>
                     </div>
-                    <div className="mv-text-center">
-                      {locales.route.login.noMember}
-                    </div>
+                    <div className="mv-text-center">{t("login.noMember")}</div>
                     <div className="mv-flex mv-justify-center mv-gap-6">
                       <Link
                         to={`/register${
@@ -324,7 +326,7 @@ export default function Index() {
                         }`}
                         className="mv-text-primary mv-font-semibold mv-underline"
                       >
-                        {locales.route.login.registerByEmail}
+                        {t("login.registerByEmail")}
                       </Link>
                       <Link
                         to={`/auth/keycloak${
@@ -334,14 +336,16 @@ export default function Index() {
                         }`}
                         className="mv-text-primary mv-font-semibold mv-underline"
                       >
-                        {locales.route.login.createMintId}
+                        {t("login.createMintId")}
                       </Link>
                     </div>
                   </>
                 </div>
 
                 <div className="mv-text-center mv-p-4 mv-pb-0 mv-text-primary mv-text-sm">
-                  <RichText html={locales.route.opportunities} />
+                  <p>
+                    <Trans i18nKey="opportunities" ns={i18nNS} />
+                  </p>
                 </div>
               </div>
             </div>
@@ -377,12 +381,13 @@ export default function Index() {
           <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
             <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
               <H3 className="mv-text-center mv-font-semibold mv-all-small-caps mv-subpixel-antialiased mv-mb-12 mv-text-primary-600 mv-text-5xl mv-leading-9">
-                {locales.route.content.education.headline}
+                {t("content.education.headline")}
               </H3>
               <p className="mv-text-primary-600 mv-text-3xl mv-font-semibold mv-leading-8 mv-mb-12 mv-hyphens-auto">
-                {insertComponentsIntoLocale(
-                  locales.route.content.education.content,
-                  [
+                <Trans
+                  i18nKey="content.education.content"
+                  ns={i18nNS}
+                  components={[
                     <span
                       key="highlighted-education-content"
                       className="mv-bg-secondary-200"
@@ -391,8 +396,8 @@ export default function Index() {
                       key="hyphens-manual-education-content"
                       className="mv-hyphens-manual"
                     />,
-                  ]
-                )}
+                  ]}
+                />
               </p>
               <div className="mv-flex mv-justify-center">
                 <Button
@@ -401,7 +406,7 @@ export default function Index() {
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                   }`}
                 >
-                  {locales.route.content.education.action}
+                  {t("content.education.action")}
                 </Button>
               </div>
             </div>
@@ -413,7 +418,7 @@ export default function Index() {
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
           <div className="mv-w-full mv-flex mv-flex-col mv-items-center mv-gap-12">
             <H3 className="mv-text-center mv-mb-0 mv-text-5xl mv-font-semibold mv-leading-9 mv-text-neutral-50 mv-all-small-caps mv-subpixel-antialiased">
-              {locales.route.content.growth.headline}
+              {t("content.growth.headline")}
             </H3>
             <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-8 @lg:mv-gap-24 @xl:mv-gap-44">
               <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
@@ -427,7 +432,7 @@ export default function Index() {
                   />
                 </p>
                 <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
-                  {locales.route.content.growth.profiles}
+                  {t("content.growth.profiles")}
                 </p>
               </div>
               <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
@@ -441,7 +446,7 @@ export default function Index() {
                   />
                 </p>
                 <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
-                  {locales.route.content.growth.organizations}
+                  {t("content.growth.organizations")}
                 </p>
               </div>
               <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
@@ -455,7 +460,7 @@ export default function Index() {
                   />
                 </p>
                 <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
-                  {locales.route.content.growth.events}
+                  {t("content.growth.events")}
                 </p>
               </div>
               <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
@@ -469,31 +474,35 @@ export default function Index() {
                   />
                 </p>
                 <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
-                  {locales.route.content.growth.projects}
+                  {t("content.growth.projects")}
                 </p>
               </div>
             </div>
             <p className="mv-text-center mv-text-neutral-50 mv-text-3xl mv-font-semibold mv-leading-8">
-              {locales.route.content.growth.join}
+              {t("content.growth.join")}
             </p>
           </div>
         </div>
       </section>
 
-      <Roadmap locales={locales} />
+      <Roadmap />
 
       <section className="mv-flex mv-flex-col mv-items-center mv-gap-12 mv-w-full mv-py-16 @md:mv-py-24 @xl:mv-py-32 mv-px-4 @md:mv-px-20 @xl:mv-px-36 mv-bg-accent-100">
         <div className="mv-max-w-[852px]">
           <h2 className="mv-mb-12 mv-text-center mv-all-small-caps mv-subpixel-antialiased mv-text-primary-600 mv-text-5xl mv-font-semibold mv-leading-9">
-            {locales.route.content.more.headline}
+            {t("content.more.headline")}
           </h2>
           <p className="mv-hyphens-auto mv-text-primary-600 mv-text-3xl mv-font-semibold mv-leading-8">
-            {insertComponentsIntoLocale(locales.route.content.more.content, [
-              <span
-                key="highlighted-more-content"
-                className="mv-bg-secondary-200"
-              />,
-            ])}
+            <Trans
+              i18nKey="content.more.content"
+              ns={i18nNS}
+              components={[
+                <span
+                  key="highlighted-more-content"
+                  className="mv-bg-secondary-200"
+                />,
+              ]}
+            />
           </p>
         </div>
         <Button
@@ -530,7 +539,7 @@ export default function Index() {
               />
             </svg>
           </span>
-          <span>{locales.route.content.more.action}</span>
+          <span>{t("content.more.action")}</span>
         </Button>
       </section>
       <section className="mv-w-full mv-flex mv-flex-col mv-items-center mv-bg-neutral-50 mv-py-16 mv-px-4 @md:mv-px-10 @xl:mv-px-16 mv-relative">
@@ -564,83 +573,87 @@ export default function Index() {
           </svg>
         </div>
         <h2 className="mv-mb-[42px] mv-all-small-caps mv-subpixel-antialiased mv-text-primary-600 mv-text-5xl mv-font-semibold mv-leading-9">
-          {locales.route.content.faq.headline}
+          {t("content.faq.headline")}
         </h2>
         <div className="mv-w-full mv-mb-8 @md:mv-mb-14 @xl:mv-mb-[88px]">
           <Accordion>
             <Accordion.Item id="whatIsStem" key="whatIsStem">
-              {locales.faq.stemEducation.qAndAs.whatIsStem.question}
+              {t(`faq.stemEducation.whatIsStem.question`, { ns: "help" })}
               <RichText
                 id="faq-content"
-                html={locales.faq.stemEducation.qAndAs.whatIsStem.answer}
+                html={t(`faq.stemEducation.whatIsStem.answer`, { ns: "help" })}
               />
             </Accordion.Item>
             <Accordion.Item id="whoIsThePlatformFor" key="whoIsThePlatformFor">
-              {
-                locales.faq.generalPlatformInformation.qAndAs
-                  .whoIsThePlatformFor.question
-              }
+              {t(
+                `faq.generalPlatformInformation.whoIsThePlatformFor.question`,
+                { ns: "help" }
+              )}
               <RichText
                 id="faq-content"
-                html={
-                  locales.faq.generalPlatformInformation.qAndAs
-                    .whoIsThePlatformFor.answer
-                }
+                html={t(
+                  `faq.generalPlatformInformation.whoIsThePlatformFor.answer`,
+                  { ns: "help" }
+                )}
               />
             </Accordion.Item>
             <Accordion.Item
               id="benefitsOfThePlatform"
               key="benefitsOfThePlatform"
             >
-              {
-                locales.faq.generalPlatformInformation.qAndAs
-                  .benefitsOfThePlatform.question
-              }
+              {t(
+                `faq.generalPlatformInformation.benefitsOfThePlatform.question`,
+                { ns: "help" }
+              )}
               <RichText
                 id="faq-content"
-                html={
-                  locales.faq.generalPlatformInformation.qAndAs
-                    .benefitsOfThePlatform.answer
-                }
+                html={t(
+                  `faq.generalPlatformInformation.benefitsOfThePlatform.answer`,
+                  { ns: "help" }
+                )}
               />
             </Accordion.Item>
             <Accordion.Item id="isItFree" key="isItFree">
-              {locales.faq.generalPlatformInformation.qAndAs.isItFree.question}
+              {t(`faq.generalPlatformInformation.isItFree.question`, {
+                ns: "help",
+              })}
               <RichText
                 id="faq-content"
-                html={
-                  locales.faq.generalPlatformInformation.qAndAs.isItFree.answer
-                }
+                html={t(`faq.generalPlatformInformation.isItFree.answer`, {
+                  ns: "help",
+                })}
               />
             </Accordion.Item>
             <Accordion.Item
               id="benefitsOfRegistration"
               key="benefitsOfRegistration"
             >
-              {locales.faq.registration.qAndAs.benefitsOfRegistration.question}
+              {t(`faq.registration.benefitsOfRegistration.question`, {
+                ns: "help",
+              })}
               <RichText
                 id="faq-content"
-                html={
-                  locales.faq.registration.qAndAs.benefitsOfRegistration.answer
-                }
+                html={t(`faq.registration.benefitsOfRegistration.answer`, {
+                  ns: "help",
+                })}
               />
             </Accordion.Item>
             <Accordion.Item id="mintId" key="mintId">
-              {locales.faq.registration.qAndAs.mintId.question}
+              {t(`faq.registration.mintId.question`, { ns: "help" })}
               <RichText
                 id="faq-content"
-                html={locales.faq.registration.qAndAs.mintId.answer}
+                html={t(`faq.registration.mintId.answer`, { ns: "help" })}
               />
             </Accordion.Item>
           </Accordion>
         </div>
         <Button as="a" href="/help" variant="outline">
-          {locales.route.content.faq.cta}
+          {t("content.faq.cta")}
         </Button>
         <div className="mv-text-center mv-text-primary-600 mv-font-semibold mv-leading-5 mv-mt-10">
-          <p>{locales.route.content.faq.supportQuestion}</p>
-          <p>{locales.route.content.faq.supportCta}</p>
-          <p>{locales.route.content.faq.supportEmail}</p>
+          <p>{t("content.faq.supportQuestion")}</p>
+          <p>{t("content.faq.supportCta")}</p>
+          <p>{t("content.faq.supportEmail")}</p>
         </div>
       </section>
     </>

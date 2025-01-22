@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
@@ -10,11 +11,11 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { getProfileById } from "../utils.server";
 import { connectParticipantToEvent, getEventBySlug } from "./utils.server";
+import i18next from "~/i18next.server";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { type AddEventParticipantLocales } from "./add-participant.server";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const schema = z.object({
   profileId: z.string(),
@@ -26,20 +27,20 @@ const environmentSchema = z.object({
   eventSlug: z.string(),
 });
 
-const createMutation = (locales: AddEventParticipantLocales) => {
+const createMutation = (t: TFunction) => {
   return makeDomainFunction(
     schema,
     environmentSchema
   )(async (values, environment) => {
     const profile = await getProfileById(values.profileId);
     if (profile === null) {
-      throw new InputError(locales.error.inputError.doesNotExist, "profileId");
+      throw new InputError(t("error.inputError.doesNotExist"), "profileId");
     }
     const alreadyParticipant = profile.participatedEvents.some((entry) => {
       return entry.event.slug === environment.eventSlug;
     });
     if (alreadyParticipant) {
-      throw new InputError(locales.error.inputError.alreadyIn, "profileId");
+      throw new InputError(t("error.inputError.alreadyIn"), "profileId");
     }
     return {
       ...values,
@@ -51,11 +52,10 @@ const createMutation = (locales: AddEventParticipantLocales) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language][
-      "event/$slug/settings/participants/add-participant"
-    ];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/participants/add-participant",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -63,7 +63,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(locales),
+    mutation: createMutation(t),
     environment: {
       eventSlug: slug,
     },
@@ -71,10 +71,10 @@ export const action = async (args: ActionFunctionArgs) => {
 
   if (result.success === true) {
     const event = await getEventBySlug(slug);
-    invariantResponse(event, locales.error.notFound, { status: 404 });
+    invariantResponse(event, t("error.notFound"), { status: 404 });
     if (sessionUser.id !== result.data.profileId) {
       const mode = await deriveEventMode(sessionUser, slug);
-      invariantResponse(mode === "admin", locales.error.notPrivileged, {
+      invariantResponse(mode === "admin", t("error.notPrivileged"), {
         status: 403,
       });
       await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -82,16 +82,15 @@ export const action = async (args: ActionFunctionArgs) => {
     } else {
       await connectParticipantToEvent(event.id, result.data.profileId);
     }
-    return {
+    return json({
       success: true,
-      message: insertParametersIntoLocale(locales.feedback, {
+      message: t("feedback", {
         firstName: result.data.firstName,
         lastName: result.data.lastName,
       }),
-      locales,
-    };
+    });
   }
-  return { ...result, locales };
+  return json(result);
 };
 
 type AddParticipantButtonProps = {
@@ -101,7 +100,9 @@ type AddParticipantButtonProps = {
 
 export function AddParticipantButton(props: AddParticipantButtonProps) {
   const fetcher = useFetcher<typeof action>();
-  const locales = fetcher.data !== undefined ? fetcher.data.locales : undefined;
+  const { t } = useTranslation([
+    "routes/event/settings/participants/add-participant",
+  ]);
   return (
     <RemixFormsForm
       action={props.action}
@@ -118,7 +119,7 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
           <>
             <Field name="profileId" />
             <button className="btn btn-primary" type="submit">
-              {locales !== undefined ? locales.action : "Participate"}
+              {t("action")}
             </button>
             <Errors />
           </>

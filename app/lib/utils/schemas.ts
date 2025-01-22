@@ -1,13 +1,7 @@
 import { z } from "zod";
-import { type GeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
-import { type OrganizationWebAndSocialLocales } from "~/routes/next/organization/$slug/settings/web-social.server";
-import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
-import { type GeneralProjectSettingsLocales } from "~/routes/project/$slug/settings/general.server";
-import { type ProjectWebAndSocialSettingsLocales } from "~/routes/project/$slug/settings/web-social.server";
+import { type TFunction } from "i18next";
 
-type WebAndSocialLocales =
-  | OrganizationWebAndSocialLocales
-  | ProjectWebAndSocialSettingsLocales;
+const i18nNS = "utils/schemas";
 
 export const checkboxSchema = z
   .boolean()
@@ -26,17 +20,12 @@ export const fileUploadSchema = z.object({
   redirect: z.string(),
 });
 
-export const createPhoneSchema = (
-  locales:
-    | OrganizationWebAndSocialLocales
-    | GeneralProjectSettingsLocales
-    | GeneralOrganizationSettingsLocales
-) =>
+export const createPhoneSchema = (t: TFunction) =>
   z.string().regex(
     // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
     // eslint-disable-next-line no-useless-escape
     /^$|^(\+?[0-9 \-\(\)]{3,}\/?[0-9 \-\(\)]{4,})$/,
-    locales.schemas.validation.phone.regex
+    t("validation.phone.regex", { ns: i18nNS })
   );
 
 function addProtocolToUrl(url: string) {
@@ -46,7 +35,7 @@ function addProtocolToUrl(url: string) {
   return url;
 }
 
-export const createWebsiteSchema = (locales: WebAndSocialLocales) =>
+export const createWebsiteSchema = (t: TFunction) =>
   z
     .string()
     .regex(
@@ -54,7 +43,7 @@ export const createWebsiteSchema = (locales: WebAndSocialLocales) =>
       // eslint-disable-next-line no-useless-escape
       /^(https:\/\/)(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
       {
-        message: locales.schemas.validation.website.regex,
+        message: t("validation.website.regex", { ns: i18nNS }),
       }
     )
     .optional()
@@ -69,11 +58,11 @@ export const createWebsiteSchema = (locales: WebAndSocialLocales) =>
       return trimmedValue;
     });
 
-export const createFacebookSchema = (locales: WebAndSocialLocales) =>
+export const createFacebookSchema = (t: TFunction) =>
   z
     .string()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?facebook.com\/.+$|^$/, {
-      message: locales.schemas.validation.facebook.regex,
+      message: t("validation.facebook.regex", { ns: i18nNS }),
     })
     .optional()
     .transform((value) => {
@@ -87,11 +76,11 @@ export const createFacebookSchema = (locales: WebAndSocialLocales) =>
       return trimmedValue;
     });
 
-export const createLinkedinSchema = (locales: WebAndSocialLocales) =>
+export const createLinkedinSchema = (t: TFunction) =>
   z
     .string()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?linkedin.com\/.+$|^$/, {
-      message: locales.schemas.validation.linkedin.regex,
+      message: t("validation.linkedin.regex", { ns: i18nNS }),
     })
     .optional()
     .transform((value) => {
@@ -105,11 +94,11 @@ export const createLinkedinSchema = (locales: WebAndSocialLocales) =>
       return trimmedValue;
     });
 
-export const createXingSchema = (locales: WebAndSocialLocales) =>
+export const createXingSchema = (t: TFunction) =>
   z
     .string()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?xing.com\/.+$|^$/, {
-      message: locales.schemas.validation.xing.regex,
+      message: t("validation.xing.regex", { ns: i18nNS }),
     })
     .optional()
     .transform((value) => {
@@ -123,11 +112,11 @@ export const createXingSchema = (locales: WebAndSocialLocales) =>
       return trimmedValue;
     });
 
-export const createTwitterSchema = (locales: WebAndSocialLocales) =>
+export const createTwitterSchema = (t: TFunction) =>
   z
     .string()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?(twitter|x).com\/.+$|^$/, {
-      message: locales.schemas.validation.twitter.regex,
+      message: t("validation.twitter.regex", { ns: i18nNS }),
     })
     .optional()
     .transform((value) => {
@@ -141,14 +130,13 @@ export const createTwitterSchema = (locales: WebAndSocialLocales) =>
       return trimmedValue;
     });
 
-export const createMastodonSchema = (locales: WebAndSocialLocales) =>
-  createWebsiteSchema(locales);
+export const createMastodonSchema = (t: TFunction) => createWebsiteSchema(t);
 
-export const createBlueskySchema = (locales: WebAndSocialLocales) =>
+export const createBlueskySchema = (t: TFunction) =>
   z
     .string()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?bsky.app\/.+$|^$/, {
-      message: locales.schemas.validation.bluesky.regex,
+      message: t("validation.bluesky.regex", { ns: i18nNS }),
     })
     .optional()
     .transform((value) => {
@@ -162,11 +150,11 @@ export const createBlueskySchema = (locales: WebAndSocialLocales) =>
       return trimmedValue;
     });
 
-export const createTiktokSchema = (locales: WebAndSocialLocales) =>
+export const createTiktokSchema = (t: TFunction) =>
   z
     .string()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?tiktok.com\/.+$|^$/, {
-      message: locales.schemas.validation.tiktok.regex,
+      message: t("validation.tiktok.regex", { ns: i18nNS }),
     })
     .optional()
     .transform((value) => {
@@ -180,11 +168,11 @@ export const createTiktokSchema = (locales: WebAndSocialLocales) =>
       return trimmedValue;
     });
 
-export const createInstagramSchema = (locales: WebAndSocialLocales) =>
+export const createInstagramSchema = (t: TFunction) =>
   z
     .string()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?instagram.com\/.+$|^$/, {
-      message: locales.schemas.validation.instagram.regex,
+      message: t("validation.instagram.regex", { ns: i18nNS }),
     })
     .optional()
     .transform((value) => {
@@ -198,11 +186,11 @@ export const createInstagramSchema = (locales: WebAndSocialLocales) =>
       return trimmedValue;
     });
 
-export const createYoutubeSchema = (locales: WebAndSocialLocales) =>
+export const createYoutubeSchema = (t: TFunction) =>
   z
     .string()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?youtube.com\/.+$|^$/, {
-      message: locales.schemas.validation.youtube.regex,
+      message: t("validation.youtube.regex", { ns: i18nNS }),
     })
     .optional()
     .transform((value) => {
@@ -216,9 +204,7 @@ export const createYoutubeSchema = (locales: WebAndSocialLocales) =>
       return trimmedValue;
     });
 
-export const createYoutubeEmbedSchema = (
-  locales: ProjectDetailsSettingsLocales
-) =>
+export const createYoutubeEmbedSchema = (t: TFunction) =>
   z
     .string()
     .optional()
@@ -245,7 +231,9 @@ export const createYoutubeEmbedSchema = (
           if ((e as Error).message !== undefined) {
             throw new Error((e as Error).message);
           } else {
-            throw new Error(locales.schemas.validation.youtubeEmbed.urlParsing);
+            throw new Error(
+              t("validation.youtubeEmbed.urlParsing", { ns: i18nNS })
+            );
           }
         }
         // Watch Link: https://www.youtube.com/watch?v=<videoCode>
@@ -287,7 +275,7 @@ export const createYoutubeEmbedSchema = (
         .regex(
           /^(?:https?:\/\/)?(?:[a-z0-9]+\.)?(?:youtube(?:-nocookie)?\.com\/(?:embed\/)).+$/,
           {
-            message: locales.schemas.validation.youtubeEmbed.regex,
+            message: t("validation.youtubeEmbed.regex", { ns: i18nNS }),
           }
         )
         .nullable()

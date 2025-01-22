@@ -1,8 +1,8 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Button, Input } from "@mint-vernetzt/components";
 import {
+  json,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -13,27 +13,29 @@ import {
   useBlocker,
   useLoaderData,
 } from "@remix-run/react";
+import { type TFunction } from "i18next";
 import React from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getHash,
 } from "../utils.server";
 import { Deep } from "~/lib/utils/searchParams";
-import { type ChangeProjectUrlLocales } from "./change-url.server";
-import { languageModuleMap } from "~/locales/.server";
-import {
-  insertComponentsIntoLocale,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
+
+const i18nNS = ["routes/project/settings/danger-zone/change-url"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 function createSchema(
-  locales: ChangeProjectUrlLocales,
+  t: TFunction,
   constraint?: {
     isSlugUnique?: (slug: string) => Promise<boolean>;
   }
@@ -41,9 +43,9 @@ function createSchema(
   return z.object({
     slug: z
       .string()
-      .min(3, locales.validation.slug.min)
-      .max(50, locales.validation.slug.max)
-      .regex(/^[-a-z0-9-]+$/i, locales.validation.slug.regex)
+      .min(3, t("validation.slug.min"))
+      .max(50, t("validation.slug.max"))
+      .regex(/^[-a-z0-9-]+$/i, t("validation.slug.regex"))
       .refine(async (slug) => {
         if (
           typeof constraint !== "undefined" &&
@@ -52,25 +54,22 @@ function createSchema(
           return await constraint.isSlugUnique(slug);
         }
         return true;
-      }, locales.validation.slug.unique),
+      }, t("validation.slug.unique")),
   });
 }
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language][
-      "project/$slug/settings/danger-zone/change-url"
-    ];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   invariantResponse(
     typeof params.slug !== "undefined",
-    locales.error.missingParameterSlug,
+    t("error.missingParameterSlug"),
     {
       status: 404,
     }
@@ -87,27 +86,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
 
-  return {
-    slug: params.slug,
-    baseURL: process.env.COMMUNITY_BASE_URL,
-    locales,
-  };
+  return json({ slug: params.slug, baseURL: process.env.COMMUNITY_BASE_URL });
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
 
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language][
-      "project/$slug/settings/danger-zone/change-url"
-    ];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -124,7 +116,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const formData = await request.formData();
   const submission = await parse(formData, {
-    schema: createSchema(locales, {
+    schema: createSchema(t, {
       isSlugUnique: async (slug) => {
         const project = await prismaClient.project.findFirst({
           where: { slug: slug },
@@ -154,24 +146,25 @@ export const action = async (args: ActionFunctionArgs) => {
       {
         id: "settings-toast",
         key: hash,
-        message: locales.content.feedback,
+        message: t("content.feedback"),
       },
       { scrollToToast: true }
     );
   }
 
-  return submission;
+  return json(submission);
 };
 
 function ChangeURL() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
+
+  const { t } = useTranslation(i18nNS);
 
   const [form, fields] = useForm({
     shouldValidate: "onSubmit",
     onValidate: (values) => {
-      return parse(values.formData, { schema: createSchema(locales) });
+      return parse(values.formData, { schema: createSchema(t) });
     },
     shouldRevalidate: "onSubmit",
     lastSubmission: actionData,
@@ -183,7 +176,7 @@ function ChangeURL() {
       isDirty && currentLocation.pathname !== nextLocation.pathname
   );
   if (blocker.state === "blocked") {
-    const confirmed = confirm(locales.content.prompt);
+    const confirmed = confirm(t("content.prompt"));
     if (confirmed === true) {
       // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
       if (blocker.state !== "proceeding") {
@@ -197,18 +190,17 @@ function ChangeURL() {
   return (
     <>
       <p>
-        {insertComponentsIntoLocale(
-          insertParametersIntoLocale(locales.content.reach, {
-            url: `${loaderData.baseURL}/project/`,
-            slug: loaderData.slug,
-          }),
-          [
-            <span key="current-project-url" className="mv-break-all" />,
-            <strong key="current-project-slug" />,
-          ]
-        )}
+        <Trans
+          i18nKey="content.reach"
+          ns={i18nNS}
+          components={[
+            <span key="current-project-url" className="mv-break-all">
+              {loaderData.baseURL}/project/<strong>{loaderData.slug}</strong>
+            </span>,
+          ]}
+        />
       </p>
-      <p>{locales.content.note}</p>
+      <p>{t("content.note")}</p>
       <Form
         method="post"
         {...form.props}
@@ -223,7 +215,7 @@ function ChangeURL() {
           <Input name={Deep} defaultValue="true" type="hidden" />
           <Input id="slug" defaultValue={loaderData.slug}>
             <Input.Label htmlFor={fields.slug.id}>
-              {locales.content.label}
+              {t("content.label")}
             </Input.Label>
             {typeof actionData !== "undefined" &&
               typeof fields.slug.error !== "undefined" && (
@@ -240,7 +232,7 @@ function ChangeURL() {
                   setIsDirty(false);
                 }}
               >
-                {locales.content.action}
+                {t("content.action")}
               </Button>
             </div>
           </div>

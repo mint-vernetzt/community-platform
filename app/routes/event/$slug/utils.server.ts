@@ -1,5 +1,6 @@
-import type { Event, Organization, Profile } from "@prisma/client";
+import type { Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
+import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import {
   BlurFactor,
@@ -7,7 +8,6 @@ import {
   ImageSizes,
   getImageURL,
 } from "~/images.server";
-import { invariantResponse } from "~/lib/utils/response";
 import type { ArrayElement } from "~/lib/utils/types";
 import {
   filterEventByVisibility,
@@ -27,7 +27,7 @@ export async function getEventVisibilitiesBySlugOrThrow(slug: string) {
     },
   });
   if (result === null) {
-    invariantResponse(false, "Event visbilities not found.", { status: 404 });
+    throw json({ message: "Event visbilities not found." }, { status: 404 });
   }
   return result;
 }
@@ -144,9 +144,9 @@ export async function getFullDepthProfiles(
       return { profile };
     });
     return profiles;
-  } catch (error) {
-    console.error({ error });
-    invariantResponse(false, "Server Error", { status: 500 });
+  } catch (e) {
+    console.error(e);
+    throw json("Server Error", { status: 500 });
   }
 }
 
@@ -663,27 +663,6 @@ export async function getIsTeamMember(eventId: string, profileId?: string) {
     },
   });
   return result !== null;
-}
-
-export async function addUserParticipationStatus<
-  T extends {
-    event: Pick<Event, "id">;
-  }[]
->(events: T, userId?: string) {
-  const result = await Promise.all(
-    events.map(async (item) => {
-      return {
-        event: {
-          ...item.event,
-          isParticipant: await getIsParticipant(item.event.id, userId),
-          isOnWaitingList: await getIsOnWaitingList(item.event.id, userId),
-          isTeamMember: await getIsTeamMember(item.event.id, userId),
-          isSpeaker: await getIsSpeaker(item.event.id, userId),
-        },
-      };
-    })
-  );
-  return result as Array<ArrayElement<T> & ArrayElement<typeof result>>;
 }
 
 // TODO: Still async as its using the old filter method for speakers and participants because of raw queries

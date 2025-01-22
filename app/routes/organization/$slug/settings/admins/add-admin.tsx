@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -7,16 +8,20 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveOrganizationMode } from "../../utils.server";
 import {
-  type AddOrganizationAdminLocales,
   getOrganizationBySlug,
   getProfileById,
   inviteProfileToJoinOrganization,
 } from "./add-admin.server";
-import { detectLanguage } from "~/i18n.server";
+import { type TFunction } from "i18next";
+import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+
+const i18nNS = ["routes/organization/settings/admin/add-admin"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const schema = z.object({
   profileId: z.string(),
@@ -28,20 +33,20 @@ const environmentSchema = z.object({
 
 export const addAdminSchema = schema;
 
-const createMutation = (locales: AddOrganizationAdminLocales) => {
+const createMutation = (t: TFunction) => {
   return makeDomainFunction(
     schema,
     environmentSchema
   )(async (values, environment) => {
     const profile = await getProfileById(values.profileId);
     if (profile === null) {
-      throw new InputError(locales.error.inputError.doesNotExist, "profileId");
+      throw new InputError(t("error.inputError.doesNotExist"), "profileId");
     }
     const alreadyAdmin = profile.administeredOrganizations.some((relation) => {
       return relation.organization.slug === environment.organizationSlug;
     });
     if (alreadyAdmin) {
-      throw new InputError(locales.error.inputError.alreadyAdmin, "profileId");
+      throw new InputError(t("error.inputError.alreadyAdmin"), "profileId");
     }
     return {
       ...values,
@@ -53,27 +58,28 @@ const createMutation = (locales: AddOrganizationAdminLocales) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["organization/$slug/settings/admins/add-admin"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/organization/settings/admins/add-admin",
+  ]);
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
 
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(locales),
+    mutation: createMutation(t),
     environment: { organizationSlug: slug },
   });
 
   if (result.success) {
     const organization = await getOrganizationBySlug(slug);
-    invariantResponse(organization, locales.error.notFound, { status: 404 });
+    invariantResponse(organization, t("error.notFound"), { status: 404 });
 
     let message: string;
     let status: "error" | "success";
@@ -85,7 +91,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
     if (error === null && typeof value !== "undefined") {
       const sender = process.env.SYSTEM_MAIL_SENDER;
-      const subject = locales.email.subject;
+      const subject = t("email.subject");
       const recipient = value.profile.email;
       const textTemplatePath =
         "mail-templates/invites/profile-to-join-organization/as-admin-text.hbs";
@@ -98,7 +104,7 @@ export const action = async (args: ActionFunctionArgs) => {
         },
         button: {
           url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-          text: locales.email.button.text,
+          text: t("email.button.text"),
         },
       };
 
@@ -113,27 +119,23 @@ export const action = async (args: ActionFunctionArgs) => {
         "html"
       );
 
-      try {
-        await mailer(mailerOptions, sender, recipient, subject, text, html);
-      } catch (error) {
-        invariantResponse(false, "Server Error: Mailer", { status: 500 });
-      }
+      await mailer(mailerOptions, sender, recipient, subject, text, html);
 
-      message = insertParametersIntoLocale(locales.invite.success, {
+      message = t("invite.success", {
         firstName: result.data.firstName,
         lastName: result.data.lastName,
       });
       status = "success";
     } else {
-      message = locales.invite.error;
+      message = t("invite.error");
       status = "error";
     }
 
-    return {
+    return json({
       message,
       status,
-    };
+    });
   }
 
-  return result;
+  return json(result);
 };

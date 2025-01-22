@@ -49,4 +49,4 @@ function Toast(props: React.PropsWithChildren<ToastProps>) {
   );
 }
 
-export { Toast };
+export default Toast;

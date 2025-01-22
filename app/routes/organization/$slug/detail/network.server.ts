@@ -3,14 +3,6 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { type supportedCookieLanguages } from "~/i18n.shared";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
-
-export type OrganizationNetworkLocales =
-  (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
-  >]["organization/$slug/detail/network"];
 
 export async function getOrganization(slug: string) {
   const organization = await prismaClient.organization.findUnique({

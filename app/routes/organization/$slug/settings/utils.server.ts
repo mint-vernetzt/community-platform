@@ -1,7 +1,7 @@
 import type { Organization } from "@prisma/client";
+import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
-import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { triggerEntityScore } from "~/utils.server";
@@ -243,9 +243,7 @@ export async function updateOrganizationById(
       },
     });
   if (organizationVisibility === null) {
-    invariantResponse(false, "Organization visibilities not found", {
-      status: 404,
-    });
+    throw json("Organization visibilities not found", { status: 404 });
   }
 
   let visibility: keyof typeof organizationVisibility;

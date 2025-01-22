@@ -1,19 +1,20 @@
 import {
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
+  ActionFunctionArgs,
+  json,
+  LinksFunction,
+  LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
+import { TFunction } from "i18next";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { checkboxSchema, createPhoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import {
-  createAreaOptions,
-  type GeneralOrganizationSettingsLocales,
-} from "./general.server";
+import { createAreaOptions } from "./general.server";
 import {
   Form,
   useActionData,
@@ -21,96 +22,121 @@ import {
   useLocation,
   useNavigation,
 } from "@remix-run/react";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { useTranslation } from "react-i18next";
+import {
+  getFormProps,
+  getInputProps,
+  getTextareaProps,
+  useForm,
+} from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { BackButton } from "~/components-next/BackButton";
-import { TextArea } from "~/components-next/TextArea";
-import { ConformSelect } from "~/components-next/ConformSelect";
+import {
+  Button,
+  Chip,
+  Controls,
+  Input,
+  Section,
+} from "@mint-vernetzt/components";
+import { BackButton } from "./__components";
+import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import quillStyles from "react-quill/dist/quill.snow.css";
+import { ButtonSelect } from "~/routes/project/$slug/settings/__components";
 import React from "react";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
-import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
+import { VisibilityCheckbox } from "~/routes/__components";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import * as Sentry from "@sentry/remix";
 import { redirectWithToast } from "~/toast.server";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { languageModuleMap } from "~/locales/.server";
+import { create } from "domain";
 
-const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
+const i18nNS = [
+  "routes/next/organization/settings/general",
+  "datasets/focuses",
+];
+
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createGeneralSchema = (t: TFunction) => {
   return z.object({
     name: z
       .string({
-        required_error: locales.route.validation.name.required,
+        required_error: t("validation.name.required"),
       })
-      .min(3, locales.route.validation.name.min)
-      .max(50, locales.route.validation.name.max),
+      .min(3, t("validation.name.min"))
+      .max(50, t("validation.name.max")),
     email: z
       .string()
-      .email(locales.route.validation.email)
+      .email(t("validation.email.email"))
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (value === undefined) {
           return null;
         }
-        return value.trim();
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
       }),
-    phone: createPhoneSchema(locales)
+    phone: createPhoneSchema(t)
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (value === undefined) {
           return null;
         }
-        return value.trim();
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
       }),
     street: z
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (value === undefined) {
           return null;
         }
-        return value.trim();
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
       }),
     streetNumber: z
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (value === undefined) {
           return null;
         }
-        return value.trim();
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
       }),
     zipCode: z
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (value === undefined) {
           return null;
         }
-        return value.trim();
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
       }),
     city: z
       .string()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (value === undefined) {
           return null;
         }
-        return value.trim();
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
       }),
     bio: z
       .string()
-      .max(2000, locales.route.validation.bio.max)
+      .max(2000, t("validation.bio.max"))
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
+        if (value === undefined) {
           return null;
         }
-        return value.trim();
+        const trimmedValue = value.trim();
+        return trimmedValue === "" || trimmedValue === "<p></p>" ? null : value;
       }),
     supportedBy: z
       .array(z.string().transform((value) => value.trim()))
@@ -128,22 +154,17 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["next/organization/$slug/settings/general"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(
-    params.slug !== undefined,
-    locales.route.error.invalidRoute,
-    {
-      status: 400,
-    }
-  );
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
+    status: 400,
+  });
 
   const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
     request,
@@ -199,7 +220,7 @@ export async function loader(args: LoaderFunctionArgs) {
       },
     },
   });
-  invariantResponse(organization !== null, locales.route.error.notFound, {
+  invariantResponse(organization !== null, t("error.notFound"), {
     status: 404,
   });
 
@@ -222,13 +243,12 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const currentTimestamp = Date.now();
 
-  return {
+  return json({
     organization,
     areaOptions,
     allFocuses,
     currentTimestamp,
-    locales,
-  };
+  });
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -236,9 +256,8 @@ export async function action(args: ActionFunctionArgs) {
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["next/organization/$slug/settings/general"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
     request,
@@ -255,14 +274,14 @@ export async function action(args: ActionFunctionArgs) {
     select: { id: true },
   });
 
-  invariantResponse(organization !== null, locales.route.error.notFound, {
+  invariantResponse(organization !== null, t("error.notFound"), {
     status: 404,
   });
 
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: () =>
-      createGeneralSchema(locales).transform(async (data, ctx) => {
+      createGeneralSchema(t).transform(async (data, ctx) => {
         const { visibilities, areas, focuses, ...organizationData } = data;
         try {
           await prismaClient.organization.update({
@@ -318,7 +337,7 @@ export async function action(args: ActionFunctionArgs) {
           Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
-            message: locales.route.error.updateFailed,
+            message: t("error.updateFailed"),
           });
           return z.NEVER;
         }
@@ -337,18 +356,23 @@ export async function action(args: ActionFunctionArgs) {
   return redirectWithToast(request.url, {
     id: "update-general-toast",
     key: `${new Date().getTime()}`,
-    message: locales.route.content.success,
+    message: t("content.success"),
   });
 }
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: quillStyles },
+];
 
 function General() {
   const location = useLocation();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
   const { organization, allFocuses, areaOptions } = loaderData;
   const isHydrated = useHydrated();
   const navigation = useNavigation();
+
+  const { t } = useTranslation(i18nNS);
 
   const {
     areas,
@@ -357,7 +381,6 @@ function General() {
     id: _id,
     ...rest
   } = organization;
-
   const defaultValues = {
     ...rest,
     areas: areas.map((relation) => relation.area.id),
@@ -367,7 +390,7 @@ function General() {
 
   const [form, fields] = useForm({
     id: `general-form-${loaderData.currentTimestamp}`,
-    constraint: getZodConstraint(createGeneralSchema(locales)),
+    constraint: getZodConstraint(createGeneralSchema(t)),
     defaultValue: defaultValues,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",
@@ -375,7 +398,7 @@ function General() {
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
-        schema: createGeneralSchema(locales),
+        schema: createGeneralSchema(t),
       });
       return submission;
     },
@@ -389,7 +412,6 @@ function General() {
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
-    locales,
   });
 
   const [supportedBy, setSupportedBy] = React.useState<string>("");
@@ -402,9 +424,7 @@ function General() {
   return (
     <Section>
       {UnsavedChangesBlockerModal}
-      <BackButton to={location.pathname}>
-        {locales.route.content.headline}
-      </BackButton>
+      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
       <Form
         {...getFormProps(form)}
         method="post"
@@ -414,15 +434,12 @@ function General() {
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.route.content.contact.headline}
+              {t("content.contact.headline")}
             </h2>
             <div className="@lg:mv-flex @lg:mv-gap-4">
-              <Input
-                {...getInputProps(fields.name, { type: "text" })}
-                key="name"
-              >
+              <Input {...getInputProps(fields.name, { type: "text" })}>
                 <Input.Label htmlFor={fields.name.id}>
-                  {locales.route.content.contact.name.label}
+                  {t("content.contact.name.label")}
                 </Input.Label>
                 {typeof fields.name.errors !== "undefined" && (
                   <Input.Error>{fields.name.errors}</Input.Error>
@@ -431,12 +448,9 @@ function General() {
             </div>
             <div className="@lg:mv-flex @lg:mv-gap-4">
               <div className="mv-flex-1">
-                <Input
-                  {...getInputProps(fields.email, { type: "email" })}
-                  key="email"
-                >
+                <Input {...getInputProps(fields.email, { type: "email" })}>
                   <Input.Label htmlFor={fields.email.id}>
-                    {locales.route.content.contact.email.label}
+                    {t("content.contact.email.label")}
                   </Input.Label>
                   <Input.Controls>
                     <VisibilityCheckbox
@@ -453,12 +467,9 @@ function General() {
               </div>
 
               <div className="mv-flex-1">
-                <Input
-                  {...getInputProps(fields.phone, { type: "tel" })}
-                  key="phone"
-                >
+                <Input {...getInputProps(fields.phone, { type: "tel" })}>
                   <Input.Label htmlFor={fields.phone.id}>
-                    {locales.route.content.contact.phone.label}
+                    {t("content.contact.phone.label")}
                   </Input.Label>
                   <Input.Controls>
                     <VisibilityCheckbox
@@ -477,12 +488,9 @@ function General() {
 
             <div className="@lg:mv-flex @lg:mv-gap-4">
               <div className="mv-flex-1">
-                <Input
-                  {...getInputProps(fields.street, { type: "text" })}
-                  key="street"
-                >
+                <Input {...getInputProps(fields.street, { type: "text" })}>
                   <Input.Label htmlFor={fields.street.id}>
-                    {locales.route.content.contact.street.label}
+                    {t("content.contact.street.label")}
                   </Input.Label>
                   {typeof fields.street.errors !== "undefined" && (
                     <Input.Error>{fields.street.errors}</Input.Error>
@@ -492,10 +500,9 @@ function General() {
               <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
                 <Input
                   {...getInputProps(fields.streetNumber, { type: "text" })}
-                  key="streetNumber"
                 >
                   <Input.Label htmlFor={fields.streetNumber.id}>
-                    {locales.route.content.contact.streetNumber.label}
+                    {t("content.contact.streetNumber.label")}
                   </Input.Label>
                   {typeof fields.streetNumber.errors !== "undefined" && (
                     <Input.Error>{fields.streetNumber.errors}</Input.Error>
@@ -505,12 +512,9 @@ function General() {
             </div>
             <div className="@lg:mv-flex @lg:mv-gap-4">
               <div className="mv-flex-1">
-                <Input
-                  {...getInputProps(fields.zipCode, { type: "text" })}
-                  key="zipCode"
-                >
+                <Input {...getInputProps(fields.zipCode, { type: "text" })}>
                   <Input.Label htmlFor={fields.zipCode.id}>
-                    {locales.route.content.contact.zipCode.label}
+                    {t("content.contact.zipCode.label")}
                   </Input.Label>
                   {typeof fields.zipCode.errors !== "undefined" && (
                     <Input.Error>{fields.zipCode.errors}</Input.Error>
@@ -518,12 +522,9 @@ function General() {
                 </Input>
               </div>
               <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
-                <Input
-                  {...getInputProps(fields.city, { type: "text" })}
-                  key="city"
-                >
+                <Input {...getInputProps(fields.city, { type: "text" })}>
                   <Input.Label htmlFor={fields.city.id}>
-                    {locales.route.content.contact.city.label}
+                    {t("content.contact.city.label")}
                   </Input.Label>
                   {typeof fields.city.errors !== "undefined" && (
                     <Input.Error>{fields.city.errors}</Input.Error>
@@ -534,15 +535,14 @@ function General() {
           </div>
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.route.content.about.headline}
+              {t("content.about.headline")}
             </h2>
-            <p>{locales.route.content.about.intro}</p>
+            <p>{t("content.about.intro")}</p>
             <div className="mv-flex mv-gap-2">
-              <TextArea
-                {...getInputProps(fields.bio, { type: "text" })}
-                key="bio"
+              <TextAreaWithCounter
+                {...getTextareaProps(fields.bio)}
                 id={fields.bio.id || ""}
-                label={locales.route.content.bio.label}
+                label={t("content.bio.label")}
                 // withPublicPrivateToggle={true}
                 // isPublic={organizationVisibility?.bio}
                 errorMessage={
@@ -550,8 +550,8 @@ function General() {
                     ? fields.bio.errors.join(", ")
                     : undefined
                 }
-                maxLength={undefined}
-                rte={{ locales: locales }}
+                maxCharacters={2000}
+                rte
               />
               <div className="mv-min-w-[44px] mv-pt-[32px]">
                 <VisibilityCheckbox
@@ -563,16 +563,13 @@ function General() {
               </div>
             </div>
 
-            <ConformSelect
-              id={fields.areas.id}
-              cta={locales.route.content.areas.option}
-            >
-              <ConformSelect.Label htmlFor={fields.areas.id}>
-                {locales.route.content.areas.label}
-              </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.areas.helper}
-              </ConformSelect.HelperText>
+            <ButtonSelect id={fields.areas.id} cta={t("content.areas.option")}>
+              <ButtonSelect.Label htmlFor={fields.areas.id}>
+                {t("content.areas.label")}
+              </ButtonSelect.Label>
+              <ButtonSelect.HelperText>
+                {t("content.areas.helper")}
+              </ButtonSelect.HelperText>
               {areaOptions
                 .filter((option) => {
                   // All options that have a value should only be shown if they are not inside the current selected area list
@@ -614,19 +611,16 @@ function General() {
                     );
                   }
                 })}
-            </ConformSelect>
+            </ButtonSelect>
             {areaFieldList.length > 0 && (
               <Chip.Container>
                 {areaFieldList.map((field, index) => {
                   return (
                     <Chip key={field.key}>
-                      <Input
-                        {...getInputProps(field, { type: "hidden" })}
-                        key="areas"
-                      />
+                      <Input {...getInputProps(field, { type: "hidden" })} />
                       {areaOptions.find((option) => {
                         return option.value === field.initialValue;
-                      })?.label || locales.route.content.notFound}
+                      })?.label || t("content.notFound")}
                       <Chip.Delete>
                         <button
                           {...form.remove.getButtonProps({
@@ -640,82 +634,62 @@ function General() {
                 })}
               </Chip.Container>
             )}
-            <ConformSelect
+            <ButtonSelect
               id={fields.focuses.id}
-              cta={locales.route.content.focuses.option}
+              cta={t("content.focuses.option")}
             >
-              <ConformSelect.Label htmlFor={fields.areas.id}>
-                {locales.route.content.focuses.label}
-              </ConformSelect.Label>
+              <ButtonSelect.Label htmlFor={fields.areas.id}>
+                {t("content.focuses.label")}
+              </ButtonSelect.Label>
 
-              <ConformSelect.Controls>
+              <ButtonSelect.Controls>
                 <VisibilityCheckbox
                   {...getInputProps(visibilitiesFieldList.focuses, {
                     type: "checkbox",
                   })}
                   key={"focuses-visibility"}
                 />
-              </ConformSelect.Controls>
-              <ConformSelect.HelperText>
-                {locales.route.content.focuses.helper}
-              </ConformSelect.HelperText>
+              </ButtonSelect.Controls>
+              <ButtonSelect.HelperText>
+                {t("content.focuses.helper")}
+              </ButtonSelect.HelperText>
               {allFocuses
-                .filter((focus) => {
-                  return !focusFieldList.some((listFocus) => {
-                    return listFocus.initialValue === focus.id;
+                .filter((option) => {
+                  return !focusFieldList.some((listFormat) => {
+                    return listFormat.initialValue === option.id;
                   });
                 })
-                .map((focus) => {
-                  let title;
-                  if (focus.slug in locales.focuses) {
-                    type LocaleKey = keyof typeof locales.focuses;
-                    title = locales.focuses[focus.slug as LocaleKey].title;
-                  } else {
-                    console.error(`Focus ${focus.slug} not found in locales`);
-                    title = focus.slug;
-                  }
+                .map((option) => {
                   return (
                     <button
-                      key={focus.id}
+                      key={option.id}
                       {...form.insert.getButtonProps({
                         name: fields.focuses.name,
-                        defaultValue: focus.id,
+                        defaultValue: option.id,
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
-                      {title}
+                      {t(`${option.slug}.title`, {
+                        ns: "datasets/focuses",
+                      })}
                     </button>
                   );
                 })}
-            </ConformSelect>
+            </ButtonSelect>
             {focusFieldList.length > 0 && (
               <Chip.Container>
                 {focusFieldList.map((field, index) => {
-                  let focusSlug = allFocuses.find((focus) => {
-                    return focus.id === field.initialValue;
-                  })?.slug;
-                  let title;
-                  if (focusSlug === undefined) {
-                    console.error(
-                      `Focus with id ${field.id} not found in allFocuses`
-                    );
-                    title = null;
-                  } else {
-                    if (focusSlug in locales.focuses) {
-                      type LocaleKey = keyof typeof locales.focuses;
-                      title = locales.focuses[focusSlug as LocaleKey].title;
-                    } else {
-                      console.error(`Focus ${focusSlug} not found in locales`);
-                      title = focusSlug;
-                    }
-                  }
                   return (
                     <Chip key={field.key}>
-                      <Input
-                        {...getInputProps(field, { type: "hidden" })}
-                        key="focuses"
-                      />
-                      {title || locales.route.content.notFound}
+                      <Input {...getInputProps(field, { type: "hidden" })} />
+                      {t(
+                        `${
+                          allFocuses.find((option) => {
+                            return option.id === field.initialValue;
+                          })?.slug
+                        }.title`,
+                        { ns: "datasets/focuses" }
+                      ) || t("content.notFound")}
                       <Chip.Delete>
                         <button
                           {...form.remove.getButtonProps({
@@ -732,7 +706,7 @@ function General() {
           </div>
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.route.content.supportedBy.headline}
+              {t("content.supportedBy.headline")}
             </h2>
             <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
               <Input
@@ -740,7 +714,7 @@ function General() {
                 onChange={handleSupportedByInputChange}
               >
                 <Input.Label htmlFor={fields.supportedBy.id}>
-                  {locales.route.content.supportedBy.label}
+                  {t("content.supportedBy.label")}
                 </Input.Label>
                 <Input.Controls>
                   <Button
@@ -751,7 +725,7 @@ function General() {
                       defaultValue: supportedBy,
                     })}
                   >
-                    {locales.route.content.supportedBy.add}
+                    {t("content.supportedBy.add")}
                   </Button>
                 </Input.Controls>
               </Input>
@@ -761,10 +735,7 @@ function General() {
                 {supportedByFieldList.map((field, index) => {
                   return (
                     <Chip key={field.key}>
-                      <Input
-                        {...getInputProps(field, { type: "hidden" })}
-                        key="supportedBy"
-                      />
+                      <Input {...getInputProps(field, { type: "hidden" })} />
                       {field.initialValue || "Not Found"}
                       <Chip.Delete>
                         <button
@@ -799,7 +770,7 @@ function General() {
                     />
                   </svg>
                 </span>
-                <span>{locales.route.form.hint.public}</span>
+                <span>{t("form.hint.public")}</span>
               </p>
               <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
                 <span className="mv-w-4 mv-h-4">
@@ -822,22 +793,19 @@ function General() {
                     />
                   </svg>
                 </span>
-                <span>{locales.route.form.hint.private}</span>
+                <span>{t("form.hint.private")}</span>
               </p>
             </div>
             <div className="mv-flex mv-shrink mv-w-full @xl:mv-max-w-fit @xl:mv-w-auto mv-items-center mv-justify-center @xl:mv-justify-end">
               <Controls>
                 <Button
                   type="reset"
-                  onClick={() => {
-                    setTimeout(() => form.reset(), 0);
-                  }}
                   variant="outline"
                   fullSize
                   // Don't disable button when js is disabled
                   disabled={isHydrated ? form.dirty === false : false}
                 >
-                  {locales.route.form.reset}
+                  {t("form.reset")}
                 </Button>
                 <Button
                   type="submit"
@@ -851,7 +819,7 @@ function General() {
                       : false
                   }
                 >
-                  {locales.route.form.submit}
+                  {t("form.submit")}
                 </Button>
               </Controls>
             </div>

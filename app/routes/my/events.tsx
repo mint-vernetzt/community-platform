@@ -1,27 +1,29 @@
-import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { TabBar, Button } from "@mint-vernetzt/components";
+import { json, type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { ListContainer } from "~/components-next/ListContainer";
-import { Add } from "~/components-next/icons/Add";
-import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
-import { EventListItem } from "~/components-next/EventListItem";
-import { Placeholder } from "~/components-next/Placeholder";
-import { Section } from "~/components-next/MyEventsProjectsSection";
-import { TabBarTitle } from "~/components-next/TabBarTitle";
-import { getEvents } from "./events.server";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
+import { ListContainer } from "./__components";
 import {
-  decideBetweenSingularOrPlural,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
+  AddIcon,
+  Container,
+  ListItem,
+  Placeholder,
+  Section,
+  TabBarTitle,
+} from "./__events.components";
+import { getEvents } from "./events.server";
+
+export const i18nNS = ["routes/my/events", "datasets/stages", "components"];
+
+export const handle = {
+  i18n: i18nNS,
+};
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -34,9 +36,6 @@ export async function loader(args: LoaderFunctionArgs) {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
-
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["my/events"];
 
   const upcomingEvents = await getEvents({
     profileId: sessionUser.id,
@@ -52,19 +51,12 @@ export async function loader(args: LoaderFunctionArgs) {
     return event.canceled;
   });
 
-  return {
-    upcomingEvents,
-    pastEvents,
-    canceledEvents,
-    abilities,
-    locales,
-    language,
-  };
+  return json({ upcomingEvents, pastEvents, canceledEvents, abilities });
 }
 
 function MyEvents() {
+  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, language } = loaderData;
 
   const firstUpcoming = Object.entries(loaderData.upcomingEvents.count).find(
     ([_, value]) => {
@@ -131,67 +123,48 @@ function MyEvents() {
   return (
     <Container>
       <Container.Header>
-        <Container.Title>{locales.route.title}</Container.Title>
+        <Container.Title>{t("title")}</Container.Title>
         {loaderData.abilities["events"].hasAccess ? (
           <Button as="a" href="/event/create">
-            <Add />
-            {locales.route.create}
+            <AddIcon />
+            {t("create")}
           </Button>
         ) : null}
       </Container.Header>
       {hasUpcomingEvents === false && hasPastEvents === false ? (
         <Placeholder>
-          <Placeholder.Title>
-            {locales.route.placeholder.title}
-          </Placeholder.Title>
-          <Placeholder.Text>
-            {locales.route.placeholder.description}
-          </Placeholder.Text>
+          <Placeholder.Title>{t("placeholder.title")}</Placeholder.Title>
+          <Placeholder.Text>{t("placeholder.description")}</Placeholder.Text>
           <Button as="a" href="/explore/events" variant="outline">
-            {locales.route.placeholder.cta}
+            {t("placeholder.cta")}
           </Button>
         </Placeholder>
       ) : null}
       {hasCanceledEvents ? (
         <Container.Section>
           <Section.Title id="canceled">
-            {decideBetweenSingularOrPlural(
-              locales.route.canceled.title_one,
-              locales.route.canceled.title_other,
-              loaderData.canceledEvents.length
-            )}
+            {t("canceled.title", { count: loaderData.canceledEvents.length })}
           </Section.Title>
           <Section.Text>
-            {decideBetweenSingularOrPlural(
-              locales.route.canceled.description_one,
-              insertParametersIntoLocale(
-                locales.route.canceled.description_other,
-                {
-                  count: loaderData.canceledEvents.length,
-                }
-              ),
-              loaderData.canceledEvents.length
-            )}
+            {t("canceled.description", {
+              count: loaderData.canceledEvents.length,
+            })}
           </Section.Text>
-          <ListContainer listKey="canceled" locales={locales}>
+          <ListContainer listKey="canceled">
             {loaderData.canceledEvents.map((event, index) => {
               return (
-                <EventListItem
+                <ListItem.Event
                   key={`canceled-${event.slug}`}
                   to={`/event/${event.slug}`}
                   listIndex={index}
                 >
-                  <EventListItem.Image
+                  <ListItem.Event.Image
                     src={event.background}
                     blurredSrc={event.blurredBackground}
                     alt={event.name}
                   />
-                  <EventListItem.Content
-                    event={event}
-                    currentLanguage={language}
-                    locales={locales}
-                  />
-                </EventListItem>
+                  <ListItem.Event.Content event={event} />
+                </ListItem.Event>
               );
             })}
           </ListContainer>
@@ -200,11 +173,9 @@ function MyEvents() {
       {hasUpcomingEvents ? (
         <Container.Section>
           <Section.Title id="upcoming">
-            {decideBetweenSingularOrPlural(
-              locales.route.upcoming.title_one,
-              locales.route.upcoming.title_other,
-              upcomingEventsCount
-            )}
+            {t("upcoming.title", {
+              count: upcomingEventsCount,
+            })}
           </Section.Title>
           <Section.TabBar>
             {Object.entries(loaderData.upcomingEvents.count).map(
@@ -232,19 +203,7 @@ function MyEvents() {
                       preventScrollReset
                     >
                       <TabBarTitle>
-                        {(() => {
-                          let title;
-                          if (key in locales.route.tabBar) {
-                            type LocaleKey = keyof typeof locales.route.tabBar;
-                            title = locales.route.tabBar[key as LocaleKey];
-                          } else {
-                            console.error(
-                              `Tab bar title ${key} not found in locales`
-                            );
-                            title = key;
-                          }
-                          return title;
-                        })()}
+                        {t(`tabBar.${key}`)}
                         <TabBar.Counter active={upcoming === key}>
                           {loaderData.upcomingEvents.count[typedKey]}
                         </TabBar.Counter>
@@ -255,27 +214,23 @@ function MyEvents() {
               }
             )}
           </Section.TabBar>
-          <ListContainer listKey="upcoming" hideAfter={3} locales={locales}>
+          <ListContainer listKey="upcoming" hideAfter={3}>
             {loaderData.upcomingEvents[upcoming as "adminEvents"].map(
               (event, index) => {
                 return (
-                  <EventListItem
+                  <ListItem.Event
                     key={`upcoming-${event.slug}`}
                     to={`/event/${event.slug}`}
                     listIndex={index}
                     hideAfter={3}
                   >
-                    <EventListItem.Image
+                    <ListItem.Event.Image
                       src={event.background}
                       blurredSrc={event.blurredBackground}
                       alt={event.name}
                     />
-                    <EventListItem.Content
-                      event={event}
-                      locales={locales}
-                      currentLanguage={language}
-                    />
-                  </EventListItem>
+                    <ListItem.Event.Content event={event} />
+                  </ListItem.Event>
                 );
               }
             )}
@@ -285,11 +240,7 @@ function MyEvents() {
       {hasPastEvents ? (
         <Container.Section>
           <Section.Title id="past">
-            {decideBetweenSingularOrPlural(
-              locales.route.past.title_one,
-              locales.route.past.title_other,
-              pastEventsCount
-            )}
+            {t("past.title", { count: pastEventsCount })}
           </Section.Title>
           <Section.TabBar>
             {Object.entries(loaderData.pastEvents.count).map(([key, value]) => {
@@ -312,19 +263,7 @@ function MyEvents() {
                     preventScrollReset
                   >
                     <TabBarTitle>
-                      {(() => {
-                        let title;
-                        if (key in locales.route.tabBar) {
-                          type LocaleKey = keyof typeof locales.route.tabBar;
-                          title = locales.route.tabBar[key as LocaleKey];
-                        } else {
-                          console.error(
-                            `Tab bar title ${key} not found in locales`
-                          );
-                          title = key;
-                        }
-                        return title;
-                      })()}
+                      {t(`tabBar.${key}`)}
                       <TabBar.Counter active={past === key}>
                         {loaderData.pastEvents.count[typedKey]}
                       </TabBar.Counter>
@@ -334,27 +273,23 @@ function MyEvents() {
               );
             })}
           </Section.TabBar>
-          <ListContainer listKey="past" hideAfter={3} locales={locales}>
+          <ListContainer listKey="past" hideAfter={3}>
             {loaderData.pastEvents[past as "adminEvents"].map(
               (event, index) => {
                 return (
-                  <EventListItem
+                  <ListItem.Event
                     key={`past-${event.slug}`}
                     to={`/event/${event.slug}`}
                     listIndex={index}
                     hideAfter={3}
                   >
-                    <EventListItem.Image
+                    <ListItem.Event.Image
                       src={event.background}
                       blurredSrc={event.blurredBackground}
                       alt={event.name}
                     />
-                    <EventListItem.Content
-                      event={event}
-                      locales={locales}
-                      currentLanguage={language}
-                    />
-                  </EventListItem>
+                    <ListItem.Event.Content event={event} />
+                  </ListItem.Event>
                 );
               }
             )}

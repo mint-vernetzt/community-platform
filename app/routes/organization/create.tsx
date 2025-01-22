@@ -1,45 +1,53 @@
 import { conform, useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
+import {
+  Avatar,
+  Button,
+  Input,
+  List,
+  TextButton,
+} from "@mint-vernetzt/components";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
+  Link,
   useActionData,
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import { generateOrganizationSlug } from "~/utils.server";
 import {
   countOrganizationsBySearchQuery,
-  type CreateOrganizationLocales,
   createOrganizationOnProfile,
   searchForOrganizationsByName,
 } from "./create.server";
 import { getFeatureAbilities } from "~/lib/utils/application";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { List } from "@mint-vernetzt/components/src/organisms/List";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
-const createSchema = (locales: CreateOrganizationLocales) => {
+const i18nNS = ["routes/organization/create"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createSchema = (t: TFunction) => {
   return z.object({
     organizationName: z
       .string({
-        required_error: locales.validation.organizationName.required,
+        required_error: t("validation.organizationName.required"),
       })
-      .min(3, locales.validation.organizationName.min),
+      .min(3, t("validation.organizationName.min")),
   });
 };
 
@@ -56,9 +64,6 @@ export async function loader(args: LoaderFunctionArgs) {
   const abilities = await getFeatureAbilities(authClient, [
     "next-organization-create",
   ]);
-
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["organization/create"];
 
   const url = new URL(request.url);
 
@@ -102,7 +107,7 @@ export async function loader(args: LoaderFunctionArgs) {
     });
   }
 
-  return { searchResult, abilities, locales };
+  return json({ searchResult, abilities });
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -115,11 +120,11 @@ export async function action(args: ActionFunctionArgs) {
 
   const queryString = url.searchParams.get("search");
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["organization/create"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/organization/create"]);
 
   const formData = await request.formData();
-  const submission = parse(formData, { schema: createSchema(locales) });
+  const submission = parse(formData, { schema: createSchema(t) });
 
   if (typeof submission.value !== "undefined" && submission.value !== null) {
     if (submission.intent === "submit") {
@@ -153,12 +158,11 @@ export async function action(args: ActionFunctionArgs) {
     }
   }
 
-  return submission;
+  return json(submission);
 }
 
 function Create() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
 
   const [searchParams] = useSearchParams();
@@ -172,22 +176,20 @@ function Create() {
     },
   });
 
+  const { t } = useTranslation(i18nNS);
+
   return (
     <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
       {loaderData.abilities["next-organization-create"].hasAccess ? (
-        <TextButton
-          as="a"
-          href="/next/organization/create"
-          weight="thin"
-          variant="neutral"
-          arrowRight
-        >
-          Hier gehts zur neuen Organisationserstellung
+        <TextButton weight="thin" variant="neutral" arrowRight>
+          <Link to="/next/organization/create">
+            Hier gehts zur neuen Organisationserstellung
+          </Link>
         </TextButton>
       ) : null}
       <div className="flex -mx-4 justify-center mv-w-full">
         <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4 pt-10 mv-w-full">
-          <h4 className="font-semibold">{locales.content.headline}</h4>
+          <h4 className="font-semibold">{t("content.headline")}</h4>
           <Form
             method="post"
             {...form.props}
@@ -195,7 +197,7 @@ function Create() {
           >
             <Input {...conform.input(fields.organizationName)} standalone>
               <Input.Label htmlFor={fields.organizationName.id}>
-                {locales.form.organizationName.label}
+                {t("form.organizationName.label")}
               </Input.Label>
               {typeof fields.organizationName.error !== "undefined" && (
                 <Input.Error>{fields.organizationName.error}</Input.Error>
@@ -203,35 +205,27 @@ function Create() {
             </Input>
             <div className="mv-w-fit-content">
               <Button type="submit" variant="outline">
-                {locales.form.submit.label}
+                {t("form.submit.label")}
               </Button>
             </div>
           </Form>
           {loaderData.searchResult.length > 0 && (
             <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-8">
               <p>
-                {insertParametersIntoLocale(
-                  locales.form.error.sameOrganization,
-                  {
-                    searchQuery,
-                  }
-                )}
+                {t("form.error.sameOrganization", {
+                  searchQuery,
+                })}
               </p>
               <List>
                 {loaderData.searchResult.map((organization) => {
                   return (
-                    <List.Item
-                      key={organization.slug}
-                      interactive
-                      as={{
-                        type: "link",
-                        props: { to: `/organization/${organization.slug}` },
-                      }}
-                    >
-                      <List.Item.Info>
-                        <List.Item.Title>{organization.name}</List.Item.Title>
-                      </List.Item.Info>
-                      <Avatar {...organization} />
+                    <List.Item key={organization.slug} interactive>
+                      <Link to={`/organization/${organization.slug}`}>
+                        <List.Item.Info>
+                          <List.Item.Title>{organization.name}</List.Item.Title>
+                        </List.Item.Info>
+                        <Avatar {...organization} />
+                      </Link>
                     </List.Item>
                   );
                 })}

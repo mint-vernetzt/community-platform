@@ -1,12 +1,9 @@
 import { Link, useFetcher } from "@remix-run/react";
-import { Avatar } from "./../../molecules/Avatar";
+import Avatar from "../../molecules/Avatar";
 import { Card } from "./Card";
+import { useTranslation } from "react-i18next";
 import React from "react";
-import { Image } from "./../../molecules/Image";
-import { type DashboardLocales } from "~/routes/dashboard.server";
-import { type ExploreProjectsLocales } from "~/routes/explore/projects.server";
-import { type MyProjectsLocales } from "~/routes/my/projects.server";
-import { type SearchProjectsLocales } from "~/routes/search/projects.server";
+import { Image } from "@mint-vernetzt/components";
 
 export type ProjectCardProps = {
   project: {
@@ -27,16 +24,12 @@ export type ProjectCardProps = {
       };
     }[];
   };
-  locales:
-    | DashboardLocales
-    | ExploreProjectsLocales
-    | MyProjectsLocales
-    | SearchProjectsLocales;
   mode?: "admin" | "teamMember";
 };
 
 function ProjectCard(props: ProjectCardProps) {
-  const { project, mode, locales } = props;
+  const { project, mode } = props;
+  const { t } = useTranslation(["organisms/cards/project-card"]);
 
   const fetcher = useFetcher({ key: `quit-${project.slug}` });
 
@@ -75,7 +68,7 @@ function ProjectCard(props: ProjectCardProps) {
           {typeof project.published !== "undefined" &&
             project.published === false && (
               <Card.Status variant="primary" inverted>
-                {locales.projectCard.draft}
+                {t("draft")}
               </Card.Status>
             )}
           <Avatar {...project} size="xl" />
@@ -171,7 +164,7 @@ function ProjectCard(props: ProjectCardProps) {
                         fill="CurrentColor"
                       />
                     </svg>
-                    <span>{locales.projectCard.edit}</span>
+                    <span>{t("edit")}</span>
                   </Link>
                 </li>
                 <div
@@ -207,7 +200,7 @@ function ProjectCard(props: ProjectCardProps) {
                   className="mv-appearance-none"
                   type="submit"
                 >
-                  {locales.projectCard.quit}
+                  {t("quit")}
                 </button>
               </label>
             </li>
@@ -228,4 +221,4 @@ function ProjectCard(props: ProjectCardProps) {
   );
 }
 
-export { ProjectCard };
+export default ProjectCard;

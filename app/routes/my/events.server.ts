@@ -7,13 +7,6 @@ import {
 } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { type supportedCookieLanguages } from "~/i18n.shared";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
-
-export type MyEventsLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
->]["my/events"];
 
 export async function getEvents(options: {
   profileId: string;

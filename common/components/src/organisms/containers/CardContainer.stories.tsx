@@ -1,6 +1,5 @@
-import { languageModuleMap } from "~/locales/.server";
-import { ProfileCard } from "./../cards/ProfileCard";
-import { CardContainer } from "./CardContainer";
+import { ProfileCard } from "./../../../index";
+import CardContainer from "./CardContainer";
 
 const profile = {
   academicTitle: "Prof. Dr.",
@@ -45,12 +44,7 @@ type CardContainerSingleRowProps = {
 export function CardContainerSingleRow(props: CardContainerSingleRowProps) {
   const cards = [];
   for (let i = 0; i < props.numberOfCards; i++) {
-    cards.push(
-      <ProfileCard
-        profile={profile}
-        locales={languageModuleMap.en["explore/profiles"]}
-      />
-    );
+    cards.push(<ProfileCard profile={profile} />);
   }
 
   return (
@@ -77,12 +71,7 @@ type CardContainerMultiRowProps = {
 export function CardContainerMultiRow(props: CardContainerMultiRowProps) {
   const cards = [];
   for (let i = 0; i < props.numberOfCards; i++) {
-    cards.push(
-      <ProfileCard
-        profile={profile}
-        locales={languageModuleMap.en["explore/profiles"]}
-      />
-    );
+    cards.push(<ProfileCard profile={profile} />);
   }
 
   return (

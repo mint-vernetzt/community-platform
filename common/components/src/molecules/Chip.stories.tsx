@@ -1,4 +1,4 @@
-import { Chip, type ChipColor } from "./Chip";
+import Chip, { type ChipColor } from "./Chip";
 
 export function ChipVariantsStory(props: { responsive: boolean }) {
   return (

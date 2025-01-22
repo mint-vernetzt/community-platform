@@ -1,3 +1,5 @@
+import { TFunction } from "i18next";
+
 export function getFullName(
   data: { academicTitle?: string | null; firstName: string; lastName: string },
   options: { withAcademicTitle: boolean } = { withAcademicTitle: true }

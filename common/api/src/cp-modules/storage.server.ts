@@ -1,5 +1,5 @@
+import { json } from "@remix-run/node";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { invariantResponse } from "./response";
 
 export function getPublicURL(
   authClient: SupabaseClient,
@@ -11,8 +11,12 @@ export function getPublicURL(
   } = authClient.storage.from(bucket).getPublicUrl(relativePath);
 
   if (publicUrl === "") {
-    console.error("Requested public url is an empty string.");
-    invariantResponse(false, "Server Error", { status: 500 });
+    throw json(
+      {
+        message: "Die öffentliche URL der Datei konnte nicht erzeugt werden.",
+      },
+      { status: 500 }
+    );
   }
 
   if (

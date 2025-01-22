@@ -33,4 +33,4 @@ function Status(props: StatusProps) {
   return <div className={classes}>{children}</div>;
 }
 
-export { Status };
+export default Status;

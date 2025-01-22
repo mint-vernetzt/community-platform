@@ -1,8 +1,7 @@
 import React from "react";
-import { Avatar } from "../molecules/Avatar";
+import Avatar from "../molecules/Avatar";
 import classNames from "classnames";
-import { type ImageProps } from "./../molecules/Image";
-import { Link, type LinkProps } from "@remix-run/react";
+import { type ImageProps } from "./../../index";
 
 type Size = "sm" | "md";
 
@@ -104,13 +103,11 @@ function ListItemInfo(props: React.PropsWithChildren<{ size?: Size }>) {
 
   if (typeof title !== "undefined") {
     titleClone = React.cloneElement(title as React.ReactElement, {
-      // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
   if (typeof subtitle !== "undefined") {
     subtitleClone = React.cloneElement(subtitle as React.ReactElement, {
-      // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
@@ -137,13 +134,9 @@ export function ListItem(
     noBorder?: boolean;
     interactive?: boolean;
     size?: Size;
-    as?: {
-      type: "link";
-      props: LinkProps;
-    };
   }>
 ) {
-  const { noBorder = false, interactive = false, size = "md", as } = props;
+  const { noBorder = false, interactive = false, size = "md" } = props;
 
   const validChildren = React.Children.toArray(props.children).filter(
     (child) => {
@@ -174,40 +167,38 @@ export function ListItem(
     const childrenWithoutControls = validChildren.filter((child) => {
       return React.isValidElement(child) && child.type !== ListItemControls;
     });
-    avatar = childrenWithoutControls.find((child) => {
+    const wrapper = childrenWithoutControls[0];
+    const wrapperChildren = React.Children.toArray(
+      (wrapper as React.ReactElement).props.children
+    );
+    avatar = wrapperChildren.find((child) => {
       return React.isValidElement(child) && child.type === Avatar;
     }) as React.ReactElement;
-    info = childrenWithoutControls.find((child) => {
+    info = wrapperChildren.find((child) => {
       return React.isValidElement(child) && child.type === ListItemInfo;
     }) as React.ReactElement;
 
     let infoClone: React.ReactElement | undefined;
     if (typeof info !== "undefined") {
       infoClone = React.cloneElement(info as React.ReactElement, {
-        // @ts-ignore - We should look at our cloneElement implementation.
         size,
       });
     }
 
     const wrapperClasses = classNames(containerClasses, "mv-flex-1");
 
-    return as !== undefined && as.type === "link" ? (
-      <li className={listItemClasses}>
-        <Link {...as.props}>
-          <div className={wrapperClasses}>
-            {typeof avatar !== "undefined" && avatar}
-            {typeof infoClone !== "undefined" && infoClone}
-          </div>
-        </Link>
-      </li>
-    ) : (
-      <li className={listItemClasses}>
-        <div className={wrapperClasses}>
-          {typeof avatar !== "undefined" && avatar}
-          {typeof infoClone !== "undefined" && infoClone}
-        </div>
-      </li>
+    const wrapperClone = React.cloneElement(
+      wrapper as React.ReactElement,
+      {
+        className: wrapperClasses,
+      },
+      <>
+        {typeof avatar !== "undefined" && avatar}
+        {typeof infoClone !== "undefined" && infoClone}
+      </>
     );
+
+    return <li className={listItemClasses}>{wrapperClone}</li>;
   }
 
   avatar = validChildren.find((child) => {
@@ -223,7 +214,6 @@ export function ListItem(
 
   if (typeof info !== "undefined") {
     infoClone = React.cloneElement(info as React.ReactElement, {
-      // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   } else {
@@ -240,13 +230,11 @@ export function ListItem(
 
   if (typeof title !== "undefined") {
     titleClone = React.cloneElement(title as React.ReactElement, {
-      // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
   if (typeof subtitle !== "undefined") {
     subtitleClone = React.cloneElement(subtitle as React.ReactElement, {
-      // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
@@ -255,31 +243,7 @@ export function ListItem(
     return React.isValidElement(child) && child.type === ListItemPreview;
   });
 
-  return as !== undefined && as.type === "link" ? (
-    <li className={listItemClasses}>
-      <Link {...as.props}>
-        {typeof preview !== "undefined" && (
-          <div className="mv-w-[138px] mv-h-[92px]">{preview}</div>
-        )}
-        {typeof avatar === "undefined" &&
-        typeof info === "undefined" &&
-        typeof infoClone === "undefined" ? null : (
-          <div className={containerClasses}>
-            {typeof avatar !== "undefined" && avatar}
-            {typeof infoClone !== "undefined" ? (
-              infoClone
-            ) : (
-              <ListItemInfo size={size}>
-                {typeof titleClone !== "undefined" && titleClone}
-                {typeof subtitleClone !== "undefined" && subtitleClone}
-              </ListItemInfo>
-            )}
-            {typeof controls !== "undefined" && controls}
-          </div>
-        )}
-      </Link>
-    </li>
-  ) : (
+  return (
     <li className={listItemClasses}>
       {typeof preview !== "undefined" && (
         <div className="mv-w-[138px] mv-h-[92px]">{preview}</div>
@@ -312,4 +276,4 @@ ListItem.Preview = ListItemPreview;
 
 List.Item = ListItem;
 
-export { List };
+export default List;

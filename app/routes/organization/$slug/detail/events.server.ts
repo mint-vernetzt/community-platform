@@ -11,13 +11,6 @@ import {
 } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { type supportedCookieLanguages } from "~/i18n.shared";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
-
-export type OrganizationEventsLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
->]["organization/$slug/detail/events"];
 
 export async function getOrganization(slug: string) {
   const [futureEventsOrganization, pastEventsOrganization] =

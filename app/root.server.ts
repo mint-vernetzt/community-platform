@@ -1,8 +1,5 @@
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage as nextDetectLanguage } from "./i18n.server";
-import { type languageModuleMap } from "./locales/.server";
-import { type ArrayElement } from "./lib/utils/types";
-import { type supportedCookieLanguages } from "./i18n.shared";
+import i18n from "./i18n";
 
 export async function getProfileByUserId(id: string) {
   return await prismaClient.profile.findUnique({
@@ -19,10 +16,17 @@ export async function getProfileByUserId(id: string) {
   });
 }
 
-export type RootLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
->]["root"];
-
 export function detectLanguage(request: Request) {
-  return nextDetectLanguage(request);
+  let cookie = Object.fromEntries(
+    request.headers
+      .get("Cookie")
+      ?.split(";")
+      .map((cookie) => cookie.split("=")) ?? []
+  ) as { i18next?: string };
+
+  if (cookie.i18next) {
+    return cookie.i18next;
+  }
+
+  return i18n.fallbackLng;
 }

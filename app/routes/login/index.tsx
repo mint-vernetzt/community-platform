@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useActionData,
@@ -8,28 +8,32 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
+import { t, type TFunction } from "i18next";
 import type { KeyboardEvent } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import type { FormProps } from "remix-forms";
 import { performMutation } from "remix-forms";
 import type { SomeZodObject } from "zod";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { detectLanguage } from "~/i18n.server";
+import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import { type LoginLocales } from "./index.server";
-import { languageModuleMap } from "~/locales/.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
-const createSchema = (locales: LoginLocales) => {
+const i18nNS = ["routes/login"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createSchema = (t: TFunction) => {
   return z.object({
     email: z
       .string()
-      .email(locales.validation.email.email)
-      .min(1, locales.validation.email.min),
-    password: z.string().min(8, locales.validation.password.min),
+      .email(t("validation.email.email"))
+      .min(1, t("validation.email.min")),
+    password: z.string().min(8, t("validation.password.min")),
     loginRedirect: z.string().optional(),
   });
 };
@@ -47,32 +51,25 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/dashboard");
   }
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["login/index"];
-
   const searchParams = new URL(request.url).searchParams;
-  const error = searchParams.get("error");
-  if (error !== null) {
-    if (error === "confirmationLinkExpired") {
-      return {
-        error: {
-          message: locales.error.confirmationLinkExpired,
-          type: "confirmationLinkExpired",
-          supportMail: process.env.SUPPORT_MAIL,
-        },
-        locales,
-      };
-    }
+  if (searchParams.has("error")) {
+    return json({
+      error: {
+        message: t("error.confirmationLinkExpired"),
+        type: "confirmationLinkExpired",
+        supportMail: process.env.SUPPORT_MAIL,
+      },
+    });
   }
 
-  return { error: null, locales };
+  return null;
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["login/index"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
-  const schema = createSchema(locales);
+  const schema = createSchema(t);
   const mutation = makeDomainFunction(schema)(async (values) => {
     return { ...values };
   });
@@ -95,26 +92,27 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         error.code === "invalid_credentials" ||
         error.message === "Invalid login credentials"
       ) {
-        return {
+        return json({
           error: {
-            message: locales.error.invalidCredentials,
+            message: t("error.invalidCredentials"),
           },
-        };
+        });
       } else if (
         error.code === "email_not_confirmed" ||
         error.message === "Email not confirmed"
       ) {
-        return {
+        return json({
           error: {
-            message: locales.error.notConfirmed,
+            message: t("error.notConfirmed"),
             type: "notConfirmed",
             supportMail: process.env.SUPPORT_MAIL,
           },
-        };
-      } else {
-        invariantResponse(false, `${error.code}: ${error.message}`, {
-          status: 500,
         });
+      } else {
+        throw json(
+          { message: `${error.code}: ${error.message}` },
+          { status: 500 }
+        );
       }
     }
     if (submission.data.loginRedirect) {
@@ -128,19 +126,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   }
 
-  return { submission };
+  return json(submission);
 };
 
 export default function Index() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
   const loginError =
-    loaderData.error !== null
+    loaderData !== null
       ? loaderData.error
       : actionData !== undefined && "error" in actionData
       ? actionData.error
       : null;
-  const { locales } = loaderData;
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const submit = useSubmit();
@@ -151,7 +148,8 @@ export default function Index() {
     }
   };
 
-  const schema = createSchema(locales);
+  const { t } = useTranslation(i18nNS);
+  const schema = createSchema(t);
 
   return (
     <LoginForm
@@ -169,36 +167,41 @@ export default function Index() {
             <div className="flex flex-col mv-w-full mv-items-center">
               <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
                 <div className="mv-mb-6 mv-mt-12">
-                  {locales.content.question}{" "}
+                  {t("content.question")}{" "}
                   <Link
                     to={`/register${
                       loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                     }`}
                     className="text-primary font-bold"
                   >
-                    {locales.content.action}
+                    {t("content.action")}
                   </Link>
                 </div>
-                <h1 className="mb-8">{locales.content.headline}</h1>
+                <h1 className="mb-8">{t("content.headline")}</h1>
 
-                {loginError !== null && loginError !== undefined ? (
+                {loginError !== null ? (
                   <Errors className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md">
-                    {"supportMail" in loginError && "type" in loginError
-                      ? insertComponentsIntoLocale(
+                    {"supportMail" in loginError && "type" in loginError ? (
+                      <Trans
+                        i18nKey={
                           loginError.type === "notConfirmed"
-                            ? locales.error.notConfirmed
-                            : locales.error.confirmationLinkExpired,
-                          [
-                            <a
-                              key="support-mail"
-                              href={`mailto:${loginError.supportMail}`}
-                              className="mv-text-primary font-bold hover:underline"
-                            >
-                              {" "}
-                            </a>,
-                          ]
-                        )
-                      : loginError.message}
+                            ? "error.notConfirmed"
+                            : "error.confirmationLinkExpired"
+                        }
+                        ns={i18nNS}
+                        components={[
+                          <a
+                            key="support-mail"
+                            href={`mailto:${loginError.supportMail}`}
+                            className="mv-text-primary font-bold hover:underline"
+                          >
+                            {" "}
+                          </a>,
+                        ]}
+                      />
+                    ) : (
+                      loginError.message
+                    )}
                   </Errors>
                 ) : null}
 
@@ -208,7 +211,7 @@ export default function Index() {
                       <>
                         <Input
                           id="email"
-                          label={locales.label.email}
+                          label={t("label.email")}
                           {...register("email")}
                         />
                         <Errors />
@@ -222,7 +225,7 @@ export default function Index() {
                       <>
                         <InputPassword
                           id="password"
-                          label={locales.label.password}
+                          label={t("label.password")}
                           {...register("password")}
                         />
                         <Errors />
@@ -235,7 +238,7 @@ export default function Index() {
                 <div className="flex flex-row -mx-4 mb-8 items-center">
                   <div className="basis-6/12 px-4">
                     <button type="submit" className="btn btn-primary">
-                      {locales.label.submit}
+                      {t("label.submit")}
                     </button>
                   </div>
                   <div className="basis-6/12 px-4 text-right">
@@ -245,7 +248,7 @@ export default function Index() {
                       }`}
                       className="text-primary font-bold"
                     >
-                      {locales.label.reset}
+                      {t("label.reset")}
                     </Link>
                   </div>
                 </div>

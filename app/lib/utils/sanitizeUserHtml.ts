@@ -1,7 +1,6 @@
 import sanitizeHtml from "sanitize-html";
-import { serverOnly$ } from "vite-env-only/macros";
 
-const allowedTags = serverOnly$([
+const allowedTags = [
   "b",
   "i",
   "em",
@@ -12,8 +11,8 @@ const allowedTags = serverOnly$([
   "p",
   "li",
   "br",
-]);
-const allowedAttributes = serverOnly$({
+];
+const allowedAttributes = {
   a: ["href", "rel", "target"],
   b: [],
   i: [],
@@ -24,33 +23,25 @@ const allowedAttributes = serverOnly$({
   p: [],
   li: [],
   br: [],
-});
-export const sanitizeUserHtml = serverOnly$(
-  (
-    html: string | null,
-    options?: {
-      allowedTags?: string[];
-      allowedAttributes?: { [key: string]: string[] };
-    }
-  ) => {
-    if (html === null) {
-      return null;
-    }
-    if (allowedTags === undefined) {
-      return null;
-    }
-    if (allowedAttributes === undefined) {
-      return null;
-    }
-    return sanitizeHtml(
-      html,
-      options ?? {
-        allowedTags,
-        allowedAttributes,
-      }
-    );
+};
+export function sanitizeUserHtml(
+  html: string | null,
+  options?: {
+    allowedTags?: string[];
+    allowedAttributes?: { [key: string]: string[] };
   }
-);
+) {
+  if (html === null) {
+    return null;
+  }
+  return sanitizeHtml(
+    html,
+    options ?? {
+      allowedTags,
+      allowedAttributes,
+    }
+  );
+}
 
 const HTML_TAG_REGEX = /(<([^>]+)>)/gi;
 const HTML_TAG_REPLACEMENT = "";

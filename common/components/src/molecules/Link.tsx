@@ -10,7 +10,7 @@ export interface LinkProps {
   isExternal?: boolean;
 }
 
-const Link = React.forwardRef((props: LinkProps, ref) => {
+export const Link = React.forwardRef((props: LinkProps, ref) => {
   const {
     to,
     isExternal = false,
@@ -54,4 +54,4 @@ const Link = React.forwardRef((props: LinkProps, ref) => {
 
 Link.displayName = "Link";
 
-export { Link };
+export default Link;

@@ -1,13 +1,17 @@
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { TextButton } from "@mint-vernetzt/components";
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import { detectLanguage } from "~/i18n.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { languageModuleMap } from "~/locales/.server";
+
+const i18nNS = ["routes/organization/settings"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -20,44 +24,35 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["organization/$slug/settings"];
-
   const slug = getParamValueOrThrow(params, "slug");
 
-  return {
+  return json({
     slug,
-    locales,
-  };
+  });
 };
 
 function Settings() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
   const getClassName = (active: boolean) =>
     `block text-3xl ${
       active ? "text-primary" : "text-neutral-500"
     }  hover:text-primary py-3`;
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
-        <TextButton
-          as="a"
-          href={`/organization/${loaderData.slug}`}
-          weight="thin"
-          variant="neutral"
-          arrowLeft
-        >
-          {locales.back}
+        <TextButton weight="thin" variant="neutral" arrowLeft>
+          <Link to={`/organization/${loaderData.slug}`} prefetch="intent">
+            {t("back")}
+          </Link>
         </TextButton>
       </section>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
         <div className="flex flex-col @lg:mv-flex-row -mx-4 pt-10 @lg:mv-pt-0">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 @lg:mv-p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">{locales.headline}</h3>
+              <h3 className="font-bold mb-7">{t("headline")}</h3>
               <menu>
                 <ul>
                   <li>
@@ -66,7 +61,7 @@ function Settings() {
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
-                      {locales.navigation.general}
+                      {t("navigation.general")}
                     </NavLink>
                   </li>
                   <li>
@@ -75,7 +70,7 @@ function Settings() {
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
-                      {locales.navigation.admins}
+                      {t("navigation.admins")}
                     </NavLink>
                   </li>
                   <li>
@@ -84,7 +79,7 @@ function Settings() {
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
-                      {locales.navigation.team}
+                      {t("navigation.team")}
                     </NavLink>
                   </li>
                   <li>
@@ -93,7 +88,7 @@ function Settings() {
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
                     >
-                      {locales.navigation.network}
+                      {t("navigation.network")}
                     </NavLink>
                   </li>
                 </ul>
@@ -104,7 +99,7 @@ function Settings() {
                     className={({ isActive }) => getClassName(isActive)}
                     preventScrollReset
                   >
-                    {locales.navigation.delete}
+                    {t("navigation.delete")}
                   </NavLink>
                 </div>
               </menu>
@@ -127,7 +122,7 @@ function Settings() {
                     />
                   </svg>
                 </span>
-                <span>{locales.state.public}</span>
+                <span>{t("state.public")}</span>
               </p>
 
               <p className="text-xs flex items-center mb-4">
@@ -152,7 +147,7 @@ function Settings() {
                     />
                   </svg>
                 </span>
-                <span>{locales.state.private}</span>
+                <span>{t("state.private")}</span>
               </p>
             </div>
           </div>

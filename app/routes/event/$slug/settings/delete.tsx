@@ -1,7 +1,9 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
@@ -11,21 +13,19 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { deriveEventMode } from "../../utils.server";
 import {
-  type DeleteEventLocales,
   getEventBySlug,
   getEventBySlugForAction,
   getProfileById,
 } from "./delete.server";
 import { publishSchema, type action as publishAction } from "./events/publish";
 import { deleteEventBySlug } from "./utils.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const schema = z.object({
   eventName: z.string().optional(),
@@ -39,8 +39,8 @@ const environmentSchema = z.object({
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["event/$slug/settings/delete"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
@@ -53,89 +53,86 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.error.eventNotFound, { status: 404 });
+  invariantResponse(event, t("error.eventNotFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
 
-  return {
+  return json({
     published: event.published,
     eventName: event.name,
     childEvents: event.childEvents,
-    locales,
-  };
+  });
 };
 
-const createMutation = (locales: DeleteEventLocales) => {
+const createMutation = (t: TFunction) => {
   return makeDomainFunction(
     schema,
     environmentSchema
   )(async (values, environment) => {
     if (values.eventName !== environment.eventName) {
-      throw new InputError(locales.error.input, "eventName");
+      throw new InputError(t("error.input"), "eventName");
     }
     try {
       await deleteEventBySlug(environment.eventSlug);
     } catch (error) {
-      throw locales.error.delete;
+      throw t("error.delete");
     }
   });
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["event/$slug/settings/delete"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, ["routes/event/settings/delete"]);
   const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const event = await getEventBySlugForAction(slug);
-  invariantResponse(event, locales.error.eventNotFound, { status: 404 });
+  invariantResponse(event, t("error.eventNotFound"), { status: 404 });
 
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(locales),
+    mutation: createMutation(t),
     environment: { eventSlug: slug, eventName: event.name },
   });
 
   if (result.success === true) {
     const profile = await getProfileById(sessionUser.id);
     if (profile === null) {
-      invariantResponse(false, locales.error.profileNotFound, { status: 404 });
+      throw json(t("error.profileNotFound"), { status: 404 });
     }
     return redirect(`/profile/${profile.username}`);
   }
 
-  return { ...result };
+  return json(result);
 };
 
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
   const { slug } = useParams();
   const publishFetcher = useFetcher<typeof publishAction>();
+  const { t } = useTranslation(["routes/event/settings/delete"]);
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
 
       <p className="mb-8">
-        {insertParametersIntoLocale(locales.content.intro, {
-          name: loaderData.eventName,
-        })}
+        {t("content.intro", { name: loaderData.eventName })}
       </p>
 
       {loaderData.childEvents.length > 0 ? (
         <>
-          <p className="mb-2">{locales.content.list}</p>{" "}
+          <p className="mb-2">{t("content.list")}</p>{" "}
           <ul className="mb-8">
             {loaderData.childEvents.map((childEvent) => {
               return (
@@ -162,7 +159,7 @@ function Delete() {
                 <>
                   <Input
                     id="eventName"
-                    label={locales.form.eventName.label}
+                    label={t("form.eventName.label")}
                     {...register("eventName")}
                   />
                   <Errors />
@@ -173,7 +170,7 @@ function Delete() {
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small"
             >
-              {locales.form.submit.label}
+              {t("form.submit.label")}
             </button>
             <Errors />
           </>
@@ -198,8 +195,8 @@ function Delete() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? locales.form.hide.label
-                        : locales.form.publish.label}
+                        ? t("form.hide.label")
+                        : t("form.publish.label")}
                     </Button>
                   </>
                 );

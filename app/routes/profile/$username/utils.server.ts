@@ -1,4 +1,5 @@
 import type { Profile } from "@prisma/client";
+import { json } from "@remix-run/server-runtime";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import {
   BlurFactor,
@@ -6,7 +7,6 @@ import {
   getImageURL,
   ImageSizes,
 } from "~/images.server";
-import { invariantResponse } from "~/lib/utils/response";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
@@ -114,7 +114,7 @@ export async function updateProfileById(
     },
   });
   if (profileVisibility === null) {
-    invariantResponse(false, "Profile visibilities not found", { status: 404 });
+    throw json("Profile visibilities not found", { status: 404 });
   }
 
   let visibility: keyof typeof profileVisibility;

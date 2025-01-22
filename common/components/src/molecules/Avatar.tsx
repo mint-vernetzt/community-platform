@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { getFullName, getInitials } from "../utils";
 import React from "react";
-import { Image } from "./Image";
+import Image from "./Image";
 
 function Avatar(props: AvatarProps) {
   const { size = "md", textSize = "md" } = props;
@@ -174,4 +174,4 @@ export type AvatarProps = {
 
 Avatar.List = AvatarList;
 
-export { Avatar };
+export default Avatar;

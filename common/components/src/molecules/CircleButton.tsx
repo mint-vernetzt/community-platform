@@ -71,4 +71,4 @@ function CircleButton(
   return element;
 }
 
-export { CircleButton };
+export default CircleButton;

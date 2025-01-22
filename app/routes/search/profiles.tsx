@@ -1,10 +1,13 @@
+import { Button, CardContainer, ProfileCard } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Link,
   useLoaderData,
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import {
@@ -18,41 +21,30 @@ import {
   getTakeParam,
   searchProfilesViaLike,
 } from "./utils.server";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
-import { prismaClient } from "~/prisma.server";
+// import styles from "../../../common/design/styles/styles.css";
+
+// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+
+const i18nNS = ["routes/search/profiles", "datasets/offers"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
-
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["search/profiles"];
 
   const searchQuery = getQueryValueAsArrayOfWords(request);
   const { take, page, itemsPerPage } = getTakeParam(request);
 
   const sessionUser = await getSessionUser(authClient);
 
-  let profilesCount: Awaited<ReturnType<typeof countSearchedProfiles>>;
-  let rawProfiles: Awaited<ReturnType<typeof searchProfilesViaLike>>;
-  if (searchQuery.length === 0) {
-    profilesCount = 0;
-    rawProfiles = [];
-  } else {
-    const profilesCountQuery = countSearchedProfiles(searchQuery, sessionUser);
-    const rawProfilesQuery = searchProfilesViaLike(
-      searchQuery,
-      sessionUser,
-      take
-    );
-    const [profilesCountResult, rawProfilesResult] =
-      await prismaClient.$transaction([profilesCountQuery, rawProfilesQuery]);
-    profilesCount = profilesCountResult;
-    rawProfiles = rawProfilesResult;
-  }
+  const profilesCount = await countSearchedProfiles(searchQuery, sessionUser);
+
+  const rawProfiles = await searchProfilesViaLike(
+    searchQuery,
+    sessionUser,
+    take
+  );
 
   const enhancedProfiles = [];
 
@@ -147,7 +139,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     enhancedProfiles.push(imageEnhancedProfile);
   }
 
-  return {
+  return json({
     profiles: enhancedProfiles,
     count: profilesCount,
     isLoggedIn: sessionUser !== null,
@@ -155,11 +147,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       page,
       itemsPerPage,
     },
-    locales,
-  };
+  });
 };
 
 export default function Profiles() {
+  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
 
@@ -182,7 +174,6 @@ export default function Profiles() {
                   key={`profile-${profile.id}`}
                   publicAccess={!loaderData.isLoggedIn}
                   profile={profile}
-                  locales={loaderData.locales}
                 />
               );
             })}
@@ -200,16 +191,14 @@ export default function Profiles() {
                   loading={navigation.state === "loading"}
                   disabled={navigation.state === "loading"}
                 >
-                  {loaderData.locales.route.more}
+                  {t("more")}
                 </Button>
               </Link>
             </div>
           )}
         </>
       ) : (
-        <p className="text-center text-primary">
-          {loaderData.locales.route.empty}
-        </p>
+        <p className="text-center text-primary">{t("empty")}</p>
       )}
     </section>
   );

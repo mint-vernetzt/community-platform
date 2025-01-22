@@ -1,42 +1,55 @@
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { List } from "@mint-vernetzt/components/src/organisms/List";
-import { Video } from "@mint-vernetzt/components/src/organisms/Video";
-import { type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Avatar, Chip, List, Video } from "@mint-vernetzt/components";
+import { type LoaderFunctionArgs, json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { Avatar as AvatarIcon } from "~/components-next/Avatar";
-import { Envelope } from "~/components-next/icons/Envelope";
-import { Facebook } from "~/components-next/icons/Facebook";
-import { Globe } from "~/components-next/icons/Globe";
-import { House } from "~/components-next/icons/House";
-import { Instagram } from "~/components-next/icons/Instagram";
-import { LinkedIn } from "~/components-next/icons/LinkedIn";
-import { Mastodon } from "~/components-next/icons/Mastodon";
-import { Phone } from "~/components-next/icons/Phone";
-import { TikTok } from "~/components-next/icons/TikTok";
-import { Twitter } from "~/components-next/icons/Twitter";
-import { Xing } from "~/components-next/icons/Xing";
-import { YouTube } from "~/components-next/icons/YouTube";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
+import {
+  Avatar as AvatarIcon,
+  Envelope,
+  Facebook,
+  Globe,
+  House,
+  Instagram,
+  Linkedin,
+  Mastodon,
+  Phone,
+  TikTok,
+  Twitter,
+  Xing,
+  YouTube,
+} from "./__components";
+import i18next from "~/i18next.server";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
+
+const i18nNS = [
+  "routes/project/detail/about",
+  "datasets/formats",
+  "datasets/disciplines",
+  "datasets/projectTargetGroups",
+  "datasets/specialTargetGroups",
+  "datasets/organizationTypes",
+];
+
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["project/$slug/detail/about"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
 
   // check slug exists (throw bad request if not)
   invariantResponse(
     params.slug !== undefined,
-    locales.route.error.invariant.invalidRoute,
+    t("error.invariant.invalidRoute"),
     {
       status: 400,
     }
@@ -80,15 +93,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       disciplines: {
         select: {
           discipline: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
-      additionalDisciplines: {
-        select: {
-          additionalDiscipline: {
             select: {
               slug: true,
             },
@@ -169,7 +173,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, locales.route.error.invariant.notFound, {
+  invariantResponse(project !== null, t("error.invariant.notFound"), {
     status: 404,
   });
 
@@ -257,13 +261,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     responsibleOrganizations,
   };
 
-  return { project: enhancedProject, locales };
+  return json({ project: enhancedProject });
 };
 
 function About() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { t } = useTranslation(i18nNS);
 
+  // TODO:
+
+  // Question: Why dont we do this on the server? Is this executed when js is disabled? (Keyword Accessibility)
   const street = `${
     loaderData.project.street !== null ? loaderData.project.street : ""
   } ${
@@ -294,24 +301,15 @@ function About() {
       {loaderData.project.formats.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {locales.route.content.formats}
+            {t("content.formats")}
           </h3>
           <Chip.Container>
             {loaderData.project.formats.map((relation) => {
-              let title;
-              if (relation.format.slug in locales.formats) {
-                type LocaleKey = keyof typeof locales.formats;
-                title =
-                  locales.formats[relation.format.slug as LocaleKey].title;
-              } else {
-                console.error(
-                  `Format ${relation.format.slug} not found in locales`
-                );
-                title = relation.format.slug;
-              }
               return (
                 <Chip key={relation.format.slug} color="primary">
-                  {title}
+                  {t(`${relation.format.slug}.title`, {
+                    ns: "datasets/formats",
+                  })}
                 </Chip>
               );
             })}
@@ -321,7 +319,7 @@ function About() {
       {loaderData.project.furtherFormats.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {locales.route.content.furtherFormats}
+            {t("content.furtherFormats")}
           </h3>
           <Chip.Container>
             {loaderData.project.furtherFormats.map((furtherFormat) => {
@@ -334,67 +332,28 @@ function About() {
           </Chip.Container>
         </div>
       )}
-      {(loaderData.project.disciplines.length > 0 ||
-        loaderData.project.additionalDisciplines.length > 0) && (
+      {loaderData.project.disciplines.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {locales.route.content.disciplines}
+            {t("content.disciplines")}
           </h3>
           <Chip.Container>
-            {loaderData.project.disciplines.length > 0 &&
-              loaderData.project.disciplines.map((relation) => {
-                let title;
-                if (relation.discipline.slug in locales.disciplines) {
-                  type LocaleKey = keyof typeof locales.disciplines;
-                  title =
-                    locales.disciplines[relation.discipline.slug as LocaleKey]
-                      .title;
-                } else {
-                  console.error(
-                    `Discipline ${relation.discipline.slug} not found in locales`
-                  );
-                  title = relation.discipline.slug;
-                }
-                return (
-                  <Chip key={relation.discipline.slug} color="primary">
-                    {title}
-                  </Chip>
-                );
-              })}
-            {loaderData.project.additionalDisciplines.length > 0 &&
-              loaderData.project.additionalDisciplines.map((relation) => {
-                let title;
-                if (
-                  relation.additionalDiscipline.slug in
-                  locales.additionalDisciplines
-                ) {
-                  type LocaleKey = keyof typeof locales.additionalDisciplines;
-                  title =
-                    locales.additionalDisciplines[
-                      relation.additionalDiscipline.slug as LocaleKey
-                    ].title;
-                } else {
-                  console.error(
-                    `Additional discipline ${relation.additionalDiscipline.slug} not found in locales`
-                  );
-                  title = relation.additionalDiscipline.slug;
-                }
-                return (
-                  <Chip
-                    key={relation.additionalDiscipline.slug}
-                    color="primary"
-                  >
-                    {title}
-                  </Chip>
-                );
-              })}
+            {loaderData.project.disciplines.map((relation) => {
+              return (
+                <Chip key={relation.discipline.slug} color="primary">
+                  {t(`${relation.discipline.slug}.title`, {
+                    ns: "datasets/disciplines",
+                  })}
+                </Chip>
+              );
+            })}
           </Chip.Container>
         </div>
       )}
       {loaderData.project.furtherDisciplines.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {locales.route.content.furtherDisciplines}
+            {t("content.furtherDisciplines")}
           </h3>
           <div className="mv-flex mv-flex-wrap mv-gap-2">
             <ul className="mv-list-disc mv-list-inside mv-font-normal mv-text-neutral-800 mv-px-2">
@@ -408,28 +367,15 @@ function About() {
       {loaderData.project.projectTargetGroups.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {locales.route.content.projectTargetGroups}
+            {t("content.projectTargetGroups")}
           </h3>
           <Chip.Container>
             {loaderData.project.projectTargetGroups.map((relation) => {
-              let title;
-              if (
-                relation.projectTargetGroup.slug in locales.projectTargetGroups
-              ) {
-                type LocaleKey = keyof typeof locales.projectTargetGroups;
-                title =
-                  locales.projectTargetGroups[
-                    relation.projectTargetGroup.slug as LocaleKey
-                  ].title;
-              } else {
-                console.error(
-                  `Project target group ${relation.projectTargetGroup.slug} not found in locales`
-                );
-                title = relation.projectTargetGroup.slug;
-              }
               return (
                 <Chip key={relation.projectTargetGroup.slug} color="primary">
-                  {title}
+                  {t(`${relation.projectTargetGroup.slug}.title`, {
+                    ns: "datasets/projectTargetGroups",
+                  })}
                 </Chip>
               );
             })}
@@ -439,28 +385,15 @@ function About() {
       {loaderData.project.specialTargetGroups.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {locales.route.content.specialTargetGroups}
+            {t("content.specialTargetGroups")}
           </h3>
           <Chip.Container>
             {loaderData.project.specialTargetGroups.map((relation) => {
-              let title;
-              if (
-                relation.specialTargetGroup.slug in locales.specialTargetGroups
-              ) {
-                type LocaleKey = keyof typeof locales.specialTargetGroups;
-                title =
-                  locales.specialTargetGroups[
-                    relation.specialTargetGroup.slug as LocaleKey
-                  ].title;
-              } else {
-                console.error(
-                  `Focus ${relation.specialTargetGroup.slug} not found in locales`
-                );
-                title = relation.specialTargetGroup.slug;
-              }
               return (
                 <Chip key={relation.specialTargetGroup.slug} color="primary">
-                  {title}
+                  {t(`${relation.specialTargetGroup.slug}.title`, {
+                    ns: "datasets/specialTargetGroups",
+                  })}
                 </Chip>
               );
             })}
@@ -470,7 +403,7 @@ function About() {
       {loaderData.project.targetGroupAdditions !== null && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {locales.route.content.targetGroupAdditions}
+            {t("content.targetGroupAdditions")}
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.targetGroupAdditions}
@@ -480,7 +413,7 @@ function About() {
       {loaderData.project.participantLimit !== null && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {locales.route.content.participantLimit}
+            {t("content.participantLimit")}
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.participantLimit}
@@ -490,7 +423,7 @@ function About() {
       {loaderData.project.areas.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-4">
           <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-            {locales.route.content.areas}
+            {t("content.areas")}
           </h3>
           <p className="mv-font-normal mv-text-neutral-800">
             {loaderData.project.areas
@@ -507,7 +440,7 @@ function About() {
         loaderData.project.hints !== null) && (
         <>
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {locales.route.content.furtherDescription}
+            {t("content.furtherDescription")}
           </h2>
           {/* only further description */}
           {loaderData.project.furtherDescription !== null &&
@@ -521,7 +454,7 @@ function About() {
           {loaderData.project.idea !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {locales.route.content.idea}
+                {t("content.idea")}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -532,7 +465,7 @@ function About() {
           {loaderData.project.goals !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {locales.route.content.goals}
+                {t("content.goals")}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -543,7 +476,7 @@ function About() {
           {loaderData.project.implementation !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {locales.route.content.implementation}
+                {t("content.implementation")}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -554,7 +487,7 @@ function About() {
           {loaderData.project.targeting !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {locales.route.content.targeting}
+                {t("content.targeting")}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -565,7 +498,7 @@ function About() {
           {loaderData.project.hints !== null && (
             <div className="mv-flex mv-flex-col mv-gap-4">
               <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                {locales.route.content.hints}
+                {t("content.hints")}
               </h3>
               <RichText
                 additionalClassNames="mv-text-lg mv-mb-0"
@@ -582,7 +515,7 @@ function About() {
               loaderData.project.hints !== null) && (
               <div className="mv-flex mv-flex-col mv-gap-4">
                 <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
-                  {locales.route.content.furtherDescription2}
+                  {t("content.furtherDescription2")}
                 </h3>
                 <RichText
                   additionalClassNames="mv-text-lg"
@@ -593,7 +526,7 @@ function About() {
         </>
       )}
       {loaderData.project.video !== null && (
-        <Video src={loaderData.project.video} locales={locales}>
+        <Video src={loaderData.project.video}>
           {loaderData.project.videoSubline !== null && (
             <Video.Subline>{loaderData.project.videoSubline}</Video.Subline>
           )}
@@ -602,35 +535,29 @@ function About() {
       {loaderData.project.teamMembers.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-2">
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {locales.route.content.team}
+            {t("content.team")}
           </h2>
           <List maxColumns={2}>
             {loaderData.project.teamMembers.map((relation) => {
               return (
-                <List.Item
-                  key={relation.profile.username}
-                  noBorder
-                  interactive
-                  as={{
-                    type: "link",
-                    props: { to: `/profile/${relation.profile.username}` },
-                  }}
-                >
-                  <List.Item.Info>
-                    <List.Item.Title>
-                      {relation.profile.firstName} {relation.profile.lastName}
-                    </List.Item.Title>
-                    <List.Item.Subtitle>
-                      {relation.profile.position}
-                    </List.Item.Subtitle>
-                  </List.Item.Info>
+                <List.Item key={relation.profile.username} noBorder interactive>
+                  <Link to={`/profile/${relation.profile.username}`}>
+                    <List.Item.Info>
+                      <List.Item.Title>
+                        {relation.profile.firstName} {relation.profile.lastName}
+                      </List.Item.Title>
+                      <List.Item.Subtitle>
+                        {relation.profile.position}
+                      </List.Item.Subtitle>
+                    </List.Item.Info>
 
-                  <Avatar
-                    firstName={relation.profile.firstName}
-                    lastName={relation.profile.lastName}
-                    avatar={relation.profile.avatar}
-                    blurredAvatar={relation.profile.blurredAvatar}
-                  />
+                    <Avatar
+                      firstName={relation.profile.firstName}
+                      lastName={relation.profile.lastName}
+                      avatar={relation.profile.avatar}
+                      blurredAvatar={relation.profile.blurredAvatar}
+                    />
+                  </Link>
                 </List.Item>
               );
             })}
@@ -640,7 +567,7 @@ function About() {
       {loaderData.project.responsibleOrganizations.length > 0 && (
         <div className="mv-flex mv-flex-col mv-gap-2">
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {locales.route.content.responsibleOrganizations}
+            {t("content.responsibleOrganizations")}
           </h2>
           <List maxColumns={2}>
             {loaderData.project.responsibleOrganizations.map((relation) => {
@@ -649,48 +576,32 @@ function About() {
                   key={relation.organization.slug}
                   noBorder
                   interactive
-                  as={{
-                    type: "link",
-                    props: {
-                      to: `/organization/${relation.organization.slug}`,
-                    },
-                  }}
                 >
-                  <List.Item.Info>
-                    <List.Item.Title>
-                      {relation.organization.name}
-                    </List.Item.Title>
-                    <List.Item.Subtitle>
-                      {relation.organization.types
-                        .map((relation) => {
-                          let title;
-                          if (
-                            relation.organizationType.slug in
-                            locales.organizationTypes
-                          ) {
-                            type LocaleKey =
-                              keyof typeof locales.organizationTypes;
-                            title =
-                              locales.organizationTypes[
-                                relation.organizationType.slug as LocaleKey
-                              ].title;
-                          } else {
-                            console.error(
-                              `Organization type ${relation.organizationType.slug} not found in locales`
+                  <Link to={`/organization/${relation.organization.slug}`}>
+                    <List.Item.Info>
+                      <List.Item.Title>
+                        {relation.organization.name}
+                      </List.Item.Title>
+                      <List.Item.Subtitle>
+                        {relation.organization.types
+                          .map((relation) => {
+                            return t(
+                              `${relation.organizationType.slug}.title`,
+                              {
+                                ns: "datasets/organizationTypes",
+                              }
                             );
-                            title = relation.organizationType.slug;
-                          }
-                          return title;
-                        })
-                        .join(", ")}
-                    </List.Item.Subtitle>
-                  </List.Item.Info>
+                          })
+                          .join(", ")}
+                      </List.Item.Subtitle>
+                    </List.Item.Info>
 
-                  <Avatar
-                    name={relation.organization.name}
-                    logo={relation.organization.logo}
-                    blurredLogo={relation.organization.blurredLogo}
-                  />
+                    <Avatar
+                      name={relation.organization.name}
+                      logo={relation.organization.logo}
+                      blurredLogo={relation.organization.blurredLogo}
+                    />
+                  </Link>
                 </List.Item>
               );
             })}
@@ -781,7 +692,7 @@ function About() {
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
-                  <LinkedIn />
+                  <Linkedin />
                 </a>
               )}
               {loaderData.project.twitter !== null && (

@@ -4,17 +4,21 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import { prismaClient } from "~/prisma.server";
 import JSZip from "jszip";
-import { detectLanguage } from "~/i18n.server";
+import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
-import { languageModuleMap } from "~/locales/.server";
+
+const i18nNS = ["routes/project/settings/attachments/download"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["project/$slug/settings/attachments/download"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -47,7 +51,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         type === "documents" ||
         type === "image" ||
         type === "images"),
-    locales.error.invalidParameters,
+    t("error.invalidParameters"),
     {
       status: 400,
     }
@@ -75,7 +79,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         },
       },
     });
-    invariantResponse(project !== null, locales.error.projectNotFound, {
+    invariantResponse(project !== null, t("error.projectNotFound"), {
       status: 404,
     });
 
@@ -86,7 +90,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
       invariantResponse(
         typeof relation !== "undefined",
-        locales.error.documentNotFound,
+        t("error.documentNotFound"),
         {
           status: 404,
         }
@@ -96,7 +100,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         .from("documents")
         .download(relation.document.path);
 
-      invariantResponse(result.error === null, locales.error.downloadFailed, {
+      invariantResponse(result.error === null, t("error.downloadFailed"), {
         status: 400,
       });
 
@@ -117,7 +121,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     } else {
       // TODO: no compression. maybe use different library
       const escapedProjectName = escapeFilenameSpecialChars(project.name);
-      const filename = `${escapedProjectName} ${locales.zipSuffix.documents}`;
+      const filename = `${escapedProjectName} ${t("zipSuffix.documents")}`;
       const zip = new JSZip();
       let index = 0;
       for (const relation of project.documents) {
@@ -174,7 +178,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       },
     });
 
-    invariantResponse(project !== null, locales.error.projectNotFound, {
+    invariantResponse(project !== null, t("error.projectNotFound"), {
       status: 404,
     });
 
@@ -185,7 +189,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
       invariantResponse(
         typeof relation !== "undefined",
-        locales.error.documentNotFound,
+        t("error.documentNotFound"),
         {
           status: 404,
         }
@@ -195,7 +199,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         .from("images")
         .download(relation.image.path);
 
-      invariantResponse(result.error === null, locales.error.downloadFailed, {
+      invariantResponse(result.error === null, t("error.downloadFailed"), {
         status: 400,
       });
 
@@ -216,7 +220,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     } else {
       // TODO: no compression. maybe use different library
       const escapedProjectName = escapeFilenameSpecialChars(project.name);
-      const filename = `${escapedProjectName} ${locales.zipSuffix.images}`;
+      const filename = `${escapedProjectName} ${t("zipSuffix.images")}`;
       const zip = new JSZip();
       let index = 0;
       for (const relation of project.images) {

@@ -1,6 +1,15 @@
 import { conform, useForm } from "@conform-to/react";
+import {
+  Avatar,
+  Button,
+  Input,
+  List,
+  Section,
+  Toast,
+} from "@mint-vernetzt/components";
 import { type Organization, type Prisma } from "@prisma/client";
 import {
+  json,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -12,41 +21,40 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { type User } from "@supabase/supabase-js";
+import { useTranslation } from "react-i18next";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
-import { redirectWithToast } from "~/toast.server";
-import { BackButton } from "~/components-next/BackButton";
+import { getToast, redirectWithToast } from "~/toast.server";
+import { BackButton } from "./__components";
 import {
   getRedirectPathOnProtectedProjectRoute,
   getHash,
 } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { List } from "@mint-vernetzt/components/src/organisms/List";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+
+const i18nNS = ["routes/project/settings/responsible-orgs"];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["project/$slug/settings/responsible-orgs"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -79,7 +87,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, locales.error.notFound, {
+  invariantResponse(project !== null, t("error.notFound"), {
     status: 404,
   });
 
@@ -112,7 +120,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(profile !== null, locales.error.notFound, {
+  invariantResponse(profile !== null, t("error.notFound"), {
     status: 404,
   });
 
@@ -291,27 +299,31 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
   }
 
-  return {
-    project: enhancedProject,
-    ownOrganizations: enhancedNotResponsibleOrganizations,
-    searchResult,
-    locales,
-  };
+  const { toast, headers: toastHeaders } = await getToast(request);
+
+  return json(
+    {
+      project: enhancedProject,
+      ownOrganizations: enhancedNotResponsibleOrganizations,
+      searchResult,
+      toast,
+    },
+    { headers: toastHeaders || undefined }
+  );
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   // get action type
   const { request, params } = args;
 
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["project/$slug/settings/responsible-orgs"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
+  invariantResponse(params.slug !== undefined, t("error.invalidRoute"), {
     status: 400,
   });
 
@@ -351,7 +363,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
     invariantResponse(
       project !== null && organization !== null,
-      locales.error.notFound,
+      t("error.notFound"),
       {
         status: 404,
       }
@@ -374,9 +386,7 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirectWithToast(request.url, {
       id: "add-organization-toast",
       key: hash,
-      message: insertParametersIntoLocale(locales.content.added, {
-        name: organization.name,
-      }),
+      message: t("content.added", { name: organization.name }),
     });
   } else if (action.startsWith("remove_")) {
     const slug = action.replace("remove_", "");
@@ -398,7 +408,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
     invariantResponse(
       project !== null && organization !== null,
-      locales.error.notFound,
+      t("error.notFound"),
       {
         status: 404,
       }
@@ -416,21 +426,20 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirectWithToast(request.url, {
       id: "remove-organization-toast",
       key: hash,
-      message: insertParametersIntoLocale(locales.content.removed, {
-        name: organization.name,
-      }),
+      message: `${organization.name} entfernt.`,
     });
   }
 
-  return { success: false, action, organization: null };
+  return json({ success: false, action, organization: null });
 };
 
 function ResponsibleOrgs() {
-  const { project, ownOrganizations, searchResult, locales } =
+  const { project, ownOrganizations, searchResult, toast } =
     useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const submit = useDebounceSubmit();
+  const { t } = useTranslation(i18nNS);
 
   const [searchForm, fields] = useForm({
     defaultValue: {
@@ -441,15 +450,22 @@ function ResponsibleOrgs() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{locales.content.back}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.content.intro}</p>
+      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
+        {toast !== null && toast.id === "remove-organization-toast" && (
+          <div id={toast.id}>
+            <Toast key={toast.key} level={toast.level}>
+              {toast.message}
+            </Toast>
+          </div>
+        )}
         {project.responsibleOrganizations.length > 0 && (
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.content.current.headline}
+              {t("content.current.headline")}
             </h2>
-            <p>{locales.content.current.intro}</p>
+            <p>{t("content.current.intro")}</p>
             <Form method="post" preventScrollReset>
               <List>
                 {project.responsibleOrganizations.map((relation) => {
@@ -466,7 +482,7 @@ function ResponsibleOrgs() {
                           value={`remove_${relation.organization.slug}`}
                           type="submit"
                         >
-                          {locales.content.current.remove}
+                          {t("content.current.remove")}
                         </Button>
                       </List.Item.Controls>
                     </List.Item>
@@ -476,12 +492,19 @@ function ResponsibleOrgs() {
             </Form>
           </div>
         )}
+        {toast !== null && toast.id === "add-organization-toast" && (
+          <div id={toast.id}>
+            <Toast key={toast.key} level={toast.level}>
+              {toast.message}
+            </Toast>
+          </div>
+        )}
         {ownOrganizations.length > 0 && (
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.content.add.headline}
+              {t("content.add.headline")}
             </h2>
-            <p>{locales.content.add.intro}</p>
+            <p>{t("content.add.intro")}</p>
             <Form method="post" preventScrollReset>
               <List>
                 {ownOrganizations.map((relation) => {
@@ -498,7 +521,7 @@ function ResponsibleOrgs() {
                           value={`add_own_${relation.organization.slug}`}
                           type="submit"
                         >
-                          {locales.content.add.add}
+                          {t("content.add.add")}
                         </Button>
                       </List.Item.Controls>
                     </List.Item>
@@ -510,7 +533,7 @@ function ResponsibleOrgs() {
         )}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {locales.content.other.headline}
+            {t("content.other.headline")}
           </h2>
           <Form
             method="get"
@@ -525,11 +548,11 @@ function ResponsibleOrgs() {
             <Input {...conform.input(fields[Deep])} type="hidden" />
             <Input {...conform.input(fields.search)} standalone>
               <Input.Label htmlFor={fields.search.id}>
-                {locales.content.other.search.label}
+                {t("content.other.search.label")}
               </Input.Label>
               <Input.SearchIcon />
               <Input.HelperText>
-                {locales.content.other.search.helper}
+                {t("content.other.search.helper")}
               </Input.HelperText>
               {typeof fields.search.error !== "undefined" && (
                 <Input.Error>{fields.search.error}</Input.Error>
@@ -550,7 +573,7 @@ function ResponsibleOrgs() {
                         value={`add_${organization.slug}`}
                         type="submit"
                       >
-                        {locales.content.other.add}
+                        {t("content.other.add")}
                       </Button>
                     </List.Item.Controls>
                   </List.Item>

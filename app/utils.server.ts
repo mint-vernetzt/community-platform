@@ -1,3 +1,4 @@
+import { json } from "@remix-run/server-runtime";
 import { type User } from "@supabase/supabase-js";
 import type { BinaryToTextEncoding } from "crypto";
 import { createHmac } from "crypto";
@@ -18,9 +19,18 @@ export async function createHashFromString(
   hashAlgorithm = "md5",
   encoding: BinaryToTextEncoding = "hex"
 ) {
-  const hash = createHmac(hashAlgorithm, process.env.HASH_SECRET);
-  hash.update(string);
-  return hash.digest(encoding);
+  if (process.env.HASH_SECRET !== undefined) {
+    const hash = createHmac(hashAlgorithm, process.env.HASH_SECRET);
+    hash.update(string);
+    return hash.digest(encoding);
+  } else {
+    throw json(
+      {
+        message: "Could not find HASH_SECRET in the .env file.",
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function getFocuses() {

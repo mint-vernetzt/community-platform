@@ -1,13 +1,15 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import { type ActionFunctionArgs, redirect } from "@remix-run/node";
+import { type ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { invariantResponse } from "~/lib/utils/response";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { redirectWithToast } from "~/toast.server";
+import { i18nNS } from "../organizations";
 import { GetOrganizationsToAdd } from "./get-organizations-to-add";
 import {
   acceptRequestFromProfile,
@@ -15,8 +17,10 @@ import {
   createRequestToOrganization,
   rejectRequestFromProfile,
 } from "./requests.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const AddToOrganizationRequest: {
   Create: "createRequest";
@@ -51,8 +55,8 @@ export const schema = z.object({
 export async function action(args: ActionFunctionArgs) {
   const { request } = args;
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["my/organizations"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -64,7 +68,7 @@ export async function action(args: ActionFunctionArgs) {
   const formData = await request.formData();
   const submission = parseWithZod(formData, { schema: schema });
   if (submission.status !== "success") {
-    return submission.reply();
+    return json(submission.reply());
   }
 
   let organization;
@@ -76,7 +80,7 @@ export async function action(args: ActionFunctionArgs) {
       sessionUser.id
     );
     if (typeof result.error !== "undefined") {
-      invariantResponse(false, "Server Error", { status: 500 });
+      throw new Error(t(result.error.message));
     }
     organization = result.organization;
 
@@ -84,48 +88,44 @@ export async function action(args: ActionFunctionArgs) {
       "mail-templates/requests/organization-to-add-profile/text.hbs";
     const htmlTemplatePath =
       "mail-templates/requests/organization-to-add-profile/html.hbs";
-    const subject = locales.route.email.createRequest.subject;
+    const subject = t("email.createRequest.subject");
     const sender = process.env.SYSTEM_MAIL_SENDER;
-    try {
-      await Promise.all(
-        result.organization.admins.map(async (admin) => {
-          const content = {
-            firstName: admin.profile.firstName,
-            profile: {
-              firstName: result.profile.firstName,
-              lastName: result.profile.lastName,
-            },
-            organization: {
-              name: result.organization.name,
-            },
-            button: {
-              text: locales.route.email.createRequest.button.text,
-              url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-            },
-          };
-          const text = getCompiledMailTemplate<typeof textTemplatePath>(
-            textTemplatePath,
-            content,
-            "text"
-          );
-          const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-            htmlTemplatePath,
-            content,
-            "html"
-          );
-          await mailer(
-            mailerOptions,
-            sender,
-            admin.profile.email,
-            subject,
-            text,
-            html
-          );
-        })
-      );
-    } catch (error) {
-      invariantResponse(false, "Server Error: Mailer", { status: 500 });
-    }
+    await Promise.all(
+      result.organization.admins.map(async (admin) => {
+        const content = {
+          firstName: admin.profile.firstName,
+          profile: {
+            firstName: result.profile.firstName,
+            lastName: result.profile.lastName,
+          },
+          organization: {
+            name: result.organization.name,
+          },
+          button: {
+            text: t("email.createRequest.button.text"),
+            url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
+          },
+        };
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          content,
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          content,
+          "html"
+        );
+        await mailer(
+          mailerOptions,
+          sender,
+          admin.profile.email,
+          subject,
+          text,
+          html
+        );
+      })
+    );
   } else if (submission.value.intent === AddToOrganizationRequest.Cancel) {
     const result = await cancelRequestToOrganization(
       submission.value.organizationId,
@@ -181,7 +181,7 @@ export async function action(args: ActionFunctionArgs) {
         "mail-templates/requests/organization-to-add-profile/rejected-text.hbs";
       htmlTemplatePath =
         "mail-templates/requests/organization-to-add-profile/rejected-html.hbs";
-      subject = locales.route.email.rejectRequest.subject;
+      subject = t("email.rejectRequest.subject");
     } else {
       result = await acceptRequestFromProfile(
         submission.value.organizationId,
@@ -198,7 +198,7 @@ export async function action(args: ActionFunctionArgs) {
         "mail-templates/requests/organization-to-add-profile/accepted-text.hbs";
       htmlTemplatePath =
         "mail-templates/requests/organization-to-add-profile/accepted-html.hbs";
-      subject = locales.route.email.acceptRequest.subject;
+      subject = t("email.acceptRequest.subject");
     }
 
     const text = getCompiledMailTemplate<typeof textTemplatePath>(
@@ -214,11 +214,7 @@ export async function action(args: ActionFunctionArgs) {
 
     const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = result.profile.email;
-    try {
-      await mailer(mailerOptions, sender, recipient, subject, text, html);
-    } catch (error) {
-      invariantResponse(false, "Server Error: Mailer", { status: 500 });
-    }
+    await mailer(mailerOptions, sender, recipient, subject, text, html);
 
     profile = result.profile;
   }
@@ -243,21 +239,15 @@ export async function action(args: ActionFunctionArgs) {
     message:
       submission.value.intent === AddToOrganizationRequest.Create ||
       submission.value.intent === AddToOrganizationRequest.Cancel
-        ? insertParametersIntoLocale(
-            locales.route.requests[submission.value.intent],
-            {
-              organization,
-            }
-          )
-        : insertParametersIntoLocale(
-            locales.route.requests[submission.value.intent],
-            {
-              academicTitle: profile?.academicTitle
-                ? `${profile.academicTitle} `
-                : "",
-              firstName: profile?.firstName,
-              lastName: profile?.lastName,
-            }
-          ),
+        ? t(`requests.${submission.value.intent}`, {
+            organization,
+          })
+        : t(`requests.${submission.value.intent}`, {
+            academicTitle: profile?.academicTitle
+              ? `${profile.academicTitle} `
+              : "",
+            firstName: profile?.firstName,
+            lastName: profile?.lastName,
+          }),
   });
 }

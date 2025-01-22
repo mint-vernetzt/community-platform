@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useActionData,
@@ -10,6 +10,8 @@ import {
   useSubmit,
 } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
@@ -21,6 +23,7 @@ import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import InputText from "~/components/FormElements/InputText/InputText";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
@@ -33,7 +36,6 @@ import { deriveEventMode } from "../../utils.server";
 import { getFullDepthProfiles } from "../utils.server";
 import { type action as publishAction, publishSchema } from "./events/publish";
 import {
-  type EventParticipantsLocales,
   getEventBySlug,
   getEventWithParticipantCount,
   getParticipantsDataFromEvent,
@@ -47,15 +49,12 @@ import {
   type action as removeParticipantAction,
   removeParticipantSchema,
 } from "./participants/remove-participant";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { languageModuleMap } from "~/locales/.server";
+import { Avatar } from "@mint-vernetzt/components";
 
-const createParticipantLimitSchema = (locales: EventParticipantsLocales) => {
+const createParticipantLimitSchema = (t: TFunction) => {
   return z.object({
     participantLimit: z
-      .string({
-        invalid_type_error: locales.route.validation.participantLimit.type,
-      })
+      .string({ invalid_type_error: t("validation.participantLimit.type") })
       .regex(/^\d+$/)
       .optional()
       .transform((value) => {
@@ -81,9 +80,10 @@ const environmentSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["event/$slug/settings/participants"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/participants",
+  ]);
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
@@ -94,9 +94,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.route.error.notFound, { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
 
@@ -167,7 +167,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "participants"
   );
 
-  return {
+  return json({
     published: event.published,
     participantLimit: event.participantLimit,
     participants: enhancedParticipants,
@@ -176,22 +176,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
       fullDepthParticipants !== null &&
       fullDepthParticipants.length > 0 &&
       event._count.childEvents !== 0,
-    locales,
-    language,
-  };
+  });
 };
 
-const createMutation = (locales: EventParticipantsLocales) => {
+const createMutation = (t: TFunction) => {
   return makeDomainFunction(
-    createParticipantLimitSchema(locales),
+    createParticipantLimitSchema(t),
     environmentSchema
   )(async (values, environment) => {
     if (values.participantLimit !== null) {
       if (environment.participantsCount > values.participantLimit) {
-        throw new InputError(
-          locales.route.error.inputError,
-          "participantLimit"
-        );
+        throw new InputError(t("error.inputError"), "participantLimit");
       }
     }
     return values;
@@ -199,9 +194,10 @@ const createMutation = (locales: EventParticipantsLocales) => {
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["event/$slug/settings/participants"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/participants",
+  ]);
   const eventSlug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -213,8 +209,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const result = await performMutation({
     request,
-    schema: createParticipantLimitSchema(locales),
-    mutation: createMutation(locales),
+    schema: createParticipantLimitSchema(t),
+    mutation: createMutation(t),
     environment: { participantsCount: event._count.participants },
   });
   if (result.success) {
@@ -225,31 +221,29 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return { ...result };
+  return json(result);
 }
 
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, language } = loaderData;
   const addParticipantFetcher = useFetcher<typeof addParticipantAction>();
   const removeParticipantFetcher = useFetcher<typeof removeParticipantAction>();
   const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/event/settings/participants"]);
   const actionData = useActionData<typeof action>();
 
-  const participantLimitSchema = createParticipantLimitSchema(locales);
+  const participantLimitSchema = createParticipantLimitSchema(t);
 
   return (
     <>
-      <h1 className="mb-8">{locales.route.content.headline}</h1>
-      <p className="mb-8">{locales.route.content.intro}</p>
-      <h4 className="mb-4 font-semibold">
-        {locales.route.content.limit.headline}
-      </h4>
-      <p className="mb-8">{locales.route.content.limit.intro}</p>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-8">{t("content.intro")}</p>
+      <h4 className="mb-4 font-semibold">{t("content.limit.headline")}</h4>
+      <p className="mb-8">{t("content.limit.intro")}</p>
       <RemixFormsForm schema={participantLimitSchema}>
         {({ Field, Errors, Button, register }) => {
           return (
@@ -260,7 +254,7 @@ function Participants() {
                     <InputText
                       {...register("participantLimit")}
                       id="participantLimit"
-                      label={locales.route.content.limit.label}
+                      label={t("content.limit.label")}
                       defaultValue={loaderData.participantLimit || undefined}
                       type="number"
                     />
@@ -270,24 +264,22 @@ function Participants() {
               </Field>
               <div className="flex flex-row">
                 <Button type="submit" className="btn btn-primary mb-8">
-                  {locales.route.content.limit.submit}
+                  {t("content.limit.submit")}
                 </Button>
                 <div
                   className={`text-green-500 text-bold ml-4 mt-2 ${
                     actionData?.success ? "block animate-fade-out" : "hidden"
                   }`}
                 >
-                  {locales.route.content.limit.feedback}
+                  {t("content.limit.feedback")}
                 </div>
               </div>
             </>
           );
         }}
       </RemixFormsForm>
-      <h4 className="mb-4 font-semibold">
-        {locales.route.content.add.headline}
-      </h4>
-      <p className="mb-8">{locales.route.content.add.intro}</p>
+      <h4 className="mb-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
       <div className="mb-8">
         <RemixFormsForm
           schema={addParticipantSchema}
@@ -311,7 +303,7 @@ function Participants() {
                         htmlFor="Name"
                         className="label"
                       >
-                        {locales.route.content.add.label}
+                        {t("content.add.label")}
                       </label>
                     </div>
                   </div>
@@ -329,8 +321,6 @@ function Participants() {
                             defaultValue={suggestionsQuery || ""}
                             {...register("profileId")}
                             searchParameter="autocomplete_query"
-                            locales={locales}
-                            currentLanguage={language}
                           />
                         </>
                       )}
@@ -354,9 +344,9 @@ function Participants() {
         ) : null}
       </div>
       <h4 className="mb-4 mt-16 font-semibold">
-        {locales.route.content.current.headline}
+        {t("content.current.headline")}
       </h4>
-      <p className="mb-4">{locales.route.content.current.intro}</p>
+      <p className="mb-4">{t("content.current.intro")}</p>
       {loaderData.participants.length > 0 ? (
         <p className="mb-4">
           <Link
@@ -364,7 +354,7 @@ function Participants() {
             to="../csv-download?type=participants&amp;depth=single"
             reloadDocument
           >
-            {locales.route.content.current.download1}
+            {t("content.current.download1")}
           </Link>
         </p>
       ) : null}
@@ -375,7 +365,7 @@ function Participants() {
             to="../csv-download?type=participants&amp;depth=full"
             reloadDocument
           >
-            {locales.route.content.current.download2}
+            {t("content.current.download2")}
           </Link>
         </p>
       ) : null}
@@ -433,7 +423,7 @@ function Participants() {
                       <Field name="profileId" />
                       <Button
                         className="ml-auto btn-none"
-                        title={locales.route.content.current.remove}
+                        title={t("content.current.remove")}
                       >
                         <svg
                           viewBox="0 0 10 10"
@@ -475,8 +465,8 @@ function Participants() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? locales.route.content.hide
-                        : locales.route.content.publish}
+                        ? t("content.hide")
+                        : t("content.publish")}
                     </Button>
                   </>
                 );

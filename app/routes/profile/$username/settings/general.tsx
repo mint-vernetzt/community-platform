@@ -1,5 +1,9 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LinksFunction,
+  LoaderFunctionArgs,
+} from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -8,8 +12,11 @@ import {
   useNavigation,
   useParams,
 } from "@remix-run/react";
+import { type TFunction } from "i18next";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
+import quillStyles from "react-quill/dist/quill.snow.css";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import {
@@ -21,7 +28,8 @@ import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
-import { TextArea } from "~/components-next/TextArea";
+import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
+import i18next from "~/i18next.server";
 import {
   createAreaOptionFromData,
   objectListOperationResolver,
@@ -39,7 +47,7 @@ import {
   validateForm,
   website,
 } from "~/lib/utils/yup";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { getAllOffers } from "~/routes/utils.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -48,19 +56,19 @@ import {
   getWholeProfileFromUsername,
   updateProfileById,
 } from "../utils.server";
-import {
-  type GeneralProfileSettingsLocales,
-  getProfileByUsername,
-} from "./general.server";
-import { languageModuleMap } from "~/locales/.server";
-import { RichText } from "~/components/Richtext/RichText";
+import { getProfileByUsername } from "./general.server";
 
-const createProfileSchema = (locales: GeneralProfileSettingsLocales) => {
+const i18nNS = ["routes/profile/settings/general", "datasets/offers"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createProfileSchema = (t: TFunction) => {
   return object({
     academicTitle: nullOrString(string()),
     position: nullOrString(string()),
-    firstName: string().required(locales.route.validation.firstName.required),
-    lastName: string().required(locales.route.validation.lastName.required),
+    firstName: string().required(t("validation.firstName.required")),
+    lastName: string().required(t("validation.lastName.required")),
     email: string().email().required(),
     email2: nullOrString(string().email()),
     phone: nullOrString(phone()),
@@ -101,9 +109,10 @@ function makeFormProfileFromDbProfile(
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["profile/$username/settings/general"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/profile/settings/general",
+  ]);
   const username = getParamValueOrThrow(params, "username");
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
@@ -112,20 +121,16 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", locales.route.error.notPrivileged, {
+  invariantResponse(mode === "owner", t("error.notPrivileged"), {
     status: 403,
   });
   const dbProfile = await getWholeProfileFromUsername(username);
   if (dbProfile === null) {
-    invariantResponse(false, locales.route.error.profileNotFound, {
-      status: 404,
-    });
+    throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
   const profileVisibilities = await getProfileVisibilitiesById(dbProfile.id);
   if (profileVisibilities === null) {
-    invariantResponse(false, locales.route.error.noVisibilities, {
-      status: 404,
-    });
+    throw json({ message: t("error.noVisibilities") }, { status: 404 });
   }
 
   const profile = makeFormProfileFromDbProfile(dbProfile);
@@ -133,13 +138,18 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const areas = await getAreas();
   const offers = await getAllOffers();
 
-  return { profile, profileVisibilities, areas, offers, locales };
+  return json({ profile, profileVisibilities, areas, offers });
 };
 
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: quillStyles },
+];
+
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["profile/$username/settings/general"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/profile/settings/general",
+  ]);
   const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -147,13 +157,11 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   invariantResponse(mode === "owner", "Not privileged", { status: 403 });
   const profile = await getProfileByUsername(username);
   if (profile === null) {
-    invariantResponse(false, locales.route.error.profileNotFound, {
-      status: 404,
-    });
+    throw json({ message: t("error.profileNotFound") }, { status: 404 });
   }
   const formData = await request.clone().formData();
 
-  const schema = createProfileSchema(locales);
+  const schema = createProfileSchema(t);
 
   let parsedFormData = await getFormValues<ProfileSchemaType>(request, schema);
 
@@ -170,9 +178,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     data = result.data;
   } catch (error) {
     console.error(error);
-    invariantResponse(false, locales.route.error.validationFailed, {
-      status: 400,
-    });
+    throw json({ message: t("error.validationFailed") }, { status: 400 });
   }
 
   let updated = false;
@@ -187,9 +193,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         updated = true;
       } catch (error) {
         console.error(error);
-        invariantResponse(false, locales.route.error.serverError, {
-          status: 500,
-        });
+        throw json({ message: t("error.serverError") }, { status: 500 });
       }
     }
   } else {
@@ -205,23 +209,23 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       data = objectListOperationResolver<ProfileFormType>(data, name, formData);
     });
   }
-  return {
+  return json({
     profile: data,
     lastSubmit: (formData.get("submit") as string) ?? "",
     errors,
     updated,
-  };
+  });
 };
 
 export default function Index() {
   const { username } = useParams();
+  const { t } = useTranslation(i18nNS);
   const navigation = useNavigation();
   const {
     profile: dbProfile,
     areas,
     offers,
     profileVisibilities,
-    locales,
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
@@ -235,20 +239,10 @@ export default function Index() {
   });
 
   const areaOptions = createAreaOptionFromData(areas);
-  const offerOptions = offers.map((offer) => {
-    let title;
-    if (offer.slug in locales.offers) {
-      type LocaleKey = keyof typeof locales.offers;
-      title = locales.offers[offer.slug as LocaleKey].title;
-    } else {
-      console.error(`Offer ${offer.slug} not found in locales`);
-      title = offer.slug;
-    }
-    return {
-      label: title,
-      value: offer.id,
-    };
-  });
+  const offerOptions = offers.map((o) => ({
+    label: t(`${o.slug}.title`, { ns: "datasets/offers" }),
+    value: o.id,
+  }));
 
   const {
     register,
@@ -267,52 +261,22 @@ export default function Index() {
     profile.offers && offers
       ? offers
           .filter((offer) => profile.offers.includes(offer.id))
-          .sort((currentOffer, nextOffer) => {
-            let currentTitle;
-            let nextTitle;
-            if (currentOffer.slug in locales.offers) {
-              type LocaleKey = keyof typeof locales.offers;
-              currentTitle =
-                locales.offers[currentOffer.slug as LocaleKey].title;
-            } else {
-              console.error(`Focus ${currentOffer.slug} not found in locales`);
-              currentTitle = currentOffer.slug;
-            }
-            if (nextOffer.slug in locales.offers) {
-              type LocaleKey = keyof typeof locales.offers;
-              nextTitle = locales.offers[nextOffer.slug as LocaleKey].title;
-            } else {
-              console.error(`Focus ${nextOffer.slug} not found in locales`);
-              nextTitle = nextOffer.slug;
-            }
-            return currentTitle.localeCompare(nextTitle);
-          })
+          .sort((a, b) =>
+            t(`${a.slug}.title`, { ns: "datasets/offers" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/offers" })
+            )
+          )
       : [];
 
   const selectedSeekings =
     profile.seekings && offers
       ? offers
           .filter((offer) => profile.seekings.includes(offer.id))
-          .sort((currentOffer, nextOffer) => {
-            let currentTitle;
-            let nextTitle;
-            if (currentOffer.slug in locales.offers) {
-              type LocaleKey = keyof typeof locales.offers;
-              currentTitle =
-                locales.offers[currentOffer.slug as LocaleKey].title;
-            } else {
-              console.error(`Focus ${currentOffer.slug} not found in locales`);
-              currentTitle = currentOffer.slug;
-            }
-            if (nextOffer.slug in locales.offers) {
-              type LocaleKey = keyof typeof locales.offers;
-              nextTitle = locales.offers[nextOffer.slug as LocaleKey].title;
-            } else {
-              console.error(`Focus ${nextOffer.slug} not found in locales`);
-              nextTitle = nextOffer.slug;
-            }
-            return currentTitle.localeCompare(nextTitle);
-          })
+          .sort((a, b) =>
+            t(`${a.slug}.title`, { ns: "datasets/offers" }).localeCompare(
+              t(`${b.slug}.title`, { ns: "datasets/offers" })
+            )
+          )
       : [];
 
   React.useEffect(() => {
@@ -363,28 +327,26 @@ export default function Index() {
           <fieldset disabled={navigation.state === "submitting"}>
             <h1 className="mb-8">Persönliche Daten</h1>
 
-            <h4 className="mb-4 font-semibold">
-              {locales.route.general.headline}
-            </h4>
+            <h4 className="mb-4 font-semibold">{t("general.headline")}</h4>
 
-            <p className="mb-8">{locales.route.general.intro}</p>
+            <p className="mb-8">{t("general.intro")}</p>
 
             <div className="flex flex-col @md:mv-flex-row -mx-4">
               <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
                 <SelectField
                   {...register("academicTitle")}
-                  label={locales.route.general.form.title.label}
+                  label={t("general.form.title.label")}
                   options={[
                     {
-                      label: locales.route.general.form.title.options.dr,
+                      label: t("general.form.title.options.dr"),
                       value: "Dr.",
                     },
                     {
-                      label: locales.route.general.form.title.options.prof,
+                      label: t("general.form.title.options.prof"),
                       value: "Prof.",
                     },
                     {
-                      label: locales.route.general.form.title.options.profdr,
+                      label: t("general.form.title.options.profdr"),
                       value: "Prof. Dr.",
                     },
                   ]}
@@ -397,7 +359,7 @@ export default function Index() {
                 <InputText
                   {...register("position")}
                   id="position"
-                  label={locales.route.general.form.position.label}
+                  label={t("general.form.position.label")}
                   withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.position}
                   errorMessage={errors?.position?.message}
@@ -410,7 +372,7 @@ export default function Index() {
                 <InputText
                   {...register("firstName")}
                   id="firstName"
-                  label={locales.route.general.form.firstName.label}
+                  label={t("general.form.firstName.label")}
                   required
                   withPublicPrivateToggle={false}
                   isPublic={profileVisibilities.firstName}
@@ -421,7 +383,7 @@ export default function Index() {
                 <InputText
                   {...register("lastName")}
                   id="lastName"
-                  label={locales.route.general.form.lastName.label}
+                  label={t("general.form.lastName.label")}
                   required
                   withPublicPrivateToggle={false}
                   isPublic={profileVisibilities.lastName}
@@ -436,7 +398,7 @@ export default function Index() {
                   {...register("email")}
                   type="text"
                   id="email"
-                  label={locales.route.general.form.email.label}
+                  label={t("general.form.email.label")}
                   readOnly
                   withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.email}
@@ -448,7 +410,7 @@ export default function Index() {
                   {...register("email2")}
                   type="text"
                   id="email2"
-                  label={locales.route.general.form.email2.label}
+                  label={t("general.form.email2.label")}
                   withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.email2}
                   errorMessage={errors?.email2?.message}
@@ -458,7 +420,7 @@ export default function Index() {
                 <InputText
                   {...register("phone")}
                   id="phone"
-                  label={locales.route.general.form.phone.label}
+                  label={t("general.form.phone.label")}
                   withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.phone}
                   errorMessage={errors?.phone?.message}
@@ -469,35 +431,31 @@ export default function Index() {
             <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
             <div className="flex flex-row items-center mb-4">
-              <h4 className="font-semibold">
-                {locales.route.aboutMe.headline}
-              </h4>
+              <h4 className="font-semibold">{t("aboutMe.headline")}</h4>
             </div>
 
-            <p className="mb-8">{locales.route.aboutMe.intro}</p>
+            <p className="mb-8">{t("aboutMe.intro")}</p>
 
             <div className="mb-4">
-              <TextArea
+              <TextAreaWithCounter
                 {...register("bio")}
                 id="bio"
-                label={locales.route.aboutMe.form.description.label}
+                label={t("aboutMe.form.description.label")}
                 defaultValue={profile.bio || ""}
-                placeholder={locales.route.aboutMe.form.description.placeholder}
+                placeholder={t("aboutMe.form.description.placeholder")}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.bio}
                 errorMessage={errors?.bio?.message}
-                maxLength={500}
-                rte={{ locales: locales }}
+                maxCharacters={500}
+                rte
               />
             </div>
 
             <div className="mb-4">
               <SelectAdd
                 name="areas"
-                label={locales.route.aboutMe.form.activityAreas.label}
-                placeholder={
-                  locales.route.aboutMe.form.activityAreas.placeholder
-                }
+                label={t("aboutMe.form.activityAreas.label")}
+                placeholder={t("aboutMe.form.activityAreas.placeholder")}
                 entries={selectedAreas.map((area) => ({
                   label: area.name,
                   value: area.id,
@@ -511,8 +469,8 @@ export default function Index() {
             <div className="mb-4">
               <InputAdd
                 name="skills"
-                label={locales.route.aboutMe.form.skills.label}
-                placeholder={locales.route.aboutMe.form.skills.placeholder}
+                label={t("aboutMe.form.skills.label")}
+                placeholder={t("aboutMe.form.skills.placeholder")}
                 entries={profile.skills ?? []}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.skills}
@@ -522,8 +480,8 @@ export default function Index() {
             <div className="mb-4">
               <InputAdd
                 name="interests"
-                label={locales.route.aboutMe.form.interests.label}
-                placeholder={locales.route.aboutMe.form.interests.placeholder}
+                label={t("aboutMe.form.interests.label")}
+                placeholder={t("aboutMe.form.interests.placeholder")}
                 entries={profile.interests ?? []}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.interests}
@@ -531,34 +489,22 @@ export default function Index() {
             </div>
 
             <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
-            <h4 className="mb-4 font-semibold">
-              {locales.route.offer.headline}
-            </h4>
+            <h4 className="mb-4 font-semibold">{t("offer.headline")}</h4>
 
-            <p className="mb-8">{locales.route.offer.intro}</p>
+            <p className="mb-8">{t("offer.intro")}</p>
 
             <div className="mb-4">
               <SelectAdd
                 name="offers"
-                label={locales.route.offer.form.quote.label}
-                entries={selectedOffers.map((offer) => {
-                  let title;
-                  if (offer.slug in locales.offers) {
-                    type LocaleKey = keyof typeof locales.offers;
-                    title = locales.offers[offer.slug as LocaleKey].title;
-                  } else {
-                    console.error(`Offer ${offer.slug} not found in locales`);
-                    title = offer.slug;
-                  }
-                  return {
-                    label: title,
-                    value: offer.id,
-                  };
-                })}
+                label={t("offer.form.quote.label")}
+                entries={selectedOffers.map((offer) => ({
+                  label: t(`${offer.slug}.title`, { ns: "datasets/offers" }),
+                  value: offer.id,
+                }))}
                 options={offerOptions.filter(
-                  (offer) => !profile.offers.includes(offer.value)
+                  (o) => !profile.offers.includes(o.value)
                 )}
-                placeholder={locales.route.offer.form.quote.placeholder}
+                placeholder={t("offer.form.quote.placeholder")}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.offers}
               />
@@ -566,34 +512,22 @@ export default function Index() {
 
             <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
-            <h4 className="mb-4 font-semibold">
-              {locales.route.lookingFor.headline}
-            </h4>
+            <h4 className="mb-4 font-semibold">{t("lookingFor.headline")}</h4>
 
-            <p className="mb-8">{locales.route.lookingFor.intro}</p>
+            <p className="mb-8">{t("lookingFor.intro")}</p>
 
             <div className="mb-4">
               <SelectAdd
                 name="seekings"
-                label={locales.route.lookingFor.form.seeking.label}
-                entries={selectedSeekings.map((seeking) => {
-                  let title;
-                  if (seeking.slug in locales.offers) {
-                    type LocaleKey = keyof typeof locales.offers;
-                    title = locales.offers[seeking.slug as LocaleKey].title;
-                  } else {
-                    console.error(`Offer ${seeking.slug} not found in locales`);
-                    title = seeking.slug;
-                  }
-                  return {
-                    label: title,
-                    value: seeking.id,
-                  };
-                })}
+                label={t("lookingFor.form.seeking.label")}
+                entries={selectedSeekings.map((seeking) => ({
+                  label: t(`${seeking.slug}.title`, { ns: "datasets/offers" }),
+                  value: seeking.id,
+                }))}
                 options={offerOptions.filter(
-                  (offer) => !profile.seekings.includes(offer.value)
+                  (o) => !profile.seekings.includes(o.value)
                 )}
-                placeholder={locales.route.lookingFor.form.seeking.placeholder}
+                placeholder={t("lookingFor.form.seeking.placeholder")}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.seekings}
               />
@@ -601,29 +535,22 @@ export default function Index() {
 
             <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
-            <h2 className="mb-8">
-              {locales.route.websiteSocialMedia.headline}
-            </h2>
+            <h2 className="mb-8">{t("websiteSocialMedia.headline")}</h2>
 
             <h4 className="mb-4 font-semibold">
-              {locales.route.websiteSocialMedia.website.headline}
+              {t("websiteSocialMedia.website.headline")}
             </h4>
 
-            <p className="mb-8">
-              {locales.route.websiteSocialMedia.website.intro}
-            </p>
+            <p className="mb-8">{t("websiteSocialMedia.website.intro")}</p>
 
             <div className="basis-full mb-4">
               <InputText
                 {...register("website")}
                 id="website"
-                label={
-                  locales.route.websiteSocialMedia.website.form.website.label
-                }
-                placeholder={
-                  locales.route.websiteSocialMedia.website.form.website
-                    .placeholder
-                }
+                label={t("websiteSocialMedia.website.form.website.label")}
+                placeholder={t(
+                  "websiteSocialMedia.website.form.website.placeholder"
+                )}
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.website}
                 errorMessage={errors?.website?.message}
@@ -634,14 +561,12 @@ export default function Index() {
             <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
             <h4 className="mb-4 font-semibold">
-              {locales.route.websiteSocialMedia.socialMedia.headline}
+              {t("websiteSocialMedia.socialMedia.headline")}
             </h4>
 
-            <p className="mb-8">
-              {locales.route.websiteSocialMedia.socialMedia.intro}
-            </p>
+            <p className="mb-8">{t("websiteSocialMedia.socialMedia.intro")}</p>
 
-            {createSocialMediaServices(locales).map((service) => (
+            {createSocialMediaServices(t).map((service) => (
               <div className="w-full mb-4" key={service.id}>
                 <InputText
                   {...register(service.id)}
@@ -659,21 +584,17 @@ export default function Index() {
             <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
             <div className="mv-flex mv-flex-col mv-justify-start @sm:mv-items-center mv-mb-4 @sm:mv-flex-row mv-gap-2 @sm:mv-gap-4">
-              <h4 className="font-semibold">
-                {locales.route.network.headline}
-              </h4>
+              <h4 className="font-semibold">{t("network.headline")}</h4>
               <Link
                 to="/organization/create"
                 className="btn btn-outline-primary btn-small"
               >
-                {locales.route.network.action}
+                {t("network.action")}
               </Link>
             </div>
-
-            <RichText
-              html={locales.route.network.intro}
-              additionalClassNames="mv-mb-4"
-            />
+            <p className="mv-mb-4">
+              <Trans i18nKey="network.intro" ns={i18nNS} />
+            </p>
 
             <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
               <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
@@ -685,7 +606,7 @@ export default function Index() {
                         : "hidden"
                     }`}
                   >
-                    {locales.route.footer.profileUpdated}
+                    {t("footer.profileUpdated")}
                   </div>
 
                   {isFormChanged ? (
@@ -694,7 +615,7 @@ export default function Index() {
                       reloadDocument
                       className={`btn btn-link`}
                     >
-                      {locales.route.footer.ignoreChanges}
+                      {t("footer.ignoreChanges")}
                     </Link>
                   ) : null}
                   <div></div>
@@ -705,7 +626,7 @@ export default function Index() {
                     className="btn btn-primary ml-4"
                     disabled={isSubmitting || !isFormChanged}
                   >
-                    {locales.route.footer.save}
+                    {t("footer.save")}
                   </button>
                 </div>
               </div>

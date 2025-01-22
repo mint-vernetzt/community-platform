@@ -1,6 +1,6 @@
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Button } from "@mint-vernetzt/components";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -9,18 +9,20 @@ import {
   useParams,
 } from "@remix-run/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import InputText from "~/components/FormElements/InputText/InputText";
-import { TextArea } from "~/components-next/TextArea";
+import TextAreaWithCounter from "~/components/FormElements/TextAreaWithCounter/TextAreaWithCounter";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
-import { Modal } from "~/components-next/Modal";
+import { detectLanguage } from "~/root.server";
+import { Modal } from "~/routes/__components";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug } from "./documents.server";
 import {
@@ -36,12 +38,13 @@ import {
   type action as uploadDocumentAction,
 } from "./documents/upload-document";
 import { publishSchema, type action as publishAction } from "./events/publish";
-import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["event/$slug/settings/documents"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/documents",
+  ]);
   const { authClient } = createAuthClient(request);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -55,16 +58,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.error.notFound, { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
 
-  return {
+  return json({
     event: event,
-    locales,
-  };
+  });
 };
 
 function clearFileInput() {
@@ -79,7 +81,6 @@ function clearFileInput() {
 
 function Documents() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
   const { slug } = useParams();
 
   const uploadDocumentFetcher = useFetcher<typeof uploadDocumentAction>();
@@ -87,11 +88,13 @@ function Documents() {
   const deleteDocumentFetcher = useFetcher<typeof deleteDocumentAction>();
   const publishFetcher = useFetcher<typeof publishAction>();
 
+  const { t } = useTranslation(["routes/event/settings/documents"]);
+
   const [fileSelected, setFileSelected] = useState(false);
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       if (e.target.files[0].size > 5_000_000) {
-        alert(locales.error.fileTooBig);
+        alert(t("error.fileTooBig"));
         clearFileInput();
         setFileSelected(false);
       } else {
@@ -102,10 +105,10 @@ function Documents() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
       {loaderData.event.documents.length > 0 ? (
         <div className="mb-8">
-          <h3>{locales.content.current.headline}</h3>
+          <h3>{t("content.current.headline")}</h3>
           <ul>
             {loaderData.event.documents.map((item) => {
               return (
@@ -123,7 +126,7 @@ function Documents() {
                       to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
                       reloadDocument
                     >
-                      {locales.content.current.download}
+                      {t("content.current.download")}
                     </Link>
                     <Form
                       method="get"
@@ -136,11 +139,11 @@ function Documents() {
                         defaultValue="true"
                       />
                       <Button type="submit" variant="outline">
-                        {locales.content.current.edit}
+                        {t("content.current.edit")}
                       </Button>
                     </Form>
                     <Modal searchParam={`modal-${item.document.id}`}>
-                      <Modal.Title>{locales.content.current.edit}</Modal.Title>
+                      <Modal.Title>{t("content.current.edit")}</Modal.Title>
                       <Modal.Section>
                         <RemixFormsForm
                           id={`form-edit-document-${item.document.id}`}
@@ -166,9 +169,9 @@ function Documents() {
                                 {({ Errors }) => (
                                   <>
                                     <InputText
+                                      {...register("title")}
                                       id="title"
-                                      name="title"
-                                      label={locales.form.title.label}
+                                      label={t("form.title.label")}
                                       defaultValue={
                                         item.document.title ||
                                         item.document.filename
@@ -181,14 +184,14 @@ function Documents() {
                               <Field name="description">
                                 {({ Errors }) => (
                                   <>
-                                    <TextArea
+                                    <TextAreaWithCounter
+                                      {...register("description")}
                                       id="description"
-                                      name="description"
-                                      label={locales.form.description.label}
+                                      label={t("form.description.label")}
                                       defaultValue={
                                         item.document.description || ""
                                       }
-                                      maxLength={100}
+                                      maxCharacters={100}
                                     />
                                     <Errors />
                                   </>
@@ -202,10 +205,10 @@ function Documents() {
                       <Modal.SubmitButton
                         form={`form-edit-document-${item.document.id}`}
                       >
-                        {locales.form.submit.label}
+                        {t("form.submit.label")}
                       </Modal.SubmitButton>
                       <Modal.CloseButton>
-                        {locales.form.cancel.label}
+                        {t("form.cancel.label")}
                       </Modal.CloseButton>
                     </Modal>
                     <RemixFormsForm
@@ -225,7 +228,7 @@ function Documents() {
                             type="submit"
                             className="btn btn-outline-primary ml-auto btn-small mt-2 w-full @sm:mv-w-auto"
                           >
-                            {locales.form.delete.label}
+                            {t("form.delete.label")}
                           </button>
                           <Errors />
                         </>
@@ -241,7 +244,7 @@ function Documents() {
             to={`/event/${loaderData.event.slug}/documents-download`}
             reloadDocument
           >
-            {locales.content.downloadAll}
+            {t("content.downloadAll")}
           </Link>
         </div>
       ) : null}
@@ -278,7 +281,7 @@ function Documents() {
               className="btn btn-outline-primary ml-auto btn-small mt-2"
               disabled={!fileSelected}
             >
-              {locales.form.upload.label}
+              {t("form.upload.label")}
             </button>
             <Errors />
           </>
@@ -303,8 +306,8 @@ function Documents() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.event.published
-                        ? locales.form.hide.label
-                        : locales.form.publish.label}
+                        ? t("form.hide.label")
+                        : t("form.publish.label")}
                     </Button>
                   </>
                 );
