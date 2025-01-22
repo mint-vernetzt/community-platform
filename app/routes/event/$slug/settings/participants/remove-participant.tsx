@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useSearchParams } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -51,17 +51,25 @@ export const action = async (args: ActionFunctionArgs) => {
   return { ...result, locales };
 };
 
-type RemoveParticipantButtonProps = {
+type RemoveParticipantFormProps = {
+  id: string;
   action: string;
   profileId?: string;
+  modalSearchParam?: string;
 };
 
-export function RemoveParticipantButton(props: RemoveParticipantButtonProps) {
+export function RemoveParticipantForm(props: RemoveParticipantFormProps) {
   const fetcher = useFetcher<typeof action>();
   const locales = fetcher.data !== undefined ? fetcher.data.locales : undefined;
+  const [searchParams, setSearchParam] = useSearchParams();
+  const newSearchParams = new URLSearchParams(searchParams);
+  if (props.modalSearchParam !== undefined) {
+    newSearchParams.delete(props.modalSearchParam);
+  }
 
   return (
     <RemixFormsForm
+      id={props.id}
       action={props.action}
       fetcher={fetcher}
       schema={schema}
@@ -69,15 +77,26 @@ export function RemoveParticipantButton(props: RemoveParticipantButtonProps) {
       values={{
         profileId: props.profileId,
       }}
+      onSubmit={() => {
+        setSearchParam(newSearchParams);
+      }}
     >
-      {(props) => {
-        const { Field, Errors } = props;
+      {(formProps) => {
+        const { Field, Errors } = formProps;
         return (
           <>
             <Field name="profileId" />
-            <button className="btn btn-primary" type="submit">
-              {locales !== undefined ? locales.action : "Don't participate"}
-            </button>
+            {props.modalSearchParam === undefined ? (
+              <button className="btn btn-primary" type="submit">
+                {locales !== undefined ? locales.action : "Don't participate"}
+              </button>
+            ) : (
+              <input
+                type="hidden"
+                name={props.modalSearchParam}
+                value="false"
+              />
+            )}
             <Errors />
           </>
         );

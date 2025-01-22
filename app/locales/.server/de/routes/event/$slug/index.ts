@@ -23,6 +23,15 @@ export const locale = {
       registrationExpired: "Anmeldefrist ist bereits abgelaufen.",
       context: "Diese Veranstaltung findet im Rahmen von <0>{{name}}</0> statt",
       loginToRegister: "Anmelden um teilzunehmen",
+      removeParticipant: {
+        action: "Nicht mehr teilnehmen",
+        doubleCheck: {
+          title: "Deine Teilnahme zurückziehen",
+          description:
+            "Bist du sicher, dass Du nicht mehr an dieser Veranstaltung teilnehmen möchtest? Falls die Anmeldefrist bereits abgelaufen ist, kannst Du Dich nicht erneut anmelden.",
+          abort: "Abbrechen",
+        },
+      },
       select:
         "Wähle <0>zugehörige Veranstaltungen</0> aus, an denen Du teilnehmen möchtest.",
       edit: "Veranstaltung bearbeiten",

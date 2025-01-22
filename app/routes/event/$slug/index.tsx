@@ -44,7 +44,7 @@ import { detectLanguage } from "~/i18n.server";
 import { Modal } from "~/components-next/Modal";
 import { deriveEventMode } from "../utils.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
-import { RemoveParticipantButton } from "./settings/participants/remove-participant";
+import { RemoveParticipantForm } from "./settings/participants/remove-participant";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
 import {
@@ -454,6 +454,7 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 function getCallToActionForm(loaderData: {
+  locales: EventDetailLocales;
   userId?: string;
   isParticipant: boolean;
   isOnWaitingList: boolean;
@@ -476,10 +477,45 @@ function getCallToActionForm(loaderData: {
 
   if (isParticipating) {
     return (
-      <RemoveParticipantButton
-        action="./settings/participants/remove-participant"
-        profileId={loaderData.userId}
-      />
+      <>
+        <Form method="get" preventScrollReset>
+          <input hidden name="modal-remove-participant" defaultValue="true" />
+          <button type="submit" className="btn btn-primary">
+            {loaderData.locales.route.content.event.removeParticipant.action}
+          </button>
+        </Form>
+        <div className="mv-hidden">
+          <RemoveParticipantForm
+            id="remove-participant"
+            action="./settings/participants/remove-participant"
+            profileId={loaderData.userId}
+            modalSearchParam="modal-remove-participant"
+          />
+        </div>
+        <Modal searchParam="modal-remove-participant">
+          <Modal.Title>
+            {
+              loaderData.locales.route.content.event.removeParticipant
+                .doubleCheck.title
+            }
+          </Modal.Title>
+          <Modal.Section>
+            {
+              loaderData.locales.route.content.event.removeParticipant
+                .doubleCheck.description
+            }
+          </Modal.Section>
+          <Modal.SubmitButton form="remove-participant">
+            {loaderData.locales.route.content.event.removeParticipant.action}
+          </Modal.SubmitButton>
+          <Modal.CloseButton>
+            {
+              loaderData.locales.route.content.event.removeParticipant
+                .doubleCheck.abort
+            }
+          </Modal.CloseButton>
+        </Modal>
+      </>
     );
   } else if (isOnWaitingList) {
     return (
@@ -793,7 +829,9 @@ function Index() {
           ) : null}
           {loaderData.mode !== "admin" ? (
             <>
-              {beforeParticipationPeriod || afterParticipationPeriod ? (
+              {beforeParticipationPeriod ||
+              (afterParticipationPeriod &&
+                loaderData.isParticipant === false) ? (
                 <div className="bg-accent-300 p-8">
                   <p className="font-bold text-center">
                     {laysInThePast
