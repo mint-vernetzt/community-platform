@@ -5,7 +5,7 @@ import React from "react";
 
 export type ButtonSize = "x-small" | "small" | "medium" | "large";
 export type ButtonVariant = "normal" | "outline" | "ghost";
-export type ButtonType = "button" | "a" | "div" | "label";
+export type ButtonType = "button" | "a" | "div";
 export type ButtonLevel =
   | "primary"
   // | "secondary"
@@ -29,7 +29,6 @@ function Button(
     (
       | React.ButtonHTMLAttributes<HTMLButtonElement>
       | React.AnchorHTMLAttributes<HTMLAnchorElement>
-      | React.LabelHTMLAttributes<HTMLLabelElement>
     )
 ) {
   const {
@@ -109,12 +108,10 @@ function Button(
 
   const element = React.createElement(as, {
     ...otherProps,
-    className: `${classes}${
-      otherProps.className !== undefined ? ` ${otherProps.className}` : ""
-    }`,
+    className: classes,
   });
 
   return element;
 }
 
-export { Button };
+export default Button;

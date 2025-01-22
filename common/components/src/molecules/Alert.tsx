@@ -8,7 +8,7 @@ export type AlertProps = {
   level?: AlertLevel;
 };
 
-export function Alert(props: AlertProps) {
+function Alert(props: AlertProps) {
   const { level = "positive" } = props;
   const [show, setShow] = React.useState(true);
 
@@ -51,3 +51,5 @@ export function Alert(props: AlertProps) {
     </div>
   );
 }
+
+export default Alert;

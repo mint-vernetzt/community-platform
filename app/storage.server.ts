@@ -1,14 +1,14 @@
 import type { Document } from "@prisma/client";
-import type { UploadHandler } from "@remix-run/node";
 import {
+  json,
   unstable_composeUploadHandlers,
   unstable_parseMultipartFormData,
 } from "@remix-run/node";
-import { type SupabaseClient } from "@supabase/supabase-js";
+import type { UploadHandler } from "@remix-run/node";
 import { fileTypeFromBuffer } from "file-type";
 import JSZip from "jszip";
-import { invariantResponse } from "./lib/utils/response";
 import { createHashFromString } from "./utils.server";
+import { type SupabaseClient } from "@supabase/supabase-js";
 
 const uploadKeys = ["avatar", "background", "logo", "document"];
 const imageUploadKeys = ["avatar", "background", "logo"];
@@ -41,23 +41,33 @@ const uploadHandler: UploadHandler = async (part) => {
   const hash = await createHashFromString(buffer.toString());
   const fileTypeResult = await fileTypeFromBuffer(buffer);
   if (fileTypeResult === undefined) {
-    console.error(
-      "The mime type of the file could not be read from file header."
+    throw json(
+      {
+        message: "Der Dateityp (MIME type) konnte nicht gelesen werden.",
+      },
+      { status: 500 }
     );
-    invariantResponse(false, "Server Error", { status: 500 });
   }
   if (name === "document" && fileTypeResult.mime !== "application/pdf") {
-    console.error(
-      "Document not of type application/pdf and could not be uploaded."
+    throw json(
+      {
+        message:
+          "Aktuell können ausschließlich Dateien im PDF-Format hochgeladen werden.",
+      },
+      { status: 500 }
     );
-    invariantResponse(false, "Server Error", { status: 500 });
   }
   if (
     imageUploadKeys.includes(name) &&
     !fileTypeResult.mime.includes("image/")
   ) {
-    console.error("Image not of type image/* and could not be uploaded.");
-    invariantResponse(false, "Server Error", { status: 500 });
+    throw json(
+      {
+        message:
+          "Die Datei entspricht keinem gängigem Bildformat und konnte somit nicht hochgeladen werden.",
+      },
+      { status: 500 }
+    );
   }
   const path = generatePathName(fileTypeResult.ext, hash, name);
   const sizeInBytes = buffer.length;
@@ -94,13 +104,17 @@ function validatePersistence(
   bucketName?: string
 ) {
   if (error || data === null) {
-    console.error({ error });
-    invariantResponse(false, "Server Error", { status: 500 });
+    console.log(error);
+    throw json({ message: "Hochladen fehlgeschlagen." }, { status: 500 });
   }
 
   if (getPublicURL(authClient, path, bucketName) === null) {
-    console.error("Requested public url is null.");
-    invariantResponse(false, "Server Error", { status: 500 });
+    throw json(
+      {
+        message: "Die angefragte URL konnte nicht gefunden werden.",
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -112,14 +126,18 @@ export const parseMultipart = async (request: Request) => {
     );
     const uploadKey = formData.get("uploadKey");
     if (uploadKey === null) {
-      console.error("No upload Key");
-      invariantResponse(false, "Server Error", { status: 500 });
+      throw json(
+        { message: "Something went wrong on upload." },
+        { status: 500 }
+      );
     }
     // TODO: can this type assertion be removed and proofen by code?
     const uploadHandlerResponseJSON = formData.get(uploadKey as string);
     if (uploadHandlerResponseJSON === null) {
-      console.error("Upload Handler Response is null");
-      invariantResponse(false, "Server Error", { status: 500 });
+      throw json(
+        { message: "Something went wrong on upload." },
+        { status: 500 }
+      );
     }
     const uploadHandlerResponse: {
       buffer: {
@@ -136,13 +154,11 @@ export const parseMultipart = async (request: Request) => {
     // Convert buffer.data (number[]) to Buffer
     const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
     if (buffer.length === 0) {
-      console.error("Cannot upload empty file.");
-      invariantResponse(false, "Bad request", { status: 400 });
+      throw json({ message: "Cannot upload empty file." }, { status: 500 });
     }
 
     if (buffer.length > 5_000_000) {
-      console.error("File is too big. Current limit is 5MB on server side.");
-      invariantResponse(false, "Bad request", { status: 400 });
+      throw json({ message: "File is too big." }, { status: 500 });
     }
 
     return {
@@ -152,9 +168,8 @@ export const parseMultipart = async (request: Request) => {
       },
       formData,
     };
-  } catch (error) {
-    console.error({ error });
-    invariantResponse(false, "Server error", { status: 500 });
+  } catch (e) {
+    throw "Error on upload document.";
   }
 };
 
@@ -198,8 +213,12 @@ export function getPublicURL(
   } = authClient.storage.from(bucket).getPublicUrl(relativePath);
 
   if (publicUrl === "") {
-    console.error("Requested public url is an empty string.");
-    invariantResponse(false, "Server Error", { status: 500 });
+    throw json(
+      {
+        message: "Die öffentliche URL der Datei konnte nicht erzeugt werden.",
+      },
+      { status: 500 }
+    );
   }
 
   if (
@@ -226,8 +245,12 @@ export async function download(
     .download(relativePath);
 
   if (data === null || error !== null) {
-    console.error({ error });
-    invariantResponse(false, "Server Error", { status: 500 });
+    throw json(
+      {
+        message: "Datei konnte nicht heruntergeladen werden.",
+      },
+      { status: 500 }
+    );
   }
   return data;
 }
@@ -238,8 +261,13 @@ export async function getDownloadDocumentsResponse(
   zipFilename = "Dokumente.zip"
 ) {
   if (documents.length === 0) {
-    console.error("Documents array is empty.");
-    invariantResponse(false, "Bad request", { status: 400 });
+    throw json(
+      {
+        message:
+          "Please pass at least one document inside the documents array.",
+      },
+      { status: 400 }
+    );
   }
 
   const files = await Promise.all(
@@ -277,7 +305,7 @@ export async function getDownloadDocumentsResponse(
     status: 200,
     headers: {
       "Content-Type": contentType,
-      "Content-Disposition": `attachment; filename="${filename}"`,
+      "Content-Disposition": `attachment; filename=${filename}`,
     },
   });
 }
@@ -290,7 +318,11 @@ export async function remove(
   const { data, error } = await authClient.storage.from(bucket).remove(paths);
 
   if (data === null || error !== null) {
-    console.error({ error });
-    invariantResponse(false, "Server Error", { status: 500 });
+    throw json(
+      {
+        message: "Datei konnte nicht gelöscht werden.",
+      },
+      { status: 500 }
+    );
   }
 }

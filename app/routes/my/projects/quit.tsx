@@ -1,13 +1,17 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import { type ActionFunctionArgs, redirect } from "@remix-run/node";
+import { type ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { redirectWithToast } from "~/toast.server";
+import { i18nNS } from "../projects";
 import { invariantResponse } from "~/lib/utils/response";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const schema = z.object({
   slug: z.string(),
@@ -17,8 +21,8 @@ export const schema = z.object({
 export async function action(args: ActionFunctionArgs) {
   const { request } = args;
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["my/projects"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -31,7 +35,7 @@ export async function action(args: ActionFunctionArgs) {
   const submission = parseWithZod(formData, { schema: schema });
 
   if (submission.status !== "success") {
-    return submission.reply();
+    return json(submission.reply());
   }
 
   const redirectURL = new URL(`${process.env.COMMUNITY_BASE_URL}/my/projects`);
@@ -69,7 +73,7 @@ export async function action(args: ActionFunctionArgs) {
       return redirectWithToast(redirectURL.toString(), {
         key: `${submission.value.slug}-${Date.now()}`,
         level: "negative",
-        message: locales.route.quit.lastAdmin,
+        message: t("quit.lastAdmin"),
       });
     }
 
@@ -123,7 +127,7 @@ export async function action(args: ActionFunctionArgs) {
   return redirectWithToast(redirectURL.toString(), {
     key: `${submission.value.slug}-${Date.now()}`,
     level: "positive",
-    message: insertParametersIntoLocale(locales.route.quit.success, {
+    message: t("quit.success", {
       project: projectName,
     }),
   });

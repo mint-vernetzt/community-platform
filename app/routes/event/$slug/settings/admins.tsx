@@ -1,5 +1,4 @@
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -8,6 +7,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -15,13 +15,13 @@ import {
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { detectLanguage } from "~/i18n.server";
+import i18next from "~/i18next.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/root.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -35,9 +35,9 @@ import {
   type action as removeAdminAction,
 } from "./admins/remove-admin";
 import { publishSchema, type action as publishAction } from "./events/publish";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { Avatar } from "@mint-vernetzt/components";
 
-const i18nNS = ["routes-event-settings-admins"] as const;
+const i18nNS = ["routes/event/settings/admins"];
 export const handle = {
   i18n: i18nNS,
 };
@@ -46,8 +46,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
   const { authClient } = createAuthClient(request);
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["event/$slug/settings/admins"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
@@ -58,9 +58,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEvent(slug);
-  invariantResponse(event, locales.route.error.notFound, { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
 
@@ -114,13 +114,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     );
   }
 
-  return {
+  return json({
     published: event.published,
     admins: enhancedAdmins,
     adminSuggestions,
-    locales,
-    language,
-  };
+  });
 };
 
 function Admins() {
@@ -132,17 +130,16 @@ function Admins() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(i18nNS);
 
   return (
     <>
-      <h1 className="mb-8">{loaderData.locales.route.content.headline}</h1>
-      <p className="mb-2">{loaderData.locales.route.content.intro.who}</p>
-      <p className="mb-2">{loaderData.locales.route.content.intro.what}</p>
-      <p className="mb-8">{loaderData.locales.route.content.intro.whom}</p>
-      <h4 className="mb-4 mt-4 font-semibold">
-        {loaderData.locales.route.content.add.headline}
-      </h4>
-      <p className="mb-8">{loaderData.locales.route.content.add.intro}</p>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-2">{t("content.intro.who")}</p>
+      <p className="mb-2">{t("content.intro.what")}</p>
+      <p className="mb-8">{t("content.intro.whom")}</p>
+      <h4 className="mb-4 mt-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
       <RemixFormsForm
         schema={addAdminSchema}
         fetcher={addAdminFetcher}
@@ -162,7 +159,7 @@ function Admins() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      {loaderData.locales.route.form.name.label}
+                      {t("form.name.label")}
                     </label>
                   </div>
                 </div>
@@ -178,8 +175,6 @@ function Admins() {
                           defaultValue={suggestionsQuery || ""}
                           {...register("profileId")}
                           searchParameter="autocomplete_query"
-                          locales={loaderData.locales}
-                          currentLanguage={loaderData.language}
                         />
                       </>
                     )}
@@ -202,18 +197,10 @@ function Admins() {
         </div>
       ) : null}
       <h4 className="mb-4 mt-16 font-semibold">
-        {decideBetweenSingularOrPlural(
-          loaderData.locales.route.content.current.headline_one,
-          loaderData.locales.route.content.current.headline_other,
-          loaderData.admins.length
-        )}
+        {t("content.current.headline", { count: loaderData.admins.length })}
       </h4>
       <p className="mb-8">
-        {decideBetweenSingularOrPlural(
-          loaderData.locales.route.content.current.intro_one,
-          loaderData.locales.route.content.current.intro_other,
-          loaderData.admins.length
-        )}
+        {t("content.current.intro", { count: loaderData.admins.length })}
       </p>
       <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
         {loaderData.admins.map((admin) => {
@@ -270,7 +257,7 @@ function Admins() {
                         {loaderData.admins.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
-                            title={loaderData.locales.route.form.remove.label}
+                            title={t("form.remove.label")}
                           >
                             <svg
                               viewBox="0 0 10 10"
@@ -314,8 +301,8 @@ function Admins() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? loaderData.locales.route.form.hide.label
-                        : loaderData.locales.route.form.publish.label}
+                        ? t("form.hide.label")
+                        : t("form.publish.label")}
                     </Button>
                   </>
                 );

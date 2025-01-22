@@ -28,6 +28,9 @@ node_modules
 # Sentry Config File
 .sentryclirc
 
+# i18n no-cache
+app/lib/no-cache/seed.ts
+
 # Prisma crts
 *.crt
 

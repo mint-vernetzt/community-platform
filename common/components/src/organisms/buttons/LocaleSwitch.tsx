@@ -1,46 +1,32 @@
-import { Link, useLocation } from "@remix-run/react";
-import { supportedCookieLanguages } from "~/i18n.shared";
-import { extendSearchParams } from "~/lib/utils/searchParams";
-import { type ArrayElement } from "~/lib/utils/types";
-import {
-  TextButton,
-  type TextButtonVariants,
-} from "../../molecules/TextButton";
+import { useTranslation } from "react-i18next";
+import { TextButton } from "../../molecules";
+import { type TextButtonVariants } from "../../molecules/TextButton";
 
-export function LocaleSwitch(props: {
-  variant?: TextButtonVariants;
-  currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
-}) {
+export default function LocaleSwitch(props: { variant?: TextButtonVariants }) {
   const variant = props.variant || "primary";
-  const location = useLocation();
+  const { i18n } = useTranslation();
+
+  let languages = ["de", "en"];
+  if (i18n.options.supportedLngs) {
+    languages = i18n.options.supportedLngs.filter((l) => l !== "cimode");
+  }
 
   return (
     <ul className="mv-flex mv-items-center">
-      {supportedCookieLanguages.map((language: string, index: number) => {
-        const newSearchParams = extendSearchParams(
-          new URLSearchParams(location.search),
-          {
-            addOrReplace: {
-              lng: language,
-            },
-          }
-        );
-        return (
-          <li key={language} className="mv-flex mv-items-center">
-            {index > 0 ? <span className="mv-px-2">|</span> : ""}
-            <span>
-              <TextButton
-                variant={variant}
-                weight={language === props.currentLanguage ? "normal" : "thin"}
-              >
-                <Link to={`?${newSearchParams.toString()}`} preventScrollReset>
-                  {language.toUpperCase()}
-                </Link>
-              </TextButton>
-            </span>
-          </li>
-        );
-      })}
+      {languages.map((l: string, cnt: number) => (
+        <li key={cnt} className="mv-flex mv-items-center">
+          {cnt > 0 ? <span className="mv-px-2">|</span> : ""}
+          <span>
+            <TextButton
+              variant={variant}
+              weight={l === i18n.language ? "normal" : "thin"}
+              onClick={() => i18n.changeLanguage(l)}
+            >
+              {l.toUpperCase()}
+            </TextButton>
+          </span>
+        </li>
+      ))}
     </ul>
   );
 }

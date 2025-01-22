@@ -1,3 +1,4 @@
+import { json } from "@remix-run/node";
 import { mailerOptions } from "./lib/submissions/mailer/mailerOptions";
 import { invariantResponse } from "./lib/utils/response";
 import { getCompiledMailTemplate, mailer } from "./mailer.server";
@@ -211,7 +212,10 @@ export async function sendNewReportMailToSupport(report: {
     await mailer(mailerOptions, sender, recipient, subject, text, html);
   } catch (error) {
     // Throw a 500 -> Mailer issue
-    console.error({ error });
-    invariantResponse(false, "Server error", { status: 500 });
+    console.error(error);
+    return json(
+      { message: "Abuse report email to support could not be sent" },
+      { status: 500 }
+    );
   }
 }

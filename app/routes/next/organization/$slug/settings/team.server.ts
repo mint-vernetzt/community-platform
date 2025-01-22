@@ -1,5 +1,6 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type SupabaseClient } from "@supabase/supabase-js";
+import { type TFunction } from "i18next";
 import {
   cancelOrganizationTeamMemberInvitationSchema,
   inviteProfileToBeOrganizationTeamMemberSchema,
@@ -11,22 +12,14 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getCompiledMailTemplate, mailer } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { type supportedCookieLanguages } from "~/i18n.shared";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-
-export type OrganizationTeamSettingsLocales =
-  (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
-  >]["next/organization/$slug/settings/team"];
+import { type Toast } from "~/toast.server";
 
 export async function getOrganizationWithTeamMembers(options: {
   slug: string;
   authClient: SupabaseClient;
-  locales: OrganizationTeamSettingsLocales;
+  t: TFunction;
 }) {
-  const { slug, authClient, locales } = options;
+  const { slug, authClient, t } = options;
   const organization = await prismaClient.organization.findFirst({
     where: {
       slug,
@@ -51,13 +44,9 @@ export async function getOrganizationWithTeamMembers(options: {
     },
   });
 
-  invariantResponse(
-    organization !== null,
-    locales.route.error.invariant.notFound,
-    {
-      status: 404,
-    }
-  );
+  invariantResponse(organization !== null, t("error.invariant.notFound"), {
+    status: 404,
+  });
 
   // enhance teamMembers with avatar
   const teamMembers = organization.teamMembers.map((relation) => {
@@ -150,9 +139,9 @@ export async function getPendingTeamMemberInvitesOfOrganization(
 export async function inviteProfileToBeOrganizationTeamMember(options: {
   formData: FormData;
   slug: string;
-  locales: OrganizationTeamSettingsLocales;
+  t: TFunction;
 }) {
-  const { formData, slug, locales } = options;
+  const { formData, slug, t } = options;
 
   const submission = parseWithZod(formData, {
     schema: inviteProfileToBeOrganizationTeamMemberSchema,
@@ -181,7 +170,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
 
   invariantResponse(
     organization !== null && profile !== null,
-    locales.route.error.invariant.entitiesForInviteNotFound,
+    t("error.invariant.entitiesForInviteNotFound"),
     {
       status: 404,
     }
@@ -207,7 +196,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = locales.route.email.subject;
+  const subject = t("email.subject");
   const recipient = profile.email;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-organization/text.hbs";
@@ -220,7 +209,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
     },
     button: {
       url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-      text: locales.route.email.button.text,
+      text: t("email.button.text"),
     },
   };
 
@@ -249,13 +238,10 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
     toast: {
       id: "invite-team-member-toast",
       key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(
-        locales.route.content.profileInvited,
-        {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-        }
-      ),
+      message: t("content.profileAdded", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
     },
   };
 }
@@ -263,9 +249,9 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
 export async function cancelOrganizationTeamMemberInvitation(options: {
   formData: FormData;
   slug: string;
-  locales: OrganizationTeamSettingsLocales;
+  t: TFunction;
 }) {
-  const { formData, slug, locales } = options;
+  const { formData, slug, t } = options;
 
   const submission = parseWithZod(formData, {
     schema: cancelOrganizationTeamMemberInvitationSchema,
@@ -290,7 +276,7 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
   });
   invariantResponse(
     organization !== null && profile !== null,
-    locales.route.error.invariant.entitiesForInviteNotFound,
+    t("error.invariant.entitiesForInviteNotFound"),
     { status: 404 }
   );
 
@@ -312,13 +298,10 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
     toast: {
       id: "cancel-invite-toast",
       key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(
-        locales.route.content.inviteCancelled,
-        {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-        }
-      ),
+      message: t("content.inviteCancelled", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
     },
   };
 }
@@ -326,9 +309,9 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
 export async function removeTeamMemberFromOrganization(options: {
   formData: FormData;
   slug: string;
-  locales: OrganizationTeamSettingsLocales;
+  t: TFunction;
 }) {
-  const { formData, slug, locales } = options;
+  const { formData, slug, t } = options;
 
   const submission = parseWithZod(formData, {
     schema: removeTeamMemberFromOrganizationSchema,
@@ -358,12 +341,12 @@ export async function removeTeamMemberFromOrganization(options: {
   });
   invariantResponse(
     organization !== null && profile !== null,
-    locales.route.error.invariant.entitiesForRemovalNotFound,
+    t("error.invariant.entitiesForRemovalNotFound"),
     { status: 404 }
   );
   invariantResponse(
     organization._count.teamMembers > 1,
-    locales.route.error.invariant.teamMemberCount,
+    t("error.invariant.teamMemberCount"),
     {
       status: 400,
     }
@@ -383,13 +366,10 @@ export async function removeTeamMemberFromOrganization(options: {
     toast: {
       id: "remove-team-member-toast",
       key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(
-        locales.route.content.profileRemoved,
-        {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-        }
-      ),
+      message: t("content.profileRemoved", {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
     },
   };
 }

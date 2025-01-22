@@ -1,9 +1,8 @@
-import { languageModuleMap } from "~/locales/.server";
-import { Button } from "../../molecules/Button";
-import { EventCard } from "./EventCard";
-import { OrganizationCard } from "./OrganizationCard";
-import { ProfileCard } from "./ProfileCard";
-import { ProjectCard } from "./ProjectCard";
+import Button from "../../molecules/Button";
+import EventCard from "./EventCard";
+import OrganizationCard from "./OrganizationCard";
+import ProfileCard from "./ProfileCard";
+import ProjectCard from "./ProjectCard";
 
 export function Profile() {
   return (
@@ -11,7 +10,6 @@ export function Profile() {
       <div className="mv-w-[253px]">
         <ProfileCard
           match={98}
-          locales={languageModuleMap.en["explore/profiles"]}
           profile={{
             academicTitle: "Prof. Dr.",
             username: "julialanglangschmittberger",
@@ -51,7 +49,6 @@ export function Profile() {
       </div>
       <div className="mv-w-[253px]">
         <ProfileCard
-          locales={languageModuleMap.en["explore/profiles"]}
           publicAccess={true}
           profile={{
             academicTitle: "Prof. Dr.",
@@ -88,7 +85,6 @@ export function Profile() {
       </div>
       <div className="mv-w-[253px]">
         <ProfileCard
-          locales={languageModuleMap.en["explore/profiles"]}
           profile={{
             academicTitle: "Prof. Dr.",
             username: "julialanglangschmittberger",
@@ -107,7 +103,6 @@ export function Profile() {
 Profile.storyName = "profile";
 
 export function Organization() {
-  const locales = languageModuleMap["de"]["explore/organizations"];
   return (
     <div className="mv-flex mv-gap-[39px]">
       <div className="mv-w-[253px]">
@@ -167,7 +162,6 @@ export function Organization() {
               },
             ],
           }}
-          locales={locales}
         />
       </div>
       <div className="mv-w-[253px]">
@@ -228,7 +222,6 @@ export function Organization() {
               },
             ],
           }}
-          locales={locales}
         />
       </div>
       <div className="mv-w-[253px]">
@@ -241,7 +234,6 @@ export function Organization() {
             focuses: [],
             teamMembers: [],
           }}
-          locales={locales}
         />
       </div>
     </div>
@@ -267,16 +259,12 @@ export function EventStory(props: EventStoryProps) {
     otherProps.isTeamMember = false;
     otherProps.isSpeaker = false;
   }
-
-  const locales = languageModuleMap["de"]["explore/events"];
   return (
     <>
       <div className="mv-flex mv-gap-8 mv-flex-wrap">
         <div className="mv-w-[267px]">
           {!publicAccess && (props.isSpeaker || props.isTeamMember) && (
             <EventCard
-              locales={locales}
-              currentLanguage="de"
               publicAccess={publicAccess}
               participateControl={
                 <Button type="submit" size="x-small">
@@ -327,8 +315,6 @@ export function EventStory(props: EventStoryProps) {
 
         <div className="mv-w-[267px]">
           <EventCard
-            locales={locales}
-            currentLanguage="de"
             publicAccess={publicAccess}
             participateControl={
               <Button type="submit" size="x-small">
@@ -386,8 +372,6 @@ export function EventStory(props: EventStoryProps) {
         </div>
         <div className="mv-w-[267px]">
           <EventCard
-            locales={locales}
-            currentLanguage="de"
             publicAccess={publicAccess}
             participateControl={
               <Button type="submit" size="x-small">
@@ -450,8 +434,6 @@ export function EventStory(props: EventStoryProps) {
         </div>
         <div className="mv-w-[267px]">
           <EventCard
-            locales={locales}
-            currentLanguage="de"
             publicAccess={true}
             participateControl={
               <Button type="submit" size="x-small">
@@ -522,8 +504,6 @@ export function EventStory(props: EventStoryProps) {
 
         <div className="mv-w-[267px]">
           <EventCard
-            locales={locales}
-            currentLanguage="de"
             publicAccess={publicAccess}
             participateControl={
               <Button type="submit" size="x-small">
@@ -599,8 +579,6 @@ export function EventStory(props: EventStoryProps) {
         </div>
         <div className="mv-w-[267px]">
           <EventCard
-            locales={locales}
-            currentLanguage="de"
             publicAccess={publicAccess}
             participateControl={
               <Button type="submit" size="x-small">
@@ -677,8 +655,6 @@ export function EventStory(props: EventStoryProps) {
         </div>
         <div className="mv-w-[267px]">
           <EventCard
-            locales={locales}
-            currentLanguage="de"
             publicAccess={publicAccess}
             participateControl={
               <Button type="submit" size="x-small">
@@ -755,8 +731,6 @@ export function EventStory(props: EventStoryProps) {
         </div>
         <div className="mv-w-[267px]">
           <EventCard
-            locales={locales}
-            currentLanguage="de"
             publicAccess={publicAccess}
             participateControl={
               <Button type="submit" size="x-small">
@@ -848,12 +822,10 @@ EventStory.parameters = {
 };
 
 export function ProjectStory() {
-  const locales = languageModuleMap["de"]["explore/projects"];
   return (
     <div className="mv-flex mv-gap-[39px]">
       <div className="mv-w-[253px]">
         <ProjectCard
-          locales={locales}
           project={{
             slug: "errormusic-len1g1op",
             name: "Error Music - don't delete!",
@@ -863,7 +835,6 @@ export function ProjectStory() {
       </div>
       <div className="mv-w-[253px]">
         <ProjectCard
-          locales={locales}
           project={{
             slug: "errormusic-len1g1op",
             name: "Error Music - don't delete!",
@@ -875,7 +846,6 @@ export function ProjectStory() {
       </div>
       <div className="mv-w-[253px]">
         <ProjectCard
-          locales={locales}
           project={{
             slug: "errormusic-len1g1op",
             name: "Error Music - don't delete!",

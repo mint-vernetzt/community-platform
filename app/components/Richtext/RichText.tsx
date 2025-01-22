@@ -7,13 +7,13 @@ interface RichTextProps {
 }
 
 export function RichText({ html, additionalClassNames, id }: RichTextProps) {
-  const hasParagraph = html.indexOf("<p>") !== -1;
+  const isRichtext = html.indexOf("<p>") !== -1;
 
-  if (hasParagraph) {
+  if (isRichtext) {
     return (
       <div
         id={id}
-        className={additionalClassNames}
+        className={`rte-content ${additionalClassNames ?? ""}`}
         dangerouslySetInnerHTML={{
           __html: html,
         }}
@@ -23,9 +23,7 @@ export function RichText({ html, additionalClassNames, id }: RichTextProps) {
     return (
       <p
         id={id}
-        className={`mb-6 ${
-          additionalClassNames !== undefined ? additionalClassNames : ""
-        }`}
+        className={`mb-6 ${additionalClassNames ?? ""}`}
         dangerouslySetInnerHTML={{
           __html: nl2br(html, true),
         }}

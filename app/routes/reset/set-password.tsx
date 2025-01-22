@@ -1,10 +1,13 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import { useSearchParams } from "@remix-run/react";
 import { InputError, makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { detectLanguage } from "~/root.server";
 import {
@@ -13,13 +16,16 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "../../auth.server";
 import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import { type SetPasswordLocales } from "./set-password.server";
-import { languageModuleMap } from "~/locales/.server";
 
-const createSchema = (locales: SetPasswordLocales) => {
+const i18nNS = ["routes/reset/set-password"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createSchema = (t: TFunction) => {
   return z.object({
-    password: z.string().min(8, locales.validation.password.min),
-    confirmPassword: z.string().min(8, locales.validation.confirmPassword.min),
+    password: z.string().min(8, t("validation.password.min")),
+    confirmPassword: z.string().min(8, t("validation.confirmPassword.min")),
     loginRedirect: z.string().optional(),
   });
 };
@@ -39,20 +45,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
-
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["reset/set-password"];
-
-  return { locales };
+  return null;
 };
 
-const createMutation = (locales: SetPasswordLocales) => {
+const createMutation = (t: TFunction) => {
   return makeDomainFunction(
-    createSchema(locales),
+    createSchema(t),
     environmentSchema
   )(async (values, environment) => {
     if (values.password !== values.confirmPassword) {
-      throw new InputError(locales.error.confirmation, "confirmPassword"); // -- Field error
+      throw new InputError(t("error.confirmation"), "confirmPassword"); // -- Field error
     }
 
     // TODO: fix type issue
@@ -69,14 +71,14 @@ const createMutation = (locales: SetPasswordLocales) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { authClient } = createAuthClient(request);
+  const { authClient, headers } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["reset/set-password"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
-  const schema = createSchema(locales);
-  const mutation = createMutation(locales);
+  const schema = createSchema(t);
+  const mutation = createMutation(t);
 
   invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const result = await performMutation({
@@ -90,14 +92,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return redirect(result.data.loginRedirect || "/dashboard");
   }
 
-  return result;
+  return json(result, { headers });
 };
 
 export default function SetPassword() {
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
-  const { locales } = useLoaderData<typeof loader>();
-  const schema = createSchema(locales);
+
+  const { t } = useTranslation(i18nNS);
+  const schema = createSchema(t);
 
   return (
     <>
@@ -122,7 +125,7 @@ export default function SetPassword() {
                       <>
                         <InputPassword
                           id="password"
-                          label={locales.form.label.password}
+                          label={t("form.label.password")}
                           {...register("password")}
                         />
                         <Errors />
@@ -137,7 +140,7 @@ export default function SetPassword() {
                       <>
                         <InputPassword
                           id="confirmPassword"
-                          label={locales.form.label.confirmPassword}
+                          label={t("form.label.confirmPassword")}
                           {...register("confirmPassword")}
                         />
                         <Errors />
@@ -148,7 +151,7 @@ export default function SetPassword() {
 
                 <div className="mb-8">
                   <button type="submit" className="btn btn-primary">
-                    {locales.form.label.submit}
+                    {t("form.label.submit")}
                   </button>
                 </div>
                 <Errors />

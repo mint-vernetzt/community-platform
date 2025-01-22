@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -8,6 +8,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -15,12 +16,13 @@ import {
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -42,14 +44,14 @@ import {
   removeFromWaitingListSchema,
   type action as removeFromWaitingListAction,
 } from "./waiting-list/remove-from-waiting-list";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { languageModuleMap } from "~/locales/.server";
+import { Avatar } from "@mint-vernetzt/components";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["event/$slug/settings/waiting-list"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/waiting-list",
+  ]);
   const { authClient } = createAuthClient(request);
   await checkFeatureAbilitiesOrThrow(authClient, "events");
   const slug = getParamValueOrThrow(params, "slug");
@@ -60,9 +62,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const event = await getEventBySlug(slug);
-  invariantResponse(event, locales.route.error.notFound, { status: 404 });
+  invariantResponse(event, t("error.notFound"), { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
 
@@ -135,7 +137,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "waitingList"
   );
 
-  return {
+  return json({
     published: event.published,
     waitingList: enhancedWaitingParticipants,
     waitingParticipantSuggestions,
@@ -143,15 +145,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
       fullDepthWaitingList !== null &&
       fullDepthWaitingList.length > 0 &&
       event._count.childEvents !== 0,
-    locales,
-    language,
-  };
+  });
 };
 
 function Participants() {
   const { slug } = useParams();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, language } = loaderData;
   const addToWaitingListFetcher = useFetcher<typeof addToWaitingListAction>();
   const removeFromWaitingListFetcher =
     useFetcher<typeof removeFromWaitingListAction>();
@@ -161,15 +160,14 @@ function Participants() {
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
+  const { t } = useTranslation(["routes/event/settings/waiting-list"]);
 
   return (
     <>
-      <h1 className="mb-8">{locales.route.content.headline}</h1>
-      <p className="mb-8">{locales.route.content.intro}</p>
-      <h4 className="mb-4 font-semibold">
-        {locales.route.content.add.headline}
-      </h4>
-      <p className="mb-8">{locales.route.content.add.intro}</p>
+      <h1 className="mb-8">{t("content.headline")}</h1>
+      <p className="mb-8">{t("content.intro")}</p>
+      <h4 className="mb-4 font-semibold">{t("content.add.headline")}</h4>
+      <p className="mb-8">{t("content.add.intro")}</p>
       <RemixFormsForm
         schema={addToWaitingListSchema}
         fetcher={addToWaitingListFetcher}
@@ -188,7 +186,7 @@ function Participants() {
                 <div className="flex flex-row items-center mb-2">
                   <div className="flex-auto">
                     <label id="label-for-name" htmlFor="Name" className="label">
-                      {locales.route.content.add.label}
+                      {t("content.add.label")}
                     </label>
                   </div>
                 </div>
@@ -206,8 +204,6 @@ function Participants() {
                           defaultValue={suggestionsQuery || ""}
                           {...register("profileId")}
                           searchParameter="autocomplete_query"
-                          locales={locales}
-                          currentLanguage={language}
                         />
                       </>
                     )}
@@ -232,9 +228,9 @@ function Participants() {
       {loaderData.waitingList.length > 0 ? (
         <>
           <h4 className="mb-4 mt-16 font-semibold">
-            {locales.route.content.current.headline}
+            {t("content.current.headline")}
           </h4>
-          <p className="mb-4">{locales.route.content.current.intro}</p>
+          <p className="mb-4">{t("content.current.intro")}</p>
         </>
       ) : null}
       {loaderData.waitingList.length > 0 ? (
@@ -244,7 +240,7 @@ function Participants() {
             to="../csv-download?type=waitingList&amp;depth=single"
             reloadDocument
           >
-            {locales.route.content.current.download1}
+            {t("content.current.download1")}
           </Link>
         </p>
       ) : null}
@@ -255,7 +251,7 @@ function Participants() {
             to="../csv-download?type=waitingList&amp;depth=full"
             reloadDocument
           >
-            {locales.route.content.current.download2}
+            {t("content.current.download2")}
           </Link>
         </p>
       ) : null}
@@ -263,7 +259,7 @@ function Participants() {
       {moveToParticipantsFetcher.data !== undefined &&
         "success" in moveToParticipantsFetcher.data &&
         moveToParticipantsFetcher.data.success === true && (
-          <div>{locales.route.content.current.feedback}</div>
+          <div>{t("content.current.feedback")}</div>
         )}
       {loaderData.waitingList.length > 0 ? (
         <div className="mb-4 mt-8 @md:mv-max-h-[630px] overflow-auto">
@@ -322,7 +318,7 @@ function Participants() {
                           <Errors />
                           <Field name="profileId" />
                           <Button className="btn btn-outline-primary ml-auto btn-small">
-                            {locales.route.content.current.action}
+                            {t("content.current.action")}
                           </Button>
                         </>
                       );
@@ -345,7 +341,7 @@ function Participants() {
                           <Field name="profileId" />
                           <Button
                             className="ml-auto btn-none"
-                            title={locales.route.content.current.remove}
+                            title={t("content.current.remove")}
                           >
                             <svg
                               viewBox="0 0 10 10"
@@ -389,8 +385,8 @@ function Participants() {
                     <Field name="publish"></Field>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
-                        ? locales.route.content.hide
-                        : locales.route.content.publish}
+                        ? t("content.hide")
+                        : t("content.publish")}
                     </Button>
                   </>
                 );

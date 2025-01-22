@@ -1,8 +1,6 @@
 import type { ButtonLevel, ButtonProps, ButtonSize } from "./Button";
-import { Button } from "./Button";
+import Button from "./Button";
 
-// TODO: Icon is unused
-/*
 function Icon() {
   return (
     <svg
@@ -21,7 +19,6 @@ function Icon() {
     </svg>
   );
 }
-*/
 
 // function ButtonVariants(props: { size: ButtonProps["size"] }) {
 //   const { size } = props;

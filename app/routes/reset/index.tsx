@@ -1,33 +1,34 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import {
-  Link,
-  useActionData,
-  useLoaderData,
-  useSearchParams,
-} from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import { Link, useActionData, useSearchParams } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import Input from "~/components/FormElements/Input/Input";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import {
   createAdminAuthClient,
   createAuthClient,
   getSessionUser,
   sendResetPasswordLink,
 } from "../../auth.server";
-import { type ResetPasswordLocales } from "./index.server";
-import { languageModuleMap } from "~/locales/.server";
 
-const createSchema = (locales: ResetPasswordLocales) => {
+const i18nNS = ["routes/reset/index"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createSchema = (t: TFunction) => {
   return z.object({
     email: z
       .string()
-      .email(locales.validation.email.email)
-      .min(1, locales.validation.email.min),
+      .email(t("validation.email.email"))
+      .min(1, t("validation.email.min")),
     loginRedirect: z.string().optional(),
   });
 };
@@ -47,15 +48,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/dashboard");
   }
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["reset/index"];
-
-  return { locales };
+  return null;
 };
 
-const createMutation = (locales: ResetPasswordLocales) => {
+const createMutation = (t: TFunction) => {
   return makeDomainFunction(
-    createSchema(locales),
+    createSchema(t),
     environmentSchema
   )(async (values, environment) => {
     // get profile by email to be able to find user
@@ -102,30 +100,30 @@ const createMutation = (locales: ResetPasswordLocales) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
-  const { authClient } = createAuthClient(request);
+  const { authClient, headers } = createAuthClient(request);
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["reset/index"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const siteUrl = `${process.env.COMMUNITY_BASE_URL}`;
 
   const result = await performMutation({
     request,
-    schema: createSchema(locales),
-    mutation: createMutation(locales),
+    schema: createSchema(t),
+    mutation: createMutation(t),
     environment: { authClient: authClient, siteUrl: siteUrl },
   });
 
-  return result;
+  return json(result, { headers });
 };
 
 export default function Index() {
-  const { locales } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
 
-  const schema = createSchema(locales);
+  const { t } = useTranslation(i18nNS);
+  const schema = createSchema(t);
 
   return (
     <>
@@ -139,20 +137,20 @@ export default function Index() {
                 }`}
                 className="text-primary font-bold"
               >
-                {locales.login}
+                {t("login")}
               </Link>
             </div>
-            <h1 className="mb-8">{locales.response.headline}</h1>
+            <h1 className="mb-8">{t("response.headline")}</h1>
             {actionData !== undefined &&
             actionData.success &&
             actionData.data !== undefined ? (
               <>
                 <p className="mb-4">
-                  {locales.response.done.prefix}{" "}
+                  {t("response.done.prefix")}{" "}
                   <span className="mv-font-bold">{actionData.data.email}</span>{" "}
-                  {locales.response.done.suffix}
+                  {t("response.done.suffix")}
                 </p>
-                <p className="mb-4">{locales.response.notice}</p>
+                <p className="mb-4">{t("response.notice")}</p>
               </>
             ) : (
               <RemixFormsForm
@@ -165,7 +163,7 @@ export default function Index() {
               >
                 {({ Field, Button, Errors, register }) => (
                   <>
-                    <p className="mb-4">{locales.form.intro}</p>
+                    <p className="mb-4">{t("form.intro")}</p>
 
                     <Field name="loginRedirect" />
                     <div className="mb-8">
@@ -174,7 +172,7 @@ export default function Index() {
                           <>
                             <Input
                               id="email"
-                              label={locales.form.label.email}
+                              label={t("form.label.email")}
                               required
                               {...register("email")}
                             />
@@ -186,7 +184,7 @@ export default function Index() {
 
                     <div className="mb-8">
                       <button type="submit" className="btn btn-primary">
-                        {locales.form.label.submit}
+                        {t("form.label.submit")}
                       </button>
                     </div>
                     <Errors />

@@ -1,38 +1,36 @@
 import { conform, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Link } from "@mint-vernetzt/components/src/molecules/Link";
+import { Button, Input, Link } from "@mint-vernetzt/components";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  useNavigate,
-} from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import { Form, useActionData, useNavigate } from "@remix-run/react";
+import { type TFunction } from "i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { deriveMode, generateProjectSlug } from "~/utils.server";
 import { getHash } from "./$slug/settings/utils.server";
-import { type CreateProjectLocales } from "./create.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
-const createSchema = (locales: CreateProjectLocales) =>
+const i18nNS = ["routes/project/create"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createSchema = (t: TFunction) =>
   z.object({
     projectName: z
       .string({
-        required_error: locales.validation.projectName.required,
+        required_error: t("validation.projectName.required"),
       })
-      .max(80, locales.validation.projectName.max),
+      .max(80, t("validation.projectName.max")),
   });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -54,26 +52,23 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["project/create"];
-
-  return { locales };
+  return null;
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["project/create"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveMode(sessionUser);
-  invariantResponse(mode !== "anon", locales.error.invariantResponse, {
+  invariantResponse(mode !== "anon", t("error.invariantResponse"), {
     status: 403,
   });
 
-  const schema = createSchema(locales);
+  const schema = createSchema(t);
 
   // Validation
   const formData = await request.formData();
@@ -125,7 +120,7 @@ export const action = async (args: ActionFunctionArgs) => {
           console.warn(e);
           ctx.addIssue({
             code: "custom",
-            message: locales.error.unableToCreate,
+            message: t("error.unableToCreate"),
           });
           return z.NEVER;
         }
@@ -138,21 +133,23 @@ export const action = async (args: ActionFunctionArgs) => {
   const hash = getHash(submission);
 
   if (submission.intent !== "submit") {
-    return { status: "idle", submission, hash };
+    return json({ status: "idle", submission, hash } as const);
   }
   if (!submission.value) {
-    return { status: "error", submission, hash };
+    return json({ status: "error", submission, hash } as const, {
+      status: 400,
+    });
   }
 
   return redirect(`/project/${submission.value.slug}/settings`);
 };
 
 function Create() {
-  const { locales } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
 
-  const schema = createSchema(locales);
+  const { t } = useTranslation(i18nNS);
+  const schema = createSchema(t);
 
   const [form, fields] = useForm({
     id: "create-project-form",
@@ -172,7 +169,7 @@ function Create() {
           <div className="mv-flex mv-flex-col mv-w-[480px] mv-gap-6 mv-p-8 mv-border mv-rounded-lg mv-border-gray-200">
             <div className="mv-flex mv-justify-between mv-items-center mv-gap-4">
               <h1 className="mv-text-primary mv-text-5xl mv-font-bold mv-mb-0">
-                {locales.content.headline}
+                {t("content.headline")}
               </h1>
               {/* TODO: Add and style this when putting the create dialog inside a modal */}
               {/* <CircleButton variant="ghost" size="small">
@@ -190,39 +187,40 @@ function Create() {
                 </svg>
               </CircleButton> */}
             </div>
-            <p className="mv-text-sm">{locales.content.intro1}</p>
+            <p className="mv-text-sm">{t("content.intro1")}</p>
             <p className="mv-text-sm">
-              {insertComponentsIntoLocale(locales.content.intro2, [
-                <Link
-                  key="terms-of-use"
-                  as="a"
-                  to="https://mint-vernetzt.de/terms-of-use-community-platform/"
-                  className="mv-text-primary"
-                  isExternal
-                >
-                  {" "}
-                </Link>,
-              ])}
+              <Trans
+                i18nKey="content.intro2"
+                ns={i18nNS}
+                components={[
+                  <Link
+                    as="a"
+                    to="https://mint-vernetzt.de/terms-of-use-community-platform/"
+                    className="mv-text-primary"
+                    isExternal
+                  />,
+                ]}
+              />
             </p>
             <Form method="post" {...form.props}>
               <Input {...conform.input(fields.projectName)}>
                 <Input.Label htmlFor={fields.projectName.id}>
-                  {locales.form.projectName.label}
+                  {t("form.projectName.label")}
                 </Input.Label>
                 {typeof fields.projectName.error !== "undefined" && (
                   <Input.Error>{fields.projectName.error}</Input.Error>
                 )}
               </Input>
             </Form>
-            <p className="mv-text-xs">{locales.content.explanation.headline}</p>
-            <p className="mv-text-xs">{locales.content.explanation.intro}</p>
+            <p className="mv-text-xs">{t("content.explanation.headline")}</p>
+            <p className="mv-text-xs">{t("content.explanation.intro")}</p>
             <div className="mv-flex mv-flex-col mv-gap-2">
               <Button type="submit" form={form.id}>
-                {locales.form.submit.label}
+                {t("form.submit.label")}
               </Button>
               {/* TODO: Add and style this when putting the create dialog inside a modal */}
               <Button variant="outline" onClick={() => navigate(-1)}>
-                {locales.form.reset.label}
+                {t("form.reset.label")}
               </Button>
             </div>
           </div>

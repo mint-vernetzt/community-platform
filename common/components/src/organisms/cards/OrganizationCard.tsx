@@ -1,6 +1,6 @@
 import React from "react";
-import { Chip, ChipContainer } from "./../../molecules/Chip";
-import { Avatar, AvatarList } from "./../../molecules/Avatar";
+import Chip, { ChipContainer } from "../../molecules/Chip";
+import Avatar, { AvatarList } from "../../molecules/Avatar";
 import {
   Card,
   CardBody,
@@ -9,22 +9,14 @@ import {
   CardHeader,
   CardStatus,
 } from "./Card";
+import { useTranslation } from "react-i18next";
 import { Link, type useFetcher } from "@remix-run/react";
 import { type action as quitAction } from "~/routes/my/organizations/quit";
-import { Image } from "./../../molecules/Image";
-import { type DashboardLocales } from "~/routes/dashboard.server";
-import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
-import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
-import { type SearchOrganizationsLocales } from "~/routes/search/organizations.server";
+import { Image } from "@mint-vernetzt/components";
 
 export type OrganizationCardProps = {
   match?: number;
   publicAccess?: boolean;
-  locales:
-    | DashboardLocales
-    | ExploreOrganizationsLocales
-    | SearchOrganizationsLocales
-    | MyOrganizationsLocales;
   menu?: {
     mode: "admin" | "teamMember";
     quitOrganizationFetcher: ReturnType<typeof useFetcher<typeof quitAction>>;
@@ -51,11 +43,17 @@ export type OrganizationCardProps = {
 function OrganizationCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & OrganizationCardProps
 ) {
-  const { organization, publicAccess = false, menu, locales } = props;
+  const { organization, publicAccess = false, menu } = props;
+
+  const { t } = useTranslation([
+    "organisms/cards/organization-card",
+    "datasets/focuses",
+    "datasets/organizationTypes",
+  ]);
 
   const emptyMessage = publicAccess
-    ? locales.organizationCard.nonPublic
-    : locales.organizationCard.nonStated;
+    ? t("nonPublic", "-nicht öffentlich-")
+    : t("nonStated", "-nicht angegeben-");
 
   const [checked, setChecked] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -99,7 +97,7 @@ function OrganizationCard(
           )}
           {props.match !== undefined && (
             <CardStatus>
-              {props.match}% {locales.organizationCard.match}
+              {props.match}% {t("match")}
             </CardStatus>
           )}
         </CardHeader>
@@ -116,15 +114,9 @@ function OrganizationCard(
                   <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-font-bold mv-truncate">
                     {organization.types
                       .map((type) => {
-                        if (type in locales.organizationTypes === false) {
-                          console.error(
-                            `No locale found for organization type ${type}`
-                          );
-                          return type;
-                        }
-                        type LocaleKey = keyof typeof locales.organizationTypes;
-                        return locales.organizationTypes[type as LocaleKey]
-                          .title;
+                        return t(`${type}.title`, {
+                          ns: "datasets/organizationTypes",
+                        });
                       })
                       .join("/")}
                   </p>
@@ -133,29 +125,22 @@ function OrganizationCard(
             </div>
           }
           <CardBodySection
-            title={locales.organizationCard.areasOfActivity}
+            title={t("areasOfActivity")}
             emptyMessage={emptyMessage}
           >
             {organization.areas.length > 0 ? organization.areas.join("/") : ""}
           </CardBodySection>
-          <CardBodySection
-            title={locales.organizationCard.focus}
-            emptyMessage={emptyMessage}
-          >
+          <CardBodySection title={t("focus")} emptyMessage={emptyMessage}>
             {organization.focuses.length === 0 ? (
               ""
             ) : (
               <ChipContainer maxRows={2}>
                 {organization.focuses.map((focus) => {
-                  let title;
-                  if (focus in locales.focuses) {
-                    type LocaleKey = keyof typeof locales.focuses;
-                    title = locales.focuses[focus as LocaleKey].title;
-                  } else {
-                    console.error(`No locale found for focus ${focus}`);
-                    title = focus;
-                  }
-                  return <Chip key={focus}>{title}</Chip>;
+                  return (
+                    <Chip key={focus}>
+                      {t(`${focus}.title`, { ns: "datasets/focuses" })}
+                    </Chip>
+                  );
                 })}
               </ChipContainer>
             )}
@@ -232,7 +217,7 @@ function OrganizationCard(
                         fill="CurrentColor"
                       />
                     </svg>
-                    <span>{locales.organizationCard.edit}</span>
+                    <span>{t("edit")}</span>
                   </Link>
                 </li>
                 <div
@@ -268,7 +253,7 @@ function OrganizationCard(
                   className="mv-appearance-none"
                   type="submit"
                 >
-                  {locales.organizationCard.quit}
+                  {t("quit")}
                 </button>
               </label>
             </li>
@@ -288,4 +273,4 @@ function OrganizationCard(
   );
 }
 
-export { OrganizationCard };
+export default OrganizationCard;

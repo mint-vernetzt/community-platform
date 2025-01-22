@@ -1,10 +1,9 @@
+import { Button } from "./../../index";
 import React from "react";
-import { Button } from "./../molecules/Button";
-import { type AboutProjectLocales } from "~/routes/project/$slug/detail/about.server";
+import { useTranslation } from "react-i18next";
 
 export type VideoProps = {
   src: string;
-  locales: AboutProjectLocales;
 };
 
 function VideoSubline(props: React.PropsWithChildren<{}>) {
@@ -16,7 +15,6 @@ function VideoSubline(props: React.PropsWithChildren<{}>) {
 }
 
 function Video(props: React.PropsWithChildren<VideoProps>) {
-  const { locales } = props;
   const [cookiesAccepted, setCookiesAccepted] = React.useState(false);
 
   const handleClick = () => {
@@ -27,6 +25,8 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
     return React.isValidElement(child) && child.type === VideoSubline;
   });
 
+  const { t } = useTranslation(["organisms/video"]);
+
   return (
     <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
       <div className="mv-w-full mv-aspect-video">
@@ -34,10 +34,10 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
           {!cookiesAccepted ? (
             <>
               <Button variant="outline" onClick={handleClick}>
-                {locales.video.cookieAction}
+                {t("cookieAction")}
               </Button>
               <p className="mv-text-white mv-text-sm @md:mv-text-base mv-text-center mv-px-4">
-                {locales.video.cookieActionDescription}
+                {t("cookieActionDescription")}
               </p>
             </>
           ) : (
@@ -46,7 +46,7 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
               height="100%"
               src={props.src}
               title="YouTube video player"
-              className="mv-border-none mv-rounded-sm"
+              frameBorder="0"
               allow=""
               allowFullScreen
             ></iframe>
@@ -60,4 +60,4 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
 
 Video.Subline = VideoSubline;
 
-export { Video };
+export default Video;

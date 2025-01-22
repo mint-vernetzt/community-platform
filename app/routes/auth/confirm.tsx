@@ -1,4 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { invariantResponse } from "~/lib/utils/response";
@@ -52,9 +53,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // Build new URL
   const sanitizedConfirmationLink = `${process.env.COMMUNITY_BASE_URL}/auth/verify?token_hash=${tokenHash}&type=${type}&login_redirect=${loginRedirect}`;
 
-  return {
+  return json({
     confirmationLink: sanitizedConfirmationLink,
-  };
+  });
 };
 
 export default function Confirm() {

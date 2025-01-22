@@ -1,0 +1,6 @@
+{
+  "error": {
+    "notFound": "Organization not found",
+    "notPrivileged": "Not privileged"
+  }
+}

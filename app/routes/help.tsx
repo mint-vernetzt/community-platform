@@ -1,35 +1,36 @@
+import { useTranslation } from "react-i18next";
+import { faq } from "public/locales/en/help.json";
 import { RichText } from "~/components/Richtext/RichText";
-import { Accordion } from "~/components-next/Accordion";
-import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
+import { Accordion } from "./__help.components";
+import { Link as StyledLink, Button } from "@mint-vernetzt/components";
+import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { type LoaderFunctionArgs } from "@remix-run/node";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["help"];
-  return {
+const i18nNS = ["help"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+export const loader = async () => {
+  return json({
     supportMail: process.env.SUPPORT_MAIL,
-    locales,
-  };
+  });
 };
 
 export default function Help() {
+  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
 
   return (
     <>
       <section className="mv-w-full mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-px-4 @md:mv-px-6 @xl:mv-px-8 mv-pt-16 mv-pb-8 @md:mv-pb-12 @xl:mv-pb-16">
         <h1 className="mv-w-full mv-text-center mv-text-5xl @sm:mv-text-6xl @md:mv-text-7xl @xl:mv-text-8xl mv-font-[900] mv-leading-9 @sm:mv-leading-10 @md:mv-leading-[64px] @xl:mv-leading-[80px]">
-          {locales.headline}
+          {t("headline")}
         </h1>
         <div className="mv-w-full mv-text-center mv-text-neutral-700 mv-leading-5">
-          <p className="mv-mb-1">{locales.subline}</p>
+          <p className="mv-mb-1">{t("subline")}</p>
           <p>
-            <span>{locales.subline2}</span>{" "}
+            <span>{t("subline2")}</span>{" "}
             <StyledLink
               as="a"
               to={`mailto:${loaderData.supportMail}`}
@@ -42,32 +43,26 @@ export default function Help() {
       </section>
       <section className="mv-w-full mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-px-4 @md:mv-px-6 @xl:mv-px-8 mv-py-6 mv-mb-6 @md:mv-mb-8 @xl:mv-mb-12">
         <Accordion>
-          {Object.entries(locales.faq).map(([topicKey]) => {
-            const typedTopicKey = topicKey as keyof typeof locales.faq;
-            const typedTopicValue = locales.faq[typedTopicKey];
+          {Object.entries(faq).map(([topicKey, topicValue]) => {
             return (
-              <Accordion.Topic id={typedTopicKey} key={typedTopicKey}>
-                {typedTopicValue.headline}
-                {Object.entries(typedTopicValue.qAndAs).map(([qAndAkey]) => {
-                  if (qAndAkey in typedTopicValue.qAndAs) {
-                    return (
-                      <Accordion.Item
-                        id={`${typedTopicKey}-${qAndAkey}`}
-                        key={`${typedTopicKey}-${qAndAkey}`}
-                      >
-                        {/* This one is hard to type cast, but we do know it is an entry of the object because we map through it */}
-                        {/* @ts-ignore */}
-                        {typedTopicValue.qAndAs[qAndAkey].question}
-                        <RichText
-                          id="faq-content"
-                          // This one is hard to type cast, but we do know it is an entry of the object because we map through it
-                          // @ts-ignore
-                          html={typedTopicValue.qAndAs[qAndAkey].answer}
-                        />
-                      </Accordion.Item>
-                    );
+              <Accordion.Topic id={topicKey} key={topicKey}>
+                {t(`faq.${topicKey}.headline`)}
+                {Object.entries(topicValue).map(([qAndAkey]) => {
+                  if (qAndAkey === "headline") {
+                    return null;
                   }
-                  return null;
+                  return (
+                    <Accordion.Item
+                      id={`${topicKey}-${qAndAkey}`}
+                      key={`${topicKey}-${qAndAkey}`}
+                    >
+                      {t(`faq.${topicKey}.${qAndAkey}.question`)}
+                      <RichText
+                        id="faq-content"
+                        html={t(`faq.${topicKey}.${qAndAkey}.answer`)}
+                      />
+                    </Accordion.Item>
+                  );
                 })}
               </Accordion.Topic>
             );
@@ -105,11 +100,11 @@ export default function Help() {
         </div>
         <div className="mv-w-full mv-text-center mv-mb-8 @md:mv-mb-10 @xl:mv-mb-12 mv-text-primary-600 @xl:mv-text-primary-500 mv-font-semibold">
           <h2 className="mv-mb-6 @xl:mv-mb-8 mv-text-4xl @xl:mv-text-5xl mv-leading-7 @md:mv-leading-8 @xl:mv-leading-9 mv-uppercase">
-            {locales.support.headline}
+            {t("support.headline")}
           </h2>
           <div className="mv-flex mv-flex-col mv-items-center mv-text-lg @md:mv-text-xl @xl:mv-text-3xl mv-leading-6 @md:mv-leading-7 @xl:mv-leading-8">
-            <p>{locales.support.subline}</p>
-            <p>{locales.support.ctaText}</p>
+            <p>{t("support.subline")}</p>
+            <p>{t("support.ctaText")}</p>
             <p className="mv-w-fit mv-bg-secondary-200 mv-px-1">
               {loaderData.supportMail}
             </p>
@@ -121,7 +116,7 @@ export default function Help() {
             href={`mailto:${loaderData.supportMail}`}
             variant="outline"
           >
-            {locales.support.cta}
+            {t("support.cta")}
           </Button>
         </div>
       </section>

@@ -1,9 +1,9 @@
 import type { OrganizationType } from "@prisma/client";
 import { Link } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { H3 } from "../Heading/Heading";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
+import { Avatar } from "@mint-vernetzt/components";
 
 export interface OrganizationCardProps {
   id: string;
@@ -14,11 +14,10 @@ export interface OrganizationCardProps {
   types?: {
     organizationType: Pick<OrganizationType, "slug">;
   }[];
-  locales: ProfileDetailLocales;
 }
 
 function OrganizationCard(props: OrganizationCardProps) {
-  const { locales } = props;
+  const { t } = useTranslation(["datasets/organizationTypes"]);
   return (
     <div
       key={props.id}
@@ -51,25 +50,11 @@ function OrganizationCard(props: OrganizationCardProps) {
             {props.types && props.types.length > 0 && (
               <p className="font-bold text-sm">
                 {props.types
-                  .map((relation) => {
-                    let title;
-                    if (
-                      relation.organizationType.slug in
-                      locales.organizationTypes
-                    ) {
-                      type LocaleKey = keyof typeof locales.organizationTypes;
-                      title =
-                        locales.organizationTypes[
-                          relation.organizationType.slug as LocaleKey
-                        ].title;
-                    } else {
-                      console.error(
-                        `Focus ${relation.organizationType.slug} not found in locales`
-                      );
-                      title = relation.organizationType.slug;
-                    }
-                    return title;
-                  })
+                  .map((relation) =>
+                    t(`${relation.organizationType.slug}.title`, {
+                      ns: "datasets/organizationTypes",
+                    })
+                  )
                   .join(", ")}
               </p>
             )}

@@ -1,12 +1,18 @@
-import { Avatar as MVAvatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import {
+  Button,
+  TextButton,
+  Image,
+  Avatar as MVAvatar,
+} from "@mint-vernetzt/components";
 import type { Profile } from "@prisma/client";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { utcToZonedTime } from "date-fns-tz";
-import rcSliderStyles from "rc-slider/assets/index.css?url";
+import rcSliderStyles from "rc-slider/assets/index.css";
 import React from "react";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
+import { useTranslation } from "react-i18next";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
@@ -15,7 +21,9 @@ import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
+import i18next from "~/i18next.server";
 import {
+  addUserParticipationStatus,
   canUserBeAddedToWaitingList,
   canUserParticipate,
 } from "~/lib/event/utils";
@@ -26,12 +34,11 @@ import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
 import { getDuration } from "~/lib/utils/time";
-import { detectLanguage } from "~/i18n.server";
-import { Modal } from "~/components-next/Modal";
+import { detectLanguage } from "~/root.server";
+import { Modal } from "~/routes/__components";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
-import { Mastodon } from "~/components-next/icons/Mastodon";
-import { TikTok } from "~/components-next/icons/TikTok";
+import { Mastodon, TikTok } from "~/routes/project/$slug/detail/__components";
 import { getProfileByUsername } from "./index.server";
 import {
   addImgUrls,
@@ -41,12 +48,17 @@ import {
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
-import { addUserParticipationStatus } from "~/routes/event/$slug/utils.server";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { languageModuleMap } from "~/locales/.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+
+const i18nNS = [
+  "routes/profile/index",
+  "datasets/offers",
+  "datasets/stages",
+  "datasets/organizationTypes",
+  "components/image-cropper",
+];
+export const handle = {
+  i18n: i18nNS,
+};
 
 export function links() {
   return [
@@ -182,8 +194,8 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["profile/$username/index"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const { authClient } = createAuthClient(request);
 
@@ -194,9 +206,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const profile = await getProfileByUsername(username, mode);
   if (profile === null) {
-    invariantResponse(false, locales.route.error.profileNotFound, {
-      status: 404,
-    });
+    throw json(t("error.profileNotFound"), { status: 404 });
   }
 
   const abilities = await getFeatureAbilities(authClient, ["events"]);
@@ -290,7 +300,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       ),
   };
 
-  return {
+  return json({
     mode,
     data: profileWithoutEvents,
     abilities,
@@ -301,9 +311,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       baseUrl: process.env.COMMUNITY_BASE_URL,
       url: request.url,
     },
-    locales,
-    language,
-  };
+  });
 };
 
 function hasContactInformations(
@@ -359,7 +367,7 @@ function canViewEvents(events: {
 
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, language } = loaderData;
+  const { t, i18n } = useTranslation(i18nNS);
 
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
@@ -396,7 +404,7 @@ export default function Index() {
         {background !== null ? (
           <Image
             src={background}
-            alt={locales.route.images.currentBackground}
+            alt={t("images.currentBackground")}
             blurredSrc={blurredBackground}
           />
         ) : (
@@ -404,7 +412,7 @@ export default function Index() {
         )}
       </div>
     ),
-    [background, blurredBackground, locales]
+    [background, blurredBackground, t]
   );
 
   const uploadRedirect = `/profile/${loaderData.data.username}`;
@@ -412,15 +420,10 @@ export default function Index() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
-        <TextButton
-          as="a"
-          href="/explore/profiles"
-          weight="thin"
-          variant="neutral"
-          arrowLeft
-        >
-          {locales.route.back}
+        <TextButton weight="thin" variant="neutral" arrowLeft>
+          <Link to="/explore/profiles" prefetch="intent">
+            {t("back")}
+          </Link>
         </TextButton>
       </section>
       <section className="hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
@@ -438,14 +441,12 @@ export default function Index() {
             <div className="absolute bottom-6 right-6">
               <Form method="get" preventScrollReset>
                 <input hidden name="modal-background" defaultValue="true" />
-                <Button type="submit">
-                  {locales.route.profile.changeBackground}
-                </Button>
+                <Button type="submit">{t("profile.changeBackground")}</Button>
               </Form>
 
               <Modal searchParam="modal-background">
                 <Modal.Title>
-                  {locales.route.profile.changeBackgroundHeadline}
+                  {t("profile.changeBackgroundHeadline")}
                 </Modal.Title>
                 <Modal.Section>
                   <ImageCropper
@@ -461,7 +462,6 @@ export default function Index() {
                     maxTargetHeight={MaxImageSizes.Background.height}
                     redirect={uploadRedirect}
                     modalSearchParam="modal-background"
-                    locales={locales}
                   >
                     <Background />
                   </ImageCropper>
@@ -495,14 +495,14 @@ export default function Index() {
                           <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                         </svg>
                         <span className="ml-2">
-                          {locales.route.profile.changeAvatar}
+                          {t("profile.changeAvatar")}
                         </span>
                       </button>
                     </Form>
 
                     <Modal searchParam="modal-logo">
                       <Modal.Title>
-                        {locales.route.profile.changeAvatarHeadline}
+                        {t("profile.changeAvatarHeadline")}
                       </Modal.Title>
                       <Modal.Section>
                         <ImageCropper
@@ -519,7 +519,6 @@ export default function Index() {
                           redirect={uploadRedirect}
                           circularCrop={true}
                           modalSearchParam="modal-logo"
-                          locales={locales}
                         >
                           <Avatar />
                         </ImageCropper>
@@ -538,7 +537,7 @@ export default function Index() {
               {hasContactInformations(loaderData.data) ||
               hasWebsiteOrSocialService(loaderData.data, ExternalServices) ? (
                 <h5 className="font-semibold mb-6 mt-8">
-                  {locales.route.profile.contact}
+                  {t("profile.contact")}
                 </h5>
               ) : null}
               {hasContactInformations(loaderData.data) ? (
@@ -657,19 +656,16 @@ export default function Index() {
                   <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
                   <p className="text-xs mb-4 text-center">
-                    {insertParametersIntoLocale(
-                      locales.route.profile.existsSince,
-                      {
-                        timestamp: utcToZonedTime(
-                          loaderData.data.createdAt,
-                          "Europe/Berlin"
-                        ).toLocaleDateString("de-De", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        }),
-                      }
-                    )}
+                    {t("profile.existsSince", {
+                      timestamp: utcToZonedTime(
+                        loaderData.data.createdAt,
+                        "Europe/Berlin"
+                      ).toLocaleDateString("de-De", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }),
+                    })}
                   </p>
                 </>
               ) : null}
@@ -680,14 +676,11 @@ export default function Index() {
             <div className="flex flex-col-reverse @lg:mv-flex-row flex-nowrap">
               <div className="flex-auto pr-4 mb-6">
                 <h1 className="mb-0">
-                  {insertParametersIntoLocale(
-                    locales.route.profile.introduction,
-                    {
-                      name: getFullName(loaderData.data, {
-                        withAcademicTitle: false,
-                      }),
-                    }
-                  )}
+                  {t("profile.introduction", {
+                    name: getFullName(loaderData.data, {
+                      withAcademicTitle: false,
+                    }),
+                  })}
                 </h1>
               </div>
               {loaderData.mode === "owner" ? (
@@ -696,7 +689,7 @@ export default function Index() {
                     className="btn btn-outline btn-primary"
                     to={`/profile/${loaderData.data.username}/settings`}
                   >
-                    {locales.route.profile.editProfile}
+                    {t("profile.editProfile")}
                   </Link>
                 </div>
               ) : null}
@@ -710,7 +703,7 @@ export default function Index() {
             {loaderData.data.areas.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
                 <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 mb-2 @lg:mv-mb-0 @lg:mv-leading-6">
-                  {locales.route.profile.activityAreas}
+                  {t("profile.activityAreas")}
                 </div>
                 <div className="@lg:mv-flex-auto">
                   {loaderData.data.areas
@@ -722,7 +715,7 @@ export default function Index() {
             {loaderData.data.skills.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
                 <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
-                  {locales.route.profile.competences}
+                  {t("profile.competences")}
                 </div>
 
                 <div className="flex-auto">
@@ -734,7 +727,7 @@ export default function Index() {
             {loaderData.data.interests.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
                 <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 mb-2 @lg:mv-mb-0">
-                  {locales.route.profile.interests}
+                  {t("profile.interests")}
                 </div>
                 <div className="flex-auto">
                   {loaderData.data.interests.join(" / ")}
@@ -744,60 +737,38 @@ export default function Index() {
             {loaderData.data.offers.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
                 <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 my-2 @lg:mv-mb-0">
-                  {locales.route.profile.offer}
+                  {t("profile.offer")}
                 </div>
                 <div className="flex-auto">
-                  {loaderData.data.offers.map((relation) => {
-                    let title;
-                    if (relation.offer.slug in locales.offers) {
-                      type LocaleKey = keyof typeof locales.offers;
-                      title =
-                        locales.offers[relation.offer.slug as LocaleKey].title;
-                    } else {
-                      console.error(
-                        `Offer ${relation.offer.slug} not found in locales`
-                      );
-                      title = relation.offer.slug;
-                    }
-                    return (
-                      <Chip
-                        key={`offer_${relation.offer.slug}`}
-                        title={title}
-                        slug=""
-                        isEnabled
-                      />
-                    );
-                  })}
+                  {loaderData.data.offers.map((relation) => (
+                    <Chip
+                      key={`offer_${relation.offer.slug}`}
+                      title={t(`${relation.offer.slug}.title`, {
+                        ns: "datasets/offers",
+                      })}
+                      slug=""
+                      isEnabled
+                    />
+                  ))}
                 </div>
               </div>
             ) : null}
             {loaderData.data.seekings.length > 0 ? (
               <div className="flex mb-6 font-semibold flex-col @lg:mv-flex-row">
                 <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 my-2 @lg:mv-mb-0">
-                  {locales.route.profile.lookingFor}
+                  {t("profile.lookingFor")}
                 </div>
                 <div className="flex-auto">
-                  {loaderData.data.seekings.map((relation) => {
-                    let title;
-                    if (relation.offer.slug in locales.offers) {
-                      type LocaleKey = keyof typeof locales.offers;
-                      title =
-                        locales.offers[relation.offer.slug as LocaleKey].title;
-                    } else {
-                      console.error(
-                        `Focus ${relation.offer.slug} not found in locales`
-                      );
-                      title = relation.offer.slug;
-                    }
-                    return (
-                      <Chip
-                        key={`seeking_${relation.offer.slug}`}
-                        title={title}
-                        slug=""
-                        isEnabled
-                      />
-                    );
-                  })}
+                  {loaderData.data.seekings.map((relation) => (
+                    <Chip
+                      key={`seeking_${relation.offer.slug}`}
+                      title={t(`${relation.offer.slug}.title`, {
+                        ns: "datasets/offers",
+                      })}
+                      slug=""
+                      isEnabled
+                    />
+                  ))}
                 </div>
               </div>
             ) : null}
@@ -811,7 +782,7 @@ export default function Index() {
                 >
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">
-                      {locales.route.section.organizations.title}
+                      {t("section.organizations.title")}
                     </h3>
                   </div>
                   {loaderData.mode === "owner" ? (
@@ -820,7 +791,7 @@ export default function Index() {
                         to="/organization/create"
                         className="btn btn-outline btn-primary"
                       >
-                        {locales.route.section.organizations.create}
+                        {t("section.organizations.create")}
                       </Link>
                     </div>
                   ) : null}
@@ -836,7 +807,6 @@ export default function Index() {
                         types={relation.organization.types}
                         image={relation.organization.logo}
                         blurredImage={relation.organization.blurredLogo}
-                        locales={locales}
                       />
                     ))}
                   </div>
@@ -852,7 +822,7 @@ export default function Index() {
                 >
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">
-                      {locales.route.section.projects.title}
+                      {t("section.projects.title")}
                     </h3>
                   </div>
                   {loaderData.mode === "owner" ? (
@@ -861,7 +831,7 @@ export default function Index() {
                         to="/project/create"
                         className="btn btn-outline btn-primary"
                       >
-                        {locales.route.section.projects.create}
+                        {t("section.projects.create")}
                       </Link>
                     </div>
                   ) : null}
@@ -912,7 +882,7 @@ export default function Index() {
                             </div>
                             <div className="hidden @md:mv-flex items-center flex-initial">
                               <button className="btn btn-primary">
-                                {locales.route.section.projects.to}
+                                {t("section.projects.to")}
                               </button>
                             </div>
                           </div>
@@ -933,7 +903,7 @@ export default function Index() {
                 >
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">
-                      {locales.route.section.comingEvents.title}
+                      {t("section.comingEvents.title")}
                     </h3>
                   </div>
                   {loaderData.mode === "owner" &&
@@ -943,7 +913,7 @@ export default function Index() {
                         to="/event/create"
                         className="btn btn-outline btn-primary"
                       >
-                        {locales.route.section.comingEvents.create}
+                        {t("section.comingEvents.create")}
                       </Link>
                     </div>
                   ) : null}
@@ -951,7 +921,7 @@ export default function Index() {
                 {loaderData.futureEvents.administeredEvents.length > 0 ? (
                   <>
                     <h6 id="admin-future-events" className="mb-4 font-bold">
-                      {locales.route.section.event.admin}
+                      {t("section.event.admin")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.administeredEvents.map(
@@ -986,30 +956,18 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? (() => {
-                                          let title;
-                                          if (
-                                            event.stage.slug in locales.stages
-                                          ) {
-                                            type LocaleKey =
-                                              keyof typeof locales.stages;
-                                            title =
-                                              locales.stages[
-                                                event.stage.slug as LocaleKey
-                                              ].title;
-                                          } else {
-                                            console.error(
-                                              `Event stage ${event.stage.slug} not found in locales`
-                                            );
-                                            title = event.stage.slug;
-                                          }
-                                          return title;
-                                        })() + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime, language)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
 
                                     {event.participantLimit === null &&
-                                      ` | ${locales.route.section.event.unlimitedSeats}`}
+                                      ` | ${t("section.event.unlimitedSeats")}`}
                                     {event.participantLimit !== null &&
                                       event.participantLimit -
                                         event._count.participants >
@@ -1017,9 +975,9 @@ export default function Index() {
                                       ` | ${
                                         event.participantLimit -
                                         event._count.participants
-                                      } / ${event.participantLimit} ${
-                                        locales.route.section.event.seatsFree
-                                      }`}
+                                      } / ${event.participantLimit} ${t(
+                                        "section.event.seatsFree"
+                                      )}`}
 
                                     {event.participantLimit !== null &&
                                     event.participantLimit -
@@ -1030,10 +988,7 @@ export default function Index() {
                                         |{" "}
                                         <span>
                                           {event._count.waitingList}{" "}
-                                          {
-                                            locales.route.section.event
-                                              .onWaitingList
-                                          }
+                                          {t("section.event.onWaitingList")}
                                         </span>
                                       </>
                                     ) : null}
@@ -1058,27 +1013,25 @@ export default function Index() {
                                 <>
                                   {event.published ? (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                      {locales.route.section.event.published}
+                                      {t("section.event.published")}
                                     </div>
                                   ) : (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
-                                      {locales.route.section.event.draft}
+                                      {t("section.event.draft")}
                                     </div>
                                   )}
                                 </>
                               ) : null}
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  {locales.route.section.event.cancelled}
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>
-                                    {locales.route.section.event.registered}
-                                  </p>
+                                  <p>{t("section.event.registered")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1094,7 +1047,7 @@ export default function Index() {
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>{locales.route.section.event.waiting}</p>
+                                  <p>{t("section.event.waiting")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1120,7 +1073,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    {locales.route.section.event.more}
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1137,7 +1090,7 @@ export default function Index() {
                       id="team-member-future-events"
                       className="mb-4 font-bold"
                     >
-                      {locales.route.section.event.team}
+                      {t("section.event.team")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.teamMemberOfEvents.map(
@@ -1172,29 +1125,17 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? (() => {
-                                          let title;
-                                          if (
-                                            event.stage.slug in locales.stages
-                                          ) {
-                                            type LocaleKey =
-                                              keyof typeof locales.stages;
-                                            title =
-                                              locales.stages[
-                                                event.stage.slug as LocaleKey
-                                              ].title;
-                                          } else {
-                                            console.error(
-                                              `Event stage ${event.stage.slug} not found in locales`
-                                            );
-                                            title = event.stage.slug;
-                                          }
-                                          return title;
-                                        })() + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime, language)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {event.participantLimit === null &&
-                                      ` | ${locales.route.section.event.unlimitedSeats}`}
+                                      ` | ${t("section.event.unlimitedSeats")}`}
                                     {event.participantLimit !== null &&
                                       event.participantLimit -
                                         event._count.participants >
@@ -1202,9 +1143,9 @@ export default function Index() {
                                       ` | ${
                                         event.participantLimit -
                                         event._count.participants
-                                      } / ${event.participantLimit} ${
-                                        locales.route.section.event.seatsFree
-                                      }`}
+                                      } / ${event.participantLimit} ${t(
+                                        "section.event.seatsFree"
+                                      )}`}
 
                                     {event.participantLimit !== null &&
                                     event.participantLimit -
@@ -1215,10 +1156,7 @@ export default function Index() {
                                         |{" "}
                                         <span>
                                           {event._count.waitingList}{" "}
-                                          {
-                                            locales.route.section.event
-                                              .onWaitingList
-                                          }
+                                          {t("section.event.onWaitingList")}
                                         </span>
                                       </>
                                     ) : null}
@@ -1240,16 +1178,14 @@ export default function Index() {
 
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  {locales.route.section.event.cancelled}
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>
-                                    {locales.route.section.event.registered}
-                                  </p>
+                                  <p>{t("section.event.registered")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1265,7 +1201,7 @@ export default function Index() {
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>{locales.route.section.event.waiting}</p>
+                                  <p>{t("section.event.waiting")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1290,7 +1226,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    {locales.route.section.event.more}
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1308,7 +1244,7 @@ export default function Index() {
                       id="future-contributed-events"
                       className="mb-4 font-bold"
                     >
-                      {locales.route.section.event.speaker}
+                      {t("section.event.speaker")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.contributedEvents.map(
@@ -1343,29 +1279,17 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? (() => {
-                                          let title;
-                                          if (
-                                            event.stage.slug in locales.stages
-                                          ) {
-                                            type LocaleKey =
-                                              keyof typeof locales.stages;
-                                            title =
-                                              locales.stages[
-                                                event.stage.slug as LocaleKey
-                                              ].title;
-                                          } else {
-                                            console.error(
-                                              `Event stage ${event.stage.slug} not found in locales`
-                                            );
-                                            title = event.stage.slug;
-                                          }
-                                          return title;
-                                        })() + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime, language)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {event.participantLimit === null &&
-                                      ` | ${locales.route.section.event.unlimitedSeats}`}
+                                      ` | ${t("section.event.unlimitedSeats")}`}
                                     {event.participantLimit !== null &&
                                       event.participantLimit -
                                         event._count.participants >
@@ -1373,9 +1297,9 @@ export default function Index() {
                                       ` | ${
                                         event.participantLimit -
                                         event._count.participants
-                                      } / ${event.participantLimit} ${
-                                        locales.route.section.event.seatsFree
-                                      }`}
+                                      } / ${event.participantLimit} ${t(
+                                        "section.event.seatsFree"
+                                      )}`}
 
                                     {event.participantLimit !== null &&
                                     event.participantLimit -
@@ -1386,10 +1310,7 @@ export default function Index() {
                                         |{" "}
                                         <span>
                                           {event._count.waitingList}{" "}
-                                          {
-                                            locales.route.section.event
-                                              .onWaitingList
-                                          }
+                                          {t("section.event.onWaitingList")}
                                         </span>
                                       </>
                                     ) : null}
@@ -1410,14 +1331,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  {locales.route.section.event.cancelled}
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>
-                                    {locales.route.section.event.registered}
-                                  </p>
+                                  <p>{t("section.event.registered")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1431,7 +1350,7 @@ export default function Index() {
                               ) : null}
                               {event.isOnWaitingList && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>{locales.route.section.event.waiting}</p>
+                                  <p>{t("section.event.waiting")}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
@@ -1456,7 +1375,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    {locales.route.section.event.more}
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1473,7 +1392,7 @@ export default function Index() {
                       id="future-participated-events"
                       className="mb-4 font-bold"
                     >
-                      {locales.route.section.event.participation}
+                      {t("section.event.participation")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.futureEvents.participatedEvents.map(
@@ -1508,29 +1427,17 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? (() => {
-                                          let title;
-                                          if (
-                                            event.stage.slug in locales.stages
-                                          ) {
-                                            type LocaleKey =
-                                              keyof typeof locales.stages;
-                                            title =
-                                              locales.stages[
-                                                event.stage.slug as LocaleKey
-                                              ].title;
-                                          } else {
-                                            console.error(
-                                              `Event stage ${event.stage.slug} not found in locales`
-                                            );
-                                            title = event.stage.slug;
-                                          }
-                                          return title;
-                                        })() + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime, language)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                     {event.participantLimit === null &&
-                                      ` | ${locales.route.section.event.unlimitedSeats}`}
+                                      ` | ${t("section.event.unlimitedSeats")}`}
                                     {event.participantLimit !== null &&
                                       event.participantLimit -
                                         event._count.participants >
@@ -1538,9 +1445,9 @@ export default function Index() {
                                       ` | ${
                                         event.participantLimit -
                                         event._count.participants
-                                      } / ${event.participantLimit} ${
-                                        locales.route.section.event.seatsFree
-                                      }`}
+                                      } / ${event.participantLimit} ${t(
+                                        "section.event.seatsFree"
+                                      )}`}
 
                                     {event.participantLimit !== null &&
                                     event.participantLimit -
@@ -1551,10 +1458,7 @@ export default function Index() {
                                         |{" "}
                                         <span>
                                           {event._count.waitingList}{" "}
-                                          {
-                                            locales.route.section.event
-                                              .onWaitingList
-                                          }
+                                          {t("section.event.onWaitingList")}
                                         </span>
                                       </>
                                     ) : null}
@@ -1575,14 +1479,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  {locales.route.section.event.cancelled}
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>
-                                    {locales.route.section.event.registered}
-                                  </p>
+                                  <p>{t("section.event.registered")}</p>
                                 </div>
                               ) : null}
                               {canUserParticipate(event) ? (
@@ -1595,7 +1497,7 @@ export default function Index() {
                               ) : null}
                               {event.isOnWaitingList && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>{locales.route.section.event.waiting}</p>
+                                  <p>{t("section.event.waiting")}</p>
                                 </div>
                               ) : null}
                               {canUserBeAddedToWaitingList(event) ? (
@@ -1616,7 +1518,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    {locales.route.section.event.more}
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1636,14 +1538,14 @@ export default function Index() {
                 <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">
-                      {locales.route.section.pastEvents.title}
+                      {t("section.pastEvents.title")}
                     </h3>
                   </div>
                 </div>
                 {loaderData.pastEvents.administeredEvents.length > 0 ? (
                   <>
                     <h6 id="past-admin-events" className="mb-4 font-bold">
-                      {locales.route.section.event.admin}
+                      {t("section.event.admin")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.administeredEvents.map(
@@ -1678,27 +1580,15 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? (() => {
-                                          let title;
-                                          if (
-                                            event.stage.slug in locales.stages
-                                          ) {
-                                            type LocaleKey =
-                                              keyof typeof locales.stages;
-                                            title =
-                                              locales.stages[
-                                                event.stage.slug as LocaleKey
-                                              ].title;
-                                          } else {
-                                            console.error(
-                                              `Event stage ${event.stage.slug} not found in locales`
-                                            );
-                                            title = event.stage.slug;
-                                          }
-                                          return title;
-                                        })() + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime, language)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
                                   <h4 className="mv-line-clamp-1 mv-font-bold mv-text-base mv-m-0">
                                     {event.name}
@@ -1720,27 +1610,25 @@ export default function Index() {
                                 <>
                                   {event.published ? (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                      {locales.route.section.event.published}
+                                      {t("section.event.published")}
                                     </div>
                                   ) : (
                                     <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
-                                      {locales.route.section.event.draft}
+                                      {t("section.event.draft")}
                                     </div>
                                   )}
                                 </>
                               ) : null}
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  {locales.route.section.event.cancelled}
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>
-                                    {locales.route.section.event.participated}
-                                  </p>
+                                  <p>{t("section.event.participated")}</p>
                                 </div>
                               ) : null}
                               {(loaderData.mode !== "owner" &&
@@ -1756,7 +1644,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    {locales.route.section.event.more}
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1771,7 +1659,7 @@ export default function Index() {
                 {loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
                   <>
                     <h6 id="past-team-member-events" className="mb-4 font-bold">
-                      {locales.route.section.event.team}
+                      {t("section.event.team")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.teamMemberOfEvents.map(
@@ -1806,27 +1694,15 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? (() => {
-                                          let title;
-                                          if (
-                                            event.stage.slug in locales.stages
-                                          ) {
-                                            type LocaleKey =
-                                              keyof typeof locales.stages;
-                                            title =
-                                              locales.stages[
-                                                event.stage.slug as LocaleKey
-                                              ].title;
-                                          } else {
-                                            console.error(
-                                              `Event stage ${event.stage.slug} not found in locales`
-                                            );
-                                            title = event.stage.slug;
-                                          }
-                                          return title;
-                                        })() + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime, language)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
                                   <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
@@ -1845,16 +1721,14 @@ export default function Index() {
 
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  {locales.route.section.event.cancelled}
+                                  {t("section.event.cancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>
-                                    {locales.route.section.event.participated}
-                                  </p>
+                                  <p>{t("section.event.participated")}</p>
                                 </div>
                               ) : null}
                               {(!event.isParticipant &&
@@ -1869,7 +1743,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    {locales.route.section.event.more}
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1884,7 +1758,7 @@ export default function Index() {
                 {loaderData.pastEvents.contributedEvents.length > 0 ? (
                   <>
                     <h6 id="past-contributed-events" className="mb-4 font-bold">
-                      {locales.route.section.event.speaker}
+                      {t("section.event.speaker")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.contributedEvents.map(
@@ -1919,27 +1793,15 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? (() => {
-                                          let title;
-                                          if (
-                                            event.stage.slug in locales.stages
-                                          ) {
-                                            type LocaleKey =
-                                              keyof typeof locales.stages;
-                                            title =
-                                              locales.stages[
-                                                event.stage.slug as LocaleKey
-                                              ].title;
-                                          } else {
-                                            console.error(
-                                              `Event stage ${event.stage.slug} not found in locales`
-                                            );
-                                            title = event.stage.slug;
-                                          }
-                                          return title;
-                                        })() + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime, language)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
                                   <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
@@ -1957,14 +1819,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  {locales.route.section.event.wasCancelled}
+                                  {t("section.event.wasCancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>
-                                    {locales.route.section.event.participated}
-                                  </p>
+                                  <p>{t("section.event.participated")}</p>
                                 </div>
                               ) : null}
                               {(!event.isParticipant &&
@@ -1979,7 +1839,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    {locales.route.section.event.more}
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}
@@ -1993,7 +1853,7 @@ export default function Index() {
                 {loaderData.pastEvents.participatedEvents.length > 0 ? (
                   <>
                     <h6 id="past-participated-events" className="mb-4font-bold">
-                      {locales.route.section.event.participation}
+                      {t("section.event.participation")}
                     </h6>
                     <div className="mb-6">
                       {loaderData.pastEvents.participatedEvents.map(
@@ -2028,27 +1888,15 @@ export default function Index() {
                                   <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
-                                      ? (() => {
-                                          let title;
-                                          if (
-                                            event.stage.slug in locales.stages
-                                          ) {
-                                            type LocaleKey =
-                                              keyof typeof locales.stages;
-                                            title =
-                                              locales.stages[
-                                                event.stage.slug as LocaleKey
-                                              ].title;
-                                          } else {
-                                            console.error(
-                                              `Event stage ${event.stage.slug} not found in locales`
-                                            );
-                                            title = event.stage.slug;
-                                          }
-                                          return title;
-                                        })() + " | "
+                                      ? t(`${event.stage.slug}.title`, {
+                                          ns: "datasets/stages",
+                                        }) + " | "
                                       : ""}
-                                    {getDuration(startTime, endTime, language)}
+                                    {getDuration(
+                                      startTime,
+                                      endTime,
+                                      i18n.language
+                                    )}
                                   </p>
                                   <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
                                     {event.name}
@@ -2066,14 +1914,12 @@ export default function Index() {
                               </Link>
                               {event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
-                                  {locales.route.section.event.wasCancelled}
+                                  {t("section.event.wasCancelled")}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
                                 <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>
-                                    {locales.route.section.event.participated}
-                                  </p>
+                                  <p>{t("section.event.participated")}</p>
                                 </div>
                               ) : null}
                               {!event.isParticipant &&
@@ -2086,7 +1932,7 @@ export default function Index() {
                                     to={`/event/${event.slug}`}
                                     className="btn btn-primary"
                                   >
-                                    {locales.route.section.event.more}
+                                    {t("section.event.more")}
                                   </Link>
                                 </div>
                               ) : null}

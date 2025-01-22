@@ -8,12 +8,12 @@ import {
   getImageURL,
   ImageSizes,
 } from "~/images.server";
-import { invariantResponse } from "~/lib/utils/response";
 import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
 import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type getEventBySlug } from "./general.server";
+import { json } from "@remix-run/server-runtime";
 
 export function validateTimePeriods(
   // TODO: fix any type
@@ -180,12 +180,6 @@ export function transformFormToEvent(form: any) {
     "Europe/Berlin"
   );
 
-  invariantResponse(
-    sanitizeUserHtml !== undefined,
-    "typescript does not know that sanitizeUserHtml is always defined on the server",
-    { status: 500 }
-  );
-
   const description = sanitizeUserHtml(event.description);
 
   return {
@@ -212,7 +206,7 @@ export async function updateEventById(
     },
   });
   if (eventVisibility === null) {
-    invariantResponse(false, "Event visibilities not found", { status: 404 });
+    throw json("Event visibilities not found", { status: 404 });
   }
 
   let visibility: keyof typeof eventVisibility;

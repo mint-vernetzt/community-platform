@@ -1,23 +1,22 @@
 {
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
   "compilerOptions": {
-    "types": ["node", "@remix-run/node", "vite/client"],
-    "skipLibCheck": true,
     "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
-    "target": "ESNext",
+    "target": "ES2022",
     "strict": true,
     "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
-      "@mint-vernetzt/components/*": ["./common/components/*"]
+      "@mint-vernetzt/components": ["./common/components/*"]
     },
     "noEmit": true,
+    "types": ["node"],
     "allowJs": true,
     "forceConsistentCasingInFileNames": true
   },

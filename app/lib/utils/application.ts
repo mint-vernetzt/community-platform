@@ -1,6 +1,6 @@
+import { json } from "@remix-run/server-runtime";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { getSessionUser } from "~/auth.server";
-import { invariantResponse } from "./response";
 
 export async function getFeatureAbilities(
   authClient: SupabaseClient,
@@ -82,7 +82,7 @@ export async function validateFeatureAccess(
         const message = `Feature flag for "${featureName}" not found`;
         console.error(message);
         if (options.throw) {
-          invariantResponse(false, message, { status: 404 });
+          throw json({ message }, { status: 500 });
         }
         error = new Error(message);
         abilities[featureName] = {
@@ -110,7 +110,7 @@ export async function validateFeatureAccess(
             const message = `User hasn't access to feature "${featureName}"`;
             console.error(message);
             if (options.throw) {
-              invariantResponse(false, message, { status: 403 });
+              throw json({ message }, { status: 500 });
             }
             error = new Error(message);
             abilities[featureName] = {
@@ -125,7 +125,7 @@ export async function validateFeatureAccess(
     const message = "No feature flags found";
     console.error(message);
     if (options.throw) {
-      invariantResponse(false, message, { status: 500 });
+      throw json({ message }, { status: 500 });
     }
     error = new Error(message);
 

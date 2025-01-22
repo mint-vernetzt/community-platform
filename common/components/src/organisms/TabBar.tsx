@@ -56,12 +56,7 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
   // if first node is a valid react element, get first child and wrap it into span
   if (React.isValidElement(firstNode)) {
     const clone = React.cloneElement(firstNode as React.ReactElement);
-    const cloneChildren =
-      typeof clone.props === "object" &&
-      clone.props !== null &&
-      "children" in clone.props
-        ? React.Children.toArray(clone.props.children as React.ReactNode)
-        : [];
+    const cloneChildren = React.Children.toArray(clone.props.children);
 
     if (cloneChildren.length > 0) {
       const firstChild = cloneChildren[0];
@@ -77,7 +72,6 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
         </li>
       );
     }
-    console.log("Invalid children passed to TabBar.Item");
   }
 
   return null;
@@ -253,4 +247,4 @@ function TabBar(props: TabBarProps) {
 TabBar.Item = Item;
 TabBar.Counter = Counter;
 
-export { TabBar };
+export default TabBar;

@@ -1,5 +1,6 @@
 import { type FormMetadata } from "@conform-to/react-v1";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Form,
   useBlocker,
@@ -7,26 +8,22 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router-dom";
-import { Modal } from "~/components-next/Modal";
+import { Modal } from "~/routes/__components";
 import { extendSearchParams } from "../utils/searchParams";
-import { type ChangeOrganizationUrlLocales } from "~/routes/next/organization/$slug/settings/danger-zone/change-url.server";
-import { type OrganizationWebAndSocialLocales } from "~/routes/next/organization/$slug/settings/web-social.server";
-import { type GeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
+
+export const i18nNS = ["components"];
 
 export function useUnsavedChangesBlockerWithModal(options: {
   searchParam: string;
   formMetadataToCheck: FormMetadata<any> | FormMetadata<any>[];
-  locales:
-    | ChangeOrganizationUrlLocales
-    | OrganizationWebAndSocialLocales
-    | GeneralOrganizationSettingsLocales;
 }) {
-  const { searchParam, formMetadataToCheck, locales } = options;
+  const { searchParam, formMetadataToCheck } = options;
   let forms = formMetadataToCheck;
   if (Array.isArray(forms) === false) {
     forms = [forms];
   }
   const location = useLocation();
+  const { t } = useTranslation(i18nNS);
   const [searchParams] = useSearchParams();
   const searchParamsWithoutModal = extendSearchParams(searchParams, {
     remove: [searchParam],
@@ -67,14 +64,10 @@ export function useUnsavedChangesBlockerWithModal(options: {
         preventScrollReset
       />
       <Modal searchParam={`modal-unsaved-changes`}>
-        <Modal.Title>
-          {locales.components.UnsavedChangesModal.title}
-        </Modal.Title>
-        <Modal.Section>
-          {locales.components.UnsavedChangesModal.description}
-        </Modal.Section>
+        <Modal.Title>{t("UnsavedChangesModal.title")}</Modal.Title>
+        <Modal.Section>{t("UnsavedChangesModal.description")}</Modal.Section>
         <Modal.SubmitButton form="discard-changes-and-proceed">
-          {locales.components.UnsavedChangesModal.proceed}
+          {t("UnsavedChangesModal.proceed")}
         </Modal.SubmitButton>
         <Modal.CloseButton
           route={`${location.pathname}?${searchParamsWithoutModal.toString()}`}
@@ -82,7 +75,7 @@ export function useUnsavedChangesBlockerWithModal(options: {
             setNextLocationPathname(null);
           }}
         >
-          {locales.components.UnsavedChangesModal.cancel}
+          {t("UnsavedChangesModal.cancel")}
         </Modal.CloseButton>
       </Modal>
     </>

@@ -1,5 +1,6 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button, Controls, Input, Section } from "@mint-vernetzt/components";
 import {
   redirect,
   type ActionFunctionArgs,
@@ -13,10 +14,16 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import * as Sentry from "@sentry/remix";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import i18next from "~/i18next.server";
+import {
+  i18nNS as i18nNSUnsavedChangesModal,
+  useUnsavedChangesBlockerWithModal,
+} from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   checkboxSchema,
@@ -30,33 +37,27 @@ import {
   createXingSchema,
   createYoutubeSchema,
 } from "~/lib/utils/schemas";
-import { detectLanguage } from "~/i18n.server";
-import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
+import { detectLanguage } from "~/root.server";
+import { VisibilityCheckbox } from "~/routes/__components";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { BackButton } from "~/components-next/BackButton";
+import { BackButton } from "~/routes/project/$slug/settings/__components";
 import { redirectWithToast } from "~/toast.server";
 import {
   getOrganizationWebSocial,
-  type OrganizationWebAndSocialLocales,
   updateOrganizationWebSocial,
 } from "./web-social.server";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { languageModuleMap } from "~/locales/.server";
 
-const createWebSocialSchema = (locales: OrganizationWebAndSocialLocales) =>
+const createWebSocialSchema = (t: TFunction) =>
   z.object({
-    website: createWebsiteSchema(locales),
-    facebook: createFacebookSchema(locales),
-    linkedin: createLinkedinSchema(locales),
-    xing: createXingSchema(locales),
-    twitter: createTwitterSchema(locales),
-    mastodon: createMastodonSchema(locales),
-    tiktok: createTiktokSchema(locales),
-    instagram: createInstagramSchema(locales),
-    youtube: createYoutubeSchema(locales),
+    website: createWebsiteSchema(t),
+    facebook: createFacebookSchema(t),
+    linkedin: createLinkedinSchema(t),
+    xing: createXingSchema(t),
+    twitter: createTwitterSchema(t),
+    mastodon: createMastodonSchema(t),
+    tiktok: createTiktokSchema(t),
+    instagram: createInstagramSchema(t),
+    youtube: createYoutubeSchema(t),
     visibilities: z.object({
       website: checkboxSchema,
       facebook: checkboxSchema,
@@ -70,28 +71,35 @@ const createWebSocialSchema = (locales: OrganizationWebAndSocialLocales) =>
     }),
   });
 
+const i18nNS = [
+  "routes/next/organization/settings/web-social",
+  "utils/schemas",
+  ...i18nNSUnsavedChangesModal,
+];
+export const handle = {
+  i18n: i18nNS,
+};
+
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["next/organization/$slug/settings/web-social"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
-  const organization = await getOrganizationWebSocial({ slug, locales });
+  const organization = await getOrganizationWebSocial({ slug, t });
 
   const currentTimestamp = new Date().getTime();
 
-  return { organization, currentTimestamp, locales };
+  return { organization, currentTimestamp };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["next/organization/$slug/settings/web-social"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
     request,
@@ -106,7 +114,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: () =>
-      createWebSocialSchema(locales).transform(async (data, ctx) => {
+      createWebSocialSchema(t).transform(async (data, ctx) => {
         const { error } = await updateOrganizationWebSocial({
           slug,
           data,
@@ -116,7 +124,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
-            message: locales.route.error.updateFailed,
+            message: t("error.updateFailed"),
           });
           return z.NEVER;
         }
@@ -135,14 +143,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   return redirectWithToast(request.url, {
     id: "update-web-social-toast",
     key: `${new Date().getTime()}`,
-    message: locales.route.content.success,
+    message: t("content.success"),
   });
 }
 
 function WebSocial() {
   const location = useLocation();
-  const { organization, currentTimestamp, locales } =
-    useLoaderData<typeof loader>();
+  const { t } = useTranslation(i18nNS);
+  const { organization, currentTimestamp } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
@@ -155,12 +163,12 @@ function WebSocial() {
       ...rest,
       visibilities: organizationVisibility,
     },
-    constraint: getZodConstraint(createWebSocialSchema(locales)),
+    constraint: getZodConstraint(createWebSocialSchema(t)),
     // Client side validation onInput, server side validation on submit
     shouldValidate: "onInput",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
-        schema: createWebSocialSchema(locales),
+        schema: createWebSocialSchema(t),
       });
     },
     shouldRevalidate: "onInput",
@@ -171,23 +179,13 @@ function WebSocial() {
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
-    locales,
   });
-
-  // console.log("defaultValues", {
-  //   ...rest,
-  //   visibilities: organizationVisibility,
-  // });
-
-  // console.log("form.dirty", form.dirty);
 
   return (
     <Section>
       {UnsavedChangesBlockerModal}
-      <BackButton to={location.pathname}>
-        {locales.route.content.back}
-      </BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
+      <BackButton to={location.pathname}>{t("content.back")}</BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{t("content.intro")}</p>
       <Form
         {...getFormProps(form)}
         method="post"
@@ -198,15 +196,15 @@ function WebSocial() {
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.route.form.website.headline}
+              {t("form.website.headline")}
             </h2>
             <Input
               {...getInputProps(fields.website, { type: "url" })}
-              placeholder={locales.route.form.website.url.placeholder}
+              placeholder={t("form.website.url.placeholder")}
               key={"website"}
             >
               <Input.Label htmlFor={fields.website.id}>
-                {locales.route.form.website.url.label}
+                {t("form.website.url.label")}
               </Input.Label>
               <Input.Controls>
                 <VisibilityCheckbox
@@ -228,7 +226,7 @@ function WebSocial() {
           </div>
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.route.form.socialNetworks.headline}
+              {t("form.socialNetworks.headline")}
             </h2>
             {Object.entries(organization).map(([key]) => {
               const typedKey = key as keyof typeof organization;
@@ -241,13 +239,11 @@ function WebSocial() {
               return (
                 <Input
                   {...getInputProps(fields[typedKey], { type: "url" })}
-                  placeholder={
-                    locales.route.form.socialNetworks[typedKey].placeholder
-                  }
+                  placeholder={t(`form.socialNetworks.${typedKey}.placeholder`)}
                   key={key}
                 >
                   <Input.Label htmlFor={fields[typedKey].id}>
-                    {locales.route.form.socialNetworks[typedKey].label}
+                    {t(`form.socialNetworks.${typedKey}.label`)}
                   </Input.Label>
                   <Input.Controls>
                     <VisibilityCheckbox
@@ -303,7 +299,7 @@ function WebSocial() {
                     />
                   </svg>
                 </span>
-                <span>{locales.route.form.hint.public}</span>
+                <span>{t("form.hint.public")}</span>
               </p>
               <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
                 <span className="mv-w-4 mv-h-4">
@@ -326,22 +322,19 @@ function WebSocial() {
                     />
                   </svg>
                 </span>
-                <span>{locales.route.form.hint.private}</span>
+                <span>{t("form.hint.private")}</span>
               </p>
             </div>
             <div className="mv-flex mv-shrink mv-w-full @xl:mv-max-w-fit @xl:mv-w-auto mv-items-center mv-justify-center @xl:mv-justify-end">
               <Controls>
                 <Button
                   type="reset"
-                  onClick={() => {
-                    setTimeout(() => form.reset(), 0);
-                  }}
                   variant="outline"
                   fullSize
                   // Don't disable button when js is disabled
                   disabled={isHydrated ? form.dirty === false : false}
                 >
-                  {locales.route.form.reset}
+                  {t("form.reset")}
                 </Button>
                 <Button
                   type="submit"
@@ -355,7 +348,7 @@ function WebSocial() {
                       : false
                   }
                 >
-                  {locales.route.form.submit}
+                  {t("form.submit")}
                 </Button>
               </Controls>
             </div>

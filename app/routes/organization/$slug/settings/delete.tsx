@@ -1,6 +1,8 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { makeDomainFunction } from "domain-functions";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
@@ -10,25 +12,25 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
+import { detectLanguage } from "~/root.server";
 import { deriveOrganizationMode } from "../utils.server";
-import {
-  deleteOrganizationBySlug,
-  type DeleteOrganizationLocales,
-  getProfileByUserId,
-} from "./delete.server";
-import { languageModuleMap } from "~/locales/.server";
-import { useLoaderData } from "@remix-run/react";
+import { deleteOrganizationBySlug, getProfileByUserId } from "./delete.server";
 
-const createSchema = (locales: DeleteOrganizationLocales) => {
+const i18nNS = ["routes/organization/settings/delete"];
+export const handle = {
+  i18n: i18nNS,
+};
+
+const createSchema = (t: TFunction) => {
   return z.object({
     confirmedToken: z
       .string()
       .regex(
-        new RegExp(locales.validation.confirmedToken.regex),
-        locales.validation.confirmedToken.message
+        new RegExp(t("validation.confirmedToken.regex")),
+        t("validation.confirmedToken.message")
       ),
   });
 };
@@ -39,9 +41,10 @@ const environmentSchema = z.object({
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["organization/$slug/settings/delete"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/organization/settings/delete",
+  ]);
 
   const { authClient } = createAuthClient(request);
 
@@ -54,20 +57,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notFound, { status: 403 });
+  invariantResponse(mode === "admin", t("error.notFound"), { status: 403 });
 
-  return { locales };
+  return null;
 };
 
-const createMutation = (locales: DeleteOrganizationLocales) => {
+const createMutation = (t: TFunction) => {
   return makeDomainFunction(
-    createSchema(locales),
+    createSchema(t),
     environmentSchema
   )(async (values, environment) => {
     try {
       await deleteOrganizationBySlug(environment.slug);
     } catch {
-      throw locales.error.serverError;
+      throw t("error.serverError");
     }
     return values;
   });
@@ -75,23 +78,24 @@ const createMutation = (locales: DeleteOrganizationLocales) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["organization/$slug/settings/delete"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/organization/settings/delete",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
   const profile = await getProfileByUserId(sessionUser.id);
-  invariantResponse(profile, locales.error.notFound, { status: 404 });
+  invariantResponse(profile, t("error.ProfileNotFound"), { status: 404 });
 
   const result = await performMutation({
     request,
-    schema: createSchema(locales),
-    mutation: createMutation(locales),
+    schema: createSchema(t),
+    mutation: createMutation(t),
     environment: {
       slug: slug,
     },
@@ -101,20 +105,20 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirect(`/profile/${profile.username}`);
   }
 
-  return result;
+  return json(result);
 };
 
 export default function Delete() {
-  const { locales } = useLoaderData<typeof loader>();
-  const schema = createSchema(locales);
+  const { t } = useTranslation(i18nNS);
+  const schema = createSchema(t);
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
+      <h1 className="mb-8">{t("content.headline")}</h1>
 
-      <p className="mb-4 font-semibold">{locales.content.intro}</p>
+      <p className="mb-4 font-semibold">{t("content.intro")}</p>
 
-      <p className="mb-8">{locales.content.confirmation}</p>
+      <p className="mb-8">{t("content.confirmation")}</p>
 
       <RemixFormsForm method="post" schema={schema}>
         {({ Field, Button, Errors, register }) => (
@@ -124,8 +128,8 @@ export default function Delete() {
                 <>
                   <Input
                     id="confirmedToken"
-                    label={locales.form.confirmedToken.label}
-                    placeholder={locales.form.confirmedToken.placeholder}
+                    label={t("form.confirmedToken.label")}
+                    placeholder={t("form.confirmedToken.placeholder")}
                     {...register("confirmedToken")}
                   />
                   <Errors />
@@ -136,7 +140,7 @@ export default function Delete() {
               type="submit"
               className="btn btn-outline-primary ml-auto btn-small"
             >
-              {locales.form.submit.label}
+              {t("form.submit.label")}
             </button>
             <Errors />
           </>

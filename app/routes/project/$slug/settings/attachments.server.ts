@@ -4,14 +4,6 @@ import { getPublicURL } from "~/storage.server";
 import { createHashFromString } from "~/utils.server";
 import { getExtension } from "./attachments";
 import { fileTypeFromBuffer } from "file-type";
-import { type supportedCookieLanguages } from "~/i18n.shared";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
-
-export type ProjectAttachmentSettingsLocales =
-  (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
-  >]["project/$slug/settings/attachments"];
 
 export async function hasValidMimeType(file: File, allowedTypes: string[]) {
   const buffer = await file.arrayBuffer();

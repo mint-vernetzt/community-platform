@@ -1,17 +1,23 @@
+import {
+  Alert,
+  CircleButton,
+  Link as StyledLink,
+} from "@mint-vernetzt/components";
 import type {
   LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-import { data, redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
-  isRouteErrorResponse,
   Link,
   Links,
+  LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
   useLoaderData,
   useLocation,
   useMatches,
@@ -22,31 +28,30 @@ import {
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
 import * as React from "react";
-import { ToastContainer } from "./components-next/ToastContainer";
+import { useTranslation } from "react-i18next";
+import { useChangeLanguage } from "remix-i18next";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import { H1, H2 } from "./components/Heading/Heading";
-import { RichText } from "./components/Richtext/RichText";
-import { getEnv } from "./env.server";
-import { detectLanguage, localeCookie } from "./i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
-import { getFeatureAbilities } from "./lib/utils/application";
-import { getProfileByUserId } from "./root.server";
-import { NavBar } from "~/components-next/NavBar";
-import { Footer } from "~/components-next/Footer";
-import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
-import { MainMenu } from "./components-next/MainMenu";
+import { detectLanguage, getProfileByUserId } from "./root.server";
+import {
+  LoginOrRegisterCTA,
+  Modal,
+  NavBarMenu,
+  Footer,
+  NavBar,
+} from "./routes/__components";
 import { getPublicURL } from "./storage.server";
-import legacyStyles from "./styles/legacy-styles.css?url";
-import { getToast } from "./toast.server";
+import legacyStyles from "./styles/legacy-styles.css";
 import { combineHeaders, deriveMode } from "./utils.server";
-import { defaultLanguage } from "./i18n.shared";
-import { languageModuleMap } from "./locales/.server";
-import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
-import { ModalRoot } from "./components-next/ModalRoot";
-import { invariantResponse } from "./lib/utils/response";
+import { getToast } from "./toast.server";
+import { ToastContainer } from "./__toast.components";
+import { getEnv } from "./env.server";
+import { getFeatureAbilities } from "./lib/utils/application";
+import { RichText } from "./components/Richtext/RichText";
+
+// import newStyles from "../common/design/styles/styles.css";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -98,11 +103,7 @@ export const links: LinksFunction = () => [
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
-  const language = await detectLanguage(request);
-  const languageCookieHeaders = {
-    "Set-Cookie": await localeCookie.serialize(language),
-  };
-  const locales = languageModuleMap[language].root;
+  const locale = detectLanguage(request);
 
   const { authClient, headers } = createAuthClient(request);
 
@@ -148,7 +149,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         blurredAvatar,
       };
     } else {
-      invariantResponse(false, "profile not found.", { status: 404 });
+      throw json({ message: "profile not found." }, { status: 404 });
     }
   }
 
@@ -157,15 +158,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const mode = deriveMode(user);
 
-  return data(
+  return json(
     {
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       sessionUserInfo,
       alert,
       toast,
-      currentLanguage: language,
-      locales,
+      locale,
       ENV: getEnv(),
       mode,
       abilities,
@@ -174,15 +174,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
         url: request.url,
       },
     },
-    {
-      headers: combineHeaders(
-        headers,
-        alertHeaders,
-        toastHeaders,
-        languageCookieHeaders
-      ),
-    }
+    { headers: combineHeaders(headers, alertHeaders, toastHeaders) }
   );
+};
+
+export const handle = {
+  i18n: [
+    "meta",
+    "organisms/footer",
+    "organisms/roadmap",
+    "utils/social-media-services",
+    "components/image-cropper",
+    "organisms/cards/event-card",
+    "organisms/cards/profile-card",
+    "organisms/cards/organization-card",
+  ],
 };
 
 export const ErrorBoundary = () => {
@@ -192,6 +198,7 @@ export const ErrorBoundary = () => {
   const hasRootLoaderData =
     typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
 
+  const { i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const openNavBarMenuKey = "navbarmenu";
   const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
@@ -220,10 +227,7 @@ export const ErrorBoundary = () => {
   }
 
   return (
-    <html
-      lang={hasRootLoaderData ? rootLoaderData.currentLanguage : "de"}
-      data-theme="light"
-    >
+    <html lang="en-US" dir={i18n.dir()} data-theme="light">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -238,10 +242,9 @@ export const ErrorBoundary = () => {
               hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
             }
             openNavBarMenuKey={openNavBarMenuKey}
-            locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
           />
           <div className="mv-flex mv-h-full min-h-screen">
-            <MainMenu
+            <NavBarMenu
               mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
               openNavBarMenuKey={openNavBarMenuKey}
               username={
@@ -253,12 +256,6 @@ export const ErrorBoundary = () => {
               abilities={
                 hasRootLoaderData ? rootLoaderData.abilities : undefined
               }
-              currentLanguage={
-                hasRootLoaderData
-                  ? rootLoaderData.currentLanguage
-                  : defaultLanguage
-              }
-              locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
             />
             <div className="mv-flex-grow mv-@container min-h-screen">
               <div className="mv-min-h-screen">
@@ -291,9 +288,7 @@ export const ErrorBoundary = () => {
                   </section>
                 ) : null}
               </div>
-              <Footer
-                locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
-              />
+              <Footer />
             </div>
           </div>
         </div>
@@ -306,25 +301,25 @@ export const ErrorBoundary = () => {
           />
         ) : null}
         <Scripts />
+        <LiveReload />
       </body>
     </html>
   );
 };
 
 export default function App() {
+  const location = useLocation();
   const {
     matomoUrl,
     matomoSiteId,
     sessionUserInfo,
     alert,
     toast,
-    currentLanguage,
-    locales,
+    locale,
     mode,
     ENV,
     abilities,
   } = useLoaderData<typeof loader>();
-  const location = useLocation();
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
@@ -379,8 +374,11 @@ export default function App() {
       "mv-overflow-hidden xl:mv-overflow-visible"
   );
 
+  const { i18n } = useTranslation();
+  useChangeLanguage(locale);
+
   const main = (
-    <main className="mv-flex-auto mv-relative mv-w-full mv-bg-neutral-50">
+    <main className="flex-auto relative w-full mv-bg-neutral-50">
       {alert !== null &&
       isNonAppBaseRoute === false &&
       isIndexRoute === false ? (
@@ -404,10 +402,10 @@ export default function App() {
   // Scroll to top button
   // Should this be a component?
   const scrollButton = (
-    <div className={`${isSettings ? "mv-hidden @md:mv-block " : ""}mv-w-0`}>
-      <div className="mv-w-0 mv-h-4"></div>
-      <div className="mv-w-0 mv-h-screen mv-sticky mv-top-0">
-        <div className="mv-absolute mv-bottom-4 -mv-left-20">
+    <div className={`${isSettings ? "hidden @md:mv-block " : ""}w-0`}>
+      <div className="w-0 h-4"></div>
+      <div className="w-0 h-screen sticky top-0">
+        <div className="absolute bottom-4 -left-20">
           <Link to={`${location.pathname}${location.search}#`}>
             <CircleButton size="large" floating>
               <svg
@@ -439,7 +437,7 @@ export default function App() {
   );
 
   return (
-    <html lang={currentLanguage} data-theme="light">
+    <html lang={locale} dir={i18n.dir()} data-theme="light">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -467,7 +465,7 @@ export default function App() {
 
       <body className={bodyClasses}>
         <div className={bodyClasses}>
-          <div id="top" className="mv-flex mv-flex-col mv-min-h-screen">
+          <div id="top" className="flex flex-col mv-min-h-screen">
             <div
               className={`${
                 showFilters ? "mv-hidden container-lg:mv-block " : " "
@@ -480,36 +478,30 @@ export default function App() {
               <NavBar
                 sessionUserInfo={sessionUserInfo}
                 openNavBarMenuKey={openNavBarMenuKey}
-                locales={locales}
               />
             </div>
 
             <div className="mv-flex mv-h-full mv-min-h-screen">
-              <MainMenu
+              <NavBarMenu
                 mode={mode}
                 openNavBarMenuKey={openNavBarMenuKey}
                 username={sessionUserInfo?.username}
                 abilities={abilities}
-                currentLanguage={currentLanguage}
-                locales={locales}
               />
               <div className="mv-flex-grow mv-@container">
                 {isIndexRoute === false && isNonAppBaseRoute === false && (
-                  <LoginOrRegisterCTA
-                    isAnon={mode === "anon"}
-                    locales={locales}
-                  />
+                  <LoginOrRegisterCTA isAnon={mode === "anon"} />
                 )}
-                <div className="mv-flex mv-flex-nowrap mv-min-h-[calc(100dvh - 76px)] xl:mv-min-h-[calc(100dvh - 80px)]">
+                <div className="flex flex-nowrap min-h-[calc(100dvh - 76px)] xl:min-h-[calc(100dvh - 80px)]">
                   {main}
                   {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
                   {scrollButton}
                 </div>
-                {isIndexRoute ? <Footer locales={locales} /> : null}
+                {isIndexRoute ? <Footer /> : null}
               </div>
             </div>
           </div>
-          <ModalRoot />
+          <Modal.Root />
         </div>
         <ScrollRestoration />
         <script
@@ -518,6 +510,7 @@ export default function App() {
           }}
         />
         <Scripts />
+        <LiveReload />
       </body>
     </html>
   );

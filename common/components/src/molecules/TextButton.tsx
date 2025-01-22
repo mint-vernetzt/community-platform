@@ -76,8 +76,6 @@ function TextButton(
     variant = "primary",
     size = "medium",
     weight = "normal",
-    arrowLeft = false,
-    arrowRight = false,
     ...otherProps
   } = props;
 
@@ -96,36 +94,29 @@ function TextButton(
   if (typeof props.as === "undefined" && typeof props.children !== "string") {
     const element = React.Children.only(props.children);
     if (React.isValidElement(element)) {
-      const elementChildren =
-        typeof element.props === "object" &&
-        element.props !== null &&
-        "children" in element.props
-          ? React.isValidElement(element.props.children)
-            ? React.Children.toArray(element.props.children)
-            : element.props.children
-          : null;
+      const elementChildren = React.Children.toArray(element.props.children);
       const clone = React.cloneElement(
         element as React.ReactElement,
         {
-          // @ts-ignore - We should look at our cloneElement implementation.
           className: classes,
         },
         <>
           {props.arrowLeft && <ChevronLeft size={size} />}
-          {elementChildren as React.ReactNode}
+          {elementChildren}
           {props.arrowRight && <ChevronRight size={size} />}
         </>
       );
       return clone;
     }
+
     return null;
   }
 
   const children = (
     <>
-      {arrowLeft && <ChevronLeft size={size} />}
+      {props.arrowLeft && <ChevronLeft size={size} />}
       {props.children}
-      {arrowRight && <ChevronRight size={size} />}
+      {props.arrowRight && <ChevronRight size={size} />}
     </>
   );
 
@@ -143,4 +134,4 @@ function TextButton(
   return element;
 }
 
-export { TextButton };
+export default TextButton;

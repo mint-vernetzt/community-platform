@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher } from "@remix-run/react";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
@@ -16,11 +16,21 @@ import {
   disconnectOrganizationFromNetwork,
   getOrganizationIdBySlug,
 } from "../utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import i18next from "~/i18next.server";
+import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+import { detectLanguage } from "~/root.server";
+import { Avatar } from "@mint-vernetzt/components";
 import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
-import { type RemoveOrganizationNetworkMemberLocales } from "./remove.server";
-import { languageModuleMap } from "~/locales/.server";
+
+const i18nNS = [
+  "routes/organization/settings/network/index",
+  "routes/organization/settings/network/add",
+  "datasets/organizationTypes",
+];
+export const handle = {
+  i18n: i18nNS,
+};
 
 const schema = z.object({
   organizationId: z.string().uuid(),
@@ -30,7 +40,7 @@ const environmentSchema = z.object({
   slug: z.string(),
 });
 
-const createMutation = (locales: RemoveOrganizationNetworkMemberLocales) => {
+const createMutation = (t: TFunction) => {
   return makeDomainFunction(
     schema,
     environmentSchema
@@ -39,7 +49,7 @@ const createMutation = (locales: RemoveOrganizationNetworkMemberLocales) => {
 
     const network = await getOrganizationIdBySlug(environment.slug);
     if (network === null) {
-      throw locales.route.error.notFound;
+      throw t("error.notFound");
     }
 
     await disconnectOrganizationFromNetwork(organizationId, network.id);
@@ -54,32 +64,31 @@ export const loader = async () => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["organization/$slug/settings/network/remove"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
 
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(locales),
+    mutation: createMutation(t),
     environment: { slug: slug },
   });
 
-  return { result, locales };
+  return json(result);
 };
 
 export function NetworkMemberRemoveForm(
   props: Jsonify<NetworkMember & { slug: string }>
 ) {
   const fetcher = useFetcher<typeof action>();
-  const locales = fetcher.data !== undefined ? fetcher.data.locales : undefined;
+  const { t } = useTranslation(i18nNS);
   const { networkMember, slug } = props;
 
   return (
@@ -121,35 +130,15 @@ export function NetworkMemberRemoveForm(
                 <p className="font-bold text-sm cursor-default">
                   {networkMember.types
                     .map((relation) => {
-                      let title;
-                      if (locales === undefined) {
-                        return relation.organizationType.slug;
-                      }
-                      if (
-                        relation.organizationType.slug in
-                        locales.organizationTypes
-                      ) {
-                        type LocaleKey = keyof typeof locales.organizationTypes;
-                        title =
-                          locales.organizationTypes[
-                            relation.organizationType.slug as LocaleKey
-                          ].title;
-                      } else {
-                        console.error(
-                          `Organization type ${relation.organizationType.slug} not found in locales`
-                        );
-                        title = relation.organizationType.slug;
-                      }
-                      return title;
+                      return t(`${relation.organizationType.slug}.title`, {
+                        ns: "datasets/organizationTypes",
+                      });
                     })
                     .join(" / ")}
                 </p>
               ) : null}
             </div>
-            <Button
-              className="ml-auto btn-none"
-              title={locales !== undefined ? locales.route.remove : "Remove"}
-            >
+            <Button className="ml-auto btn-none" title={t("remove")}>
               <svg
                 viewBox="0 0 10 10"
                 width="10px"

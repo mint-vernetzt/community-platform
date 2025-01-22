@@ -1,18 +1,17 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { detectLanguage } from "~/i18n.server";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { getProfileById } from "../utils.server";
-import { type AddEventSpeakerLocales } from "./add-speaker.server";
 import { connectSpeakerProfileToEvent, getEventBySlug } from "./utils.server";
+import i18next from "~/i18next.server";
+import { detectLanguage } from "~/root.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -24,20 +23,20 @@ const environmentSchema = z.object({
   eventSlug: z.string(),
 });
 
-const createMutation = (locales: AddEventSpeakerLocales) => {
+const createMutation = (t: Function) => {
   return makeDomainFunction(
     schema,
     environmentSchema
   )(async (values, environment) => {
     const profile = await getProfileById(values.profileId);
     if (profile === null) {
-      throw new InputError(locales.error.inputError.doesNotExist, "profileId");
+      throw new InputError(t("error.inputError.doesNotExist"), "profileId");
     }
     const alreadySpeaker = profile.contributedEvents.some((entry) => {
       return entry.event.slug === environment.eventSlug;
     });
     if (alreadySpeaker) {
-      throw new InputError(locales.error.inputError.alreadyIn, "profileId");
+      throw new InputError(t("error.inputError.alreadyIn"), "profileId");
     }
     return {
       ...values,
@@ -49,14 +48,15 @@ const createMutation = (locales: AddEventSpeakerLocales) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["event/$slug/settings/speakers/add-speaker"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, [
+    "routes/event/settings/speakers/add-speaker",
+  ]);
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.error.notPrivileged, {
+  invariantResponse(mode === "admin", t("error.notPrivileged"), {
     status: 403,
   });
   await checkFeatureAbilitiesOrThrow(authClient, "events");
@@ -64,7 +64,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const result = await performMutation({
     request,
     schema,
-    mutation: createMutation(locales),
+    mutation: createMutation(t),
     environment: {
       eventSlug: slug,
     },
@@ -72,15 +72,15 @@ export const action = async (args: ActionFunctionArgs) => {
 
   if (result.success) {
     const event = await getEventBySlug(slug);
-    invariantResponse(event, locales.error.notFound, { status: 404 });
+    invariantResponse(event, t("error.notFound"), { status: 404 });
     await connectSpeakerProfileToEvent(event.id, result.data.profileId);
-    return {
-      message: insertParametersIntoLocale(locales.feedback, {
+    return json({
+      message: t("feedback", {
         firstName: result.data.firstName,
         lastName: result.data.lastName,
       }),
-    };
+    });
   }
 
-  return { ...result };
+  return json(result);
 };

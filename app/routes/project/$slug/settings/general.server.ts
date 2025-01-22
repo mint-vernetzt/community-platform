@@ -1,12 +1,4 @@
 import { type Area } from "@prisma/client";
-import { type supportedCookieLanguages } from "~/i18n.shared";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
-
-export type GeneralProjectSettingsLocales =
-  (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
-  >]["project/$slug/settings/general"];
 
 type Option = {
   label: string;

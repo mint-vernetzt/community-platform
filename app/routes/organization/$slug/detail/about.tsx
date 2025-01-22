@@ -1,13 +1,14 @@
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { type LoaderFunctionArgs } from "@remix-run/node";
+import { Button, Chip } from "@mint-vernetzt/components";
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
+import i18next from "~/i18next.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
-import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
+import { detectLanguage } from "~/root.server";
+import { Container } from "~/routes/my/__events.components";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { filterOrganization, getOrganization } from "./about.server";
 import {
@@ -19,9 +20,13 @@ import {
   hasGeneralInformation,
   hasSocialService,
   hasStreet,
-} from "./about.shared";
-import { hasAboutData } from "../detail.shared";
-import { languageModuleMap } from "~/locales/.server";
+  i18nNS,
+} from "./__about.shared";
+import { hasAboutData } from "../__detail.shared";
+
+export const handle = {
+  i18n: i18nNS,
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -30,14 +35,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveOrganizationMode(sessionUser, slug);
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["organization/$slug/detail/about"];
+  const locale = detectLanguage(request);
+  const t = await i18next.getFixedT(locale, i18nNS);
 
   const organization = await getOrganization(slug);
   invariantResponse(
     organization !== null,
-    locales.route.server.error.organizationNotFound,
+    t("server.error.organizationNotFound"),
     { status: 404 }
   );
 
@@ -48,16 +52,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filteredOrganization = organization;
   }
 
-  return {
+  return json({
     organization: filteredOrganization,
     mode,
-    locales,
-  };
+  } as const);
 };
 
 function About() {
+  const { t } = useTranslation(i18nNS);
   const loaderData = useLoaderData<typeof loader>();
-  const { organization, mode, locales } = loaderData;
+  const { organization, mode } = loaderData;
   const numberOfSocialServices = Object.entries(ExternalServiceIcons).filter(
     ([key]) => {
       return organization[key as keyof typeof ExternalServiceIcons] !== null;
@@ -73,7 +77,7 @@ function About() {
               {organization.bio !== null ? (
                 <div className="mv-flex mv-flex-col mv-gap-4">
                   <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
-                    {locales.route.headlines.bio}
+                    {t("headlines.bio")}
                   </h2>
                   <div>
                     <RichText
@@ -86,7 +90,7 @@ function About() {
               {organization.areas.length > 0 ? (
                 <div className="mv-flex mv-flex-col mv-gap-2">
                   <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
-                    {locales.route.headlines.areas}
+                    {t("headlines.areas")}
                   </h3>
                   <Chip.Container>
                     {organization.areas.map((relation) => {
@@ -102,25 +106,15 @@ function About() {
               {organization.focuses.length > 0 ? (
                 <div className="mv-flex mv-flex-col mv-gap-2">
                   <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
-                    {locales.route.headlines.focuses}
+                    {t("headlines.focuses")}
                   </h3>
                   <Chip.Container>
                     {organization.focuses.map((relation) => {
-                      let title;
-                      if (relation.focus.slug in locales.focuses) {
-                        type LocaleKey = keyof typeof locales.focuses;
-                        title =
-                          locales.focuses[relation.focus.slug as LocaleKey]
-                            .title;
-                      } else {
-                        console.error(
-                          `Focus ${relation.focus.slug} not found in locales`
-                        );
-                        title = relation.focus.slug;
-                      }
                       return (
                         <Chip key={relation.focus.slug} color="primary">
-                          {title}
+                          {t(`${relation.focus.slug}.title`, {
+                            ns: "datasets/focuses",
+                          })}
                         </Chip>
                       );
                     })}
@@ -130,7 +124,7 @@ function About() {
               {organization.supportedBy.length > 0 ? (
                 <div className="mv-flex mv-flex-col mv-gap-2">
                   <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
-                    {locales.route.headlines.supportedBy}
+                    {t("headlines.supportedBy")}
                   </h3>
                   <p className="mv-text-neutral-700 mv-text-lg mv-leading-6 mv-max-w-[800px]">
                     {organization.supportedBy.join(" / ")}
@@ -149,7 +143,7 @@ function About() {
               }`}
             >
               <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
-                {locales.route.headlines.contact}
+                {t("headlines.contact")}
               </h3>
               <address className="mv-not-italic mv-w-full mv-flex mv-flex-col @md:mv-flex-row mv-gap-4 @md:mv-gap-6 mv-text-neutral-600 mv-leading-5">
                 {hasContactInformation(organization) ? (
@@ -182,8 +176,6 @@ function About() {
                           <Link
                             key={key}
                             to={to}
-                            rel="noopener noreferrer"
-                            target="_blank"
                             className="mv-py-3 mv-px-4 mv-flex mv-gap-4 mv-bg-neutral-100 mv-rounded-lg mv-items-center"
                           >
                             <span className="mv-text-neutral-700 mv-font-semibold">
@@ -267,7 +259,7 @@ function About() {
         <Container.Section className="-mv-mt-4 @md:-mv-mt-6 @lg:-mv-mt-8 mv-pt-10 @sm:mv-py-8 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-6 @sm:mv-border-b @sm:mv-border-x @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-b-2xl">
           <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
             <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
-              {locales.route.headlines.bio}
+              {t("headlines.bio")}
             </h2>
             <div className="mv-w-full mv-flex mv-flex-col mv-gap-8 mv-items-center">
               {/* TODO: SVG */}
@@ -275,12 +267,12 @@ function About() {
                 <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-items-center mv-text-neutral-700 mv-text-center">
                   <p className="mv-text-xl mv-font-bold mv-leading-6">
                     {mode === "admin"
-                      ? locales.route.blankState.owner.title
-                      : locales.route.blankState.anon.title}
+                      ? t("blankState.owner.title")
+                      : t("blankState.anon.title")}
                   </p>
                   {mode === "admin" ? (
                     <p className="mv-text-lg">
-                      {locales.route.blankState.owner.description}
+                      {t("blankState.owner.description")}
                     </p>
                   ) : null}
                 </div>
@@ -289,7 +281,7 @@ function About() {
                     as="a"
                     href={`/organization/${organization.slug}/settings`}
                   >
-                    {locales.route.blankState.owner.cta}
+                    {t("blankState.owner.cta")}
                   </Button>
                 ) : null}
               </div>

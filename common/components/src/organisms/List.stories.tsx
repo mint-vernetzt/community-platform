@@ -1,6 +1,6 @@
-import { Button } from "../molecules/Button";
-import { Avatar } from "../molecules/Avatar";
-import { List, ListItem } from "./List";
+import Button from "../molecules/Button";
+import Avatar from "../molecules/Avatar";
+import List, { ListItem } from "./List";
 
 export function Workspace() {
   return (

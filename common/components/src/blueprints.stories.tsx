@@ -1,8 +1,6 @@
 import React from "react";
-import { List } from "./organisms/List";
-import { Avatar } from "./molecules/Avatar";
-import { Button } from "./molecules/Button";
-import { Toast } from "./molecules/Toast";
+import List from "./organisms/List";
+import { Avatar, Button, Toast } from "./molecules";
 
 const defaultUsers = [
   {
@@ -47,8 +45,11 @@ function reducer(state: typeof defaultUsers, action: any) {
 }
 
 export function AutoCompleteReplacementPlayground() {
-  const [results, setResults] = React.useState<typeof users>(() => []);
-  const [users, dispatch] = React.useReducer(reducer, defaultUsers);
+  const [results, setResults] = React.useState<typeof users>([]);
+  const [users, dispatch] = React.useReducer<typeof reducer>(
+    reducer,
+    defaultUsers
+  );
   const [removedUser, setRemovedUser] = React.useState<
     (typeof users)[0] | null
   >(null);
