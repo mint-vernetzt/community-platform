@@ -53,6 +53,12 @@ export function useUnsavedChangesBlockerWithModal(options: {
     return isBlocked;
   });
 
+  React.useEffect(() => {
+    if (searchParams.has(searchParam) === false) {
+      setNextLocationPathname(null);
+    }
+  }, [searchParams, searchParam]);
+
   return (
     <>
       <Form
@@ -78,9 +84,9 @@ export function useUnsavedChangesBlockerWithModal(options: {
         </Modal.SubmitButton>
         <Modal.CloseButton
           route={`${location.pathname}?${searchParamsWithoutModal.toString()}`}
-          onClick={() => {
-            setNextLocationPathname(null);
-          }}
+          // onClick={() => {
+          //   setNextLocationPathname(null);
+          // }}
         >
           {locales.components.UnsavedChangesModal.cancel}
         </Modal.CloseButton>
