@@ -47,10 +47,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       countData.fundings = 0;
     } else {
       const queries = [
-        countSearchedProfiles(searchQuery, sessionUser),
-        countSearchedOrganizations(searchQuery, sessionUser),
-        countSearchedEvents(searchQuery, sessionUser),
-        countSearchedProjects(searchQuery, sessionUser),
+        countSearchedProfiles({ searchQuery, sessionUser, language }),
+        countSearchedOrganizations({ searchQuery, sessionUser, language }),
+        countSearchedEvents({ searchQuery, sessionUser, language }),
+        countSearchedProjects({ searchQuery, sessionUser, language }),
         countSearchedFundings(searchQuery),
       ];
       const [

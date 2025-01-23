@@ -44,15 +44,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     organizationsCount = 0;
     rawOrganizations = [];
   } else {
-    const organizationsCountQuery = countSearchedOrganizations(
-      searchQuery,
-      sessionUser
-    );
-    const rawOrganizationsQuery = searchOrganizationsViaLike(
+    const organizationsCountQuery = countSearchedOrganizations({
       searchQuery,
       sessionUser,
-      take
-    );
+      language,
+    });
+    const rawOrganizationsQuery = searchOrganizationsViaLike({
+      searchQuery,
+      sessionUser,
+      take,
+      language,
+    });
     const [organizationsCountResult, rawOrganizationsResult] =
       await prismaClient.$transaction([
         organizationsCountQuery,

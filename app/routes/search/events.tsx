@@ -48,8 +48,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     eventsCount = 0;
     rawEvents = [];
   } else {
-    const eventsCountQuery = countSearchedEvents(searchQuery, sessionUser);
-    const rawEventsQuery = searchEventsViaLike(searchQuery, sessionUser, take);
+    const eventsCountQuery = countSearchedEvents({
+      searchQuery,
+      sessionUser,
+      language,
+    });
+    const rawEventsQuery = searchEventsViaLike({
+      searchQuery,
+      sessionUser,
+      take,
+      language,
+    });
     const [eventsCountResult, rawEventsResult] =
       await prismaClient.$transaction([eventsCountQuery, rawEventsQuery]);
     eventsCount = eventsCountResult;

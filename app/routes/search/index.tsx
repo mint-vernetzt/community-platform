@@ -10,6 +10,7 @@ import {
   getQuerySearchParam,
   getQueryValueAsArrayOfWords,
 } from "./utils.server";
+import { detectLanguage } from "~/i18n.server";
 
 // handle first tab with search results as default route
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -21,26 +22,40 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const sessionUser = await getSessionUser(authClient);
 
   if (searchQuery !== null) {
-    const profilesCount = await countSearchedProfiles(searchQuery, sessionUser);
+    const language = await detectLanguage(request);
+    const profilesCount = await countSearchedProfiles({
+      searchQuery,
+      sessionUser,
+      language,
+    });
     // We have profile search results
     if (profilesCount !== 0) {
       return redirect(`/search/profiles?query=${queryString || ""}`);
     }
     // We have organization search results
-    const organizationsCount = await countSearchedOrganizations(
+    const organizationsCount = await countSearchedOrganizations({
       searchQuery,
-      sessionUser
-    );
+      sessionUser,
+      language,
+    });
     if (organizationsCount !== 0) {
       return redirect(`/search/organizations?query=${queryString || ""}`);
     }
     // We have event search results
-    const eventsCount = await countSearchedEvents(searchQuery, sessionUser);
+    const eventsCount = await countSearchedEvents({
+      searchQuery,
+      sessionUser,
+      language,
+    });
     if (eventsCount !== 0) {
       return redirect(`/search/events?query=${queryString || ""}`);
     }
     // We have project search results
-    const projectsCount = await countSearchedProjects(searchQuery, sessionUser);
+    const projectsCount = await countSearchedProjects({
+      searchQuery,
+      sessionUser,
+      language,
+    });
     if (projectsCount !== 0) {
       return redirect(`/search/projects?query=${queryString || ""}`);
     }

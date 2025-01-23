@@ -6,7 +6,9 @@ import type {
   Project,
 } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
+import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
+import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 
 export function getTakeParam(
@@ -27,6 +29,28 @@ export function getTakeParam(
   return { take, page, itemsPerPage };
 }
 
+function getSlugFromLocaleThatContainsWord(options: {
+  language: ArrayElement<typeof supportedCookieLanguages>;
+  locales: keyof (typeof languageModuleMap)[ArrayElement<
+    typeof supportedCookieLanguages
+  >];
+  word: string;
+}) {
+  const { language, locales, word } = options;
+  return Object.entries(languageModuleMap[language][locales]).find(
+    ([_key, value]) => {
+      if (
+        typeof value !== "object" &&
+        "title" in value === false &&
+        typeof value.title !== "string"
+      ) {
+        return false;
+      }
+      return (value.title as string).toLowerCase().includes(word.toLowerCase());
+    }
+  )?.[0];
+}
+
 // **************
 // Prismas like filtering with where contains
 // - Performance: ~30 ms for full profile on search query 'Kontakt zu Unternehmen'
@@ -37,12 +61,18 @@ export function getTakeParam(
 // - Search on arrays is possible
 // - Search on relations is possible
 
-export function searchProfilesViaLike(
-  searchQuery: string[],
-  sessionUser: User | null,
-  take?: number
-) {
-  const whereQueries = getProfileWhereQueries(searchQuery, sessionUser);
+export function searchProfilesViaLike(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  take?: number;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, take, language } = options;
+  const whereQueries = getProfileWhereQueries({
+    searchQuery,
+    sessionUser,
+    language,
+  });
   const profilesQuery = prismaClient.profile.findMany({
     select: {
       id: true,
@@ -126,11 +156,17 @@ export function searchProfilesViaLike(
   return profilesQuery;
 }
 
-export function countSearchedProfiles(
-  searchQuery: string[],
-  sessionUser: User | null
-) {
-  const whereQueries = getProfileWhereQueries(searchQuery, sessionUser);
+export function countSearchedProfiles(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, language } = options;
+  const whereQueries = getProfileWhereQueries({
+    searchQuery,
+    sessionUser,
+    language,
+  });
   const profileCountQuery = prismaClient.profile.count({
     where: {
       AND: whereQueries,
@@ -139,12 +175,19 @@ export function countSearchedProfiles(
   return profileCountQuery;
 }
 
-function getProfileWhereQueries(
-  searchQuery: string[],
-  sessionUser: User | null
-) {
+function getProfileWhereQueries(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, language } = options;
   const whereQueries = [];
   for (const word of searchQuery) {
+    const offerOrSeekingSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "offers",
+      word,
+    });
     const contains: {
       OR: {
         AND: (
@@ -158,7 +201,7 @@ function getProfileWhereQueries(
               [K in "areas" | "offers" | "seekings"]?: {
                 some: {
                   [K in "area" | "offer"]?: {
-                    [K in "name" | "title"]?: {
+                    [K in "name" | "slug"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -412,50 +455,56 @@ function getProfileWhereQueries(
           ],
         },
         {
-          AND: [
-            {
-              offers: {
-                some: {
-                  offer: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            offerOrSeekingSlug !== undefined
+              ? [
+                  {
+                    offers: {
+                      some: {
+                        offer: {
+                          slug: {
+                            contains: offerOrSeekingSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  profileVisibility: {
-                    offers: true,
-                  },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        profileVisibility: {
+                          offers: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
-          AND: [
-            {
-              seekings: {
-                some: {
-                  offer: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            offerOrSeekingSlug !== undefined
+              ? [
+                  {
+                    seekings: {
+                      some: {
+                        offer: {
+                          slug: {
+                            contains: offerOrSeekingSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  profileVisibility: {
-                    seekings: true,
-                  },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        profileVisibility: {
+                          seekings: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
           AND: [
@@ -498,12 +547,18 @@ function getProfileWhereQueries(
   return whereQueries;
 }
 
-export function searchOrganizationsViaLike(
-  searchQuery: string[],
-  sessionUser: User | null,
-  take?: number
-) {
-  const whereQueries = getOrganizationWhereQueries(searchQuery, sessionUser);
+export function searchOrganizationsViaLike(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  take?: number;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, take, language } = options;
+  const whereQueries = getOrganizationWhereQueries({
+    searchQuery,
+    sessionUser,
+    language,
+  });
   const organizationsQuery = prismaClient.organization.findMany({
     select: {
       id: true,
@@ -591,11 +646,17 @@ export function searchOrganizationsViaLike(
   return organizationsQuery;
 }
 
-export function countSearchedOrganizations(
-  searchQuery: string[],
-  sessionUser: User | null
-) {
-  const whereQueries = getOrganizationWhereQueries(searchQuery, sessionUser);
+export function countSearchedOrganizations(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, language } = options;
+  const whereQueries = getOrganizationWhereQueries({
+    searchQuery,
+    sessionUser,
+    language,
+  });
   const organizationCountQuery = prismaClient.organization.count({
     where: {
       AND: whereQueries,
@@ -604,12 +665,29 @@ export function countSearchedOrganizations(
   return organizationCountQuery;
 }
 
-function getOrganizationWhereQueries(
-  searchQuery: string[],
-  sessionUser: User | null
-) {
+function getOrganizationWhereQueries(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, language } = options;
   const whereQueries = [];
   for (const word of searchQuery) {
+    const focusSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "focuses",
+      word,
+    });
+    const organizationTypeSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "organizationTypes",
+      word,
+    });
+    const networkTypeSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "networkTypes",
+      word,
+    });
     const contains: {
       OR: {
         AND: (
@@ -620,10 +698,14 @@ function getOrganizationWhereQueries(
               };
             }
           | {
-              [K in "areas" | "types" | "focuses"]?: {
+              [K in "areas" | "types" | "networkTypes" | "focuses"]?: {
                 some: {
-                  [K in "area" | "organizationType" | "focus"]?: {
-                    [K in "name" | "title"]?: {
+                  [K in
+                    | "area"
+                    | "organizationType"
+                    | "networkType"
+                    | "focus"]?: {
+                    [K in "name" | "slug"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -818,27 +900,30 @@ function getOrganizationWhereQueries(
           ],
         },
         {
-          AND: [
-            {
-              focuses: {
-                some: {
-                  focus: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            focusSlug !== undefined
+              ? [
+                  {
+                    focuses: {
+                      some: {
+                        focus: {
+                          slug: {
+                            contains: focusSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  organizationVisibility: {
-                    focuses: true,
-                  },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        organizationVisibility: {
+                          focuses: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
           AND: [
@@ -977,27 +1062,56 @@ function getOrganizationWhereQueries(
           ],
         },
         {
-          AND: [
-            {
-              types: {
-                some: {
-                  organizationType: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            organizationTypeSlug !== undefined
+              ? [
+                  {
+                    types: {
+                      some: {
+                        organizationType: {
+                          slug: {
+                            contains: organizationTypeSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  organizationVisibility: {
-                    types: true,
+                  sessionUser === null
+                    ? {
+                        organizationVisibility: {
+                          types: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            networkTypeSlug !== undefined
+              ? [
+                  {
+                    networkTypes: {
+                      some: {
+                        networkType: {
+                          slug: {
+                            contains: networkTypeSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
                   },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        organizationVisibility: {
+                          networkTypes: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
           AND: [
@@ -1040,12 +1154,18 @@ function getOrganizationWhereQueries(
   return whereQueries;
 }
 
-export function searchEventsViaLike(
-  searchQuery: string[],
-  sessionUser: User | null,
-  take?: number
-) {
-  const whereQueries = getEventWhereQueries(searchQuery, sessionUser);
+export function searchEventsViaLike(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  take?: number;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, take, language } = options;
+  const whereQueries = getEventWhereQueries({
+    searchQuery,
+    sessionUser,
+    language,
+  });
   const eventsQuery = prismaClient.event.findMany({
     select: {
       id: true,
@@ -1127,11 +1247,17 @@ export function searchEventsViaLike(
   return eventsQuery;
 }
 
-export function countSearchedEvents(
-  searchQuery: string[],
-  sessionUser: User | null
-) {
-  const whereQueries = getEventWhereQueries(searchQuery, sessionUser);
+export function countSearchedEvents(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, language } = options;
+  const whereQueries = getEventWhereQueries({
+    searchQuery,
+    sessionUser,
+    language,
+  });
   const eventCountQuery = prismaClient.event.count({
     where: {
       AND: [{ published: true }, ...whereQueries],
@@ -1140,9 +1266,45 @@ export function countSearchedEvents(
   return eventCountQuery;
 }
 
-function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
+function getEventWhereQueries(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, language } = options;
   const whereQueries = [];
   for (const word of searchQuery) {
+    const eventTypeSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "eventTypes",
+      word,
+    });
+    const focusSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "focuses",
+      word,
+    });
+    const tagSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "tags",
+      word,
+    });
+    const eventTargetGroupSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "eventTargetGroups",
+      word,
+    });
+    const experienceLevelSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "experienceLevels",
+      word,
+    });
+    const stageSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "stages",
+      word,
+    });
+
     const contains: {
       OR: {
         AND: (
@@ -1166,7 +1328,7 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
                     | "focus"
                     | "tag"
                     | "eventTargetGroup"]?: {
-                    [K in "name" | "title"]?: {
+                    [K in "name" | "slug"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -1176,7 +1338,7 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
             }
           | {
               [K in "experienceLevel" | "stage"]?: {
-                [K in "title"]?: {
+                [K in "slug"]?: {
                   contains: string;
                   mode: Prisma.QueryMode;
                 };
@@ -1351,134 +1513,152 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
           ],
         },
         {
-          AND: [
-            {
-              types: {
-                some: {
-                  eventType: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            eventTypeSlug !== undefined
+              ? [
+                  {
+                    types: {
+                      some: {
+                        eventType: {
+                          slug: {
+                            contains: eventTypeSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    types: true,
-                  },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        eventVisibility: {
+                          types: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
-          AND: [
-            {
-              experienceLevel: {
-                title: {
-                  contains: word,
-                  mode: "insensitive",
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    experienceLevel: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
-              stage: {
-                title: {
-                  contains: word,
-                  mode: "insensitive",
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    stage: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
-              focuses: {
-                some: {
-                  focus: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            experienceLevelSlug !== undefined
+              ? [
+                  {
+                    experienceLevel: {
+                      slug: {
+                        contains: experienceLevelSlug,
+                        mode: "insensitive",
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    focuses: true,
-                  },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        eventVisibility: {
+                          experienceLevel: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
-          AND: [
-            {
-              tags: {
-                some: {
-                  tag: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            stageSlug !== undefined
+              ? [
+                  {
+                    stage: {
+                      slug: {
+                        contains: stageSlug,
+                        mode: "insensitive",
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    tags: true,
-                  },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        eventVisibility: {
+                          stage: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
-          AND: [
-            {
-              eventTargetGroups: {
-                some: {
-                  eventTargetGroup: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            focusSlug !== undefined
+              ? [
+                  {
+                    focuses: {
+                      some: {
+                        focus: {
+                          slug: {
+                            contains: focusSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  eventVisibility: {
-                    targetGroups: true,
+                  sessionUser === null
+                    ? {
+                        eventVisibility: {
+                          focuses: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            tagSlug !== undefined
+              ? [
+                  {
+                    tags: {
+                      some: {
+                        tag: {
+                          slug: {
+                            contains: tagSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
                   },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        eventVisibility: {
+                          tags: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            eventTargetGroupSlug !== undefined
+              ? [
+                  {
+                    eventTargetGroups: {
+                      some: {
+                        eventTargetGroup: {
+                          slug: {
+                            contains: eventTargetGroupSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  sessionUser === null
+                    ? {
+                        eventVisibility: {
+                          targetGroups: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
       ],
     };
@@ -1487,12 +1667,18 @@ function getEventWhereQueries(searchQuery: string[], sessionUser: User | null) {
   return whereQueries;
 }
 
-export function searchProjectsViaLike(
-  searchQuery: string[],
-  sessionUser: User | null,
-  take?: number
-) {
-  const whereQueries = getProjectWhereQueries(searchQuery, sessionUser);
+export function searchProjectsViaLike(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  take?: number;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, take, language } = options;
+  const whereQueries = getProjectWhereQueries({
+    searchQuery,
+    sessionUser,
+    language,
+  });
   const projectsQuery = prismaClient.project.findMany({
     select: {
       id: true,
@@ -1544,11 +1730,17 @@ export function searchProjectsViaLike(
   return projectsQuery;
 }
 
-export function countSearchedProjects(
-  searchQuery: string[],
-  sessionUser: User | null
-) {
-  const whereQueries = getProjectWhereQueries(searchQuery, sessionUser);
+export function countSearchedProjects(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, language } = options;
+  const whereQueries = getProjectWhereQueries({
+    searchQuery,
+    sessionUser,
+    language,
+  });
   const projectCountQuery = prismaClient.project.count({
     where: {
       AND: [...whereQueries, { published: true }],
@@ -1557,12 +1749,35 @@ export function countSearchedProjects(
   return projectCountQuery;
 }
 
-function getProjectWhereQueries(
-  searchQuery: string[],
-  sessionUser: User | null
-) {
+function getProjectWhereQueries(options: {
+  searchQuery: string[];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const { searchQuery, sessionUser, language } = options;
   const whereQueries = [];
   for (const word of searchQuery) {
+    const formatSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "formats",
+      word,
+    });
+    const disciplineSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "disciplines",
+      word,
+    });
+    const projectTargetGroupSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "projectTargetGroups",
+      word,
+    });
+    const specialTargetGroupSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "specialTargetGroups",
+      word,
+    });
+
     const contains: {
       OR: {
         AND: (
@@ -1596,7 +1811,7 @@ function getProjectWhereQueries(
                     | "discipline"
                     | "projectTargetGroup"
                     | "specialTargetGroup"]?: {
-                    [K in "title"]?: {
+                    [K in "slug"]?: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -1756,27 +1971,30 @@ function getProjectWhereQueries(
           ],
         },
         {
-          AND: [
-            {
-              disciplines: {
-                some: {
-                  discipline: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            disciplineSlug !== undefined
+              ? [
+                  {
+                    disciplines: {
+                      some: {
+                        discipline: {
+                          slug: {
+                            contains: disciplineSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  projectVisibility: {
-                    disciplines: true,
-                  },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        projectVisibility: {
+                          disciplines: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
           AND: [
@@ -1813,73 +2031,82 @@ function getProjectWhereQueries(
           ],
         },
         {
-          AND: [
-            {
-              projectTargetGroups: {
-                some: {
-                  projectTargetGroup: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            projectTargetGroupSlug !== undefined
+              ? [
+                  {
+                    projectTargetGroups: {
+                      some: {
+                        projectTargetGroup: {
+                          slug: {
+                            contains: projectTargetGroupSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  projectVisibility: {
-                    projectTargetGroups: true,
-                  },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        projectVisibility: {
+                          projectTargetGroups: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
-          AND: [
-            {
-              specialTargetGroups: {
-                some: {
-                  specialTargetGroup: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            specialTargetGroupSlug !== undefined
+              ? [
+                  {
+                    specialTargetGroups: {
+                      some: {
+                        specialTargetGroup: {
+                          slug: {
+                            contains: specialTargetGroupSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  projectVisibility: {
-                    specialTargetGroups: true,
-                  },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        projectVisibility: {
+                          specialTargetGroups: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
-          AND: [
-            {
-              formats: {
-                some: {
-                  format: {
-                    title: {
-                      contains: word,
-                      mode: "insensitive",
+          AND:
+            formatSlug !== undefined
+              ? [
+                  {
+                    formats: {
+                      some: {
+                        format: {
+                          slug: {
+                            contains: formatSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
                     },
                   },
-                },
-              },
-            },
-            sessionUser === null
-              ? {
-                  projectVisibility: {
-                    formats: true,
-                  },
-                }
-              : {},
-          ],
+                  sessionUser === null
+                    ? {
+                        projectVisibility: {
+                          formats: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
         },
         {
           AND: [

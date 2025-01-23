@@ -769,6 +769,22 @@ const de = {
   search: deSearch,
   // verification route
   verification: deVerification,
+  // datasets
+  networkTypes: deNetworkTypes,
+  organizationTypes: deOrganizationTypes,
+  focuses: deFocuses,
+  stages: deStages,
+  tags: deTags,
+  eventTypes: deEventTypes,
+  eventTargetGroups: deEventTargetGroups,
+  experienceLevels: deExperienceLevels,
+  financings: deFinancings,
+  disciplines: deDisciplines,
+  projectTargetGroups: deProjectTargetGroups,
+  specialTargetGroups: deSpecialTargetGroups,
+  formats: deFormats,
+  additionalDisciplines: deAdditionalDisciplines,
+  offers: deOffers,
 } as const;
 
 const en = {
@@ -1154,6 +1170,22 @@ const en = {
   search: enSearch,
   // verification route
   verification: enVerification,
+  // datasets
+  networkTypes: enNetworkTypes,
+  organizationTypes: enOrganizationTypes,
+  focuses: enFocuses,
+  stages: enStages,
+  tags: enTags,
+  eventTypes: enEventTypes,
+  eventTargetGroups: enEventTargetGroups,
+  experienceLevels: enExperienceLevels,
+  financings: enFinancings,
+  disciplines: enDisciplines,
+  projectTargetGroups: enProjectTargetGroups,
+  specialTargetGroups: enSpecialTargetGroups,
+  formats: enFormats,
+  additionalDisciplines: enAdditionalDisciplines,
+  offers: enOffers,
 } as const;
 
 export const languageModuleMap = {
