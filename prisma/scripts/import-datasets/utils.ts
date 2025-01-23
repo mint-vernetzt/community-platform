@@ -1,40 +1,6 @@
-import type {
-  AdditionalDiscipline,
-  Discipline,
-  EventAbuseReportReasonSuggestion,
-  EventTargetGroup,
-  EventType,
-  ExperienceLevel,
-  Financing,
-  Focus,
-  Format,
-  NetworkType,
-  Offer,
-  OrganizationType,
-  ProjectTargetGroup,
-  SpecialTargetGroup,
-  Tag,
-  TargetGroup,
-} from "@prisma/client";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type Dataset } from ".";
 import { prismaClient } from "../../../app/prisma.server";
-
-export type GenericEntry =
-  | Offer
-  | OrganizationType
-  | NetworkType
-  | Focus
-  | Tag
-  | TargetGroup // legacy
-  | EventTargetGroup
-  | ProjectTargetGroup
-  | SpecialTargetGroup
-  | EventType
-  | Discipline
-  | AdditionalDiscipline
-  | Format
-  | Financing
-  | EventAbuseReportReasonSuggestion
-  | ExperienceLevel;
 
 export type TableName =
   | "offer"
@@ -56,12 +22,12 @@ export type TableName =
   | "stage";
 
 type Lookup = {
-  [keyof: string]: GenericEntry;
+  [key in ArrayElement<Dataset>["id"]]: ArrayElement<Dataset>;
 };
 
 export function filterMissingData(
-  wantedEntries: GenericEntry[],
-  existingEntries: GenericEntry[]
+  wantedEntries: Dataset,
+  existingEntries: Dataset
 ) {
   const existingEntryIds = existingEntries.map((o) => o.id);
   return wantedEntries.filter(
@@ -70,29 +36,29 @@ export function filterMissingData(
 }
 
 export function dataToBeUpdated(
-  wantedEntries: GenericEntry[],
-  existingEntries: GenericEntry[]
+  wantedEntries: Dataset,
+  existingEntries: Dataset
 ) {
   // create object of {uuid1: {id: uuid1, title: title1}, uuid2: {id: uuid2, title: title2}, ... }
   const existingLookup = makeLookup(existingEntries);
 
   return wantedEntries.filter((wanted) => {
     const existing = existingLookup[wanted.id] !== undefined;
-    return (
-      existing &&
-      !shallowComparison<GenericEntry>(existingLookup[wanted.id], wanted)
-    );
+    return existing && !shallowComparison(existingLookup[wanted.id], wanted);
   });
 }
 
-export function makeLookup(entries: GenericEntry[]) {
+export function makeLookup(entries: Dataset) {
   return entries.reduce((entry, value) => {
     entry[value.id] = value;
     return entry;
   }, {} as Lookup);
 }
 
-export function shallowComparison<T extends {}>(obj1: T, obj2: T) {
+export function shallowComparison(
+  obj1: ArrayElement<Dataset>,
+  obj2: ArrayElement<Dataset>
+) {
   return (
     Object.keys(obj1).length === Object.keys(obj2).length &&
     (Object.keys(obj1) as (keyof typeof obj1)[]).every((key) => {
@@ -105,8 +71,8 @@ export function shallowComparison<T extends {}>(obj1: T, obj2: T) {
 }
 
 export function entriesOnlyExistingOnDatabase(
-  wantedEntries: GenericEntry[],
-  existingEntries: GenericEntry[]
+  wantedEntries: Dataset,
+  existingEntries: Dataset
 ) {
   const wantedLookup = makeLookup(wantedEntries);
 
@@ -115,15 +81,12 @@ export function entriesOnlyExistingOnDatabase(
   );
 }
 
-export async function importDataset(
-  datasets: GenericEntry[],
-  tableName: TableName
-) {
+export async function importDataset(dataset: Dataset, tableName: TableName) {
   console.log(`create entries for ${tableName}`);
 
   // @ts-ignore
   const existingEntries = await prismaClient[tableName].findMany();
-  const missingData = filterMissingData(datasets, existingEntries);
+  const missingData = filterMissingData(dataset, existingEntries);
 
   if (missingData.length > 0) {
     // @ts-ignore
@@ -131,7 +94,7 @@ export async function importDataset(
     console.log(`added "${tableName}s": `, missingData);
   }
 
-  const entriesToUpdate = dataToBeUpdated(datasets, existingEntries);
+  const entriesToUpdate = dataToBeUpdated(dataset, existingEntries);
   if (entriesToUpdate.length > 0) {
     for (const entry of entriesToUpdate) {
       // @ts-ignore
@@ -149,7 +112,7 @@ export async function importDataset(
   }
 
   const unknownEntries = entriesOnlyExistingOnDatabase(
-    datasets,
+    dataset,
     existingEntries
   );
   if (unknownEntries.length > 0) {

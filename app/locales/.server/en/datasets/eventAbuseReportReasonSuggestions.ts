@@ -1,4 +1,6 @@
-export const locale = {
+import { EventAbuseReportReasonSuggestionLocales } from "./../../utils";
+
+export const locale: EventAbuseReportReasonSuggestionLocales = {
   promotional_event: {
     description: "This is a promotional event.",
   },
@@ -8,4 +10,4 @@ export const locale = {
   discriminatory_content: {
     description: "It contains discriminatory content.",
   },
-} as const;
+};

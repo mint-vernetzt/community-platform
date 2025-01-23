@@ -1,4 +1,11 @@
-export const locale = {
+import { StageLocales } from "../../utils";
+
+export const locale: StageLocales & {
+  all: {
+    title: string;
+    description: string | null;
+  };
+} = {
   hybrid: {
     title: "Hybrid",
     description: null,

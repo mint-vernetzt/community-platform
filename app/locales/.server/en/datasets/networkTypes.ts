@@ -1,4 +1,6 @@
-export const locale = {
+import { NetworkTypeLocales } from "./../../utils";
+
+export const locale: NetworkTypeLocales = {
   alliance: {
     title: "Alliance",
     description: null,
@@ -19,4 +21,4 @@ export const locale = {
     title: "Other network",
     description: null,
   },
-} as const;
+};

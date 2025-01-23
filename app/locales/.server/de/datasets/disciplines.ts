@@ -1,4 +1,6 @@
-export const locale = {
+import { DisciplineLocales } from "../../utils";
+
+export const locale: DisciplineLocales = {
   math: {
     title: "Mathe",
     description: null,
@@ -35,4 +37,4 @@ export const locale = {
     title: "Naturwissenschaften",
     description: null,
   },
-} as const;
+};

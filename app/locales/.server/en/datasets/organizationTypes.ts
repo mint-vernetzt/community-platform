@@ -1,4 +1,6 @@
-export const locale = {
+import { OrganizationTypeLocales } from "./../../utils";
+
+export const locale: OrganizationTypeLocales = {
   foundation: {
     title: "Foundation",
     description: null,
@@ -27,4 +29,4 @@ export const locale = {
     title: "Initiative",
     description: null,
   },
-} as const;
+};

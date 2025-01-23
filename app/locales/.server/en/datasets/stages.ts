@@ -1,4 +1,12 @@
-export const locale = {
+import { StageLocales } from "./../../utils";
+
+export const locale: StageLocales & {
+  // "all" is not in the database but used for the "All" filter
+  all: {
+    title: string;
+    description: string | null;
+  };
+} = {
   hybrid: {
     title: "Hybrid",
     description: null,
@@ -15,4 +23,4 @@ export const locale = {
     title: "All",
     description: null,
   },
-} as const;
+};

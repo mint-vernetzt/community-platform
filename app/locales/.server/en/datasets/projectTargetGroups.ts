@@ -1,4 +1,6 @@
-export const locale = {
+import { ProjectTargetGroupLocales } from "./../../utils";
+
+export const locale: ProjectTargetGroupLocales = {
   childs_in_preschool: {
     title: "Children in daycare or preschool",
     description: null,
@@ -67,4 +69,4 @@ export const locale = {
     title: "Parents of pupils",
     description: null,
   },
-} as const;
+};

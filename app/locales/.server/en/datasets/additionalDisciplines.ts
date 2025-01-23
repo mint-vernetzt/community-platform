@@ -1,4 +1,6 @@
-export const locale = {
+import { AdditionalDisciplineLocales } from "./../../utils";
+
+export const locale: AdditionalDisciplineLocales = {
   and_art: {
     title: "+Art",
     description: null,
@@ -23,4 +25,4 @@ export const locale = {
     title: "+Environment",
     description: null,
   },
-} as const;
+};

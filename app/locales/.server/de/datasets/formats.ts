@@ -1,4 +1,6 @@
-export const locale = {
+import { FormatLocales } from "../../utils";
+
+export const locale: FormatLocales = {
   workshop: {
     title: "Workshop / Kurs",
     description: null,
@@ -71,4 +73,4 @@ export const locale = {
     title: "Ganztagsangebot",
     description: null,
   },
-} as const;
+};

@@ -1,4 +1,6 @@
-export const locale = {
+import { EventTypeLocales } from "./../../utils";
+
+export const locale: EventTypeLocales = {
   exchange: {
     title: "Roundtable Discussion",
     description: null,
@@ -31,4 +33,4 @@ export const locale = {
     title: "Speed-Dating",
     description: null,
   },
-} as const;
+};

@@ -1,4 +1,6 @@
-export const locale = {
+import { FocusLocales } from "./../../utils";
+
+export const locale: FocusLocales = {
   girls_and_women_in_stem: {
     title: "Girls and Women in STEM",
     description: null,

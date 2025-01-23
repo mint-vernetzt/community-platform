@@ -1,25 +1,100 @@
 import { prismaClient } from "~/prisma.server";
-import disciplines from "./data/disciplines.json";
-import additionalDisciplines from "./data/additionalDisciplines.json";
-import eventTypes from "./data/eventTypes.json";
-import experienceLevels from "./data/experienceLevels.json";
-import focuses from "./data/focuses.json";
-import offers from "./data/offers.json";
-import organizationTypes from "./data/organizationTypes.json";
-import networkTypes from "./data/networkTypes.json";
-import stages from "./data/stages.json";
-import tags from "./data/tags.json";
-import formats from "./data/formats.json";
-import financings from "./data/financings.json";
-import targetGroups from "./data/targetGroups_legacy.json";
-import eventTargetGroups from "./data/eventTargetGroups.json";
-import projectTargetGroups from "./data/projectTargetGroups.json";
-import specialTargetGroups from "./data/specialTargetGroups.json";
-import eventAbuseReportReasonSuggestions from "./data/eventAbuseReportReasonSuggestions.json";
-import type { GenericEntry, TableName } from "./utils";
+import { disciplines } from "./data/disciplines";
+import { additionalDisciplines } from "./data/additionalDisciplines";
+import { eventTypes } from "./data/eventTypes";
+import { experienceLevels } from "./data/experienceLevels";
+import { focuses } from "./data/focuses";
+import { offers } from "./data/offers";
+import { organizationTypes } from "./data/organizationTypes";
+import { networkTypes } from "./data/networkTypes";
+import { stages } from "./data/stages";
+import { tags } from "./data/tags";
+import { formats } from "./data/formats";
+import { financings } from "./data/financings";
+import { targetGroups_legacy } from "./data/targetGroups_legacy";
+import { eventTargetGroups } from "./data/eventTargetGroups";
+import { projectTargetGroups } from "./data/projectTargetGroups";
+import { specialTargetGroups } from "./data/specialTargetGroups";
+import { eventAbuseReportReasonSuggestions } from "./data/eventAbuseReportReasonSuggestions";
+import type { TableName } from "./utils";
 import { importDataset } from "./utils";
 
-const staticDatasets: Array<{ tableName: TableName; data: GenericEntry[] }> = [
+export type Dataset =
+  | typeof disciplines
+  | typeof additionalDisciplines
+  | typeof eventTypes
+  | typeof experienceLevels
+  | typeof focuses
+  | typeof offers
+  | typeof organizationTypes
+  | typeof networkTypes
+  | typeof stages
+  | typeof tags
+  | typeof formats
+  | typeof financings
+  | typeof targetGroups_legacy
+  | typeof eventTargetGroups
+  | typeof projectTargetGroups
+  | typeof specialTargetGroups
+  | typeof eventAbuseReportReasonSuggestions;
+
+export type ExplicitDataset<
+  T extends
+    | "disciplines"
+    | "additionalDisciplines"
+    | "eventTypes"
+    | "experienceLevels"
+    | "focuses"
+    | "offers"
+    | "organizationTypes"
+    | "networkTypes"
+    | "stages"
+    | "tags"
+    | "formats"
+    | "financings"
+    | "targetGroups_legacy"
+    | "eventTargetGroups"
+    | "projectTargetGroups"
+    | "specialTargetGroups"
+    | "eventAbuseReportReasonSuggestions"
+> = T extends "disciplines"
+  ? typeof disciplines
+  : T extends "additionalDisciplines"
+  ? typeof additionalDisciplines
+  : T extends "eventTypes"
+  ? typeof eventTypes
+  : T extends "experienceLevels"
+  ? typeof experienceLevels
+  : T extends "focuses"
+  ? typeof focuses
+  : T extends "offers"
+  ? typeof offers
+  : T extends "organizationTypes"
+  ? typeof organizationTypes
+  : T extends "networkTypes"
+  ? typeof networkTypes
+  : T extends "stages"
+  ? typeof stages
+  : T extends "tags"
+  ? typeof tags
+  : T extends "formats"
+  ? typeof formats
+  : T extends "financings"
+  ? typeof financings
+  : T extends "targetGroups_legacy"
+  ? typeof targetGroups_legacy
+  : T extends "eventTargetGroups"
+  ? typeof eventTargetGroups
+  : T extends "projectTargetGroups"
+  ? typeof projectTargetGroups
+  : T extends "specialTargetGroups"
+  ? typeof specialTargetGroups
+  : typeof eventAbuseReportReasonSuggestions;
+
+const staticDatasets: Array<{
+  tableName: TableName;
+  data: Dataset;
+}> = [
   { tableName: "offer", data: offers },
   { tableName: "organizationType", data: organizationTypes },
   { tableName: "networkType", data: networkTypes },
@@ -27,7 +102,7 @@ const staticDatasets: Array<{ tableName: TableName; data: GenericEntry[] }> = [
   { tableName: "tag", data: tags },
   { tableName: "eventTargetGroup", data: eventTargetGroups },
   { tableName: "projectTargetGroup", data: projectTargetGroups },
-  { tableName: "targetGroup", data: targetGroups }, // legacy
+  { tableName: "targetGroup", data: targetGroups_legacy }, // legacy
   { tableName: "specialTargetGroup", data: specialTargetGroups },
   { tableName: "eventType", data: eventTypes },
   { tableName: "experienceLevel", data: experienceLevels },

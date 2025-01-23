@@ -1,4 +1,6 @@
-export const locale = {
+import { SpecialTargetGroupLocales } from "../../utils";
+
+export const locale: SpecialTargetGroupLocales = {
   social_background_disadvantage: {
     title: "People disadvantaged due to their social background",
     description: null,

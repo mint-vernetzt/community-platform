@@ -1,4 +1,6 @@
-export const locale = {
+import { TagLocales } from "../../utils";
+
+export const locale: TagLocales = {
   didactics: {
     title: "Didaktik",
     description: null,
@@ -59,4 +61,4 @@ export const locale = {
     title: "International",
     description: null,
   },
-} as const;
+};
