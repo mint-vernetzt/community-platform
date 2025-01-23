@@ -369,7 +369,7 @@ function General() {
     id: `general-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(createGeneralSchema(locales)),
     defaultValue: defaultValues,
-    shouldValidate: "onSubmit",
+    shouldValidate: "onInput",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate: (args) => {
