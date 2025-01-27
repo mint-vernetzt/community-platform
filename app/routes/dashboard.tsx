@@ -47,7 +47,10 @@ import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/
 import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 import { languageModuleMap } from "~/locales/.server";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { type AtLeastOne } from "~/lib/utils/types";
 import { invariantResponse } from "~/lib/utils/response";
 import { getFeatureAbilities } from "~/lib/utils/application";
@@ -712,18 +715,21 @@ function Dashboard() {
             </div>
             <div className="mv-flex-1 mv-text-primary">
               <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
-                {decideBetweenSingularOrPlural(
-                  loaderData.locales.route.content.requests.headline_one,
-                  loaderData.locales.route.content.requests.headline_other,
-                  loaderData.profilesFromRequests.length
+                {insertParametersIntoLocale(
+                  decideBetweenSingularOrPlural(
+                    loaderData.locales.route.content.requests.headline_one,
+                    loaderData.locales.route.content.requests.headline_other,
+                    loaderData.profilesFromRequests.length
+                  ),
+                  { count: loaderData.profilesFromRequests.length }
                 )}
               </h3>
               <p className="mv-text-normal mv-text-sm">
-                {loaderData.locales.route.content.invites.description}
+                {loaderData.locales.route.content.requests.description}
               </p>
             </div>
             <Button as="a" href="/my/organizations">
-              {loaderData.locales.route.content.invites.linkDescription}
+              {loaderData.locales.route.content.requests.linkDescription}
             </Button>
           </div>
         </section>
