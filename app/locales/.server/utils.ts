@@ -3,21 +3,33 @@ import { type ArrayElement } from "./../../lib/utils/types";
 
 // Dataset locale types
 
-export type AdditionalDisciplineLocales = {
+type AdditionalDisciplineLocales = {
   [key in ArrayElement<ExplicitDataset<"additionalDisciplines">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type DisciplineLocales = {
+export function assertAdditionalDisciplineLocales<
+  T extends AdditionalDisciplineLocales
+>(obj: T): T {
+  return obj;
+}
+
+type DisciplineLocales = {
   [key in ArrayElement<ExplicitDataset<"disciplines">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type EventAbuseReportReasonSuggestionLocales = {
+export function assertDisciplineLocales<T extends DisciplineLocales>(
+  obj: T
+): T {
+  return obj;
+}
+
+type EventAbuseReportReasonSuggestionLocales = {
   [key in ArrayElement<
     ExplicitDataset<"eventAbuseReportReasonSuggestions">
   >["slug"]]: {
@@ -25,93 +37,163 @@ export type EventAbuseReportReasonSuggestionLocales = {
   };
 };
 
-export type EventTargetGroupLocales = {
+export function assertEventAbuseReportReasonSuggestionLocales<
+  T extends EventAbuseReportReasonSuggestionLocales
+>(obj: T): T {
+  return obj;
+}
+
+type EventTargetGroupLocales = {
   [key in ArrayElement<ExplicitDataset<"eventTargetGroups">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type EventTypeLocales = {
+export function assertEventTargetGroupLocales<
+  T extends EventTargetGroupLocales
+>(obj: T): T {
+  return obj;
+}
+
+type EventTypeLocales = {
   [key in ArrayElement<ExplicitDataset<"eventTypes">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type ExperienceLevelLocales = {
+export function assertEventTypeLocales<T extends EventTypeLocales>(obj: T): T {
+  return obj;
+}
+
+type ExperienceLevelLocales = {
   [key in ArrayElement<ExplicitDataset<"experienceLevels">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type FinancingLocales = {
+export function assertExperienceLevelLocales<T extends ExperienceLevelLocales>(
+  obj: T
+): T {
+  return obj;
+}
+
+type FinancingLocales = {
   [key in ArrayElement<ExplicitDataset<"financings">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type FocusLocales = {
+export function assertFinancingLocales<T extends FinancingLocales>(obj: T): T {
+  return obj;
+}
+
+type FocusLocales = {
   [key in ArrayElement<ExplicitDataset<"focuses">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type FormatLocales = {
+export function assertFocusLocales<T extends FocusLocales>(obj: T): T {
+  return obj;
+}
+
+type FormatLocales = {
   [key in ArrayElement<ExplicitDataset<"formats">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type NetworkTypeLocales = {
+export function assertFormatLocales<T extends FormatLocales>(obj: T): T {
+  return obj;
+}
+
+type NetworkTypeLocales = {
   [key in ArrayElement<ExplicitDataset<"networkTypes">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type OfferLocales = {
+export function assertNetworkTypeLocales<T extends NetworkTypeLocales>(
+  obj: T
+): T {
+  return obj;
+}
+
+type OfferLocales = {
   [key in ArrayElement<ExplicitDataset<"offers">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type OrganizationTypeLocales = {
+export function assertOfferLocales<T extends OfferLocales>(obj: T): T {
+  return obj;
+}
+
+type OrganizationTypeLocales = {
   [key in ArrayElement<ExplicitDataset<"organizationTypes">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type ProjectTargetGroupLocales = {
+export function assertOrganizationTypeLocales<
+  T extends OrganizationTypeLocales
+>(obj: T): T {
+  return obj;
+}
+
+type ProjectTargetGroupLocales = {
   [key in ArrayElement<ExplicitDataset<"projectTargetGroups">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type SpecialTargetGroupLocales = {
+export function assertProjectTargetGroupLocales<
+  T extends ProjectTargetGroupLocales
+>(obj: T): T {
+  return obj;
+}
+
+type SpecialTargetGroupLocales = {
   [key in ArrayElement<ExplicitDataset<"specialTargetGroups">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type StageLocales = {
+export function assertSpecialTargetGroupLocales<
+  T extends SpecialTargetGroupLocales
+>(obj: T): T {
+  return obj;
+}
+
+type StageLocales = {
   [key in ArrayElement<ExplicitDataset<"stages">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
 
-export type TagLocales = {
+export function assertStageLocales<T extends StageLocales>(obj: T): T {
+  return obj;
+}
+
+type TagLocales = {
   [key in ArrayElement<ExplicitDataset<"tags">>["slug"]]: {
     title: string;
     description: string | null;
   };
 };
+
+export function assertTagLocales<T extends TagLocales>(obj: T): T {
+  return obj;
+}

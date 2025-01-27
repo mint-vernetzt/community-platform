@@ -1,11 +1,6 @@
-import { StageLocales } from "../../utils";
+import { assertStageLocales } from "../../utils";
 
-export const locale: StageLocales & {
-  all: {
-    title: string;
-    description: string | null;
-  };
-} = {
+export const locale = assertStageLocales({
   hybrid: {
     title: "Hybrid",
     description: null,
@@ -22,4 +17,4 @@ export const locale: StageLocales & {
     title: "Alle",
     description: null,
   },
-} as const;
+} as const);

@@ -1,6 +1,6 @@
-import { ProjectTargetGroupLocales } from "../../utils";
+import { assertProjectTargetGroupLocales } from "../../utils";
 
-export const locale: ProjectTargetGroupLocales = {
+export const locale = assertProjectTargetGroupLocales({
   childs_in_preschool: {
     title: "Kinder in der Kita oder Vorschule",
     description: null,
@@ -70,4 +70,4 @@ export const locale: ProjectTargetGroupLocales = {
     title: "Eltern von Schüler:innen",
     description: null,
   },
-};
+} as const);

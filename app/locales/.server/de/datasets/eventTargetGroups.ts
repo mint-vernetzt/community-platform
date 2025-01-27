@@ -1,6 +1,6 @@
-import { EventTargetGroupLocales } from "../../utils";
+import { assertEventTargetGroupLocales } from "../../utils";
 
-export const locale: EventTargetGroupLocales = {
+export const locale = assertEventTargetGroupLocales({
   early_childhood_education: {
     title: "Frühkindliche Bildung",
     description: null,
@@ -37,4 +37,4 @@ export const locale: EventTargetGroupLocales = {
     title: "Sek 2",
     description: null,
   },
-};
+} as const);

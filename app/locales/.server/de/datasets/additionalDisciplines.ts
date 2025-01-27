@@ -1,6 +1,6 @@
-import { AdditionalDisciplineLocales } from "../../utils";
+import { assertAdditionalDisciplineLocales } from "../../utils";
 
-export const locale: AdditionalDisciplineLocales = {
+export const locale = assertAdditionalDisciplineLocales({
   and_art: {
     title: "+Kunst",
     description: null,
@@ -25,4 +25,4 @@ export const locale: AdditionalDisciplineLocales = {
     title: "+Umwelt",
     description: null,
   },
-};
+} as const);

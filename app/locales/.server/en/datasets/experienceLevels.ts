@@ -1,6 +1,6 @@
-import { ExperienceLevelLocales } from "./../../utils";
+import { assertExperienceLevelLocales } from "./../../utils";
 
-export const locale: ExperienceLevelLocales = {
+export const locale = assertExperienceLevelLocales({
   "entry-level": {
     title: "Beginner Level",
     description: null,
@@ -21,4 +21,4 @@ export const locale: ExperienceLevelLocales = {
     title: "Not relevant",
     description: null,
   },
-};
+} as const);

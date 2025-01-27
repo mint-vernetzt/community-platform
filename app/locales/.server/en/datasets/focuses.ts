@@ -1,6 +1,6 @@
-import { FocusLocales } from "./../../utils";
+import { assertFocusLocales } from "./../../utils";
 
-export const locale: FocusLocales = {
+export const locale = assertFocusLocales({
   girls_and_women_in_stem: {
     title: "Girls and Women in STEM",
     description: null,
@@ -57,4 +57,4 @@ export const locale: FocusLocales = {
     title: "International",
     description: null,
   },
-} as const;
+} as const);

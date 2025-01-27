@@ -1,6 +1,6 @@
-import { OrganizationTypeLocales } from "./../../utils";
+import { assertOrganizationTypeLocales } from "./../../utils";
 
-export const locale: OrganizationTypeLocales = {
+export const locale = assertOrganizationTypeLocales({
   foundation: {
     title: "Foundation",
     description: null,
@@ -29,4 +29,4 @@ export const locale: OrganizationTypeLocales = {
     title: "Initiative",
     description: null,
   },
-};
+} as const);

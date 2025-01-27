@@ -1,6 +1,6 @@
-import { TagLocales } from "../../utils";
+import { assertTagLocales } from "../../utils";
 
-export const locale: TagLocales = {
+export const locale = assertTagLocales({
   didactics: {
     title: "Didaktik",
     description: null,
@@ -61,4 +61,4 @@ export const locale: TagLocales = {
     title: "International",
     description: null,
   },
-};
+} as const);

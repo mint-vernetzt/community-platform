@@ -1,6 +1,6 @@
-import { FormatLocales } from "./../../utils";
+import { assertFormatLocales } from "./../../utils";
 
-export const locale: FormatLocales = {
+export const locale = assertFormatLocales({
   workshop: {
     title: "Workshop / Course",
     description: null,
@@ -73,4 +73,4 @@ export const locale: FormatLocales = {
     title: "All-Day Offer",
     description: null,
   },
-};
+} as const);

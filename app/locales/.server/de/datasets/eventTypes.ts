@@ -1,6 +1,6 @@
-import { EventTypeLocales } from "../../utils";
+import { assertEventTypeLocales } from "../../utils";
 
-export const locale: EventTypeLocales = {
+export const locale = assertEventTypeLocales({
   exchange: {
     title: "Austauschrunde",
     description: null,
@@ -33,4 +33,4 @@ export const locale: EventTypeLocales = {
     title: "Speed-Dating",
     description: null,
   },
-};
+} as const);

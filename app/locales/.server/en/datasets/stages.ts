@@ -1,12 +1,6 @@
-import { StageLocales } from "./../../utils";
+import { assertStageLocales } from "./../../utils";
 
-export const locale: StageLocales & {
-  // "all" is not in the database but used for the "All" filter
-  all: {
-    title: string;
-    description: string | null;
-  };
-} = {
+export const locale = assertStageLocales({
   hybrid: {
     title: "Hybrid",
     description: null,
@@ -23,4 +17,4 @@ export const locale: StageLocales & {
     title: "All",
     description: null,
   },
-};
+} as const);
