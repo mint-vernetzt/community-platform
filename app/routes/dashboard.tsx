@@ -809,14 +809,16 @@ function Dashboard() {
                         {event.name}
                       </p>
                     </div>
-                    <Button
-                      className="mv-w-full @sm:mv-shrink"
-                      as="a"
-                      href="/my/events"
-                      variant="outline"
-                    >
-                      {loaderData.locales.route.content.notifications.cta}
-                    </Button>
+                    <div>
+                      <Button
+                        className="mv-w-full @sm:mv-shrink"
+                        as="a"
+                        href="/my/events"
+                        variant="outline"
+                      >
+                        {loaderData.locales.route.content.notifications.cta}
+                      </Button>
+                    </div>
                   </li>
                 );
               })}
