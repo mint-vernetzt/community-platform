@@ -668,10 +668,13 @@ function Dashboard() {
             </div>
             <div className="mv-flex-1 mv-text-primary">
               <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
-                {decideBetweenSingularOrPlural(
-                  loaderData.locales.route.content.invites.headline_one,
-                  loaderData.locales.route.content.invites.headline_other,
-                  loaderData.organizationsFromInvites.length
+                {insertParametersIntoLocale(
+                  decideBetweenSingularOrPlural(
+                    loaderData.locales.route.content.invites.headline_one,
+                    loaderData.locales.route.content.invites.headline_other,
+                    loaderData.organizationsFromInvites.length
+                  ),
+                  { count: loaderData.organizationsFromInvites.length }
                 )}
               </h3>
               <p className="mv-text-normal mv-text-sm">
