@@ -1,4 +1,6 @@
-export const locale = {
+import { assertSpecialTargetGroupLocales } from "../../utils";
+
+export const locale = assertSpecialTargetGroupLocales({
   social_background_disadvantage: {
     title: "People disadvantaged due to their social background",
     description: null,
@@ -46,4 +48,4 @@ export const locale = {
     title: "Others",
     description: null,
   },
-} as const;
+} as const);

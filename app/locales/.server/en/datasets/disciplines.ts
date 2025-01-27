@@ -1,4 +1,6 @@
-export const locale = {
+import { assertDisciplineLocales } from "./../../utils";
+
+export const locale = assertDisciplineLocales({
   math: {
     title: "Mathematics",
     description: null,
@@ -35,4 +37,4 @@ export const locale = {
     title: "Natural Sciences",
     description: null,
   },
-} as const;
+} as const);

@@ -1,4 +1,6 @@
-export const locale = {
+import { assertFocusLocales } from "../../utils";
+
+export const locale = assertFocusLocales({
   girls_and_women_in_stem: {
     title: "Mädchen und Frauen in MINT",
     description: null,
@@ -55,4 +57,4 @@ export const locale = {
     title: "International",
     description: null,
   },
-} as const;
+} as const);

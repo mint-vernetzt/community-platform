@@ -42,12 +42,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     projectsCount = 0;
     rawProjects = [];
   } else {
-    const projectsCountQuery = countSearchedProjects(searchQuery, sessionUser);
-    const rawProjectsQuery = searchProjectsViaLike(
+    const projectsCountQuery = countSearchedProjects({
       searchQuery,
       sessionUser,
-      take
-    );
+      language,
+    });
+    const rawProjectsQuery = searchProjectsViaLike({
+      searchQuery,
+      sessionUser,
+      take,
+      language,
+    });
     const [projectsCountResult, rawProjectsResult] =
       await prismaClient.$transaction([projectsCountQuery, rawProjectsQuery]);
     projectsCount = projectsCountResult;

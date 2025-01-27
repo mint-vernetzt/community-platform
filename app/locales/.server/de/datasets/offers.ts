@@ -1,4 +1,6 @@
-export const locale = {
+import { assertOfferLocales } from "../../utils";
+
+export const locale = assertOfferLocales({
   networking: {
     title: "Vernetzung",
     description: null,
@@ -81,4 +83,4 @@ export const locale = {
       "Unterstützung im Bereich Wirkungsorientierung / Qualitätsentwicklung",
     description: null,
   },
-} as const;
+} as const);

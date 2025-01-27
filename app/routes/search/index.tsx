@@ -10,6 +10,7 @@ import {
   getQuerySearchParam,
   getQueryValueAsArrayOfWords,
 } from "./utils.server";
+import { detectLanguage } from "~/i18n.server";
 
 // handle first tab with search results as default route
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -21,37 +22,73 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const sessionUser = await getSessionUser(authClient);
 
   if (searchQuery !== null) {
-    const profilesCount = await countSearchedProfiles(searchQuery, sessionUser);
+    const language = await detectLanguage(request);
+    const profilesCount = await countSearchedProfiles({
+      searchQuery,
+      sessionUser,
+      language,
+    });
     // We have profile search results
     if (profilesCount !== 0) {
-      return redirect(`/search/profiles?query=${queryString || ""}`);
+      const newUrl = new URL(
+        `${process.env.COMMUNITY_BASE_URL}/search/profiles`
+      );
+      newUrl.searchParams.append("query", queryString || "");
+      return redirect(newUrl.toString());
     }
     // We have organization search results
-    const organizationsCount = await countSearchedOrganizations(
+    const organizationsCount = await countSearchedOrganizations({
       searchQuery,
-      sessionUser
-    );
+      sessionUser,
+      language,
+    });
     if (organizationsCount !== 0) {
-      return redirect(`/search/organizations?query=${queryString || ""}`);
+      const newUrl = new URL(
+        `${process.env.COMMUNITY_BASE_URL}/search/organizations`
+      );
+      newUrl.searchParams.append("query", queryString || "");
+      return redirect(newUrl.toString());
     }
     // We have event search results
-    const eventsCount = await countSearchedEvents(searchQuery, sessionUser);
+    const eventsCount = await countSearchedEvents({
+      searchQuery,
+      sessionUser,
+      language,
+    });
     if (eventsCount !== 0) {
-      return redirect(`/search/events?query=${queryString || ""}`);
+      const newUrl = new URL(`${process.env.COMMUNITY_BASE_URL}/search/events`);
+      newUrl.searchParams.append("query", queryString || "");
+      return redirect(newUrl.toString());
     }
     // We have project search results
-    const projectsCount = await countSearchedProjects(searchQuery, sessionUser);
+    const projectsCount = await countSearchedProjects({
+      searchQuery,
+      sessionUser,
+      language,
+    });
     if (projectsCount !== 0) {
-      return redirect(`/search/projects?query=${queryString || ""}`);
+      const newUrl = new URL(
+        `${process.env.COMMUNITY_BASE_URL}/search/projects`
+      );
+      newUrl.searchParams.append("query", queryString || "");
+      return redirect(newUrl.toString());
     }
     // We have funding search results
     const fundingsCount = await countSearchedFundings(searchQuery);
     if (fundingsCount !== 0) {
-      return redirect(`/search/fundings?query=${queryString || ""}`);
+      const newUrl = new URL(
+        `${process.env.COMMUNITY_BASE_URL}/search/fundings`
+      );
+      newUrl.searchParams.append("query", queryString || "");
+      return redirect(newUrl.toString());
     }
     // We have no search results
-    return redirect(`/search/profiles?query=${queryString || ""}`);
+    const newUrl = new URL(`${process.env.COMMUNITY_BASE_URL}/search/profiles`);
+    newUrl.searchParams.append("query", queryString || "");
+    return redirect(newUrl.toString());
   } else {
-    return redirect(`/search/profiles?query=${queryString || ""}`);
+    const newUrl = new URL(`${process.env.COMMUNITY_BASE_URL}/search/profiles`);
+    newUrl.searchParams.append("query", queryString || "");
+    return redirect(newUrl.toString());
   }
 };

@@ -47,10 +47,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       countData.fundings = 0;
     } else {
       const queries = [
-        countSearchedProfiles(searchQuery, sessionUser),
-        countSearchedOrganizations(searchQuery, sessionUser),
-        countSearchedEvents(searchQuery, sessionUser),
-        countSearchedProjects(searchQuery, sessionUser),
+        countSearchedProfiles({ searchQuery, sessionUser, language }),
+        countSearchedOrganizations({ searchQuery, sessionUser, language }),
+        countSearchedEvents({ searchQuery, sessionUser, language }),
+        countSearchedProjects({ searchQuery, sessionUser, language }),
         countSearchedFundings(searchQuery),
       ];
       const [
@@ -157,21 +157,8 @@ function SearchView() {
       <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
         {locales.title.noquery}
       </H1>
-      <Form
-        method="get"
-        action="/search/profiles"
-        onSubmit={(event) => {
-          event.preventDefault();
-          // TODO: fix type issue
-          // @ts-ignore
-          const query = event.target["search-query"].value;
-          if (query.length >= 2) {
-            window.location.href = `/search?query=${query}`;
-          }
-        }}
-      >
-        {/* TODO: is this autoFocus intended? Accessibility considerations should be made */}
-        <Search id="search-query" autoFocus={true} />
+      <Form className="mv-flex-grow" method="get" action="/search">
+        <Search placeholder={locales.placeholder} name="query" query={query} />
       </Form>
     </section>
   );

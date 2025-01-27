@@ -1,4 +1,6 @@
-export const locale = {
+import { assertFinancingLocales } from "../../utils";
+
+export const locale = assertFinancingLocales({
   public_funding_eu: {
     title: "Öffentliche Fördermittel (EU)",
     description: null,
@@ -35,4 +37,4 @@ export const locale = {
     title: "Sonstige",
     description: null,
   },
-} as const;
+} as const);

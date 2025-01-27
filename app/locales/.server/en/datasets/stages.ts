@@ -1,4 +1,6 @@
-export const locale = {
+import { assertStageLocales } from "./../../utils";
+
+export const locale = assertStageLocales({
   hybrid: {
     title: "Hybrid",
     description: null,
@@ -15,4 +17,4 @@ export const locale = {
     title: "All",
     description: null,
   },
-} as const;
+} as const);

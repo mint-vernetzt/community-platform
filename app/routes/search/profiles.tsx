@@ -42,12 +42,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     profilesCount = 0;
     rawProfiles = [];
   } else {
-    const profilesCountQuery = countSearchedProfiles(searchQuery, sessionUser);
-    const rawProfilesQuery = searchProfilesViaLike(
+    const profilesCountQuery = countSearchedProfiles({
       searchQuery,
       sessionUser,
-      take
-    );
+      language,
+    });
+    const rawProfilesQuery = searchProfilesViaLike({
+      searchQuery,
+      sessionUser,
+      take,
+      language,
+    });
     const [profilesCountResult, rawProfilesResult] =
       await prismaClient.$transaction([profilesCountQuery, rawProfilesQuery]);
     profilesCount = profilesCountResult;

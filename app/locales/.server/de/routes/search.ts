@@ -3,6 +3,7 @@ export const locale = {
     query: "Deine Suche",
     noquery: "Suche",
   },
+  placeholder: "Suche (mind. 3 Buchstaben)",
   results: 'Hier siehst Du die Ergebnisse zu Deiner Suche "{{query}}".',
   profiles: "Profile",
   organizations: "Organisationen",

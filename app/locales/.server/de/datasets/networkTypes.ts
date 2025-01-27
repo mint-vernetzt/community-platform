@@ -1,4 +1,6 @@
-export const locale = {
+import { assertNetworkTypeLocales } from "../../utils";
+
+export const locale = assertNetworkTypeLocales({
   alliance: {
     title: "Bündnis",
     description: null,
@@ -19,4 +21,4 @@ export const locale = {
     title: "Sonstiges Netzwerk",
     description: null,
   },
-} as const;
+} as const);

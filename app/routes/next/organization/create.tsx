@@ -1,5 +1,5 @@
-import { conform, list, useFieldList, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
@@ -10,8 +10,10 @@ import {
   Form,
   useActionData,
   useLoaderData,
+  useNavigation,
   useSearchParams,
 } from "@remix-run/react";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { redirectWithAlert } from "~/alert.server";
 import {
@@ -40,6 +42,7 @@ import {
   searchForOrganizationsByName,
   type CreateOrganizationLocales,
 } from "./create.server";
+import React from "react";
 
 const createSchema = (locales: CreateOrganizationLocales) => {
   return z.object({
@@ -137,60 +140,51 @@ export async function action(args: ActionFunctionArgs) {
   const locales = languageModuleMap[language]["next/organization/create"];
 
   const formData = await request.formData();
-  const submission = parse(formData, { schema: createSchema(locales) });
+  const submission = parseWithZod(formData, { schema: createSchema(locales) });
 
-  if (typeof submission.value !== "undefined" && submission.value !== null) {
-    if (submission.intent === "submit") {
-      const { organizationName } = submission.value;
-
-      const query = organizationName.split(" ");
-      const similarOrganizationsCount = await countOrganizationsBySearchQuery(
-        query
-      );
-
-      if (
-        similarOrganizationsCount === 0 ||
-        // This condition is for the second submission, when the user wants to create the organization even if a similar exists
-        (queryString !== null && queryString === organizationName)
-      ) {
-        const slug = generateOrganizationSlug(organizationName);
-        const organizationTypesWithSlugs = await getOrganizationTypesWithSlugs(
-          submission.value.organizationTypes
-        );
-        const isNetwork = organizationTypesWithSlugs.some(
-          (organizationType) => {
-            return organizationType.slug === "network";
-          }
-        );
-        if (isNetwork === false) {
-          submission.value.networkTypes = [];
-        }
-        await createOrganizationOnProfile(
-          sessionUser.id,
-          submission.value,
-          slug
-        );
-        return redirectWithAlert(`/organization/${slug}/detail/about`, {
-          message: insertParametersIntoLocale(locales.route.successAlert, {
-            name: submission.value.organizationName,
-            slug: slug,
-          }),
-          isRichtext: true,
-        });
-      } else {
-        const redirectURL = new URL(request.url);
-        redirectURL.searchParams.set(
-          "search",
-          submission.value.organizationName
-        );
-        return redirect(
-          `${redirectURL.pathname}?${redirectURL.searchParams.toString()}`
-        );
-      }
-    }
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+    };
   }
 
-  return submission;
+  const { organizationName } = submission.value;
+
+  const query = organizationName.split(" ");
+  const similarOrganizationsCount = await countOrganizationsBySearchQuery(
+    query
+  );
+
+  if (
+    similarOrganizationsCount === 0 ||
+    // This condition is for the second submission, when the user wants to create the organization even if a similar exists
+    (queryString !== null && queryString === organizationName)
+  ) {
+    const slug = generateOrganizationSlug(organizationName);
+    const organizationTypesWithSlugs = await getOrganizationTypesWithSlugs(
+      submission.value.organizationTypes
+    );
+    const isNetwork = organizationTypesWithSlugs.some((organizationType) => {
+      return organizationType.slug === "network";
+    });
+    if (isNetwork === false) {
+      submission.value.networkTypes = [];
+    }
+    await createOrganizationOnProfile(sessionUser.id, submission.value, slug);
+    return redirectWithAlert(`/organization/${slug}/detail/about`, {
+      message: insertParametersIntoLocale(locales.route.successAlert, {
+        name: submission.value.organizationName,
+        slug: slug,
+      }),
+      isRichtext: true,
+    });
+  } else {
+    const redirectURL = new URL(request.url);
+    redirectURL.searchParams.set("search", submission.value.organizationName);
+    return redirect(
+      `${redirectURL.pathname}?${redirectURL.searchParams.toString()}`
+    );
+  }
 }
 
 function CreateOrganization() {
@@ -198,26 +192,28 @@ function CreateOrganization() {
   const { searchResult, allOrganizationTypes, allNetworkTypes, locales } =
     loaderData;
   const actionData = useActionData<typeof action>();
-
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
   const [searchParams] = useSearchParams();
-
-  const searchQuery = searchParams.get("search") || "";
+  const searchQuery = searchParams.get("search") || undefined;
 
   const [form, fields] = useForm({
     id: "create-organization-form",
-    constraint: getFieldsetConstraint(createSchema(locales)),
-    lastSubmission: actionData,
+    constraint: getZodConstraint(createSchema(locales)),
     defaultValue: {
       organizationName: searchQuery,
+      organizationTypes: [],
+      networkTypes: [],
     },
-    shouldValidate: "onSubmit",
+    shouldValidate: "onInput",
     shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate({ formData }) {
-      return parse(formData, { schema: createSchema(locales) });
+      return parseWithZod(formData, { schema: createSchema(locales) });
     },
   });
-  const organizationTypeList = useFieldList(form.ref, fields.organizationTypes);
-  let networkTypeList = useFieldList(form.ref, fields.networkTypes);
+  const organizationTypeList = fields.organizationTypes.getFieldList();
+  let networkTypeList = fields.networkTypes.getFieldList();
   const organizationTypeNetwork = allOrganizationTypes.find(
     (organizationType) => {
       return organizationType.slug === "network";
@@ -225,12 +221,12 @@ function CreateOrganization() {
   );
   const isNetwork = organizationTypeList.some((organizationType) => {
     if (
-      typeof organizationType.defaultValue === "undefined" ||
+      typeof organizationType.initialValue === "undefined" ||
       typeof organizationTypeNetwork === "undefined"
     ) {
       return false;
     }
-    return organizationType.defaultValue === organizationTypeNetwork.id;
+    return organizationType.initialValue === organizationTypeNetwork.id;
   });
   if (isNetwork === false) {
     networkTypeList = [];
@@ -238,9 +234,14 @@ function CreateOrganization() {
 
   return (
     <Container>
-      <Form method="post" {...form.props} className="mv-absolute" />
+      <Form
+        {...getFormProps(form)}
+        method="post"
+        preventScrollReset
+        autoComplete="off"
+        className="mv-absolute"
+      />
       <button form={form.id} type="submit" hidden />
-      {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
       <TextButton
         as="a"
         href="/my/organizations"
@@ -259,12 +260,15 @@ function CreateOrganization() {
           <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
             {locales.route.form.organizationName.headline}
           </h2>
-          <Input {...conform.input(fields.organizationName)}>
+          <Input
+            {...getInputProps(fields.organizationName, { type: "text" })}
+            key="organizationName"
+          >
             <Input.Label htmlFor={fields.organizationName.id}>
               {locales.route.form.organizationName.label}
             </Input.Label>
-            {typeof fields.organizationName.error !== "undefined" && (
-              <Input.Error>{fields.organizationName.error}</Input.Error>
+            {typeof fields.organizationName.errors !== "undefined" && (
+              <Input.Error>{fields.organizationName.errors}</Input.Error>
             )}
           </Input>
           {/* Already existing organizations section */}
@@ -315,7 +319,7 @@ function CreateOrganization() {
               .filter((organizationType) => {
                 return !organizationTypeList.some((listOrganizationType) => {
                   return (
-                    listOrganizationType.defaultValue === organizationType.id
+                    listOrganizationType.initialValue === organizationType.id
                   );
                 });
               })
@@ -337,7 +341,8 @@ function CreateOrganization() {
                 }
                 return (
                   <button
-                    {...list.insert(fields.organizationTypes.name, {
+                    {...form.insert.getButtonProps({
+                      name: fields.organizationTypes.name,
                       defaultValue: filteredOrganizationType.id,
                     })}
                     form={form.id}
@@ -352,40 +357,48 @@ function CreateOrganization() {
           {organizationTypeList.length > 0 && (
             <Chip.Container>
               {organizationTypeList.map((listOrganizationType, index) => {
+                let organizationTypeSlug = allOrganizationTypes.find(
+                  (organizationType) => {
+                    return (
+                      organizationType.id === listOrganizationType.initialValue
+                    );
+                  }
+                )?.slug;
+                let title;
+                if (organizationTypeSlug === undefined) {
+                  console.error(
+                    `Organization type with id ${listOrganizationType.id} not found in allOrganizationTypes`
+                  );
+                  title = null;
+                } else {
+                  if (organizationTypeSlug in locales.organizationTypes) {
+                    type LocaleKey = keyof typeof locales.organizationTypes;
+                    title =
+                      locales.organizationTypes[
+                        organizationTypeSlug as LocaleKey
+                      ].title;
+                  } else {
+                    console.error(
+                      `Organization type ${organizationTypeSlug} not found in locales`
+                    );
+                    title = organizationTypeSlug;
+                  }
+                }
                 return (
                   <Chip key={listOrganizationType.key}>
                     <Input
-                      type="hidden"
-                      {...conform.input(listOrganizationType)}
+                      {...getInputProps(listOrganizationType, {
+                        type: "hidden",
+                      })}
+                      key="organizationTypes"
                     />
-                    {(() => {
-                      let value;
-                      if (listOrganizationType.defaultValue === undefined) {
-                        return null;
-                      }
-                      if (
-                        listOrganizationType.defaultValue in
-                        locales.organizationTypes
-                      ) {
-                        type LocaleKey = keyof typeof locales.organizationTypes;
-                        value =
-                          locales.organizationTypes[
-                            listOrganizationType.defaultValue as LocaleKey
-                          ].title;
-                      } else {
-                        console.error(
-                          `Organization type ${listOrganizationType.defaultValue} not found in locales`
-                        );
-                        value = listOrganizationType.defaultValue;
-                      }
-                      return value;
-                    })() || locales.route.form.organizationTypes.notFound}
+                    {title || locales.route.form.organizationTypes.notFound}
                     <Chip.Delete>
                       <button
-                        {...list.remove(fields.organizationTypes.name, {
+                        {...form.remove.getButtonProps({
+                          name: fields.organizationTypes.name,
                           index,
                         })}
-                        form={form.id}
                       />
                     </Chip.Delete>
                   </Chip>
@@ -426,7 +439,7 @@ function CreateOrganization() {
             {allNetworkTypes
               .filter((networkType) => {
                 return !networkTypeList.some((listNetworkType) => {
-                  return listNetworkType.defaultValue === networkType.id;
+                  return listNetworkType.initialValue === networkType.id;
                 });
               })
               .map((filteredNetworkType) => {
@@ -444,7 +457,8 @@ function CreateOrganization() {
                 }
                 return (
                   <button
-                    {...list.insert(fields.networkTypes.name, {
+                    {...form.insert.getButtonProps({
+                      name: fields.networkTypes.name,
                       defaultValue: filteredNetworkType.id,
                     })}
                     form={form.id}
@@ -460,34 +474,42 @@ function CreateOrganization() {
           {networkTypeList.length > 0 && (
             <Chip.Container>
               {networkTypeList.map((listNetworkType, index) => {
+                let networkTypeSlug = allNetworkTypes.find((networkType) => {
+                  return networkType.id === listNetworkType.initialValue;
+                })?.slug;
+                let title;
+                if (networkTypeSlug === undefined) {
+                  console.error(
+                    `Network type with id ${listNetworkType.id} not found in allNetworkTypes`
+                  );
+                  title = null;
+                } else {
+                  if (networkTypeSlug in locales.networkTypes) {
+                    type LocaleKey = keyof typeof locales.networkTypes;
+                    title =
+                      locales.networkTypes[networkTypeSlug as LocaleKey].title;
+                  } else {
+                    console.error(
+                      `Network type ${networkTypeSlug} not found in locales`
+                    );
+                    title = networkTypeSlug;
+                  }
+                }
                 return (
                   <Chip key={listNetworkType.key}>
-                    <Input type="hidden" {...conform.input(listNetworkType)} />
-                    {(() => {
-                      let value;
-                      if (listNetworkType.defaultValue === undefined) {
-                        return null;
-                      }
-                      if (
-                        listNetworkType.defaultValue in locales.networkTypes
-                      ) {
-                        type LocaleKey = keyof typeof locales.networkTypes;
-                        value =
-                          locales.networkTypes[
-                            listNetworkType.defaultValue as LocaleKey
-                          ].title;
-                      } else {
-                        console.error(
-                          `Organization type ${listNetworkType.defaultValue} not found in locales`
-                        );
-                        value = listNetworkType.defaultValue;
-                      }
-                      return value;
-                    })() || locales.route.form.networkTypes.notFound}
+                    <Input
+                      {...getInputProps(listNetworkType, {
+                        type: "hidden",
+                      })}
+                      key="networkTypes"
+                    />
+                    {title || locales.route.form.networkTypes.notFound}
                     <Chip.Delete>
                       <button
-                        {...list.remove(fields.networkTypes.name, { index })}
-                        form={form.id}
+                        {...form.remove.getButtonProps({
+                          name: fields.networkTypes.name,
+                          index,
+                        })}
                       />
                     </Chip.Delete>
                   </Chip>
@@ -508,7 +530,17 @@ function CreateOrganization() {
           <Button as="a" href="/my/organizations" variant="outline">
             {locales.route.form.cancel}
           </Button>
-          <Button form={form.id} type="submit">
+          <Button
+            form={form.id}
+            type="submit"
+            name="intent"
+            defaultValue="submit"
+            fullSize
+            // Don't disable button when js is disabled
+            disabled={
+              isHydrated ? form.dirty === false || form.valid === false : false
+            }
+          >
             {locales.route.form.submit}
           </Button>
         </div>
