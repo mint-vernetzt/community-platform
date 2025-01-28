@@ -9,12 +9,12 @@ export const locale = {
     name: {
       required:
         "Bitte gib den Namen Deiner Organisation oder Deines Netzwerks ein",
-      min: "Der Name muss mindestens 3 Zeichen lang sein",
-      max: "Der Name darf maximal 50 Zeichen lang sein",
+      min: "Der Name muss mindestens {{min}} Zeichen lang sein",
+      max: "Der Name darf maximal {{max}} Zeichen lang sein",
     },
     email: "Bitte gib eine gültige E-Mail Adresse ein",
     bio: {
-      max: "Die Beschreibung darf maximal 2000 Zeichen lang sein",
+      max: "Die Beschreibung darf maximal {{max}} Zeichen lang sein",
     },
   },
   content: {

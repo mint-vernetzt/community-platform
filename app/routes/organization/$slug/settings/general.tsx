@@ -55,6 +55,9 @@ import {
 } from "./general.server";
 import { languageModuleMap } from "~/locales/.server";
 
+const BIO_MAX_LENGTH = 500;
+const QUOTE_MAX_LENGTH = 300;
+
 const createOrganizationSchema = (
   locales: GeneralOrganizationSettingsLocales
 ) => {
@@ -75,9 +78,9 @@ const createOrganizationSchema = (
     xing: nullOrString(social("xing")),
     mastodon: nullOrString(social("mastodon")),
     tiktok: nullOrString(social("tiktok")),
-    bio: nullOrString(multiline()),
+    bio: nullOrString(multiline(BIO_MAX_LENGTH)),
     types: array(string().required()).required(),
-    quote: nullOrString(multiline()),
+    quote: nullOrString(multiline(QUOTE_MAX_LENGTH)),
     quoteAuthor: nullOrString(string()),
     quoteAuthorInformation: nullOrString(string()),
     supportedBy: array(string().required()).required(),
@@ -239,8 +242,11 @@ export const action = async (args: ActionFunctionArgs) => {
   };
 };
 
-function Index() {
+// TODO: Browser hangs on this site
+
+export default function Index() {
   const { slug } = useParams();
+  const navigation = useNavigation();
   const {
     organization: dbOrganization,
     organizationVisibilities,
@@ -250,25 +256,20 @@ function Index() {
     locales,
   } = useLoaderData<typeof loader>();
 
-  const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
+  const organization = actionData?.organization ?? dbOrganization;
 
   const formRef = React.createRef<HTMLFormElement>();
   const isSubmitting = navigation.state === "submitting";
-
-  const organization = actionData?.organization ?? dbOrganization;
-
+  const errors = actionData?.errors;
   const methods = useForm<OrganizationFormType>({
     defaultValues: organization,
   });
-
   const {
     register,
     reset,
     formState: { isDirty },
   } = methods;
-
-  const errors = actionData?.errors;
 
   const organizationTypesOptions = organizationTypes.map((type) => {
     let title;
@@ -405,323 +406,324 @@ function Index() {
       <FormProvider {...methods}>
         <Form
           ref={formRef}
+          name="organizationForm"
           method="post"
           onSubmit={(e: React.SyntheticEvent) => {
             reset({}, { keepValues: true });
           }}
         >
-          <h1 className="mb-8">{locales.route.content.headline}</h1>
+          <fieldset>
+            <h1 className="mb-8">{locales.route.content.headline}</h1>
 
-          <h4 className="mb-4 font-semibold">
-            {locales.route.content.general.headline}
-          </h4>
+            <h4 className="mb-4 font-semibold">
+              {locales.route.content.general.headline}
+            </h4>
 
-          <p className="mb-8">{locales.route.content.general.intro}</p>
-          <div className="mb-6">
-            <InputText
-              {...register("name")}
-              id="name"
-              label={locales.route.form.name.label}
-              withPublicPrivateToggle={false}
-              isPublic={organizationVisibilities.name}
-              defaultValue={organization.name}
-              errorMessage={errors?.name?.message}
-            />
-          </div>
-          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
+            <p className="mb-8">{locales.route.content.general.intro}</p>
+            <div className="mb-6">
               <InputText
-                {...register("email")}
-                id="email"
-                label={locales.route.form.email.label}
-                errorMessage={errors?.email?.message}
+                {...register("name")}
+                id="name"
+                label={locales.route.form.name.label}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.name}
+                defaultValue={organization.name}
+                errorMessage={errors?.name?.message}
+              />
+            </div>
+            <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
+                <InputText
+                  {...register("email")}
+                  id="email"
+                  label={locales.route.form.email.label}
+                  errorMessage={errors?.email?.message}
+                  withPublicPrivateToggle={true}
+                  isPublic={organizationVisibilities.email}
+                />
+              </div>
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
+                <InputText
+                  {...register("phone")}
+                  id="phone"
+                  label={locales.route.form.phone.label}
+                  errorMessage={errors?.phone?.message}
+                  withPublicPrivateToggle={true}
+                  isPublic={organizationVisibilities.phone}
+                />
+              </div>
+            </div>
+            <h4 className="mb-4 font-semibold">
+              {locales.route.content.address.headline}
+            </h4>
+            <div className="flex flex-col @md:mv-flex-row -mx-4">
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
+                <InputText
+                  {...register("street")}
+                  id="street"
+                  label={locales.route.form.street.label}
+                  errorMessage={errors?.street?.message}
+                  withPublicPrivateToggle={false}
+                  isPublic={organizationVisibilities.street}
+                />
+              </div>
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
+                <InputText
+                  {...register("streetNumber")}
+                  id="streetNumber"
+                  label={locales.route.form.streetNumber.label}
+                  errorMessage={errors?.streetNumber?.message}
+                  withPublicPrivateToggle={false}
+                  isPublic={organizationVisibilities.streetNumber}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
+                <InputText
+                  {...register("zipCode")}
+                  id="zipCode"
+                  label={locales.route.form.zipCode.label}
+                  errorMessage={errors?.zipCode?.message}
+                  withPublicPrivateToggle={false}
+                  isPublic={organizationVisibilities.zipCode}
+                />
+              </div>
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
+                <InputText
+                  {...register("city")}
+                  id="city"
+                  label={locales.route.form.city.label}
+                  errorMessage={errors?.city?.message}
+                  withPublicPrivateToggle={false}
+                  isPublic={organizationVisibilities.city}
+                />
+              </div>
+            </div>
+
+            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
+
+            <h4 className="font-semibold mb-4">
+              {locales.route.content.about.headline}
+            </h4>
+
+            <p className="mb-8">{locales.route.content.about.intro}</p>
+
+            <div className="mb-4">
+              <TextArea
+                {...register("bio")}
+                id="bio"
+                label={locales.route.form.bio.label}
+                defaultValue={organization.bio || ""}
+                placeholder={locales.route.form.bio.label}
                 withPublicPrivateToggle={true}
-                isPublic={organizationVisibilities.email}
+                isPublic={organizationVisibilities.bio}
+                errorMessage={errors?.bio?.message}
+                maxLength={BIO_MAX_LENGTH}
+                rte={{ locales: locales }}
               />
             </div>
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("phone")}
-                id="phone"
-                label={locales.route.form.phone.label}
-                errorMessage={errors?.phone?.message}
+            <div className="mb-4">
+              <SelectAdd
+                name="types"
+                label={locales.route.form.organizationForm.label}
+                entries={selectedOrganizationTypes.map((type) => {
+                  let title;
+                  if (type.slug in locales.organizationTypes) {
+                    type LocaleKey = keyof typeof locales.organizationTypes;
+                    title =
+                      locales.organizationTypes[type.slug as LocaleKey].title;
+                  } else {
+                    console.error(
+                      `Organization type ${type.slug} not found in locales`
+                    );
+                    title = type.slug;
+                  }
+                  return {
+                    label: title,
+                    value: type.id,
+                  };
+                })}
+                options={organizationTypesOptions.filter((option) => {
+                  return !organization.types.includes(option.value);
+                })}
+                placeholder={locales.route.form.organizationForm.placeholder}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.types}
+              />
+            </div>
+            <div className="mb-4">
+              <SelectAdd
+                name="areas"
+                label={locales.route.form.areas.label}
+                placeholder={locales.route.form.areas.placeholder}
+                entries={selectedAreas.map((area) => ({
+                  label: area.name,
+                  value: area.id,
+                }))}
+                options={areaOptions}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.areas}
+              />
+            </div>
+            <div className="mb-4">
+              <InputAdd
+                name="supportedBy"
+                label={locales.route.form.supportedBy.label}
+                entries={organization.supportedBy ?? []}
+                withPublicPrivateToggle={false}
+                isPublic={organizationVisibilities.supportedBy}
+              />
+            </div>
+            <div className="mb-4">
+              <SelectAdd
+                name="focuses"
+                label={locales.route.form.focuses.label}
+                placeholder={locales.route.form.focuses.placeholder}
+                entries={selectedFocuses.map((focus) => {
+                  let title;
+                  if (focus.slug in locales.focuses) {
+                    type LocaleKey = keyof typeof locales.focuses;
+                    title = locales.focuses[focus.slug as LocaleKey].title;
+                  } else {
+                    console.error(`Focus ${focus.slug} not found in locales`);
+                    title = focus.slug;
+                  }
+                  return {
+                    label: title,
+                    value: focus.id,
+                  };
+                })}
+                options={focusOptions.filter((option) => {
+                  return !organization.focuses.includes(option.value);
+                })}
                 withPublicPrivateToggle={true}
-                isPublic={organizationVisibilities.phone}
+                isPublic={organizationVisibilities.focuses}
               />
             </div>
-          </div>
-          <h4 className="mb-4 font-semibold">
-            {locales.route.content.address.headline}
-          </h4>
-          <div className="flex flex-col @md:mv-flex-row -mx-4">
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("street")}
-                id="street"
-                label={locales.route.form.street.label}
-                errorMessage={errors?.street?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.street}
-              />
-            </div>
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("streetNumber")}
-                id="streetNumber"
-                label={locales.route.form.streetNumber.label}
-                errorMessage={errors?.streetNumber?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.streetNumber}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("zipCode")}
-                id="zipCode"
-                label={locales.route.form.zipCode.label}
-                errorMessage={errors?.zipCode?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.zipCode}
-              />
-            </div>
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("city")}
-                id="city"
-                label={locales.route.form.city.label}
-                errorMessage={errors?.city?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.city}
-              />
-            </div>
-          </div>
-
-          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
-
-          <h4 className="font-semibold mb-4">
-            {locales.route.content.about.headline}
-          </h4>
-
-          <p className="mb-8">{locales.route.content.about.intro}</p>
-
-          <div className="mb-4">
-            <TextArea
-              {...register("bio")}
-              id="bio"
-              defaultValue={organization.bio || ""}
-              label={locales.route.form.bio.label}
-              withPublicPrivateToggle={true}
-              isPublic={organizationVisibilities.bio}
-              errorMessage={errors?.bio?.message}
-              maxLength={500}
-              rte={{ locales: locales }}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectAdd
-              name="types"
-              label={locales.route.form.organizationForm.label}
-              entries={selectedOrganizationTypes.map((type) => {
-                let title;
-                if (type.slug in locales.organizationTypes) {
-                  type LocaleKey = keyof typeof locales.organizationTypes;
-                  title =
-                    locales.organizationTypes[type.slug as LocaleKey].title;
-                } else {
-                  console.error(
-                    `Organization type ${type.slug} not found in locales`
-                  );
-                  title = type.slug;
-                }
-                return {
-                  label: title,
-                  value: type.id,
-                };
-              })}
-              options={organizationTypesOptions.filter((option) => {
-                return !organization.types.includes(option.value);
-              })}
-              placeholder={locales.route.form.organizationForm.placeholder}
-              withPublicPrivateToggle={false}
-              isPublic={organizationVisibilities.types}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectAdd
-              name="areas"
-              label={locales.route.form.areas.label}
-              placeholder={locales.route.form.areas.placeholder}
-              entries={selectedAreas.map((area) => ({
-                label: area.name,
-                value: area.id,
-              }))}
-              options={areaOptions}
-              withPublicPrivateToggle={false}
-              isPublic={organizationVisibilities.areas}
-            />
-          </div>
-          <div className="mb-4">
-            <InputAdd
-              name="supportedBy"
-              label={locales.route.form.supportedBy.label}
-              entries={organization.supportedBy ?? []}
-              withPublicPrivateToggle={false}
-              isPublic={organizationVisibilities.supportedBy}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectAdd
-              name="focuses"
-              label={locales.route.form.focuses.label}
-              placeholder={locales.route.form.focuses.placeholder}
-              entries={selectedFocuses.map((focus) => {
-                let title;
-                if (focus.slug in locales.focuses) {
-                  type LocaleKey = keyof typeof locales.focuses;
-                  title = locales.focuses[focus.slug as LocaleKey].title;
-                } else {
-                  console.error(`Focus ${focus.slug} not found in locales`);
-                  title = focus.slug;
-                }
-                return {
-                  label: title,
-                  value: focus.id,
-                };
-              })}
-              options={focusOptions.filter((option) => {
-                return !organization.focuses.includes(option.value);
-              })}
-              withPublicPrivateToggle={true}
-              isPublic={organizationVisibilities.focuses}
-            />
-          </div>
-          <div className="mb-4">
-            <TextArea
-              {...register("quote")}
-              id="quote"
-              label={locales.route.form.quote.label}
-              withPublicPrivateToggle={true}
-              isPublic={organizationVisibilities.quote}
-              errorMessage={errors?.quote?.message}
-              maxLength={300}
-            />
-          </div>
-          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2 w-full">
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("quoteAuthor")}
-                id="quoteAuthor"
-                label={locales.route.form.quoteAuthor.label}
-                errorMessage={errors?.quoteAuthor?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.quoteAuthor}
-              />
-            </div>
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("quoteAuthorInformation")}
-                id="quoteAuthorInformation"
-                label={locales.route.form.quoteAuthorInformation.label}
-                errorMessage={errors?.quoteAuthorInformation?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.quoteAuthorInformation}
-              />
-            </div>
-          </div>
-
-          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
-
-          <h2 className="mb-8">
-            {locales.route.content.websiteAndSocial.headline}
-          </h2>
-
-          <h4 className="mb-4 font-semibold">
-            {locales.route.content.websiteAndSocial.website.headline}
-          </h4>
-
-          <p className="mb-8">
-            {locales.route.content.websiteAndSocial.website.intro}
-          </p>
-
-          <div className="basis-full mb-4">
-            <InputText
-              {...register("website")}
-              id="website"
-              label={locales.route.form.website.label}
-              placeholder={locales.route.form.website.placeholder}
-              withPublicPrivateToggle={true}
-              isPublic={organizationVisibilities.website}
-              errorMessage={errors?.website?.message}
-              withClearButton
-            />
-          </div>
-
-          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
-
-          <h4 className="mb-4 font-semibold">
-            {locales.route.content.websiteAndSocial.social.headline}
-          </h4>
-
-          <p className="mb-8">
-            {locales.route.content.websiteAndSocial.social.intro}
-          </p>
-
-          {createSocialMediaServices(locales).map((service) => (
-            <div className="w-full mb-4" key={service.id}>
-              <InputText
-                {...register(service.id)}
-                id={service.id}
-                label={service.label}
-                placeholder={service.organizationPlaceholder}
+            <div className="mb-4">
+              <TextArea
+                {...register("quote")}
+                id="quote"
+                label={locales.route.form.quote.label}
                 withPublicPrivateToggle={true}
-                isPublic={organizationVisibilities[service.id]}
-                errorMessage={errors?.[service.id]?.message}
+                isPublic={organizationVisibilities.quote}
+                errorMessage={errors?.quote?.message}
+                maxLength={QUOTE_MAX_LENGTH}
+              />
+            </div>
+            <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2 w-full">
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
+                <InputText
+                  {...register("quoteAuthor")}
+                  id="quoteAuthor"
+                  label={locales.route.form.quoteAuthor.label}
+                  errorMessage={errors?.quoteAuthor?.message}
+                  withPublicPrivateToggle={false}
+                  isPublic={organizationVisibilities.quoteAuthor}
+                />
+              </div>
+              <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
+                <InputText
+                  {...register("quoteAuthorInformation")}
+                  id="quoteAuthorInformation"
+                  label={locales.route.form.quoteAuthorInformation.label}
+                  errorMessage={errors?.quoteAuthorInformation?.message}
+                  withPublicPrivateToggle={false}
+                  isPublic={organizationVisibilities.quoteAuthorInformation}
+                />
+              </div>
+            </div>
+
+            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
+
+            <h2 className="mb-8">
+              {locales.route.content.websiteAndSocial.headline}
+            </h2>
+
+            <h4 className="mb-4 font-semibold">
+              {locales.route.content.websiteAndSocial.website.headline}
+            </h4>
+
+            <p className="mb-8">
+              {locales.route.content.websiteAndSocial.website.intro}
+            </p>
+
+            <div className="basis-full mb-4">
+              <InputText
+                {...register("website")}
+                id="website"
+                label={locales.route.form.website.label}
+                placeholder={locales.route.form.website.placeholder}
+                withPublicPrivateToggle={true}
+                isPublic={organizationVisibilities.website}
+                errorMessage={errors?.website?.message}
                 withClearButton
               />
             </div>
-          ))}
 
-          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
-            <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-              <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-                <div
-                  className={`text-green-500 text-bold ${
-                    actionData?.updated && !isSubmitting
-                      ? "block animate-fade-out"
-                      : "hidden"
-                  }`}
-                >
-                  {locales.route.content.feedback}
-                </div>
+            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
 
-                {isFormChanged ? (
-                  <Link
-                    to={`/organization/${slug}/settings`}
-                    reloadDocument
-                    className={`btn btn-link`}
-                  >
-                    {locales.route.form.reset.label}
-                  </Link>
-                ) : null}
-                <div></div>
-                <button
-                  type="submit"
-                  name="submit"
-                  value="submit"
-                  className="btn btn-primary ml-4"
-                  disabled={isSubmitting || !isFormChanged}
-                >
-                  {locales.route.form.submit.label}
-                </button>
+            <h4 className="mb-4 font-semibold">
+              {locales.route.content.websiteAndSocial.social.headline}
+            </h4>
+
+            <p className="mb-8">
+              {locales.route.content.websiteAndSocial.social.intro}
+            </p>
+
+            {createSocialMediaServices(locales).map((service) => (
+              <div className="w-full mb-4" key={service.id}>
+                <InputText
+                  {...register(service.id)}
+                  id={service.id}
+                  label={service.label}
+                  placeholder={service.organizationPlaceholder}
+                  withPublicPrivateToggle={true}
+                  isPublic={organizationVisibilities[service.id]}
+                  errorMessage={errors?.[service.id]?.message}
+                  withClearButton
+                />
               </div>
-            </div>
-          </footer>
+            ))}
+
+            <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+              <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
+                <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+                  <div
+                    className={`text-green-500 text-bold ${
+                      actionData?.updated && !isSubmitting
+                        ? "block animate-fade-out"
+                        : "hidden"
+                    }`}
+                  >
+                    {locales.route.content.feedback}
+                  </div>
+
+                  {isFormChanged ? (
+                    <Link
+                      to={`/organization/${slug}/settings`}
+                      reloadDocument
+                      className={`btn btn-link`}
+                    >
+                      {locales.route.form.reset.label}
+                    </Link>
+                  ) : null}
+                  <div></div>
+                  <button
+                    type="submit"
+                    name="submit"
+                    value="submit"
+                    className="btn btn-primary ml-4"
+                  >
+                    {locales.route.form.submit.label}
+                  </button>
+                </div>
+              </div>
+            </footer>
+          </fieldset>
         </Form>
       </FormProvider>
     </>
   );
 }
-
-export default Index;

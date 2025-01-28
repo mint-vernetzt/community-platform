@@ -2,38 +2,38 @@ export const locale = {
   validation: {
     timeframe: {
       length:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     jobFillings: {
       length:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     furtherJobFillings: {
       length:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     yearlyBudget: {
-      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80.",
+      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     furtherFinancings: {
       length:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     technicalRequirements: {
       length:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     furtherTechnicalRequirements: {
       length:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 500.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     roomSituation: {
       length:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     furtherRoomSituation: {
       length:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 200.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
   },
   error: {

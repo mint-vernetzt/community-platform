@@ -107,6 +107,7 @@ const TextArea = (
                     placeholder="Enter your text here"
                     locales={rte.locales}
                   />
+                  {/* TODO: absolute positioning no script text area over RTE - styling textarea like other input fields */}
                   <noscript>
                     <textarea
                       {...rest}
@@ -121,6 +122,7 @@ const TextArea = (
                 </>
               ) : null}
               {rte === undefined ? (
+                // TODO: Style textarea like other input fields
                 <textarea
                   {...rest}
                   id={id}
