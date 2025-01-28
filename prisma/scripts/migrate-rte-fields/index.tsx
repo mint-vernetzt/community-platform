@@ -40,155 +40,164 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function getNewValueFromRTE(oldValue: string) {
-  const promise = new Promise<string>((resolve, reject) => {
-    const EDITOR_VALUE_SET_EVENT = "editor-value-set-event";
-    const initialConfig: InitialConfigType = {
-      namespace: "RTE",
-      theme: {
-        text: {
-          bold: "mv-font-semibold",
-          italic: "mv-italic",
-          underline: "mv-underline mv-underline-offset-2",
+  const promise = new Promise<string | Error>((resolve, reject) => {
+    try {
+      const EDITOR_VALUE_SET_EVENT = "editor-value-set-event";
+      const initialConfig: InitialConfigType = {
+        namespace: "RTE",
+        theme: {
+          text: {
+            bold: "mv-font-semibold",
+            italic: "mv-italic",
+            underline: "mv-underline mv-underline-offset-2",
+          },
+          link: "mv-text-primary mv-font-semibold hover:mv-underline active:mv-underline mv-underline-offset-2 mv-cursor-pointer",
+          list: {
+            ul: "mv-pl-8 mv-list-disc",
+            ol: "mv-pl-8 mv-list-decimal",
+          },
         },
-        link: "mv-text-primary mv-font-semibold hover:mv-underline active:mv-underline mv-underline-offset-2 mv-cursor-pointer",
-        list: {
-          ul: "mv-pl-8 mv-list-disc",
-          ol: "mv-pl-8 mv-list-decimal",
+        nodes: [
+          AutoLinkNode,
+          ListNode,
+          ListItemNode,
+          HorizontalRuleNode,
+          LinkNode,
+          OverflowNode,
+        ],
+        onError: (error) => {
+          reject(error);
         },
-      },
-      nodes: [
-        AutoLinkNode,
-        ListNode,
-        ListItemNode,
-        HorizontalRuleNode,
-        LinkNode,
-        OverflowNode,
-      ],
-      onError: (error) => {
-        reject(error);
-      },
-    };
-    const RTEComponent = () => {
-      const DefaultValuePlugin = () => {
-        const [editor] = useLexicalComposerContext();
-        React.useEffect(() => {
-          return editor.update(() => {
-            const root = $getRoot();
-            root.clear();
-            const parser = new DOMParser();
-            const dom = parser.parseFromString(String(oldValue), "text/html");
-            const nodes = $generateNodesFromDOM(editor, dom);
-            $insertNodes(nodes);
-          });
-        }, [editor]);
-        return null;
       };
-      const InputForFormPlugin = (props: { oldValue: string }) => {
-        const { oldValue } = props;
-        const [editor] = useLexicalComposerContext();
-        const [value, setValue] = React.useState(oldValue);
-        const [isInitialized, setIsInitialized] = React.useState(false);
-        React.useEffect(() => {
-          return editor.registerUpdateListener(() => {
-            editor.read(() => {
-              const htmlString = $generateHtmlFromNodes(editor);
-              if (htmlString === "<p><br></p>") {
-                setValue("");
-              } else {
-                setValue(htmlString);
-              }
+      const RTEComponent = () => {
+        const DefaultValuePlugin = () => {
+          const [editor] = useLexicalComposerContext();
+          React.useEffect(() => {
+            return editor.update(() => {
+              const root = $getRoot();
+              root.clear();
+              const parser = new DOMParser();
+              const dom = parser.parseFromString(String(oldValue), "text/html");
+              const nodes = $generateNodesFromDOM(editor, dom);
+              $insertNodes(nodes);
             });
-          });
-        }, [editor]);
-        React.useEffect(() => {
-          if (isInitialized === false) {
-            setIsInitialized(true);
-          } else {
-            window.dispatchEvent(new Event(EDITOR_VALUE_SET_EVENT));
-          }
-        }, [value, oldValue, isInitialized]);
-        return <input id="rte-input" value={value} onChange={() => {}} />;
+          }, [editor]);
+          return null;
+        };
+        const InputForFormPlugin = (props: { oldValue: string }) => {
+          const { oldValue } = props;
+          const [editor] = useLexicalComposerContext();
+          const [value, setValue] = React.useState(oldValue);
+          const [isInitialized, setIsInitialized] = React.useState(false);
+          React.useEffect(() => {
+            return editor.registerUpdateListener(() => {
+              editor.read(() => {
+                const htmlString = $generateHtmlFromNodes(editor);
+                if (htmlString === "<p><br></p>") {
+                  setValue("");
+                } else {
+                  setValue(htmlString);
+                }
+              });
+            });
+          }, [editor]);
+          React.useEffect(() => {
+            if (isInitialized === false) {
+              setIsInitialized(true);
+            } else {
+              window.dispatchEvent(new Event(EDITOR_VALUE_SET_EVENT));
+            }
+          }, [value, oldValue, isInitialized]);
+          return <input id="rte-input" value={value} onChange={() => {}} />;
+        };
+
+        // Regex to detect URLs and email addresses
+        const URL_REGEX =
+          /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)(?<![-.+():%])/;
+        const EMAIL_REGEX =
+          /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
+
+        return (
+          <LexicalComposer initialConfig={initialConfig}>
+            <RichTextPlugin
+              contentEditable={<ContentEditable />}
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+            <DefaultValuePlugin />
+            <InputForFormPlugin oldValue={oldValue} />
+            <HistoryPlugin />
+            <LinkPlugin
+              validateUrl={(url: string) => {
+                const urlRegExp = new RegExp(URL_REGEX);
+                const emailRegExp = new RegExp(EMAIL_REGEX);
+                const isValidUrl =
+                  urlRegExp.test(url) &&
+                  (url.startsWith("http://") || url.startsWith("https://"));
+                const isValidMailTo =
+                  emailRegExp.test(url) && url.startsWith("mailto:");
+                return isValidUrl || isValidMailTo;
+              }}
+              attributes={{ target: "_blank", rel: "noopener noreferrer" }}
+            />
+            <AutoLinkPlugin
+              matchers={[
+                createLinkMatcherWithRegExp(URL_REGEX, (text) => {
+                  return text.startsWith("http") ? text : `https://${text}`;
+                }),
+                createLinkMatcherWithRegExp(EMAIL_REGEX, (text) => {
+                  return `mailto:${text}`;
+                }),
+              ]}
+            />
+            <ClickableLinkPlugin />
+            <ListPlugin />
+            <MarkdownShortcutPlugin
+              transformers={[UNORDERED_LIST, ORDERED_LIST]}
+            />
+            <HorizontalRulePlugin />
+          </LexicalComposer>
+        );
       };
 
-      // Regex to detect URLs and email addresses
-      const URL_REGEX =
-        /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)(?<![-.+():%])/;
-      const EMAIL_REGEX =
-        /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
-
-      return (
-        <LexicalComposer initialConfig={initialConfig}>
-          <RichTextPlugin
-            contentEditable={<ContentEditable />}
-            ErrorBoundary={LexicalErrorBoundary}
-          />
-          <DefaultValuePlugin />
-          <InputForFormPlugin oldValue={oldValue} />
-          <HistoryPlugin />
-          <LinkPlugin
-            validateUrl={(url: string) => {
-              const urlRegExp = new RegExp(URL_REGEX);
-              const emailRegExp = new RegExp(EMAIL_REGEX);
-              const isValidUrl =
-                urlRegExp.test(url) &&
-                (url.startsWith("http://") || url.startsWith("https://"));
-              const isValidMailTo =
-                emailRegExp.test(url) && url.startsWith("mailto:");
-              return isValidUrl || isValidMailTo;
-            }}
-            attributes={{ target: "_blank", rel: "noopener noreferrer" }}
-          />
-          <AutoLinkPlugin
-            matchers={[
-              createLinkMatcherWithRegExp(URL_REGEX, (text) => {
-                return text.startsWith("http") ? text : `https://${text}`;
-              }),
-              createLinkMatcherWithRegExp(EMAIL_REGEX, (text) => {
-                return `mailto:${text}`;
-              }),
-            ]}
-          />
-          <ClickableLinkPlugin />
-          <ListPlugin />
-          <MarkdownShortcutPlugin
-            transformers={[UNORDERED_LIST, ORDERED_LIST]}
-          />
-          <HorizontalRulePlugin />
-        </LexicalComposer>
+      const serverRenderedHTML = ReactDOMServer.renderToString(
+        <RTEComponent />
       );
-    };
 
-    const serverRenderedHTML = ReactDOMServer.renderToString(<RTEComponent />);
+      const dom = new JSDOM(
+        `<!DOCTYPE html><div id="root">${serverRenderedHTML}</div>`
+      );
+      const window: Window = dom.window;
+      const document: Document = window.document;
 
-    const dom = new JSDOM(
-      `<!DOCTYPE html><div id="root">${serverRenderedHTML}</div>`
-    );
-    const window: Window = dom.window;
-    const document: Document = window.document;
-
-    global.window = dom.window;
-    global.document = dom.window.document;
-    global.DOMParser = dom.window.DOMParser;
-    global.MutationObserver = dom.window.MutationObserver;
-    global.Event = dom.window.Event;
-    window.addEventListener(EDITOR_VALUE_SET_EVENT, () => {
-      const inputElement = document.querySelector(
-        "#rte-input"
-      ) as HTMLInputElement | null;
-      if (inputElement !== null) {
-        resolve(inputElement.value);
+      global.window = dom.window;
+      global.document = dom.window.document;
+      global.DOMParser = dom.window.DOMParser;
+      global.MutationObserver = dom.window.MutationObserver;
+      global.Event = dom.window.Event;
+      window.addEventListener(EDITOR_VALUE_SET_EVENT, () => {
+        const inputElement = document.querySelector(
+          "#rte-input"
+        ) as HTMLInputElement | null;
+        if (inputElement !== null) {
+          resolve(inputElement.value);
+        } else {
+          reject(new Error("Could not find the input element."));
+        }
+      });
+      const container = document.getElementById("root");
+      if (container !== null) {
+        ReactDOMClient.hydrateRoot(container, <RTEComponent />);
       } else {
-        reject(new Error("Could not find the input element."));
+        reject(new Error("Could not find the root element."));
       }
-    });
-    const container = document.getElementById("root");
-    if (container !== null) {
-      ReactDOMClient.hydrateRoot(container, <RTEComponent />);
-    } else {
-      reject(new Error("Could not find the root element."));
+    } catch (error) {
+      if (error instanceof Error) {
+        reject(error);
+      } else {
+        reject(new Error("An unknown error occurred."));
+      }
     }
   });
-
   return promise;
 }
 
@@ -255,7 +264,13 @@ async function main() {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
         const newValue = await getNewValueFromRTE(rteFields[typedRteField]);
-        newProfile[typedRteField] = newValue;
+        if (newValue instanceof Error) {
+          console.error(
+            `Skipped field ${typedRteField} for profile ${id} because of following error: ${newValue.message}`
+          );
+        } else {
+          newProfile[typedRteField] = newValue;
+        }
       }
     }
     changes.new.profiles.push(newProfile);
@@ -268,7 +283,13 @@ async function main() {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
         const newValue = await getNewValueFromRTE(rteFields[typedRteField]);
-        newOrganization[typedRteField] = newValue;
+        if (newValue instanceof Error) {
+          console.error(
+            `Skipped field ${typedRteField} for organization ${id} because of following error: ${newValue.message}`
+          );
+        } else {
+          newOrganization[typedRteField] = newValue;
+        }
       }
     }
     changes.new.organizations.push(newOrganization);
@@ -281,7 +302,13 @@ async function main() {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
         const newValue = await getNewValueFromRTE(rteFields[typedRteField]);
-        newProject[typedRteField] = newValue;
+        if (newValue instanceof Error) {
+          console.error(
+            `Skipped field ${typedRteField} for project ${id} because of following error: ${newValue.message}`
+          );
+        } else {
+          newProject[typedRteField] = newValue;
+        }
       }
     }
     changes.new.projects.push(newProject);
@@ -294,7 +321,13 @@ async function main() {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
         const newValue = await getNewValueFromRTE(rteFields[typedRteField]);
-        newEvent[typedRteField] = newValue;
+        if (newValue instanceof Error) {
+          console.error(
+            `Skipped field ${typedRteField} for event ${id} because of following error: ${newValue.message}`
+          );
+        } else {
+          newEvent[typedRteField] = newValue;
+        }
       }
     }
     changes.new.events.push(newEvent);
