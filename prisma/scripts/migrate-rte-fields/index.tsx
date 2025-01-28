@@ -201,7 +201,6 @@ async function getNewValueFromRTE(oldValue: string) {
   return promise;
 }
 
-// TODO: Iterate through all the fields that need to be changed in the database
 async function main() {
   const old = {
     profiles: await prismaClient.profile.findMany({
@@ -368,6 +367,7 @@ async function main() {
       data: rteFields,
     });
   }
+  console.log("Migrate RTE fields successfully");
 }
 
 main()
