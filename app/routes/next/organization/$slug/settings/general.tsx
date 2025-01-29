@@ -262,6 +262,15 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   const formData = await request.formData();
+  const conformIntent = formData.get("__intent__");
+  if (conformIntent !== null) {
+    const submission = await parseWithZod(formData, {
+      schema: createGeneralSchema(locales),
+    });
+    return {
+      submission: submission.reply(),
+    };
+  }
   const submission = await parseWithZod(formData, {
     schema: () =>
       createGeneralSchema(locales).transform(async (data, ctx) => {
@@ -776,7 +785,7 @@ function General() {
               </Chip.Container>
             )}
           </div>
-          <div className="mv-flex mv-flex-col @xl:mv-flex-row mv-w-full mv-justify-end @xl:mv-justify-between mv-items-start @xl:mv-items-center mv-gap-4">
+          <div className="mv-flex mv-flex-col @xl:mv-flex-row mv-w-full mv-justify-end @xl:mv-justify-between mv-items-start mv-gap-4">
             <div className="mv-flex mv-flex-col mv-gap-1">
               <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
                 <span className="mv-w-4 mv-h-4">
@@ -821,7 +830,7 @@ function General() {
                 <span>{locales.route.form.hint.private}</span>
               </p>
             </div>
-            <div className="mv-flex mv-shrink mv-w-full @xl:mv-max-w-fit @xl:mv-w-auto mv-items-center mv-justify-center @xl:mv-justify-end">
+            <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
               <Controls>
                 <Button
                   type="reset"
@@ -850,6 +859,11 @@ function General() {
                   {locales.route.form.submit}
                 </Button>
               </Controls>
+              <noscript>
+                <Button as="a" href="./general" variant="outline" fullSize>
+                  {locales.route.form.reset}
+                </Button>
+              </noscript>
             </div>
           </div>
         </div>

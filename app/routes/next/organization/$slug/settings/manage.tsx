@@ -98,7 +98,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const { id: _id, ...rest } = organization;
   const filteredOrganization = rest;
 
-  const allTypes = await prismaClient.organizationType.findMany({
+  const allOrganizationTypes = await prismaClient.organizationType.findMany({
     select: {
       id: true,
       slug: true,
@@ -116,7 +116,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   return {
     organization: filteredOrganization,
-    allTypes,
+    allOrganizationTypes,
     allNetworkTypes,
     currentTimestamp,
     locales,
@@ -152,6 +152,13 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   const formData = await request.formData();
+  const conformIntent = formData.get("__intent__");
+  if (conformIntent !== null) {
+    const submission = await parseWithZod(formData, { schema: manageSchema });
+    return {
+      submission: submission.reply(),
+    };
+  }
   const submission = await parseWithZod(formData, {
     schema: () =>
       manageSchema.transform(async (data, ctx) => {
@@ -229,7 +236,7 @@ function Manage() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
-  const { organization, allTypes, allNetworkTypes } = loaderData;
+  const { organization, allOrganizationTypes, allNetworkTypes } = loaderData;
   const isHydrated = useHydrated();
   const navigation = useNavigation();
 
@@ -256,8 +263,25 @@ function Manage() {
     },
   });
 
-  const typeFieldList = fields.types.getFieldList();
-  const networkTypeFieldList = fields.networkTypes.getFieldList();
+  const organizationTypeList = fields.types.getFieldList();
+  let networkTypeList = fields.networkTypes.getFieldList();
+  const organizationTypeNetwork = allOrganizationTypes.find(
+    (organizationType) => {
+      return organizationType.slug === "network";
+    }
+  );
+  const isNetwork = organizationTypeList.some((organizationType) => {
+    if (
+      typeof organizationType.initialValue === "undefined" ||
+      typeof organizationTypeNetwork === "undefined"
+    ) {
+      return false;
+    }
+    return organizationType.initialValue === organizationTypeNetwork.id;
+  });
+  if (isNetwork === false) {
+    networkTypeList = [];
+  }
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
     searchParam: "modal-unsaved-changes",
@@ -293,29 +317,30 @@ function Manage() {
               <ConformSelect.HelperText>
                 {locales.route.content.types.helper}
               </ConformSelect.HelperText>
-              {allTypes
-                .filter((type) => {
-                  return !typeFieldList.some((listType) => {
-                    return listType.initialValue === type.id;
+              {allOrganizationTypes
+                .filter((organizationType) => {
+                  return !organizationTypeList.some((field) => {
+                    return field.initialValue === organizationType.id;
                   });
                 })
-                .map((type) => {
+                .map((organizationType) => {
                   let title;
-                  if (type.slug in locales.types) {
+                  if (organizationType.slug in locales.types) {
                     type LocaleKey = keyof typeof locales.types;
-                    title = locales.types[type.slug as LocaleKey].title;
+                    title =
+                      locales.types[organizationType.slug as LocaleKey].title;
                   } else {
                     console.error(
-                      `Organization type ${type.slug} not found in locales`
+                      `Organization type ${organizationType.slug} not found in locales`
                     );
-                    title = type.slug;
+                    title = organizationType.slug;
                   }
                   return (
                     <button
-                      key={type.id}
+                      key={organizationType.id}
                       {...form.insert.getButtonProps({
                         name: fields.types.name,
-                        defaultValue: type.id,
+                        defaultValue: organizationType.id,
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
@@ -324,27 +349,30 @@ function Manage() {
                   );
                 })}
             </ConformSelect>
-            {typeFieldList.length > 0 && (
+            {organizationTypeList.length > 0 && (
               <Chip.Container>
-                {typeFieldList.map((field, index) => {
-                  let typeSlug = allTypes.find((type) => {
-                    return type.id === field.initialValue;
-                  })?.slug;
+                {organizationTypeList.map((field, index) => {
+                  let organizationTypeSlug = allOrganizationTypes.find(
+                    (organizationType) => {
+                      return organizationType.id === field.initialValue;
+                    }
+                  )?.slug;
                   let title;
-                  if (typeSlug === undefined) {
+                  if (organizationTypeSlug === undefined) {
                     console.error(
                       `Organization type with id ${field.id} not found in allTypes`
                     );
                     title = null;
                   } else {
-                    if (typeSlug in locales.types) {
+                    if (organizationTypeSlug in locales.types) {
                       type LocaleKey = keyof typeof locales.types;
-                      title = locales.types[typeSlug as LocaleKey].title;
+                      title =
+                        locales.types[organizationTypeSlug as LocaleKey].title;
                     } else {
                       console.error(
-                        `Organization type ${typeSlug} not found in locales`
+                        `Organization type ${organizationTypeSlug} not found in locales`
                       );
-                      title = typeSlug;
+                      title = organizationTypeSlug;
                     }
                   }
                   return (
@@ -368,45 +396,61 @@ function Manage() {
               </Chip.Container>
             )}
 
-            {/* TODO: Only enable this when orgTypeList has network -> see next create */}
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            <h2
+              className={`mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px] ${
+                isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
+              }`}
+            >
               {locales.route.content.networkTypes.headline}
             </h2>
             <ConformSelect
               id={fields.networkTypes.id}
               cta={locales.route.content.networkTypes.option}
+              disabled={isNetwork === false}
             >
               <ConformSelect.Label htmlFor={fields.networkTypes.id}>
-                {locales.route.content.networkTypes.label}
+                <span
+                  className={isNetwork === false ? "mv-text-neutral-300" : ""}
+                >
+                  {locales.route.content.networkTypes.label}
+                </span>
               </ConformSelect.Label>
               <ConformSelect.HelperText>
-                {locales.route.content.networkTypes.helper}
+                <span
+                  className={isNetwork === false ? "mv-text-neutral-300" : ""}
+                >
+                  {locales.route.content.networkTypes.helper}
+                </span>
               </ConformSelect.HelperText>
               {allNetworkTypes
                 .filter((networkType) => {
-                  return !networkTypeFieldList.some((listNetworkType) => {
-                    return listNetworkType.initialValue === networkType.id;
+                  return !networkTypeList.some((field) => {
+                    return field.initialValue === networkType.id;
                   });
                 })
-                .map((networkType) => {
+                .map((filteredNetworkType) => {
                   let title;
-                  if (networkType.slug in locales.networkTypes) {
+                  if (filteredNetworkType.slug in locales.networkTypes) {
                     type LocaleKey = keyof typeof locales.networkTypes;
                     title =
-                      locales.networkTypes[networkType.slug as LocaleKey].title;
+                      locales.networkTypes[
+                        filteredNetworkType.slug as LocaleKey
+                      ].title;
                   } else {
                     console.error(
-                      `Network type ${networkType.slug} not found in locales`
+                      `Network type ${filteredNetworkType.slug} not found in locales`
                     );
-                    title = networkType.slug;
+                    title = filteredNetworkType.slug;
                   }
                   return (
                     <button
-                      key={networkType.id}
                       {...form.insert.getButtonProps({
                         name: fields.networkTypes.name,
-                        defaultValue: networkType.id,
+                        defaultValue: filteredNetworkType.id,
                       })}
+                      form={form.id}
+                      key={filteredNetworkType.id}
+                      disabled={!isNetwork}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
                       {title}
@@ -414,16 +458,16 @@ function Manage() {
                   );
                 })}
             </ConformSelect>
-            {networkTypeFieldList.length > 0 && (
+            {networkTypeList.length > 0 && (
               <Chip.Container>
-                {networkTypeFieldList.map((field, index) => {
+                {networkTypeList.map((field, index) => {
                   let networkTypeSlug = allNetworkTypes.find((networkType) => {
                     return networkType.id === field.initialValue;
                   })?.slug;
                   let title;
                   if (networkTypeSlug === undefined) {
                     console.error(
-                      `Network type with id ${field.id} not found in allTypes`
+                      `Network type with id ${field.id} not found in allNetworkTypes`
                     );
                     title = null;
                   } else {
@@ -442,7 +486,9 @@ function Manage() {
                   return (
                     <Chip key={field.key}>
                       <Input
-                        {...getInputProps(field, { type: "hidden" })}
+                        {...getInputProps(field, {
+                          type: "hidden",
+                        })}
                         key="networkTypes"
                       />
                       {title || locales.route.content.notFound}
@@ -464,7 +510,7 @@ function Manage() {
           </div>
 
           <div className="mv-flex mv-w-full mv-items-center mv-justify-center @xl:mv-justify-end">
-            <div className="mv-w-full @xl:mv-w-fit">
+            <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
               <Controls>
                 <Button
                   type="reset"
@@ -473,7 +519,6 @@ function Manage() {
                   }}
                   variant="outline"
                   fullSize
-                  // Don't disable button when js is disabled
                   disabled={isHydrated ? form.dirty === false : false}
                 >
                   {locales.route.form.reset}
@@ -481,7 +526,7 @@ function Manage() {
                 <Button
                   type="submit"
                   name="intent"
-                  defaultValue="submit"
+                  value="submit"
                   fullSize
                   // Don't disable button when js is disabled
                   disabled={
@@ -493,6 +538,11 @@ function Manage() {
                   {locales.route.form.submit}
                 </Button>
               </Controls>
+              <noscript>
+                <Button as="a" href="./manage" variant="outline" fullSize>
+                  {locales.route.form.reset}
+                </Button>
+              </noscript>
             </div>
           </div>
         </div>

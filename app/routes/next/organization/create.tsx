@@ -408,7 +408,6 @@ function CreateOrganization() {
           )}
         </div>
         {/* Network types section */}
-        {/* TODO: Single or multiple choice? helper text, radios vs. checkboxes, chips or label to show currently selected, etc... */}
         <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
           <h2
             className={`mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px] ${
