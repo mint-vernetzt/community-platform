@@ -66,7 +66,7 @@ export async function loader(args: LoaderFunctionArgs) {
 function createNavLinks(locales: OrganizationSettingsLocales) {
   return [
     { to: "./general", label: locales.links.general },
-    { to: "./organize", label: locales.links.organize },
+    { to: "./manage", label: locales.links.manage },
     { to: "./web-social", label: locales.links.webSocial },
     { to: "./admins", label: locales.links.admins },
     { to: "./team", label: locales.links.team },

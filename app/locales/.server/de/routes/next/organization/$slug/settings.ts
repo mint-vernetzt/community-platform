@@ -6,7 +6,7 @@ export const locale = {
   },
   links: {
     general: "Allgemein",
-    organize: "Organisation verwalten",
+    manage: "Organisation verwalten",
     webSocial: "Webseite und Soziale Netzwerke",
     admins: "Admin-Rolle verwalten",
     team: "Team",

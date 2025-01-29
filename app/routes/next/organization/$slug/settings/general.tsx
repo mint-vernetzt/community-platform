@@ -159,6 +159,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const organization = await prismaClient.organization.findFirst({
     where: { slug: params.slug },
     select: {
+      // Just selecting id for index performance
       id: true,
       name: true,
       email: true,
@@ -184,7 +185,6 @@ export async function loader(args: LoaderFunctionArgs) {
           focus: {
             select: {
               id: true,
-              title: true,
             },
           },
         },
@@ -202,6 +202,8 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(organization !== null, locales.route.error.notFound, {
     status: 404,
   });
+  const { id: _id, ...rest } = organization;
+  const filteredOrganization = rest;
 
   const allAreas = await prismaClient.area.findMany({
     select: {
@@ -223,7 +225,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const currentTimestamp = Date.now();
 
   return {
-    organization,
+    organization: filteredOrganization,
     areaOptions,
     allFocuses,
     currentTimestamp,
@@ -350,13 +352,7 @@ function General() {
   const isHydrated = useHydrated();
   const navigation = useNavigation();
 
-  const {
-    areas,
-    focuses,
-    organizationVisibility,
-    id: _id,
-    ...rest
-  } = organization;
+  const { areas, focuses, organizationVisibility, ...rest } = organization;
 
   const defaultValues = {
     ...rest,
@@ -644,7 +640,7 @@ function General() {
               id={fields.focuses.id}
               cta={locales.route.content.focuses.option}
             >
-              <ConformSelect.Label htmlFor={fields.areas.id}>
+              <ConformSelect.Label htmlFor={fields.focuses.id}>
                 {locales.route.content.focuses.label}
               </ConformSelect.Label>
 

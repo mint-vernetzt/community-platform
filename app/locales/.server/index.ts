@@ -82,6 +82,7 @@ import { locale as deNextDeleteOrganization } from "./de/routes/next/organizatio
 import { locale as deNextOrganizationAdmins } from "./de/routes/next/organization/$slug/settings/admins";
 import { locale as deNextOrganizationDangerZone } from "./de/routes/next/organization/$slug/settings/danger-zone";
 import { locale as deNextGeneralOrganizationSettings } from "./de/routes/next/organization/$slug/settings/general";
+import { locale as deNextManageOrganizationSettings } from "./de/routes/next/organization/$slug/settings/manage";
 import { locale as deNextOrganizationTeam } from "./de/routes/next/organization/$slug/settings/team";
 import { locale as deNextOrganizationWebAndSocial } from "./de/routes/next/organization/$slug/settings/web-social";
 import { locale as deNextOrganizationSettings } from "./de/routes/next/organization/$slug/settings";
@@ -267,6 +268,7 @@ import { locale as enNextDeleteOrganization } from "./en/routes/next/organizatio
 import { locale as enNextOrganizationAdmins } from "./en/routes/next/organization/$slug/settings/admins";
 import { locale as enNextOrganizationDangerZone } from "./en/routes/next/organization/$slug/settings/danger-zone";
 import { locale as enNextGeneralOrganizationSettings } from "./en/routes/next/organization/$slug/settings/general";
+import { locale as enNextManageOrganizationSettings } from "./en/routes/next/organization/$slug/settings/manage";
 import { locale as enNextOrganizationTeam } from "./en/routes/next/organization/$slug/settings/team";
 import { locale as enNextOrganizationWebAndSocial } from "./en/routes/next/organization/$slug/settings/web-social";
 import { locale as enNextOrganizationSettings } from "./en/routes/next/organization/$slug/settings";
@@ -546,6 +548,12 @@ const de = {
     components: deComponents,
     schemas: deSchemas,
     rte: deRTE,
+  },
+  "next/organization/$slug/settings/manage": {
+    route: deNextManageOrganizationSettings,
+    types: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
+    components: deComponents,
   },
   "next/organization/$slug/settings/team": {
     route: deNextOrganizationTeam,
@@ -947,6 +955,12 @@ const en = {
     components: enComponents,
     schemas: enSchemas,
     rte: enRTE,
+  },
+  "next/organization/$slug/settings/manage": {
+    route: enNextManageOrganizationSettings,
+    types: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
+    components: enComponents,
   },
   "next/organization/$slug/settings/team": {
     route: enNextOrganizationTeam,
