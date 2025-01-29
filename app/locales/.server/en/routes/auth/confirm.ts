@@ -17,4 +17,4 @@ export const locale = {
       "Forgot your password? Click on the link below to reset your password:",
     action: "Reset password",
   },
-};
+} as const;
