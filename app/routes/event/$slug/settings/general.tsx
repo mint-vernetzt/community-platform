@@ -67,6 +67,9 @@ import { detectLanguage } from "~/i18n.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { languageModuleMap } from "~/locales/.server";
 
+const SUBLINE_MAX_LENGTH = 100;
+const DESCRIPTION_MAX_LENGTH = 2000;
+
 const createSchema = (locales: GeneralEventSettingsLocales) => {
   return object({
     name: string().required(locales.route.validation.name.required),
@@ -133,8 +136,8 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
       locales.route.validation.participationFromTime.required,
       locales.route.validation.participationFromTime.greaterThan
     ),
-    subline: nullOrString(multiline()),
-    description: nullOrString(multiline()),
+    subline: nullOrString(multiline(SUBLINE_MAX_LENGTH)),
+    description: nullOrString(multiline(DESCRIPTION_MAX_LENGTH)),
     focuses: array(string().required()).required(),
     eventTargetGroups: array(string().required()).required(),
     experienceLevel: nullOrString(string()),
@@ -907,7 +910,7 @@ function General() {
               defaultValue={event.subline || ""}
               label={locales.route.form.subline.label}
               errorMessage={errors?.subline?.message}
-              maxLength={100}
+              maxLength={SUBLINE_MAX_LENGTH}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.subline}
             />
@@ -922,7 +925,7 @@ function General() {
               defaultValue={event.description || ""}
               label={locales.route.form.description.label}
               errorMessage={errors?.description?.message}
-              maxLength={2000}
+              maxLength={DESCRIPTION_MAX_LENGTH}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.description}
               rte={{ locales: locales }}

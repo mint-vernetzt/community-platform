@@ -8,37 +8,37 @@ export const locale = {
   },
   validation: {
     targetGroupAdditions: {
-      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 250.",
+      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     excerpt: {
-      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 250.",
+      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     idea: {
       message:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     goals: {
       message:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     implementation: {
       message:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 2000.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     furtherDescription: {
       message:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 8000.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     targeting: {
       message:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     hints: {
       message:
-        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 800.",
+        "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     videoSubline: {
-      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80.",
+      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von {{max}}.",
     },
     custom: {
       message:

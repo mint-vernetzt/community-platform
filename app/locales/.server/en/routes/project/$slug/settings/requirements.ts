@@ -2,38 +2,38 @@ export const locale = {
   validation: {
     timeframe: {
       length:
-        "Your entry exceeds the maximum permitted number of characters of 200.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     jobFillings: {
       length:
-        "Your entry exceeds the maximum permitted number of characters of 800.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     furtherJobFillings: {
       length:
-        "Your entry exceeds the maximum permitted number of characters of 200.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     yearlyBudget: {
-      max: "Your entry exceeds the maximum permitted number of characters of 80.",
+      max: "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     furtherFinancings: {
       length:
-        "Your entry exceeds the maximum permitted number of characters of 800.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     technicalRequirements: {
       length:
-        "Your entry exceeds the maximum permitted number of characters of 500.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     furtherTechnicalRequirements: {
       length:
-        "Your entry exceeds the maximum permitted number of characters of 500.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     roomSituation: {
       length:
-        "Your entry exceeds the maximum permitted number of characters of 200.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     furtherRoomSituation: {
       length:
-        "Your entry exceeds the maximum permitted number of characters of 200.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
   },
   error: {

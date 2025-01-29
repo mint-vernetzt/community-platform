@@ -9,6 +9,7 @@ import type {
 } from "yup";
 import { ValidationError, mixed, number, string } from "yup";
 import { invariantResponse } from "./response";
+import { removeHtmlTags, replaceHtmlEntities } from "./sanitizeUserHtml";
 
 type Error = {
   type: string;
@@ -118,13 +119,20 @@ export function social(service: keyof typeof socialValidation) {
     .matches(socialValidation[service].match, socialValidation[service].error);
 }
 
-export function multiline() {
-  return string().transform((value: string | undefined) => {
-    if (value === undefined || value === "" || value === "<p><br></p>") {
-      return null;
-    }
-    return value.trim();
-  });
+export function multiline(maxLength: number) {
+  return string()
+    .test((value) => {
+      return (
+        replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+        maxLength
+      );
+    })
+    .transform((value: string | undefined) => {
+      if (value === undefined || value === "") {
+        return null;
+      }
+      return value.trim();
+    });
 }
 
 export function greaterThanTimeOnSameDate(

@@ -78,7 +78,7 @@ function RTE(
   };
 
   const initialConfig: InitialConfigType = {
-    namespace: "RTE",
+    namespace: rest.id || "RTE",
     theme,
     nodes: [
       AutoLinkNode,

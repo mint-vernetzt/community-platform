@@ -8,37 +8,37 @@ export const locale = {
   },
   validation: {
     targetGroupAdditions: {
-      max: "Your entry exceeds the maximum permitted number of characters of 250.",
+      max: "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     excerpt: {
-      max: "Your entry exceeds the maximum permitted number of characters of 250.",
+      max: "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     idea: {
       message:
-        "Your entry exceeds the maximum permitted number of characters of 2000.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     goals: {
       message:
-        "Your entry exceeds the maximum permitted number of characters of 2000.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     implementation: {
       message:
-        "Your entry exceeds the maximum permitted number of characters of 2000.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     furtherDescription: {
       message:
-        "Your entry exceeds the maximum permitted number of characters of 8000.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     targeting: {
       message:
-        "Your entry exceeds the maximum permitted number of characters of 800.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     hints: {
       message:
-        "Your entry exceeds the maximum permitted number of characters of 800.",
+        "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     videoSubline: {
-      max: "Your entry exceeds the maximum permitted number of characters of 80.",
+      max: "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
     custom: {
       message:
