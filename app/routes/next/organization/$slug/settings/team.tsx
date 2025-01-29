@@ -172,14 +172,12 @@ function Team() {
     submission: loaderSubmission,
     locales,
   } = useLoaderData<typeof loader>();
-
   const actionData = useActionData<typeof action>();
-  const navigation = useNavigation();
-
-  const submit = useSubmit();
-  const [searchParams] = useSearchParams();
 
   const location = useLocation();
+  const navigation = useNavigation();
+  const submit = useSubmit();
+  const [searchParams] = useSearchParams();
 
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",

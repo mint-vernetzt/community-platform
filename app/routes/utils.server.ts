@@ -2,14 +2,21 @@ import { parseWithZod } from "@conform-to/zod-v1";
 import { type Organization, type Prisma, type Profile } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
-import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
+import {
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+} from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
-import { searchProfilesSchema } from "~/form-helpers";
-import { SearchProfiles } from "~/lib/utils/searchParams";
+import {
+  searchOrganizationsSchema,
+  searchProfilesSchema,
+} from "~/form-helpers";
+import { SearchOrganizations, SearchProfiles } from "~/lib/utils/searchParams";
 import { getPublicURL } from "~/storage.server";
 import { type Mode } from "~/utils.server";
 import { type OrganizationAdminSettingsLocales } from "./next/organization/$slug/settings/admins.server";
 import { type OrganizationTeamSettingsLocales } from "./next/organization/$slug/settings/team.server";
+import { type ManageOrganizationSettingsLocales } from "./next/organization/$slug/settings/manage.server";
 
 export async function getProfileCount() {
   return await prismaClient.profile.count();
@@ -355,6 +362,138 @@ export async function searchProfiles(options: {
 
   return {
     searchedProfiles: enhancedSearchedProfiles,
+    submission: submission.reply(),
+  };
+}
+
+export async function searchOrganizations(options: {
+  searchParams: URLSearchParams;
+  idsToExclude?: string[];
+  authClient: SupabaseClient;
+  locales: ManageOrganizationSettingsLocales;
+  mode: Mode;
+}) {
+  const { searchParams, idsToExclude, authClient, locales, mode } = options;
+  type WhereStatements = (
+    | {
+        OR: {
+          [K in Organization as string]: {
+            contains: string;
+            mode: Prisma.QueryMode;
+          };
+        }[];
+      }
+    | {
+        id: { notIn: string[] };
+      }
+  )[];
+  const prismaQuery = async (whereStatements: WhereStatements) => {
+    return await prismaClient.organization.findMany({
+      where: {
+        AND: whereStatements,
+      },
+      select: {
+        id: true,
+        slug: true,
+        logo: true,
+        name: true,
+        types: {
+          select: {
+            organizationType: {
+              select: {
+                slug: true,
+              },
+            },
+          },
+        },
+        organizationVisibility: {
+          select: {
+            id: true,
+            slug: true,
+            logo: true,
+            name: true,
+            types: true,
+          },
+        },
+      },
+      take: 10,
+    });
+  };
+
+  const submission = parseWithZod(searchParams, {
+    schema: searchOrganizationsSchema(locales),
+  });
+  if (
+    submission.status !== "success" ||
+    submission.value[SearchOrganizations] === undefined
+  ) {
+    return {
+      searchedOrganizations: [] as Awaited<ReturnType<typeof prismaQuery>>,
+      submission: submission.reply(),
+    };
+  }
+
+  const query = submission.value[SearchOrganizations].trim().split(" ");
+  const whereStatements: WhereStatements = [];
+  if (idsToExclude !== undefined && idsToExclude.length > 0) {
+    whereStatements.push({
+      id: {
+        notIn: idsToExclude,
+      },
+    });
+  }
+  for (const word of query) {
+    whereStatements.push({
+      OR: [
+        { name: { contains: word, mode: "insensitive" } },
+        { slug: { contains: word, mode: "insensitive" } },
+        { email: { contains: word, mode: "insensitive" } },
+      ],
+    });
+  }
+  const searchedOrganizations = await prismaQuery(whereStatements);
+
+  let filteredSearchedOrganizations;
+  if (mode === "anon") {
+    filteredSearchedOrganizations = searchedOrganizations.map(
+      (organization) => {
+        return filterOrganizationByVisibility<typeof organization>(
+          organization
+        );
+      }
+    );
+  } else {
+    filteredSearchedOrganizations = searchedOrganizations;
+  }
+
+  const enhancedSearchedOrganizations = filteredSearchedOrganizations.map(
+    (relation) => {
+      let logo = relation.logo;
+      let blurredLogo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItem.Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItem.BlurredLogo,
+            },
+            blur: BlurFactor,
+          });
+        }
+      }
+      return { ...relation, logo, blurredLogo };
+    }
+  );
+
+  return {
+    searchedOrganizations: enhancedSearchedOrganizations,
     submission: submission.reply(),
   };
 }

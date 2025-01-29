@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { SearchProfiles } from "./lib/utils/searchParams";
+import { SearchOrganizations, SearchProfiles } from "./lib/utils/searchParams";
 import { type OrganizationAdminSettingsLocales } from "./routes/next/organization/$slug/settings/admins.server";
 import { type OrganizationTeamSettingsLocales } from "./routes/next/organization/$slug/settings/team.server";
+import { type ManageOrganizationSettingsLocales } from "./routes/next/organization/$slug/settings/manage.server";
 
-// List of schemas and their i18n namespaces
+// List of schemas
 export const searchProfilesSchema = (
   locales: OrganizationAdminSettingsLocales | OrganizationTeamSettingsLocales
 ) => {
@@ -11,6 +12,17 @@ export const searchProfilesSchema = (
     [SearchProfiles]: z
       .string()
       .min(3, { message: locales.searchProfilesSchema.validation.min })
+      .optional(),
+  });
+};
+
+export const searchOrganizationsSchema = (
+  locales: ManageOrganizationSettingsLocales
+) => {
+  return z.object({
+    [SearchOrganizations]: z
+      .string()
+      .min(3, { message: locales.searchOrganizationsSchema.validation.min })
       .optional(),
   });
 };

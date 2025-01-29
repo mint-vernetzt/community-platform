@@ -174,6 +174,7 @@ import { locale as deSearch } from "./de/routes/search";
 import { locale as deVerification } from "./de/routes/verification";
 // schemas
 import { locale as deSearchProfilesSchema } from "./de/schemas/searchProfiles";
+import { locale as deSearchOrganizationsSchema } from "./de/schemas/searchOrganizations";
 // utils
 import { locale as deSchemas } from "./de/utils/schemas";
 import { locale as deSocialMediaServices } from "./de/utils/social-media-services";
@@ -360,6 +361,7 @@ import { locale as enSearch } from "./en/routes/search";
 import { locale as enVerification } from "./en/routes/verification";
 // schemas
 import { locale as enSearchProfilesSchema } from "./en/schemas/searchProfiles";
+import { locale as enSearchOrganizationsSchema } from "./en/schemas/searchOrganizations";
 // utils
 import { locale as enSchemas } from "./en/utils/schemas";
 import { locale as enSocialMediaServices } from "./en/utils/social-media-services";
@@ -551,9 +553,10 @@ const de = {
   },
   "next/organization/$slug/settings/manage": {
     route: deNextManageOrganizationSettings,
-    types: deOrganizationTypes,
+    organizationTypes: deOrganizationTypes,
     networkTypes: deNetworkTypes,
     components: deComponents,
+    searchOrganizationsSchema: deSearchOrganizationsSchema,
   },
   "next/organization/$slug/settings/team": {
     route: deNextOrganizationTeam,
@@ -958,9 +961,10 @@ const en = {
   },
   "next/organization/$slug/settings/manage": {
     route: enNextManageOrganizationSettings,
-    types: enOrganizationTypes,
+    organizationTypes: enOrganizationTypes,
     networkTypes: enNetworkTypes,
     components: enComponents,
+    searchOrganizationsSchema: enSearchOrganizationsSchema,
   },
   "next/organization/$slug/settings/team": {
     route: enNextOrganizationTeam,

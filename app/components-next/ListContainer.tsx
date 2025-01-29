@@ -9,6 +9,7 @@ import { type OrganizationNetworkLocales } from "~/routes/organization/$slug/det
 import { type OrganizationProjectsLocales } from "~/routes/organization/$slug/detail/projects.server";
 import { type OrganizationTeamLocales } from "~/routes/organization/$slug/detail/team.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { type ManageOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/manage.server";
 
 type Locales =
   | MyEventsLocales
@@ -18,6 +19,7 @@ type Locales =
   | CreateOrganizationLocales
   | OrganizationEventsLocales
   | OrganizationNetworkLocales
+  | ManageOrganizationSettingsLocales
   | OrganizationProjectsLocales
   | OrganizationTeamLocales;
 

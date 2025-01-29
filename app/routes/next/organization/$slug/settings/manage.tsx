@@ -16,24 +16,36 @@ import {
   useLoaderData,
   useLocation,
   useNavigation,
+  useSearchParams,
+  useSubmit,
 } from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BackButton } from "~/components-next/BackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
+import { ListContainer } from "~/components-next/ListContainer";
+import { ListItem } from "~/components-next/ListItem";
 import { detectLanguage } from "~/i18n.server";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { redirectWithToast } from "~/toast.server";
+import {
+  getOrganizationWithNetworksAndNetworkMembers,
+  updateOrganization,
+} from "./manage.server";
+import { Deep, SearchOrganizations } from "~/lib/utils/searchParams";
+import { searchOrganizationsSchema } from "~/form-helpers";
+import { searchOrganizations } from "~/routes/utils.server";
+import { deriveMode } from "~/utils.server";
 
-const manageSchema = z.object({
-  types: z.array(z.string().uuid()),
+export const manageSchema = z.object({
+  organizationTypes: z.array(z.string().uuid()),
   networkTypes: z.array(z.string().uuid()),
 });
 
@@ -44,8 +56,8 @@ export async function loader(args: LoaderFunctionArgs) {
     languageModuleMap[language]["next/organization/$slug/settings/manage"];
 
   const { authClient } = createAuthClient(request);
-
   const sessionUser = await getSessionUser(authClient);
+  const mode = deriveMode(sessionUser);
 
   // check slug exists (throw bad request if not)
   invariantResponse(
@@ -56,47 +68,13 @@ export async function loader(args: LoaderFunctionArgs) {
     }
   );
 
-  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
-    request,
+  const organization = await getOrganizationWithNetworksAndNetworkMembers({
     slug: params.slug,
-    sessionUser,
     authClient,
-  });
-
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-
-  const organization = await prismaClient.organization.findFirst({
-    where: { slug: params.slug },
-    select: {
-      // Just selecting id for index performance
-      id: true,
-      types: {
-        select: {
-          organizationType: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      },
-      networkTypes: {
-        select: {
-          networkType: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      },
-    },
   });
   invariantResponse(organization !== null, locales.route.error.notFound, {
     status: 404,
   });
-  const { id: _id, ...rest } = organization;
-  const filteredOrganization = rest;
 
   const allOrganizationTypes = await prismaClient.organizationType.findMany({
     select: {
@@ -112,12 +90,28 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
+  // TODO: Add pending network join requests here to exclude them from the search
+  const currentNetworkIds = [
+    ...organization.memberOf.map((relation) => relation.network.id),
+  ];
+
+  const { searchedOrganizations: searchedNetworks, submission } =
+    await searchOrganizations({
+      searchParams: new URL(request.url).searchParams,
+      idsToExclude: currentNetworkIds,
+      authClient,
+      locales,
+      mode,
+    });
+
   const currentTimestamp = Date.now();
 
   return {
-    organization: filteredOrganization,
+    organization,
     allOrganizationTypes,
     allNetworkTypes,
+    searchedNetworks,
+    submission,
     currentTimestamp,
     locales,
   };
@@ -142,6 +136,14 @@ export async function action(args: ActionFunctionArgs) {
     return redirect(redirectPath);
   }
 
+  invariantResponse(
+    params.slug !== undefined,
+    locales.route.error.invalidRoute,
+    {
+      status: 400,
+    }
+  );
+
   const organization = await prismaClient.organization.findFirst({
     where: { slug },
     select: { id: true },
@@ -151,7 +153,9 @@ export async function action(args: ActionFunctionArgs) {
     status: 404,
   });
 
+  let result;
   const formData = await request.formData();
+  // This intent is used for field list manipulation by conform
   const conformIntent = formData.get("__intent__");
   if (conformIntent !== null) {
     const submission = await parseWithZod(formData, { schema: manageSchema });
@@ -159,91 +163,98 @@ export async function action(args: ActionFunctionArgs) {
       submission: submission.reply(),
     };
   }
-  const submission = await parseWithZod(formData, {
-    schema: () =>
-      manageSchema.transform(async (data, ctx) => {
-        const { types, networkTypes } = data;
-        // TODO: When network not in types -> remove all connections to network members
-        try {
-          await prismaClient.organization.update({
-            where: {
-              slug,
-            },
-            data: {
-              types: {
-                deleteMany: {},
-                connectOrCreate: types.map((organizationTypeId: string) => {
-                  return {
-                    where: {
-                      organizationId_organizationTypeId: {
-                        organizationId: organization.id,
-                        organizationTypeId,
-                      },
-                    },
-                    create: {
-                      organizationTypeId,
-                    },
-                  };
-                }),
-              },
-              networkTypes: {
-                deleteMany: {},
-                connectOrCreate: networkTypes.map((networkTypeId: string) => {
-                  return {
-                    where: {
-                      organizationId_networkTypeId: {
-                        organizationId: organization.id,
-                        networkTypeId,
-                      },
-                    },
-                    create: {
-                      networkTypeId,
-                    },
-                  };
-                }),
-              },
-            },
-          });
-        } catch (error) {
-          Sentry.captureException(error);
-          ctx.addIssue({
-            code: "custom",
-            message: locales.route.error.updateFailed,
-          });
-          return z.NEVER;
-        }
+  const intent = formData.get("intent");
+  invariantResponse(
+    typeof intent === "string",
+    locales.route.error.noStringIntent,
+    {
+      status: 400,
+    }
+  );
 
-        return { ...data };
-      }),
-    async: true,
-  });
-
-  if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-    };
+  if (intent === "submit") {
+    result = await updateOrganization({
+      formData,
+      slug: params.slug,
+      organizationId: organization.id,
+      locales,
+    });
+    // TODO: Implement join and leave network
+  } else if (intent.startsWith("join-network-")) {
+    const joinNetworkFormData = new FormData();
+    joinNetworkFormData.set(
+      "organizationId",
+      intent.replace("join-network-", "")
+    );
+    // result = await joinNetwork({
+    //   formData: joinNetworkFormData,
+    //   slug,
+    //   locales,
+    // });
+  } else if (intent.startsWith("leave-network-")) {
+    const leaveNetworkFormData = new FormData();
+    leaveNetworkFormData.set(
+      "organizationId",
+      intent.replace("leave-network-", "")
+    );
+    // result = await leaveNetwork({
+    //   formData: leaveNetworkFormData,
+    //   slug,
+    //   locales,
+    // });
+  } else {
+    invariantResponse(false, locales.route.error.wrongIntent, {
+      status: 400,
+    });
   }
 
-  return redirectWithToast(request.url, {
-    id: "manage-organization-toast",
-    key: `${new Date().getTime()}`,
-    message: locales.route.content.success,
-  });
+  // if (
+  //   result.submission !== undefined &&
+  //   result.submission.status === "success" &&
+  //   result.toast !== undefined
+  // ) {
+  //   return redirectWithToast(request.url, result.toast);
+  // }
+  // return { submission: result.submission };
+  return redirectWithToast(
+    request.url,
+    result?.toast || {
+      id: "manage-organization-toast",
+      key: `${new Date().getTime()}`,
+      message: locales.route.content.success,
+    }
+  );
 }
 
 function Manage() {
-  const location = useLocation();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const {
+    organization,
+    allOrganizationTypes,
+    allNetworkTypes,
+    searchedNetworks,
+    submission: loaderSubmission,
+    locales,
+  } = loaderData;
   const actionData = useActionData<typeof action>();
-  const { organization, allOrganizationTypes, allNetworkTypes } = loaderData;
+
+  const location = useLocation();
   const isHydrated = useHydrated();
   const navigation = useNavigation();
+  const submit = useSubmit();
+  const [searchParams] = useSearchParams();
 
-  const { types, networkTypes } = organization;
+  const {
+    types: organizationTypes,
+    networkTypes,
+    memberOf,
+    // networkMembers,
+  } = organization;
 
   const defaultValues = {
-    types: types.map((relation) => relation.organizationType.id),
+    organizationTypes: organizationTypes.map(
+      (relation) => relation.organizationType.id
+    ),
     networkTypes: networkTypes.map((relation) => relation.networkType.id),
   };
 
@@ -263,7 +274,34 @@ function Manage() {
     },
   });
 
-  const organizationTypeList = fields.types.getFieldList();
+  const [searchNetworksForm, searchNetworksFields] = useForm({
+    id: "search-networks",
+    defaultValue: {
+      [SearchOrganizations]: searchParams.get(SearchOrganizations) || undefined,
+    },
+    constraint: getZodConstraint(searchOrganizationsSchema(locales)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: searchOrganizationsSchema(locales),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? loaderSubmission : null,
+  });
+
+  const [joinNetworkForm] = useForm({
+    id: "add-network",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const [leaveNetworkForm] = useForm({
+    id: "remove-network",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const organizationTypeList = fields.organizationTypes.getFieldList();
   let networkTypeList = fields.networkTypes.getFieldList();
   const organizationTypeNetwork = allOrganizationTypes.find(
     (organizationType) => {
@@ -290,17 +328,19 @@ function Manage() {
   });
 
   return (
-    <Section>
-      {UnsavedChangesBlockerModal}
-      <BackButton to={location.pathname}>
-        {locales.route.content.headline}
-      </BackButton>
-      <Form
-        {...getFormProps(form)}
-        method="post"
-        preventScrollReset
-        autoComplete="off"
-      >
+    <>
+      <Section>
+        {UnsavedChangesBlockerModal}
+        <BackButton to={location.pathname}>
+          {locales.route.content.headline}
+        </BackButton>
+        <Form
+          {...getFormProps(form)}
+          method="post"
+          preventScrollReset
+          autoComplete="off"
+          hidden
+        />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -308,10 +348,10 @@ function Manage() {
             </h2>
             {/* TODO: When removing network from this list and there are networkMembers -> Show modal on submit by switching the submit button. Modal text: something like -> Are you sure? The connections will be lost. */}
             <ConformSelect
-              id={fields.types.id}
+              id={fields.organizationTypes.id}
               cta={locales.route.content.types.option}
             >
-              <ConformSelect.Label htmlFor={fields.types.id}>
+              <ConformSelect.Label htmlFor={fields.organizationTypes.id}>
                 {locales.route.content.types.label}
               </ConformSelect.Label>
               <ConformSelect.HelperText>
@@ -325,10 +365,12 @@ function Manage() {
                 })
                 .map((organizationType) => {
                   let title;
-                  if (organizationType.slug in locales.types) {
-                    type LocaleKey = keyof typeof locales.types;
+                  if (organizationType.slug in locales.organizationTypes) {
+                    type LocaleKey = keyof typeof locales.organizationTypes;
                     title =
-                      locales.types[organizationType.slug as LocaleKey].title;
+                      locales.organizationTypes[
+                        organizationType.slug as LocaleKey
+                      ].title;
                   } else {
                     console.error(
                       `Organization type ${organizationType.slug} not found in locales`
@@ -339,7 +381,7 @@ function Manage() {
                     <button
                       key={organizationType.id}
                       {...form.insert.getButtonProps({
-                        name: fields.types.name,
+                        name: fields.organizationTypes.name,
                         defaultValue: organizationType.id,
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
@@ -364,10 +406,12 @@ function Manage() {
                     );
                     title = null;
                   } else {
-                    if (organizationTypeSlug in locales.types) {
-                      type LocaleKey = keyof typeof locales.types;
+                    if (organizationTypeSlug in locales.organizationTypes) {
+                      type LocaleKey = keyof typeof locales.organizationTypes;
                       title =
-                        locales.types[organizationTypeSlug as LocaleKey].title;
+                        locales.organizationTypes[
+                          organizationTypeSlug as LocaleKey
+                        ].title;
                     } else {
                       console.error(
                         `Organization type ${organizationTypeSlug} not found in locales`
@@ -379,13 +423,13 @@ function Manage() {
                     <Chip key={field.key}>
                       <Input
                         {...getInputProps(field, { type: "hidden" })}
-                        key="types"
+                        key="organizationTypes"
                       />
                       {title || locales.route.content.notFound}
                       <Chip.Delete>
                         <button
                           {...form.remove.getButtonProps({
-                            name: fields.types.name,
+                            name: fields.organizationTypes.name,
                             index,
                           })}
                         />
@@ -505,49 +549,177 @@ function Manage() {
                 })}
               </Chip.Container>
             )}
-            {/* TODO: Add or remove networks section */}
-            {/* TODO: Add or remove network members section -> disable the section when orgTypeList does not have network */}
-          </div>
-
-          <div className="mv-flex mv-w-full mv-items-center mv-justify-center @xl:mv-justify-end">
-            <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
-              <Controls>
-                <Button
-                  type="reset"
-                  onClick={() => {
-                    setTimeout(() => form.reset(), 0);
-                  }}
-                  variant="outline"
-                  fullSize
-                  disabled={isHydrated ? form.dirty === false : false}
-                >
-                  {locales.route.form.reset}
-                </Button>
-                <Button
-                  type="submit"
-                  name="intent"
-                  value="submit"
-                  fullSize
-                  // Don't disable button when js is disabled
-                  disabled={
-                    isHydrated
-                      ? form.dirty === false || form.valid === false
-                      : false
-                  }
-                >
-                  {locales.route.form.submit}
-                </Button>
-              </Controls>
-              <noscript>
-                <Button as="a" href="./manage" variant="outline" fullSize>
-                  {locales.route.form.reset}
-                </Button>
-              </noscript>
+            <div className="mv-flex mv-w-full mv-items-center mv-justify-center @xl:mv-justify-end">
+              <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
+                <Controls>
+                  <Button
+                    type="reset"
+                    onClick={() => {
+                      setTimeout(() => form.reset(), 0);
+                    }}
+                    variant="outline"
+                    fullSize
+                    disabled={isHydrated ? form.dirty === false : false}
+                  >
+                    {locales.route.form.reset}
+                  </Button>
+                  <Button
+                    type="submit"
+                    name="intent"
+                    value="submit"
+                    fullSize
+                    // Don't disable button when js is disabled
+                    disabled={
+                      isHydrated
+                        ? form.dirty === false || form.valid === false
+                        : false
+                    }
+                  >
+                    {locales.route.form.submit}
+                  </Button>
+                </Controls>
+                <noscript>
+                  <Button as="a" href="./manage" variant="outline" fullSize>
+                    {locales.route.form.reset}
+                  </Button>
+                </noscript>
+              </div>
             </div>
           </div>
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+            {/* Current Networks and Remove Section */}
+            {memberOf.length > 0 ? (
+              <>
+                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                  {decideBetweenSingularOrPlural(
+                    locales.route.content.networks.current.headline_one,
+                    locales.route.content.networks.current.headline_other,
+                    organization.memberOf.length
+                  )}
+                </h2>
+                <Form
+                  {...getFormProps(leaveNetworkForm)}
+                  method="post"
+                  preventScrollReset
+                >
+                  <ListContainer locales={locales}>
+                    {organization.memberOf.map((relation) => {
+                      return (
+                        <ListItem
+                          key={`network-${relation.network.slug}`}
+                          entity={relation.network}
+                          locales={locales}
+                        >
+                          {organization.memberOf.length > 1 && (
+                            <Button
+                              name="intent"
+                              variant="outline"
+                              value={`leave-network-${relation.network.id}`}
+                              type="submit"
+                              fullSize
+                            >
+                              {locales.route.content.networks.current.leave}
+                            </Button>
+                          )}
+                        </ListItem>
+                      );
+                    })}
+                  </ListContainer>
+                </Form>
+              </>
+            ) : null}
+            {/* Search Networks To Add Section */}
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              {locales.route.content.networks.join.headline}
+            </h2>
+            <p>{locales.route.content.networks.join.subline}</p>
+            <Form
+              {...getFormProps(searchNetworksForm)}
+              method="get"
+              onChange={(event) => {
+                searchNetworksForm.validate();
+                if (searchNetworksForm.valid) {
+                  submit(event.currentTarget, { preventScrollReset: true });
+                }
+              }}
+              autoComplete="off"
+            >
+              <Input name={Deep} defaultValue="true" type="hidden" />
+              <Input
+                {...getInputProps(searchNetworksFields[SearchOrganizations], {
+                  type: "search",
+                })}
+                key={searchNetworksFields[SearchOrganizations].id}
+                standalone
+              >
+                <Input.Label
+                  htmlFor={searchNetworksFields[SearchOrganizations].id}
+                >
+                  {locales.route.content.networks.join.label}
+                </Input.Label>
+                <Input.SearchIcon />
+
+                {typeof searchNetworksFields[SearchOrganizations].errors !==
+                  "undefined" &&
+                searchNetworksFields[SearchOrganizations].errors.length > 0 ? (
+                  searchNetworksFields[SearchOrganizations].errors.map(
+                    (error) => (
+                      <Input.Error
+                        id={searchNetworksFields[SearchOrganizations].errorId}
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    )
+                  )
+                ) : (
+                  <Input.HelperText>
+                    {locales.route.content.networks.join.helper}
+                  </Input.HelperText>
+                )}
+                <Input.Controls>
+                  <noscript>
+                    <Button type="submit" variant="outline">
+                      {locales.route.content.networks.join.searchCta}
+                    </Button>
+                  </noscript>
+                </Input.Controls>
+              </Input>
+            </Form>
+            {searchedNetworks.length > 0 ? (
+              <Form
+                {...getFormProps(joinNetworkForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer locales={locales}>
+                  {searchedNetworks.map((organization) => {
+                    return (
+                      <ListItem
+                        key={`network-search-result-${organization.slug}`}
+                        entity={organization}
+                        locales={locales}
+                      >
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`join-network-${organization.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.networks.join.cta}
+                        </Button>
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+              </Form>
+            ) : null}
+            {/* TODO: Add or remove network members section -> disable the section when orgTypeList does not have network */}
+          </div>
         </div>
-      </Form>
-    </Section>
+      </Section>
+    </>
   );
 }
 

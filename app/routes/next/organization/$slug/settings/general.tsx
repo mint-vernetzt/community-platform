@@ -132,10 +132,6 @@ export async function loader(args: LoaderFunctionArgs) {
   const locales =
     languageModuleMap[language]["next/organization/$slug/settings/general"];
 
-  const { authClient } = createAuthClient(request);
-
-  const sessionUser = await getSessionUser(authClient);
-
   // check slug exists (throw bad request if not)
   invariantResponse(
     params.slug !== undefined,
@@ -144,17 +140,6 @@ export async function loader(args: LoaderFunctionArgs) {
       status: 400,
     }
   );
-
-  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
-
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
 
   const organization = await prismaClient.organization.findFirst({
     where: { slug: params.slug },

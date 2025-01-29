@@ -3,6 +3,7 @@ import { Link } from "@remix-run/react";
 import React from "react";
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
 import { type OrganizationAdminSettingsLocales } from "~/routes/next/organization/$slug/settings/admins.server";
+import { type ManageOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/manage.server";
 import { type OrganizationTeamSettingsLocales } from "~/routes/next/organization/$slug/settings/team.server";
 import { type CreateOrganizationLocales } from "~/routes/next/organization/create.server";
 import { type OrganizationNetworkLocales } from "~/routes/organization/$slug/detail/network.server";
@@ -50,6 +51,7 @@ type Locales =
   | OrganizationNetworkLocales
   | OrganizationProjectsLocales
   | OrganizationTeamLocales
+  | ManageOrganizationSettingsLocales
   | CreateOrganizationLocales;
 
 export function ListItem(
