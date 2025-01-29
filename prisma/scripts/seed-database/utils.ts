@@ -6759,19 +6759,33 @@ function generateDescription<
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event, project, document
   let description;
-  if (
-    entityType === "project" ||
-    entityType === "event" ||
-    entityType === "document"
-  ) {
+  if (entityType === "event") {
+    const descriptionForLargest = `<p dir="ltr"><span style="white-space: pre-wrap;">${faker.lorem
+      .paragraphs(7)
+      .substring(0, 1000)}</span></p>`;
+    const descriptionForStandard = `<p dir="ltr"><span style="white-space: pre-wrap;">${faker.lorem.paragraphs(
+      3
+    )}</span></p>`;
+    if (entityStructure === "Smallest") {
+      description = null;
+    } else if (entityStructure === "Empty Strings") {
+      description = "";
+    } else if (entityStructure === "Unicode") {
+      description =
+        '<p dir="ltr"><span style="white-space: pre-wrap;">A description containing unicode character_Γ</span></p>';
+    } else if (entityStructure === "Largest") {
+      description = descriptionForLargest;
+    } else {
+      description = descriptionForStandard;
+    }
+  }
+  if (entityType === "project" || entityType === "document") {
     const descriptionForLargest =
       entityType === "project"
         ? faker.lorem.paragraphs(50)
-        : entityType === "event"
-        ? faker.lorem.paragraphs(7).substring(0, 1000)
         : faker.lorem.sentences(5).substring(0, 100);
     const descriptionForStandard =
-      entityType === "project" || entityType === "event"
+      entityType === "project"
         ? faker.lorem.paragraphs(3)
         : faker.lorem.sentence();
     if (entityStructure === "Smallest") {
@@ -7414,14 +7428,19 @@ function generateBio<
   // profile, organization
   let bio;
   if (entityType === "profile" || entityType === "organization") {
-    const bioForLargest = faker.lorem.paragraphs(7).substring(0, 500);
-    const bioForStandard = faker.lorem.paragraphs(1);
+    const bioForStandard = `<p dir="ltr"><span style="white-space: pre-wrap;">${faker.lorem.paragraphs(
+      1
+    )}</span></p>`;
+    const bioForLargest = `<p dir="ltr"><span style="white-space: pre-wrap;">${faker.lorem
+      .paragraphs(7)
+      .substring(0, 500)}</span></p>`;
     if (entityStructure === "Smallest") {
       bio = null;
     } else if (entityStructure === "Empty Strings") {
       bio = "";
     } else if (entityStructure === "Unicode") {
-      bio = "A bio containing unicode character_Γ";
+      bio =
+        '<p dir="ltr"><span style="white-space: pre-wrap;">A bio containing unicode character_Γ</span></p>';
     } else if (entityStructure === "Largest") {
       bio = bioForLargest;
     } else {
