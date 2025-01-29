@@ -520,7 +520,6 @@ export default function Index() {
                 isPublic={organizationVisibilities.bio}
                 errorMessage={errors?.bio?.message}
                 maxLength={BIO_MAX_LENGTH}
-                rte={{ locales: locales }}
               />
             </div>
             <div className="mb-4">
