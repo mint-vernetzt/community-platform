@@ -4,7 +4,7 @@ export const locale = {
     login: "Anmelden",
     create: "Neues Profil anlegen",
     success:
-      "Das Profil für <b>{{email}}</b> wurde erstellt. Um die Registrierung abzuschließen, bestätige bitte innerhalb von 24 Stunden den Registrierungslink in Deinen E-Mails, den wir Dir über <b>noreply@mint-vernetzt.de</b> zusenden. Bitte sieh auch in Deinem Spam-Ordner nach. Hast Du Dich bereits vorher mit dieser E-Mail-Adresse registriert und Dein Passwort vergessen, dann setze hier Dein Passwort zurück:",
+      "Das Profil für <b>{{email}}</b> wurde erstellt. Um die Registrierung abzuschließen, bestätige bitte innerhalb von einer Stunden den Registrierungslink in Deinen E-Mails, den wir Dir über <b>noreply@mint-vernetzt.de</b> zusenden. Bitte sieh auch in Deinem Spam-Ordner nach. Hast Du Dich bereits vorher mit dieser E-Mail-Adresse registriert und Dein Passwort vergessen, dann setze hier Dein Passwort zurück:",
     reset: "Passwort zurücksetzen",
   },
   form: {
