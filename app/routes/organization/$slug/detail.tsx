@@ -286,6 +286,24 @@ function OrganizationDetail() {
                       }
                       return title;
                     })
+                    .concat(
+                      organization.networkTypes.map((relation) => {
+                        let title;
+                        if (relation.networkType.slug in locales.networkTypes) {
+                          type LocaleKey = keyof typeof locales.networkTypes;
+                          title =
+                            locales.networkTypes[
+                              relation.networkType.slug as LocaleKey
+                            ].title;
+                        } else {
+                          console.error(
+                            `Network type ${relation.networkType.slug} not found in locales`
+                          );
+                          title = relation.networkType.slug;
+                        }
+                        return title;
+                      })
+                    )
                     .join(" / ")}
                 </p>
               ) : null}

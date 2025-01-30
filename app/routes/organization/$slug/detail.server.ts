@@ -45,6 +45,15 @@ export async function getOrganization(slug: string) {
           },
         },
       },
+      networkTypes: {
+        select: {
+          networkType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
       networkMembers: {
         select: {
           networkMember: {
@@ -112,6 +121,7 @@ export async function getOrganization(slug: string) {
           tiktok: true,
           supportedBy: true,
           types: true,
+          networkTypes: true,
           networkMembers: true,
         },
       },

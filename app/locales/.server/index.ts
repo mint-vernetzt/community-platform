@@ -508,6 +508,7 @@ const de = {
   "organization/$slug/detail": {
     route: deOrganizationDetail,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     imageCropper: deImageCropper,
   },
   "organization/$slug/detail/about": {
@@ -875,6 +876,7 @@ const en = {
   "organization/$slug/detail": {
     route: enOrganizationDetail,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     imageCropper: enImageCropper,
   },
   "organization/$slug/detail/about": {
