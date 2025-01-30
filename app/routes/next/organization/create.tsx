@@ -43,7 +43,7 @@ import {
   type CreateOrganizationLocales,
 } from "./create.server";
 import React from "react";
-import { invariantResponse } from "~/lib/utils/response";
+import { invariant, invariantResponse } from "~/lib/utils/response";
 
 const createSchema = (locales: CreateOrganizationLocales) => {
   return z.object({
@@ -177,13 +177,20 @@ export async function action(args: ActionFunctionArgs) {
     const isNetwork = submission.value.organizationTypes.some(
       (id) => id === organizationTypeNetwork.id
     );
-    if (isNetwork === false && submission.value.networkTypes.length > 0) {
+    invariantResponse(
+      (isNetwork === false && submission.value.networkTypes.length > 0) ===
+        false,
+      locales.route.validation.notANetwork,
+      { status: 400 }
+    );
+    if (isNetwork === true && submission.value.networkTypes.length === 0) {
       const newSubmission = parseWithZod(formData, {
         schema: () =>
           createSchema(locales).transform(async (data, ctx) => {
             ctx.addIssue({
               code: "custom",
-              message: locales.route.validation.notANetwork,
+              message: locales.route.validation.networkTypesRequired,
+              path: ["networkTypes"],
             });
             return z.NEVER;
           }),
@@ -239,7 +246,34 @@ function CreateOrganization() {
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: createSchema(locales) });
+      const submission = parseWithZod(formData, {
+        schema: () =>
+          createSchema(locales).transform((data, ctx) => {
+            const { organizationTypes: types, networkTypes } = data;
+            const organizationTypeNetwork = allOrganizationTypes.find(
+              (organizationType) => {
+                return organizationType.slug === "network";
+              }
+            );
+            invariant(
+              organizationTypeNetwork !== undefined,
+              "Organization type network not found"
+            );
+            const isNetwork = types.some(
+              (id) => id === organizationTypeNetwork.id
+            );
+            if (isNetwork === true && networkTypes.length === 0) {
+              ctx.addIssue({
+                code: "custom",
+                message: locales.route.validation.networkTypesRequired,
+                path: ["networkTypes"],
+              });
+              return z.NEVER;
+            }
+            return { ...data };
+          }),
+      });
+      return submission;
     },
   });
   const organizationTypeList = fields.organizationTypes.getFieldList();
@@ -342,9 +376,16 @@ function CreateOrganization() {
             <ConformSelect.Label htmlFor={fields.organizationTypes.id}>
               {locales.route.form.organizationTypes.label}
             </ConformSelect.Label>
-            <ConformSelect.HelperText>
-              {locales.route.form.organizationTypes.helperText}
-            </ConformSelect.HelperText>
+
+            {typeof fields.organizationTypes.errors !== "undefined" ? (
+              <ConformSelect.Error>
+                {fields.organizationTypes.errors}
+              </ConformSelect.Error>
+            ) : (
+              <ConformSelect.HelperText>
+                {locales.route.form.organizationTypes.helperText}
+              </ConformSelect.HelperText>
+            )}
             {allOrganizationTypes
               .filter((organizationType) => {
                 return !organizationTypeList.some((listOrganizationType) => {
@@ -444,7 +485,9 @@ function CreateOrganization() {
               isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
             }`}
           >
-            {locales.route.form.networkTypes.headline}
+            {isNetwork === false
+              ? locales.route.form.networkTypes.headlineWithoutNetwork
+              : locales.route.form.networkTypes.headline}
           </h2>
           <ConformSelect
             id={fields.networkTypes.id}
@@ -458,13 +501,19 @@ function CreateOrganization() {
                 {locales.route.form.networkTypes.label}
               </span>
             </ConformSelect.Label>
-            <ConformSelect.HelperText>
-              <span
-                className={isNetwork === false ? "mv-text-neutral-300" : ""}
-              >
-                {locales.route.form.networkTypes.helperText}
-              </span>
-            </ConformSelect.HelperText>
+            {typeof fields.networkTypes.errors !== "undefined" ? (
+              <ConformSelect.Error>
+                {fields.networkTypes.errors}
+              </ConformSelect.Error>
+            ) : (
+              <ConformSelect.HelperText>
+                <span
+                  className={isNetwork === false ? "mv-text-neutral-300" : ""}
+                >
+                  {locales.route.form.networkTypes.helperText}
+                </span>
+              </ConformSelect.HelperText>
+            )}
             {allNetworkTypes
               .filter((networkType) => {
                 return !networkTypeList.some((listNetworkType) => {

@@ -9,6 +9,7 @@ export const locale = {
       "Organisationsform Netzwerk nicht gefunden",
     notANetwork:
       "Deine Organisation muss die Organisationsform Netzwerk haben um Netzwerkformen hinzuzufügen",
+    networkTypesRequired: "Bitte wähle mindestens eine Netzwerkform aus.",
   },
   back: "Meine Organisationen",
   headline: "Organisation anlegen",
@@ -30,6 +31,8 @@ export const locale = {
     networkTypes: {
       cta: "Bitte auswählen",
       headline: "Um welche Art von Netzwerk handelt es sich?",
+      headlineWithoutNetwork:
+        "Um welche Art von Netzwerk handelt es sich? (Benötigt Organisationsform Netzwerk)",
       label: "Netzwerkform",
       helperText: "Mehrfachauswahl ist möglich",
       notFound:

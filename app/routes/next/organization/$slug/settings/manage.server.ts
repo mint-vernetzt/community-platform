@@ -158,40 +158,50 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
 
 export async function updateOrganization(options: {
   formData: FormData;
-  organizationId: string;
+  organization: {
+    id: string;
+    networkMembers: {
+      networkMember: {
+        id: string;
+      };
+    }[];
+  };
+  organizationTypeNetwork: {
+    id: string;
+  };
   locales: ManageOrganizationSettingsLocales;
 }) {
-  const { formData, organizationId, locales } = options;
+  const { formData, organization, organizationTypeNetwork, locales } = options;
+  const { id: organizationId, networkMembers } = organization;
   const submission = await parseWithZod(formData, {
     schema: () =>
       manageSchema.transform(async (data, ctx) => {
         const { organizationTypes: types } = data;
         let { networkTypes } = data;
         try {
-          const organizationTypeNetwork =
-            await prismaClient.organizationType.findFirst({
-              select: {
-                id: true,
-              },
-              where: {
-                slug: "network",
-              },
-            });
-          invariantResponse(
-            organizationTypeNetwork !== null,
-            locales.route.error.organizationTypeNetworkNotFound,
-            { status: 404 }
-          );
           const isNetwork = types.some(
             (id) => id === organizationTypeNetwork.id
           );
-
-          if (isNetwork === false && networkTypes.length > 0) {
+          invariantResponse(
+            (isNetwork === false && networkTypes.length > 0) === false,
+            locales.route.error.notAllowed,
+            { status: 400 }
+          );
+          if (isNetwork === true && networkTypes.length === 0) {
             ctx.addIssue({
               code: "custom",
-              message: locales.route.error.notAllowed,
+              message: locales.route.error.networkTypesRequired,
+              path: ["networkTypes"],
             });
             return z.NEVER;
+          }
+          let networkMemberQuery;
+          if (isNetwork === false && networkMembers.length > 0) {
+            networkMemberQuery = {
+              deleteMany: {
+                networkId: organizationId,
+              },
+            };
           }
           await prismaClient.organization.update({
             where: {
@@ -230,6 +240,7 @@ export async function updateOrganization(options: {
                   };
                 }),
               },
+              networkMembers: networkMemberQuery,
             },
           });
         } catch (error) {
@@ -377,44 +388,27 @@ export async function addNetworkMember(options: {
     name: string;
     types: {
       organizationType: {
-        slug: string;
+        id: string;
       };
     }[];
   };
+  organizationTypeNetwork: {
+    id: string;
+  };
   locales: ManageOrganizationSettingsLocales;
 }) {
-  const { formData, organization, locales } = options;
+  const { formData, organization, organizationTypeNetwork, locales } = options;
   const { id: organizationId, name } = organization;
   const submission = await parseWithZod(formData, {
     schema: () =>
       updateNetworkSchema.transform(async (data, ctx) => {
         const { organizationId: networkMemberId } = data;
-        const organizationTypeNetwork =
-          await prismaClient.organizationType.findFirst({
-            select: {
-              slug: true,
-            },
-            where: {
-              slug: "network",
-            },
-          });
-        invariantResponse(
-          organizationTypeNetwork !== null,
-          locales.route.error.organizationTypeNetworkNotFound,
-          { status: 404 }
-        );
         const isNetwork = organization.types.some((relation) => {
-          return (
-            relation.organizationType.slug === organizationTypeNetwork.slug
-          );
+          return relation.organizationType.id === organizationTypeNetwork.id;
         });
-        if (isNetwork === false) {
-          ctx.addIssue({
-            code: "custom",
-            message: locales.route.error.notAllowed,
-          });
-          return z.NEVER;
-        }
+        invariantResponse(isNetwork !== false, locales.route.error.notAllowed, {
+          status: 400,
+        });
         try {
           await prismaClient.memberOfNetwork.create({
             data: {

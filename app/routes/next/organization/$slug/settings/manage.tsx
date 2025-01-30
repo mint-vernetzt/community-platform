@@ -33,7 +33,7 @@ import {
 import { detectLanguage } from "~/i18n.server";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
-import { invariantResponse } from "~/lib/utils/response";
+import { invariant, invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   Deep,
@@ -190,27 +190,50 @@ export async function action(args: ActionFunctionArgs) {
   invariantResponse(slug !== undefined, locales.route.error.invalidRoute, {
     status: 400,
   });
-
-  const organization = await prismaClient.organization.findFirst({
-    where: { slug },
-    select: {
-      id: true,
-      name: true,
-      types: {
+  const [organization, organizationTypeNetwork] =
+    await prismaClient.$transaction([
+      prismaClient.organization.findFirst({
+        where: { slug },
         select: {
-          organizationType: {
+          id: true,
+          name: true,
+          types: {
             select: {
-              slug: true,
+              organizationType: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          networkMembers: {
+            select: {
+              networkMember: {
+                select: {
+                  id: true,
+                },
+              },
             },
           },
         },
-      },
-    },
-  });
-
+      }),
+      prismaClient.organizationType.findFirst({
+        select: {
+          id: true,
+        },
+        where: {
+          slug: "network",
+        },
+      }),
+    ]);
   invariantResponse(organization !== null, locales.route.error.notFound, {
     status: 404,
   });
+  invariantResponse(
+    organizationTypeNetwork !== null,
+    locales.route.error.organizationTypeNetworkNotFound,
+    { status: 404 }
+  );
 
   let result;
   const formData = await request.formData();
@@ -234,7 +257,8 @@ export async function action(args: ActionFunctionArgs) {
   if (intent === "submit") {
     result = await updateOrganization({
       formData,
-      organizationId: organization.id,
+      organization,
+      organizationTypeNetwork,
       locales,
     });
   } else if (intent.startsWith("join-network-")) {
@@ -268,6 +292,7 @@ export async function action(args: ActionFunctionArgs) {
     result = await addNetworkMember({
       formData: leaveNetworkFormData,
       organization,
+      organizationTypeNetwork,
       locales,
     });
   } else if (intent.startsWith("remove-network-member-")) {
@@ -343,7 +368,31 @@ function Manage() {
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
-        schema: manageSchema,
+        schema: () =>
+          manageSchema.transform((data, ctx) => {
+            const { organizationTypes: types, networkTypes } = data;
+            const organizationTypeNetwork = allOrganizationTypes.find(
+              (organizationType) => {
+                return organizationType.slug === "network";
+              }
+            );
+            invariant(
+              organizationTypeNetwork !== undefined,
+              "Organization type network not found"
+            );
+            const isNetwork = types.some(
+              (id) => id === organizationTypeNetwork.id
+            );
+            if (isNetwork === true && networkTypes.length === 0) {
+              ctx.addIssue({
+                code: "custom",
+                message: locales.route.error.networkTypesRequired,
+                path: ["networkTypes"],
+              });
+              return z.NEVER;
+            }
+            return { ...data };
+          }),
       });
       return submission;
     },
@@ -459,9 +508,15 @@ function Manage() {
               <ConformSelect.Label htmlFor={manageFields.organizationTypes.id}>
                 {locales.route.content.types.label}
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.types.helper}
-              </ConformSelect.HelperText>
+              {typeof manageFields.organizationTypes.errors !== "undefined" ? (
+                <ConformSelect.Error>
+                  {manageFields.organizationTypes.errors}
+                </ConformSelect.Error>
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.types.helper}
+                </ConformSelect.HelperText>
+              )}
               {allOrganizationTypes
                 .filter((organizationType) => {
                   return !organizationTypeList.some((field) => {
@@ -550,7 +605,9 @@ function Manage() {
                 isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
               }`}
             >
-              {locales.route.content.networkTypes.headline}
+              {isNetwork === false
+                ? locales.route.content.networkTypes.headlineWithoutNetwork
+                : locales.route.content.networkTypes.headline}
             </h2>
             <ConformSelect
               id={manageFields.networkTypes.id}
@@ -564,13 +621,20 @@ function Manage() {
                   {locales.route.content.networkTypes.label}
                 </span>
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                <span
-                  className={isNetwork === false ? "mv-text-neutral-300" : ""}
-                >
-                  {locales.route.content.networkTypes.helper}
-                </span>
-              </ConformSelect.HelperText>
+
+              {typeof manageFields.networkTypes.errors !== "undefined" ? (
+                <ConformSelect.Error>
+                  {manageFields.networkTypes.errors}
+                </ConformSelect.Error>
+              ) : (
+                <ConformSelect.HelperText>
+                  <span
+                    className={isNetwork === false ? "mv-text-neutral-300" : ""}
+                  >
+                    {locales.route.content.networkTypes.helper}
+                  </span>
+                </ConformSelect.HelperText>
+              )}
               {allNetworkTypes
                 .filter((networkType) => {
                   return !networkTypeList.some((field) => {
@@ -903,11 +967,16 @@ function Manage() {
             ) : null}
           </div>
           {/* Current Network Members and Remove Network Member Section */}
-          {/* TODO: Add or remove network members section -> disable the section when orgTypeList does not have network */}
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             {networkMembers.length > 0 ? (
               <>
-                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                <h2
+                  className={`mv-text-lg mv-font-semibold mv-mb-0 ${
+                    isNetwork === false
+                      ? "mv-text-neutral-300"
+                      : "mv-text-primary"
+                  }`}
+                >
                   {decideBetweenSingularOrPlural(
                     locales.route.content.networkMembers.current.headline_one,
                     locales.route.content.networkMembers.current.headline_other,
@@ -939,6 +1008,7 @@ function Manage() {
                             value={`remove-network-member-${relation.networkMember.id}`}
                             type="submit"
                             fullSize
+                            disabled={isNetwork === false}
                           >
                             {
                               locales.route.content.networkMembers.current
@@ -969,10 +1039,19 @@ function Manage() {
               </>
             ) : null}
             {/* Search Network Members To Add Section */}
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.route.content.networkMembers.add.headline}
+            <h2
+              className={`mv-text-lg mv-font-semibold mv-mb-0 ${
+                isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
+              }`}
+            >
+              {isNetwork === false
+                ? locales.route.content.networkMembers.add
+                    .headlineWithoutNetwork
+                : locales.route.content.networkMembers.add.headline}
             </h2>
-            <p>{locales.route.content.networkMembers.add.subline}</p>
+            <p className={isNetwork === false ? "mv-text-neutral-300" : ""}>
+              {locales.route.content.networkMembers.add.subline}
+            </p>
             <Form
               {...getFormProps(searchNetworkMembersForm)}
               method="get"
@@ -1000,11 +1079,13 @@ function Manage() {
                 defaultValue={
                   searchParams.get(SearchNetworkMembers) || undefined
                 }
+                disabled={isNetwork === false}
                 key={searchNetworkMembersFields[SearchNetworkMembers].id}
                 standalone
               >
                 <Input.Label
                   htmlFor={searchNetworkMembersFields[SearchNetworkMembers].id}
+                  disabled={isNetwork === false}
                 >
                   {locales.route.content.networkMembers.add.label}
                 </Input.Label>
@@ -1028,13 +1109,17 @@ function Manage() {
                     )
                   )
                 ) : (
-                  <Input.HelperText>
+                  <Input.HelperText disabled={isNetwork === false}>
                     {locales.route.content.networkMembers.add.helper}
                   </Input.HelperText>
                 )}
                 <Input.Controls>
                   <noscript>
-                    <Button type="submit" variant="outline">
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      disabled={isNetwork === false}
+                    >
                       {locales.route.content.networkMembers.add.searchCta}
                     </Button>
                   </noscript>
@@ -1082,6 +1167,7 @@ function Manage() {
                           variant="outline"
                           value={`add-network-member-${organization.id}`}
                           type="submit"
+                          disabled={isNetwork === false}
                           fullSize
                         >
                           {locales.route.content.networkMembers.add.cta}

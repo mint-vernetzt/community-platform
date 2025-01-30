@@ -9,6 +9,7 @@ export const locale = {
       "Data could not be saved. Please try again or contact support",
     notAllowed:
       "Your organization must have the organizational form network to make this action",
+    networkTypesRequired: "Please select at least one network form.",
   },
   content: {
     notFound: "Not found",
@@ -22,6 +23,8 @@ export const locale = {
     },
     networkTypes: {
       headline: "Network form",
+      headlineWithoutNetwork:
+        "Network form (Requires organizational form network)",
       label: "Choose the type of your network",
       helper: "Multiple selection possible",
       option: "Please select",
@@ -61,6 +64,8 @@ export const locale = {
       },
       add: {
         headline: "Add organizations to your network organization",
+        headlineWithoutNetwork:
+          "Add organizations to your network organization (Requires organizational form network)",
         subline:
           "Search for organizations and add them to your network organization.",
         label: "Name of organization",

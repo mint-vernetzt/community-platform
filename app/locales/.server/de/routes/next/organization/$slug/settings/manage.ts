@@ -10,6 +10,7 @@ export const locale = {
       "Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support",
     notAllowed:
       "Deine Organisation muss die Organisationsform Netzwerk haben um die Aktion durchzuführen",
+    networkTypesRequired: "Bitte wähle mindestens eine Netzwerkform aus.",
   },
   content: {
     notFound: "Nicht gefunden",
@@ -23,6 +24,8 @@ export const locale = {
     },
     networkTypes: {
       headline: "Netzwerkform",
+      headlineWithoutNetwork:
+        "Netzwerkform (Benötigt Organisationsform Netzwerk)",
       label: "Wähle die Art Deines Netzwerkes aus",
       helper: "Mehrfachauswahl möglich",
       option: "Bitte auswählen",
@@ -64,6 +67,8 @@ export const locale = {
       },
       add: {
         headline: "Organisationen zu Deiner Netzwerk-Organisation hinzufügen",
+        headlineWithoutNetwork:
+          "Organisationen zu Deiner Netzwerk-Organisation hinzufügen (Benötigt Organisationsform Netzwerk)",
         subline:
           "Suche die Organisationen, die zu Deiner Netzwerk-Organisation gehören und füge sie hinzu.",
         label: "Organisationsname",
