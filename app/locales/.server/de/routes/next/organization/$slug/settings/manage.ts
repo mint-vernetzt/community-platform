@@ -24,16 +24,17 @@ export const locale = {
     },
     networkTypes: {
       headline: "Netzwerkform",
-      headlineWithoutNetwork:
-        "Netzwerkform (Benötigt Organisationsform Netzwerk)",
       label: "Wähle die Art Deines Netzwerkes aus",
       helper: "Mehrfachauswahl möglich",
+      helperWithoutNetwork: 'Benötigt Organisationsform "Netzwerk"',
       option: "Bitte auswählen",
     },
     networks: {
       current: {
         headline_one: "Aktuelles Netzwerk",
         headline_other: "Aktuelle Netzwerke",
+        subline_one: "Deine Organisation ist Teil dieses Netzwerks",
+        subline_other: "Deine Organisation ist Teil dieser Netzwerke",
         leave: {
           cta: "Austreten",
           success:
@@ -41,9 +42,10 @@ export const locale = {
         },
       },
       join: {
-        headline: "Ist Deine Organisation Teil von anderen Netzwerken?",
+        headline_zero: "Ist Deine Organisation Teil eines Netzwerks?",
+        headline_other: "Ist Deine Organisation Teil von anderen Netzwerken?",
         subline:
-          "Suche die Netzwerk-Organisationen und füge Deine Organisation als Netzwerk-Mitglied hinzu.",
+          "Suche ein Netzwerk und füge Deine Organisation als Netzwerk-Mitglied hinzu.",
         label: "Name der Netzwerk-Organisation",
         placeholder: "Suche...",
         helper: "Mindestens 3 Buchstaben.",
@@ -55,25 +57,25 @@ export const locale = {
     },
     networkMembers: {
       current: {
-        headline_one:
-          "Aktuelle Mitgliedsorganisation Deiner Netzwerk-Organisation",
-        headline_other:
-          "Aktuelle Mitgliedsorganisationen Deiner Netzwerk-Organisation",
+        headline_one: "Aktuelle Mitgliedsorganisation",
+        headline_other: "Aktuelle Mitgliedsorganisationen",
+        subline_one: "Dein Netzwerk besteht aus dieser Mitgliedsorganisation",
+        subline_other:
+          "Dein Netzwerk besteht aus diesen Mitgliedsorganisationen",
         remove: {
           cta: "Entfernen",
           success:
-            "Du hast die Mitgliedsorganisation {{organization}} erfolgreich aus Deiner Netzwerk-Organisation entfernt.",
+            "Du hast die Mitgliedsorganisation {{organization}} erfolgreich aus Deinem Netzwerk entfernt.",
         },
       },
       add: {
         headline: "Organisationen zu Deiner Netzwerk-Organisation hinzufügen",
-        headlineWithoutNetwork:
-          "Organisationen zu Deiner Netzwerk-Organisation hinzufügen (Benötigt Organisationsform Netzwerk)",
         subline:
           "Suche die Organisationen, die zu Deiner Netzwerk-Organisation gehören und füge sie hinzu.",
         label: "Organisationsname",
         placeholder: "Suche...",
         helper: "Mindestens 3 Buchstaben.",
+        helperWithoutNetwork: 'Benötigt Organisationsform "Netzwerk"',
         searchCta: "Suchen",
         cta: "Hinzufügen",
         success:

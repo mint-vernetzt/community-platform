@@ -23,23 +23,25 @@ export const locale = {
     },
     networkTypes: {
       headline: "Network form",
-      headlineWithoutNetwork:
-        "Network form (Requires organizational form network)",
       label: "Choose the type of your network",
       helper: "Multiple selection possible",
+      helperWithoutNetwork: 'Requires organizational form "Network"',
       option: "Please select",
     },
     networks: {
       current: {
         headline_one: "Current network",
         headline_other: "Current networks",
+        subline_one: "Your organization is part of this network",
+        subline_other: "Your organization is part of these networks",
         leave: {
           cta: "Leave",
           success: "You have successfully left the network {{organization}}.",
         },
       },
       join: {
-        headline: "Is your organization part of other networks?",
+        headline_zero: "Is your organization part of a network?",
+        headline_other: "Is your organization part of other networks?",
         subline:
           "Search for network organizations and add your organization as a network member.",
         label: "Name of network organization",
@@ -52,25 +54,24 @@ export const locale = {
     },
     networkMembers: {
       current: {
-        headline_one:
-          "Current member organization of your network organization",
-        headline_other:
-          "Current member organizations of your network organization",
+        headline_one: "Current member organization",
+        headline_other: "Current member organizations",
+        subline_one: "Your network consists of this member organization",
+        subline_other: "Your network consists of these member organizations",
         remove: {
           cta: "Remove",
           success:
-            "You have successfully removed the member organization {{organization}} from your network organization.",
+            "You have successfully removed the member organization {{organization}} from your network.",
         },
       },
       add: {
         headline: "Add organizations to your network organization",
-        headlineWithoutNetwork:
-          "Add organizations to your network organization (Requires organizational form network)",
         subline:
           "Search for organizations and add them to your network organization.",
         label: "Name of organization",
         placeholder: "Search...",
         helper: "At least 3 characters.",
+        helperWithoutNetwork: 'Requires organizational form "Network"',
         searchCta: "Search",
         cta: "Add",
         success:

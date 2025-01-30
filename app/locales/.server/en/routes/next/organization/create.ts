@@ -30,10 +30,9 @@ export const locale = {
     networkTypes: {
       cta: "Please select",
       headline: "What type of network is it?",
-      headlineWithoutNetwork:
-        "What type of network is it? (Requires organizational form network)",
       label: "Network type",
-      helperText: "Multiple selection is possible",
+      helper: "Multiple selection is possible",
+      helperWithoutNetwork: 'Requires organizational form "Network"',
       notFound:
         "The type of network could not be found. Please contact support.",
     },

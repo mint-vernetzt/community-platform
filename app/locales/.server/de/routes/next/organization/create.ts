@@ -31,10 +31,9 @@ export const locale = {
     networkTypes: {
       cta: "Bitte auswählen",
       headline: "Um welche Art von Netzwerk handelt es sich?",
-      headlineWithoutNetwork:
-        "Um welche Art von Netzwerk handelt es sich? (Benötigt Organisationsform Netzwerk)",
       label: "Netzwerkform",
-      helperText: "Mehrfachauswahl ist möglich",
+      helper: "Mehrfachauswahl ist möglich",
+      helperWithoutNetwork: 'Benötigt Organisationsform "Netzwerk"',
       notFound:
         "Die Netzwerkform konnte nicht gefunden werden. Bitte kontaktiere den Support.",
     },

@@ -13,11 +13,11 @@ import {
 import {
   Form,
   useActionData,
+  useFetcher,
   useLoaderData,
   useLocation,
   useNavigation,
   useSearchParams,
-  useSubmit,
 } from "@remix-run/react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
@@ -328,18 +328,25 @@ function Manage() {
     organization,
     allOrganizationTypes,
     allNetworkTypes,
-    searchedNetworks,
     searchNetworksSubmission,
-    searchedNetworkMembers,
     searchNetworkMembersSubmission,
     locales,
   } = loaderData;
   const actionData = useActionData<typeof action>();
+  const searchNetworksFetcher = useFetcher<typeof loader>();
+  let searchedNetworks =
+    searchNetworksFetcher.data !== undefined
+      ? searchNetworksFetcher.data.searchedNetworks
+      : loaderData.searchedNetworks;
+  const searchNetworkMembersFetcher = useFetcher<typeof loader>();
+  let searchedNetworkMembers =
+    searchNetworkMembersFetcher.data !== undefined
+      ? searchNetworkMembersFetcher.data.searchedNetworkMembers
+      : loaderData.searchedNetworkMembers;
 
   const location = useLocation();
   const isHydrated = useHydrated();
   const navigation = useNavigation();
-  const submit = useSubmit();
   const [searchParams] = useSearchParams();
 
   const {
@@ -370,20 +377,17 @@ function Manage() {
       const submission = parseWithZod(formData, {
         schema: () =>
           manageSchema.transform((data, ctx) => {
-            const { organizationTypes: types, networkTypes } = data;
+            const { networkTypes } = data;
             const organizationTypeNetwork = allOrganizationTypes.find(
               (organizationType) => {
                 return organizationType.slug === "network";
               }
             );
             invariant(
-              organizationTypeNetwork !== undefined,
+              typeof organizationTypeNetwork !== "undefined",
               "Organization type network not found"
             );
-            const isNetwork = types.some(
-              (id) => id === organizationTypeNetwork.id
-            );
-            if (isNetwork === true && networkTypes.length === 0) {
+            if (hasSelectedNetwork === true && networkTypes.length === 0) {
               ctx.addIssue({
                 code: "custom",
                 message: locales.route.error.networkTypesRequired,
@@ -462,18 +466,23 @@ function Manage() {
       return organizationType.slug === "network";
     }
   );
-  const isNetwork = organizationTypeList.some((organizationType) => {
-    if (
-      typeof organizationType.initialValue === "undefined" ||
-      typeof organizationTypeNetwork === "undefined"
-    ) {
+  invariant(
+    typeof organizationTypeNetwork !== "undefined",
+    "Organization type network not found"
+  );
+  const hasSelectedNetwork = organizationTypeList.some((organizationType) => {
+    if (typeof organizationType.initialValue === "undefined") {
+      console.log("initialValue is undefined");
       return false;
     }
     return organizationType.initialValue === organizationTypeNetwork.id;
   });
-  if (isNetwork === false) {
+  if (hasSelectedNetwork === false) {
     networkTypeList = [];
   }
+  const isNetwork = organization.types.some((relation) => {
+    return relation.organizationType.id === organizationTypeNetwork.id;
+  });
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
     searchParam: "modal-unsaved-changes",
@@ -602,21 +611,23 @@ function Manage() {
 
             <h2
               className={`mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px] ${
-                isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
+                hasSelectedNetwork === false
+                  ? "mv-text-neutral-300"
+                  : "mv-text-primary"
               }`}
             >
-              {isNetwork === false
-                ? locales.route.content.networkTypes.headlineWithoutNetwork
-                : locales.route.content.networkTypes.headline}
+              {locales.route.content.networkTypes.headline}
             </h2>
             <ConformSelect
               id={manageFields.networkTypes.id}
               cta={locales.route.content.networkTypes.option}
-              disabled={isNetwork === false}
+              disabled={hasSelectedNetwork === false}
             >
               <ConformSelect.Label htmlFor={manageFields.networkTypes.id}>
                 <span
-                  className={isNetwork === false ? "mv-text-neutral-300" : ""}
+                  className={
+                    hasSelectedNetwork === false ? "mv-text-neutral-300" : ""
+                  }
                 >
                   {locales.route.content.networkTypes.label}
                 </span>
@@ -629,9 +640,13 @@ function Manage() {
               ) : (
                 <ConformSelect.HelperText>
                   <span
-                    className={isNetwork === false ? "mv-text-neutral-300" : ""}
+                    className={
+                      hasSelectedNetwork === false ? "mv-text-neutral-300" : ""
+                    }
                   >
-                    {locales.route.content.networkTypes.helper}
+                    {hasSelectedNetwork === false
+                      ? locales.route.content.networkTypes.helperWithoutNetwork
+                      : locales.route.content.networkTypes.helper}
                   </span>
                 </ConformSelect.HelperText>
               )}
@@ -663,7 +678,7 @@ function Manage() {
                       })}
                       form={manageForm.id}
                       key={filteredNetworkType.id}
-                      disabled={!isNetwork}
+                      disabled={!hasSelectedNetwork}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
                       {title}
@@ -782,9 +797,16 @@ function Manage() {
                   {decideBetweenSingularOrPlural(
                     locales.route.content.networks.current.headline_one,
                     locales.route.content.networks.current.headline_other,
-                    organization.memberOf.length
+                    memberOf.length
                   )}
                 </h2>
+                <p>
+                  {decideBetweenSingularOrPlural(
+                    locales.route.content.networks.current.subline_one,
+                    locales.route.content.networks.current.subline_other,
+                    memberOf.length
+                  )}
+                </p>
                 <Form
                   {...getFormProps(leaveNetworkForm)}
                   method="post"
@@ -795,7 +817,7 @@ function Manage() {
                     listKey="networks"
                     hideAfter={3}
                   >
-                    {organization.memberOf.map((relation, index) => {
+                    {memberOf.map((relation, index) => {
                       return (
                         <ListItem
                           key={`network-${relation.network.slug}`}
@@ -838,16 +860,21 @@ function Manage() {
             ) : null}
             {/* Search Networks To Join Section */}
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.route.content.networks.join.headline}
+              {memberOf.length === 0
+                ? locales.route.content.networks.join.headline_zero
+                : locales.route.content.networks.join.headline_other}
             </h2>
             <p>{locales.route.content.networks.join.subline}</p>
-            <Form
+            <searchNetworksFetcher.Form
               {...getFormProps(searchNetworksForm)}
               method="get"
               onChange={(event) => {
                 searchNetworksForm.validate();
                 if (searchNetworksForm.valid) {
-                  submit(event.currentTarget, { preventScrollReset: true });
+                  console.log("Fetcher submit");
+                  searchNetworksFetcher.submit(event.currentTarget, {
+                    preventScrollReset: true,
+                  });
                 }
               }}
               autoComplete="off"
@@ -913,7 +940,7 @@ function Manage() {
                   })}
                 </div>
               ) : null}
-            </Form>
+            </searchNetworksFetcher.Form>
             {searchedNetworks.length > 0 ? (
               <Form
                 {...getFormProps(joinNetworkForm)}
@@ -980,9 +1007,16 @@ function Manage() {
                   {decideBetweenSingularOrPlural(
                     locales.route.content.networkMembers.current.headline_one,
                     locales.route.content.networkMembers.current.headline_other,
-                    organization.networkMembers.length
+                    networkMembers.length
                   )}
                 </h2>
+                <p>
+                  {decideBetweenSingularOrPlural(
+                    locales.route.content.networkMembers.current.subline_one,
+                    locales.route.content.networkMembers.current.subline_other,
+                    networkMembers.length
+                  )}
+                </p>
                 <Form
                   {...getFormProps(removeNetworkMemberForm)}
                   method="post"
@@ -993,7 +1027,7 @@ function Manage() {
                     listKey="network-members"
                     hideAfter={3}
                   >
-                    {organization.networkMembers.map((relation, index) => {
+                    {networkMembers.map((relation, index) => {
                       return (
                         <ListItem
                           key={`network-member-${relation.networkMember.slug}`}
@@ -1044,21 +1078,20 @@ function Manage() {
                 isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
               }`}
             >
-              {isNetwork === false
-                ? locales.route.content.networkMembers.add
-                    .headlineWithoutNetwork
-                : locales.route.content.networkMembers.add.headline}
+              {locales.route.content.networkMembers.add.headline}
             </h2>
             <p className={isNetwork === false ? "mv-text-neutral-300" : ""}>
               {locales.route.content.networkMembers.add.subline}
             </p>
-            <Form
+            <searchNetworkMembersFetcher.Form
               {...getFormProps(searchNetworkMembersForm)}
               method="get"
               onChange={(event) => {
                 searchNetworkMembersForm.validate();
                 if (searchNetworkMembersForm.valid) {
-                  submit(event.currentTarget, { preventScrollReset: true });
+                  searchNetworkMembersFetcher.submit(event.currentTarget, {
+                    preventScrollReset: true,
+                  });
                 }
               }}
               autoComplete="off"
@@ -1110,7 +1143,10 @@ function Manage() {
                   )
                 ) : (
                   <Input.HelperText disabled={isNetwork === false}>
-                    {locales.route.content.networkMembers.add.helper}
+                    {isNetwork !== false
+                      ? locales.route.content.networkMembers.add.helper
+                      : locales.route.content.networkMembers.add
+                          .helperWithoutNetwork}
                   </Input.HelperText>
                 )}
                 <Input.Controls>
@@ -1141,8 +1177,8 @@ function Manage() {
                   })}
                 </div>
               ) : null}
-            </Form>
-            {searchedNetworkMembers.length > 0 ? (
+            </searchNetworkMembersFetcher.Form>
+            {isNetwork === true && searchedNetworkMembers.length > 0 ? (
               <Form
                 {...getFormProps(addNetworkMemberForm)}
                 method="post"
@@ -1167,7 +1203,6 @@ function Manage() {
                           variant="outline"
                           value={`add-network-member-${organization.id}`}
                           type="submit"
-                          disabled={isNetwork === false}
                           fullSize
                         >
                           {locales.route.content.networkMembers.add.cta}

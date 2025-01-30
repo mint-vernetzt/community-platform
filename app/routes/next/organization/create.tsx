@@ -485,9 +485,7 @@ function CreateOrganization() {
               isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
             }`}
           >
-            {isNetwork === false
-              ? locales.route.form.networkTypes.headlineWithoutNetwork
-              : locales.route.form.networkTypes.headline}
+            {locales.route.form.networkTypes.headline}
           </h2>
           <ConformSelect
             id={fields.networkTypes.id}
@@ -510,7 +508,9 @@ function CreateOrganization() {
                 <span
                   className={isNetwork === false ? "mv-text-neutral-300" : ""}
                 >
-                  {locales.route.form.networkTypes.helperText}
+                  {isNetwork === false
+                    ? locales.route.form.networkTypes.helperWithoutNetwork
+                    : locales.route.form.networkTypes.helper}
                 </span>
               </ConformSelect.HelperText>
             )}
