@@ -835,18 +835,25 @@ function General() {
             </div>
             <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
               <Controls>
-                <Button
-                  type="reset"
-                  onClick={() => {
-                    setTimeout(() => form.reset(), 0);
-                  }}
-                  variant="outline"
-                  fullSize
-                  // Don't disable button when js is disabled
-                  disabled={isHydrated ? form.dirty === false : false}
-                >
-                  {locales.route.form.reset}
-                </Button>
+                <div className="mv-relative mv-w-full">
+                  <Button
+                    type="reset"
+                    onClick={() => {
+                      setTimeout(() => form.reset(), 0);
+                    }}
+                    variant="outline"
+                    fullSize
+                    // Don't disable button when js is disabled
+                    disabled={isHydrated ? form.dirty === false : false}
+                  >
+                    {locales.route.form.reset}
+                  </Button>
+                  <noscript className="mv-absolute mv-top-0">
+                    <Button as="a" href="./general" variant="outline" fullSize>
+                      {locales.route.form.reset}
+                    </Button>
+                  </noscript>
+                </div>
                 <Button
                   type="submit"
                   name="intent"
@@ -862,11 +869,6 @@ function General() {
                   {locales.route.form.submit}
                 </Button>
               </Controls>
-              <noscript>
-                <Button as="a" href="./general" variant="outline" fullSize>
-                  {locales.route.form.reset}
-                </Button>
-              </noscript>
             </div>
           </div>
         </div>

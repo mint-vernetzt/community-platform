@@ -332,18 +332,30 @@ function WebSocial() {
             </div>
             <div className="mv-flex mv-shrink mv-w-full @xl:mv-max-w-fit @xl:mv-w-auto mv-items-center mv-justify-center @xl:mv-justify-end">
               <Controls>
-                <Button
-                  type="reset"
-                  onClick={() => {
-                    setTimeout(() => form.reset(), 0);
-                  }}
-                  variant="outline"
-                  fullSize
-                  // Don't disable button when js is disabled
-                  disabled={isHydrated ? form.dirty === false : false}
-                >
-                  {locales.route.form.reset}
-                </Button>
+                <div className="mv-relative mv-w-full">
+                  <Button
+                    type="reset"
+                    onClick={() => {
+                      setTimeout(() => form.reset(), 0);
+                    }}
+                    variant="outline"
+                    fullSize
+                    // Don't disable button when js is disabled
+                    disabled={isHydrated ? form.dirty === false : false}
+                  >
+                    {locales.route.form.reset}
+                  </Button>
+                  <noscript className="mv-absolute mv-top-0">
+                    <Button
+                      as="a"
+                      href="./web-social"
+                      variant="outline"
+                      fullSize
+                    >
+                      {locales.route.form.reset}
+                    </Button>
+                  </noscript>
+                </div>
                 <Button
                   type="submit"
                   name="intent"

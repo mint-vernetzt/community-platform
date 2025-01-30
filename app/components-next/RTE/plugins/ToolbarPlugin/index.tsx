@@ -346,7 +346,7 @@ function LoadingToolbar(props: { locales: RTELocales }) {
             defaultChecked={false}
           />
           <label
-            className={`${buttonClassName} mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-50 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-cursor-pointer peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500`}
+            className={`${buttonClassName} mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-50 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-cursor-pointer peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500 mv-pointer-events-none`}
             htmlFor="add-link"
             title={locales.rte.toolbar.link.title}
           >

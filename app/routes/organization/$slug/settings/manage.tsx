@@ -752,18 +752,25 @@ function Manage() {
             <div className="mv-flex mv-w-full mv-items-center mv-justify-center @xl:mv-justify-end">
               <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
                 <Controls>
-                  <Button
-                    form={manageForm.id}
-                    type="reset"
-                    onClick={() => {
-                      setTimeout(() => manageForm.reset(), 0);
-                    }}
-                    variant="outline"
-                    fullSize
-                    disabled={isHydrated ? manageForm.dirty === false : false}
-                  >
-                    {locales.route.form.reset}
-                  </Button>
+                  <div className="mv-relative mv-w-full">
+                    <Button
+                      form={manageForm.id}
+                      type="reset"
+                      onClick={() => {
+                        setTimeout(() => manageForm.reset(), 0);
+                      }}
+                      variant="outline"
+                      fullSize
+                      disabled={isHydrated ? manageForm.dirty === false : false}
+                    >
+                      {locales.route.form.reset}
+                    </Button>
+                    <noscript className="mv-absolute mv-top-0">
+                      <Button as="a" href="./manage" variant="outline" fullSize>
+                        {locales.route.form.reset}
+                      </Button>
+                    </noscript>
+                  </div>
                   <Button
                     form={manageForm.id}
                     type="submit"
@@ -781,11 +788,6 @@ function Manage() {
                     {locales.route.form.submit}
                   </Button>
                 </Controls>
-                <noscript>
-                  <Button as="a" href="./manage" variant="outline" fullSize>
-                    {locales.route.form.reset}
-                  </Button>
-                </noscript>
               </div>
             </div>
           </div>
