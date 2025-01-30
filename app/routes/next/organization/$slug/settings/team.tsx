@@ -83,6 +83,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     searchedProfiles,
     submission,
     locales,
+    currentTimestamp: Date.now(),
   };
 };
 
@@ -161,7 +162,7 @@ export const action = async (args: ActionFunctionArgs) => {
   ) {
     return redirectWithToast(request.url, result.toast);
   }
-  return { submission: result.submission };
+  return { currentTimestamp: Date.now(), submission: result.submission };
 };
 
 function Team() {
@@ -171,6 +172,7 @@ function Team() {
     searchedProfiles,
     submission: loaderSubmission,
     locales,
+    currentTimestamp,
   } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
@@ -197,17 +199,23 @@ function Team() {
   });
 
   const [inviteTeamMemberForm] = useForm({
-    id: "invite-team-members",
+    id: `invite-team-member-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelTeamMemberInviteForm] = useForm({
-    id: "cancel-team-member-invites",
+    id: `cancel-team-member-invite-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [removeTeamMemberForm] = useForm({
-    id: "remove-team-members",
+    id: `remove-team-member-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
@@ -233,13 +241,19 @@ function Team() {
             method="post"
             preventScrollReset
           >
-            <ListContainer locales={locales}>
-              {organization.teamMembers.map((relation) => {
+            <ListContainer
+              locales={locales}
+              listKey="team-members"
+              hideAfter={3}
+            >
+              {organization.teamMembers.map((relation, index) => {
                 return (
                   <ListItem
-                    key={`organization-team-member-${relation.profile.username}`}
+                    key={`team-member-${relation.profile.username}`}
                     entity={relation.profile}
                     locales={locales}
+                    listIndex={index}
+                    hideAfter={3}
                   >
                     {organization.teamMembers.length > 1 && (
                       <Button
@@ -256,6 +270,22 @@ function Team() {
                 );
               })}
             </ListContainer>
+            {typeof removeTeamMemberForm.errors !== "undefined" &&
+            removeTeamMemberForm.errors.length > 0 ? (
+              <div>
+                {removeTeamMemberForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={removeTeamMemberForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </Form>
         </div>
         {/* Search Profiles To Add Section */}
@@ -310,6 +340,22 @@ function Team() {
                 </noscript>
               </Input.Controls>
             </Input>
+            {typeof searchForm.errors !== "undefined" &&
+            searchForm.errors.length > 0 ? (
+              <div>
+                {searchForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={searchForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </Form>
           {searchedProfiles.length > 0 ? (
             <Form
@@ -317,13 +363,19 @@ function Team() {
               method="post"
               preventScrollReset
             >
-              <ListContainer locales={locales}>
-                {searchedProfiles.map((profile) => {
+              <ListContainer
+                locales={locales}
+                listKey="team-member-search-results"
+                hideAfter={3}
+              >
+                {searchedProfiles.map((profile, index) => {
                   return (
                     <ListItem
-                      key={`profile-search-result-${profile.username}`}
+                      key={`team-member-search-result-${profile.username}`}
                       entity={profile}
                       locales={locales}
+                      listIndex={index}
+                      hideAfter={3}
                     >
                       <Button
                         name="intent"
@@ -338,6 +390,22 @@ function Team() {
                   );
                 })}
               </ListContainer>
+              {typeof inviteTeamMemberForm.errors !== "undefined" &&
+              inviteTeamMemberForm.errors.length > 0 ? (
+                <div>
+                  {inviteTeamMemberForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={inviteTeamMemberForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
             </Form>
           ) : null}
           {/* Pending Invites Section */}
@@ -352,13 +420,19 @@ function Team() {
                 method="post"
                 preventScrollReset
               >
-                <ListContainer locales={locales}>
-                  {pendingTeamMemberInvites.map((profile) => {
+                <ListContainer
+                  locales={locales}
+                  listKey="pending-team-member-invites"
+                  hideAfter={3}
+                >
+                  {pendingTeamMemberInvites.map((profile, index) => {
                     return (
                       <ListItem
                         key={`pending-team-member-invite-${profile.username}`}
                         entity={profile}
                         locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
                       >
                         <Button
                           name="intent"
@@ -373,6 +447,22 @@ function Team() {
                     );
                   })}
                 </ListContainer>
+                {typeof cancelTeamMemberInviteForm.errors !== "undefined" &&
+                cancelTeamMemberInviteForm.errors.length > 0 ? (
+                  <div>
+                    {cancelTeamMemberInviteForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={cancelTeamMemberInviteForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
               </Form>
             </div>
           ) : null}

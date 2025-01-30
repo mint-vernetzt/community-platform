@@ -82,6 +82,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     searchedProfiles,
     submission,
     locales,
+    currentTimestamp: Date.now(),
   };
 };
 
@@ -157,7 +158,7 @@ export const action = async (args: ActionFunctionArgs) => {
   ) {
     return redirectWithToast(request.url, result.toast);
   }
-  return { submission: result.submission };
+  return { submission: result.submission, currentTimestamp: Date.now() };
 };
 
 function Admins() {
@@ -167,6 +168,7 @@ function Admins() {
     searchedProfiles,
     submission: loaderSubmission,
     locales,
+    currentTimestamp,
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
@@ -196,17 +198,19 @@ function Admins() {
 
   // Only button forms, dont need special validation logic
   const [inviteAdminForm] = useForm({
-    id: "invite-admins",
+    id: `invite-admins-${actionData?.currentTimestamp || currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelAdminInviteForm] = useForm({
-    id: "cancel-admin-invites",
+    id: `cancel-admin-invites-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [removeAdminForm] = useForm({
-    id: "remove-admins",
+    id: `remove-admins-${actionData?.currentTimestamp || currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
@@ -232,13 +236,15 @@ function Admins() {
             method="post"
             preventScrollReset
           >
-            <ListContainer locales={locales}>
-              {organization.admins.map((relation) => {
+            <ListContainer locales={locales} listKey="admins" hideAfter={3}>
+              {organization.admins.map((relation, index) => {
                 return (
                   <ListItem
-                    key={`organization-admin-${relation.profile.username}`}
+                    key={`admin-${relation.profile.username}`}
                     entity={relation.profile}
                     locales={locales}
+                    listIndex={index}
+                    hideAfter={3}
                   >
                     {organization.admins.length > 1 && (
                       <Button
@@ -255,12 +261,28 @@ function Admins() {
                 );
               })}
             </ListContainer>
+            {typeof removeAdminForm.errors !== "undefined" &&
+            removeAdminForm.errors.length > 0 ? (
+              <div>
+                {removeAdminForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={removeAdminForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </Form>
         </div>
-        {/* Search Profiles To Add Section */}
+        {/* Search Profiles To Invite Section */}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {locales.route.content.add.headline}
+            {locales.route.content.invite.headline}
           </h2>
           <Form
             {...getFormProps(searchForm)}
@@ -282,7 +304,7 @@ function Admins() {
               standalone
             >
               <Input.Label htmlFor={searchFields[SearchProfiles].id}>
-                {locales.route.content.add.search}
+                {locales.route.content.invite.search}
               </Input.Label>
               <Input.SearchIcon />
 
@@ -298,17 +320,33 @@ function Admins() {
                 ))
               ) : (
                 <Input.HelperText>
-                  {locales.route.content.add.criteria}
+                  {locales.route.content.invite.criteria}
                 </Input.HelperText>
               )}
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">
-                    {locales.route.content.add.submitSearch}
+                    {locales.route.content.invite.submitSearch}
                   </Button>
                 </noscript>
               </Input.Controls>
             </Input>
+            {typeof searchForm.errors !== "undefined" &&
+            searchForm.errors.length > 0 ? (
+              <div>
+                {searchForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={searchForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </Form>
           {searchedProfiles.length > 0 ? (
             <Form
@@ -316,13 +354,19 @@ function Admins() {
               method="post"
               preventScrollReset
             >
-              <ListContainer locales={locales}>
-                {searchedProfiles.map((profile) => {
+              <ListContainer
+                locales={locales}
+                listKey="admin-search-results"
+                hideAfter={3}
+              >
+                {searchedProfiles.map((profile, index) => {
                   return (
                     <ListItem
-                      key={`profile-search-result-${profile.username}`}
+                      key={`admin-search-result-${profile.username}`}
                       entity={profile}
                       locales={locales}
+                      listIndex={index}
+                      hideAfter={3}
                     >
                       <Button
                         name="intent"
@@ -331,12 +375,28 @@ function Admins() {
                         type="submit"
                         fullSize
                       >
-                        {locales.route.content.add.submit}
+                        {locales.route.content.invite.submit}
                       </Button>
                     </ListItem>
                   );
                 })}
               </ListContainer>
+              {typeof inviteAdminForm.errors !== "undefined" &&
+              inviteAdminForm.errors.length > 0 ? (
+                <div>
+                  {inviteAdminForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={inviteAdminForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
             </Form>
           ) : null}
           {/* Pending Invites Section */}
@@ -351,13 +411,19 @@ function Admins() {
                 method="post"
                 preventScrollReset
               >
-                <ListContainer locales={locales}>
-                  {pendingAdminInvites.map((profile) => {
+                <ListContainer
+                  locales={locales}
+                  listKey="pending-admin-invites"
+                  hideAfter={3}
+                >
+                  {pendingAdminInvites.map((profile, index) => {
                     return (
                       <ListItem
                         key={`pending-admin-invite-${profile.username}`}
                         entity={profile}
                         locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
                       >
                         <Button
                           name="intent"
@@ -372,6 +438,22 @@ function Admins() {
                     );
                   })}
                 </ListContainer>
+                {typeof cancelAdminInviteForm.errors !== "undefined" &&
+                cancelAdminInviteForm.errors.length > 0 ? (
+                  <div>
+                    {cancelAdminInviteForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={cancelAdminInviteForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
               </Form>
             </div>
           ) : null}

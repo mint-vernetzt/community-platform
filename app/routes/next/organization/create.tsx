@@ -38,11 +38,12 @@ import {
   createOrganizationOnProfile,
   getAllNetworkTypes,
   getAllOrganizationTypes,
-  getOrganizationTypesWithSlugs,
+  getOrganizationTypesWithSlugs as getOrganizationTypeNetwork,
   searchForOrganizationsByName,
   type CreateOrganizationLocales,
 } from "./create.server";
 import React from "react";
+import { invariantResponse } from "~/lib/utils/response";
 
 const createSchema = (locales: CreateOrganizationLocales) => {
   return z.object({
@@ -121,7 +122,13 @@ export async function loader(args: LoaderFunctionArgs) {
   const allOrganizationTypes = await getAllOrganizationTypes();
   const allNetworkTypes = await getAllNetworkTypes();
 
-  return { searchResult, allOrganizationTypes, allNetworkTypes, locales };
+  return {
+    searchResult,
+    allOrganizationTypes,
+    allNetworkTypes,
+    locales,
+    currentTimestamp: Date.now(),
+  };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -161,14 +168,30 @@ export async function action(args: ActionFunctionArgs) {
     (queryString !== null && queryString === organizationName)
   ) {
     const slug = generateOrganizationSlug(organizationName);
-    const organizationTypesWithSlugs = await getOrganizationTypesWithSlugs(
-      submission.value.organizationTypes
+    const organizationTypeNetwork = await getOrganizationTypeNetwork();
+    invariantResponse(
+      organizationTypeNetwork !== null,
+      locales.route.validation.organizationTypeNetworkNotFound,
+      { status: 404 }
     );
-    const isNetwork = organizationTypesWithSlugs.some((organizationType) => {
-      return organizationType.slug === "network";
-    });
-    if (isNetwork === false) {
-      submission.value.networkTypes = [];
+    const isNetwork = submission.value.organizationTypes.some(
+      (id) => id === organizationTypeNetwork.id
+    );
+    if (isNetwork === false && submission.value.networkTypes.length > 0) {
+      const newSubmission = parseWithZod(formData, {
+        schema: () =>
+          createSchema(locales).transform(async (data, ctx) => {
+            ctx.addIssue({
+              code: "custom",
+              message: locales.route.validation.notANetwork,
+            });
+            return z.NEVER;
+          }),
+      });
+      return {
+        submission: newSubmission.reply(),
+        currentTimestamp: Date.now(),
+      };
     }
     await createOrganizationOnProfile(sessionUser.id, submission.value, slug);
     return redirectWithAlert(`/organization/${slug}/detail/about`, {
@@ -189,8 +212,13 @@ export async function action(args: ActionFunctionArgs) {
 
 function CreateOrganization() {
   const loaderData = useLoaderData<typeof loader>();
-  const { searchResult, allOrganizationTypes, allNetworkTypes, locales } =
-    loaderData;
+  const {
+    searchResult,
+    allOrganizationTypes,
+    allNetworkTypes,
+    locales,
+    currentTimestamp,
+  } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
@@ -198,7 +226,9 @@ function CreateOrganization() {
   const searchQuery = searchParams.get("search") || undefined;
 
   const [form, fields] = useForm({
-    id: "create-organization-form",
+    id: `create-organization-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
     constraint: getZodConstraint(createSchema(locales)),
     defaultValue: {
       organizationName: searchQuery,
@@ -520,6 +550,21 @@ function CreateOrganization() {
 
         {/* TODO: FAQ Section */}
       </Section>
+      {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+        <div>
+          {form.errors.map((error, index) => {
+            return (
+              <div
+                id={form.errorId}
+                key={index}
+                className="mv-text-sm mv-font-semibold mv-text-negative-600"
+              >
+                {error}
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
 
       <div className="mv-w-full mv-flex mv-flex-col @sm:mv-flex-row mv-justify-between mv-items-end @sm:mv-items-start mv-gap-4 @sm:mv-px-6">
         <p className="mv-text-neutral-700 mv-text-xs mv-leading-4">

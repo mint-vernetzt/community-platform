@@ -32,11 +32,11 @@ export const locale = {
       remove: "Remove",
     },
     add: {
-      headline: "Add team member",
+      headline: "Invite team member",
       search: "Search",
       criteria: "At least 3 characters.",
       submitSearch: "Search",
-      submit: "Add",
+      submit: "Invite",
     },
     invites: {
       headline: "Invitations",

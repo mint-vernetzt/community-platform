@@ -26,27 +26,43 @@ import { BackButton } from "~/components-next/BackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
+import {
+  searchNetworkMembersSchema,
+  searchNetworksSchema,
+} from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import {
+  Deep,
+  SearchNetworkMembers,
+  SearchNetworks,
+  SearchOrganizations,
+} from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { searchOrganizations } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
+import { deriveMode } from "~/utils.server";
 import {
+  addNetworkMember,
   getOrganizationWithNetworksAndNetworkMembers,
+  joinNetwork,
+  leaveNetwork,
+  removeNetworkMember,
   updateOrganization,
 } from "./manage.server";
-import { Deep, SearchOrganizations } from "~/lib/utils/searchParams";
-import { searchOrganizationsSchema } from "~/form-helpers";
-import { searchOrganizations } from "~/routes/utils.server";
-import { deriveMode } from "~/utils.server";
 
 export const manageSchema = z.object({
   organizationTypes: z.array(z.string().uuid()),
   networkTypes: z.array(z.string().uuid()),
+});
+
+export const updateNetworkSchema = z.object({
+  organizationId: z.string(),
 });
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -90,19 +106,52 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
+  const searchParams = new URL(request.url).searchParams;
   // TODO: Add pending network join requests here to exclude them from the search
   const currentNetworkIds = [
     ...organization.memberOf.map((relation) => relation.network.id),
   ];
+  const networkSearchParams = new URLSearchParams(searchParams);
+  const searchNetworksParam = networkSearchParams.get(SearchNetworks);
+  if (searchNetworksParam !== null) {
+    networkSearchParams.append(SearchOrganizations, searchNetworksParam);
+    networkSearchParams.delete(SearchNetworks);
+  }
+  const {
+    searchedOrganizations: searchedNetworks,
+    submission: searchNetworksSubmission,
+  } = await searchOrganizations({
+    searchParams: networkSearchParams,
+    idsToExclude: currentNetworkIds,
+    authClient,
+    locales,
+    mode,
+  });
 
-  const { searchedOrganizations: searchedNetworks, submission } =
-    await searchOrganizations({
-      searchParams: new URL(request.url).searchParams,
-      idsToExclude: currentNetworkIds,
-      authClient,
-      locales,
-      mode,
-    });
+  // TODO: Add pending network member invites here to exclude them from the search
+  const currentNetworkMemberIds = [
+    ...organization.networkMembers.map((relation) => relation.networkMember.id),
+  ];
+  const networkMemberSearchParams = new URLSearchParams(searchParams);
+  const searchNetworkMembersParam =
+    networkMemberSearchParams.get(SearchNetworkMembers);
+  if (searchNetworkMembersParam !== null) {
+    networkMemberSearchParams.append(
+      SearchOrganizations,
+      searchNetworkMembersParam
+    );
+    networkMemberSearchParams.delete(SearchNetworkMembers);
+  }
+  const {
+    searchedOrganizations: searchedNetworkMembers,
+    submission: searchNetworkMembersSubmission,
+  } = await searchOrganizations({
+    searchParams: networkMemberSearchParams,
+    idsToExclude: currentNetworkMemberIds,
+    authClient,
+    locales,
+    mode,
+  });
 
   const currentTimestamp = Date.now();
 
@@ -111,7 +160,9 @@ export async function loader(args: LoaderFunctionArgs) {
     allOrganizationTypes,
     allNetworkTypes,
     searchedNetworks,
-    submission,
+    searchNetworksSubmission,
+    searchedNetworkMembers,
+    searchNetworkMembersSubmission,
     currentTimestamp,
     locales,
   };
@@ -136,17 +187,25 @@ export async function action(args: ActionFunctionArgs) {
     return redirect(redirectPath);
   }
 
-  invariantResponse(
-    params.slug !== undefined,
-    locales.route.error.invalidRoute,
-    {
-      status: 400,
-    }
-  );
+  invariantResponse(slug !== undefined, locales.route.error.invalidRoute, {
+    status: 400,
+  });
 
   const organization = await prismaClient.organization.findFirst({
     where: { slug },
-    select: { id: true },
+    select: {
+      id: true,
+      name: true,
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   invariantResponse(organization !== null, locales.route.error.notFound, {
@@ -175,55 +234,67 @@ export async function action(args: ActionFunctionArgs) {
   if (intent === "submit") {
     result = await updateOrganization({
       formData,
-      slug: params.slug,
       organizationId: organization.id,
       locales,
     });
-    // TODO: Implement join and leave network
   } else if (intent.startsWith("join-network-")) {
     const joinNetworkFormData = new FormData();
     joinNetworkFormData.set(
       "organizationId",
       intent.replace("join-network-", "")
     );
-    // result = await joinNetwork({
-    //   formData: joinNetworkFormData,
-    //   slug,
-    //   locales,
-    // });
+    result = await joinNetwork({
+      formData: joinNetworkFormData,
+      organization,
+      locales,
+    });
   } else if (intent.startsWith("leave-network-")) {
     const leaveNetworkFormData = new FormData();
     leaveNetworkFormData.set(
       "organizationId",
       intent.replace("leave-network-", "")
     );
-    // result = await leaveNetwork({
-    //   formData: leaveNetworkFormData,
-    //   slug,
-    //   locales,
-    // });
+    result = await leaveNetwork({
+      formData: leaveNetworkFormData,
+      organization,
+      locales,
+    });
+  } else if (intent.startsWith("add-network-member-")) {
+    const leaveNetworkFormData = new FormData();
+    leaveNetworkFormData.set(
+      "organizationId",
+      intent.replace("add-network-member-", "")
+    );
+    result = await addNetworkMember({
+      formData: leaveNetworkFormData,
+      organization,
+      locales,
+    });
+  } else if (intent.startsWith("remove-network-member-")) {
+    const leaveNetworkFormData = new FormData();
+    leaveNetworkFormData.set(
+      "organizationId",
+      intent.replace("remove-network-member-", "")
+    );
+    result = await removeNetworkMember({
+      formData: leaveNetworkFormData,
+      organization,
+      locales,
+    });
   } else {
     invariantResponse(false, locales.route.error.wrongIntent, {
       status: 400,
     });
   }
 
-  // if (
-  //   result.submission !== undefined &&
-  //   result.submission.status === "success" &&
-  //   result.toast !== undefined
-  // ) {
-  //   return redirectWithToast(request.url, result.toast);
-  // }
-  // return { submission: result.submission };
-  return redirectWithToast(
-    request.url,
-    result?.toast || {
-      id: "manage-organization-toast",
-      key: `${new Date().getTime()}`,
-      message: locales.route.content.success,
-    }
-  );
+  if (
+    result.submission !== undefined &&
+    result.submission.status === "success" &&
+    result.toast !== undefined
+  ) {
+    return redirectWithToast(request.url, result.toast);
+  }
+  return { submission: result.submission, currentTimestamp: Date.now() };
 }
 
 function Manage() {
@@ -233,7 +304,9 @@ function Manage() {
     allOrganizationTypes,
     allNetworkTypes,
     searchedNetworks,
-    submission: loaderSubmission,
+    searchNetworksSubmission,
+    searchedNetworkMembers,
+    searchNetworkMembersSubmission,
     locales,
   } = loaderData;
   const actionData = useActionData<typeof action>();
@@ -248,7 +321,7 @@ function Manage() {
     types: organizationTypes,
     networkTypes,
     memberOf,
-    // networkMembers,
+    networkMembers,
   } = organization;
 
   const defaultValues = {
@@ -258,8 +331,10 @@ function Manage() {
     networkTypes: networkTypes.map((relation) => relation.networkType.id),
   };
 
-  const [form, fields] = useForm({
-    id: `manage-form-${loaderData.currentTimestamp}`,
+  const [manageForm, manageFields] = useForm({
+    id: `manage-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
     constraint: getZodConstraint(manageSchema),
     defaultValue: defaultValues,
     shouldValidate: "onInput",
@@ -276,33 +351,63 @@ function Manage() {
 
   const [searchNetworksForm, searchNetworksFields] = useForm({
     id: "search-networks",
-    defaultValue: {
-      [SearchOrganizations]: searchParams.get(SearchOrganizations) || undefined,
-    },
-    constraint: getZodConstraint(searchOrganizationsSchema(locales)),
+    constraint: getZodConstraint(searchNetworksSchema(locales)),
     // Client side validation onInput, server side validation on submit
     shouldValidate: "onInput",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
-        schema: searchOrganizationsSchema(locales),
+        schema: searchNetworksSchema(locales),
       });
     },
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? loaderSubmission : null,
+    lastResult: navigation.state === "idle" ? searchNetworksSubmission : null,
   });
 
   const [joinNetworkForm] = useForm({
-    id: "add-network",
+    id: `join-network-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [leaveNetworkForm] = useForm({
-    id: "remove-network",
+    id: `leave-network-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
-  const organizationTypeList = fields.organizationTypes.getFieldList();
-  let networkTypeList = fields.networkTypes.getFieldList();
+  const [searchNetworkMembersForm, searchNetworkMembersFields] = useForm({
+    id: "search-network-members",
+    constraint: getZodConstraint(searchNetworkMembersSchema(locales)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: searchNetworkMembersSchema(locales),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult:
+      navigation.state === "idle" ? searchNetworkMembersSubmission : null,
+  });
+
+  const [addNetworkMemberForm] = useForm({
+    id: `add-network-member-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const [removeNetworkMemberForm] = useForm({
+    id: `remove-network-member-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const organizationTypeList = manageFields.organizationTypes.getFieldList();
+  let networkTypeList = manageFields.networkTypes.getFieldList();
   const organizationTypeNetwork = allOrganizationTypes.find(
     (organizationType) => {
       return organizationType.slug === "network";
@@ -323,7 +428,7 @@ function Manage() {
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
     searchParam: "modal-unsaved-changes",
-    formMetadataToCheck: form,
+    formMetadataToCheck: manageForm,
     locales,
   });
 
@@ -335,7 +440,7 @@ function Manage() {
           {locales.route.content.headline}
         </BackButton>
         <Form
-          {...getFormProps(form)}
+          {...getFormProps(manageForm)}
           method="post"
           preventScrollReset
           autoComplete="off"
@@ -348,10 +453,10 @@ function Manage() {
             </h2>
             {/* TODO: When removing network from this list and there are networkMembers -> Show modal on submit by switching the submit button. Modal text: something like -> Are you sure? The connections will be lost. */}
             <ConformSelect
-              id={fields.organizationTypes.id}
+              id={manageFields.organizationTypes.id}
               cta={locales.route.content.types.option}
             >
-              <ConformSelect.Label htmlFor={fields.organizationTypes.id}>
+              <ConformSelect.Label htmlFor={manageFields.organizationTypes.id}>
                 {locales.route.content.types.label}
               </ConformSelect.Label>
               <ConformSelect.HelperText>
@@ -380,8 +485,8 @@ function Manage() {
                   return (
                     <button
                       key={organizationType.id}
-                      {...form.insert.getButtonProps({
-                        name: fields.organizationTypes.name,
+                      {...manageForm.insert.getButtonProps({
+                        name: manageFields.organizationTypes.name,
                         defaultValue: organizationType.id,
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
@@ -428,8 +533,8 @@ function Manage() {
                       {title || locales.route.content.notFound}
                       <Chip.Delete>
                         <button
-                          {...form.remove.getButtonProps({
-                            name: fields.organizationTypes.name,
+                          {...manageForm.remove.getButtonProps({
+                            name: manageFields.organizationTypes.name,
                             index,
                           })}
                         />
@@ -448,11 +553,11 @@ function Manage() {
               {locales.route.content.networkTypes.headline}
             </h2>
             <ConformSelect
-              id={fields.networkTypes.id}
+              id={manageFields.networkTypes.id}
               cta={locales.route.content.networkTypes.option}
               disabled={isNetwork === false}
             >
-              <ConformSelect.Label htmlFor={fields.networkTypes.id}>
+              <ConformSelect.Label htmlFor={manageFields.networkTypes.id}>
                 <span
                   className={isNetwork === false ? "mv-text-neutral-300" : ""}
                 >
@@ -488,11 +593,11 @@ function Manage() {
                   }
                   return (
                     <button
-                      {...form.insert.getButtonProps({
-                        name: fields.networkTypes.name,
+                      {...manageForm.insert.getButtonProps({
+                        name: manageFields.networkTypes.name,
                         defaultValue: filteredNetworkType.id,
                       })}
-                      form={form.id}
+                      form={manageForm.id}
                       key={filteredNetworkType.id}
                       disabled={!isNetwork}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
@@ -538,8 +643,8 @@ function Manage() {
                       {title || locales.route.content.notFound}
                       <Chip.Delete>
                         <button
-                          {...form.remove.getButtonProps({
-                            name: fields.networkTypes.name,
+                          {...manageForm.remove.getButtonProps({
+                            name: manageFields.networkTypes.name,
                             index,
                           })}
                         />
@@ -549,21 +654,39 @@ function Manage() {
                 })}
               </Chip.Container>
             )}
+            {typeof manageForm.errors !== "undefined" &&
+            manageForm.errors.length > 0 ? (
+              <div>
+                {manageForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={manageForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
             <div className="mv-flex mv-w-full mv-items-center mv-justify-center @xl:mv-justify-end">
               <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
                 <Controls>
                   <Button
+                    form={manageForm.id}
                     type="reset"
                     onClick={() => {
-                      setTimeout(() => form.reset(), 0);
+                      setTimeout(() => manageForm.reset(), 0);
                     }}
                     variant="outline"
                     fullSize
-                    disabled={isHydrated ? form.dirty === false : false}
+                    disabled={isHydrated ? manageForm.dirty === false : false}
                   >
                     {locales.route.form.reset}
                   </Button>
                   <Button
+                    form={manageForm.id}
                     type="submit"
                     name="intent"
                     value="submit"
@@ -571,7 +694,8 @@ function Manage() {
                     // Don't disable button when js is disabled
                     disabled={
                       isHydrated
-                        ? form.dirty === false || form.valid === false
+                        ? manageForm.dirty === false ||
+                          manageForm.valid === false
                         : false
                     }
                   >
@@ -586,8 +710,8 @@ function Manage() {
               </div>
             </div>
           </div>
+          {/* Current Networks and Leave Network Section */}
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            {/* Current Networks and Remove Section */}
             {memberOf.length > 0 ? (
               <>
                 <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -602,33 +726,53 @@ function Manage() {
                   method="post"
                   preventScrollReset
                 >
-                  <ListContainer locales={locales}>
-                    {organization.memberOf.map((relation) => {
+                  <ListContainer
+                    locales={locales}
+                    listKey="networks"
+                    hideAfter={3}
+                  >
+                    {organization.memberOf.map((relation, index) => {
                       return (
                         <ListItem
                           key={`network-${relation.network.slug}`}
                           entity={relation.network}
                           locales={locales}
+                          listIndex={index}
+                          hideAfter={3}
                         >
-                          {organization.memberOf.length > 1 && (
-                            <Button
-                              name="intent"
-                              variant="outline"
-                              value={`leave-network-${relation.network.id}`}
-                              type="submit"
-                              fullSize
-                            >
-                              {locales.route.content.networks.current.leave}
-                            </Button>
-                          )}
+                          <Button
+                            name="intent"
+                            variant="outline"
+                            value={`leave-network-${relation.network.id}`}
+                            type="submit"
+                            fullSize
+                          >
+                            {locales.route.content.networks.current.leave.cta}
+                          </Button>
                         </ListItem>
                       );
                     })}
                   </ListContainer>
+                  {typeof leaveNetworkForm.errors !== "undefined" &&
+                  leaveNetworkForm.errors.length > 0 ? (
+                    <div>
+                      {leaveNetworkForm.errors.map((error, index) => {
+                        return (
+                          <div
+                            id={leaveNetworkForm.errorId}
+                            key={index}
+                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          >
+                            {error}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : null}
                 </Form>
               </>
             ) : null}
-            {/* Search Networks To Add Section */}
+            {/* Search Networks To Join Section */}
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {locales.route.content.networks.join.headline}
             </h2>
@@ -646,32 +790,36 @@ function Manage() {
             >
               <Input name={Deep} defaultValue="true" type="hidden" />
               <Input
-                {...getInputProps(searchNetworksFields[SearchOrganizations], {
+                name={SearchNetworkMembers}
+                defaultValue={
+                  searchParams.get(SearchNetworkMembers) || undefined
+                }
+                type="hidden"
+              />
+              <Input
+                {...getInputProps(searchNetworksFields[SearchNetworks], {
                   type: "search",
                 })}
-                key={searchNetworksFields[SearchOrganizations].id}
+                defaultValue={searchParams.get(SearchNetworks) || undefined}
+                key={searchNetworksFields[SearchNetworks].id}
                 standalone
               >
-                <Input.Label
-                  htmlFor={searchNetworksFields[SearchOrganizations].id}
-                >
+                <Input.Label htmlFor={searchNetworksFields[SearchNetworks].id}>
                   {locales.route.content.networks.join.label}
                 </Input.Label>
                 <Input.SearchIcon />
 
-                {typeof searchNetworksFields[SearchOrganizations].errors !==
+                {typeof searchNetworksFields[SearchNetworks].errors !==
                   "undefined" &&
-                searchNetworksFields[SearchOrganizations].errors.length > 0 ? (
-                  searchNetworksFields[SearchOrganizations].errors.map(
-                    (error) => (
-                      <Input.Error
-                        id={searchNetworksFields[SearchOrganizations].errorId}
-                        key={error}
-                      >
-                        {error}
-                      </Input.Error>
-                    )
-                  )
+                searchNetworksFields[SearchNetworks].errors.length > 0 ? (
+                  searchNetworksFields[SearchNetworks].errors.map((error) => (
+                    <Input.Error
+                      id={searchNetworksFields[SearchNetworks].errorId}
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  ))
                 ) : (
                   <Input.HelperText>
                     {locales.route.content.networks.join.helper}
@@ -685,6 +833,22 @@ function Manage() {
                   </noscript>
                 </Input.Controls>
               </Input>
+              {typeof searchNetworksForm.errors !== "undefined" &&
+              searchNetworksForm.errors.length > 0 ? (
+                <div>
+                  {searchNetworksForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={searchNetworksForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
             </Form>
             {searchedNetworks.length > 0 ? (
               <Form
@@ -692,13 +856,19 @@ function Manage() {
                 method="post"
                 preventScrollReset
               >
-                <ListContainer locales={locales}>
-                  {searchedNetworks.map((organization) => {
+                <ListContainer
+                  locales={locales}
+                  listKey="network-search-results"
+                  hideAfter={3}
+                >
+                  {searchedNetworks.map((organization, index) => {
                     return (
                       <ListItem
                         key={`network-search-result-${organization.slug}`}
                         entity={organization}
                         locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
                       >
                         <Button
                           name="intent"
@@ -713,9 +883,231 @@ function Manage() {
                     );
                   })}
                 </ListContainer>
+                {typeof joinNetworkForm.errors !== "undefined" &&
+                joinNetworkForm.errors.length > 0 ? (
+                  <div>
+                    {joinNetworkForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={joinNetworkForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
               </Form>
             ) : null}
-            {/* TODO: Add or remove network members section -> disable the section when orgTypeList does not have network */}
+          </div>
+          {/* Current Network Members and Remove Network Member Section */}
+          {/* TODO: Add or remove network members section -> disable the section when orgTypeList does not have network */}
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+            {networkMembers.length > 0 ? (
+              <>
+                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                  {decideBetweenSingularOrPlural(
+                    locales.route.content.networkMembers.current.headline_one,
+                    locales.route.content.networkMembers.current.headline_other,
+                    organization.networkMembers.length
+                  )}
+                </h2>
+                <Form
+                  {...getFormProps(removeNetworkMemberForm)}
+                  method="post"
+                  preventScrollReset
+                >
+                  <ListContainer
+                    locales={locales}
+                    listKey="network-members"
+                    hideAfter={3}
+                  >
+                    {organization.networkMembers.map((relation, index) => {
+                      return (
+                        <ListItem
+                          key={`network-member-${relation.networkMember.slug}`}
+                          entity={relation.networkMember}
+                          locales={locales}
+                          listIndex={index}
+                          hideAfter={3}
+                        >
+                          <Button
+                            name="intent"
+                            variant="outline"
+                            value={`remove-network-member-${relation.networkMember.id}`}
+                            type="submit"
+                            fullSize
+                          >
+                            {
+                              locales.route.content.networkMembers.current
+                                .remove.cta
+                            }
+                          </Button>
+                        </ListItem>
+                      );
+                    })}
+                  </ListContainer>
+                  {typeof removeNetworkMemberForm.errors !== "undefined" &&
+                  removeNetworkMemberForm.errors.length > 0 ? (
+                    <div>
+                      {removeNetworkMemberForm.errors.map((error, index) => {
+                        return (
+                          <div
+                            id={removeNetworkMemberForm.errorId}
+                            key={index}
+                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          >
+                            {error}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </Form>
+              </>
+            ) : null}
+            {/* Search Network Members To Add Section */}
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              {locales.route.content.networkMembers.add.headline}
+            </h2>
+            <p>{locales.route.content.networkMembers.add.subline}</p>
+            <Form
+              {...getFormProps(searchNetworkMembersForm)}
+              method="get"
+              onChange={(event) => {
+                searchNetworkMembersForm.validate();
+                if (searchNetworkMembersForm.valid) {
+                  submit(event.currentTarget, { preventScrollReset: true });
+                }
+              }}
+              autoComplete="off"
+            >
+              <Input name={Deep} defaultValue="true" type="hidden" />
+              <Input
+                name={SearchNetworks}
+                defaultValue={searchParams.get(SearchNetworks) || undefined}
+                type="hidden"
+              />
+              <Input
+                {...getInputProps(
+                  searchNetworkMembersFields[SearchNetworkMembers],
+                  {
+                    type: "search",
+                  }
+                )}
+                defaultValue={
+                  searchParams.get(SearchNetworkMembers) || undefined
+                }
+                key={searchNetworkMembersFields[SearchNetworkMembers].id}
+                standalone
+              >
+                <Input.Label
+                  htmlFor={searchNetworkMembersFields[SearchNetworkMembers].id}
+                >
+                  {locales.route.content.networkMembers.add.label}
+                </Input.Label>
+                <Input.SearchIcon />
+
+                {typeof searchNetworkMembersFields[SearchNetworkMembers]
+                  .errors !== "undefined" &&
+                searchNetworkMembersFields[SearchNetworkMembers].errors.length >
+                  0 ? (
+                  searchNetworkMembersFields[SearchNetworkMembers].errors.map(
+                    (error) => (
+                      <Input.Error
+                        id={
+                          searchNetworkMembersFields[SearchNetworkMembers]
+                            .errorId
+                        }
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    )
+                  )
+                ) : (
+                  <Input.HelperText>
+                    {locales.route.content.networkMembers.add.helper}
+                  </Input.HelperText>
+                )}
+                <Input.Controls>
+                  <noscript>
+                    <Button type="submit" variant="outline">
+                      {locales.route.content.networkMembers.add.searchCta}
+                    </Button>
+                  </noscript>
+                </Input.Controls>
+              </Input>
+              {typeof searchNetworksForm.errors !== "undefined" &&
+              searchNetworksForm.errors.length > 0 ? (
+                <div>
+                  {searchNetworksForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={searchNetworksForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </Form>
+            {searchedNetworkMembers.length > 0 ? (
+              <Form
+                {...getFormProps(addNetworkMemberForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer
+                  locales={locales}
+                  listKey="network-member-search-results"
+                  hideAfter={3}
+                >
+                  {searchedNetworkMembers.map((organization, index) => {
+                    return (
+                      <ListItem
+                        key={`network-member-search-result-${organization.slug}`}
+                        entity={organization}
+                        locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
+                      >
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`add-network-member-${organization.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.networkMembers.add.cta}
+                        </Button>
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+                {typeof addNetworkMemberForm.errors !== "undefined" &&
+                addNetworkMemberForm.errors.length > 0 ? (
+                  <div>
+                    {addNetworkMemberForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={addNetworkMemberForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </Form>
+            ) : null}
           </div>
         </div>
       </Section>

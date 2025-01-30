@@ -1,11 +1,14 @@
 export const locale = {
   error: {
     notFound: "Organization not found",
+    organizationTypeNetworkNotFound: "Organization type network not found",
     invalidRoute: "Invalid route",
     noStringIntent: "Bad request: intent is not a string",
     wrongIntent: "Bad request: wrong intent",
     updateFailed:
       "Data could not be saved. Please try again or contact support",
+    notAllowed:
+      "Your organization must have the organizational form network to make this action",
   },
   content: {
     notFound: "Not found",
@@ -27,7 +30,10 @@ export const locale = {
       current: {
         headline_one: "Current network",
         headline_other: "Current networks",
-        leave: "Leave",
+        leave: {
+          cta: "Leave",
+          success: "You have successfully left the network {{organization}}.",
+        },
       },
       join: {
         headline: "Is your organization part of other networks?",
@@ -38,6 +44,32 @@ export const locale = {
         helper: "At least 3 characters.",
         searchCta: "Search",
         cta: "Join",
+        success: "You have successfully joined the network {{organization}}.",
+      },
+    },
+    networkMembers: {
+      current: {
+        headline_one:
+          "Current member organization of your network organization",
+        headline_other:
+          "Current member organizations of your network organization",
+        remove: {
+          cta: "Remove",
+          success:
+            "You have successfully removed the member organization {{organization}} from your network organization.",
+        },
+      },
+      add: {
+        headline: "Add organizations to your network organization",
+        subline:
+          "Search for organizations and add them to your network organization.",
+        label: "Name of organization",
+        placeholder: "Search...",
+        helper: "At least 3 characters.",
+        searchCta: "Search",
+        cta: "Add",
+        success:
+          "You have successfully added the organization {{organization}} to your network organization.",
       },
     },
   },

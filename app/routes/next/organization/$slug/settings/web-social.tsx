@@ -129,6 +129,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (submission.status !== "success") {
     return {
       submission: submission.reply(),
+      currentTimeStamp: Date.now(),
     };
   }
 
@@ -150,7 +151,7 @@ function WebSocial() {
   const { organizationVisibility, ...rest } = organization;
   const [form, fields] = useForm({
     // Use different ids depending on loaderData to sync dirty state
-    id: `web-social-form-${currentTimestamp}`,
+    id: `web-social-form-${actionData?.currentTimeStamp || currentTimestamp}`,
     defaultValue: {
       ...rest,
       visibilities: organizationVisibility,

@@ -5,6 +5,10 @@ export const locale = {
       min: "Der Name der Organisation muss mindestens 3 Zeichen lang sein.",
       max: "Der Name der Organisation darf maximal 80 Zeichen lang sein.",
     },
+    organizationTypeNetworkNotFound:
+      "Organisationsform Netzwerk nicht gefunden",
+    notANetwork:
+      "Deine Organisation muss die Organisationsform Netzwerk haben um Netzwerkformen hinzuzufügen",
   },
   back: "Meine Organisationen",
   headline: "Organisation anlegen",

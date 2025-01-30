@@ -327,6 +327,7 @@ export async function action(args: ActionFunctionArgs) {
   if (submission.status !== "success") {
     return {
       submission: submission.reply(),
+      currentTimestamp: Date.now(),
     };
   }
 
@@ -356,7 +357,9 @@ function General() {
   };
 
   const [form, fields] = useForm({
-    id: `general-form-${loaderData.currentTimestamp}`,
+    id: `general-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
     constraint: getZodConstraint(createGeneralSchema(locales)),
     defaultValue: defaultValues,
     shouldValidate: "onInput",
@@ -770,6 +773,21 @@ function General() {
               </Chip.Container>
             )}
           </div>
+          {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+            <div>
+              {form.errors.map((error, index) => {
+                return (
+                  <div
+                    id={form.errorId}
+                    key={index}
+                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                  >
+                    {error}
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
           <div className="mv-flex mv-flex-col @xl:mv-flex-row mv-w-full mv-justify-end @xl:mv-justify-between mv-items-start mv-gap-4">
             <div className="mv-flex mv-flex-col mv-gap-1">
               <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">

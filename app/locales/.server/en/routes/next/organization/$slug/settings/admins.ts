@@ -30,12 +30,12 @@ export const locale = {
       headline_other: "Administrators",
       remove: "Remove",
     },
-    add: {
-      headline: "Add administrator",
+    invite: {
+      headline: "Invite administrator",
       search: "Search",
       criteria: "At least 3 characters.",
       submitSearch: "Search",
-      submit: "Add",
+      submit: "Invite",
     },
     invites: {
       headline: "Invitations",

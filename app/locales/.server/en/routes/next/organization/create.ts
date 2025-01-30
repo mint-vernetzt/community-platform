@@ -5,6 +5,9 @@ export const locale = {
       min: "The name of the organization must be at least 3 characters long.",
       max: "The name of the organization may be a maximum of 80 characters long.",
     },
+    organizationTypeNetworkNotFound: "Organization type network not found",
+    notANetwork:
+      "Your organization must have the organizational form network to add network forms",
   },
   back: "My organizations",
   headline: "Create organization",

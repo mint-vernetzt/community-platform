@@ -117,8 +117,8 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    console.log("Submission did not succeed");
     return {
+      currentTimestamp: Date.now(),
       submission: submission.reply(),
     };
   }
@@ -146,7 +146,9 @@ function ChangeURL() {
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm({
-    id: `change-url-form-${loaderData.currentTimestamp}`,
+    id: `change-url-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
     defaultValue: {
       slug: loaderData.slug,
     },

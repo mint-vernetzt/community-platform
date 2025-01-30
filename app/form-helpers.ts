@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { SearchOrganizations, SearchProfiles } from "./lib/utils/searchParams";
+import {
+  SearchNetworkMembers,
+  SearchNetworks,
+  SearchOrganizations,
+  SearchProfiles,
+} from "./lib/utils/searchParams";
 import { type OrganizationAdminSettingsLocales } from "./routes/next/organization/$slug/settings/admins.server";
 import { type OrganizationTeamSettingsLocales } from "./routes/next/organization/$slug/settings/team.server";
 import { type ManageOrganizationSettingsLocales } from "./routes/next/organization/$slug/settings/manage.server";
@@ -21,6 +26,28 @@ export const searchOrganizationsSchema = (
 ) => {
   return z.object({
     [SearchOrganizations]: z
+      .string()
+      .min(3, { message: locales.searchOrganizationsSchema.validation.min })
+      .optional(),
+  });
+};
+
+export const searchNetworksSchema = (
+  locales: ManageOrganizationSettingsLocales
+) => {
+  return z.object({
+    [SearchNetworks]: z
+      .string()
+      .min(3, { message: locales.searchOrganizationsSchema.validation.min })
+      .optional(),
+  });
+};
+
+export const searchNetworkMembersSchema = (
+  locales: ManageOrganizationSettingsLocales
+) => {
+  return z.object({
+    [SearchNetworkMembers]: z
       .string()
       .min(3, { message: locales.searchOrganizationsSchema.validation.min })
       .optional(),

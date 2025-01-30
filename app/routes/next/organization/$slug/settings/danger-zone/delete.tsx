@@ -67,6 +67,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return {
     organization,
     locales,
+    currentTimestamp: Date.now(),
   };
 };
 
@@ -118,6 +119,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
   if (submission.status !== "success") {
     return {
+      currentTimestamp: Date.now(),
       submission: submission.reply(),
     };
   }
@@ -137,11 +139,13 @@ function Delete() {
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm({
-    id: "delete-organization-form",
+    id: `delete-organization-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
     constraint: getZodConstraint(
       createSchema(locales, loaderData.organization.name)
     ),
-    shouldValidate: isHydrated ? "onInput" : "onSubmit",
+    shouldValidate: "onInput",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
         schema: createSchema(locales, loaderData.organization.name),
@@ -152,9 +156,7 @@ function Delete() {
   });
   // Validate on first render
   React.useEffect(() => {
-    if (isHydrated) {
-      form.validate();
-    }
+    form.validate();
   }, []);
 
   return (
@@ -205,6 +207,21 @@ function Delete() {
             </div>
           </div>
         </div>
+        {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+          <div>
+            {form.errors.map((error, index) => {
+              return (
+                <div
+                  id={form.errorId}
+                  key={index}
+                  className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                >
+                  {error}
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
       </Form>
     </>
   );

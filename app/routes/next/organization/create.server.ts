@@ -154,16 +154,16 @@ export async function getAllNetworkTypes() {
   return allNetworkTypes;
 }
 
-export async function getOrganizationTypesWithSlugs(ids: string[]) {
-  const organizationTypes = await prismaClient.organizationType.findMany({
-    where: {
-      id: {
-        in: ids,
+export async function getOrganizationTypesWithSlugs() {
+  const organizationTypeNetwork = await prismaClient.organizationType.findFirst(
+    {
+      select: {
+        id: true,
       },
-    },
-    select: {
-      slug: true,
-    },
-  });
-  return organizationTypes;
+      where: {
+        slug: "network",
+      },
+    }
+  );
+  return organizationTypeNetwork;
 }
