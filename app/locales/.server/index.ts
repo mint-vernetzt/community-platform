@@ -76,39 +76,23 @@ import { locale as deLogin } from "./de/routes/login/index";
 import { locale as deMyEvents } from "./de/routes/my/events";
 import { locale as deMyOrganizations } from "./de/routes/my/organizations";
 import { locale as deMyProjects } from "./de/routes/my/projects";
-// next routes
-import { locale as deNextChangeOrganizationUrl } from "./de/routes/next/organization/$slug/settings/danger-zone/change-url";
-import { locale as deNextDeleteOrganization } from "./de/routes/next/organization/$slug/settings/danger-zone/delete";
-import { locale as deNextOrganizationAdmins } from "./de/routes/next/organization/$slug/settings/admins";
-import { locale as deNextOrganizationDangerZone } from "./de/routes/next/organization/$slug/settings/danger-zone";
-import { locale as deNextGeneralOrganizationSettings } from "./de/routes/next/organization/$slug/settings/general";
-import { locale as deNextManageOrganizationSettings } from "./de/routes/next/organization/$slug/settings/manage";
-import { locale as deNextOrganizationTeam } from "./de/routes/next/organization/$slug/settings/team";
-import { locale as deNextOrganizationWebAndSocial } from "./de/routes/next/organization/$slug/settings/web-social";
-import { locale as deNextOrganizationSettings } from "./de/routes/next/organization/$slug/settings";
-import { locale as deNextCreateOrganization } from "./de/routes/next/organization/create";
 // organization routes
+import { locale as deCreateOrganization } from "./de/routes/organization/create";
+import { locale as deOrganizationDetail } from "./de/routes/organization/$slug/detail";
+import { locale as deOrganizationTeam } from "./de/routes/organization/$slug/detail/team";
 import { locale as deAboutOrganization } from "./de/routes/organization/$slug/detail/about";
 import { locale as deOrganizationEvents } from "./de/routes/organization/$slug/detail/events";
 import { locale as deOrganizationNetwork } from "./de/routes/organization/$slug/detail/network";
 import { locale as deOrganizationProjects } from "./de/routes/organization/$slug/detail/projects";
-import { locale as deOrganizationTeam } from "./de/routes/organization/$slug/detail/team";
-import { locale as deAddOrganizationAdmin } from "./de/routes/organization/$slug/settings/admins/add-admin";
-import { locale as deCancelOrganizationAdminInvite } from "./de/routes/organization/$slug/settings/admins/cancel-invite";
-import { locale as deRemoveOrganizationAdmin } from "./de/routes/organization/$slug/settings/admins/remove-admin";
-import { locale as deAddOrganizationNetworkMember } from "./de/routes/organization/$slug/settings/network/add";
-import { locale as deOrganizationNetworkSettings } from "./de/routes/organization/$slug/settings/network/index";
-import { locale as deRemoveOrganizationNetworkMember } from "./de/routes/organization/$slug/settings/network/remove";
-import { locale as deAddOrganizationTeamMember } from "./de/routes/organization/$slug/settings/team/add-member";
-import { locale as deCancelOrganizationTeamMemberInvite } from "./de/routes/organization/$slug/settings/team/cancel-invite";
-import { locale as deRemoveOrganizationTeamMember } from "./de/routes/organization/$slug/settings/team/remove-member";
-import { locale as deOrganizationAdmins } from "./de/routes/organization/$slug/settings/admins";
-import { locale as deDeleteOrganization } from "./de/routes/organization/$slug/settings/delete";
-import { locale as deGeneralOrganizationSettings } from "./de/routes/organization/$slug/settings/general";
-import { locale as deOrganizationTeamSettings } from "./de/routes/organization/$slug/settings/team";
-import { locale as deOrganizationDetail } from "./de/routes/organization/$slug/detail";
 import { locale as deOrganizationSettings } from "./de/routes/organization/$slug/settings";
-import { locale as deCreateOrganization } from "./de/routes/organization/create";
+import { locale as deChangeOrganizationUrl } from "./de/routes/organization/$slug/settings/danger-zone/change-url";
+import { locale as deDeleteOrganization } from "./de/routes/organization/$slug/settings/danger-zone/delete";
+import { locale as deOrganizationAdmins } from "./de/routes/organization/$slug/settings/admins";
+import { locale as deOrganizationDangerZone } from "./de/routes/organization/$slug/settings/danger-zone";
+import { locale as deGeneralOrganizationSettings } from "./de/routes/organization/$slug/settings/general";
+import { locale as deManageOrganizationSettings } from "./de/routes/organization/$slug/settings/manage";
+import { locale as deOrganizationTeamSettings } from "./de/routes/organization/$slug/settings/team";
+import { locale as deOrganizationWebAndSocial } from "./de/routes/organization/$slug/settings/web-social";
 // profile routes
 import { locale as deDeleteProfile } from "./de/routes/profile/$username/settings/delete";
 import { locale as deGeneralProfileSettings } from "./de/routes/profile/$username/settings/general";
@@ -263,39 +247,23 @@ import { locale as enLogin } from "./en/routes/login/index";
 import { locale as enMyEvents } from "./en/routes/my/events";
 import { locale as enMyOrganizations } from "./en/routes/my/organizations";
 import { locale as enMyProjects } from "./en/routes/my/projects";
-// next routes
-import { locale as enNextChangeOrganizationUrl } from "./en/routes/next/organization/$slug/settings/danger-zone/change-url";
-import { locale as enNextDeleteOrganization } from "./en/routes/next/organization/$slug/settings/danger-zone/delete";
-import { locale as enNextOrganizationAdmins } from "./en/routes/next/organization/$slug/settings/admins";
-import { locale as enNextOrganizationDangerZone } from "./en/routes/next/organization/$slug/settings/danger-zone";
-import { locale as enNextGeneralOrganizationSettings } from "./en/routes/next/organization/$slug/settings/general";
-import { locale as enNextManageOrganizationSettings } from "./en/routes/next/organization/$slug/settings/manage";
-import { locale as enNextOrganizationTeam } from "./en/routes/next/organization/$slug/settings/team";
-import { locale as enNextOrganizationWebAndSocial } from "./en/routes/next/organization/$slug/settings/web-social";
-import { locale as enNextOrganizationSettings } from "./en/routes/next/organization/$slug/settings";
-import { locale as enNextCreateOrganization } from "./en/routes/next/organization/create";
 // organization routes
+import { locale as enCreateOrganization } from "./en/routes/organization/create";
+import { locale as enOrganizationDetail } from "./en/routes/organization/$slug/detail";
 import { locale as enAboutOrganization } from "./en/routes/organization/$slug/detail/about";
 import { locale as enOrganizationEvents } from "./en/routes/organization/$slug/detail/events";
 import { locale as enOrganizationNetwork } from "./en/routes/organization/$slug/detail/network";
 import { locale as enOrganizationProjects } from "./en/routes/organization/$slug/detail/projects";
 import { locale as enOrganizationTeam } from "./en/routes/organization/$slug/detail/team";
-import { locale as enAddOrganizationAdmin } from "./en/routes/organization/$slug/settings/admins/add-admin";
-import { locale as enCancelOrganizationAdminInvite } from "./en/routes/organization/$slug/settings/admins/cancel-invite";
-import { locale as enRemoveOrganizationAdmin } from "./en/routes/organization/$slug/settings/admins/remove-admin";
-import { locale as enAddOrganizationNetworkMember } from "./en/routes/organization/$slug/settings/network/add";
-import { locale as enOrganizationNetworkSettings } from "./en/routes/organization/$slug/settings/network/index";
-import { locale as enRemoveOrganizationNetworkMember } from "./en/routes/organization/$slug/settings/network/remove";
-import { locale as enAddOrganizationTeamMember } from "./en/routes/organization/$slug/settings/team/add-member";
-import { locale as enCancelOrganizationTeamMemberInvite } from "./en/routes/organization/$slug/settings/team/cancel-invite";
-import { locale as enRemoveOrganizationTeamMember } from "./en/routes/organization/$slug/settings/team/remove-member";
-import { locale as enOrganizationAdmins } from "./en/routes/organization/$slug/settings/admins";
-import { locale as enDeleteOrganization } from "./en/routes/organization/$slug/settings/delete";
-import { locale as enGeneralOrganizationSettings } from "./en/routes/organization/$slug/settings/general";
-import { locale as enOrganizationTeamSettings } from "./en/routes/organization/$slug/settings/team";
-import { locale as enOrganizationDetail } from "./en/routes/organization/$slug/detail";
 import { locale as enOrganizationSettings } from "./en/routes/organization/$slug/settings";
-import { locale as enCreateOrganization } from "./en/routes/organization/create";
+import { locale as enChangeOrganizationUrl } from "./en/routes/organization/$slug/settings/danger-zone/change-url";
+import { locale as enDeleteOrganization } from "./en/routes/organization/$slug/settings/danger-zone/delete";
+import { locale as enOrganizationAdmins } from "./en/routes/organization/$slug/settings/admins";
+import { locale as enOrganizationDangerZone } from "./en/routes/organization/$slug/settings/danger-zone";
+import { locale as enGeneralOrganizationSettings } from "./en/routes/organization/$slug/settings/general";
+import { locale as enManageOrganizationSettings } from "./en/routes/organization/$slug/settings/manage";
+import { locale as enOrganizationTeamSettings } from "./en/routes/organization/$slug/settings/team";
+import { locale as enOrganizationWebAndSocial } from "./en/routes/organization/$slug/settings/web-social";
 // profile routes
 import { locale as enDeleteProfile } from "./en/routes/profile/$username/settings/delete";
 import { locale as enGeneralProfileSettings } from "./en/routes/profile/$username/settings/general";
@@ -530,53 +498,18 @@ const de = {
     components: deComponents,
   },
   "my/projects": { route: deMyProjects, projectCard: deProjectCard },
-  // next routes
-  "next/organization/$slug/settings/danger-zone/change-url": {
-    route: deNextChangeOrganizationUrl,
-    components: deComponents,
-  },
-  "next/organization/$slug/settings/danger-zone/delete":
-    deNextDeleteOrganization,
-  "next/organization/$slug/settings/admins": {
-    route: deNextOrganizationAdmins,
-    searchProfilesSchema: deSearchProfilesSchema,
-    organizationTypes: deOrganizationTypes,
-    components: deComponents,
-  },
-  "next/organization/$slug/settings/danger-zone": deNextOrganizationDangerZone,
-  "next/organization/$slug/settings/general": {
-    route: deNextGeneralOrganizationSettings,
-    focuses: deFocuses,
-    components: deComponents,
-    schemas: deSchemas,
-    rte: deRTE,
-  },
-  "next/organization/$slug/settings/manage": {
-    route: deNextManageOrganizationSettings,
-    organizationTypes: deOrganizationTypes,
-    networkTypes: deNetworkTypes,
-    components: deComponents,
-    searchOrganizationsSchema: deSearchOrganizationsSchema,
-  },
-  "next/organization/$slug/settings/team": {
-    route: deNextOrganizationTeam,
-    searchProfilesSchema: deSearchProfilesSchema,
-    organizationTypes: deOrganizationTypes,
-    components: deComponents,
-  },
-  "next/organization/$slug/settings/web-social": {
-    route: deNextOrganizationWebAndSocial,
-    components: deComponents,
-    schemas: deSchemas,
-  },
-  "next/organization/$slug/settings": deNextOrganizationSettings,
-  "next/organization/create": {
-    route: deNextCreateOrganization,
-    organizationTypes: deOrganizationTypes,
-    networkTypes: deNetworkTypes,
-    components: deComponents,
-  },
   // organization routes
+  "organization/create": {
+    route: deCreateOrganization,
+    organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
+    components: deComponents,
+  },
+  "organization/$slug/detail": {
+    route: deOrganizationDetail,
+    organizationTypes: deOrganizationTypes,
+    imageCropper: deImageCropper,
+  },
   "organization/$slug/detail/about": {
     route: deAboutOrganization,
     focuses: deFocuses,
@@ -601,50 +534,44 @@ const de = {
     organizationTypes: deOrganizationTypes,
     components: deComponents,
   },
-  "organization/$slug/settings/admins/add-admin": deAddOrganizationAdmin,
-  "organization/$slug/settings/admins/cancel-invite":
-    deCancelOrganizationAdminInvite,
-  "organization/$slug/settings/admins/remove-admin": deRemoveOrganizationAdmin,
-  "organization/$slug/settings/network/add": {
-    route: deAddOrganizationNetworkMember,
-    organizationTypes: deOrganizationTypes,
-    stages: deStages,
+  "organization/$slug/settings/danger-zone/change-url": {
+    route: deChangeOrganizationUrl,
+    components: deComponents,
   },
-  "organization/$slug/settings/network/index": deOrganizationNetworkSettings,
-  "organization/$slug/settings/network/remove": {
-    route: deRemoveOrganizationNetworkMember,
-    organizationTypes: deOrganizationTypes,
-  },
-  "organization/$slug/settings/team/add-member": deAddOrganizationTeamMember,
-  "organization/$slug/settings/team/cancel-invite":
-    deCancelOrganizationTeamMemberInvite,
-  "organization/$slug/settings/team/remove-member":
-    deRemoveOrganizationTeamMember,
+  "organization/$slug/settings/danger-zone/delete": deDeleteOrganization,
   "organization/$slug/settings/admins": {
     route: deOrganizationAdmins,
+    searchProfilesSchema: deSearchProfilesSchema,
     organizationTypes: deOrganizationTypes,
-    stages: deStages,
+    components: deComponents,
   },
-  "organization/$slug/settings/delete": deDeleteOrganization,
+  "organization/$slug/settings/danger-zone": deOrganizationDangerZone,
   "organization/$slug/settings/general": {
     route: deGeneralOrganizationSettings,
-    organizationTypes: deOrganizationTypes,
     focuses: deFocuses,
-    socialMediaServices: deSocialMediaServices,
+    components: deComponents,
+    schemas: deSchemas,
     rte: deRTE,
+  },
+  "organization/$slug/settings/manage": {
+    route: deManageOrganizationSettings,
+    organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
+    components: deComponents,
+    searchOrganizationsSchema: deSearchOrganizationsSchema,
   },
   "organization/$slug/settings/team": {
     route: deOrganizationTeamSettings,
+    searchProfilesSchema: deSearchProfilesSchema,
     organizationTypes: deOrganizationTypes,
-    stages: deStages,
+    components: deComponents,
   },
-  "organization/$slug/detail": {
-    route: deOrganizationDetail,
-    organizationTypes: deOrganizationTypes,
-    imageCropper: deImageCropper,
+  "organization/$slug/settings/web-social": {
+    route: deOrganizationWebAndSocial,
+    components: deComponents,
+    schemas: deSchemas,
   },
   "organization/$slug/settings": deOrganizationSettings,
-  "organization/create": deCreateOrganization,
   // profile routes
   "profile/$username/settings/delete": deDeleteProfile,
   "profile/$username/settings/general": {
@@ -938,53 +865,18 @@ const en = {
     components: enComponents,
   },
   "my/projects": { route: enMyProjects, projectCard: enProjectCard },
-  // next routes
-  "next/organization/$slug/settings/danger-zone/change-url": {
-    route: enNextChangeOrganizationUrl,
-    components: enComponents,
-  },
-  "next/organization/$slug/settings/danger-zone/delete":
-    enNextDeleteOrganization,
-  "next/organization/$slug/settings/admins": {
-    route: enNextOrganizationAdmins,
-    searchProfilesSchema: enSearchProfilesSchema,
-    organizationTypes: enOrganizationTypes,
-    components: enComponents,
-  },
-  "next/organization/$slug/settings/danger-zone": enNextOrganizationDangerZone,
-  "next/organization/$slug/settings/general": {
-    route: enNextGeneralOrganizationSettings,
-    focuses: enFocuses,
-    components: enComponents,
-    schemas: enSchemas,
-    rte: enRTE,
-  },
-  "next/organization/$slug/settings/manage": {
-    route: enNextManageOrganizationSettings,
-    organizationTypes: enOrganizationTypes,
-    networkTypes: enNetworkTypes,
-    components: enComponents,
-    searchOrganizationsSchema: enSearchOrganizationsSchema,
-  },
-  "next/organization/$slug/settings/team": {
-    route: enNextOrganizationTeam,
-    searchProfilesSchema: enSearchProfilesSchema,
-    organizationTypes: enOrganizationTypes,
-    components: enComponents,
-  },
-  "next/organization/$slug/settings/web-social": {
-    route: enNextOrganizationWebAndSocial,
-    components: enComponents,
-    schemas: enSchemas,
-  },
-  "next/organization/$slug/settings": enNextOrganizationSettings,
-  "next/organization/create": {
-    route: enNextCreateOrganization,
-    organizationTypes: enOrganizationTypes,
-    networkTypes: enNetworkTypes,
-    components: enComponents,
-  },
   // organization routes
+  "organization/create": {
+    route: enCreateOrganization,
+    organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
+    components: enComponents,
+  },
+  "organization/$slug/detail": {
+    route: enOrganizationDetail,
+    organizationTypes: enOrganizationTypes,
+    imageCropper: enImageCropper,
+  },
   "organization/$slug/detail/about": {
     route: enAboutOrganization,
     focuses: enFocuses,
@@ -1009,50 +901,44 @@ const en = {
     organizationTypes: enOrganizationTypes,
     components: enComponents,
   },
-  "organization/$slug/settings/admins/add-admin": enAddOrganizationAdmin,
-  "organization/$slug/settings/admins/cancel-invite":
-    enCancelOrganizationAdminInvite,
-  "organization/$slug/settings/admins/remove-admin": enRemoveOrganizationAdmin,
-  "organization/$slug/settings/network/add": {
-    route: enAddOrganizationNetworkMember,
-    organizationTypes: enOrganizationTypes,
-    stages: enStages,
+  "organization/$slug/settings/danger-zone/change-url": {
+    route: enChangeOrganizationUrl,
+    components: enComponents,
   },
-  "organization/$slug/settings/network/index": enOrganizationNetworkSettings,
-  "organization/$slug/settings/network/remove": {
-    route: enRemoveOrganizationNetworkMember,
-    organizationTypes: enOrganizationTypes,
-  },
-  "organization/$slug/settings/team/add-member": enAddOrganizationTeamMember,
-  "organization/$slug/settings/team/cancel-invite":
-    enCancelOrganizationTeamMemberInvite,
-  "organization/$slug/settings/team/remove-member":
-    enRemoveOrganizationTeamMember,
+  "organization/$slug/settings/danger-zone/delete": enDeleteOrganization,
   "organization/$slug/settings/admins": {
     route: enOrganizationAdmins,
+    searchProfilesSchema: enSearchProfilesSchema,
     organizationTypes: enOrganizationTypes,
-    stages: enStages,
+    components: enComponents,
   },
-  "organization/$slug/settings/delete": enDeleteOrganization,
+  "organization/$slug/settings/danger-zone": enOrganizationDangerZone,
   "organization/$slug/settings/general": {
     route: enGeneralOrganizationSettings,
-    organizationTypes: enOrganizationTypes,
     focuses: enFocuses,
-    socialMediaServices: enSocialMediaServices,
+    components: enComponents,
+    schemas: enSchemas,
     rte: enRTE,
+  },
+  "organization/$slug/settings/manage": {
+    route: enManageOrganizationSettings,
+    organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
+    components: enComponents,
+    searchOrganizationsSchema: enSearchOrganizationsSchema,
   },
   "organization/$slug/settings/team": {
     route: enOrganizationTeamSettings,
+    searchProfilesSchema: enSearchProfilesSchema,
     organizationTypes: enOrganizationTypes,
-    stages: enStages,
+    components: enComponents,
   },
-  "organization/$slug/detail": {
-    route: enOrganizationDetail,
-    organizationTypes: enOrganizationTypes,
-    imageCropper: enImageCropper,
+  "organization/$slug/settings/web-social": {
+    route: enOrganizationWebAndSocial,
+    components: enComponents,
+    schemas: enSchemas,
   },
   "organization/$slug/settings": enOrganizationSettings,
-  "organization/create": enCreateOrganization,
   // profile routes
   "profile/$username/settings/delete": enDeleteProfile,
   "profile/$username/settings/general": {

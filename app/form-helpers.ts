@@ -5,9 +5,9 @@ import {
   SearchOrganizations,
   SearchProfiles,
 } from "./lib/utils/searchParams";
-import { type OrganizationAdminSettingsLocales } from "./routes/next/organization/$slug/settings/admins.server";
-import { type OrganizationTeamSettingsLocales } from "./routes/next/organization/$slug/settings/team.server";
-import { type ManageOrganizationSettingsLocales } from "./routes/next/organization/$slug/settings/manage.server";
+import { type OrganizationAdminSettingsLocales } from "./routes/organization/$slug/settings/admins.server";
+import { type OrganizationTeamSettingsLocales } from "./routes/organization/$slug/settings/team.server";
+import { type ManageOrganizationSettingsLocales } from "./routes/organization/$slug/settings/manage.server";
 
 // List of schemas
 export const searchProfilesSchema = (

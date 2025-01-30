@@ -346,11 +346,11 @@ export default function App() {
   if (matches[1] !== undefined) {
     isProjectSettings = matches[1].id === "routes/project/$slug/settings";
     isOrganizationSettings =
-      matches[1].id === "routes/next/organization/$slug/settings";
+      matches[1].id === "routes/organization/$slug/settings";
     const otherSettingsRoutes = [
       "routes/profile/$username/settings",
       "routes/organization/$slug/settings",
-      "routes/next/organization/$slug/settings",
+      "routes/organization/$slug/settings",
       "routes/event/$slug/settings",
       "routes/project/$slug/settings",
     ];

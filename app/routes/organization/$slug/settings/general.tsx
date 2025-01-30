@@ -1,727 +1,878 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
+import { z } from "zod";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { checkboxSchema, createPhoneSchema } from "~/lib/utils/schemas";
+import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/i18n.server";
+import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import {
+  createAreaOptions,
+  type GeneralOrganizationSettingsLocales,
+} from "./general.server";
 import {
   Form,
-  Link,
   useActionData,
   useLoaderData,
+  useLocation,
   useNavigation,
-  useParams,
 } from "@remix-run/react";
-import React from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import type { InferType } from "yup";
-import { array, object, string } from "yup";
-import {
-  createAuthClient,
-  getSessionUserOrRedirectPathToLogin,
-  getSessionUserOrThrow,
-} from "~/auth.server";
-import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
-import InputText from "~/components/FormElements/InputText/InputText";
-import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { BackButton } from "~/components-next/BackButton";
 import { TextArea } from "~/components-next/TextArea";
-import {
-  createAreaOptionFromData,
-  objectListOperationResolver,
-} from "~/lib/utils/components";
+import { ConformSelect } from "~/components-next/ConformSelect";
+import React from "react";
+import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { createSocialMediaServices } from "~/lib/utils/socialMediaServices";
-import type { FormError } from "~/lib/utils/yup";
-import {
-  getFormValues,
-  multiline,
-  nullOrString,
-  phone,
-  social,
-  validateForm,
-  website,
-} from "~/lib/utils/yup";
-import { getAreas, getFocuses } from "~/utils.server";
-import {
-  deriveOrganizationMode,
-  getOrganizationVisibilitiesById,
-} from "../utils.server";
-import {
-  getOrganizationTypes,
-  getWholeOrganizationBySlug,
-  updateOrganizationById,
-} from "./utils.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { detectLanguage } from "~/i18n.server";
-import {
-  type GeneralOrganizationSettingsLocales,
-  getOrganizationBySlug,
-} from "./general.server";
+import * as Sentry from "@sentry/remix";
+import { redirectWithToast } from "~/toast.server";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { languageModuleMap } from "~/locales/.server";
 
-const createOrganizationSchema = (
-  locales: GeneralOrganizationSettingsLocales
-) => {
-  return object({
-    name: string().required(locales.route.validation.name.required),
-    email: nullOrString(string().email(locales.route.validation.email.email)),
-    phone: nullOrString(phone()),
-    street: nullOrString(string()),
-    streetNumber: nullOrString(string()),
-    zipCode: nullOrString(string()),
-    city: nullOrString(string()),
-    website: nullOrString(website()),
-    facebook: nullOrString(social("facebook")),
-    linkedin: nullOrString(social("linkedin")),
-    twitter: nullOrString(social("twitter")),
-    youtube: nullOrString(social("youtube")),
-    instagram: nullOrString(social("instagram")),
-    xing: nullOrString(social("xing")),
-    mastodon: nullOrString(social("mastodon")),
-    tiktok: nullOrString(social("tiktok")),
-    bio: nullOrString(multiline()),
-    types: array(string().required()).required(),
-    quote: nullOrString(multiline()),
-    quoteAuthor: nullOrString(string()),
-    quoteAuthorInformation: nullOrString(string()),
-    supportedBy: array(string().required()).required(),
-    privateFields: array(string().required()).required(),
-    areas: array(string().required()).required(),
-    focuses: array(string().required()).required(),
+const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
+  return z.object({
+    name: z
+      .string({
+        required_error: locales.route.validation.name.required,
+      })
+      .min(3, locales.route.validation.name.min)
+      .max(50, locales.route.validation.name.max),
+    email: z
+      .string()
+      .email(locales.route.validation.email)
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
+    phone: createPhoneSchema(locales)
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
+    street: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
+    streetNumber: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
+    zipCode: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
+    city: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
+    bio: z
+      .string()
+      .max(2000, locales.route.validation.bio.max)
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "" || value === "<p><br></p>") {
+          return null;
+        }
+        return value.trim();
+      }),
+    supportedBy: z
+      .array(z.string().transform((value) => value.trim()))
+      .optional(),
+    areas: z.array(z.string().uuid()),
+    focuses: z.array(z.string().uuid()),
+    visibilities: z.object({
+      email: checkboxSchema,
+      phone: checkboxSchema,
+      bio: checkboxSchema,
+      focuses: checkboxSchema,
+    }),
   });
 };
 
-type OrganizationSchemaType = ReturnType<typeof createOrganizationSchema>;
-type OrganizationFormType = InferType<OrganizationSchemaType>;
+export async function loader(args: LoaderFunctionArgs) {
+  const { request, params } = args;
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["organization/$slug/settings/general"];
 
-function makeFormOrganizationFromDbOrganization(
-  dbOrganization: NonNullable<
-    Awaited<ReturnType<typeof getWholeOrganizationBySlug>>
-  >
-) {
+  // check slug exists (throw bad request if not)
+  invariantResponse(
+    params.slug !== undefined,
+    locales.route.error.invalidRoute,
+    {
+      status: 400,
+    }
+  );
+
+  const organization = await prismaClient.organization.findFirst({
+    where: { slug: params.slug },
+    select: {
+      // Just selecting id for index performance
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      street: true,
+      streetNumber: true,
+      zipCode: true,
+      city: true,
+      bio: true,
+      supportedBy: true,
+      areas: {
+        select: {
+          area: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+      focuses: {
+        select: {
+          focus: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      organizationVisibility: {
+        select: {
+          email: true,
+          phone: true,
+          bio: true,
+          focuses: true,
+        },
+      },
+    },
+  });
+  invariantResponse(organization !== null, locales.route.error.notFound, {
+    status: 404,
+  });
+  const { id: _id, ...rest } = organization;
+  const filteredOrganization = rest;
+
+  const allAreas = await prismaClient.area.findMany({
+    select: {
+      id: true,
+      name: true,
+      stateId: true,
+      type: true,
+    },
+  });
+  const areaOptions = createAreaOptions(allAreas);
+
+  const allFocuses = await prismaClient.focus.findMany({
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
+
+  const currentTimestamp = Date.now();
+
   return {
-    ...dbOrganization,
-    areas: dbOrganization.areas.map((area) => area.areaId) ?? [],
-    types: dbOrganization.types.map((type) => type.organizationTypeId) ?? [],
-    focuses: dbOrganization.focuses.map((focus) => focus.focusId) ?? [],
+    organization: filteredOrganization,
+    areaOptions,
+    allFocuses,
+    currentTimestamp,
+    locales,
   };
 }
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
-
+  const slug = getParamValueOrThrow(params, "slug");
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["organization/$slug/settings/general"];
-  const { authClient } = createAuthClient(request);
 
-  const slug = getParamValueOrThrow(params, "slug");
-
-  const { sessionUser, redirectPath } =
-    await getSessionUserOrRedirectPathToLogin(authClient, request);
-
-  if (sessionUser === null && redirectPath !== null) {
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-  const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not privileged", { status: 403 });
-  const dbOrganization = await getWholeOrganizationBySlug(slug);
-  if (dbOrganization === null) {
-    invariantResponse(false, locales.route.error.notFound.named, {
-      status: 404,
-    });
-  }
-  const organizationVisibilities = await getOrganizationVisibilitiesById(
-    dbOrganization.id
-  );
-  if (organizationVisibilities === null) {
-    invariantResponse(false, locales.route.error.notFound.visibilities, {
-      status: 404,
-    });
-  }
 
-  const organization = makeFormOrganizationFromDbOrganization(dbOrganization);
-
-  const organizationTypes = await getOrganizationTypes();
-  const focuses = await getFocuses();
-  const areas = await getAreas();
-
-  return {
-    organization,
-    organizationVisibilities,
-    organizationTypes,
-    areas,
-    focuses,
-    locales,
-  };
-};
-
-export const action = async (args: ActionFunctionArgs) => {
-  const { request, params } = args;
-
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["organization/$slug/settings/general"];
-  const { authClient } = createAuthClient(request);
-
-  const slug = getParamValueOrThrow(params, "slug");
-
-  const sessionUser = await getSessionUserOrThrow(authClient);
-  const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
-    status: 403,
+  const organization = await prismaClient.organization.findFirst({
+    where: { slug },
+    select: { id: true },
   });
-  const organization = await getOrganizationBySlug(slug);
-  invariantResponse(organization, locales.route.error.notFound.organization, {
+
+  invariantResponse(organization !== null, locales.route.error.notFound, {
     status: 404,
   });
 
-  const parsedFormData = await getFormValues<OrganizationSchemaType>(
-    request,
-    createOrganizationSchema(locales)
-  );
-
-  let errors: FormError | null;
-  let data: OrganizationFormType;
-
-  try {
-    let result = await validateForm<OrganizationSchemaType>(
-      createOrganizationSchema(locales),
-      parsedFormData
-    );
-    errors = result.errors;
-    data = result.data;
-  } catch (error) {
-    console.error(error);
-    invariantResponse(false, locales.route.error.validation, { status: 400 });
-  }
-
-  let updated = false;
-
-  const formData = await request.clone().formData();
-  const submit = formData.get("submit");
-  if (submit === "submit") {
-    if (errors === null) {
-      try {
-        const { privateFields, ...organizationData } = data;
-        await updateOrganizationById(
-          organization.id,
-          // @ts-ignore TODO: fix type issue
-          organizationData,
-          privateFields
-        );
-        updated = true;
-      } catch (error) {
-        console.error(error);
-        invariantResponse(false, locales.route.error.serverError, {
-          status: 500,
-        });
-      }
-    }
-  } else {
-    const listData: (keyof OrganizationFormType)[] = [
-      "types",
-      "focuses",
-      "supportedBy",
-      "areas",
-    ];
-
-    listData.forEach((key) => {
-      data = objectListOperationResolver<OrganizationFormType>(
-        data,
-        key,
-        formData
-      );
+  const formData = await request.formData();
+  const conformIntent = formData.get("__intent__");
+  if (conformIntent !== null) {
+    const submission = await parseWithZod(formData, {
+      schema: createGeneralSchema(locales),
     });
+    return {
+      submission: submission.reply(),
+    };
+  }
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      createGeneralSchema(locales).transform(async (data, ctx) => {
+        const { visibilities, areas, focuses, ...organizationData } = data;
+        try {
+          await prismaClient.organization.update({
+            where: {
+              slug,
+            },
+            data: {
+              ...organizationData,
+              areas: {
+                deleteMany: {},
+                connectOrCreate: areas.map((areaId: string) => {
+                  return {
+                    where: {
+                      organizationId_areaId: {
+                        areaId,
+                        organizationId: organization.id,
+                      },
+                    },
+                    create: {
+                      areaId,
+                    },
+                  };
+                }),
+              },
+              focuses: {
+                deleteMany: {},
+                connectOrCreate: focuses.map((focusId: string) => {
+                  return {
+                    where: {
+                      organizationId_focusId: {
+                        focusId,
+                        organizationId: organization.id,
+                      },
+                    },
+                    create: {
+                      focusId,
+                    },
+                  };
+                }),
+              },
+            },
+          });
+
+          await prismaClient.organizationVisibility.update({
+            where: {
+              organizationId: organization.id,
+            },
+            data: {
+              ...visibilities,
+            },
+          });
+        } catch (error) {
+          Sentry.captureException(error);
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.updateFailed,
+          });
+          return z.NEVER;
+        }
+
+        return { ...data };
+      }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
   }
 
-  return {
-    organization: data,
-    lastSubmit: (formData.get("submit") as string) ?? "",
-    updated,
-    errors,
-  };
-};
+  return redirectWithToast(request.url, {
+    id: "update-general-toast",
+    key: `${new Date().getTime()}`,
+    message: locales.route.content.success,
+  });
+}
 
-function Index() {
-  const { slug } = useParams();
-  const {
-    organization: dbOrganization,
-    organizationVisibilities,
-    organizationTypes,
-    areas,
-    focuses,
-    locales,
-  } = useLoaderData<typeof loader>();
-
-  const navigation = useNavigation();
+function General() {
+  const location = useLocation();
+  const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
+  const { organization, allFocuses, areaOptions } = loaderData;
+  const isHydrated = useHydrated();
+  const navigation = useNavigation();
 
-  const formRef = React.createRef<HTMLFormElement>();
-  const isSubmitting = navigation.state === "submitting";
+  const { areas, focuses, organizationVisibility, ...rest } = organization;
 
-  const organization = actionData?.organization ?? dbOrganization;
+  const defaultValues = {
+    ...rest,
+    areas: areas.map((relation) => relation.area.id),
+    focuses: focuses.map((relation) => relation.focus.id),
+    visibilities: organizationVisibility,
+  };
 
-  const methods = useForm<OrganizationFormType>({
-    defaultValues: organization,
+  const [form, fields] = useForm({
+    id: `general-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(createGeneralSchema(locales)),
+    defaultValue: defaultValues,
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createGeneralSchema(locales),
+      });
+      return submission;
+    },
   });
 
-  const {
-    register,
-    reset,
-    formState: { isDirty },
-  } = methods;
+  const areaFieldList = fields.areas.getFieldList();
+  const focusFieldList = fields.focuses.getFieldList();
+  const supportedByFieldList = fields.supportedBy.getFieldList();
+  const visibilitiesFieldList = fields.visibilities.getFieldset();
 
-  const errors = actionData?.errors;
-
-  const organizationTypesOptions = organizationTypes.map((type) => {
-    let title;
-    if (type.slug in locales.organizationTypes) {
-      type LocaleKey = keyof typeof locales.organizationTypes;
-      title = locales.organizationTypes[type.slug as LocaleKey].title;
-    } else {
-      console.error(`Focus ${type.slug} not found in locales`);
-      title = type.slug;
-    }
-    return {
-      label: title,
-      value: type.id,
-    };
+  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    searchParam: "modal-unsaved-changes",
+    formMetadataToCheck: form,
+    locales,
   });
 
-  const selectedOrganizationTypes =
-    organization.types && organizationTypes
-      ? organizationTypes
-          .filter((type) => organization.types.includes(type.id))
-          .sort((currentType, nextType) => {
-            let currentTitle;
-            let nextTitle;
-            if (currentType.slug in locales.organizationTypes) {
-              type LocaleKey = keyof typeof locales.organizationTypes;
-              currentTitle =
-                locales.organizationTypes[currentType.slug as LocaleKey].title;
-            } else {
-              console.error(
-                `Organization type ${currentType.slug} not found in locales`
-              );
-              currentTitle = currentType.slug;
-            }
-            if (nextType.slug in locales.organizationTypes) {
-              type LocaleKey = keyof typeof locales.organizationTypes;
-              nextTitle =
-                locales.organizationTypes[nextType.slug as LocaleKey].title;
-            } else {
-              console.error(
-                `Organization type ${nextType.slug} not found in locales`
-              );
-              nextTitle = nextType.slug;
-            }
-            return currentTitle.localeCompare(nextTitle);
-          })
-      : [];
-
-  const selectedAreas =
-    organization.areas && areas
-      ? areas
-          .filter((area) => organization.areas.includes(area.id))
-          .sort((a, b) => a.name.localeCompare(b.name))
-      : [];
-
-  const areaOptions = createAreaOptionFromData(areas);
-
-  const focusOptions = focuses.map((focus) => {
-    let title;
-    if (focus.slug in locales.focuses) {
-      type LocaleKey = keyof typeof locales.focuses;
-      title = locales.focuses[focus.slug as LocaleKey].title;
-    } else {
-      console.error(`Focus ${focus.slug} not found in locales`);
-      title = focus.slug;
-    }
-    return {
-      label: title,
-      value: focus.id,
-    };
-  });
-
-  const selectedFocuses =
-    organization.focuses && focuses
-      ? focuses
-          .filter((focus) => organization.focuses.includes(focus.id))
-          .sort((currentFocus, nextFocus) => {
-            let currentTitle;
-            let nextTitle;
-            if (currentFocus.slug in locales.focuses) {
-              type LocaleKey = keyof typeof locales.focuses;
-              currentTitle =
-                locales.focuses[currentFocus.slug as LocaleKey].title;
-            } else {
-              console.error(`Focus ${currentFocus.slug} not found in locales`);
-              currentTitle = currentFocus.slug;
-            }
-            if (nextFocus.slug in locales.focuses) {
-              type LocaleKey = keyof typeof locales.focuses;
-              nextTitle = locales.focuses[nextFocus.slug as LocaleKey].title;
-            } else {
-              console.error(`Focus ${nextFocus.slug} not found in locales`);
-              nextTitle = nextFocus.slug;
-            }
-            return currentTitle.localeCompare(nextTitle);
-          })
-      : [];
-
-  React.useEffect(() => {
-    if (isSubmitting) {
-      const $inputsToClear =
-        formRef?.current?.getElementsByClassName("clear-after-submit");
-      if ($inputsToClear) {
-        Array.from($inputsToClear).forEach(
-          // TODO: can this type assertion be removed and proofen by code?
-          (a) => ((a as HTMLInputElement).value = "")
-        );
-      }
-    }
-  }, [isSubmitting, formRef]);
-
-  React.useEffect(() => {
-    if (
-      actionData?.lastSubmit === "submit" &&
-      actionData?.errors !== undefined &&
-      actionData?.errors !== null
-    ) {
-      const errorElement = document.getElementsByName(
-        Object.keys(actionData.errors)[0]
-      );
-      const yPosition =
-        errorElement[0].getBoundingClientRect().top -
-        document.body.getBoundingClientRect().top -
-        window.innerHeight / 2;
-      window.scrollTo(0, yPosition);
-
-      errorElement[0].focus({ preventScroll: true });
-    }
-  }, [actionData]);
-
-  const isFormChanged = isDirty || actionData?.updated === false;
+  const [supportedBy, setSupportedBy] = React.useState<string>("");
+  const handleSupportedByInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSupportedBy(event.currentTarget.value);
+  };
 
   return (
-    <>
-      <FormProvider {...methods}>
-        <Form
-          ref={formRef}
-          method="post"
-          onSubmit={(e: React.SyntheticEvent) => {
-            reset({}, { keepValues: true });
-          }}
-        >
-          <h1 className="mb-8">{locales.route.content.headline}</h1>
-
-          <h4 className="mb-4 font-semibold">
-            {locales.route.content.general.headline}
-          </h4>
-
-          <p className="mb-8">{locales.route.content.general.intro}</p>
-          <div className="mb-6">
-            <InputText
-              {...register("name")}
-              id="name"
-              label={locales.route.form.name.label}
-              withPublicPrivateToggle={false}
-              isPublic={organizationVisibilities.name}
-              defaultValue={organization.name}
-              errorMessage={errors?.name?.message}
-            />
-          </div>
-          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("email")}
-                id="email"
-                label={locales.route.form.email.label}
-                errorMessage={errors?.email?.message}
-                withPublicPrivateToggle={true}
-                isPublic={organizationVisibilities.email}
-              />
+    <Section>
+      {UnsavedChangesBlockerModal}
+      <BackButton to={location.pathname}>
+        {locales.route.content.headline}
+      </BackButton>
+      <Form
+        {...getFormProps(form)}
+        method="post"
+        preventScrollReset
+        autoComplete="off"
+      >
+        <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              {locales.route.content.contact.headline}
+            </h2>
+            <div className="@lg:mv-flex @lg:mv-gap-4">
+              <Input
+                {...getInputProps(fields.name, { type: "text" })}
+                key="name"
+              >
+                <Input.Label htmlFor={fields.name.id}>
+                  {locales.route.content.contact.name.label}
+                </Input.Label>
+                {typeof fields.name.errors !== "undefined" && (
+                  <Input.Error>{fields.name.errors}</Input.Error>
+                )}
+              </Input>
             </div>
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("phone")}
-                id="phone"
-                label={locales.route.form.phone.label}
-                errorMessage={errors?.phone?.message}
-                withPublicPrivateToggle={true}
-                isPublic={organizationVisibilities.phone}
-              />
-            </div>
-          </div>
-          <h4 className="mb-4 font-semibold">
-            {locales.route.content.address.headline}
-          </h4>
-          <div className="flex flex-col @md:mv-flex-row -mx-4">
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("street")}
-                id="street"
-                label={locales.route.form.street.label}
-                errorMessage={errors?.street?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.street}
-              />
-            </div>
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("streetNumber")}
-                id="streetNumber"
-                label={locales.route.form.streetNumber.label}
-                errorMessage={errors?.streetNumber?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.streetNumber}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2">
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("zipCode")}
-                id="zipCode"
-                label={locales.route.form.zipCode.label}
-                errorMessage={errors?.zipCode?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.zipCode}
-              />
-            </div>
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("city")}
-                id="city"
-                label={locales.route.form.city.label}
-                errorMessage={errors?.city?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.city}
-              />
-            </div>
-          </div>
-
-          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
-
-          <h4 className="font-semibold mb-4">
-            {locales.route.content.about.headline}
-          </h4>
-
-          <p className="mb-8">{locales.route.content.about.intro}</p>
-
-          <div className="mb-4">
-            <TextArea
-              {...register("bio")}
-              id="bio"
-              defaultValue={organization.bio || ""}
-              label={locales.route.form.bio.label}
-              withPublicPrivateToggle={true}
-              isPublic={organizationVisibilities.bio}
-              errorMessage={errors?.bio?.message}
-              maxLength={500}
-              rte={{ locales: locales }}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectAdd
-              name="types"
-              label={locales.route.form.organizationForm.label}
-              entries={selectedOrganizationTypes.map((type) => {
-                let title;
-                if (type.slug in locales.organizationTypes) {
-                  type LocaleKey = keyof typeof locales.organizationTypes;
-                  title =
-                    locales.organizationTypes[type.slug as LocaleKey].title;
-                } else {
-                  console.error(
-                    `Organization type ${type.slug} not found in locales`
-                  );
-                  title = type.slug;
-                }
-                return {
-                  label: title,
-                  value: type.id,
-                };
-              })}
-              options={organizationTypesOptions.filter((option) => {
-                return !organization.types.includes(option.value);
-              })}
-              placeholder={locales.route.form.organizationForm.placeholder}
-              withPublicPrivateToggle={false}
-              isPublic={organizationVisibilities.types}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectAdd
-              name="areas"
-              label={locales.route.form.areas.label}
-              placeholder={locales.route.form.areas.placeholder}
-              entries={selectedAreas.map((area) => ({
-                label: area.name,
-                value: area.id,
-              }))}
-              options={areaOptions}
-              withPublicPrivateToggle={false}
-              isPublic={organizationVisibilities.areas}
-            />
-          </div>
-          <div className="mb-4">
-            <InputAdd
-              name="supportedBy"
-              label={locales.route.form.supportedBy.label}
-              entries={organization.supportedBy ?? []}
-              withPublicPrivateToggle={false}
-              isPublic={organizationVisibilities.supportedBy}
-            />
-          </div>
-          <div className="mb-4">
-            <SelectAdd
-              name="focuses"
-              label={locales.route.form.focuses.label}
-              placeholder={locales.route.form.focuses.placeholder}
-              entries={selectedFocuses.map((focus) => {
-                let title;
-                if (focus.slug in locales.focuses) {
-                  type LocaleKey = keyof typeof locales.focuses;
-                  title = locales.focuses[focus.slug as LocaleKey].title;
-                } else {
-                  console.error(`Focus ${focus.slug} not found in locales`);
-                  title = focus.slug;
-                }
-                return {
-                  label: title,
-                  value: focus.id,
-                };
-              })}
-              options={focusOptions.filter((option) => {
-                return !organization.focuses.includes(option.value);
-              })}
-              withPublicPrivateToggle={true}
-              isPublic={organizationVisibilities.focuses}
-            />
-          </div>
-          <div className="mb-4">
-            <TextArea
-              {...register("quote")}
-              id="quote"
-              label={locales.route.form.quote.label}
-              withPublicPrivateToggle={true}
-              isPublic={organizationVisibilities.quote}
-              errorMessage={errors?.quote?.message}
-              maxLength={300}
-            />
-          </div>
-          <div className="flex flex-col @md:mv-flex-row -mx-4 mb-2 w-full">
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("quoteAuthor")}
-                id="quoteAuthor"
-                label={locales.route.form.quoteAuthor.label}
-                errorMessage={errors?.quoteAuthor?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.quoteAuthor}
-              />
-            </div>
-            <div className="basis-full @md:mv-basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("quoteAuthorInformation")}
-                id="quoteAuthorInformation"
-                label={locales.route.form.quoteAuthorInformation.label}
-                errorMessage={errors?.quoteAuthorInformation?.message}
-                withPublicPrivateToggle={false}
-                isPublic={organizationVisibilities.quoteAuthorInformation}
-              />
-            </div>
-          </div>
-
-          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
-
-          <h2 className="mb-8">
-            {locales.route.content.websiteAndSocial.headline}
-          </h2>
-
-          <h4 className="mb-4 font-semibold">
-            {locales.route.content.websiteAndSocial.website.headline}
-          </h4>
-
-          <p className="mb-8">
-            {locales.route.content.websiteAndSocial.website.intro}
-          </p>
-
-          <div className="basis-full mb-4">
-            <InputText
-              {...register("website")}
-              id="website"
-              label={locales.route.form.website.label}
-              placeholder={locales.route.form.website.placeholder}
-              withPublicPrivateToggle={true}
-              isPublic={organizationVisibilities.website}
-              errorMessage={errors?.website?.message}
-              withClearButton
-            />
-          </div>
-
-          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
-
-          <h4 className="mb-4 font-semibold">
-            {locales.route.content.websiteAndSocial.social.headline}
-          </h4>
-
-          <p className="mb-8">
-            {locales.route.content.websiteAndSocial.social.intro}
-          </p>
-
-          {createSocialMediaServices(locales).map((service) => (
-            <div className="w-full mb-4" key={service.id}>
-              <InputText
-                {...register(service.id)}
-                id={service.id}
-                label={service.label}
-                placeholder={service.organizationPlaceholder}
-                withPublicPrivateToggle={true}
-                isPublic={organizationVisibilities[service.id]}
-                errorMessage={errors?.[service.id]?.message}
-                withClearButton
-              />
-            </div>
-          ))}
-
-          <footer className="fixed z-10 bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
-            <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-              <div className="flex flex-row flex-nowrap items-center justify-end my-4">
-                <div
-                  className={`text-green-500 text-bold ${
-                    actionData?.updated && !isSubmitting
-                      ? "block animate-fade-out"
-                      : "hidden"
-                  }`}
+            <div className="@lg:mv-flex @lg:mv-gap-4">
+              <div className="mv-flex-1">
+                <Input
+                  {...getInputProps(fields.email, { type: "email" })}
+                  key="email"
                 >
-                  {locales.route.content.feedback}
-                </div>
+                  <Input.Label htmlFor={fields.email.id}>
+                    {locales.route.content.contact.email.label}
+                  </Input.Label>
+                  <Input.Controls>
+                    <VisibilityCheckbox
+                      {...getInputProps(visibilitiesFieldList.email, {
+                        type: "checkbox",
+                      })}
+                      key={"email-visibility"}
+                    />
+                  </Input.Controls>
+                  {typeof fields.email.errors !== "undefined" && (
+                    <Input.Error>{fields.email.errors}</Input.Error>
+                  )}
+                </Input>
+              </div>
 
-                {isFormChanged ? (
-                  <Link
-                    to={`/organization/${slug}/settings`}
-                    reloadDocument
-                    className={`btn btn-link`}
-                  >
-                    {locales.route.form.reset.label}
-                  </Link>
-                ) : null}
-                <div></div>
-                <button
-                  type="submit"
-                  name="submit"
-                  value="submit"
-                  className="btn btn-primary ml-4"
-                  disabled={isSubmitting || !isFormChanged}
+              <div className="mv-flex-1">
+                <Input
+                  {...getInputProps(fields.phone, { type: "tel" })}
+                  key="phone"
                 >
-                  {locales.route.form.submit.label}
-                </button>
+                  <Input.Label htmlFor={fields.phone.id}>
+                    {locales.route.content.contact.phone.label}
+                  </Input.Label>
+                  <Input.Controls>
+                    <VisibilityCheckbox
+                      {...getInputProps(visibilitiesFieldList.phone, {
+                        type: "checkbox",
+                      })}
+                      key={"phone-visibility"}
+                    />
+                  </Input.Controls>
+                  {typeof fields.phone.errors !== "undefined" && (
+                    <Input.Error>{fields.phone.errors}</Input.Error>
+                  )}
+                </Input>
               </div>
             </div>
-          </footer>
-        </Form>
-      </FormProvider>
-    </>
+
+            <div className="@lg:mv-flex @lg:mv-gap-4">
+              <div className="mv-flex-1">
+                <Input
+                  {...getInputProps(fields.street, { type: "text" })}
+                  key="street"
+                >
+                  <Input.Label htmlFor={fields.street.id}>
+                    {locales.route.content.contact.street.label}
+                  </Input.Label>
+                  {typeof fields.street.errors !== "undefined" && (
+                    <Input.Error>{fields.street.errors}</Input.Error>
+                  )}
+                </Input>
+              </div>
+              <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
+                <Input
+                  {...getInputProps(fields.streetNumber, { type: "text" })}
+                  key="streetNumber"
+                >
+                  <Input.Label htmlFor={fields.streetNumber.id}>
+                    {locales.route.content.contact.streetNumber.label}
+                  </Input.Label>
+                  {typeof fields.streetNumber.errors !== "undefined" && (
+                    <Input.Error>{fields.streetNumber.errors}</Input.Error>
+                  )}
+                </Input>
+              </div>
+            </div>
+            <div className="@lg:mv-flex @lg:mv-gap-4">
+              <div className="mv-flex-1">
+                <Input
+                  {...getInputProps(fields.zipCode, { type: "text" })}
+                  key="zipCode"
+                >
+                  <Input.Label htmlFor={fields.zipCode.id}>
+                    {locales.route.content.contact.zipCode.label}
+                  </Input.Label>
+                  {typeof fields.zipCode.errors !== "undefined" && (
+                    <Input.Error>{fields.zipCode.errors}</Input.Error>
+                  )}
+                </Input>
+              </div>
+              <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
+                <Input
+                  {...getInputProps(fields.city, { type: "text" })}
+                  key="city"
+                >
+                  <Input.Label htmlFor={fields.city.id}>
+                    {locales.route.content.contact.city.label}
+                  </Input.Label>
+                  {typeof fields.city.errors !== "undefined" && (
+                    <Input.Error>{fields.city.errors}</Input.Error>
+                  )}
+                </Input>
+              </div>
+            </div>
+          </div>
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              {locales.route.content.about.headline}
+            </h2>
+            <p>{locales.route.content.about.intro}</p>
+            <div className="mv-flex mv-gap-2">
+              <TextArea
+                {...getInputProps(fields.bio, { type: "text" })}
+                key="bio"
+                id={fields.bio.id || ""}
+                label={locales.route.content.bio.label}
+                // withPublicPrivateToggle={true}
+                // isPublic={organizationVisibility?.bio}
+                errorMessage={
+                  Array.isArray(fields.bio.errors)
+                    ? fields.bio.errors.join(", ")
+                    : undefined
+                }
+                maxLength={undefined}
+                rte={{ locales: locales }}
+              />
+              <div className="mv-min-w-[44px] mv-pt-[32px]">
+                <VisibilityCheckbox
+                  {...getInputProps(visibilitiesFieldList.bio, {
+                    type: "checkbox",
+                  })}
+                  key={"bio-visibility"}
+                />
+              </div>
+            </div>
+
+            <ConformSelect
+              id={fields.areas.id}
+              cta={locales.route.content.areas.option}
+            >
+              <ConformSelect.Label htmlFor={fields.areas.id}>
+                {locales.route.content.areas.label}
+              </ConformSelect.Label>
+              <ConformSelect.HelperText>
+                {locales.route.content.areas.helper}
+              </ConformSelect.HelperText>
+              {areaOptions
+                .filter((option) => {
+                  // All options that have a value should only be shown if they are not inside the current selected area list
+                  if (option.value !== undefined) {
+                    return !areaFieldList.some((field) => {
+                      return field.initialValue === option.value;
+                    });
+                  }
+                  // Divider, that have no value should be always shown
+                  else {
+                    return true;
+                  }
+                })
+                .map((filteredOption, index) => {
+                  // All options that have a value are created as options with a hidden add button thats clicked by the select onChange handler
+                  if (filteredOption.value !== undefined) {
+                    return (
+                      <button
+                        key={`${filteredOption.value}`}
+                        {...form.insert.getButtonProps({
+                          name: fields.areas.name,
+                          defaultValue: filteredOption.value,
+                        })}
+                        className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                      >
+                        {filteredOption.label}
+                      </button>
+                    );
+                  }
+                  // Divider, that have no value are shown as a disabled option. Is this styleable? Is there a better way of doing this?
+                  else {
+                    return (
+                      <div
+                        key={`${filteredOption.label}-${index}-divider`}
+                        className="mv-text-start mv-w-full mv-cursor-default mv-text-neutral-500 mv-py-1 mv-px-2"
+                      >
+                        {filteredOption.label}
+                      </div>
+                    );
+                  }
+                })}
+            </ConformSelect>
+            {areaFieldList.length > 0 && (
+              <Chip.Container>
+                {areaFieldList.map((field, index) => {
+                  return (
+                    <Chip key={field.key}>
+                      <Input
+                        {...getInputProps(field, { type: "hidden" })}
+                        key="areas"
+                      />
+                      {areaOptions.find((option) => {
+                        return option.value === field.initialValue;
+                      })?.label || locales.route.content.notFound}
+                      <Chip.Delete>
+                        <button
+                          {...form.remove.getButtonProps({
+                            name: fields.areas.name,
+                            index,
+                          })}
+                        />
+                      </Chip.Delete>
+                    </Chip>
+                  );
+                })}
+              </Chip.Container>
+            )}
+            <ConformSelect
+              id={fields.focuses.id}
+              cta={locales.route.content.focuses.option}
+            >
+              <ConformSelect.Label htmlFor={fields.focuses.id}>
+                {locales.route.content.focuses.label}
+              </ConformSelect.Label>
+
+              <ConformSelect.Controls>
+                <VisibilityCheckbox
+                  {...getInputProps(visibilitiesFieldList.focuses, {
+                    type: "checkbox",
+                  })}
+                  key={"focuses-visibility"}
+                />
+              </ConformSelect.Controls>
+              <ConformSelect.HelperText>
+                {locales.route.content.focuses.helper}
+              </ConformSelect.HelperText>
+              {allFocuses
+                .filter((focus) => {
+                  return !focusFieldList.some((listFocus) => {
+                    return listFocus.initialValue === focus.id;
+                  });
+                })
+                .map((focus) => {
+                  let title;
+                  if (focus.slug in locales.focuses) {
+                    type LocaleKey = keyof typeof locales.focuses;
+                    title = locales.focuses[focus.slug as LocaleKey].title;
+                  } else {
+                    console.error(`Focus ${focus.slug} not found in locales`);
+                    title = focus.slug;
+                  }
+                  return (
+                    <button
+                      key={focus.id}
+                      {...form.insert.getButtonProps({
+                        name: fields.focuses.name,
+                        defaultValue: focus.id,
+                      })}
+                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                    >
+                      {title}
+                    </button>
+                  );
+                })}
+            </ConformSelect>
+            {focusFieldList.length > 0 && (
+              <Chip.Container>
+                {focusFieldList.map((field, index) => {
+                  let focusSlug = allFocuses.find((focus) => {
+                    return focus.id === field.initialValue;
+                  })?.slug;
+                  let title;
+                  if (focusSlug === undefined) {
+                    console.error(
+                      `Focus with id ${field.id} not found in allFocuses`
+                    );
+                    title = null;
+                  } else {
+                    if (focusSlug in locales.focuses) {
+                      type LocaleKey = keyof typeof locales.focuses;
+                      title = locales.focuses[focusSlug as LocaleKey].title;
+                    } else {
+                      console.error(`Focus ${focusSlug} not found in locales`);
+                      title = focusSlug;
+                    }
+                  }
+                  return (
+                    <Chip key={field.key}>
+                      <Input
+                        {...getInputProps(field, { type: "hidden" })}
+                        key="focuses"
+                      />
+                      {title || locales.route.content.notFound}
+                      <Chip.Delete>
+                        <button
+                          {...form.remove.getButtonProps({
+                            name: fields.focuses.name,
+                            index,
+                          })}
+                        />
+                      </Chip.Delete>
+                    </Chip>
+                  );
+                })}
+              </Chip.Container>
+            )}
+          </div>
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              {locales.route.content.supportedBy.headline}
+            </h2>
+            <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
+              <Input
+                value={supportedBy}
+                onChange={handleSupportedByInputChange}
+              >
+                <Input.Label htmlFor={fields.supportedBy.id}>
+                  {locales.route.content.supportedBy.label}
+                </Input.Label>
+                <Input.Controls>
+                  <Button
+                    variant="ghost"
+                    disabled={supportedBy === ""}
+                    {...form.insert.getButtonProps({
+                      name: fields.supportedBy.name,
+                      defaultValue: supportedBy,
+                    })}
+                  >
+                    {locales.route.content.supportedBy.add}
+                  </Button>
+                </Input.Controls>
+              </Input>
+            </div>
+            {supportedByFieldList.length > 0 && (
+              <Chip.Container>
+                {supportedByFieldList.map((field, index) => {
+                  return (
+                    <Chip key={field.key}>
+                      <Input
+                        {...getInputProps(field, { type: "hidden" })}
+                        key="supportedBy"
+                      />
+                      {field.initialValue || "Not Found"}
+                      <Chip.Delete>
+                        <button
+                          {...form.remove.getButtonProps({
+                            name: fields.supportedBy.name,
+                            index,
+                          })}
+                        />
+                      </Chip.Delete>
+                    </Chip>
+                  );
+                })}
+              </Chip.Container>
+            )}
+          </div>
+          {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+            <div>
+              {form.errors.map((error, index) => {
+                return (
+                  <div
+                    id={form.errorId}
+                    key={index}
+                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                  >
+                    {error}
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
+          <div className="mv-flex mv-flex-col @xl:mv-flex-row mv-w-full mv-justify-end @xl:mv-justify-between mv-items-start mv-gap-4">
+            <div className="mv-flex mv-flex-col mv-gap-1">
+              <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
+                <span className="mv-w-4 mv-h-4">
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M20 10C20 10 16.25 3.125 10 3.125C3.75 3.125 0 10 0 10C0 10 3.75 16.875 10 16.875C16.25 16.875 20 10 20 10ZM1.46625 10C2.07064 9.0814 2.7658 8.22586 3.54125 7.44625C5.15 5.835 7.35 4.375 10 4.375C12.65 4.375 14.8488 5.835 16.46 7.44625C17.2354 8.22586 17.9306 9.0814 18.535 10C18.4625 10.1087 18.3825 10.2287 18.2913 10.36C17.8725 10.96 17.2538 11.76 16.46 12.5538C14.8488 14.165 12.6488 15.625 10 15.625C7.35 15.625 5.15125 14.165 3.54 12.5538C2.76456 11.7741 2.0694 10.9186 1.465 10H1.46625Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M10 6.875C9.1712 6.875 8.37634 7.20424 7.79029 7.79029C7.20424 8.37634 6.875 9.1712 6.875 10C6.875 10.8288 7.20424 11.6237 7.79029 12.2097C8.37634 12.7958 9.1712 13.125 10 13.125C10.8288 13.125 11.6237 12.7958 12.2097 12.2097C12.7958 11.6237 13.125 10.8288 13.125 10C13.125 9.1712 12.7958 8.37634 12.2097 7.79029C11.6237 7.20424 10.8288 6.875 10 6.875ZM5.625 10C5.625 8.83968 6.08594 7.72688 6.90641 6.90641C7.72688 6.08594 8.83968 5.625 10 5.625C11.1603 5.625 12.2731 6.08594 13.0936 6.90641C13.9141 7.72688 14.375 8.83968 14.375 10C14.375 11.1603 13.9141 12.2731 13.0936 13.0936C12.2731 13.9141 11.1603 14.375 10 14.375C8.83968 14.375 7.72688 13.9141 6.90641 13.0936C6.08594 12.2731 5.625 11.1603 5.625 10Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                <span>{locales.route.form.hint.public}</span>
+              </p>
+              <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
+                <span className="mv-w-4 mv-h-4">
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16.6987 14.0475C18.825 12.15 20 10 20 10C20 10 16.25 3.125 10 3.125C8.79949 3.12913 7.61256 3.37928 6.5125 3.86L7.475 4.82375C8.28429 4.52894 9.13868 4.3771 10 4.375C12.65 4.375 14.8487 5.835 16.46 7.44625C17.2354 8.22586 17.9306 9.08141 18.535 10C18.4625 10.1088 18.3825 10.2288 18.2912 10.36C17.8725 10.96 17.2537 11.76 16.46 12.5538C16.2537 12.76 16.0387 12.9638 15.8137 13.1613L16.6987 14.0475Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M14.1212 11.47C14.4002 10.6898 14.4518 9.84643 14.2702 9.03803C14.0886 8.22962 13.6811 7.48941 13.0952 6.90352C12.5093 6.31764 11.7691 5.91018 10.9607 5.72854C10.1523 5.5469 9.30895 5.59856 8.52875 5.8775L9.5575 6.90625C10.0379 6.83749 10.5277 6.88156 10.9881 7.03495C11.4485 7.18835 11.8668 7.44687 12.21 7.79001C12.5531 8.13316 12.8116 8.55151 12.965 9.01191C13.1184 9.47231 13.1625 9.96211 13.0937 10.4425L14.1212 11.47ZM10.4425 13.0937L11.47 14.1212C10.6898 14.4002 9.84643 14.4518 9.03803 14.2702C8.22962 14.0886 7.48941 13.6811 6.90352 13.0952C6.31764 12.5093 5.91018 11.7691 5.72854 10.9607C5.5469 10.1523 5.59856 9.30895 5.8775 8.52875L6.90625 9.5575C6.83749 10.0379 6.88156 10.5277 7.03495 10.9881C7.18835 11.4485 7.44687 11.8668 7.79001 12.21C8.13316 12.5531 8.55151 12.8116 9.01191 12.965C9.47231 13.1184 9.96211 13.1625 10.4425 13.0937Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M4.1875 6.8375C3.9625 7.0375 3.74625 7.24 3.54 7.44625C2.76456 8.22586 2.0694 9.08141 1.465 10L1.70875 10.36C2.1275 10.96 2.74625 11.76 3.54 12.5538C5.15125 14.165 7.35125 15.625 10 15.625C10.895 15.625 11.7375 15.4588 12.525 15.175L13.4875 16.14C12.3874 16.6207 11.2005 16.8708 10 16.875C3.75 16.875 0 10 0 10C0 10 1.17375 7.84875 3.30125 5.9525L4.18625 6.83875L4.1875 6.8375ZM17.0575 17.9425L2.0575 2.9425L2.9425 2.0575L17.9425 17.0575L17.0575 17.9425Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                <span>{locales.route.form.hint.private}</span>
+              </p>
+            </div>
+            <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
+              <Controls>
+                <Button
+                  type="reset"
+                  onClick={() => {
+                    setTimeout(() => form.reset(), 0);
+                  }}
+                  variant="outline"
+                  fullSize
+                  // Don't disable button when js is disabled
+                  disabled={isHydrated ? form.dirty === false : false}
+                >
+                  {locales.route.form.reset}
+                </Button>
+                <Button
+                  type="submit"
+                  name="intent"
+                  defaultValue="submit"
+                  fullSize
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? form.dirty === false || form.valid === false
+                      : false
+                  }
+                >
+                  {locales.route.form.submit}
+                </Button>
+              </Controls>
+              <noscript>
+                <Button as="a" href="./general" variant="outline" fullSize>
+                  {locales.route.form.reset}
+                </Button>
+              </noscript>
+            </div>
+          </div>
+        </div>
+      </Form>
+    </Section>
   );
 }
 
-export default Index;
+export default General;

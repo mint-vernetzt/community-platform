@@ -14,9 +14,9 @@ import {
 import { SearchOrganizations, SearchProfiles } from "~/lib/utils/searchParams";
 import { getPublicURL } from "~/storage.server";
 import { type Mode } from "~/utils.server";
-import { type OrganizationAdminSettingsLocales } from "./next/organization/$slug/settings/admins.server";
-import { type OrganizationTeamSettingsLocales } from "./next/organization/$slug/settings/team.server";
-import { type ManageOrganizationSettingsLocales } from "./next/organization/$slug/settings/manage.server";
+import { type OrganizationAdminSettingsLocales } from "./organization/$slug/settings/admins.server";
+import { type OrganizationTeamSettingsLocales } from "./organization/$slug/settings/team.server";
+import { type ManageOrganizationSettingsLocales } from "./organization/$slug/settings/manage.server";
 
 export async function getProfileCount() {
   return await prismaClient.profile.count();

@@ -1,106 +1,80 @@
 export const locale = {
   error: {
-    serverError: "Something went wrong on update.",
-    validation: "Validation failed",
-    notPrivileged: "Not privileged",
-    notFound: {
-      organization: "Organization not found",
-      named: 'Organization with slug "{{slug}}" not found.',
-      visibilities: "Organization visibilities not found.",
-    },
+    notFound: "Organisation oder Sichtbarkeit der Organisation nicht gefunden",
+    invalidRoute: "Ungültige Route",
+    updateFailed:
+      "Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support",
   },
   validation: {
     name: {
-      required: "Bitte gib Euren Namen ein.",
+      required:
+        "Bitte gib den Namen Deiner Organisation oder Deines Netzwerks ein",
+      min: "Der Name muss mindestens 3 Zeichen lang sein",
+      max: "Der Name darf maximal 50 Zeichen lang sein",
     },
-    email: {
-      email: "Deine Eingabe entspricht nicht dem Format einer E-Mail.",
+    email: "Bitte gib eine gültige E-Mail Adresse ein",
+    bio: {
+      max: "Die Beschreibung darf maximal 2000 Zeichen lang sein",
     },
   },
   content: {
-    headline: "Deine Organisation",
-    general: {
-      headline: "Allgemein",
-      intro: "Wie kann die Community Euch erreichen?",
-    },
-    address: {
-      headline: "Anschrift",
+    notFound: "Nicht gefunden",
+    headline: "Allgemein",
+    success: "Daten gespeichert!",
+    contact: {
+      headline: "Name und Kontakt",
+      name: {
+        label: "Wie heißt Deine Organisation / Dein Netzwerk?",
+      },
+      email: {
+        label: "E-Mail-Adresse",
+      },
+      phone: {
+        label: "Telefonnummer",
+      },
+      street: {
+        label: "Straße",
+      },
+      streetNumber: {
+        label: "Hausnummer",
+      },
+      zipCode: {
+        label: "Postleitzahl",
+      },
+      city: {
+        label: "Stadt",
+      },
     },
     about: {
       headline: "Über uns",
-      intro: "Teile der Community mehr über Deine Organisation mit.",
-    },
-    websiteAndSocial: {
-      headline: "Website und Soziale Netzwerke",
-      website: {
-        headline: "Website",
-        intro: "Wo kann die Community mehr über Euer Angebot erfahren?",
-      },
-      social: {
-        headline: "Soziale Netzwerke",
-        intro: "In welchen Netzwerken ist Deine Organisation vertreten?",
-      },
-    },
-    feedback: "Informationen wurden aktualisiert.",
-  },
-  form: {
-    name: {
-      label: "Name",
-    },
-    email: {
-      label: "E-Mail",
-    },
-    phone: {
-      label: "Telefon",
-    },
-    street: {
-      label: "Straßenname",
-    },
-    streetNumber: {
-      label: "Hausnummer",
-    },
-    zipCode: {
-      label: "PLZ",
-    },
-    city: {
-      label: "Stadt",
+      intro:
+        "Teile der Community Grundlegendes über Deine Organisation oder Netzwerk mit.",
     },
     bio: {
       label: "Kurzbeschreibung",
     },
-    organizationForm: {
-      label: "Organisationsform",
-      placeholder: "Füge Eure Organisationsformen hinzu.",
-    },
     areas: {
-      label: "Aktivitätsgebiete",
-      placeholder: "Füge Eure Aktivitätsgebiete hinzu.",
-    },
-    supportedBy: {
-      label: "Gefördert von",
+      label: "Aktiviätsgebiete",
+      helper: "Mehrfachauswahl möglich",
+      option: "Bitte auswählen",
     },
     focuses: {
       label: "Schwerpunkte",
-      placeholder: "Füge Eure Schwerpunkte hinzu.",
+      helper: "Mehrfachauswahl möglich",
+      option: "Bitte auswählen",
     },
-    quote: {
-      label: "Zitat",
+    supportedBy: {
+      headline: "Fördermittelgeber",
+      label: "Gefördert von",
+      add: "Hinzufügen",
     },
-    quoteAuthor: {
-      label: "Von wem stammt das Zitat?",
-    },
-    quoteAuthorInformation: {
-      label: "Zusatzinformationen des Zitatautors (Position/Beruf)",
-    },
-    website: {
-      label: "Website",
-      placeholder: "domainname.tld",
-    },
-    reset: {
-      label: "Änderungen verwerfen",
-    },
-    submit: {
-      label: "Speichern",
+  },
+  form: {
+    reset: "Änderungen verwerfen",
+    submit: "Speichern",
+    hint: {
+      public: "Für alle sichtbar",
+      private: "Nur für registrierte Nutzer:innen sichtbar",
     },
   },
 } as const;

@@ -1,15 +1,15 @@
 import { type MyEventsLocales } from "~/routes/my/events.server";
 import { Icon } from "./icons/Icon";
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
-import { type OrganizationAdminSettingsLocales } from "~/routes/next/organization/$slug/settings/admins.server";
-import { type OrganizationTeamSettingsLocales } from "~/routes/next/organization/$slug/settings/team.server";
-import { type CreateOrganizationLocales } from "~/routes/next/organization/create.server";
+import { type OrganizationAdminSettingsLocales } from "~/routes/organization/$slug/settings/admins.server";
+import { type OrganizationTeamSettingsLocales } from "~/routes/organization/$slug/settings/team.server";
+import { type CreateOrganizationLocales } from "~/routes/organization/create.server";
 import { type OrganizationEventsLocales } from "~/routes/organization/$slug/detail/events.server";
 import { type OrganizationNetworkLocales } from "~/routes/organization/$slug/detail/network.server";
 import { type OrganizationProjectsLocales } from "~/routes/organization/$slug/detail/projects.server";
 import { type OrganizationTeamLocales } from "~/routes/organization/$slug/detail/team.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { type ManageOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/manage.server";
+import { type ManageOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/manage.server";
 
 type Locales =
   | MyEventsLocales

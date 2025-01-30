@@ -1,106 +1,79 @@
 export const locale = {
   error: {
-    serverError: "Something went wrong on update.",
-    validation: "Validation failed",
-    notPrivileged: "Not privileged",
-    notFound: {
-      organization: "Organization not found",
-      named: 'Organization with slug "{{slug}}" not found.',
-      visibilities: "Organization visibilities not found.",
-    },
+    notFound: "Organization or organization visibility not found",
+    invalidRoute: "Invalid route",
+    updateFailed:
+      "Data could not be saved. Please try again or contact support",
   },
   validation: {
     name: {
-      required: "Please enter your name.",
+      required: "Please enter the name of your organization or network",
+      min: "Name must be at least 3 characters long",
+      max: "Name must be at most 50 characters long",
     },
-    email: {
-      email: "Your entry does not match the format of an email.",
+    email: "Please enter a valid email address",
+    bio: {
+      max: "Description must be at most 2000 characters long",
     },
   },
   content: {
-    headline: "Your organization",
-    general: {
-      headline: "General",
-      intro: "How can the community reach you?",
-    },
-    address: {
-      headline: "Address",
+    notFound: "Not found",
+    headline: "General",
+    success: "Data saved!",
+    contact: {
+      headline: "Name and contact",
+      name: {
+        label: "What is the name of your organization / network?",
+      },
+      email: {
+        label: "Email address",
+      },
+      phone: {
+        label: "Phone number",
+      },
+      street: {
+        label: "Street",
+      },
+      streetNumber: {
+        label: "House number",
+      },
+      zipCode: {
+        label: "Zip code",
+      },
+      city: {
+        label: "City",
+      },
     },
     about: {
       headline: "About us",
-      intro: "Share more about your organization with the community.",
-    },
-    websiteAndSocial: {
-      headline: "Website and social networks",
-      website: {
-        headline: "Website",
-        intro: "Where can the community learn more about your offerings?",
-      },
-      social: {
-        headline: "Social networks",
-        intro: "In which networks is your organization represented?",
-      },
-    },
-    feedback: "Information has been updated.",
-  },
-  form: {
-    name: {
-      label: "Name",
-    },
-    email: {
-      label: "Email",
-    },
-    phone: {
-      label: "Phone",
-    },
-    street: {
-      label: "Street name",
-    },
-    streetNumber: {
-      label: "House number",
-    },
-    zipCode: {
-      label: "ZIP code",
-    },
-    city: {
-      label: "City",
+      intro:
+        "Share the community basic information about your organization or network.",
     },
     bio: {
       label: "Short description",
     },
-    organizationForm: {
-      label: "Organization form",
-      placeholder: "Add your organization forms.",
-    },
     areas: {
       label: "Activity areas",
-      placeholder: "Add your activity areas.",
-    },
-    supportedBy: {
-      label: "Sponsored by",
+      helper: "Multiple selection possible",
+      option: "Please select",
     },
     focuses: {
-      label: "Focus areas",
-      placeholder: "Add your focus areas.",
+      label: "Focuses",
+      helper: "Multiple selection possible",
+      option: "Please select",
     },
-    quote: {
-      label: "Quote",
+    supportedBy: {
+      headline: "Funding bodies",
+      label: "Funded by",
+      add: "Add",
     },
-    quoteAuthor: {
-      label: "Who is the quote from?",
-    },
-    quoteAuthorInformation: {
-      label: "Additional information of the quote author (Position/Profession)",
-    },
-    website: {
-      label: "Website",
-      placeholder: "domainname.tld",
-    },
-    reset: {
-      label: "Discard changes",
-    },
-    submit: {
-      label: "Save",
+  },
+  form: {
+    reset: "Discard changes",
+    submit: "Save",
+    hint: {
+      public: "Visible to everyone",
+      private: "Visible only to registered users",
     },
   },
 } as const;

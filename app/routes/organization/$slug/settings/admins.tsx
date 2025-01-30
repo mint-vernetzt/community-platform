@@ -1,393 +1,463 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
-  Link,
-  useFetcher,
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
+import {
+  Form,
+  useActionData,
   useLoaderData,
-  useParams,
+  useLocation,
+  useNavigation,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import {
-  createAuthClient,
-  getSessionUserOrRedirectPathToLogin,
-} from "~/auth.server";
-import Autocomplete from "~/components/Autocomplete/Autocomplete";
-import { H3 } from "~/components/Heading/Heading";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { getInitials } from "~/lib/profile/getInitials";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { BackButton } from "~/components-next/BackButton";
+import { ListContainer } from "~/components-next/ListContainer";
+import { ListItem } from "~/components-next/ListItem";
+import { searchProfilesSchema } from "~/form-helpers";
+import { detectLanguage } from "~/i18n.server";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
-import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
-import { getPublicURL } from "~/storage.server";
-import { deriveOrganizationMode } from "../utils.server";
-import {
-  getInvitedProfilesOfOrganization,
-  getOrganization,
-} from "./admins.server";
-import {
-  addAdminSchema,
-  type action as addAdminAction,
-} from "./admins/add-admin";
-import {
-  cancelInviteSchema,
-  type action as cancelInviteAction,
-} from "./admins/cancel-invite";
-import {
-  removeAdminSchema,
-  type action as removeAdminAction,
-} from "./admins/remove-admin";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Deep, SearchProfiles } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { searchProfiles } from "~/routes/utils.server";
+import { redirectWithToast } from "~/toast.server";
+import { deriveMode } from "~/utils.server";
+import {
+  cancelOrganizationAdminInvitation,
+  getOrganizationWithAdmins,
+  getPendingAdminInvitesOfOrganization,
+  inviteProfileToBeOrganizationAdmin,
+  removeAdminFromOrganization,
+} from "./admins.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
+
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["organization/$slug/settings/admins"];
+
   const { authClient } = createAuthClient(request);
-  const slug = getParamValueOrThrow(params, "slug");
-  const organization = await getOrganization(slug);
-  invariantResponse(organization, locales.route.error.notFound, {
-    status: 404,
-  });
-  const { sessionUser, redirectPath } =
-    await getSessionUserOrRedirectPathToLogin(authClient, request);
+  const sessionUser = await getSessionUser(authClient);
+  const mode = deriveMode(sessionUser);
 
-  if (sessionUser === null && redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-  const mode = await deriveOrganizationMode(sessionUser, slug);
-  invariantResponse(mode === "admin", locales.route.error.notPrivileged, {
-    status: 403,
-  });
-
-  const enhancedAdmins = organization.admins.map((relation) => {
-    let avatar = relation.profile.avatar;
-    let blurredAvatar;
-    if (avatar !== null) {
-      const publicURL = getPublicURL(authClient, avatar);
-      if (publicURL !== null) {
-        avatar = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width:
-              ImageSizes.Profile.ListItemEventAndOrganizationSettings.Avatar
-                .width,
-            height:
-              ImageSizes.Profile.ListItemEventAndOrganizationSettings.Avatar
-                .height,
-          },
-        });
-        blurredAvatar = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width:
-              ImageSizes.Profile.ListItemEventAndOrganizationSettings
-                .BlurredAvatar.width,
-            height:
-              ImageSizes.Profile.ListItemEventAndOrganizationSettings
-                .BlurredAvatar.height,
-          },
-          blur: BlurFactor,
-        });
-      }
-    }
-    return { ...relation.profile, avatar, blurredAvatar };
-  });
-
-  const invitedProfiles = await getInvitedProfilesOfOrganization(
+  const organization = await getOrganizationWithAdmins({
+    slug,
     authClient,
-    organization.id
+    locales,
+  });
+
+  const pendingAdminInvites = await getPendingAdminInvitesOfOrganization(
+    organization.id,
+    authClient
   );
 
-  const url = new URL(request.url);
-  const suggestionsQuery =
-    url.searchParams.get("autocomplete_query") || undefined;
-  let adminSuggestions;
-  if (suggestionsQuery !== undefined && suggestionsQuery !== "") {
-    const query = suggestionsQuery.split(" ");
-    const alreadyAdminIds = [...enhancedAdmins, ...invitedProfiles].map(
-      (relation) => {
-        return relation.id;
-      }
-    );
-    adminSuggestions = await getProfileSuggestionsForAutocomplete(
-      authClient,
-      alreadyAdminIds,
-      query
-    );
-  }
+  const pendingAndCurrentAdminIds = [
+    ...organization.admins.map((relation) => relation.profile.id),
+    ...pendingAdminInvites.map((invite) => invite.id),
+  ];
+  const { searchedProfiles, submission } = await searchProfiles({
+    searchParams: new URL(request.url).searchParams,
+    idsToExclude: pendingAndCurrentAdminIds,
+    authClient,
+    locales,
+    mode,
+  });
 
   return {
-    admins: enhancedAdmins,
-    invitedProfiles,
-    adminSuggestions,
+    organization,
+    pendingAdminInvites,
+    searchedProfiles,
+    submission,
     locales,
-    language,
+    currentTimestamp: Date.now(),
   };
 };
 
+export const action = async (args: ActionFunctionArgs) => {
+  const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
+
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["organization/$slug/settings/admins"];
+
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+
+  let result;
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  invariantResponse(
+    typeof intent === "string",
+    locales.route.error.invariant.noStringIntent,
+    {
+      status: 400,
+    }
+  );
+
+  if (intent.startsWith("invite-admin-")) {
+    const inviteFormData = new FormData();
+    inviteFormData.set("profileId", intent.replace("invite-admin-", ""));
+    result = await inviteProfileToBeOrganizationAdmin({
+      formData: inviteFormData,
+      slug,
+      locales,
+    });
+  } else if (intent.startsWith("cancel-admin-invite-")) {
+    const cancelAdminInviteFormData = new FormData();
+    cancelAdminInviteFormData.set(
+      "profileId",
+      intent.replace("cancel-admin-invite-", "")
+    );
+    result = await cancelOrganizationAdminInvitation({
+      formData: cancelAdminInviteFormData,
+      slug,
+      locales,
+    });
+  } else if (intent.startsWith("remove-admin-")) {
+    const removeAdminFormData = new FormData();
+    removeAdminFormData.set("profileId", intent.replace("remove-admin-", ""));
+    result = await removeAdminFromOrganization({
+      formData: removeAdminFormData,
+      slug,
+      locales,
+    });
+  } else {
+    invariantResponse(false, locales.route.error.invariant.wrongIntent, {
+      status: 400,
+    });
+  }
+
+  if (
+    result.submission !== undefined &&
+    result.submission.status === "success" &&
+    result.toast !== undefined
+  ) {
+    return redirectWithToast(request.url, result.toast);
+  }
+  return { submission: result.submission, currentTimestamp: Date.now() };
+};
+
 function Admins() {
-  const { slug } = useParams();
-  const loaderData = useLoaderData<typeof loader>();
-  const { locales, language } = loaderData;
-  const addAdminFetcher = useFetcher<typeof addAdminAction>();
-  const cancelInviteFetcher = useFetcher<typeof cancelInviteAction>();
-  const removeAdminFetcher = useFetcher<typeof removeAdminAction>();
-  const [searchParams] = useSearchParams();
-  const suggestionsQuery = searchParams.get("autocomplete_query");
+  const {
+    organization,
+    pendingAdminInvites,
+    searchedProfiles,
+    submission: loaderSubmission,
+    locales,
+    currentTimestamp,
+  } = useLoaderData<typeof loader>();
+
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+
   const submit = useSubmit();
+  const [searchParams] = useSearchParams();
+
+  const location = useLocation();
+
+  const [searchForm, searchFields] = useForm({
+    id: "search-profiles",
+    defaultValue: {
+      [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
+    },
+    constraint: getZodConstraint(searchProfilesSchema(locales)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: searchProfilesSchema(locales),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? loaderSubmission : null,
+  });
+
+  // Only button forms, dont need special validation logic
+  const [inviteAdminForm] = useForm({
+    id: `invite-admins-${actionData?.currentTimestamp || currentTimestamp}`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const [cancelAdminInviteForm] = useForm({
+    id: `cancel-admin-invites-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const [removeAdminForm] = useForm({
+    id: `remove-admins-${actionData?.currentTimestamp || currentTimestamp}`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
 
   return (
-    <>
-      <h1 className="mb-8">{locales.route.content.headline}</h1>
-      <p className="mb-2">{locales.route.content.intro1}</p>
-      <p className="mb-2">{locales.route.content.intro2}</p>
-      <p className="mb-8">{locales.route.content.intro3}</p>
-      <h4 className="mb-4 mt-4 font-semibold">
-        {locales.route.content.add.headline}
-      </h4>
-      <p className="mb-8">{locales.route.content.add.intro}</p>
-      <RemixFormsForm
-        schema={addAdminSchema}
-        fetcher={addAdminFetcher}
-        action={`/organization/${slug}/settings/admins/add-admin`}
-        onSubmit={() => {
-          submit({
-            method: "get",
-            action: `/organization/${slug}/settings/admins`,
-          });
-        }}
-      >
-        {({ Field, Errors, Button, register }) => {
-          return (
-            <>
-              <Errors />
-              <div className="form-control w-full">
-                <div className="flex flex-row items-center mb-2">
-                  <div className="flex-auto">
-                    <label id="label-for-name" htmlFor="Name" className="label">
-                      {locales.route.content.add.label}
-                    </label>
-                  </div>
-                </div>
+    <Section>
+      <BackButton to={location.pathname}>
+        {locales.route.content.headline}
+      </BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
 
-                <div className="flex flex-row">
-                  <Field name="profileId" className="flex-auto">
-                    {({ Errors }) => (
-                      <>
-                        <Errors />
-                        <Autocomplete
-                          suggestions={loaderData.adminSuggestions || []}
-                          suggestionsLoaderPath={`/organization/${slug}/settings/admins`}
-                          defaultValue={suggestionsQuery || ""}
-                          {...register("profileId")}
-                          searchParameter="autocomplete_query"
-                          currentLanguage={language}
-                        />
-                      </>
+      {/* Current Admins and Remove Section */}
+      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            {decideBetweenSingularOrPlural(
+              locales.route.content.current.headline_one,
+              locales.route.content.current.headline_other,
+              organization.admins.length
+            )}
+          </h2>
+          <Form
+            {...getFormProps(removeAdminForm)}
+            method="post"
+            preventScrollReset
+          >
+            <ListContainer locales={locales} listKey="admins" hideAfter={3}>
+              {organization.admins.map((relation, index) => {
+                return (
+                  <ListItem
+                    key={`admin-${relation.profile.username}`}
+                    entity={relation.profile}
+                    locales={locales}
+                    listIndex={index}
+                    hideAfter={3}
+                  >
+                    {organization.admins.length > 1 && (
+                      <Button
+                        name="intent"
+                        variant="outline"
+                        value={`remove-admin-${relation.profile.id}`}
+                        type="submit"
+                        fullSize
+                      >
+                        {locales.route.content.current.remove}
+                      </Button>
                     )}
-                  </Field>
-                  <div className="ml-2">
-                    <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
-                      +
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </>
-          );
-        }}
-      </RemixFormsForm>
-      {addAdminFetcher.data !== undefined &&
-      "message" in addAdminFetcher.data ? (
-        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
-          {addAdminFetcher.data.message}
-        </div>
-      ) : null}
-      {loaderData.invitedProfiles.length > 0 ? (
-        <>
-          <h4 className="mb-4 mt-16 font-semibold">
-            {locales.route.content.invites.headline}
-          </h4>
-          <p className="mb-8">{locales.route.content.invites.intro} </p>
-          {loaderData.invitedProfiles.map((profile) => {
-            const initials = getInitials(profile);
-            return (
-              <div
-                key={`team-member-${profile.id}`}
-                className="w-full flex items-center flex-row flex-wrap @sm:mv-flex-nowrap border-b border-neutral-400 py-4 @md:mv-px-4"
-              >
-                <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
-                  {profile.avatar !== null && profile.avatar !== "" ? (
-                    <Avatar
-                      size="full"
-                      firstName={profile.firstName}
-                      lastName={profile.lastName}
-                      avatar={profile.avatar}
-                      blurredAvatar={profile.blurredAvatar}
-                    />
-                  ) : (
-                    <>{initials}</>
-                  )}
-                </div>
-                <div className="pl-4">
-                  <Link to={`/profile/${profile.username}`}>
-                    <H3
-                      like="h4"
-                      className="text-xl mb-1 no-underline hover:underline"
+                  </ListItem>
+                );
+              })}
+            </ListContainer>
+            {typeof removeAdminForm.errors !== "undefined" &&
+            removeAdminForm.errors.length > 0 ? (
+              <div>
+                {removeAdminForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={removeAdminForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
                     >
-                      {profile.firstName} {profile.lastName}
-                    </H3>
-                  </Link>
-                  {profile.position ? (
-                    <p className="font-bold text-sm cursor-default">
-                      {profile.position}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="flex-100 @sm:mv-flex-auto @sm:mv-ml-auto flex items-center flex-row pt-4 @sm:mv-pt-0 justify-end">
-                  <RemixFormsForm
-                    method="post"
-                    action={`/organization/${slug}/settings/admins/cancel-invite`}
-                    schema={cancelInviteSchema}
-                    hiddenFields={["profileId"]}
-                    values={{
-                      profileId: profile.id,
-                    }}
-                    fetcher={cancelInviteFetcher}
-                  >
-                    {({ Field, Button, Errors }) => {
-                      return (
-                        <>
-                          <Button
-                            className="ml-auto btn-none"
-                            title={locales.route.content.invites.cancel}
-                          >
-                            <svg
-                              viewBox="0 0 10 10"
-                              width="10px"
-                              height="10px"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                                fill="currentColor"
-                              />
-                            </svg>
-                          </Button>
-                          <Field name="profileId" />
-                          <Errors />
-                        </>
-                      );
-                    }}
-                  </RemixFormsForm>
-                </div>
+                      {error}
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </>
-      ) : null}
-      <h4 className="mb-4 mt-16 font-semibold">
-        {decideBetweenSingularOrPlural(
-          locales.route.content.current.headline_one,
-          locales.route.content.current.headline_other,
-          loaderData.admins.length
-        )}
-      </h4>
-      <p className="mb-8">
-        {decideBetweenSingularOrPlural(
-          locales.route.content.current.intro_one,
-          locales.route.content.current.intro_other,
-          loaderData.admins.length
-        )}
-      </p>
-      <div className="mb-4 @md:mv-max-h-[630px] overflow-auto">
-        {loaderData.admins.map((admin) => {
-          const initials = getInitials(admin);
-          return (
-            <div
-              key={`team-member-${admin.id}`}
-              className="w-full flex items-center flex-row flex-wrap @sm:mv-flex-nowrap border-b border-neutral-400 py-4 @md:mv-px-4"
+            ) : null}
+          </Form>
+        </div>
+        {/* Search Profiles To Invite Section */}
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            {locales.route.content.invite.headline}
+          </h2>
+          <Form
+            {...getFormProps(searchForm)}
+            method="get"
+            onChange={(event) => {
+              searchForm.validate();
+              if (searchForm.valid) {
+                submit(event.currentTarget, { preventScrollReset: true });
+              }
+            }}
+            autoComplete="off"
+          >
+            <Input name={Deep} defaultValue="true" type="hidden" />
+            <Input
+              {...getInputProps(searchFields[SearchProfiles], {
+                type: "search",
+              })}
+              key={searchFields[SearchProfiles].id}
+              standalone
             >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
-                {admin.avatar !== null && admin.avatar !== "" ? (
-                  <Avatar
-                    size="full"
-                    firstName={admin.firstName}
-                    lastName={admin.lastName}
-                    avatar={admin.avatar}
-                    blurredAvatar={admin.blurredAvatar}
-                  />
-                ) : (
-                  <>{initials}</>
-                )}
-              </div>
-              <div className="pl-4">
-                <Link to={`/profile/${admin.username}`}>
-                  <H3
-                    like="h4"
-                    className="text-xl mb-1 no-underline hover:underline"
+              <Input.Label htmlFor={searchFields[SearchProfiles].id}>
+                {locales.route.content.invite.search}
+              </Input.Label>
+              <Input.SearchIcon />
+
+              {typeof searchFields[SearchProfiles].errors !== "undefined" &&
+              searchFields[SearchProfiles].errors.length > 0 ? (
+                searchFields[SearchProfiles].errors.map((error) => (
+                  <Input.Error
+                    id={searchFields[SearchProfiles].errorId}
+                    key={error}
                   >
-                    {admin.firstName} {admin.lastName}
-                  </H3>
-                </Link>
-                {admin.position ? (
-                  <p className="font-bold text-sm cursor-default">
-                    {admin.position}
-                  </p>
-                ) : null}
+                    {error}
+                  </Input.Error>
+                ))
+              ) : (
+                <Input.HelperText>
+                  {locales.route.content.invite.criteria}
+                </Input.HelperText>
+              )}
+              <Input.Controls>
+                <noscript>
+                  <Button type="submit" variant="outline">
+                    {locales.route.content.invite.submitSearch}
+                  </Button>
+                </noscript>
+              </Input.Controls>
+            </Input>
+            {typeof searchForm.errors !== "undefined" &&
+            searchForm.errors.length > 0 ? (
+              <div>
+                {searchForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={searchForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex-100 @sm:mv-flex-auto @sm:mv-ml-auto flex items-center flex-row pt-4 @sm:mv-pt-0 justify-end">
-                <RemixFormsForm
-                  schema={removeAdminSchema}
-                  fetcher={removeAdminFetcher}
-                  action={`/organization/${slug}/settings/admins/remove-admin`}
-                  hiddenFields={["profileId"]}
-                  values={{
-                    profileId: admin.id,
-                  }}
-                >
-                  {(props) => {
-                    const { Field, Button, Errors } = props;
+            ) : null}
+          </Form>
+          {searchedProfiles.length > 0 ? (
+            <Form
+              {...getFormProps(inviteAdminForm)}
+              method="post"
+              preventScrollReset
+            >
+              <ListContainer
+                locales={locales}
+                listKey="admin-search-results"
+                hideAfter={3}
+              >
+                {searchedProfiles.map((profile, index) => {
+                  return (
+                    <ListItem
+                      key={`admin-search-result-${profile.username}`}
+                      entity={profile}
+                      locales={locales}
+                      listIndex={index}
+                      hideAfter={3}
+                    >
+                      <Button
+                        name="intent"
+                        variant="outline"
+                        value={`invite-admin-${profile.id}`}
+                        type="submit"
+                        fullSize
+                      >
+                        {locales.route.content.invite.submit}
+                      </Button>
+                    </ListItem>
+                  );
+                })}
+              </ListContainer>
+              {typeof inviteAdminForm.errors !== "undefined" &&
+              inviteAdminForm.errors.length > 0 ? (
+                <div>
+                  {inviteAdminForm.errors.map((error, index) => {
                     return (
-                      <>
-                        <Errors />
-                        <Field name="profileId" />
-                        {loaderData.admins.length > 1 ? (
-                          <Button
-                            className="ml-auto btn-none"
-                            title={locales.route.content.current.remove}
-                          >
-                            <svg
-                              viewBox="0 0 10 10"
-                              width="10px"
-                              height="10px"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                                fill="currentColor"
-                              />
-                            </svg>
-                          </Button>
-                        ) : null}
-                      </>
+                      <div
+                        id={inviteAdminForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
                     );
-                  }}
-                </RemixFormsForm>
-              </div>
+                  })}
+                </div>
+              ) : null}
+            </Form>
+          ) : null}
+          {/* Pending Invites Section */}
+          {pendingAdminInvites.length > 0 ? (
+            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+              <h4 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                {locales.route.content.invites.headline}
+              </h4>
+              <p>{locales.route.content.invites.intro} </p>
+              <Form
+                {...getFormProps(cancelAdminInviteForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer
+                  locales={locales}
+                  listKey="pending-admin-invites"
+                  hideAfter={3}
+                >
+                  {pendingAdminInvites.map((profile, index) => {
+                    return (
+                      <ListItem
+                        key={`pending-admin-invite-${profile.username}`}
+                        entity={profile}
+                        locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
+                      >
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`cancel-admin-invite-${profile.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.invites.cancel}
+                        </Button>
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+                {typeof cancelAdminInviteForm.errors !== "undefined" &&
+                cancelAdminInviteForm.errors.length > 0 ? (
+                  <div>
+                    {cancelAdminInviteForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={cancelAdminInviteForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </Form>
             </div>
-          );
-        })}
+          ) : null}
+        </div>
       </div>
-    </>
+    </Section>
   );
 }
 

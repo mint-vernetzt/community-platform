@@ -9,9 +9,6 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDuration } from "~/lib/utils/time";
 import { type ArrayElement } from "~/lib/utils/types";
-import { type OrganizationAdminSettingsLocales } from "~/routes/organization/$slug/settings/admins.server";
-import { type AddOrganizationNetworkMemberLocales } from "~/routes/organization/$slug/settings/network/add.server";
-import { type OrganizationTeamSettingsLocales } from "~/routes/organization/$slug/settings/team.server";
 import { H3 } from "../Heading/Heading";
 import { type EventWaitingListSettingsLocales } from "~/routes/event/$slug/settings/waiting-list.server";
 import { type EventTeamSettingsLocales } from "~/routes/event/$slug/settings/team.server";
@@ -58,16 +55,13 @@ export interface AutocompleteProps {
   defaultValue: string;
   searchParameter: string;
   locales?:
-    | AddOrganizationNetworkMemberLocales
     | EventWaitingListSettingsLocales
     | EventTeamSettingsLocales
     | EventAdminsSettingsLocales
     | ConnectedEventsSettingsLocales
     | EventOrganizationsSettingsLocales
     | EventParticipantsLocales
-    | EventSpeakersSettingsLocales
-    | OrganizationAdminSettingsLocales
-    | OrganizationTeamSettingsLocales;
+    | EventSpeakersSettingsLocales;
   currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
 }
 
