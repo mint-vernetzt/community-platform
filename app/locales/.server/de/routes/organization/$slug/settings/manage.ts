@@ -21,6 +21,13 @@ export const locale = {
       label: "Wähle die Art Deiner Organisation",
       helper: "Mehrfachauswahl möglich",
       option: "Bitte auswählen",
+      doubleCheck: {
+        title: 'Organisationsform "Netzwerk" entfernen',
+        description:
+          "Wenn Du die Organisationsform entfernst, werden automatisch die Verbindungen zu folgenden Netzwerkmitgliedern aufgehoben: {{organizations}}",
+        submit: "Entfernen",
+        abort: "Abbrechen",
+      },
     },
     networkTypes: {
       headline: "Netzwerkform",

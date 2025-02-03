@@ -20,6 +20,13 @@ export const locale = {
       label: "Choose the type of your organization",
       helper: "Multiple selection possible",
       option: "Please select",
+      doubleCheck: {
+        title: 'Remove organizational form "Network"',
+        description:
+          "If you remove the organizational form, the connections to the following network members will be automatically removed: {{organizations}}",
+        submit: "Remove",
+        abort: "Cancel",
+      },
     },
     networkTypes: {
       headline: "Network form",
