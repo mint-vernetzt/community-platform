@@ -11,8 +11,13 @@ declare module "@remix-run/node" {
 }
 
 export default defineConfig({
+  base:
+    process.env.NODE_ENV === "production"
+      ? `${process.env.COMMUNITY_BASE_URL}/`
+      : "/",
   server: {
     port: 3000,
+    allowedHosts: [process.env.COMMUNITY_BASE_URL],
   },
   build: {
     sourcemap: true,
