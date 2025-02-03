@@ -43,17 +43,6 @@ export async function deriveOrganizationMode(
   return mode;
 }
 
-export async function getOrganizationVisibilitiesById(id: string) {
-  const result = await prismaClient.organizationVisibility.findFirst({
-    where: {
-      organization: {
-        id,
-      },
-    },
-  });
-  return result;
-}
-
 export async function getRedirectPathOnProtectedOrganizationRoute(args: {
   request: Request;
   slug: string;

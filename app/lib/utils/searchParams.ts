@@ -1,5 +1,8 @@
 // List to better keep track of used search params
-export const SearchProfiles = "search-profiles";
+export const SearchProfiles = "search-profiles-query";
+export const SearchOrganizations = "search-organizations-query";
+export const SearchNetworks = "search-networks-query";
+export const SearchNetworkMembers = "search-network-members-query";
 export const Deep = "deep";
 export const UnsavedChangesModal = "modal-unsaved-changes";
 

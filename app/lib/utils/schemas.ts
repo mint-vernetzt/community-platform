@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { type GeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
-import { type OrganizationWebAndSocialLocales } from "~/routes/next/organization/$slug/settings/web-social.server";
+import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
+import { type OrganizationWebAndSocialLocales } from "~/routes/organization/$slug/settings/web-social.server";
 import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
 import { type GeneralProjectSettingsLocales } from "~/routes/project/$slug/settings/general.server";
 import { type ProjectWebAndSocialSettingsLocales } from "~/routes/project/$slug/settings/web-social.server";

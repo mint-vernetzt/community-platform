@@ -98,7 +98,7 @@ const TextArea = (
           <div className="flex flex-row">
             <div className="flex-auto">
               {rte !== undefined ? (
-                <>
+                <div className="mv-relative">
                   <RTE
                     {...rteInputProps}
                     id={id}
@@ -107,35 +107,30 @@ const TextArea = (
                     placeholder="Enter your text here"
                     locales={rte.locales}
                   />
-                  {/* TODO: absolute positioning no script text area over RTE - styling textarea like other input fields */}
-                  <noscript>
+                  <noscript className="mv-absolute mv-top-10 mv-w-full">
                     <textarea
                       {...rest}
                       id={id}
                       maxLength={maxLength}
                       // removeHtmlTags is just for the edge case that someone used RTE already and then turned javascript off at one point.
-                      // We will stay consistent on using rich text for specific fields in the database.
-                      defaultValue={removeHtmlTags(String(defaultValue))}
-                      className={`textarea textarea-bordered h-24 w-full ${props.className}`}
+                      defaultValue={removeHtmlTags(
+                        String(defaultValue).replace(/<br>/g, "\n")
+                      )}
+                      className="mv-relative mv-w-full mv-h-[194px] mv-p-2 mv-border mv-border-gray-200 mv-rounded-b-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400"
                     />
                   </noscript>
-                </>
+                </div>
               ) : null}
               {rte === undefined ? (
-                // TODO: Style textarea like other input fields
                 <textarea
                   {...rest}
                   id={id}
                   maxLength={maxLength}
-                  // removeHtmlTags is just for the edge case that someone used RTE already and then turned javascript off at one point.
-                  // We will stay consistent on using rich text for specific fields in the database.
                   defaultValue={defaultValue}
                   onChange={
                     maxLength !== undefined ? handleTextAreaChange : undefined
                   }
-                  className={`textarea textarea-bordered h-24 w-full${
-                    props.className === undefined ? "" : ` ${props.className}`
-                  }`}
+                  className="mv-relative mv-w-full mv-h-[234px] mv-p-2 mv-border mv-border-gray-200 mv-rounded-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400"
                 />
               ) : null}
             </div>

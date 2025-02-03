@@ -1,15 +1,15 @@
 export const locale = {
-  back: "Back to organization",
-  headline: "Edit organization",
-  navigation: {
+  content: {
+    back: "Back to organization",
+    edit: "Edit",
+    settings: "Organization settings",
+  },
+  links: {
     general: "General",
+    manage: "Manage organization",
+    webSocial: "Website and social networks",
     admins: "Administrators",
     team: "Team",
-    network: "Network",
-    delete: "Delete organization",
-  },
-  state: {
-    public: "Visible to everyone",
-    private: "Not visible to unregistered users",
+    dangerZone: "Danger zone",
   },
 } as const;

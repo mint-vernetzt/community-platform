@@ -9,9 +9,10 @@ import {
 } from "react-router-dom";
 import { Modal } from "~/components-next/Modal";
 import { extendSearchParams } from "../utils/searchParams";
-import { type ChangeOrganizationUrlLocales } from "~/routes/next/organization/$slug/settings/danger-zone/change-url.server";
-import { type OrganizationWebAndSocialLocales } from "~/routes/next/organization/$slug/settings/web-social.server";
-import { type GeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
+import { type ChangeOrganizationUrlLocales } from "~/routes/organization/$slug/settings/danger-zone/change-url.server";
+import { type OrganizationWebAndSocialLocales } from "~/routes/organization/$slug/settings/web-social.server";
+import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
+import { type ManageOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/manage.server";
 
 export function useUnsavedChangesBlockerWithModal(options: {
   searchParam: string;
@@ -19,7 +20,8 @@ export function useUnsavedChangesBlockerWithModal(options: {
   locales:
     | ChangeOrganizationUrlLocales
     | OrganizationWebAndSocialLocales
-    | GeneralOrganizationSettingsLocales;
+    | GeneralOrganizationSettingsLocales
+    | ManageOrganizationSettingsLocales;
 }) {
   const { searchParam, formMetadataToCheck, locales } = options;
   let forms = formMetadataToCheck;

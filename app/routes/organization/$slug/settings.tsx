@@ -1,169 +1,197 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
 import {
-  createAuthClient,
-  getSessionUserOrRedirectPathToLogin,
-} from "~/auth.server";
+  Link,
+  Outlet,
+  useLoaderData,
+  useLocation,
+  useSearchParams,
+} from "@remix-run/react";
+import classNames from "classnames";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { Deep } from "~/lib/utils/searchParams";
+import { invariantResponse } from "~/lib/utils/response";
+import { prismaClient } from "~/prisma.server";
+import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { detectLanguage } from "~/i18n.server";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
+import { type OrganizationSettingsLocales } from "./settings.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
 
-  const { sessionUser, redirectPath } =
-    await getSessionUserOrRedirectPathToLogin(authClient, request);
+  const sessionUser = await getSessionUser(authClient);
 
-  if (sessionUser === null && redirectPath !== null) {
+  // check slug exists (throw bad request if not)
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+
+  // We could use the mode out of deriveOrganizationMode() inside getRedirectPathOnProtectedOrganizationRoute()
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+
+  if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+
+  const organization = await prismaClient.organization.findFirst({
+    where: { slug: params.slug },
+    select: {
+      name: true,
+      slug: true,
+    },
+  });
+
+  invariantResponse(organization !== null, "Organization not found", {
+    status: 404,
+  });
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["organization/$slug/settings"];
 
-  const slug = getParamValueOrThrow(params, "slug");
+  return { organization, locales };
+}
 
-  return {
-    slug,
-    locales,
-  };
-};
+function createNavLinks(locales: OrganizationSettingsLocales) {
+  return [
+    { to: "./general", label: locales.links.general },
+    { to: "./manage", label: locales.links.manage },
+    { to: "./web-social", label: locales.links.webSocial },
+    { to: "./admins", label: locales.links.admins },
+    { to: "./team", label: locales.links.team },
+    {
+      to: "./danger-zone/change-url",
+      label: locales.links.dangerZone,
+      variant: "negative",
+    },
+  ];
+}
 
 function Settings() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
-  const getClassName = (active: boolean) =>
-    `block text-3xl ${
-      active ? "text-primary" : "text-neutral-500"
-    }  hover:text-primary py-3`;
+  const location = useLocation();
+  const pathnameWithoutSlug = location.pathname.replace(
+    loaderData.organization.slug,
+    ""
+  );
+  const [searchParams] = useSearchParams();
+
+  const navLinks = createNavLinks(locales);
+
+  const deep = searchParams.get(Deep);
+
+  const menuClasses = classNames(
+    "mv-w-full @md:mv-w-1/3 @2xl:mv-w-1/4 mv-max-h-screen @md:mv-max-h-fit mv-flex mv-flex-col mv-absolute @md:mv-relative mv-top-0 mv-bg-white @md:mv-border-l @md:mv-border-b @md:mv-rounded-bl-xl @md:mv-self-start",
+    deep !== null && deep !== "false" && "mv-hidden @md:mv-block"
+  );
+
+  const outletClasses = classNames(
+    "mv-overflow-hidden @md:mv-w-2/3 @2xl:mv-w-3/4 @md:mv-border-x @md:mv-border-b @md:mv-rounded-b-xl @md:mv-mb-4 @lg:mv-mb-24 mv-bg-white",
+    (deep === null || deep === "false") && "mv-hidden @md:mv-block"
+  );
 
   return (
-    <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
-        <TextButton
-          as="a"
-          href={`/organization/${loaderData.slug}`}
-          weight="thin"
-          variant="neutral"
-          arrowLeft
-        >
-          {locales.back}
-        </TextButton>
-      </section>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
-        <div className="flex flex-col @lg:mv-flex-row -mx-4 pt-10 @lg:mv-pt-0">
-          <div className="basis-4/12 px-4">
-            <div className="px-4 py-8 @lg:mv-p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">{locales.headline}</h3>
-              <menu>
-                <ul>
-                  <li>
-                    <NavLink
-                      to="general#settings"
-                      className={({ isActive }) => getClassName(isActive)}
-                      preventScrollReset
-                    >
-                      {locales.navigation.general}
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="admins#settings"
-                      className={({ isActive }) => getClassName(isActive)}
-                      preventScrollReset
-                    >
-                      {locales.navigation.admins}
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="team#settings"
-                      className={({ isActive }) => getClassName(isActive)}
-                      preventScrollReset
-                    >
-                      {locales.navigation.team}
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink
-                      to="network#settings"
-                      className={({ isActive }) => getClassName(isActive)}
-                      preventScrollReset
-                    >
-                      {locales.navigation.network}
-                    </NavLink>
-                  </li>
-                </ul>
-                <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
-                <div>
-                  <NavLink
-                    to="./delete#settings"
-                    className={({ isActive }) => getClassName(isActive)}
-                    preventScrollReset
-                  >
-                    {locales.navigation.delete}
-                  </NavLink>
-                </div>
-              </menu>
-            </div>
-            <div className="px-8 relative mb-16">
-              <p className="text-xs flex items-center mb-4">
-                <span className="icon w-4 h-4 mr-3">
-                  <svg
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M20 10C20 10 16.25 3.125 10 3.125C3.75 3.125 0 10 0 10C0 10 3.75 16.875 10 16.875C16.25 16.875 20 10 20 10ZM1.46625 10C2.07064 9.0814 2.7658 8.22586 3.54125 7.44625C5.15 5.835 7.35 4.375 10 4.375C12.65 4.375 14.8488 5.835 16.46 7.44625C17.2354 8.22586 17.9306 9.0814 18.535 10C18.4625 10.1087 18.3825 10.2287 18.2913 10.36C17.8725 10.96 17.2538 11.76 16.46 12.5538C14.8488 14.165 12.6488 15.625 10 15.625C7.35 15.625 5.15125 14.165 3.54 12.5538C2.76456 11.7741 2.0694 10.9186 1.465 10H1.46625Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M10 6.875C9.1712 6.875 8.37634 7.20424 7.79029 7.79029C7.20424 8.37634 6.875 9.1712 6.875 10C6.875 10.8288 7.20424 11.6237 7.79029 12.2097C8.37634 12.7958 9.1712 13.125 10 13.125C10.8288 13.125 11.6237 12.7958 12.2097 12.2097C12.7958 11.6237 13.125 10.8288 13.125 10C13.125 9.1712 12.7958 8.37634 12.2097 7.79029C11.6237 7.20424 10.8288 6.875 10 6.875ZM5.625 10C5.625 8.83968 6.08594 7.72688 6.90641 6.90641C7.72688 6.08594 8.83968 5.625 10 5.625C11.1603 5.625 12.2731 6.08594 13.0936 6.90641C13.9141 7.72688 14.375 8.83968 14.375 10C14.375 11.1603 13.9141 12.2731 13.0936 13.0936C12.2731 13.9141 11.1603 14.375 10 14.375C8.83968 14.375 7.72688 13.9141 6.90641 13.0936C6.08594 12.2731 5.625 11.1603 5.625 10Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                </span>
-                <span>{locales.state.public}</span>
-              </p>
-
-              <p className="text-xs flex items-center mb-4">
-                <span className="icon w-5 h-5 mr-2">
-                  <svg
-                    className="block w-4 h-5 "
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16.6987 14.0475C18.825 12.15 20 10 20 10C20 10 16.25 3.125 10 3.125C8.79949 3.12913 7.61256 3.37928 6.5125 3.86L7.475 4.82375C8.28429 4.52894 9.13868 4.3771 10 4.375C12.65 4.375 14.8487 5.835 16.46 7.44625C17.2354 8.22586 17.9306 9.08141 18.535 10C18.4625 10.1088 18.3825 10.2288 18.2912 10.36C17.8725 10.96 17.2537 11.76 16.46 12.5538C16.2537 12.76 16.0387 12.9638 15.8137 13.1613L16.6987 14.0475Z"
-                      fill="#454C5C"
-                    />
-                    <path
-                      d="M14.1212 11.47C14.4002 10.6898 14.4518 9.84643 14.2702 9.03803C14.0886 8.22962 13.6811 7.48941 13.0952 6.90352C12.5093 6.31764 11.7691 5.91018 10.9607 5.72854C10.1523 5.5469 9.30895 5.59856 8.52875 5.8775L9.5575 6.90625C10.0379 6.83749 10.5277 6.88156 10.9881 7.03495C11.4485 7.18835 11.8668 7.44687 12.21 7.79001C12.5531 8.13316 12.8116 8.55151 12.965 9.01191C13.1184 9.47231 13.1625 9.96211 13.0937 10.4425L14.1212 11.47ZM10.4425 13.0937L11.47 14.1212C10.6898 14.4002 9.84643 14.4518 9.03803 14.2702C8.22962 14.0886 7.48941 13.6811 6.90352 13.0952C6.31764 12.5093 5.91018 11.7691 5.72854 10.9607C5.5469 10.1523 5.59856 9.30895 5.8775 8.52875L6.90625 9.5575C6.83749 10.0379 6.88156 10.5277 7.03495 10.9881C7.18835 11.4485 7.44687 11.8668 7.79001 12.21C8.13316 12.5531 8.55151 12.8116 9.01191 12.965C9.47231 13.1184 9.96211 13.1625 10.4425 13.0937Z"
-                      fill="#454C5C"
-                    />
-                    <path
-                      d="M4.1875 6.8375C3.9625 7.0375 3.74625 7.24 3.54 7.44625C2.76456 8.22586 2.0694 9.08141 1.465 10L1.70875 10.36C2.1275 10.96 2.74625 11.76 3.54 12.5538C5.15125 14.165 7.35125 15.625 10 15.625C10.895 15.625 11.7375 15.4588 12.525 15.175L13.4875 16.14C12.3874 16.6207 11.2005 16.8708 10 16.875C3.75 16.875 0 10 0 10C0 10 1.17375 7.84875 3.30125 5.9525L4.18625 6.83875L4.1875 6.8375ZM17.0575 17.9425L2.0575 2.9425L2.9425 2.0575L17.9425 17.0575L17.0575 17.9425Z"
-                      fill="#454C5C"
-                    />
-                  </svg>
-                </span>
-                <span>{locales.state.private}</span>
-              </p>
-            </div>
-          </div>
-          <div id="settings" className="basis-6/12 px-4 pb-24">
-            <main>
-              <Outlet />
-            </main>
-          </div>
+    <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-px-4 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
+      <div className="mv-hidden @md:mv-block mv-mb-8">
+        <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
+          {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+          <TextButton
+            as="a"
+            href={`/organization/${loaderData.organization.slug}`}
+            weight="thin"
+            variant="neutral"
+            arrowLeft
+          >
+            {locales.content.back}
+          </TextButton>
+          <h3 className="mv-mb-0 mv-font-bold">{locales.content.edit}</h3>
         </div>
       </div>
-    </>
+      <div className="mv-hidden @md:mv-block">
+        <Section variant="primary" withBorder>
+          <Section.Header>{loaderData.organization.name}</Section.Header>
+        </Section>
+      </div>
+      <div className="mv-w-full @md:mv-flex @md:mv-mb-20 @lg:mv-mb-0">
+        <div className={menuClasses}>
+          <div className="mv-flex mv-gap-2 mv-items-center mv-justify-between @md:mv-hidden">
+            <span className="mv-p-6 mv-pr-0">
+              <h1 className="mv-text-2xl mv-m-0">{locales.content.settings}</h1>
+            </span>
+            <Link
+              to={`/organization/${loaderData.organization.slug}`}
+              prefetch="intent"
+              className="mv-px-4"
+            >
+              <svg
+                width="32"
+                height="33"
+                viewBox="0 0 32 33"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9.78618 10.2876L9.78618 10.2876L9.78743 10.2864C9.8153 10.2584 9.84841 10.2363 9.88485 10.2211C9.9213 10.206 9.96037 10.1982 9.99983 10.1982C10.0393 10.1982 10.0784 10.206 10.1148 10.2211C10.1513 10.2363 10.1844 10.2584 10.2122 10.2864L10.2128 10.2869L15.5048 15.5809L15.9998 16.0762L16.4949 15.5809L21.7868 10.287C21.7868 10.287 21.7869 10.2869 21.7869 10.2869C21.8149 10.259 21.848 10.2368 21.8845 10.2217C21.9211 10.2065 21.9603 10.1988 21.9998 10.1988C22.0394 10.1988 22.0786 10.2065 22.1151 10.2217C22.1517 10.2368 22.1849 10.259 22.2129 10.287C22.2408 10.315 22.263 10.3482 22.2782 10.3847L22.9249 10.1168L22.2782 10.3847C22.2933 10.4213 22.3011 10.4604 22.3011 10.5C22.3011 10.5396 22.2933 10.5788 22.2782 10.6153L22.9249 10.8832L22.2782 10.6153C22.263 10.6518 22.2409 10.685 22.213 10.7129C22.2129 10.713 22.2129 10.713 22.2129 10.713L16.919 16.0049L16.4237 16.5L16.919 16.9951L22.2129 22.287C22.2129 22.287 22.2129 22.2871 22.213 22.2871C22.2409 22.315 22.263 22.3482 22.2782 22.3847L22.9249 22.1168L22.2782 22.3847C22.2933 22.4213 22.3011 22.4604 22.3011 22.5C22.3011 22.5396 22.2933 22.5788 22.2782 22.6153L22.9249 22.8832L22.2782 22.6153C22.263 22.6519 22.2408 22.6851 22.2129 22.713C22.1849 22.741 22.1517 22.7632 22.1151 22.7783L22.383 23.4251L22.1151 22.7783C22.0786 22.7935 22.0394 22.8013 21.9998 22.8013C21.9603 22.8013 21.9211 22.7935 21.8845 22.7783L21.6167 23.4251L21.8845 22.7783C21.848 22.7632 21.8149 22.7411 21.7869 22.7131C21.7869 22.7131 21.7868 22.7131 21.7868 22.713L16.4949 17.4191L15.9998 16.9239L15.5048 17.4191L10.2129 22.713C10.2128 22.7131 10.2128 22.7131 10.2128 22.7131C10.1848 22.7411 10.1516 22.7632 10.1151 22.7783L10.383 23.4251L10.1151 22.7783C10.0786 22.7935 10.0394 22.8013 9.99983 22.8013C9.96027 22.8013 9.92109 22.7935 9.88455 22.7783L9.61667 23.4251L9.88454 22.7783C9.848 22.7632 9.81479 22.741 9.78681 22.713C9.75883 22.6851 9.73664 22.6519 9.7215 22.6153C9.70636 22.5788 9.69857 22.5396 9.69857 22.5C9.69857 22.4605 9.70636 22.4213 9.7215 22.3847C9.73662 22.3482 9.75878 22.315 9.78672 22.2871C9.78675 22.2871 9.78678 22.287 9.78681 22.287L15.0807 16.9951L15.576 16.5L15.0807 16.0049L9.78672 10.7129L9.78618 10.7124C9.75824 10.6845 9.73608 10.6514 9.72095 10.615C9.70583 10.5786 9.69805 10.5395 9.69805 10.5C9.69805 10.4606 9.70583 10.4215 9.72095 10.385C9.73608 10.3486 9.75824 10.3155 9.78618 10.2876Z"
+                  fill="#154194"
+                  stroke="#154194"
+                  strokeWidth="1.4"
+                />
+              </svg>
+            </Link>
+          </div>
+          <ul className="mv-grid mv-grid-cols-1 mv-grid-rows-6">
+            {navLinks.map((navLink) => {
+              const absolutePath = navLink.to.replace(".", "");
+              const isActive = pathnameWithoutSlug.includes(absolutePath);
+
+              const itemClasses = classNames(
+                "@md:mv-border-b @md:mv-last:mv-border-b-0 mv-h-full mv-grid mv-grid-rows-1 mv-grid-cols-1",
+                isActive && "@md:mv-border-l-8",
+                navLink.variant === "negative"
+                  ? "@md:mv-border-l-negative"
+                  : "@md:mv-border-l-primary"
+              );
+              const linkClasses = classNames(
+                "mv-text-lg @lg:mv-text-2xl mv-font-semibold mv-block mv-place-self-center mv-w-full",
+                "mv-px-6 @lg:mv-px-8 mv-py-4 @lg:mv-py-8",
+                navLink.variant === "negative"
+                  ? "mv-text-negative"
+                  : "mv-text-primary",
+                isActive && "@lg:mv-pl-6 @lg:mv-pr-8",
+                isActive === false &&
+                  navLink.variant !== "negative" &&
+                  "@lg:mv-text-neutral @lg:mv-hover:mv-text-primary"
+              );
+
+              return (
+                <li key={navLink.label} className={itemClasses}>
+                  {/* TODO: H3 as h1 */}
+                  <Link
+                    to={`${navLink.to}?${Deep}=true`}
+                    className={linkClasses}
+                    prefetch="intent"
+                    preventScrollReset
+                  >
+                    <span className="mv-text-wrap">{navLink.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <div className={outletClasses}>
+          <Outlet />
+        </div>
+      </div>
+    </div>
   );
 }
 

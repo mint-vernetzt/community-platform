@@ -2,9 +2,10 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Link } from "@remix-run/react";
 import React from "react";
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
-import { type OrganizationAdminSettingsLocales } from "~/routes/next/organization/$slug/settings/admins.server";
-import { type OrganizationTeamSettingsLocales } from "~/routes/next/organization/$slug/settings/team.server";
-import { type CreateOrganizationLocales } from "~/routes/next/organization/create.server";
+import { type OrganizationAdminSettingsLocales } from "~/routes/organization/$slug/settings/admins.server";
+import { type ManageOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/manage.server";
+import { type OrganizationTeamSettingsLocales } from "~/routes/organization/$slug/settings/team.server";
+import { type CreateOrganizationLocales } from "~/routes/organization/create.server";
 import { type OrganizationNetworkLocales } from "~/routes/organization/$slug/detail/network.server";
 import { type OrganizationProjectsLocales } from "~/routes/organization/$slug/detail/projects.server";
 import { type OrganizationTeamLocales } from "~/routes/organization/$slug/detail/team.server";
@@ -50,6 +51,7 @@ type Locales =
   | OrganizationNetworkLocales
   | OrganizationProjectsLocales
   | OrganizationTeamLocales
+  | ManageOrganizationSettingsLocales
   | CreateOrganizationLocales;
 
 export function ListItem(

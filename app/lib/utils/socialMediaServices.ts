@@ -1,5 +1,4 @@
 import type { Organization, Profile } from "@prisma/client";
-import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
 import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
 
 type SocialMediaIdType =
@@ -45,7 +44,7 @@ const socialMediaServiceIds: SocialMediaIdType[] = [
 ];
 
 export const createSocialMediaServices = (
-  locales: GeneralProfileSettingsLocales | GeneralOrganizationSettingsLocales
+  locales: GeneralProfileSettingsLocales
 ): SocialMediaService[] => {
   return socialMediaServiceIds.map(
     (id: SocialMediaIdType): SocialMediaService => {

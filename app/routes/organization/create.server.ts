@@ -10,9 +10,15 @@ export type CreateOrganizationLocales = (typeof languageModuleMap)[ArrayElement<
 
 export async function createOrganizationOnProfile(
   profileId: string,
-  organizationName: string,
+  submissionValues: {
+    organizationName: string;
+    networkTypes: string[];
+    organizationTypes: string[];
+  },
   organizationSlug: string
 ) {
+  const { organizationName, networkTypes, organizationTypes } =
+    submissionValues;
   const [profile] = await prismaClient.$transaction([
     prismaClient.profile.update({
       where: {
@@ -25,6 +31,24 @@ export async function createOrganizationOnProfile(
               create: {
                 name: organizationName,
                 slug: organizationSlug,
+                types: {
+                  create: organizationTypes.map((typeId) => ({
+                    organizationType: {
+                      connect: {
+                        id: typeId,
+                      },
+                    },
+                  })),
+                },
+                networkTypes: {
+                  create: networkTypes.map((typeId) => ({
+                    networkType: {
+                      connect: {
+                        id: typeId,
+                      },
+                    },
+                  })),
+                },
                 organizationVisibility: {
                   create: {},
                 },
@@ -50,11 +74,7 @@ export async function createOrganizationOnProfile(
   return profile;
 }
 
-export async function searchForOrganizationsByName(name: string) {
-  const query = name.split(" ");
-
-  let searchResult: { name: string; slug: string; logo: string | null }[] = [];
-
+export async function searchForOrganizationsByName(query: string[]) {
   const whereQueries: {
     OR: {
       [K in Organization as string]: {
@@ -68,25 +88,31 @@ export async function searchForOrganizationsByName(name: string) {
       OR: [{ name: { contains: word, mode: "insensitive" } }],
     });
   }
-  searchResult = await prismaClient.organization.findMany({
+  const searchResult = await prismaClient.organization.findMany({
     where: {
       AND: whereQueries,
     },
     select: {
+      id: true,
       name: true,
       slug: true,
       logo: true,
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
     },
     take: 5,
   });
   return searchResult;
 }
 
-export async function countOrganizationsBySearchQuery(name: string) {
-  const query = name.split(" ");
-
-  let count = 0;
-
+export async function countOrganizationsBySearchQuery(query: string[]) {
   const whereQueries: {
     OR: {
       [K in Organization as string]: {
@@ -100,10 +126,44 @@ export async function countOrganizationsBySearchQuery(name: string) {
       OR: [{ name: { contains: word, mode: "insensitive" } }],
     });
   }
-  count = await prismaClient.organization.count({
+  const count = await prismaClient.organization.count({
     where: {
       AND: whereQueries,
     },
   });
   return count;
+}
+
+export async function getAllOrganizationTypes() {
+  const allOrganizationTypes = await prismaClient.organizationType.findMany({
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
+  return allOrganizationTypes;
+}
+
+export async function getAllNetworkTypes() {
+  const allNetworkTypes = await prismaClient.networkType.findMany({
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
+  return allNetworkTypes;
+}
+
+export async function getOrganizationTypesWithSlugs() {
+  const organizationTypeNetwork = await prismaClient.organizationType.findFirst(
+    {
+      select: {
+        id: true,
+      },
+      where: {
+        slug: "network",
+      },
+    }
+  );
+  return organizationTypeNetwork;
 }

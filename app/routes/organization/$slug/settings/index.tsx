@@ -6,5 +6,6 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 export const loader = async (args: LoaderFunctionArgs) => {
   const { params } = args;
   const slug = getParamValueOrThrow(params, "slug");
+
   return redirect(`/organization/${slug}/settings/general`);
 };

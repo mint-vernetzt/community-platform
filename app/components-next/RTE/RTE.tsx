@@ -37,7 +37,6 @@ import { InputForFormPlugin } from "./plugins/InputForFormPlugin";
 import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
 import { type ProjectRequirementsSettingsLocales } from "~/routes/project/$slug/settings/requirements.server";
 import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
-import { type GeneralOrganizationSettingsLocales as NextGeneralOrganizationSettingsLocales } from "~/routes/next/organization/$slug/settings/general.server";
 import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
 import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
 
@@ -49,7 +48,6 @@ export type OverrideableInputProps = Omit<
 export type RTELocales =
   | GeneralProfileSettingsLocales
   | GeneralOrganizationSettingsLocales
-  | NextGeneralOrganizationSettingsLocales
   | ProjectDetailsSettingsLocales
   | ProjectRequirementsSettingsLocales
   | GeneralEventSettingsLocales;

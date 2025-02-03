@@ -1,15 +1,15 @@
 export const locale = {
-  back: "Zur Organisation",
-  headline: "Organisation bearbeiten",
-  navigation: {
-    general: "Allgemein",
-    admins: "Administrator:innen",
-    team: "Das Team",
-    network: "Euer Netzwerk",
-    delete: "Organisation löschen",
+  content: {
+    back: "Zur Organisation",
+    edit: "Bearbeiten",
+    settings: "Organisationseinstellungen",
   },
-  state: {
-    public: "Für alle sichtbar",
-    private: "Für unregistrierte Nutzer:innen nicht sichtbar",
+  links: {
+    general: "Allgemein",
+    manage: "Organisation verwalten",
+    webSocial: "Webseite und Soziale Netzwerke",
+    admins: "Admin-Rolle verwalten",
+    team: "Team",
+    dangerZone: "Kritischer Bereich",
   },
 } as const;

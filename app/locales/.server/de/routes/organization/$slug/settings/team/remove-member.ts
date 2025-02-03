@@ -1,8 +1,0 @@
-export const locale = {
-  error: {
-    notFound: "Organization not found",
-    notPrivileged: "Not privileged",
-    memberCount:
-      "Es muss immer ein Teammitglied geben. Bitte füge zuerst jemand anderen als Teammitglied hinzu.",
-  },
-} as const;

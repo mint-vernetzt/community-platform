@@ -7,12 +7,18 @@ export type InputLabelProps = {
   htmlFor?: string;
   hidden?: boolean;
   hasError?: boolean;
+  disabled?: boolean;
 };
 
 function InputLabel(props: React.PropsWithChildren<InputLabelProps>) {
   const classes = classNames(
-    "mv-text-sm mv-text-gray-700 mv-font-semibold mv-mb-1 mv-flex mv-items-center mv-justify-between",
-    typeof props.hidden !== "undefined" && props.hidden !== false && "mv-hidden"
+    "mv-text-sm mv-font-semibold mv-mb-1 mv-flex mv-items-center mv-justify-between",
+    typeof props.hidden !== "undefined" &&
+      props.hidden !== false &&
+      "mv-hidden",
+    typeof props.disabled !== "undefined" && props.disabled !== false
+      ? "mv-text-neutral-300"
+      : "mv-text-gray-700"
   );
 
   return (
@@ -56,9 +62,21 @@ function InputSearchIcon() {
   );
 }
 
-function InputHelperText(props: React.PropsWithChildren<{}>) {
+function InputHelperText(
+  props: React.PropsWithChildren<{
+    disabled?: boolean;
+  }>
+) {
   return (
-    <div className="mv-text-sm mv-text-gray-700 mv-mt-2">{props.children}</div>
+    <div
+      className={`mv-text-sm mv-mt-2 ${
+        typeof props.disabled !== "undefined" && props.disabled !== false
+          ? "mv-text-neutral-300"
+          : "mv-text-gray-700"
+      }`}
+    >
+      {props.children}
+    </div>
   );
 }
 
@@ -200,7 +218,10 @@ function Input(props: InputProps) {
 
   const inputClasses = classNames(
     "mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-blue-400 focus-visible:mv-outline-0",
-    errors.length > 0 && "mv-border-negative-600"
+    errors.length > 0 && "mv-border-negative-600",
+    typeof inputProps.disabled !== "undefined" &&
+      inputProps.disabled === true &&
+      "mv-text-neutral-300"
   );
 
   const inputCounterContainerClasses = classNames(

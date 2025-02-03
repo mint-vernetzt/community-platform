@@ -1,34 +1,46 @@
 export const locale = {
   error: {
-    notFound: "Organization not found",
-    notPrivileged: "Not privileged",
+    invariant: {
+      notFound: "Organization not found",
+      noStringIntent: "Bad request: intent is not a string",
+      wrongIntent: "Bad request: wrong intent",
+      entitiesForInviteNotFound: "Profile or organization for invite not found",
+      entitiesForRemovalNotFound:
+        "Profile or organization for removal not found",
+      adminCount:
+        "There must always be an administrator. Please add someone else as an administrator first.",
+    },
+  },
+  email: {
+    subject: "You have received an invitation to become an admin!",
+    button: {
+      text: "To the community platform",
+    },
   },
   content: {
-    headline: "The administrators",
-    intro1:
-      "Who manages the organization on the community platform? Add or remove additional administrators here.",
-    intro2:
-      "Administrators can create, edit, delete organizations, as well as add team members. They are not visible on the organization's detail page.",
-    intro3:
-      "Team members are shown on the organization's detail page. They cannot edit organizations.",
-    add: {
-      headline: "Add an administrator",
-      intro: "Add an existing profile to your organization here.",
-      label: "Name or email",
+    profileInvited: "Invited {{firstName}} {{lastName}} to become an admin.",
+    profileRemoved: "Removed admin {{firstName}} {{lastName}}.",
+    inviteCancelled:
+      "The invitation to {{firstName}} {{lastName}} has been withdrawn.",
+    headline: "Administrators",
+    intro:
+      "Who manages the organization on the community platform? Add or remove other administrators here. Administrators can edit, cancel, and delete organizations. They are not visible on the organization detail page. Team members are shown on the organization detail page. They cannot edit them.",
+    current: {
+      headline_one: "Administrator",
+      headline_other: "Administrators",
+      remove: "Remove",
+    },
+    invite: {
+      headline: "Invite administrator",
+      search: "Search",
+      criteria: "At least 3 characters.",
+      submitSearch: "Search",
+      submit: "Invite",
     },
     invites: {
       headline: "Invitations",
       intro: "Here you can see all the invitations you have already sent.",
-      cancel: "Cancel",
-    },
-    current: {
-      headline_one: "Current administrator",
-      headline_other: "Current administrators",
-      intro_one:
-        "Here you can see the administrator of the organization at a glance.",
-      intro_other:
-        "Here you can see the administrators of the organization at a glance.",
-      remove: "Remove",
+      cancel: "Withdraw",
     },
   },
 } as const;
