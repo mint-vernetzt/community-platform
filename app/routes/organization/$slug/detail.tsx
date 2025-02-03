@@ -304,7 +304,7 @@ function OrganizationDetail() {
                         return title;
                       })
                     )
-                    .join(" / ")}
+                    .join(", ")}
                 </p>
               ) : null}
             </div>
