@@ -156,6 +156,8 @@ import { locale as deLanding } from "./de/routes/index";
 import { locale as deSearch } from "./de/routes/search";
 // verification route
 import { locale as deVerification } from "./de/routes/verification";
+// splat routes
+import { locale as deSplat } from "./de/routes/$";
 // schemas
 import { locale as deSearchProfilesSchema } from "./de/schemas/searchProfiles";
 import { locale as deSearchOrganizationsSchema } from "./de/schemas/searchOrganizations";
@@ -327,6 +329,8 @@ import { locale as enLanding } from "./en/routes/index";
 import { locale as enSearch } from "./en/routes/search";
 // verification route
 import { locale as enVerification } from "./en/routes/verification";
+// splat routes
+import { locale as enSplat } from "./en/routes/$";
 // schemas
 import { locale as enSearchProfilesSchema } from "./en/schemas/searchProfiles";
 import { locale as enSearchOrganizationsSchema } from "./en/schemas/searchOrganizations";
@@ -708,6 +712,8 @@ const de = {
   search: deSearch,
   // verification route
   verification: deVerification,
+  // splat routes
+  $: deSplat,
   // datasets
   networkTypes: deNetworkTypes,
   organizationTypes: deOrganizationTypes,
@@ -1076,6 +1082,8 @@ const en = {
   search: enSearch,
   // verification route
   verification: enVerification,
+  // splat routes
+  $: enSplat,
   // datasets
   networkTypes: enNetworkTypes,
   organizationTypes: enOrganizationTypes,
