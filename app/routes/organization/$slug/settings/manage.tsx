@@ -12,6 +12,7 @@ import {
 } from "@remix-run/node";
 import {
   Form,
+  Link,
   useActionData,
   useFetcher,
   useLoaderData,
@@ -26,13 +27,17 @@ import { BackButton } from "~/components-next/BackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
+import { Modal } from "~/components-next/Modal";
 import {
   searchNetworkMembersSchema,
   searchNetworksSchema,
 } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariant, invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
@@ -55,6 +60,7 @@ import {
   removeNetworkMember,
   updateOrganization,
 } from "./manage.server";
+import { getHash } from "~/routes/project/$slug/settings/utils.server";
 
 export const manageSchema = z.object({
   organizationTypes: z.array(z.string().uuid()),
@@ -155,6 +161,8 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const currentTimestamp = Date.now();
 
+  const currentHash = getHash(organization);
+
   return {
     organization,
     allOrganizationTypes,
@@ -164,6 +172,7 @@ export async function loader(args: LoaderFunctionArgs) {
     searchedNetworkMembers,
     searchNetworkMembersSubmission,
     currentTimestamp,
+    currentHash,
     locales,
   };
 }
@@ -317,7 +326,15 @@ export async function action(args: ActionFunctionArgs) {
     result.submission.status === "success" &&
     result.toast !== undefined
   ) {
-    return redirectWithToast(request.url, result.toast);
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    if (searchParams.get("modal-network-remove") === "true") {
+      searchParams.delete("modal-network-remove");
+    }
+    const redirectUrl = `${process.env.COMMUNITY_BASE_URL}${
+      url.pathname
+    }?${searchParams.toString()}`;
+    return redirectWithToast(redirectUrl, result.toast);
   }
   return { submission: result.submission, currentTimestamp: Date.now() };
 }
@@ -348,6 +365,8 @@ function Manage() {
   const isHydrated = useHydrated();
   const navigation = useNavigation();
   const [searchParams] = useSearchParams();
+  const doubleCheckModalSearchParams = new URLSearchParams(searchParams);
+  doubleCheckModalSearchParams.set("modal-network-remove", "true");
 
   const {
     types: organizationTypes,
@@ -364,9 +383,7 @@ function Manage() {
   };
 
   const [manageForm, manageFields] = useForm({
-    id: `manage-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `manage-form-${actionData?.currentTimestamp || loaderData.currentHash}`,
     constraint: getZodConstraint(manageSchema),
     defaultValue: defaultValues,
     shouldValidate: "onInput",
@@ -472,7 +489,6 @@ function Manage() {
   );
   const hasSelectedNetwork = organizationTypeList.some((organizationType) => {
     if (typeof organizationType.initialValue === "undefined") {
-      console.log("initialValue is undefined");
       return false;
     }
     return organizationType.initialValue === organizationTypeNetwork.id;
@@ -771,22 +787,75 @@ function Manage() {
                       </Button>
                     </noscript>
                   </div>
-                  <Button
-                    form={manageForm.id}
-                    type="submit"
-                    name="intent"
-                    value="submit"
-                    fullSize
-                    // Don't disable button when js is disabled
-                    disabled={
-                      isHydrated
-                        ? manageForm.dirty === false ||
-                          manageForm.valid === false
-                        : false
-                    }
-                  >
-                    {locales.route.form.submit}
-                  </Button>
+                  {isNetwork === true &&
+                  hasSelectedNetwork === false &&
+                  networkMembers.length > 0 ? (
+                    <>
+                      <Button
+                        fullSize
+                        className="mv-pb-0 mv-pt-0 mv-pl-0 mv-pr-0"
+                        // Don't disable button when js is disabled
+                        disabled={
+                          isHydrated
+                            ? manageForm.dirty === false ||
+                              manageForm.valid === false
+                            : false
+                        }
+                      >
+                        <Link
+                          to={`?${doubleCheckModalSearchParams.toString()}`}
+                          className="mv-w-full mv-h-full mv-flex mv-justify-center mv-items-center"
+                          // preventScrollReset
+                        >
+                          <span>{locales.route.form.submit}</span>
+                        </Link>
+                      </Button>
+                      <Modal searchParam="modal-network-remove">
+                        <Modal.Title>
+                          {locales.route.content.types.doubleCheck.title}
+                        </Modal.Title>
+                        <Modal.Section>
+                          {insertParametersIntoLocale(
+                            locales.route.content.types.doubleCheck.description,
+                            {
+                              organizations: networkMembers
+                                .map((relation) => {
+                                  return relation.networkMember.name;
+                                })
+                                .join(", "),
+                            }
+                          )}
+                        </Modal.Section>
+                        <Modal.SubmitButton
+                          form={manageForm.id}
+                          name="intent"
+                          value="submit"
+                        >
+                          {locales.route.content.types.doubleCheck.submit}
+                        </Modal.SubmitButton>
+                        <Modal.CloseButton>
+                          {locales.route.content.types.doubleCheck.abort}
+                        </Modal.CloseButton>
+                      </Modal>
+                    </>
+                  ) : (
+                    <Button
+                      form={manageForm.id}
+                      type="submit"
+                      name="intent"
+                      value="submit"
+                      fullSize
+                      // Don't disable button when js is disabled
+                      disabled={
+                        isHydrated
+                          ? manageForm.dirty === false ||
+                            manageForm.valid === false
+                          : false
+                      }
+                    >
+                      {locales.route.form.submit}
+                    </Button>
+                  )}
                 </Controls>
               </div>
             </div>
@@ -873,7 +942,6 @@ function Manage() {
               onChange={(event) => {
                 searchNetworksForm.validate();
                 if (searchNetworksForm.valid) {
-                  console.log("Fetcher submit");
                   searchNetworksFetcher.submit(event.currentTarget, {
                     preventScrollReset: true,
                   });
