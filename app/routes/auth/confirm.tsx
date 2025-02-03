@@ -1,7 +1,9 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { type EmailOtpType } from "@supabase/supabase-js";
+import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -52,13 +54,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
   // Build new URL
   const sanitizedConfirmationLink = `${process.env.COMMUNITY_BASE_URL}/auth/verify?token_hash=${tokenHash}&type=${type}&login_redirect=${loginRedirect}`;
 
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["auth/confirm"];
+
   return {
     confirmationLink: sanitizedConfirmationLink,
+    locales,
   };
 };
 
 export default function Confirm() {
-  const loaderData = useLoaderData<typeof loader>();
+  const { confirmationLink, locales } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const type = searchParams.get("type") as EmailOtpType | null;
 
@@ -70,51 +76,31 @@ export default function Confirm() {
             <div className="mv-mb-6 mv-mt-12"> </div>
             {type === "signup" && (
               <>
-                <h1 className="mb-4">Registrierungsbestätigung</h1>
+                <h1 className="mb-4">{locales.signup.title}</h1>
 
-                <p className="mb-6">
-                  Herzlich willkommen in der MINTcommunity! Bitte bestätige
-                  innerhalb von 24 Stunden die E-Mail-Adresse zur Aktivierung
-                  Deines Profils auf der MINTvernetzt-Plattform über den
-                  folgenden Link:
-                </p>
-                <a
-                  href={loaderData.confirmationLink}
-                  className="btn btn-primary"
-                >
-                  Registrierung bestätigen
+                <p className="mb-6">{locales.signup.description}</p>
+                <a href={confirmationLink} className="btn btn-primary">
+                  {locales.signup.action}
                 </a>
               </>
             )}
             {type === "email_change" && (
               <>
-                <h1 className="mb-4">E-Mail-Adresse ändern</h1>
+                <h1 className="mb-4">{locales.changeEmail.title}</h1>
 
-                <p className="mb-6">
-                  Um Deine E-Mail-Adresse auf der MINTvernetzt-Plattform zu
-                  ändern, folge bitte diesem Link:
-                </p>
-                <a
-                  href={loaderData.confirmationLink}
-                  className="btn btn-primary"
-                >
-                  Neue Mailadresse bestätigen
+                <p className="mb-6">{locales.changeEmail.description}</p>
+                <a href={confirmationLink} className="btn btn-primary">
+                  {locales.changeEmail.action}
                 </a>
               </>
             )}
             {type === "recovery" && (
               <>
-                <h1 className="mb-4">Passwort zurücksetzen</h1>
+                <h1 className="mb-4">{locales.recovery.title}</h1>
 
-                <p className="mb-6">
-                  Du hast Dein Passwort vergessen? Klicke auf den untenstehenden
-                  Link, um Dein Passwort zurückzusetzen:
-                </p>
-                <a
-                  href={loaderData.confirmationLink}
-                  className="btn btn-primary"
-                >
-                  Passwort zurücksetzen
+                <p className="mb-6">{locales.recovery.description}</p>
+                <a href={confirmationLink} className="btn btn-primary">
+                  {locales.recovery.action}
                 </a>
               </>
             )}

@@ -39,6 +39,15 @@ import * as Sentry from "@sentry/remix";
 import { redirectWithToast } from "~/toast.server";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import {
+  removeHtmlTags,
+  replaceHtmlEntities,
+} from "~/lib/utils/sanitizeUserHtml";
+
+const NAME_MIN_LENGTH = 3;
+const NAME_MAX_LENGTH = 50;
+const BIO_MAX_LENGTH = 2000;
 
 const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
   return z.object({
@@ -46,8 +55,18 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
       .string({
         required_error: locales.route.validation.name.required,
       })
-      .min(3, locales.route.validation.name.min)
-      .max(50, locales.route.validation.name.max),
+      .min(
+        NAME_MIN_LENGTH,
+        insertParametersIntoLocale(locales.route.validation.name.min, {
+          min: NAME_MIN_LENGTH,
+        })
+      )
+      .max(
+        NAME_MAX_LENGTH,
+        insertParametersIntoLocale(locales.route.validation.name.max, {
+          max: NAME_MAX_LENGTH,
+        })
+      ),
     email: z
       .string()
       .email(locales.route.validation.email)
@@ -104,10 +123,23 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
       }),
     bio: z
       .string()
-      .max(2000, locales.route.validation.bio.max)
       .optional()
+      .refine(
+        (value) => {
+          return (
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            BIO_MAX_LENGTH
+          );
+        },
+        {
+          message: insertParametersIntoLocale(
+            locales.route.validation.bio.max,
+            { max: BIO_MAX_LENGTH }
+          ),
+        }
+      )
       .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
+        if (value === undefined || value === "") {
           return null;
         }
         return value.trim();
@@ -412,6 +444,8 @@ function General() {
             <div className="@lg:mv-flex @lg:mv-gap-4">
               <Input
                 {...getInputProps(fields.name, { type: "text" })}
+                minLength={NAME_MIN_LENGTH}
+                maxLength={NAME_MAX_LENGTH}
                 key="name"
               >
                 <Input.Label htmlFor={fields.name.id}>
@@ -543,7 +577,7 @@ function General() {
                     ? fields.bio.errors.join(", ")
                     : undefined
                 }
-                maxLength={undefined}
+                maxLength={BIO_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
               <div className="mv-min-w-[44px] mv-pt-[32px]">

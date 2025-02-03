@@ -55,6 +55,8 @@ import {
 import { languageModuleMap } from "~/locales/.server";
 import { RichText } from "~/components/Richtext/RichText";
 
+const BIO_MAX_LENGTH = 500;
+
 const createProfileSchema = (locales: GeneralProfileSettingsLocales) => {
   return object({
     academicTitle: nullOrString(string()),
@@ -64,7 +66,7 @@ const createProfileSchema = (locales: GeneralProfileSettingsLocales) => {
     email: string().email().required(),
     email2: nullOrString(string().email()),
     phone: nullOrString(phone()),
-    bio: nullOrString(multiline()),
+    bio: nullOrString(multiline(BIO_MAX_LENGTH)),
     areas: array(string().required()).required(),
     skills: array(string().required()).required(),
     offers: array(string().required()).required(),
@@ -233,6 +235,11 @@ export default function Index() {
   const methods = useForm<ProfileFormType>({
     defaultValues: profile,
   });
+  const {
+    register,
+    reset,
+    formState: { isDirty },
+  } = methods;
 
   const areaOptions = createAreaOptionFromData(areas);
   const offerOptions = offers.map((offer) => {
@@ -249,12 +256,6 @@ export default function Index() {
       value: offer.id,
     };
   });
-
-  const {
-    register,
-    reset,
-    formState: { isDirty },
-  } = methods;
 
   const selectedAreas =
     profile.areas && areas
@@ -360,7 +361,7 @@ export default function Index() {
             reset({}, { keepValues: true });
           }}
         >
-          <fieldset disabled={navigation.state === "submitting"}>
+          <fieldset>
             <h1 className="mb-8">Persönliche Daten</h1>
 
             <h4 className="mb-4 font-semibold">
@@ -486,7 +487,7 @@ export default function Index() {
                 withPublicPrivateToggle={true}
                 isPublic={profileVisibilities.bio}
                 errorMessage={errors?.bio?.message}
-                maxLength={500}
+                maxLength={BIO_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
             </div>
@@ -697,13 +698,11 @@ export default function Index() {
                       {locales.route.footer.ignoreChanges}
                     </Link>
                   ) : null}
-                  <div></div>
                   <button
                     type="submit"
                     name="submit"
                     value="submit"
                     className="btn btn-primary ml-4"
-                    disabled={isSubmitting || !isFormChanged}
                   >
                     {locales.route.footer.save}
                   </button>

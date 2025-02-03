@@ -67,7 +67,7 @@ function createNavLinks(locales: OrganizationSettingsLocales) {
     { to: "./admins", label: locales.links.admins },
     { to: "./team", label: locales.links.team },
     {
-      to: "./danger-zone",
+      to: "./danger-zone/change-url",
       label: locales.links.dangerZone,
       variant: "negative",
     },

@@ -8,12 +8,12 @@ export const locale = {
   validation: {
     name: {
       required: "Please enter the name of your organization or network",
-      min: "Name must be at least 3 characters long",
-      max: "Name must be at most 50 characters long",
+      min: "Name must be at least {{min}} characters long",
+      max: "Name must be at most {{max}} characters long",
     },
     email: "Please enter a valid email address",
     bio: {
-      max: "Description must be at most 2000 characters long",
+      max: "Description must be at most {{max}} characters long",
     },
   },
   content: {

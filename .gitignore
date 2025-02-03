@@ -38,3 +38,4 @@ node_modules
 # exports
 *.csv
 /prisma/scripts/export-duplicate-entities/data/*.json
+/prisma/scripts/migrate-rte-fields/*.json

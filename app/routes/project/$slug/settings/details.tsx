@@ -43,6 +43,16 @@ import { type ProjectDetailsSettingsLocales } from "./details.server";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
+const TARGET_GROUP_ADDITIONS_MAX_LENGTH = 200;
+const EXCERPT_MAX_LENGTH = 250;
+const IDEA_MAX_LENGTH = 2000;
+const GOALS_MAX_LENGTH = 2000;
+const IMPLEMENTATION_MAX_LENGTH = 2000;
+const FURTHER_DESCRIPTION_MAX_LENGTH = 8000;
+const TARGETING_MAX_LENGTH = 800;
+const HINTS_MAX_LENGTH = 800;
+const VIDEO_SUBLINE_MAX_LENGTH = 80;
+
 const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
   z.object({
     disciplines: z.array(z.string().uuid()),
@@ -61,7 +71,13 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
     specialTargetGroups: z.array(z.string().uuid()),
     targetGroupAdditions: z
       .string()
-      .max(200, locales.route.validation.targetGroupAdditions.max)
+      .max(
+        TARGET_GROUP_ADDITIONS_MAX_LENGTH,
+        insertParametersIntoLocale(
+          locales.route.validation.targetGroupAdditions.max,
+          { max: TARGET_GROUP_ADDITIONS_MAX_LENGTH }
+        )
+      )
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
@@ -71,7 +87,15 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       }),
     excerpt: z
       .string()
-      .max(250, locales.route.validation.targetGroupAdditions.max)
+      .max(
+        EXCERPT_MAX_LENGTH,
+        insertParametersIntoLocale(
+          locales.route.validation.targetGroupAdditions.max,
+          {
+            max: EXCERPT_MAX_LENGTH,
+          }
+        )
+      )
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
@@ -82,127 +106,150 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
     idea: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            IDEA_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.idea.message,
+          message: insertParametersIntoLocale(
+            locales.route.validation.idea.message,
+            { max: IDEA_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     goals: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            GOALS_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.goals.message,
+          message: insertParametersIntoLocale(
+            locales.route.validation.goals.message,
+            { max: GOALS_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     implementation: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 2000
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            IMPLEMENTATION_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.implementation.message,
+          message: insertParametersIntoLocale(
+            locales.route.validation.implementation.message,
+            { max: IMPLEMENTATION_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     furtherDescription: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 8000
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            FURTHER_DESCRIPTION_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.furtherDescription.message,
+          message: insertParametersIntoLocale(
+            locales.route.validation.furtherDescription.message,
+            { max: FURTHER_DESCRIPTION_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     targeting: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            TARGETING_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.targeting.message,
+          message: insertParametersIntoLocale(
+            locales.route.validation.targeting.message,
+            { max: TARGETING_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     hints: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            HINTS_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.hints.message,
+          message: insertParametersIntoLocale(
+            locales.route.validation.hints.message,
+            { max: HINTS_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     video: createYoutubeEmbedSchema(locales),
     videoSubline: z
       .string()
-      .max(80, locales.route.validation.videoSubline.max)
+      .max(
+        VIDEO_SUBLINE_MAX_LENGTH,
+        insertParametersIntoLocale(locales.route.validation.videoSubline.max, {
+          max: VIDEO_SUBLINE_MAX_LENGTH,
+        })
+      )
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
@@ -615,6 +662,7 @@ function Details() {
       });
     },
   });
+
   const disciplineList = useFieldList(form.ref, fields.disciplines);
   const additionalDisciplineList = useFieldList(
     form.ref,
@@ -1139,7 +1187,10 @@ function Details() {
               </Chip.Container>
             )}
 
-            <Input {...conform.input(fields.targetGroupAdditions)}>
+            <Input
+              {...conform.input(fields.targetGroupAdditions)}
+              maxLength={TARGET_GROUP_ADDITIONS_MAX_LENGTH}
+            >
               <Input.Label htmlFor={fields.targetGroupAdditions.id}>
                 {locales.route.content.targetGroupAdditions.more}
               </Input.Label>
@@ -1155,7 +1206,10 @@ function Details() {
             </h2>
             <p>{locales.route.content.shortDescription.intro}</p>
 
-            <Input {...conform.input(fields.excerpt)}>
+            <Input
+              {...conform.input(fields.excerpt)}
+              maxLength={EXCERPT_MAX_LENGTH}
+            >
               <Input.Label htmlFor={fields.excerpt.id}>
                 {locales.route.content.shortDescription.label}
               </Input.Label>
@@ -1178,7 +1232,7 @@ function Details() {
               label={locales.route.content.extendedDescription.idea.label}
               helperText={locales.route.content.extendedDescription.idea.helper}
               errorMessage={fields.idea.error}
-              maxLength={2000}
+              maxLength={IDEA_MAX_LENGTH}
               rte={{ locales: locales }}
             />
 
@@ -1190,7 +1244,7 @@ function Details() {
                 locales.route.content.extendedDescription.goals.helper
               }
               errorMessage={fields.goals.error}
-              maxLength={2000}
+              maxLength={GOALS_MAX_LENGTH}
               rte={{ locales: locales }}
             />
 
@@ -1204,7 +1258,7 @@ function Details() {
                 locales.route.content.extendedDescription.implementation.helper
               }
               errorMessage={fields.implementation.error}
-              maxLength={2000}
+              maxLength={IMPLEMENTATION_MAX_LENGTH}
               rte={{ locales: locales }}
             />
 
@@ -1220,7 +1274,7 @@ function Details() {
                   .helper
               }
               errorMessage={fields.furtherDescription.error}
-              maxLength={8000}
+              maxLength={FURTHER_DESCRIPTION_MAX_LENGTH}
               rte={{ locales: locales }}
             />
 
@@ -1232,7 +1286,7 @@ function Details() {
                 locales.route.content.extendedDescription.targeting.helper
               }
               errorMessage={fields.targeting.error}
-              maxLength={800}
+              maxLength={TARGETING_MAX_LENGTH}
               rte={{ locales: locales }}
             />
 
@@ -1244,7 +1298,7 @@ function Details() {
                 locales.route.content.extendedDescription.hints.helper
               }
               errorMessage={fields.hints.error}
-              maxLength={800}
+              maxLength={HINTS_MAX_LENGTH}
               rte={{ locales: locales }}
             />
           </div>
@@ -1269,7 +1323,10 @@ function Details() {
               </Input.HelperText>
             </Input>
 
-            <Input {...conform.input(fields.videoSubline)}>
+            <Input
+              {...conform.input(fields.videoSubline)}
+              maxLength={VIDEO_SUBLINE_MAX_LENGTH}
+            >
               <Input.Label htmlFor={fields.videoSubline.id}>
                 {locales.route.content.video.videoSubline.label}
               </Input.Label>

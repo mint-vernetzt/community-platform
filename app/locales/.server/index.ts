@@ -27,6 +27,8 @@ import { locale as deProjectCard } from "./de/organisms/cards/project-card";
 import { locale as deFooter } from "./de/organisms/footer";
 import { locale as deRoadmap } from "./de/organisms/roadmap";
 import { locale as deVideo } from "./de/organisms/video";
+// auth routes
+import { locale as deConfirmAuthAction } from "./de/routes/auth/confirm";
 // event routes
 import { locale as deAddEventAdmin } from "./de/routes/event/$slug/settings/admins/add-admin";
 import { locale as deRemoveEventAdmin } from "./de/routes/event/$slug/settings/admins/remove-admin";
@@ -200,6 +202,8 @@ import { locale as enProjectCard } from "./en/organisms/cards/project-card";
 import { locale as enFooter } from "./en/organisms/footer";
 import { locale as enRoadmap } from "./en/organisms/roadmap";
 import { locale as enVideo } from "./en/organisms/video";
+// auth routes
+import { locale as enConfirmAuthAction } from "./en/routes/auth/confirm";
 // event routes
 import { locale as enAddEventAdmin } from "./en/routes/event/$slug/settings/admins/add-admin";
 import { locale as enRemoveEventAdmin } from "./en/routes/event/$slug/settings/admins/remove-admin";
@@ -365,6 +369,8 @@ import { locale as enMeta } from "./en/meta";
 const de = {
   // root
   root: { route: deMeta, footer: deFooter },
+  // auth routes
+  "auth/confirm": deConfirmAuthAction,
   // event routes
   "event/$slug/settings/admins/add-admin": deAddEventAdmin,
   "event/$slug/settings/admins/remove-admin": deRemoveEventAdmin,
@@ -735,6 +741,8 @@ const de = {
 const en = {
   // root
   root: { route: enMeta, footer: enFooter },
+  // auth routes
+  "auth/confirm": enConfirmAuthAction,
   // event routes
   "event/$slug/settings/admins/add-admin": enAddEventAdmin,
   "event/$slug/settings/admins/remove-admin": enRemoveEventAdmin,

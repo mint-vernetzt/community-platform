@@ -41,6 +41,17 @@ import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { type ProjectRequirementsSettingsLocales } from "./requirements.server";
 import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+
+const TIMEFRAME_MAX_LENGTH = 200;
+const JOB_FILLINGS_MAX_LENGTH = 800;
+const FURTHER_JOB_FILLINGS_MAX_LENGTH = 200;
+const YEARLY_BUDGET_MAX_LENGTH = 80;
+const FURTHER_FINANCINGS_MAX_LENGTH = 800;
+const TECHNICAL_REQUIREMENTS_MAX_LENGTH = 500;
+const FURTHER_TECHNICAL_REQUIREMENTS_MAX_LENGTH = 500;
+const ROOM_SITUATION_MAX_LENGTH = 200;
+const FURTHER_ROOM_SITUATION_MAX_LENGTH = 200;
 
 const createRequirementsSchema = (
   locales: ProjectRequirementsSettingsLocales
@@ -49,66 +60,80 @@ const createRequirementsSchema = (
     timeframe: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            TIMEFRAME_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.timeframe.length,
+          message: insertParametersIntoLocale(
+            locales.route.validation.timeframe.length,
+            { max: TIMEFRAME_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     jobFillings: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            JOB_FILLINGS_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.jobFillings.length,
+          message: insertParametersIntoLocale(
+            locales.route.validation.jobFillings.length,
+            { max: JOB_FILLINGS_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     furtherJobFillings: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            FURTHER_JOB_FILLINGS_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.furtherJobFillings.length,
+          message: insertParametersIntoLocale(
+            locales.route.validation.furtherJobFillings.length,
+            { max: FURTHER_JOB_FILLINGS_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     yearlyBudget: z
       .string()
-      .max(80, locales.route.validation.yearlyBudget.max)
+      .max(
+        YEARLY_BUDGET_MAX_LENGTH,
+        insertParametersIntoLocale(locales.route.validation.yearlyBudget.max, {
+          max: YEARLY_BUDGET_MAX_LENGTH,
+        })
+      )
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
@@ -120,103 +145,118 @@ const createRequirementsSchema = (
     furtherFinancings: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 800
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            FURTHER_FINANCINGS_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.furtherFinancings.length,
+          message: insertParametersIntoLocale(
+            locales.route.validation.furtherFinancings.length,
+            { max: FURTHER_FINANCINGS_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     technicalRequirements: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 500
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            TECHNICAL_REQUIREMENTS_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.technicalRequirements.length,
+          message: insertParametersIntoLocale(
+            locales.route.validation.technicalRequirements.length,
+            { max: TECHNICAL_REQUIREMENTS_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     furtherTechnicalRequirements: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 500
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            FURTHER_TECHNICAL_REQUIREMENTS_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.furtherTechnicalRequirements.length,
+          message: insertParametersIntoLocale(
+            locales.route.validation.furtherTechnicalRequirements.length,
+            { max: FURTHER_TECHNICAL_REQUIREMENTS_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     roomSituation: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            ROOM_SITUATION_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.roomSituation.length,
+          message: insertParametersIntoLocale(
+            locales.route.validation.roomSituation.length,
+            { max: ROOM_SITUATION_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
     furtherRoomSituation: z
       .string()
       .optional()
-      .transform((value) => {
-        if (value === undefined || value === "" || value === "<p><br></p>") {
-          return null;
-        }
-        return value.trim();
-      })
       .refine(
         (value) => {
           return (
-            // Entities are being replaced by "x" just to get the right count for them.
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <= 200
+            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
+            FURTHER_ROOM_SITUATION_MAX_LENGTH
           );
         },
         {
-          message: locales.route.validation.furtherRoomSituation.length,
+          message: insertParametersIntoLocale(
+            locales.route.validation.furtherRoomSituation.length,
+            { max: FURTHER_ROOM_SITUATION_MAX_LENGTH }
+          ),
         }
-      ),
+      )
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value.trim();
+      }),
   });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -518,7 +558,7 @@ function Requirements() {
                 id={fields.timeframe.id || ""}
                 label={locales.route.form.timeframe.label}
                 errorMessage={fields.timeframe.error}
-                maxLength={200}
+                maxLength={TIMEFRAME_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
             </div>
@@ -536,7 +576,7 @@ function Requirements() {
                   locales.route.form.personellSituation.jobFillings.helper
                 }
                 errorMessage={fields.jobFillings.error}
-                maxLength={800}
+                maxLength={JOB_FILLINGS_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
 
@@ -551,7 +591,7 @@ function Requirements() {
                     .helper
                 }
                 errorMessage={fields.furtherJobFillings.error}
-                maxLength={200}
+                maxLength={FURTHER_JOB_FILLINGS_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
             </div>
@@ -561,7 +601,10 @@ function Requirements() {
                 {locales.route.form.budget.headline}
               </h2>
 
-              <Input {...conform.input(fields.yearlyBudget)}>
+              <Input
+                {...conform.input(fields.yearlyBudget)}
+                maxLength={YEARLY_BUDGET_MAX_LENGTH}
+              >
                 <Input.Label htmlFor={fields.yearlyBudget.id}>
                   {locales.route.form.budget.yearlyBudget.label}
                 </Input.Label>
@@ -663,7 +706,7 @@ function Requirements() {
                 label={locales.route.form.budget.furtherFinancings.label}
                 helperText={locales.route.form.budget.furtherFinancings.helper}
                 errorMessage={fields.furtherFinancings.error}
-                maxLength={800}
+                maxLength={FURTHER_FINANCINGS_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
             </div>
@@ -680,7 +723,7 @@ function Requirements() {
                   locales.route.form.technicalFrame.technicalRequirements.label
                 }
                 errorMessage={fields.technicalRequirements.error}
-                maxLength={500}
+                maxLength={TECHNICAL_REQUIREMENTS_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
 
@@ -692,7 +735,7 @@ function Requirements() {
                     .label
                 }
                 errorMessage={fields.furtherTechnicalRequirements.error}
-                maxLength={500}
+                maxLength={FURTHER_TECHNICAL_REQUIREMENTS_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
             </div>
@@ -710,7 +753,7 @@ function Requirements() {
                   locales.route.form.spatialSituation.roomSituation.helper
                 }
                 errorMessage={fields.roomSituation.error}
-                maxLength={200}
+                maxLength={ROOM_SITUATION_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
 
@@ -721,7 +764,7 @@ function Requirements() {
                   locales.route.form.spatialSituation.furtherRoomSituation.label
                 }
                 errorMessage={fields.furtherRoomSituation.error}
-                maxLength={200}
+                maxLength={FURTHER_ROOM_SITUATION_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
             </div>
