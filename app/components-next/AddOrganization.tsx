@@ -59,7 +59,7 @@ export function AddOrganization(props: {
       return;
     }
     setSearchQuery(input.value);
-    if (input.value.length > 3) {
+    if (input.value.length >= 3) {
       getOrganizationsToAddFetcher.submit(event.currentTarget);
     } else {
       setData([]);
@@ -98,7 +98,7 @@ export function AddOrganization(props: {
             {isHydrated === false ? <input type="hidden" name="no-js" /> : null}
             <input
               className="mv-w-full mv-font-semibold mv-bg-white mv-border-2 mv-border-gray-100 mv-rounded-lg mv-pl-10 mv-pr-4 mv-py-2 mv-h-11"
-              placeholder="Organisation suchen..."
+              placeholder={locales.route.addOrganization.placeholder}
               name={GetOrganizationsToAdd.SearchParam}
               minLength={3}
               defaultValue={
@@ -106,10 +106,13 @@ export function AddOrganization(props: {
               }
               autoComplete="off"
             />
+            <div className="mv-text-sm mv-mt-2 mv-text-gray-700">
+              {locales.route.addOrganization.helperText}
+            </div>
           </div>
         </div>
       </getOrganizationsToAddFetcher.Form>
-      {searchQuery.length > 3 &&
+      {searchQuery.length >= 3 &&
       Array.isArray(data) &&
       data.length === 0 &&
       memberOrganizations.adminOrganizations.some((organization) => {
@@ -153,6 +156,7 @@ export function AddOrganization(props: {
           <ListContainer
             listKey="send-request-to-organization"
             locales={locales}
+            hideAfter={3}
           >
             {data.map((organization, index) => {
               if (organization === null) {
@@ -163,6 +167,7 @@ export function AddOrganization(props: {
                   key={`send-request-to-${organization.id}`}
                   listIndex={index}
                   entity={organization}
+                  hideAfter={3}
                   locales={locales}
                 >
                   <createRequestFetcher.Form
