@@ -63,6 +63,8 @@ export const locale = {
       custom:
         "The data could not be saved. Please try again or contact the support team.",
     },
+    placeholder: "Search for organization...",
+    helperText: "At least 3 letters.",
   },
   requests: {
     headline: "Join Requests",

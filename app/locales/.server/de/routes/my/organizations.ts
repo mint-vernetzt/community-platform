@@ -63,6 +63,8 @@ export const locale = {
       custom:
         "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support.",
     },
+    placeholder: "Organisation suchen...",
+    helperText: "Mindestens 3 Buchstaben.",
   },
   requests: {
     headline: "Beitrittsanfragen",
