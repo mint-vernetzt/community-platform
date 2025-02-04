@@ -12,7 +12,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { detectLanguage } from "~/i18n.server";
 import { Modal } from "~/components-next/Modal";
 import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";

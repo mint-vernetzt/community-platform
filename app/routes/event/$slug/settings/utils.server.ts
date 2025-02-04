@@ -9,7 +9,7 @@ import {
   ImageSizes,
 } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { sanitizeUserHtml } from "~/lib/utils/sanitizeUserHtml";
+import { sanitizeUserHtml } from "~/utils.server";
 import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -178,12 +178,6 @@ export function transformFormToEvent(form: any) {
   const participationFrom = zonedTimeToUtc(
     `${participationFromDate} ${participationFromTime}`,
     "Europe/Berlin"
-  );
-
-  invariantResponse(
-    sanitizeUserHtml !== undefined,
-    "typescript does not know that sanitizeUserHtml is always defined on the server",
-    { status: 500 }
   );
 
   const description = sanitizeUserHtml(event.description);

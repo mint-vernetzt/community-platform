@@ -24,7 +24,7 @@ import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getFeatureAbilities } from "~/lib/utils/application";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { getDuration } from "~/lib/utils/time";
 import { detectLanguage } from "~/i18n.server";
 import { Modal } from "~/components-next/Modal";

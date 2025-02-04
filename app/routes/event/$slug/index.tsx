@@ -37,7 +37,7 @@ import {
 } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { getDuration } from "~/lib/utils/time";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";

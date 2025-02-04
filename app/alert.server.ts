@@ -1,6 +1,5 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
-import { combineHeaders } from "./utils.server";
-import { sanitizeUserHtml } from "./lib/utils/sanitizeUserHtml";
+import { combineHeaders, sanitizeUserHtml } from "./utils.server";
 import { z, ZodError } from "zod";
 import { type AlertLevel } from "@mint-vernetzt/components/src/molecules/Alert";
 
@@ -75,7 +74,7 @@ export async function getAlert(request: Request) {
   );
   const alert = session.get(AlertKey);
   // Early return when cookie session is not set
-  if (alert === undefined || sanitizeUserHtml === undefined) {
+  if (alert === undefined) {
     return {
       alert: null,
       headers: null,

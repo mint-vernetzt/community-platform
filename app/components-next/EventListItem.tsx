@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 import classNames from "classnames";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { getDuration } from "~/lib/utils/time";
 import { utcToZonedTime } from "date-fns-tz";
 import React from "react";

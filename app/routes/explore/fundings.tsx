@@ -34,6 +34,7 @@ import { detectLanguage } from "~/root.server";
 import {
   decideBetweenSingularOrPlural,
   insertComponentsIntoLocale,
+  insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 
@@ -481,9 +482,7 @@ function Fundings() {
           }}
         >
           <input name="page" defaultValue="1" hidden />
-          {searchParams.get(fields.showFilters.name) === null && (
-            <input name="showFilters" defaultValue="on" hidden />
-          )}
+          <input name="showFilters" defaultValue="on" hidden />
 
           <ShowFiltersButton>
             {loaderData.locales.showFiltersLabel}
@@ -698,8 +697,18 @@ function Fundings() {
             </Filters.ResetButton>
             <Filters.ApplyButton>
               {decideBetweenSingularOrPlural(
-                loaderData.locales.showNumberOfItems_singular,
-                loaderData.locales.showNumberOfItems_plural,
+                insertParametersIntoLocale(
+                  loaderData.locales.showNumberOfItems_singular,
+                  {
+                    count: loaderData.count,
+                  }
+                ),
+                insertParametersIntoLocale(
+                  loaderData.locales.showNumberOfItems_plural,
+                  {
+                    count: loaderData.count,
+                  }
+                ),
                 loaderData.count
               )}
             </Filters.ApplyButton>

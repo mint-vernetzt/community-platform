@@ -17,11 +17,8 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { TextArea } from "~/components-next/TextArea";
 import { invariantResponse } from "~/lib/utils/response";
-import {
-  removeHtmlTags,
-  replaceHtmlEntities,
-  sanitizeUserHtml,
-} from "~/lib/utils/sanitizeUserHtml";
+import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
+import { sanitizeUserHtml } from "~/utils.server";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
 import { redirectWithToast } from "~/toast.server";
@@ -377,12 +374,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     schema: (intent) =>
       requirementsSchema.transform(async (data, ctx) => {
         if (intent !== "submit") return { ...data };
-
-        invariantResponse(
-          sanitizeUserHtml !== undefined,
-          "Typescript doesnt know that the module is server only and that we are on the server here.",
-          { status: 500 }
-        );
 
         const {
           financings,

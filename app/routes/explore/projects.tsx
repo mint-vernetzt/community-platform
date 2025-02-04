@@ -53,7 +53,10 @@ import {
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 
 const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
 
@@ -461,9 +464,7 @@ export default function ExploreProjects() {
           }}
         >
           <input name="page" defaultValue="1" hidden />
-          {searchParams.get(fields.showFilters.name) === null && (
-            <input name="showFilters" defaultValue="on" hidden />
-          )}
+          <input name="showFilters" defaultValue="on" hidden />
           <ShowFiltersButton>
             {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
@@ -1260,8 +1261,18 @@ export default function ExploreProjects() {
             </Filters.ResetButton>
             <Filters.ApplyButton>
               {decideBetweenSingularOrPlural(
-                locales.route.showNumberOfItems_one,
-                locales.route.showNumberOfItems_other,
+                insertParametersIntoLocale(
+                  locales.route.showNumberOfItems_one,
+                  {
+                    count: loaderData.projectsCount,
+                  }
+                ),
+                insertParametersIntoLocale(
+                  locales.route.showNumberOfItems_other,
+                  {
+                    count: loaderData.projectsCount,
+                  }
+                ),
                 loaderData.projectsCount
               )}
             </Filters.ApplyButton>

@@ -87,7 +87,6 @@
     "simple-git": "^3.21.0",
     "tailwindcss-opentype": "^1.1.0",
     "ts-node": "^10.9.2",
-    "vite-env-only": "^3.0.3",
     "yup": "^1.3.3",
     "zod": "^3.23.8"
   },
