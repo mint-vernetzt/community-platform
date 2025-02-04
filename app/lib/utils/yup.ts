@@ -86,7 +86,10 @@ const socialValidation = {
 
 export const nullOrString = (schema: StringSchema) =>
   schema
-    .transform((value: string) => {
+    .transform((value: string | undefined) => {
+      if (typeof value !== "string") {
+        return null;
+      }
       const trimmedValue = value.trim();
       return trimmedValue === "" || trimmedValue === "<p></p>"
         ? null
@@ -99,7 +102,10 @@ export function phone() {
   return string().matches(phoneValidation.match, phoneValidation.error);
 }
 
-function addUrlPrefix(url: string) {
+function addUrlPrefix(url: string | undefined) {
+  if (typeof url !== "string") {
+    return null;
+  }
   let validUrl = url.trim();
   if (validUrl !== "" && validUrl.search(/^https?:\/\//) === -1) {
     validUrl = "https://" + validUrl;
@@ -128,10 +134,14 @@ export function multiline(maxLength: number) {
       );
     })
     .transform((value: string | undefined) => {
-      if (value === undefined || value === "") {
+      if (typeof value !== "string") {
         return null;
       }
-      return value.trim();
+      const trimmedValue = value.trim();
+      if (trimmedValue === "") {
+        return null;
+      }
+      return trimmedValue;
     });
 }
 
@@ -204,10 +214,13 @@ export function greaterThanDate(
   greaterThanReferenceDateMessage: string
 ) {
   return string()
-    .transform((value) => {
-      value = value.trim();
+    .transform((value: string | undefined) => {
+      if (typeof value !== "string") {
+        return undefined;
+      }
+      const trimmedValue = value.trim();
       try {
-        const date = new Date(value);
+        const date = new Date(trimmedValue);
         return format(date, "yyyy-MM-dd");
       } catch (error) {
         console.log(error);
