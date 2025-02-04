@@ -187,7 +187,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const ErrorBoundary = () => {
   const error = useRouteError();
-  captureRemixErrorBoundaryError(error);
+  try {
+    captureRemixErrorBoundaryError(error);
+  } catch (error) {
+    console.warn("Sentry request failed");
+  }
   const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
   const hasRootLoaderData =
     typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
