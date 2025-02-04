@@ -190,7 +190,14 @@ export const ErrorBoundary = () => {
   try {
     captureRemixErrorBoundaryError(error);
   } catch (error) {
-    console.warn("Sentry request failed");
+    console.warn("Sentry captureRemixErrorBoundaryError failed");
+    const stringifiedError = JSON.stringify(
+      error,
+      Object.getOwnPropertyNames(error)
+    );
+    fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
+      method: "GET",
+    });
   }
   const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
   const hasRootLoaderData =
