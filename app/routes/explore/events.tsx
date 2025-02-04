@@ -57,7 +57,10 @@ import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCa
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 
 const sortValues = ["startTime-asc", "name-asc", "name-desc"] as const;
 
@@ -414,9 +417,7 @@ export default function ExploreOrganizations() {
           }}
         >
           <input name="page" defaultValue="1" hidden />
-          {searchParams.get(fields.showFilters.name) === null && (
-            <input name="showFilters" defaultValue="on" hidden />
-          )}
+          <input name="showFilters" defaultValue="on" hidden />
           <ShowFiltersButton>
             {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
@@ -954,8 +955,18 @@ export default function ExploreOrganizations() {
             </Filters.ResetButton>
             <Filters.ApplyButton>
               {decideBetweenSingularOrPlural(
-                locales.route.showNumberOfItems_one,
-                locales.route.showNumberOfItems_other,
+                insertParametersIntoLocale(
+                  locales.route.showNumberOfItems_one,
+                  {
+                    count: loaderData.eventsCount,
+                  }
+                ),
+                insertParametersIntoLocale(
+                  locales.route.showNumberOfItems_other,
+                  {
+                    count: loaderData.eventsCount,
+                  }
+                ),
                 loaderData.eventsCount
               )}
             </Filters.ApplyButton>

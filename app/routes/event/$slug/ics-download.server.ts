@@ -2,7 +2,7 @@ import { prismaClient } from "~/prisma.server";
 import { type Event } from "@prisma/client";
 import type { DateArray } from "ics";
 import * as ics from "ics";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
 
 export async function getEventBySlug(slug: string) {
   return await prismaClient.event.findUnique({

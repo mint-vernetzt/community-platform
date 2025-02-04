@@ -17,11 +17,8 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { TextArea } from "~/components-next/TextArea";
 import { invariantResponse } from "~/lib/utils/response";
-import {
-  removeHtmlTags,
-  replaceHtmlEntities,
-  sanitizeUserHtml,
-} from "~/lib/utils/sanitizeUserHtml";
+import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
+import { sanitizeUserHtml } from "~/utils.server";
 import { createYoutubeEmbedSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
@@ -452,12 +449,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
           return z.NEVER;
         }
-
-        invariantResponse(
-          sanitizeUserHtml !== undefined,
-          "Server only module doesnt know we are on the server here.",
-          { status: 500 }
-        );
 
         const {
           disciplines,

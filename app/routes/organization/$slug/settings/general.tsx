@@ -40,10 +40,7 @@ import { redirectWithToast } from "~/toast.server";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import {
-  removeHtmlTags,
-  replaceHtmlEntities,
-} from "~/lib/utils/sanitizeUserHtml";
+import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
 
 const NAME_MIN_LENGTH = 3;
 const NAME_MAX_LENGTH = 50;

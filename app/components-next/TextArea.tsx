@@ -3,7 +3,7 @@ import React, { type FormEventHandler } from "react";
 import Counter from "../components/Counter/Counter";
 import { ToggleCheckbox } from "../components/FormElements/Checkbox/ToggleCheckbox";
 import { RTE, type RTELocales } from "./RTE/RTE";
-import { removeHtmlTags } from "~/lib/utils/sanitizeUserHtml";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
 
 export interface TextAreaProps {
   id: string;

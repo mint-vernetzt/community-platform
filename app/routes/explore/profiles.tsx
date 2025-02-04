@@ -398,9 +398,7 @@ export default function ExploreProfiles() {
           }}
         >
           <input name="page" defaultValue="1" hidden />
-          {searchParams.get(fields.showFilters.name) === null && (
-            <input name="showFilters" defaultValue="on" hidden />
-          )}
+          <input name="showFilters" defaultValue="on" hidden />
           <ShowFiltersButton>
             {loaderData.locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
@@ -714,8 +712,18 @@ export default function ExploreProfiles() {
             </Filters.ResetButton>
             <Filters.ApplyButton>
               {decideBetweenSingularOrPlural(
-                loaderData.locales.route.showNumberOfItems_singular,
-                loaderData.locales.route.showNumberOfItems_plural,
+                insertParametersIntoLocale(
+                  loaderData.locales.route.showNumberOfItems_singular,
+                  {
+                    count: loaderData.profilesCount,
+                  }
+                ),
+                insertParametersIntoLocale(
+                  loaderData.locales.route.showNumberOfItems_plural,
+                  {
+                    count: loaderData.profilesCount,
+                  }
+                ),
                 loaderData.profilesCount
               )}
             </Filters.ApplyButton>

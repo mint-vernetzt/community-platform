@@ -3,6 +3,7 @@ import type { BinaryToTextEncoding } from "crypto";
 import { createHmac } from "crypto";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { prismaClient } from "./prisma.server";
+import sanitizeHtml from "sanitize-html";
 
 export type Mode = "anon" | "authenticated";
 
@@ -182,3 +183,54 @@ export function generateValidSlug(
 
   return hashFunction(slug);
 }
+
+const allowedTags = [
+  "b",
+  "i",
+  "em",
+  "strong",
+  "a",
+  "ul",
+  "ol",
+  "p",
+  "li",
+  "br",
+];
+
+const allowedAttributes = {
+  a: ["href", "rel", "target"],
+  b: [],
+  i: [],
+  em: [],
+  strong: [],
+  ul: [],
+  ol: [],
+  p: [],
+  li: [],
+  br: [],
+};
+
+export const sanitizeUserHtml = (
+  html: string | null,
+  options?: {
+    allowedTags?: string[];
+    allowedAttributes?: { [key: string]: string[] };
+  }
+) => {
+  if (html === null) {
+    return null;
+  }
+  if (allowedTags === undefined) {
+    return null;
+  }
+  if (allowedAttributes === undefined) {
+    return null;
+  }
+  return sanitizeHtml(
+    html,
+    options ?? {
+      allowedTags,
+      allowedAttributes,
+    }
+  );
+};

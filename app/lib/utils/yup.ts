@@ -9,7 +9,7 @@ import type {
 } from "yup";
 import { ValidationError, mixed, number, string } from "yup";
 import { invariantResponse } from "./response";
-import { removeHtmlTags, replaceHtmlEntities } from "./sanitizeUserHtml";
+import { removeHtmlTags, replaceHtmlEntities } from "./transformHtml";
 
 type Error = {
   type: string;
