@@ -28,9 +28,11 @@ const schema = z.object({
   PAKTSUBMISSION_RECIPIENT: z.string(),
   PAKTSUBMISSION_SUBJECT: z.string(),
   FEATURE_FLAGS: z.string(),
-  SENTRY_DSN: z.string(),
-  SENTRY_ORGANIZATION_NAME: z.string(),
-  SENTRY_PROJECT_NAME: z.string(),
+  SENTRY_DSN: z.string().optional(),
+  SENTRY_ORGANIZATION_NAME: z.string().optional(),
+  SENTRY_PROJECT_NAME: z.string().optional(),
+  SENTRY_AUTH_TOKEN: z.string().optional(),
+  TRIGGER_SENTRY_RELEASE: z.enum(["true"] as const).optional(),
   SUPPORT_MAIL: z.string(),
 });
 

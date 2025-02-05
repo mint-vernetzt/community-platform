@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/remix";
 import { StrictMode, startTransition, useEffect } from "react";
 import { hydrateRoot } from "react-dom/client";
 
-if (ENV.MODE === "production" && ENV.SENTRY_DSN) {
+if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
   try {
     Sentry.init({
       dsn: ENV.SENTRY_DSN,
