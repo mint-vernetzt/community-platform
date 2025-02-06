@@ -629,7 +629,7 @@ function Index() {
             // TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside.
             <TextButton
               as="a"
-              href="explore/events"
+              href="/explore/events"
               weight="thin"
               variant="neutral"
               arrowLeft
