@@ -1,12 +1,10 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
-import { mailer } from "~/mailer.server";
-import { prismaClient } from "~/prisma.server";
-import { getPublicURL } from "~/storage.server";
 import { type supportedCookieLanguages } from "~/i18n.shared";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
 
 export type MyOrganizationsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -616,25 +614,6 @@ export async function updateOrganizationInvite(options: {
   const invite = await inviteQuery;
 
   return invite;
-}
-
-export async function sendOrganizationInviteUpdatedEmail(
-  intent: "accepted" | "rejected",
-  invite: Awaited<ReturnType<typeof updateOrganizationInvite>>
-) {
-  const { organization, profile, role } = invite;
-  const subject =
-    intent === "accepted"
-      ? `${profile.firstName} ${profile.lastName} accepted the invite to ${organization.name}`
-      : `${profile.firstName} ${profile.lastName} rejected the invite to ${organization.name}`;
-  const sender = process.env.SYSTEM_MAIL_SENDER;
-  const recipient = organization.admins.map((admin) => {
-    return admin.profile.email;
-  });
-  const text = `Hi admins of ${organization.name}, ${profile.firstName} ${profile.lastName} has ${intent} the invite to be ${role} of your organization. You can contact ${profile.firstName} ${profile.lastName} at ${profile.email}.`;
-  const html = text;
-
-  await mailer(mailerOptions, sender, recipient, subject, text, html);
 }
 
 export async function getAdminOrganizationsWithPendingRequests(id: string) {
