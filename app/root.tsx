@@ -339,8 +339,14 @@ export default function App() {
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
-      window._paq.push(["setCustomUrl", window.location.href]);
-      window._paq.push(["trackPageView"]);
+      try {
+        window._paq.push(["setCustomUrl", window.location.href]);
+        window._paq.push(["trackPageView"]);
+      } catch (e) {
+        console.warn(
+          'Failed to push "setCustomUrl" and "trackPageView" on window._paq for matomo initialization.'
+        );
+      }
     }
   }, [location, matomoSiteId]);
 
