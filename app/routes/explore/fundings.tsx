@@ -446,6 +446,55 @@ function Fundings() {
               {loaderData.locales.title}
             </H1>
             <p>{loaderData.locales.intro}</p>
+            <p>
+              {insertComponentsIntoLocale(
+                insertParametersIntoLocale(loaderData.locales.databaseList, {
+                  0: "https://www.foerderdatenbank.de",
+                  1: "https://foerder-finder.de",
+                  2: "https://sigu-plattform.de/foerderfinder/",
+                  3: "https://foerderdatenbank.d-s-e-e.de/",
+                }),
+                [
+                  <Link
+                    key="foerderdatenbank"
+                    to="https://www.foerderdatenbank.de"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    className="mv-font-semibold hover:mv-underline"
+                  >
+                    {" "}
+                  </Link>,
+                  <Link
+                    key="foerder-finder"
+                    to="https://foerder-finder.de"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    className="mv-font-semibold hover:mv-underline"
+                  >
+                    {" "}
+                  </Link>,
+                  <Link
+                    key="sigu-plattform"
+                    to="https://sigu-plattform.de/foerderfinder/"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    className="mv-font-semibold hover:mv-underline"
+                  >
+                    {" "}
+                  </Link>,
+                  <Link
+                    key="foerderdatenbank-d-s-e-e"
+                    to="https://foerderdatenbank.d-s-e-e.de/"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    className="mv-font-semibold hover:mv-underline"
+                  >
+                    {" "}
+                  </Link>,
+                ]
+              )}
+            </p>
+            <p>{loaderData.locales.intro2}</p>
           </div>
           <div className="mv-p-4 @lg:mv-pr-12 mv-bg-primary-50 mv-rounded-lg mv-text-left mv-flex mv-flex-col mv-gap-2.5">
             <p className="mv-font-bold">{loaderData.locales.survey.title}</p>

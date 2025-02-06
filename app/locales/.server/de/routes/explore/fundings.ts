@@ -1,6 +1,10 @@
 export const locale = {
   title: "Finde Förderungen für Deine Projekte",
-  intro: "Filtere die Ergebnisse um relevantere Treffer zu erzielen.",
+  intro:
+    "Wir durchsuchen aktuell diese vier Förderdatenbanken nach relevanten Suchbegriffen und spielen die Ergebnisse hier für Dich gesammelt aus:",
+  databaseList: "<0>{{0}}</0>, <1>{{1}}</1>, <2>{{2}}</2>, <3>{{3}}</3>.",
+  intro2:
+    "Nutze die Filterfunktion, um passende Treffer zu erzielen. Jeden Montag werden die Datenbanken durchsucht und die Ergebnisse hier auf der Plattform aktualisiert.",
   more: "Weitere laden",
   empty: "Es konnten leider keine Förderungen gefunden werden.",
   itemsCountSuffix_one: "Förderung",
