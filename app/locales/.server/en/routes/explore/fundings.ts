@@ -1,6 +1,10 @@
 export const locale = {
   title: "Find funding for your projects",
-  intro: "Filter the results to get more relevant hits.",
+  intro:
+    "We are currently searching these four funding databases for relevant search terms and displaying the results collected here for you:",
+  databaseList: "<0>{{0}}</0>, <1>{{1}}</1>, <2>{{2}}</2>, <3>{{3}}</3>.",
+  intro2:
+    "Use the filter function to achieve suitable results. Every Monday, the databases are searched and the results are updated here on the platform.",
   more: "Load more",
   empty: "Unfortunately, no fundings could be found.",
   itemsCountSuffix_one: "funding",
