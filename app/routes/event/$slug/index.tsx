@@ -490,6 +490,7 @@ function getCallToActionForm(loaderData: {
             action="./settings/participants/remove-participant"
             profileId={loaderData.userId}
             modalSearchParam="modal-remove-participant"
+            locales={loaderData.locales}
           />
         </div>
         <Modal searchParam="modal-remove-participant">
@@ -522,6 +523,7 @@ function getCallToActionForm(loaderData: {
       <RemoveFromWaitingListButton
         action="./settings/waiting-list/remove-from-waiting-list"
         profileId={loaderData.userId}
+        locales={loaderData.locales}
       />
     );
   } else {
@@ -530,6 +532,7 @@ function getCallToActionForm(loaderData: {
         <AddToWaitingListButton
           action="./settings/waiting-list/add-to-waiting-list"
           profileId={loaderData.userId}
+          locales={loaderData.locales}
         />
       );
     } else {
@@ -537,6 +540,7 @@ function getCallToActionForm(loaderData: {
         <AddParticipantButton
           action="./settings/participants/add-participant"
           profileId={loaderData.userId}
+          locales={loaderData.locales}
         />
       );
     }
@@ -629,7 +633,7 @@ function Index() {
             // TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside.
             <TextButton
               as="a"
-              href="explore/events"
+              href="/explore/events"
               weight="thin"
               variant="neutral"
               arrowLeft
@@ -1549,6 +1553,7 @@ function Index() {
                             <AddParticipantButton
                               action={`/event/${event.slug}/settings/participants/add-participant`}
                               profileId={loaderData.userId}
+                              locales={locales}
                             />
                           </div>
                         ) : null}
@@ -1565,6 +1570,7 @@ function Index() {
                             <AddToWaitingListButton
                               action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                               profileId={loaderData.userId}
+                              locales={locales}
                             />
                           </div>
                         ) : null}

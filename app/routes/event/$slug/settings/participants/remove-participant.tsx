@@ -12,6 +12,8 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { disconnectParticipantFromEvent, getEventBySlug } from "./utils.server";
+import { type EventDetailLocales } from "../../index.server";
+import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -56,11 +58,12 @@ type RemoveParticipantFormProps = {
   action: string;
   profileId?: string;
   modalSearchParam?: string;
+  locales: EventDetailLocales | ProfileDetailLocales;
 };
 
 export function RemoveParticipantForm(props: RemoveParticipantFormProps) {
   const fetcher = useFetcher<typeof action>();
-  const locales = fetcher.data !== undefined ? fetcher.data.locales : undefined;
+  const locales = props.locales;
   const [searchParams, setSearchParam] = useSearchParams();
   const newSearchParams = new URLSearchParams(searchParams);
   if (props.modalSearchParam !== undefined) {
@@ -88,7 +91,7 @@ export function RemoveParticipantForm(props: RemoveParticipantFormProps) {
             <Field name="profileId" />
             {props.modalSearchParam === undefined ? (
               <button className="btn btn-primary" type="submit">
-                {locales !== undefined ? locales.action : "Don't participate"}
+                {locales.removeParticipant.action}
               </button>
             ) : (
               <input

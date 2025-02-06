@@ -15,6 +15,8 @@ import { type AddEventParticipantLocales } from "./add-participant.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { type EventDetailLocales } from "../../index.server";
+import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -97,11 +99,12 @@ export const action = async (args: ActionFunctionArgs) => {
 type AddParticipantButtonProps = {
   action: string;
   profileId?: string;
+  locales: EventDetailLocales | ProfileDetailLocales;
 };
 
 export function AddParticipantButton(props: AddParticipantButtonProps) {
   const fetcher = useFetcher<typeof action>();
-  const locales = fetcher.data !== undefined ? fetcher.data.locales : undefined;
+  const locales = props.locales;
   return (
     <RemixFormsForm
       action={props.action}
@@ -118,7 +121,7 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
           <>
             <Field name="profileId" />
             <button className="btn btn-primary" type="submit">
-              {locales !== undefined ? locales.action : "Participate"}
+              {locales.addParticipant.action}
             </button>
             <Errors />
           </>

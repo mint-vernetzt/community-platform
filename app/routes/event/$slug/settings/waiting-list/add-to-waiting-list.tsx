@@ -15,6 +15,8 @@ import { deriveEventMode } from "~/routes/event/utils.server";
 import { getProfileById } from "../utils.server";
 import { type AddProfileToEventWaitingListLocales } from "./add-to-waiting-list.server";
 import { connectToWaitingListOfEvent, getEventBySlug } from "./utils.server";
+import { type EventDetailLocales } from "../../index.server";
+import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -106,11 +108,12 @@ export const action = async (args: ActionFunctionArgs) => {
 type AddToWaitingListButtonProps = {
   action: string;
   profileId?: string;
+  locales: EventDetailLocales | ProfileDetailLocales;
 };
 
 export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
   const fetcher = useFetcher<typeof action>();
-  const locales = fetcher.data !== undefined ? fetcher.data.locales : undefined;
+  const locales = props.locales;
   return (
     <RemixFormsForm
       action={props.action}
@@ -127,7 +130,7 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
           <>
             <Field name="profileId" />
             <button type="submit" className="btn btn-primary">
-              {locales !== undefined ? locales.action : "Waiting list"}
+              {locales.addToWaitingList.action}
             </button>
             <Errors />
           </>

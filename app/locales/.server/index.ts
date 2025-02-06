@@ -450,6 +450,10 @@ const de = {
   "event/$slug/documents-download": deDownloadEventDocuments,
   "event/$slug/index": {
     route: deEventDetail,
+    addParticipant: deAddParticipantToEvent,
+    removeParticipant: deRemoveParticipantFromEvent,
+    addToWaitingList: deAddProfileToEventWaitingList,
+    removeFromWaitingList: deRemoveProfileFromEventWaitingList,
     stages: deStages,
     experienceLevels: deExperienceLevels,
     focuses: deFocuses,
@@ -595,6 +599,10 @@ const de = {
   "profile/$username/settings/security": deProfileSecurity,
   "profile/$username/index": {
     route: deProfileDetail,
+    addParticipant: deAddParticipantToEvent,
+    removeParticipant: deRemoveParticipantFromEvent,
+    addToWaitingList: deAddProfileToEventWaitingList,
+    removeFromWaitingList: deRemoveProfileFromEventWaitingList,
     offers: deOffers,
     stages: deStages,
     organizationTypes: deOrganizationTypes,
@@ -822,6 +830,10 @@ const en = {
   "event/$slug/documents-download": enDownloadEventDocuments,
   "event/$slug/index": {
     route: enEventDetail,
+    addParticipant: enAddParticipantToEvent,
+    removeParticipant: enRemoveParticipantFromEvent,
+    addToWaitingList: enAddProfileToEventWaitingList,
+    removeFromWaitingList: enRemoveProfileFromEventWaitingList,
     stages: enStages,
     experienceLevels: enExperienceLevels,
     focuses: enFocuses,
@@ -967,6 +979,10 @@ const en = {
   "profile/$username/settings/security": enProfileSecurity,
   "profile/$username/index": {
     route: enProfileDetail,
+    addParticipant: enAddParticipantToEvent,
+    removeParticipant: enRemoveParticipantFromEvent,
+    addToWaitingList: enAddProfileToEventWaitingList,
+    removeFromWaitingList: enRemoveProfileFromEventWaitingList,
     offers: enOffers,
     stages: enStages,
     organizationTypes: enOrganizationTypes,

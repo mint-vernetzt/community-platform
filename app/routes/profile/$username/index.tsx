@@ -1087,6 +1087,7 @@ export default function Index() {
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     profileId={loaderData.userId}
+                                    locales={locales}
                                   />
                                 </div>
                               ) : null}
@@ -1103,6 +1104,7 @@ export default function Index() {
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     profileId={loaderData.userId}
+                                    locales={locales}
                                   />
                                 </div>
                               ) : null}
@@ -1258,6 +1260,7 @@ export default function Index() {
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     profileId={loaderData.userId}
+                                    locales={locales}
                                   />
                                 </div>
                               ) : null}
@@ -1274,6 +1277,7 @@ export default function Index() {
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     profileId={loaderData.userId}
+                                    locales={locales}
                                   />
                                 </div>
                               ) : null}
@@ -1426,6 +1430,7 @@ export default function Index() {
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     profileId={loaderData.userId}
+                                    locales={locales}
                                   />
                                 </div>
                               ) : null}
@@ -1440,6 +1445,7 @@ export default function Index() {
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     profileId={loaderData.userId}
+                                    locales={locales}
                                   />
                                 </div>
                               ) : null}
@@ -1590,6 +1596,7 @@ export default function Index() {
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     profileId={loaderData.userId}
+                                    locales={locales}
                                   />
                                 </div>
                               ) : null}
@@ -1603,6 +1610,7 @@ export default function Index() {
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     profileId={loaderData.userId}
+                                    locales={locales}
                                   />
                                 </div>
                               ) : null}
