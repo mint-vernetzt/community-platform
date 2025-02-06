@@ -15,6 +15,8 @@ import {
   disconnectFromWaitingListOfEvent,
   getEventBySlug,
 } from "./utils.server";
+import { type EventDetailLocales } from "../../index.server";
+import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
 
 const schema = z.object({
   profileId: z.string(),
@@ -57,13 +59,14 @@ export const action = async (args: ActionFunctionArgs) => {
 type RemoveFromWaitingListButtonProps = {
   action: string;
   profileId?: string;
+  locales: EventDetailLocales | ProfileDetailLocales;
 };
 
 export function RemoveFromWaitingListButton(
   props: RemoveFromWaitingListButtonProps
 ) {
   const fetcher = useFetcher<typeof action>();
-  const locales = fetcher.data !== undefined ? fetcher.data.locales : undefined;
+  const locales = props.locales;
   return (
     <RemixFormsForm
       action={props.action}
@@ -80,9 +83,7 @@ export function RemoveFromWaitingListButton(
           <>
             <Field name="profileId" />
             <button className="btn btn-primary" type="submit">
-              {locales !== undefined
-                ? locales.action
-                : "Remove from waiting list"}
+              {locales.removeFromWaitingList.action}
             </button>
             <Errors />
           </>
