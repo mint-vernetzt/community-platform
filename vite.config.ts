@@ -2,12 +2,18 @@ import { vitePlugin as remix } from "@remix-run/dev";
 import { createRoutesFromFolders } from "@remix-run/v1-route-convention";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 declare module "@remix-run/node" {
   interface Future {
     v3_singleFetch: true;
   }
 }
+
+console.log(process.env.COMMUNITY_BASE_URL);
+console.log(process.env.SENTRY_DSN);
+console.log(process.env.SENTRY_ORGANIZATION_NAME);
+console.log(process.env.SENTRY_PROJECT_NAME);
 
 export default defineConfig({
   base: "/",
@@ -50,6 +56,25 @@ export default defineConfig({
       },
     }),
     tsconfigPaths(),
+    process.env.TRIGGER_SENTRY_RELEASE === "true" &&
+    typeof process.env.SENTRY_ORGANIZATION_NAME !== "undefined" &&
+    typeof process.env.SENTRY_PROJECT_NAME !== "undefined" &&
+    typeof process.env.SENTRY_AUTH_TOKEN !== "undefined"
+      ? // Put the Sentry vite plugin after all other plugins
+        sentryVitePlugin({
+          org: process.env.SENTRY_ORGANIZATION_NAME,
+          project: process.env.SENTRY_PROJECT_NAME,
+          authToken: process.env.SENTRY_AUTH_TOKEN,
+          release: {
+            setCommits: {
+              auto: true,
+            },
+            deploy: {
+              env: process.env.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
+            },
+          },
+        })
+      : undefined,
   ],
   resolve: {
     alias: {

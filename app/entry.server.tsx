@@ -18,11 +18,16 @@ export const streamTimeout = 5000;
 init();
 global.ENV = getEnv();
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 1,
-  environment: process.env.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
-});
+if (
+  process.env.NODE_ENV === "production" &&
+  typeof process.env.SENTRY_DSN !== "undefined"
+) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: 1,
+    environment: process.env.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
+  });
+}
 
 export function handleError(
   error: unknown,
