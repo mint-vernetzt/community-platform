@@ -47,7 +47,7 @@ export function links() {
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
 
-  if (data === undefined) {
+  if (typeof data === "undefined") {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
@@ -58,7 +58,10 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (data.project.excerpt === null && data.project.background === null) {
+  if (
+    data.project.excerpt === null &&
+    typeof data.project.background === "undefined"
+  ) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${data.project.name}`,
