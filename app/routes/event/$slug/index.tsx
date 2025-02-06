@@ -87,7 +87,7 @@ export function links() {
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
 
-  if (data === undefined) {
+  if (typeof data === "undefined") {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
@@ -98,7 +98,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (data.event.description === null && data.event.background === null) {
+  if (data.event.description === null) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${data.event.name}`,
