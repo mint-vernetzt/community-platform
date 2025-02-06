@@ -112,10 +112,10 @@ export const locale = {
       subject: "Deine Anfrage wurde abgelehnt.",
     },
     inviteAccepted: {
-      subject: "Deine Einladung wurde aktzeptiert.",
+      subject: "Deine Einladung wurde akzeptiert.",
     },
     inviteAsAdminAccepted: {
-      subject: "Deine Einladung wurde aktzeptiert.",
+      subject: "Deine Einladung wurde akzeptiert.",
     },
     inviteRejected: {
       subject: "Deine Einladung wurde abgelehnt.",
