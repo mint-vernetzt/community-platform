@@ -155,7 +155,7 @@ function Delete() {
   // Validate on first render
   React.useEffect(() => {
     form.validate();
-  }, []);
+  }, [form]);
 
   return (
     <>

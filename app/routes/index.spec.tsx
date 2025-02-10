@@ -48,8 +48,12 @@ Functional tests:
 vi.mock("~/prisma.server");
 
 test("Landing page is rendered without errors", async () => {
-  consoleError.mockImplementationOnce(() => {});
-  consoleError.mockImplementationOnce(() => {});
+  consoleError.mockImplementationOnce(() => {
+    return;
+  });
+  consoleError.mockImplementationOnce(() => {
+    return;
+  });
   createServerClient.auth.getUser.mockResolvedValue({
     data: {
       user: null,

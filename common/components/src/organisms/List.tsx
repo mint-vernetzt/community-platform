@@ -104,12 +104,16 @@ function ListItemInfo(props: React.PropsWithChildren<{ size?: Size }>) {
 
   if (typeof title !== "undefined") {
     titleClone = React.cloneElement(title as React.ReactElement, {
+      // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
   if (typeof subtitle !== "undefined") {
     subtitleClone = React.cloneElement(subtitle as React.ReactElement, {
+      // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
@@ -124,7 +128,7 @@ function ListItemInfo(props: React.PropsWithChildren<{ size?: Size }>) {
   );
 }
 
-function ListItemControls(props: React.PropsWithChildren<{}>) {
+function ListItemControls(props: React.PropsWithChildren) {
   return (
     <div className="mv-flex mv-flex-row mv-no-wrap mv-gap-2">
       {props.children}
@@ -184,6 +188,8 @@ export function ListItem(
     let infoClone: React.ReactElement | undefined;
     if (typeof info !== "undefined") {
       infoClone = React.cloneElement(info as React.ReactElement, {
+        // TODO: fix type issue
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - We should look at our cloneElement implementation.
         size,
       });
@@ -223,6 +229,8 @@ export function ListItem(
 
   if (typeof info !== "undefined") {
     infoClone = React.cloneElement(info as React.ReactElement, {
+      // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
@@ -240,12 +248,16 @@ export function ListItem(
 
   if (typeof title !== "undefined") {
     titleClone = React.cloneElement(title as React.ReactElement, {
+      // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
   if (typeof subtitle !== "undefined") {
     subtitleClone = React.cloneElement(subtitle as React.ReactElement, {
+      // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });

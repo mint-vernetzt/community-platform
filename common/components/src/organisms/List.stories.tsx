@@ -29,6 +29,7 @@ export function ListItemPlayground() {
         </ListItem.Controls>
       </ListItem>
       <ListItem size="sm" interactive noBorder>
+        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
         <a href="#">
           <Avatar
             firstName="Maria"
@@ -120,6 +121,7 @@ export function ListPlayground() {
           {users.map((item) => {
             return (
               <List.Item key={item.username} interactive noBorder>
+                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                 <a href="#">
                   <Avatar
                     firstName={item.firstName}

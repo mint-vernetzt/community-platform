@@ -4,12 +4,14 @@ import HeaderLogo from "../HeaderLogo/HeaderLogo";
 import InputPassword from "../FormElements/InputPassword/InputPassword";
 import PageBackground from "../PageBackground/PageBackground";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface NewProfilePageProps {}
 
 /**
  *
  * @deprecated
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function NewProfilePage(props: NewProfilePageProps) {
   return (
     <div className="">

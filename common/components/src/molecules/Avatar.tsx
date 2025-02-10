@@ -7,7 +7,7 @@ function Avatar(props: AvatarProps) {
   const { size = "md", textSize = "md" } = props;
 
   let displayName = "";
-  let initials = getInitials(props);
+  const initials = getInitials(props);
   let src;
   let blurredSrc;
   if ("name" in props) {

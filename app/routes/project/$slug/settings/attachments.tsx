@@ -430,7 +430,7 @@ function Attachments() {
   const [editDocumentForm, editDocumentFields] = useForm({
     shouldValidate: "onInput",
     onValidate: (values) => {
-      let schema = documentSchema;
+      const schema = documentSchema;
       const result = parse(values.formData, { schema });
       return result;
     },
@@ -443,7 +443,7 @@ function Attachments() {
   const [editImageForm, editImageFields] = useForm({
     shouldValidate: "onInput",
     onValidate: (values) => {
-      let schema = imageSchema;
+      const schema = imageSchema;
       const result = parse(values.formData, { schema });
       return result;
     },
@@ -542,7 +542,8 @@ function Attachments() {
               </label>
 
               <Button
-                // TODO: check type issue
+                // TODO: fix type issue
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 disabled={
                   typeof window !== "undefined"
@@ -783,7 +784,8 @@ function Attachments() {
               </label>
 
               <Button
-                // TODO: check type issue
+                // TODO: fix type issue
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 disabled={
                   typeof window !== "undefined"

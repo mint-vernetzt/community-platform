@@ -81,6 +81,8 @@ export async function storeDocument(
 
 export async function storeImage(
   authClient: SupabaseClient,
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: { slug: string; filename: string; image: any }
 ) {
   const { slug, filename, image } = options;

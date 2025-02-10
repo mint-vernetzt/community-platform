@@ -209,7 +209,7 @@ async function main(
 
   console.log("\n--- Seeding finished ---\n");
   console.log("\n--- User list ---\n");
-  for (let email of profileEmails) {
+  for (const email of profileEmails) {
     console.log(email);
   }
   console.log(`\nThe default password for all users is "${defaultPassword}"`);

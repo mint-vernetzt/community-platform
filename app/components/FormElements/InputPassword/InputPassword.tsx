@@ -9,7 +9,7 @@ const InputPassword = React.forwardRef(
     props: React.HTMLProps<HTMLInputElement> & InputPasswordProps,
     forwardRef
   ) => {
-    const id = props.id ?? props.label;
+    const { label, ...inputProps } = props;
 
     const [passwordShown, setPasswordShown] = useState(false);
     const togglePassword: MouseEventHandler = (event) => {
@@ -19,17 +19,17 @@ const InputPassword = React.forwardRef(
 
     return (
       <div className="form-control w-full">
-        <label htmlFor={id} className="label">
-          {props.label}
-          {props.required !== undefined ? " *" : ""}
+        <label htmlFor={inputProps.id || label} className="label">
+          {label}
+          {inputProps.required !== undefined ? " *" : ""}
         </label>
 
         <div className="relative">
           <input
-            {...props}
+            {...inputProps}
             type={passwordShown ? "text" : "password"}
-            id={id}
-            name={id}
+            id={inputProps.id || label}
+            name={inputProps.id || label}
             className="input input-bordered w-full input-lg"
             // TODO: can this type assertion be removed and proofen by code?
             ref={forwardRef as React.RefObject<HTMLInputElement>}

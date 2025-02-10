@@ -1,7 +1,7 @@
 import { prismaClient } from "~/prisma.server";
 
 async function migrateAdminsForEvents() {
-  let transactions = [];
+  const transactions = [];
 
   const events = await prismaClient.event.findMany({
     select: {
@@ -46,7 +46,7 @@ async function migrateAdminsForEvents() {
 }
 
 async function migrateAdminsForOrganizations() {
-  let transactions = [];
+  const transactions = [];
 
   const organizations = await prismaClient.organization.findMany({
     select: {
@@ -91,7 +91,7 @@ async function migrateAdminsForOrganizations() {
 }
 
 async function migrateAdminsForProjects() {
-  let transactions = [];
+  const transactions = [];
 
   const projects = await prismaClient.project.findMany({
     select: {

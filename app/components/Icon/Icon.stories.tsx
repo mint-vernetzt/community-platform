@@ -5,7 +5,7 @@ export default {
   component: Icon,
   title: "Icon",
 } as Meta;
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const Component: Story<IconProps> = (args) => (
   <Icon type={IconType.Flag} />
 );

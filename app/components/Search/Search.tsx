@@ -8,11 +8,7 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
   const [value, setValue] = React.useState(props.query || "");
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
-  const {
-    placeholder = "Suche (mind. 3 Buchstaben)",
-    minLength = 3,
-    ...inputProps
-  } = props;
+  const { ...inputProps } = props;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
@@ -24,8 +20,9 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
     setValue("");
   };
 
-  // TODO: fix any type
   React.useEffect(() => {
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handler = (evt: any) => {
       if ((evt.metaKey || evt.ctrlKey) && evt.key === "k") {
         if (inputRef.current !== null) {
@@ -57,8 +54,8 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
         </div>
         <input
           className="w-full input search"
-          placeholder={placeholder}
-          minLength={minLength}
+          placeholder={inputProps.placeholder || "Suche (mind. 3 Buchstaben)"}
+          minLength={inputProps.minLength || 3}
           value={value}
           onChange={handleChange}
           ref={inputRef}

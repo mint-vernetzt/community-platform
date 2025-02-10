@@ -89,6 +89,7 @@ const createMutation = (locales: RegisterLocales) => {
 
     const { error } = await signUp(
       // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       environment.authClient,
       values.email,
@@ -142,7 +143,8 @@ export default function Register() {
   const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      // TODO: Type issue
+      // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (event.target.getAttribute("name") !== "termsAccepted") {
         submit(event.currentTarget);
@@ -197,7 +199,7 @@ export default function Register() {
                 }}
                 onKeyDown={handleKeyPress}
               >
-                {({ Field, Button, Errors, register }) => (
+                {({ Field, Errors, register }) => (
                   <>
                     <p className="mb-4">{locales.form.intro}</p>
                     <div className="flex flex-row -mx-4 mb-4">
@@ -325,6 +327,8 @@ export default function Register() {
                                   </>
                                 );
                               });
+                              ForwardRefComponent.displayName =
+                                "ForwardRefComponent";
                               return (
                                 <>
                                   <ForwardRefComponent

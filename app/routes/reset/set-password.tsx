@@ -56,6 +56,7 @@ const createMutation = (locales: SetPasswordLocales) => {
     }
 
     // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { error } = await environment.authClient.auth.updateUser({
       password: values.password,
@@ -110,7 +111,7 @@ export default function SetPassword() {
             loginRedirect: loginRedirect,
           }}
         >
-          {({ Field, Button, Errors, register }) => (
+          {({ Field, Errors, register }) => (
             <div className="flex flex-col mv-w-full mv-items-center">
               <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
                 <div className="mv-mb-6 mv-mt-12"> </div>

@@ -107,6 +107,8 @@ function TextButton(
       const clone = React.cloneElement(
         element as React.ReactElement,
         {
+          // TODO: fix type issue
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore - We should look at our cloneElement implementation.
           className: classes,
         },

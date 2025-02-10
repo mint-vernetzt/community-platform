@@ -62,7 +62,9 @@ function Chip(props: ChipProps) {
     ) {
       const clone = React.cloneElement(
         child,
-        // @ts-ignore - We should look at our cloneElement implementation. There can be a lot mor here than only React.ReactElement
+        // TODO: fix type issue
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - We should look at our cloneElement implementation.
         { disabled: disabled },
         child.props.children
       );
@@ -85,6 +87,8 @@ function Chip(props: ChipProps) {
     const chipDeleteClone = React.cloneElement(
       chipDelete,
       {
+        // TODO: fix type issue
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - We should look at our cloneElement implementation.
         responsive: props.responsive,
         interactive: props.interactive,
@@ -140,6 +144,8 @@ export function ChipDelete(
   if (typeof element.props === "object" && element.props !== null) {
     clone = React.cloneElement(
       element,
+      // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       { className: classes, disabled },
       <svg

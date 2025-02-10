@@ -351,12 +351,12 @@ function Manage() {
   } = loaderData;
   const actionData = useActionData<typeof action>();
   const searchNetworksFetcher = useFetcher<typeof loader>();
-  let searchedNetworks =
+  const searchedNetworks =
     searchNetworksFetcher.data !== undefined
       ? searchNetworksFetcher.data.searchedNetworks
       : loaderData.searchedNetworks;
   const searchNetworkMembersFetcher = useFetcher<typeof loader>();
-  let searchedNetworkMembers =
+  const searchedNetworkMembers =
     searchNetworkMembersFetcher.data !== undefined
       ? searchNetworkMembersFetcher.data.searchedNetworkMembers
       : loaderData.searchedNetworkMembers;
@@ -579,7 +579,7 @@ function Manage() {
             {organizationTypeList.length > 0 && (
               <Chip.Container>
                 {organizationTypeList.map((field, index) => {
-                  let organizationTypeSlug = allOrganizationTypes.find(
+                  const organizationTypeSlug = allOrganizationTypes.find(
                     (organizationType) => {
                       return organizationType.id === field.initialValue;
                     }
@@ -705,9 +705,11 @@ function Manage() {
             {networkTypeList.length > 0 && (
               <Chip.Container>
                 {networkTypeList.map((field, index) => {
-                  let networkTypeSlug = allNetworkTypes.find((networkType) => {
-                    return networkType.id === field.initialValue;
-                  })?.slug;
+                  const networkTypeSlug = allNetworkTypes.find(
+                    (networkType) => {
+                      return networkType.id === field.initialValue;
+                    }
+                  )?.slug;
                   let title;
                   if (networkTypeSlug === undefined) {
                     console.error(

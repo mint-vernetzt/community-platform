@@ -99,6 +99,7 @@ const createPasswordMutation = (locales: ProfileSecurityLocales) => {
 
     const { error } = await updatePassword(
       // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       environment.authClient,
       values.password
@@ -122,6 +123,7 @@ const createEmailMutation = (locales: ProfileSecurityLocales) => {
 
     const { error } = await sendResetEmailLink(
       // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       environment.authClient,
       values.email
@@ -227,7 +229,7 @@ export default function Security() {
           <p className="mb-8">{locales.section.changePassword2.intro}</p>
 
           <RemixFormsForm method="post" schema={passwordSchema}>
-            {({ Field, Button, Errors, register }) => (
+            {({ Field, Errors, register }) => (
               <>
                 <Field name="password" label="Neues Passwort" className="mb-4">
                   {({ Errors }) => (
@@ -296,7 +298,7 @@ export default function Security() {
 
           <p className="mb-8">{locales.section.changeEmail.intro}</p>
           <RemixFormsForm method="post" schema={emailSchema}>
-            {({ Field, Button, Errors, register }) => (
+            {({ Field, Errors, register }) => (
               <>
                 <Field name="email" label="Neue E-Mail" className="mb-4">
                   {({ Errors }) => (

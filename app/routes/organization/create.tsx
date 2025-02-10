@@ -422,7 +422,7 @@ function CreateOrganization() {
           {organizationTypeList.length > 0 && (
             <Chip.Container>
               {organizationTypeList.map((listOrganizationType, index) => {
-                let organizationTypeSlug = allOrganizationTypes.find(
+                const organizationTypeSlug = allOrganizationTypes.find(
                   (organizationType) => {
                     return (
                       organizationType.id === listOrganizationType.initialValue
@@ -546,7 +546,7 @@ function CreateOrganization() {
           {networkTypeList.length > 0 && (
             <Chip.Container>
               {networkTypeList.map((listNetworkType, index) => {
-                let networkTypeSlug = allNetworkTypes.find((networkType) => {
+                const networkTypeSlug = allNetworkTypes.find((networkType) => {
                   return networkType.id === listNetworkType.initialValue;
                 })?.slug;
                 let title;

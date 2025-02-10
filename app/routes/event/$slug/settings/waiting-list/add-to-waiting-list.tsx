@@ -124,8 +124,8 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
         profileId: props.profileId,
       }}
     >
-      {(props) => {
-        const { Field, Errors } = props;
+      {(remixFormsProps) => {
+        const { Field, Errors } = remixFormsProps;
         return (
           <>
             <Field name="profileId" />

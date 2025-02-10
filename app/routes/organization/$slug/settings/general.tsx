@@ -216,6 +216,7 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(organization !== null, locales.route.error.notFound, {
     status: 404,
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _id, ...rest } = organization;
   const filteredOrganization = rest;
 
@@ -715,7 +716,7 @@ function General() {
             {focusFieldList.length > 0 && (
               <Chip.Container>
                 {focusFieldList.map((field, index) => {
-                  let focusSlug = allFocuses.find((focus) => {
+                  const focusSlug = allFocuses.find((focus) => {
                     return focus.id === field.initialValue;
                   })?.slug;
                   let title;

@@ -15,8 +15,10 @@ async function main() {
   try {
     await prismaClient.$queryRaw`drop trigger if exists on_auth_user_created on auth.users;`;
     console.log('Succesfully dropped trigger "on_auth_user_created".');
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    let error: PrismaClientKnownRequestError = e;
+    const error: PrismaClientKnownRequestError = e;
     console.log(error);
   }
   try {
@@ -24,8 +26,10 @@ async function main() {
         drop function if exists public.create_profile_of_new_user();
       `;
     console.log('Succesfully dropped function "create_profile_of_new_user".');
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    let error: PrismaClientKnownRequestError = e;
+    const error: PrismaClientKnownRequestError = e;
     console.log(error);
   }
 }

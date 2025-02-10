@@ -494,6 +494,8 @@ function Requirements() {
   if (blocker.state === "blocked") {
     const confirmed = confirm(locales.route.content.prompt);
     if (confirmed === true) {
+      // TODO: fix blocker -> use org settings as blueprint
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
       if (blocker.state !== "proceeding") {
         blocker.proceed();
@@ -652,7 +654,7 @@ function Requirements() {
               {financingList.length > 0 && (
                 <Chip.Container>
                   {financingList.map((listFinancing, index) => {
-                    let financingSlug = allFinancings.find((financing) => {
+                    const financingSlug = allFinancings.find((financing) => {
                       return financing.id === listFinancing.defaultValue;
                     })?.slug;
                     let title;
@@ -763,7 +765,7 @@ function Requirements() {
             <div className="mv-flex mv-w-full mv-justify-end">
               <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
                 <Controls>
-                  {/* TODO: Add diabled attribute. organization settings are blueprint with conform v1 */}
+                  {/* TODO: Add disabled attribute. organization settings are blueprint with conform v1 */}
                   <Button
                     type="reset"
                     variant="outline"

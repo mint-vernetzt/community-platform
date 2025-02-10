@@ -56,8 +56,10 @@ async function main() {
     console.log(
       'Succesfully applied RLS policy "anyone can access images" to bucket "images".'
     );
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    let error: PrismaClientKnownRequestError = e;
+    const error: PrismaClientKnownRequestError = e;
     if (
       error.code === "P2010" &&
       error.meta !== undefined &&
@@ -81,8 +83,10 @@ async function main() {
     console.log(
       'Succesfully applied RLS policy "authenticated user can upload images" to bucket "images".'
     );
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    let error: PrismaClientKnownRequestError = e;
+    const error: PrismaClientKnownRequestError = e;
     if (
       error.code === "P2010" &&
       error.meta !== undefined &&
@@ -106,8 +110,10 @@ async function main() {
     console.log(
       'Succesfully applied RLS policy "authenticated user can update images" to bucket "images".'
     );
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    let error: PrismaClientKnownRequestError = e;
+    const error: PrismaClientKnownRequestError = e;
     if (
       error.code === "P2010" &&
       error.meta !== undefined &&
@@ -131,8 +137,10 @@ async function main() {
     console.log(
       'Succesfully applied RLS policy "authenticated user can access documents" to bucket "documents".'
     );
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    let error: PrismaClientKnownRequestError = e;
+    const error: PrismaClientKnownRequestError = e;
     if (
       error.code === "P2010" &&
       error.meta !== undefined &&
@@ -156,8 +164,10 @@ async function main() {
     console.log(
       'Succesfully applied RLS policy "authenticated user can upload documents" to bucket "documents".'
     );
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    let error: PrismaClientKnownRequestError = e;
+    const error: PrismaClientKnownRequestError = e;
     if (
       error.code === "P2010" &&
       error.meta !== undefined &&
@@ -181,8 +191,10 @@ async function main() {
     console.log(
       'Succesfully applied RLS "authenticated user can update documents" to bucket "documents".'
     );
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    let error: PrismaClientKnownRequestError = e;
+    const error: PrismaClientKnownRequestError = e;
     if (
       error.code === "P2010" &&
       error.meta !== undefined &&

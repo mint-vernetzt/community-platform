@@ -6,14 +6,16 @@ const { authClient } = createAuthClient(new Request("http://localhost/"));
 
 type AllowedEntities = "profile" | "organization" | "event" | "project";
 async function migrateImageForEntity(entityName: AllowedEntities) {
-  let transactions = [];
+  const transactions = [];
 
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore -> to much abstraction -> either less abstraction or runtime checks to verify this
   const entities = await prismaClient[entityName].findMany();
   for (const entity of entities) {
     if (entity.background) {
       const publicUrl = getPublicURL(authClient, entity.background);
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore -> to much abstraction -> either less abstraction or runtime checks to verify this
       const transaction = prismaClient[entityName].update({
         where: {
           id: entity.id,

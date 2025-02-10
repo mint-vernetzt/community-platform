@@ -15,6 +15,8 @@
  * @throws {Error} if condition is falsey
  */
 export function invariant(
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   condition: any,
   message: string | (() => string)
 ): asserts condition {
@@ -39,6 +41,8 @@ export function invariant(
  * @throws {Response} if condition is falsey
  */
 export function invariantResponse(
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   condition: any,
   message: string | (() => string),
   responseInit?: ResponseInit

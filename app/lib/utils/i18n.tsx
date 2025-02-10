@@ -7,12 +7,16 @@ export function insertComponentsIntoLocale(
         string,
         React.ReactElement<
           (Partial<unknown> & React.Attributes) | undefined,
+          // TODO: fix type issue
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           string | React.JSXElementConstructor<any>
         >
       >
     | Array<
         React.ReactElement<
           (Partial<unknown> & React.Attributes) | undefined,
+          // TODO: fix type issue
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           string | React.JSXElementConstructor<any>
         >
       >
@@ -71,6 +75,8 @@ export function insertComponentsIntoLocale(
 
 export function insertParametersIntoLocale(
   locale: string,
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: Record<string, any>
 ) {
   return locale.replace(/{{([^{}]+)}}/g, (match, key) => {

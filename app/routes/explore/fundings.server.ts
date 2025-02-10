@@ -141,6 +141,8 @@ export async function getFundingFilterVector(options: {
           },
         }
       );
+      // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       invariantResponse(false, "Server error", { status: 500 });
     }

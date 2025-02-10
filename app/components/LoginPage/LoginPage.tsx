@@ -1,15 +1,16 @@
 import InputText from "../FormElements/InputText/InputText";
-import SelectField from "../FormElements/SelectField/SelectField";
 import HeaderLogo from "../HeaderLogo/HeaderLogo";
 import InputPassword from "../FormElements/InputPassword/InputPassword";
 import PageBackground from "../PageBackground/PageBackground";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LoginPageProps {}
 
 /**
  *
  * @deprecated
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function LoginPage(props: LoginPageProps) {
   return (
     <div className="">

@@ -1,5 +1,4 @@
 import { prismaClient } from "~/prisma.server";
-import { type ProfileMode } from "./utils.server";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
@@ -12,10 +11,7 @@ export type ProfileQuery = NonNullable<
   Awaited<ReturnType<typeof getProfileByUsername>>
 >;
 
-export async function getProfileByUsername(
-  username: string,
-  mode: ProfileMode
-) {
+export async function getProfileByUsername(username: string) {
   const profile = await prismaClient.profile.findUnique({
     where: { username },
     select: {

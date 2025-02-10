@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 
 declare global {
-  // TODO: Investigate issue
+  // TODO: fix type issue
+  // eslint-disable-next-line no-var
   var __prismaClient: PrismaClient | undefined;
 }
 

@@ -1,8 +1,9 @@
 import { useFetcher } from "@remix-run/react";
 import React from "react";
 
-// TODO: fix any type
 export function useInfiniteItems(
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialItems: any[],
   route: string,
   key: string,
@@ -23,7 +24,7 @@ export function useInfiniteItems(
         setHeight(node.getBoundingClientRect().height);
       }
     },
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [items.length]
   );
 
@@ -68,6 +69,7 @@ export function useInfiniteItems(
       fetcher.load(`${route}page=${page}${searchParamsQuery}`);
       setShouldFetch(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientHeight, scrollPosition]);
 
   React.useEffect(() => {
@@ -75,6 +77,7 @@ export function useInfiniteItems(
       fetcher.data !== undefined &&
       fetcher.data !== null &&
       // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       fetcher.data[key].length === 0
     ) {
@@ -85,15 +88,18 @@ export function useInfiniteItems(
       fetcher.data !== undefined &&
       fetcher.data !== null &&
       // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       fetcher.data[key].length > 0
     ) {
       // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       setItems((prevItems) => [...prevItems, ...fetcher.data[key]]);
       setPage((page: number) => page + 1);
       setShouldFetch(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetcher.data]);
 
   return { refCallback, items };

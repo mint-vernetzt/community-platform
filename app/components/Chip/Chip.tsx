@@ -9,7 +9,7 @@ export interface ChipProps {
 }
 
 function getClassNames(isEnabled: boolean, tagHandlerIsCallable: boolean) {
-  let classesList: string[] = [
+  const classesList: string[] = [
     `badge badge-outline gap-2 max-w-[calc(100%)] @lg:mv-max-w-[calc(100%-44px)] w-auto`,
   ];
 
@@ -27,8 +27,8 @@ function getClassNames(isEnabled: boolean, tagHandlerIsCallable: boolean) {
     );
   }
 
-  if (tagHandlerIsCallable) {
-    classesList.push("cursor-pointer");
+  if (!tagHandlerIsCallable) {
+    classesList.push("cursor-default");
   }
 
   return classesList.join(" ");
@@ -41,10 +41,10 @@ export function Chip({
   isRemovable = false,
   isEnabled = false,
 }: ChipProps) {
-  let tagHandlerIsCallable = typeof onClick === "function";
+  const tagHandlerIsCallable = typeof onClick === "function";
 
   return (
-    <div
+    <button
       className={getClassNames(isEnabled, tagHandlerIsCallable)}
       onClick={() => tagHandlerIsCallable && onClick && onClick(slug)}
     >
@@ -52,7 +52,7 @@ export function Chip({
         {title}
       </span>
       {isRemovable ? <span className="mr-2">x</span> : ""}
-    </div>
+    </button>
   );
 }
 

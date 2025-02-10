@@ -370,7 +370,7 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
   const enhancedRegions = regions
-    .sort((a, b) => {
+    .sort((a) => {
       if (a.name === "Bundesweit" || a.name === "International") {
         return -1;
       }

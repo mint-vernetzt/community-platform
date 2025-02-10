@@ -6,7 +6,6 @@ import { type ProjectDetailLocales } from "~/routes/project/$slug/detail.server"
 
 interface InputFileProps {
   id: string;
-  hasImage: boolean;
   onSelectFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
   locales:
     | OrganizationDetailLocales
@@ -15,12 +14,7 @@ interface InputFileProps {
     | ProjectDetailLocales;
 }
 
-export function InputFile({
-  id,
-  hasImage,
-  onSelectFile,
-  locales,
-}: InputFileProps) {
+export function InputFile({ id, onSelectFile, locales }: InputFileProps) {
   return (
     <>
       <label

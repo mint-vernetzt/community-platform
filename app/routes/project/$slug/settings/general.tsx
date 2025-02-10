@@ -353,6 +353,7 @@ function General() {
   const location = useLocation();
   const loaderData = useLoaderData<typeof loader>();
   const { project, allFormats, areaOptions, locales } = loaderData;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { formats, areas, ...rest } = project;
   const actionData = useActionData<typeof action>();
   const generalSchema = createGeneralSchema(locales);
@@ -395,6 +396,8 @@ function General() {
   if (blocker.state === "blocked") {
     const confirmed = confirm(locales.route.content.prompt);
     if (confirmed === true) {
+      // TODO: fix blocker -> use org settings as blueprint
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
       if (blocker.state !== "proceeding") {
         blocker.proceed();
@@ -506,7 +509,7 @@ function General() {
             {formatList.length > 0 && (
               <Chip.Container>
                 {formatList.map((listFormat, index) => {
-                  let formatSlug = allFormats.find((format) => {
+                  const formatSlug = allFormats.find((format) => {
                     return format.id === listFormat.defaultValue;
                   })?.slug;
                   let title;

@@ -187,6 +187,7 @@ function OrganizationCard(
             htmlFor={`organization-context-menu-${organization.slug}`}
             className="mv-p-2 mv-w-8 mv-h-8 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-lg mv-border mv-border-primary mv-bg-neutral-50 mv-cursor-pointer"
             aria-description={`Organization context menu for ${organization.name}`}
+            aria-label={locales.organizationCard.contextMenu}
           >
             <svg
               width="16"

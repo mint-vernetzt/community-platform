@@ -21,7 +21,7 @@ async function main() {
   });
 
   const bulk = [];
-  const areaSlugs: String[] = [];
+  const areaSlugs: string[] = [];
 
   for (const area of areas) {
     let slug;

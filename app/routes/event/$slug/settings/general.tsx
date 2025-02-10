@@ -294,6 +294,7 @@ function General() {
   const actionData = useActionData<typeof action>();
   let event: (typeof loaderData)["event"];
   if (actionData !== undefined) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { focuses, types, eventTargetGroups, tags, areas, ...rest } =
       originalEvent;
     event = {
@@ -612,8 +613,8 @@ function General() {
             cancel: !event.canceled,
           }}
         >
-          {(props) => {
-            const { Button, Field } = props;
+          {(remixFormsProps) => {
+            const { Button, Field } = remixFormsProps;
             return (
               <>
                 <Field name="cancel"></Field>
@@ -1102,8 +1103,8 @@ function General() {
                 publish: !event.published,
               }}
             >
-              {(props) => {
-                const { Button, Field } = props;
+              {(remixFormsProps) => {
+                const { Button, Field } = remixFormsProps;
                 return (
                   <>
                     <Field name="publish"></Field>

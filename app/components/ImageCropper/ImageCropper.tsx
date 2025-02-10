@@ -2,7 +2,7 @@ import Pica from "pica";
 import React, { useRef, useState } from "react";
 
 import type { Crop, PixelCrop } from "react-image-crop";
-import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
+import { centerCrop, makeAspectCrop, ReactCrop } from "react-image-crop";
 
 import Slider from "rc-slider";
 import { fileUploadSchema } from "~/lib/utils/schemas";
@@ -351,7 +351,6 @@ function ImageCropper(props: ImageCropperProps) {
         <InputFile
           id={`${id}-file`}
           onSelectFile={onSelectFile}
-          hasImage={image !== undefined}
           locales={locales}
         />
         {imgSrc && (

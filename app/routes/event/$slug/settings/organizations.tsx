@@ -324,8 +324,8 @@ function Organizations() {
                       }}
                       className="ml-auto"
                     >
-                      {(props) => {
-                        const { Field, Errors } = props;
+                      {(remixFormsProps) => {
+                        const { Field, Errors } = remixFormsProps;
                         return (
                           <>
                             <Errors />
@@ -420,8 +420,8 @@ function Organizations() {
                   }}
                   className="ml-auto"
                 >
-                  {(props) => {
-                    const { Field, Button, Errors } = props;
+                  {(remixFormsProps) => {
+                    const { Field, Button, Errors } = remixFormsProps;
                     return (
                       <>
                         <Errors />
@@ -464,8 +464,8 @@ function Organizations() {
                 publish: !loaderData.published,
               }}
             >
-              {(props) => {
-                const { Button, Field } = props;
+              {(remixFormsProps) => {
+                const { Button, Field } = remixFormsProps;
                 return (
                   <>
                     <Field name="publish"></Field>

@@ -433,7 +433,7 @@ export const action = async (args: ActionFunctionArgs) => {
       },
     });
 
-  let reasons: string[] = [];
+  const reasons: string[] = [];
   for (const suggestion of suggestions) {
     reasons.push(suggestion.description);
   }

@@ -66,10 +66,7 @@ export interface AutocompleteProps {
 }
 
 const Autocomplete = React.forwardRef(
-  (
-    props: React.HTMLProps<HTMLInputElement> & AutocompleteProps,
-    forwardRef
-  ) => {
+  (props: React.HTMLProps<HTMLInputElement> & AutocompleteProps) => {
     const {
       suggestions,
       suggestionsLoaderPath,
@@ -93,7 +90,7 @@ const Autocomplete = React.forwardRef(
       if (inputRef.current !== null) {
         setSearchedValue(defaultValue);
       }
-    }, []);
+    }, [defaultValue]);
 
     useEffect(() => {
       if (
@@ -187,6 +184,7 @@ const Autocomplete = React.forwardRef(
                     }w-full flex items-center flex-row border-b border-neutral-400 p-4 cursor-pointer rounded-lg`}
                     onClick={() => handleClick()}
                     onMouseOver={() => handleMouseOver(index)}
+                    onFocus={() => handleMouseOver(index)}
                   >
                     <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                       {suggestion.logo !== null && suggestion.logo !== "" ? (
@@ -246,6 +244,7 @@ const Autocomplete = React.forwardRef(
                     }w-full flex items-center flex-row border-b border-neutral-400 p-4`}
                     onClick={() => handleClick()}
                     onMouseOver={() => handleMouseOver(index)}
+                    onFocus={() => handleMouseOver(index)}
                   >
                     <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
                       {suggestion.avatar !== null &&
@@ -287,6 +286,7 @@ const Autocomplete = React.forwardRef(
                     key={suggestion.id}
                     onClick={() => handleClick()}
                     onMouseOver={() => handleMouseOver(index)}
+                    onFocus={() => handleMouseOver(index)}
                     className={`${
                       index === activeSuggestion - 1 ? "bg-blue-100 " : ""
                     }w-full text-left border-b border-neutral-400 p-1 flex items-stretch overflow-hidden`}

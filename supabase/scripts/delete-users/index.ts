@@ -38,7 +38,7 @@ async function main() {
         "Could not fetch already existing users from auth.users table. Skipped deleting all users from auth.users table. Either there were no users in auth.users table before running this script or the users could not be fetched."
       );
     } else {
-      for (let user of partialUserList) {
+      for (const user of partialUserList) {
         const { error: deleteUserError } =
           await authClient.auth.admin.deleteUser(user.id);
         if (deleteUserError !== null) {

@@ -84,6 +84,7 @@ const createMutation = (locales: ResetPasswordLocales) => {
             : undefined;
           const { error } = await sendResetPasswordLink(
             // TODO: fix type issue
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             environment.authClient,
             values.email,
@@ -163,7 +164,7 @@ export default function Index() {
                   loginRedirect: loginRedirect || undefined,
                 }}
               >
-                {({ Field, Button, Errors, register }) => (
+                {({ Field, Errors, register }) => (
                   <>
                     <p className="mb-4">{locales.form.intro}</p>
 

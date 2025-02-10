@@ -186,7 +186,7 @@ async function getEvents(request: Request, skip: number, take: number) {
         }
       }
 
-      let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+      const baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
 
       const url =
         baseURL !== undefined
@@ -205,7 +205,7 @@ async function getEvents(request: Request, skip: number, take: number) {
               }
             }
           }
-          let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+          const baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
           const url =
             baseURL !== undefined
               ? decorate(request, `${baseURL}/organization/${slug}`)

@@ -23,61 +23,63 @@ export interface SelectFieldProps {
 }
 
 const SelectField = React.forwardRef(
-  (props: React.HTMLProps<HTMLSelectElement> & SelectFieldProps, ref) => {
+  (props: React.HTMLProps<HTMLSelectElement> & SelectFieldProps) => {
     const {
-      id,
       label,
       options = [],
       isPublic,
       withPublicPrivateToggle,
       publicPosition = "side",
       visibilityName,
-      ...rest
+      ...selectProps
     } = props;
 
     return (
       <div className="form-control w-full">
         <div className="flex flex-row items-center mb-2">
-          <label htmlFor={id} className="label flex-auto">
+          <label htmlFor={selectProps.id} className="label flex-auto">
             {label}
-            {props.required === true ? " *" : ""}
+            {selectProps.required === true ? " *" : ""}
           </label>
           {withPublicPrivateToggle !== undefined &&
             isPublic !== undefined &&
             publicPosition === "top" && (
               <ToggleCheckbox
                 name="privateFields"
-                value={visibilityName ?? props.name}
+                value={visibilityName ?? selectProps.name}
                 hidden={!withPublicPrivateToggle}
-                defaultChecked={!props.isPublic}
+                defaultChecked={!isPublic}
               />
             )}
         </div>
         <div className="flex flex-row items-center">
           <div className="flex-auto">
             <select
-              {...rest}
+              {...selectProps}
               className={`select w-full select-bordered ${
-                props.className ?? ""
+                selectProps.className ?? ""
               }`}
             >
               <option></option>
               {options.map((option, index) => (
                 <React.Fragment key={index}>
                   {"value" in option && (
-                    <option key={`${id}-option-${index}`} value={option.value}>
+                    <option
+                      key={`${selectProps.id}-option-${index}`}
+                      value={option.value}
+                    >
                       {option.label}
                     </option>
                   )}
 
                   {"options" in option && (
                     <optgroup
-                      key={`${id}-option-${index}`}
+                      key={`${selectProps.id}-option-${index}`}
                       label={option.label}
                     >
                       {option.options.map((groupOption, groupOptionIndex) => (
                         <option
-                          key={`${id}-option-${index}-${groupOptionIndex}`}
+                          key={`${selectProps.id}-option-${index}-${groupOptionIndex}`}
                           value={groupOption.value}
                         >
                           {groupOption.label}
@@ -95,7 +97,7 @@ const SelectField = React.forwardRef(
             publicPosition === "side" && (
               <ToggleCheckbox
                 name="privateFields"
-                value={props.name}
+                value={selectProps.name}
                 hidden={!withPublicPrivateToggle}
                 defaultChecked={!isPublic}
               />

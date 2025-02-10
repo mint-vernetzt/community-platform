@@ -34,7 +34,8 @@
     "make": "make",
     "typecheck": "npx tsc",
     "typecheck:api": "npx tsc -p ./common/api",
-    "start:api": "ts-node ./common/api/src/server.ts"
+    "start:api": "ts-node ./common/api/src/server.ts",
+    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint ."
   },
   "dependencies": {
     "@conform-to/react": "^0.9.1",

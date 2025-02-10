@@ -48,11 +48,14 @@ export function Section(
 }
 
 function SectionTitle(props: React.PropsWithChildren<{ id?: string }>) {
+  const { children, ...rest } = props;
   return (
     <h2
       className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
-      {...props}
-    />
+      {...rest}
+    >
+      {children}
+    </h2>
   );
 }
 

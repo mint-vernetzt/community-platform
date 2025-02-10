@@ -261,8 +261,8 @@ function Admins() {
                     profileId: admin.id,
                   }}
                 >
-                  {(props) => {
-                    const { Field, Button, Errors } = props;
+                  {(remixFormsProps) => {
+                    const { Field, Button, Errors } = remixFormsProps;
                     return (
                       <>
                         <Errors />
@@ -307,8 +307,8 @@ function Admins() {
                 publish: !loaderData.published,
               }}
             >
-              {(props) => {
-                const { Button, Field } = props;
+              {(remixFormsProps) => {
+                const { Button, Field } = remixFormsProps;
                 return (
                   <>
                     <Field name="publish"></Field>

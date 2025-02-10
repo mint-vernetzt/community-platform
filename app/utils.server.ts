@@ -114,7 +114,8 @@ export async function triggerEntityScore(options: {
   if (entity !== null) {
     const score = getScoreOfEntity(entity);
     // TODO: fix type issue
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore -> Either less abstraction or runtime check
     await prismaClient[options.entity].update({
       where: { id: entity.id },
       data: { score },
@@ -162,6 +163,8 @@ function defaultHashFunction(slug: string): string {
 
 export function generateValidSlug(
   string: string,
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: { hashFunction?: (options: any) => string }
 ) {
   const { hashFunction = defaultHashFunction } = options || {};

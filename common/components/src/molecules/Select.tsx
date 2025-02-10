@@ -1,7 +1,7 @@
 import React from "react";
 import { Input, type InputLabelProps } from "./Input";
 
-export type SelectProps = React.HTMLProps<HTMLSelectElement>;
+export type SelectProps = React.ButtonHTMLAttributes<HTMLSelectElement>;
 
 function Select(props: SelectProps) {
   const { children, ...selectProps } = props;
@@ -28,7 +28,7 @@ function Select(props: SelectProps) {
   if (typeof labelString !== "undefined") {
     label = (
       <Input.Label
-        htmlFor={props.id}
+        htmlFor={selectProps.id}
         hasError={typeof error !== "undefined"}
         hidden
       >

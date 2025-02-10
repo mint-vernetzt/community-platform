@@ -15,7 +15,7 @@ export type SelectAddProps = React.HTMLProps<HTMLSelectElement> &
 
 const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
   const buttonRef = React.createRef<HTMLButtonElement>();
-  const { name, entries = [], isPublic, ref: _ref, ...rest } = props;
+  const { name, entries = [], isPublic, ...selectProps } = props;
   const singularName = name.slice(0, -1);
   const uppercaseSingularName = capitalizeFirstLetter(singularName);
 
@@ -27,7 +27,7 @@ const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
             ref={ref}
             name={`add${uppercaseSingularName}`}
             visibilityName={name}
-            {...rest}
+            {...selectProps}
             onChange={(e: React.SyntheticEvent<HTMLSelectElement>) => {
               if (e.currentTarget.value && buttonRef.current) {
                 buttonRef.current?.click();
