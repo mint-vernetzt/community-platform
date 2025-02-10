@@ -82,14 +82,11 @@ export async function getProfileByUsername(
         },
       },
       teamMemberOfProjects: {
-        where:
-          mode !== "owner"
-            ? {
-                project: {
-                  published: true,
-                },
-              }
-            : {},
+        where: {
+          project: {
+            published: true,
+          },
+        },
         select: {
           project: {
             select: {

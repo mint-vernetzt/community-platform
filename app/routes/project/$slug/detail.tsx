@@ -217,7 +217,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   invariantResponse(
-    project.published || mode === "admin",
+    project.published || mode === "admin" || mode === "teamMember",
     locales.route.error.invariant.projectNotPublished,
     { status: 403 }
   );
