@@ -10,11 +10,6 @@ declare module "@remix-run/node" {
   }
 }
 
-console.log(process.env.COMMUNITY_BASE_URL);
-console.log(process.env.SENTRY_DSN);
-console.log(process.env.SENTRY_ORGANIZATION_NAME);
-console.log(process.env.SENTRY_PROJECT_NAME);
-
 export default defineConfig({
   base: "/",
   server: {
