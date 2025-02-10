@@ -108,7 +108,6 @@ const createMutation = (locales: RegisterLocales) => {
       error.code !== "user_already_exists" &&
       error.message !== "User already registered"
     ) {
-      console.log({ error });
       invariantResponse(false, "Server Error", { status: 500 });
     }
     return values;

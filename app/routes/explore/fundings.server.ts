@@ -142,7 +142,6 @@ export async function getFundingFilterVector(options: {
         }
       );
     } catch (error: any) {
-      console.log({ error });
       invariantResponse(false, "Server error", { status: 500 });
     }
 

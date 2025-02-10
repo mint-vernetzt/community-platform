@@ -92,8 +92,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
         .from("documents")
         .download(relation.document.path);
 
-      console.log(result.error);
-
       invariantResponse(
         result.error === null,
         locales.error.invariant.downloadFailed,

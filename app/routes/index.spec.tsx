@@ -75,6 +75,5 @@ test("Landing page is rendered without errors", async () => {
   const heading = await screen.findByRole("heading", {
     level: 1,
   });
-  console.log(heading.innerHTML);
   expect(heading.innerHTML).toEqual("Willkommen in Deiner MINT-Community");
 });

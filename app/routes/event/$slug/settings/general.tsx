@@ -76,13 +76,8 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
     startDate: string()
       .transform((value) => {
         value = value.trim();
-        try {
-          const date = new Date(value);
-          return format(date, "yyyy-MM-dd");
-        } catch (error) {
-          console.log(error);
-        }
-        return undefined;
+        const date = new Date(value);
+        return format(date, "yyyy-MM-dd");
       })
       .required(locales.route.validation.startDate.required),
     startTime: string()

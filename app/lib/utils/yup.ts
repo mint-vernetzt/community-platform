@@ -219,13 +219,8 @@ export function greaterThanDate(
         return undefined;
       }
       const trimmedValue = value.trim();
-      try {
-        const date = new Date(trimmedValue);
-        return format(date, "yyyy-MM-dd");
-      } catch (error) {
-        console.log(error);
-      }
-      return undefined;
+      const date = new Date(trimmedValue);
+      return format(date, "yyyy-MM-dd");
     })
     .required(requiredMessage)
     .test(

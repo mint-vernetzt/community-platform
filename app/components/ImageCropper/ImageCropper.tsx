@@ -17,6 +17,7 @@ import { type OrganizationDetailLocales } from "~/routes/organization/$slug/deta
 import { type EventDetailLocales } from "~/routes/event/$slug/index.server";
 import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
 import { type ProjectDetailLocales } from "~/routes/project/$slug/detail.server";
+import { invariant } from "~/lib/utils/response";
 
 export interface ImageCropperProps {
   id: string;
@@ -229,9 +230,8 @@ function ImageCropper(props: ImageCropperProps) {
           IMAGE_QUALITY
         );
       }
-    } catch (exception) {
-      console.log({ exception });
-      alert(locales.imageCropper.imageCropper.error);
+    } catch (error) {
+      invariant(false, locales.imageCropper.imageCropper.error);
     }
   }
 

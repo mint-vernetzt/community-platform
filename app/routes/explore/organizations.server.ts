@@ -271,7 +271,6 @@ export async function getOrganizationFilterVector(options: {
         },
       });
     } catch (error: any) {
-      console.log({ error });
       invariantResponse(false, "Server error", { status: 500 });
     }
 

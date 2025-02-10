@@ -92,7 +92,6 @@ const createImageUploadSchema = (locales: ProjectAttachmentSettingsLocales) =>
     image: z
       .instanceof(File)
       .refine((file) => {
-        console.log(typeof file);
         return file.size <= MAX_UPLOAD_SIZE;
       }, locales.validation.image.size)
       .refine((file) => {
@@ -174,18 +173,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(project !== null, locales.error.projectNotFound, {
     status: 404,
   });
-
-  // project.documents = project.documents.map((relation) => {
-  //   if (relation.document.mimeType === "image/jpeg") {
-  //     const publicURL = getPublicURL(authClient, relation.document.path);
-  //     console.log({ publicURL });
-  //     const thumbnail = getImageURL(publicURL, {
-  //       resize: { type: "fill", width: 144 },
-  //     });
-  //     return { ...relation, document: { ...relation.document, thumbnail } };
-  //   }
-  //   return relation;
-  // });
   const images = project.images.map((relation) => {
     const publicURL = getPublicURL(authClient, relation.image.path);
     const thumbnail = getImageURL(publicURL, {

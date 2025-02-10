@@ -77,7 +77,6 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
         </li>
       );
     }
-    console.log("Invalid children passed to TabBar.Item");
   }
 
   return null;
