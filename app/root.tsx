@@ -398,9 +398,7 @@ export default function App() {
 
   const main = (
     <main className="mv-flex-auto mv-relative mv-w-full mv-bg-neutral-50">
-      {alert !== null &&
-      isNonAppBaseRoute === false &&
-      isIndexRoute === false ? (
+      {alert !== null ? (
         <div className="mv-w-full mv-flex mv-justify-center">
           <div className="mv-w-full mv-max-w-screen-2xl mv-px-4 @lg:mv-px-8">
             <Alert level={alert.level}>
