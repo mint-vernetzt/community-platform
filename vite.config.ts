@@ -68,6 +68,7 @@ export default defineConfig({
           release: {
             setCommits: {
               auto: true,
+              ignoreMissing: true,
             },
             deploy: {
               env: process.env.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
