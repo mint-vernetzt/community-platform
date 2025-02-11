@@ -21,6 +21,13 @@ export function generatePathName(
   return `${hash.substring(0, 2)}/${hash.substring(2)}/${name}.${extension}`;
 }
 
+export function nextGeneratePathName(hash: string, extension: string) {
+  return `${hash.substring(0, 2)}/${hash.substring(
+    2,
+    hash.length - 2
+  )}/${hash.substring(hash.length - 2)}.${extension}`;
+}
+
 const uploadHandler: UploadHandler = async (part) => {
   // TODO: remove file-type package and use contentType...only if Remix uses file header
   const { data, name, filename } = part;
@@ -221,6 +228,7 @@ export async function download(
   relativePath: string,
   bucket = "documents"
 ) {
+  console.log({ bucket, relativePath });
   const { data, error } = await authClient.storage
     .from(bucket)
     .download(relativePath);

@@ -14,7 +14,7 @@ export function deriveMode(sessionUser: User | null): Mode {
   return "authenticated";
 }
 
-export async function createHashFromString(
+export function createHashFromString(
   string: string,
   hashAlgorithm = "md5",
   encoding: BinaryToTextEncoding = "hex"
