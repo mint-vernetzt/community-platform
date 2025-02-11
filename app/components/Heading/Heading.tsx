@@ -16,7 +16,7 @@ export const Heading = React.forwardRef(
     if (like === undefined) {
       like = as;
     } else {
-      className = `${className} ${like}`.trimLeft();
+      className = `${className} ${like}`.trimStart();
     }
 
     const element = React.createElement(as, {

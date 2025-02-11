@@ -13,7 +13,7 @@ export type SelectAddProps = React.HTMLProps<HTMLSelectElement> &
     entries?: SelectAddEntry[] | undefined;
   };
 
-const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
+function SelectAdd(props: SelectAddProps) {
   const buttonRef = React.createRef<HTMLButtonElement>();
   const { name, entries = [], isPublic, ...selectProps } = props;
   const singularName = name.slice(0, -1);
@@ -24,7 +24,6 @@ const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
       <div className="flex flex-row items-center w-full">
         <div className="flex-auto">
           <SelectField
-            ref={ref}
             name={`add${uppercaseSingularName}`}
             visibilityName={name}
             {...selectProps}
@@ -84,7 +83,6 @@ const SelectAdd = React.forwardRef((props: SelectAddProps, ref) => {
       </ul>
     </div>
   );
-});
+}
 
 export default SelectAdd;
-SelectAdd.displayName = "SelectAdd";
