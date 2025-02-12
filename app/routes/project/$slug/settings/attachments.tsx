@@ -92,7 +92,6 @@ const createImageUploadSchema = (locales: ProjectAttachmentSettingsLocales) =>
     image: z
       .instanceof(File)
       .refine((file) => {
-        console.log(typeof file);
         return file.size <= MAX_UPLOAD_SIZE;
       }, locales.validation.image.size)
       .refine((file) => {

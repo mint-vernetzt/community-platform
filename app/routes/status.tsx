@@ -23,7 +23,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     status: 400,
   });
   const file = formData.get("file");
-  invariantResponse(file instanceof File, "Not a File", { status: 400 });
+  const isFile = file instanceof File;
+  const isBlob = file instanceof Blob;
+  invariantResponse(isFile || isBlob, "Not a File or Blob", { status: 400 });
   const fileType = await fileTypeFromBlob(file);
   invariantResponse(
     typeof fileType !== "undefined",
