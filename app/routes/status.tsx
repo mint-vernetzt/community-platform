@@ -22,12 +22,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   invariantResponse(intent === "documents", "Bad request - Wrong intent", {
     status: 400,
   });
-  const file = formData.get("file");
-  invariantResponse(file !== null, "Bad request - No file", { status: 400 });
-  console.log(file.constructor.name);
-  const isFile = file instanceof File;
-  const isBlob = file instanceof Blob;
-  invariantResponse(isFile || isBlob, "Not a File or Blob", { status: 400 });
+  const fileFromForm = formData.get("file");
+  invariantResponse(
+    fileFromForm !== null && typeof fileFromForm !== "string",
+    "Bad request - Not a file",
+    { status: 400 }
+  );
+  // This is here to convert FileLike objects in different environments (f.e. ubuntu) to a File object
+  const file = new File([fileFromForm], fileFromForm.name, {
+    type: fileFromForm.type,
+    lastModified: fileFromForm.lastModified,
+  });
   const fileType = await fileTypeFromBlob(file);
   invariantResponse(
     typeof fileType !== "undefined",
