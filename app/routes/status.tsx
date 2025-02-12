@@ -4,12 +4,17 @@ import { Form } from "@remix-run/react";
 import { type ActionFunctionArgs } from "@remix-run/server-runtime";
 import { Readable } from "stream";
 import { invariantResponse } from "~/lib/utils/response";
-import { streamToAsyncIterator } from "./status.server";
-import { fileTypeFromBlob, fileTypeFromBuffer } from "file-type";
+import {
+  deleteAllTemporaryFiles,
+  streamToAsyncIterator,
+  uploadHandler,
+} from "./status.server";
+import { fileTypeFromBlob } from "file-type";
 import { nextGeneratePathName } from "~/storage.server";
 import { createHashFromString } from "~/utils.server";
 import { createAuthClient } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
+import { parseFormData } from "@mjackson/form-data-parser";
 
 export const loader = async () => {
   // return redirect("/");
@@ -17,37 +22,28 @@ export const loader = async () => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
+  const formData = await parseFormData(request, uploadHandler);
   const intent = formData.get("intent");
-  invariantResponse(intent === "documents", "Bad request - Wrong intent", {
-    status: 400,
-  });
-  const fileFromForm = formData.get("file");
-  invariantResponse(
-    fileFromForm !== null && typeof fileFromForm !== "string",
-    "Bad request - Not a file",
-    { status: 400 }
-  );
-  // This is here to convert FileLike objects in different environments (f.e. ubuntu) to a File object
-  const file = new File([fileFromForm], fileFromForm.name, {
-    type: fileFromForm.type,
-    lastModified: fileFromForm.lastModified,
-  });
-  const fileType = await fileTypeFromBuffer(await file.arrayBuffer());
-  invariantResponse(
-    typeof fileType !== "undefined",
-    "Bad request - File type undefined",
-    {
+  if (intent !== "documents") {
+    await deleteAllTemporaryFiles();
+    invariantResponse(false, "Bad request - No intent", {
       status: 400,
-    }
-  );
-  invariantResponse(
-    fileType.mime === "application/pdf",
-    "Bad request - Incorrect mime",
-    {
+    });
+  }
+  const file = formData.get("file");
+  if (file === null || typeof file === "string") {
+    await deleteAllTemporaryFiles();
+    invariantResponse(false, "Bad request - Not a file", {
       status: 400,
-    }
-  );
+    });
+  }
+  const fileType = await fileTypeFromBlob(file);
+  if (typeof fileType === "undefined" || fileType.mime !== "application/pdf") {
+    await deleteAllTemporaryFiles();
+    invariantResponse(false, "Bad request - File type undefined or invalid", {
+      status: 400,
+    });
+  }
   const path = nextGeneratePathName(
     createHashFromString(file.name),
     fileType.ext
@@ -64,6 +60,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
 
   console.log({ data, error });
+
+  await deleteAllTemporaryFiles();
   invariantResponse(error === null && data !== null, "Server Error", {
     status: 500,
   });
@@ -80,7 +78,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   await prismaClient.event.update({
     where: {
-      slug: "diemintwoche-l95trsmg",
+      slug: "0_developerevent-m6f1c1tc",
+      // slug: "diemintwoche-l95trsmg",
     },
     data: {
       documents: {

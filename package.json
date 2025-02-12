@@ -44,6 +44,8 @@
     "@fontsource/source-sans-pro": "^5.0.8",
     "@hookform/resolvers": "^3.3.2",
     "@lexical/react": "^0.23.1",
+    "@mjackson/file-storage": "^0.6.1",
+    "@mjackson/form-data-parser": "^0.7.0",
     "@prisma/client": "^5.7.1",
     "@remix-run/node": "^2.15.0",
     "@remix-run/react": "^2.15.0",
