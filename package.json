@@ -60,7 +60,7 @@
     "date-fns-tz": "^2.0.0",
     "domain-functions": "^2.5.1",
     "dotenv": "^16.3.1",
-    "file-type": "^18.7.0",
+    "file-type": "^20.1.0",
     "fs-extra": "^11.2.0",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
