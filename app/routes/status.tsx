@@ -23,6 +23,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     status: 400,
   });
   const file = formData.get("file");
+  invariantResponse(file !== null, "Bad request - No file", { status: 400 });
+  console.log(file.constructor.name);
   const isFile = file instanceof File;
   const isBlob = file instanceof Blob;
   invariantResponse(isFile || isBlob, "Not a File or Blob", { status: 400 });
