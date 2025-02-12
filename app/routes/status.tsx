@@ -13,7 +13,7 @@ import { prismaClient } from "~/prisma.server";
 
 export const loader = async () => {
   // return redirect("/");
-  return null;
+  return { messsage: "The Server is up and running" };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -75,8 +75,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     },
   });
 
-  // return { message: "The Server is up and running" };
-  return null;
+  return { message: "The Server is up and running" };
 };
 
 export default function Status() {
