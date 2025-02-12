@@ -5,7 +5,7 @@ import { type ActionFunctionArgs } from "@remix-run/server-runtime";
 import { Readable } from "stream";
 import { invariantResponse } from "~/lib/utils/response";
 import { streamToAsyncIterator } from "./status.server";
-import { fileTypeFromBlob } from "file-type";
+import { fileTypeFromBlob, fileTypeFromBuffer } from "file-type";
 import { nextGeneratePathName } from "~/storage.server";
 import { createHashFromString } from "~/utils.server";
 import { createAuthClient } from "~/auth.server";
@@ -33,7 +33,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     type: fileFromForm.type,
     lastModified: fileFromForm.lastModified,
   });
-  const fileType = await fileTypeFromBlob(file);
+  const fileType = await fileTypeFromBuffer(await file.arrayBuffer());
   invariantResponse(
     typeof fileType !== "undefined",
     "Bad request - File type undefined",
