@@ -19,16 +19,26 @@ export const loader = async () => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
-  invariantResponse(intent === "documents", "Bad request", { status: 400 });
+  invariantResponse(intent === "documents", "Bad request - Wrong intent", {
+    status: 400,
+  });
   const file = formData.get("file");
-  invariantResponse(file instanceof File, "Bad request", { status: 400 });
+  invariantResponse(file instanceof File, "Not a File", { status: 400 });
   const fileType = await fileTypeFromBlob(file);
-  invariantResponse(typeof fileType !== "undefined", "Bad request", {
-    status: 400,
-  });
-  invariantResponse(fileType.mime === "application/pdf", "Bad request", {
-    status: 400,
-  });
+  invariantResponse(
+    typeof fileType !== "undefined",
+    "Bad request - File type undefined",
+    {
+      status: 400,
+    }
+  );
+  invariantResponse(
+    fileType.mime === "application/pdf",
+    "Bad request - Incorrect mime",
+    {
+      status: 400,
+    }
+  );
   const path = nextGeneratePathName(
     createHashFromString(file.name),
     fileType.ext
