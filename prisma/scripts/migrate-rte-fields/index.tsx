@@ -11,7 +11,8 @@ import { $getRoot, $insertNodes } from "lexical";
 import React from "react";
 import ReactDOMClient from "react-dom/client";
 import ReactDOMServer from "react-dom/server";
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore -> This package is not typed
 import { JSDOM } from "jsdom";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
@@ -108,7 +109,15 @@ async function getNewValueFromRTE(oldValue: string) {
               window.dispatchEvent(new Event(EDITOR_VALUE_SET_EVENT));
             }
           }, [value, oldValue, isInitialized]);
-          return <input id="rte-input" value={value} onChange={() => {}} />;
+          return (
+            <input
+              id="rte-input"
+              value={value}
+              onChange={() => {
+                return;
+              }}
+            />
+          );
         };
 
         // Regex to detect URLs and email addresses
@@ -258,7 +267,7 @@ async function main() {
   // Did each entity on its own to get typescript support. Typescript cannot resolve the type on the third nested for loop.
   for (const oldProfile of changes.old.profiles) {
     const { id, ...rteFields } = oldProfile;
-    let newProfile = { ...oldProfile };
+    const newProfile = { ...oldProfile };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
@@ -277,7 +286,7 @@ async function main() {
 
   for (const oldOrganization of changes.old.organizations) {
     const { id, ...rteFields } = oldOrganization;
-    let newOrganization = { ...oldOrganization };
+    const newOrganization = { ...oldOrganization };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
@@ -296,7 +305,7 @@ async function main() {
 
   for (const oldProject of changes.old.projects) {
     const { id, ...rteFields } = oldProject;
-    let newProject = { ...oldProject };
+    const newProject = { ...oldProject };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
@@ -315,7 +324,7 @@ async function main() {
 
   for (const oldEvent of changes.old.events) {
     const { id, ...rteFields } = oldEvent;
-    let newEvent = { ...oldEvent };
+    const newEvent = { ...oldEvent };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {

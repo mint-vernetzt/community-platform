@@ -2,8 +2,14 @@ import HeaderLogo from "../HeaderLogo/HeaderLogo";
 import InputPassword from "../FormElements/InputPassword/InputPassword";
 import PageBackground from "../PageBackground/PageBackground";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface NewPasswordProps {}
 
+/**
+ *
+ * @deprecated
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function NewPassword(props: NewPasswordProps) {
   return (
     <div className="">

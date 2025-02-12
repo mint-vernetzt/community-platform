@@ -219,13 +219,8 @@ export function greaterThanDate(
         return undefined;
       }
       const trimmedValue = value.trim();
-      try {
-        const date = new Date(trimmedValue);
-        return format(date, "yyyy-MM-dd");
-      } catch (error) {
-        console.log(error);
-      }
-      return undefined;
+      const date = new Date(trimmedValue);
+      return format(date, "yyyy-MM-dd");
     })
     .required(requiredMessage)
     .test(
@@ -296,6 +291,7 @@ export async function getFormValues<T extends ObjectSchema<AnyObject>>(
   const parsedFormData: AnyObject = {};
   for (const key in schema.fields) {
     // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (schema.fields[key].type === "array") {
       // TODO: can this type assertion be removed and proofen by code?

@@ -67,12 +67,14 @@ function MyEvents() {
   const { locales, language } = loaderData;
 
   const firstUpcoming = Object.entries(loaderData.upcomingEvents.count).find(
-    ([_, value]) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ([_key, value]) => {
       return value > 0;
     }
   ) || ["adminEvents", 0];
   const firstPast = Object.entries(loaderData.pastEvents.count).find(
-    ([_, value]) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ([_key, value]) => {
       return value > 0;
     }
   ) || ["adminEvents", 0];
@@ -98,18 +100,24 @@ function MyEvents() {
         setPast(newValue);
       }
     }
+    // This eslint error is intentional to make the tab changes work
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   React.useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("upcoming", upcoming);
     setSearchParams(params, { preventScrollReset: true });
+    // This eslint error is intentional to make the tab changes work
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [upcoming]);
 
   React.useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("past", past);
     setSearchParams(params, { preventScrollReset: true });
+    // This eslint error is intentional to make the tab changes work
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [past]);
 
   const upcomingEventsCount = Object.values(

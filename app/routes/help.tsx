@@ -55,12 +55,13 @@ export default function Help() {
                         id={`${typedTopicKey}-${qAndAkey}`}
                         key={`${typedTopicKey}-${qAndAkey}`}
                       >
-                        {/* This one is hard to type cast, but we do know it is an entry of the object because we map through it */}
+                        {/* TODO: fix type issues -> caused by nested loops */}
+                        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
                         {/* @ts-ignore */}
                         {typedTopicValue.qAndAs[qAndAkey].question}
                         <RichText
                           id="faq-content"
-                          // This one is hard to type cast, but we do know it is an entry of the object because we map through it
+                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                           // @ts-ignore
                           html={typedTopicValue.qAndAs[qAndAkey].answer}
                         />

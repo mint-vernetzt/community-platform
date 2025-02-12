@@ -50,9 +50,7 @@ export class EventController extends Controller {
     }
   )
   public async getEvent(
-    // @ts-ignore
     @Request() request: ExpressRequest,
-    // @ts-ignore
     @Path() slug: string
   ) {
     const event = await prismaClient.event.findFirst({
@@ -226,11 +224,11 @@ export class EventController extends Controller {
         }
       }
     }
-    let baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
+    const baseURL = getBaseURL(process.env.COMMUNITY_BASE_URL);
 
     const url =
       baseURL !== undefined
-        ? decorate(request, `${baseURL}/event/${slug}`)
+        ? decorate(request, `${baseURL}/event/${projectSlug}`)
         : null;
 
     const enhancedEvent = {

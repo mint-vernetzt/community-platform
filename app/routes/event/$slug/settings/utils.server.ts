@@ -16,7 +16,8 @@ import { getPublicURL } from "~/storage.server";
 import { type getEventBySlug } from "./general.server";
 
 export function validateTimePeriods(
-  // TODO: fix any type
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   newEventData: any,
   parentEvent: { startTime: Date; endTime: Date } | null,
   childEvents: { startTime: Date; endTime: Date }[],
@@ -59,12 +60,14 @@ export function validateTimePeriods(
         earliestStartTime =
           earliestStartTime !== undefined &&
           // TODO: fix type issue
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           childEvent.startTime < earliestStartTime
             ? childEvent.startTime
             : earliestStartTime;
         latestEndTime =
           // TODO: fix type issue
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           latestEndTime !== undefined && childEvent.endTime > latestEndTime
             ? childEvent.endTime
@@ -147,11 +150,15 @@ export function transformEventToForm(
   };
 }
 
-// TODO: fix any type
+// TODO: fix type issue
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function transformFormToEvent(form: any) {
   const {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     userId: _userId,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     submit: _submit,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     participantCount: _participantCount,
     // experienceLevel: _experienceLevel,
     startDate,
@@ -192,9 +199,10 @@ export function transformFormToEvent(form: any) {
   };
 }
 
-// TODO: fix any type
 export async function updateEventById(
   id: string,
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   eventData: any,
   privateFields: string[]
 ) {
@@ -216,7 +224,7 @@ export async function updateEventById(
       visibility !== "eventId" &&
       visibility !== "participationFrom" &&
       visibility !== "participationUntil" &&
-      eventData.hasOwnProperty(visibility)
+      visibility in eventData
     ) {
       eventVisibility[visibility] = !privateFields.includes(`${visibility}`);
     }

@@ -251,7 +251,7 @@ function Participants() {
       </h4>
       <p className="mb-8">{locales.route.content.limit.intro}</p>
       <RemixFormsForm schema={participantLimitSchema}>
-        {({ Field, Errors, Button, register }) => {
+        {({ Field, Button, register }) => {
           return (
             <>
               <Field name="participantLimit" className="mb-4">
@@ -300,7 +300,7 @@ function Participants() {
             });
           }}
         >
-          {({ Field, Errors, Button, register }) => {
+          {({ Field, Button, register }) => {
             return (
               <>
                 <div className="form-control w-full">
@@ -425,8 +425,8 @@ function Participants() {
                 }}
                 className="ml-auto"
               >
-                {(props) => {
-                  const { Field, Button, Errors } = props;
+                {(remixFormsProps) => {
+                  const { Field, Button, Errors } = remixFormsProps;
                   return (
                     <>
                       <Errors />
@@ -468,8 +468,8 @@ function Participants() {
                 publish: !loaderData.published,
               }}
             >
-              {(props) => {
-                const { Button, Field } = props;
+              {(remixFormsProps) => {
+                const { Button, Field } = remixFormsProps;
                 return (
                   <>
                     <Field name="publish"></Field>

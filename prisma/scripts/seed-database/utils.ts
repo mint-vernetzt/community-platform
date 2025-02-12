@@ -156,7 +156,7 @@ type BucketData = {
     mimeType: string;
     filename: string;
     extension: string;
-    sizeInMB: Number;
+    sizeInMB: number;
   };
   logo?: {
     path: string;
@@ -231,10 +231,12 @@ export function setFakerSeed(seed: number) {
 }
 
 export async function uploadImageBucketData(
+  // TODO: fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authClient: SupabaseClient<any, "public", any>,
   numberOfImages: number
 ) {
-  let bucketData: {
+  const bucketData: {
     [key in ImageType]: string[];
   } = {
     avatars: [],
@@ -310,6 +312,8 @@ export async function uploadImageBucketData(
         );
       }
     }
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     console.log(e);
     console.error(
@@ -399,16 +403,18 @@ function getImageUrl(imageType?: ImageType) {
 }
 
 export async function uploadDocumentBucketData(
+  // TODO: fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authClient: SupabaseClient<any, "public", any>,
   numberOfDocuments: number
 ) {
-  let bucketData: {
+  const bucketData: {
     documents: {
       path: string;
       mimeType: string;
       filename: string;
       extension: string;
-      sizeInMB: Number;
+      sizeInMB: number;
     }[];
   } = {
     documents: [],
@@ -481,26 +487,28 @@ export async function uploadDocumentBucketData(
 export async function seedAllEntities(
   imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
   documentBucketData: Awaited<ReturnType<typeof uploadDocumentBucketData>>,
+  // TODO: fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authClient: SupabaseClient<any, "public", any>,
   defaultPassword: string,
   useRealNames: boolean,
   numberOfEventsPerStructure: number,
   numberOfStandardEntities: number
 ) {
-  let profileEmails: string[] = [];
-  let standardProfileIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let standardOrganizationIds: Array<Awaited<ReturnType<typeof seedEntity>>> =
+  const profileEmails: string[] = [];
+  const standardProfileIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  const standardOrganizationIds: Array<Awaited<ReturnType<typeof seedEntity>>> =
     [];
-  let networkOrganizationIds: Array<Awaited<ReturnType<typeof seedEntity>>> =
+  const networkOrganizationIds: Array<Awaited<ReturnType<typeof seedEntity>>> =
     [];
-  let standardEventIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let largestEventIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let depth2EventIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let fullParticipantEventIds: Array<Awaited<ReturnType<typeof seedEntity>>> =
+  const standardEventIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  const largestEventIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  const depth2EventIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  const fullParticipantEventIds: Array<Awaited<ReturnType<typeof seedEntity>>> =
     [];
-  let standardProjectIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let standardAwardIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
-  let standardDocumentIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  const standardProjectIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  const standardAwardIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
+  const standardDocumentIds: Array<Awaited<ReturnType<typeof seedEntity>>> = [];
   let someProfileIds;
   let someOrganizationIds;
   let someEventIds;
@@ -2626,7 +2634,7 @@ export async function seedAllEntities(
         }),
       ],
     });
-    let data = standardDocumentIds.map((id) => {
+    const data = standardDocumentIds.map((id) => {
       return {
         documentId: id,
         eventId: largestEventId,
@@ -3163,7 +3171,7 @@ export async function seedAllEntities(
       ],
     });
     const childEventIds = [];
-    for (let childEventId of standardEventIds) {
+    for (const childEventId of standardEventIds) {
       const event = await prismaClient.event.findFirst({
         select: { startTime: true, endTime: true },
         where: { id: childEventId },
@@ -3331,7 +3339,7 @@ export async function seedAllEntities(
       ],
     });
     const childEventIds = [];
-    for (let childEventId of depth2EventIds) {
+    for (const childEventId of depth2EventIds) {
       const event = await prismaClient.event.findFirst({
         select: { startTime: true, endTime: true },
         where: { id: childEventId },
@@ -4212,7 +4220,7 @@ export async function seedAllEntities(
       ArrayElement<typeof standardDocumentIds>
     >(standardDocumentIds, faker.number.int({ min: 1, max: 10 }));
 
-    let data = someDocumentIds.map((id) => {
+    const data = someDocumentIds.map((id) => {
       return {
         documentId: id,
         eventId: largeTeamEventId,
@@ -5908,6 +5916,8 @@ export async function seedEntity<
 >(
   entityType: T,
   entity: EntityTypeOnData<T>,
+  // TODO: fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authClient: SupabaseClient<any, "public", any>,
   defaultPassword: string
 ) {
@@ -5953,7 +5963,6 @@ export async function seedEntity<
     }
   } else if (entityType === "organization" && "supportedBy" in entity) {
     result = await prismaClient.organization.create({
-      // @ts-ignore -> This will resolve when the one-to-one relation is mandatory
       data: {
         ...entity,
         organizationVisibility: {
@@ -5962,9 +5971,8 @@ export async function seedEntity<
       },
       select: { id: true },
     });
-  } else if (entityType === "event" && "published" in entity) {
+  } else if (entityType === "event" && "startTime" in entity) {
     result = await prismaClient.event.create({
-      // @ts-ignore -> This will resolve when the one-to-one relation is mandatory
       data: {
         ...entity,
         eventVisibility: {
@@ -5975,7 +5983,6 @@ export async function seedEntity<
     });
   } else if (entityType === "project" && "headline" in entity) {
     result = await prismaClient.project.create({
-      // @ts-ignore -> This will resolve when the one-to-one relation is mandatory
       data: {
         ...entity,
         projectVisibility: {
@@ -5985,6 +5992,8 @@ export async function seedEntity<
       select: { id: true },
     });
   } else {
+    // TODO: Seed script with less abstraction
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore -> Union type issue -> To much abstraction
     result = await prismaClient[entityType].create({
       data: entity,
@@ -7548,7 +7557,7 @@ function generateSupportedBy<
       }
     } else {
       supportedBy = [];
-      let iterations = faker.number.int({ min: 1, max: 10 });
+      const iterations = faker.number.int({ min: 1, max: 10 });
       for (let i = 0; i < iterations; i++) {
         supportedBy.push(faker.company.name());
       }
@@ -7579,7 +7588,7 @@ function generateSkills<
       }
     } else {
       skills = [];
-      let iterations = faker.number.int({ min: 1, max: 10 });
+      const iterations = faker.number.int({ min: 1, max: 10 });
       for (let i = 0; i < iterations; i++) {
         skills.push(faker.person.jobArea());
       }
@@ -7610,7 +7619,7 @@ function generateInterests<
       }
     } else {
       interests = [];
-      let iterations = faker.number.int({ min: 1, max: 10 });
+      const iterations = faker.number.int({ min: 1, max: 10 });
       for (let i = 0; i < iterations; i++) {
         interests.push(faker.hacker.phrase());
       }
@@ -7636,7 +7645,7 @@ function generateAcademicTitle<
     } else if (entityStructure === "Largest") {
       academicTitle = "Prof. Dr.";
     } else {
-      let index = faker.number.int({ min: 0, max: 4 });
+      const index = faker.number.int({ min: 0, max: 4 });
       academicTitle = academicTitles[index];
     }
   }

@@ -1,6 +1,6 @@
 import { type Story, type Meta } from "@storybook/react";
 import type { HeadingProps } from "./Heading";
-import Heading, { H1, H2, H3, H4, H5, H6 } from "./Heading";
+import { Heading, H1, H2, H3, H4, H5, H6 } from "./Heading";
 import React from "react";
 
 export default {
@@ -57,7 +57,7 @@ export const Variants: Story = () => {
       <H5>h5: Component and layout heading</H5>
       <H6>h6: Component and layout heading</H6>
       <div className="mt-8">
-        <span>Special: h5 after h0 isn't bold</span>
+        <span>Special: h5 after h0 isn&apos;t bold</span>
         <H1 like="h0">h0: Hero Heading</H1>
         <H5>h5: Component and layout heading</H5>
       </div>

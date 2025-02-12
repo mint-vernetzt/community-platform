@@ -454,7 +454,7 @@ function ProjectDetail() {
                   fullSize
                 >
                   {(() => {
-                    let localeKey = project.published
+                    const localeKey = project.published
                       ? ("hide" as const)
                       : ("show" as const);
                     return locales.route.content.publish[localeKey];

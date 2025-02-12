@@ -191,8 +191,8 @@ function Delete() {
                 publish: !loaderData.published,
               }}
             >
-              {(props) => {
-                const { Button, Field } = props;
+              {(remixFormsProps) => {
+                const { Button, Field } = remixFormsProps;
                 return (
                   <>
                     <Field name="publish"></Field>

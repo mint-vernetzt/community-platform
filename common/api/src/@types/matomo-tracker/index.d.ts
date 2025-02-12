@@ -14,6 +14,8 @@ declare module "matomo-tracker" {
   declare function MatomoTracker(
     siteId: number,
     trackerUrl: string,
+    // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     noURLValidation: any
   ): MatomoTracker;
   declare class MatomoTracker {
@@ -23,9 +25,13 @@ declare module "matomo-tracker" {
      * @param {String} trackerUrl URL of your Matomo instance
      * @param {Boolean} [true] noURLValidation Set to true if the `piwik.php` has been renamed
      */
+    // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(siteId: number, trackerUrl: string, noURLValidation: any);
     siteId: number;
     trackerUrl: string;
+    // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     agent: any;
     /**
      * Executes the call to the Matomo tracking API
@@ -35,7 +41,11 @@ declare module "matomo-tracker" {
      *
      * @param {(String|Object)} options URL to track or options (must contain URL as well)
      */
+    // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     track(options: string | any): void;
+    // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     trackBulk(events: any, callback: any): void;
   }
 }

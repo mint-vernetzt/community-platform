@@ -7,16 +7,22 @@ export type ToggleCheckboxProps = React.HTMLProps<HTMLInputElement> & {
 
 export function ToggleCheckbox(props: ToggleCheckboxProps) {
   const formContext = useFormContext();
-  const { name, hidden, ...rest } = props;
+  const { name, ...inputProps } = props;
   const registerProp = formContext ? { ...formContext.register(name) } : {};
 
-  const checkboxId = `visibility_${props.value}`;
+  const checkboxId = `visibility_${inputProps.value}`;
   return (
-    <div hidden={hidden} className="ml-2 toggle-checkbox">
-      <input type="checkbox" {...registerProp} {...rest} id={checkboxId} />
+    <div hidden={inputProps.hidden} className="ml-2 toggle-checkbox">
+      <input
+        type="checkbox"
+        {...registerProp}
+        {...inputProps}
+        id={checkboxId}
+      />
       <label
         htmlFor={checkboxId}
         className={`bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 ${props.className}`}
+        aria-label={`Set visibility of ${name} to ${inputProps.value}`}
       >
         <svg
           className={"block w-6 h-6"}

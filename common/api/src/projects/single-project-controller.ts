@@ -50,9 +50,7 @@ export class ProjectController extends Controller {
     }
   )
   public async getProject(
-    // @ts-ignore
     @Request() request: ExpressRequest,
-    // @ts-ignore
     @Path() slug: string
   ) {
     const project = await prismaClient.project.findFirst({
@@ -225,7 +223,7 @@ export class ProjectController extends Controller {
 
     const url =
       baseURL !== undefined
-        ? decorate(request, `${baseURL}/project/${slug}`)
+        ? decorate(request, `${baseURL}/project/${projectSlug}`)
         : null;
 
     const enhancedProject = {

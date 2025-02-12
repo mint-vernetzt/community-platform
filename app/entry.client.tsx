@@ -1,23 +1,27 @@
 import { RemixBrowser, useLocation, useMatches } from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
+import {
+  init as initSentry,
+  browserTracingIntegration,
+  replayIntegration,
+} from "@sentry/remix";
 import { StrictMode, startTransition, useEffect } from "react";
 import { hydrateRoot } from "react-dom/client";
 
 if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
   try {
-    Sentry.init({
+    initSentry({
       dsn: ENV.SENTRY_DSN,
       tracesSampleRate: 1,
       replaysSessionSampleRate: 0.1,
       replaysOnErrorSampleRate: 1,
       environment: ENV.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
       integrations: [
-        Sentry.browserTracingIntegration({
+        browserTracingIntegration({
           useEffect,
           useLocation,
           useMatches,
         }),
-        Sentry.replayIntegration(),
+        replayIntegration(),
       ],
     });
   } catch (error) {

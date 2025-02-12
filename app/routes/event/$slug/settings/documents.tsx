@@ -150,7 +150,7 @@ function Documents() {
                           schema={editDocumentSchema}
                           preventScrollReset
                         >
-                          {({ Field, Errors, register }) => (
+                          {({ Field, Errors }) => (
                             <>
                               <Field
                                 name="documentId"
@@ -296,8 +296,8 @@ function Documents() {
                 publish: !loaderData.event.published,
               }}
             >
-              {(props) => {
-                const { Button, Field } = props;
+              {(remixFormsProps) => {
+                const { Button, Field } = remixFormsProps;
                 return (
                   <>
                     <Field name="publish"></Field>

@@ -21,7 +21,10 @@ export function hasAboutData(
     | "tiktok"
     | "supportedBy"
   > & {
+    // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     areas: any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     focuses: any[];
   }
 ) {

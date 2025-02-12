@@ -100,7 +100,8 @@ function AcceptTerms() {
   const handleKeyPress = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      // TODO: Type issue
+      // TODO: fix type issue
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (event.target.getAttribute("name") !== "termsAccepted") {
         submit(event.currentTarget);
@@ -143,6 +144,8 @@ function AcceptTerms() {
                               </>
                             );
                           });
+                          ForwardRefComponent.displayName =
+                            "ForwardRefComponent";
                           return (
                             <>
                               <ForwardRefComponent

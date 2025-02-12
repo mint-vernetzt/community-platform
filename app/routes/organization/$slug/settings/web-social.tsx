@@ -175,13 +175,6 @@ function WebSocial() {
     locales,
   });
 
-  // console.log("defaultValues", {
-  //   ...rest,
-  //   visibilities: organizationVisibility,
-  // });
-
-  // console.log("form.dirty", form.dirty);
-
   return (
     <Section>
       {UnsavedChangesBlockerModal}

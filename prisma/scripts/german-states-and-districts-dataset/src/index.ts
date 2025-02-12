@@ -9,14 +9,20 @@ export async function main(
   filePath?: string,
   stateKey = "state",
   districtKey = "county",
-  verbose: boolean = false
+  verbose = false
 ) {
   if (apiUrl) {
     // Makes a http request to the corona API and passes on the response body to evaluateJsonObject()
     await https
+      // TODO: fix any type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .get(apiUrl, async (res: any) => {
-        let data: any = [];
+        // TODO: fix any type
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data: any = [];
 
+        // TODO: fix any type
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         res.on("data", (chunk: any) => {
           data.push(chunk);
         });
@@ -36,7 +42,6 @@ export async function main(
       });
   } else if (filePath) {
     // Imports the districts from the specified file and passes them on to evaluateJsonObject()
-    // @ts-ignore
     const localities = await import(filePath).then((module) => module.default);
 
     await writeToDatabase(
@@ -86,12 +91,12 @@ export function extractDistrictType(district: District): {
 }
 
 export function evaluateJsonObject(
-  jsonObject: Object,
+  jsonObject: object,
   stateKey: string,
   districtKey: string
 ): { districts: District[]; states: State[] } {
-  let states: State[] = [];
-  let districts: District[] = [];
+  const states: State[] = [];
+  const districts: District[] = [];
 
   for (const [key, value] of Object.entries(jsonObject)) {
     if (key.length != 5 || isNaN(Number(key))) {
@@ -116,7 +121,7 @@ export function evaluateJsonObject(
       }
 
       let type: DistrictType = "land";
-      let name = value.name;
+      const name = value.name;
 
       if (value.county.startsWith("SK")) {
         type = "urban";
@@ -191,10 +196,13 @@ function hashFunction(slug: string) {
   return `${slug}-${stringFromRandom}`;
 }
 
-// @ts-ignore
-export function getAreas(districts, states, countries) {
-  let areas: Area[] = [];
-  // @ts-ignore
+// TODO: fix any type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getAreas(districts: any, states: any, countries: any) {
+  const areas: Area[] = [];
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore -> comes from any type above
   districts.forEach((district) => {
     const area = {
       name: district.name,
@@ -202,10 +210,12 @@ export function getAreas(districts, states, countries) {
       type: "district",
       stateId: district.stateAgsPrefix,
     };
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore -> comes from any type above
     areas.push(area);
   });
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore -> comes from any type above
   states.forEach((state) => {
     const area = {
       name: state.name,
@@ -213,11 +223,12 @@ export function getAreas(districts, states, countries) {
       type: "state",
       stateId: state.agsPrefix,
     };
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore -> comes from any type above
     areas.push(area);
   });
-  // @ts-ignore
-
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore -> comes from any type above
   countries.forEach((country) => {
     const area = {
       name: country.name,
@@ -225,11 +236,13 @@ export function getAreas(districts, states, countries) {
       type: "country",
       stateId: null,
     };
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore -> comes from any type above
     areas.push(area);
   });
 
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore -> comes from any type above
   areas.push({
     name: "Bundesweit",
     slug: generateValidSlug("Bundesweit"),
@@ -237,7 +250,8 @@ export function getAreas(districts, states, countries) {
     stateId: null,
   });
 
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore -> comes from any type above
   areas.push({
     name: "International",
     slug: generateValidSlug("international"),
@@ -250,14 +264,18 @@ export function getAreas(districts, states, countries) {
 
 // Prepare the data for writeToDatabase() so that it can efficiently be written to with bulk insert, update, or delete
 export function prepareQueries(
+  // TODO: fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   current: { states: any[]; districts: any[]; areas: Area[] },
+  // TODO: fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { states: any[]; districts: any[] }
 ) {
   const currentDistricts = current.districts;
   const currentStates = current.states;
   const currentAreas = current.areas;
 
-  let areas: Area[] = getAreas(data.districts, data.states, []);
+  const areas: Area[] = getAreas(data.districts, data.states, []);
   console.log({ areas });
 
   // Sort the new states and districts into the categories create, update and delete
@@ -328,6 +346,8 @@ export function prepareQueries(
 
 // Intelligently write the states and districts to the database
 export async function writeToDatabase(
+  // TODO: fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { states: any[]; districts: any[] },
   verbose = false
 ) {

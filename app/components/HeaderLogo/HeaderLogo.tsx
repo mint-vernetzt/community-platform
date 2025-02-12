@@ -1,5 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface HeaderLogoProps {}
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function HeaderLogo(props: HeaderLogoProps) {
   return (
     <div>

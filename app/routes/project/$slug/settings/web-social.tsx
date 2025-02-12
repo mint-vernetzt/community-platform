@@ -221,6 +221,8 @@ function WebSocial() {
   if (blocker.state === "blocked") {
     const confirmed = confirm(locales.route.content.prompt);
     if (confirmed === true) {
+      // TODO: fix blocker -> use org settings as blueprint
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
       if (blocker.state !== "proceeding") {
         blocker.proceed();

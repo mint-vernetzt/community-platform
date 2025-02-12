@@ -38,4 +38,6 @@ Functional tests:
 
 */
 
-test.skip("TODO", async () => {});
+test.skip("TODO", async () => {
+  return;
+});

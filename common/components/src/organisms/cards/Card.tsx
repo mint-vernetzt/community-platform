@@ -298,10 +298,7 @@ export type CardRowContainerProps = {
   children?: React.ReactNode;
 };
 
-function wrapCardRowContainerChildren(
-  children: React.ReactNode,
-  itemsPerRow: number
-) {
+function wrapCardRowContainerChildren(children: React.ReactNode) {
   const validChildren = React.Children.toArray(children).filter((child) => {
     return React.isValidElement(child);
   });
@@ -331,7 +328,7 @@ export function CardRowContainer(props: CardRowContainerProps) {
   return (
     <div className="mv-relative">
       <div className={classes}>
-        {wrapCardRowContainerChildren(validChildren, itemsPerRow)}
+        {wrapCardRowContainerChildren(validChildren)}
       </div>
     </div>
   );

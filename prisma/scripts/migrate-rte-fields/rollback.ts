@@ -1,4 +1,3 @@
-// @ts-ignore
 import fs from "fs-extra";
 import { prismaClient } from "~/prisma.server";
 

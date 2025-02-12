@@ -75,5 +75,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   }
 
-  return null;
+  // TODO: This route is "externally accessed" and therefore cant handle a turbo stream response
+  // The reason it is accessed "externally" is because <ImageCropper> uploads the image via native fetch (see app/components/ImageCropper/ImageCropper.tsx)
+  return Response.json({});
 };

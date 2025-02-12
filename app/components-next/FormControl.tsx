@@ -23,7 +23,7 @@ function FromControlInfo(props: { id: string } & React.PropsWithChildren) {
         }}
       />
       <span className="mv-px-4 mv-pb-2.5 mv-hidden peer-[:checked]:mv-block mv-text-sm mv-whitespace-normal">
-        {props.children}
+        {children}
       </span>
     </>
   );
@@ -164,7 +164,7 @@ export function FormControl(
 ) {
   const { children, ...otherProps } = props;
 
-  const childrenArray = React.Children.toArray(props.children);
+  const childrenArray = React.Children.toArray(children);
 
   const label = childrenArray.find((child) => {
     return React.isValidElement(child) && child.type === FormControlLabel;
@@ -197,9 +197,10 @@ export function FormControl(
               "id" in info.props &&
               typeof info.props.id === "string"
                 ? info.props.id
-                : undefined
+                : String(label)
             }
             className="mv-h-[20px] hover:mv-text-primary focus:mv-text-primary"
+            aria-label={String(label)}
           >
             <svg
               width="20"

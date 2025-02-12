@@ -34,6 +34,7 @@ const createMutation = (locales: DeleteImageLocales) => {
 
     let success = true;
     // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const sessionUser = await getSessionUserOrThrow(environment.authClient);
 

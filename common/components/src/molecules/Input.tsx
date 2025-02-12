@@ -81,7 +81,7 @@ function InputHelperText(
 }
 
 function InputError(
-  props: React.PropsWithChildren<{}> & React.HTMLProps<HTMLDivElement>
+  props: React.PropsWithChildren & React.HTMLProps<HTMLDivElement>
 ) {
   const { children, className: additionalClassName, ...rest } = props;
   return (
@@ -110,7 +110,7 @@ function InputCounter(props: { currentCount: number; maxCount: number }) {
   );
 }
 
-function InputControls(props: React.PropsWithChildren<{}>) {
+function InputControls(props: React.PropsWithChildren) {
   return (
     <div className="mv-flex mv-items-center mv-self-end mv-gap-2 mv-shrink">
       {props.children}
@@ -124,38 +124,33 @@ export type InputProps = React.HTMLProps<HTMLInputElement> & {
 };
 
 function Input(props: InputProps) {
-  const {
-    type = "text",
-    children,
-    standalone,
-    withoutName,
-    ...inputProps
-  } = props;
-  const name = withoutName === true ? undefined : props.name || props.id;
+  const { children, standalone, withoutName, ...inputProps } = props;
+  const name =
+    withoutName === true ? undefined : inputProps.name || inputProps.id;
 
-  const defaultValueLength = props.defaultValue
-    ? props.defaultValue.toString().length
+  const defaultValueLength = inputProps.defaultValue
+    ? inputProps.defaultValue.toString().length
     : 0;
   const [characterCount, updateCharacterCount] =
     React.useState(defaultValueLength);
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-    if (props.onChange !== undefined) {
-      props.onChange(event);
+    if (inputProps.onChange !== undefined) {
+      inputProps.onChange(event);
     }
     if (
-      props.maxLength !== undefined &&
-      event.currentTarget.value.length > props.maxLength
+      inputProps.maxLength !== undefined &&
+      event.currentTarget.value.length > inputProps.maxLength
     ) {
       event.currentTarget.value = event.currentTarget.value.substring(
         0,
-        props.maxLength
+        inputProps.maxLength
       );
     }
     updateCharacterCount(event.currentTarget.value.length);
   };
 
-  if (type === "hidden") {
+  if (inputProps.type === "hidden") {
     return <input {...inputProps} className="mv-hidden" name={name} />;
   }
 
@@ -181,7 +176,7 @@ function Input(props: InputProps) {
   let label: LabelComponentType | React.ReactElement | undefined;
   if (typeof labelString !== "undefined") {
     label = (
-      <InputLabel htmlFor={props.id} hasError={errors.length > 0} hidden>
+      <InputLabel htmlFor={inputProps.id} hasError={errors.length > 0} hidden>
         {labelString}
       </InputLabel>
     );
@@ -238,10 +233,13 @@ function Input(props: InputProps) {
           {label}
           <input
             className={inputClasses}
+            type={inputProps.type || "text"}
             {...inputProps}
             name={name}
             onChange={
-              props.maxLength !== undefined ? handleInputChange : props.onChange
+              inputProps.maxLength !== undefined
+                ? handleInputChange
+                : inputProps.onChange
             }
           />
           {typeof icon !== "undefined" && typeof controls === "undefined" && (
@@ -252,7 +250,7 @@ function Input(props: InputProps) {
         </div>
         {typeof controls !== "undefined" && controls}
       </div>
-      {props.maxLength !== undefined ? (
+      {inputProps.maxLength !== undefined ? (
         <div className={inputCounterContainerClasses}>
           {helperText !== undefined || errors.length > 0 ? (
             <div className="mv-flex mv-flex-col">
@@ -270,16 +268,16 @@ function Input(props: InputProps) {
           ) : null}
           <InputCounter
             currentCount={characterCount}
-            maxCount={props.maxLength}
+            maxCount={inputProps.maxLength}
           />
         </div>
       ) : null}
 
-      {props.maxLength === undefined && helperText !== undefined ? (
+      {inputProps.maxLength === undefined && helperText !== undefined ? (
         <div className="mv-pr-8">{helperText}</div>
       ) : null}
 
-      {props.maxLength === undefined && errors.length > 0 ? (
+      {inputProps.maxLength === undefined && errors.length > 0 ? (
         <ul>
           {errors.map((error, index) => (
             <li key={index}>{error}</li>

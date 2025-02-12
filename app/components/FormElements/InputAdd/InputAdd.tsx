@@ -3,7 +3,6 @@ import { capitalizeFirstLetter } from "../../../lib/string/transform";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 
 export interface InputAddProps {
-  name: string;
   label: string;
   entries: string[];
   isPublic?: boolean;
@@ -12,11 +11,14 @@ export interface InputAddProps {
 
 function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
   const buttonRef = React.createRef<HTMLButtonElement>();
-  const { label, isPublic, withPublicPrivateToggle, ...rest } = props;
-  const entries = props.entries ?? [];
-  const id = props.id ?? props.name;
-  const name = props.name ?? "";
-  const singularName = name.slice(0, -1);
+  const {
+    label,
+    entries = [],
+    isPublic,
+    withPublicPrivateToggle,
+    ...inputProps
+  } = props;
+  const singularName = (inputProps.name || "").slice(0, -1);
   const uppercaseSingularName = capitalizeFirstLetter(singularName);
 
   return (
@@ -24,10 +26,10 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
       <div className="form-control w-full">
         <div className="flex flex-row items-center mb-2">
           <div className="flex-auto">
-            {props.label && (
-              <label htmlFor={id} className="label">
-                {props.label}
-                {props.required !== undefined ? " *" : ""}
+            {label && (
+              <label htmlFor={inputProps.id || label} className="label">
+                {label}
+                {inputProps.required !== undefined ? " *" : ""}
               </label>
             )}
           </div>
@@ -35,7 +37,7 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
           {isPublic !== undefined && withPublicPrivateToggle !== undefined && (
             <ToggleCheckbox
               name="privateFields"
-              value={props.name}
+              value={inputProps.name}
               hidden={!withPublicPrivateToggle}
               defaultChecked={!isPublic}
             />
@@ -45,11 +47,11 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
         <div className="flex flex-row items-center">
           <div className="flex-auto">
             <input
-              {...rest}
+              {...inputProps}
               name={`add${uppercaseSingularName}`}
               type="text"
               className={`clear-after-submit input input-bordered input-lg w-full ${
-                props.className ?? ""
+                inputProps.className ?? ""
               }`}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -75,10 +77,14 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
       </div>
       <ul className="pt-2">
         {entries.map((entry) => (
-          <li key={`${name}-${entry}`} className="flex">
+          <li key={`${inputProps.name || label}-${entry}`} className="flex">
             <div className="font-bold  py-2">
               {entry}
-              <input name={name} type="hidden" value={entry} />
+              <input
+                name={inputProps.name || label}
+                type="hidden"
+                value={entry}
+              />
             </div>
 
             <button

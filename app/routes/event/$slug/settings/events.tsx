@@ -228,8 +228,8 @@ function Events() {
           });
         }}
       >
-        {(props) => {
-          const { Button, Field, Errors, register } = props;
+        {(remixFormsProps) => {
+          const { Button, Field, Errors, register } = remixFormsProps;
 
           return (
             <div className="form-control w-full">
@@ -296,13 +296,13 @@ function Events() {
               parentEventId: undefined,
             }}
           >
-            {(props) => {
+            {(remixFormsProps) => {
               if (
                 loaderData.parentEvent !== null &&
                 parentEventStartTime !== undefined &&
                 parentEventEndTime !== undefined
               ) {
-                const { Field, Button } = props;
+                const { Field, Button } = remixFormsProps;
                 let stageTitle;
                 if (loaderData.parentEvent.stage === null) {
                   stageTitle = null;
@@ -439,8 +439,8 @@ function Events() {
           });
         }}
       >
-        {(props) => {
-          const { Button, Field, Errors, register } = props;
+        {(remixFormsProps) => {
+          const { Button, Field, Errors, register } = remixFormsProps;
 
           return (
             <div className="form-control w-full">
@@ -532,8 +532,8 @@ function Events() {
                     childEventId: childEvent.id,
                   }}
                 >
-                  {(props) => {
-                    const { Field, Button } = props;
+                  {(remixFormsProps) => {
+                    const { Field, Button } = remixFormsProps;
                     return (
                       <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden">
                         <Link className="flex" to={`/event/${childEvent.slug}`}>
@@ -645,8 +645,8 @@ function Events() {
                 publish: !loaderData.published,
               }}
             >
-              {(props) => {
-                const { Button, Field } = props;
+              {(remixFormsProps) => {
+                const { Button, Field } = remixFormsProps;
                 return (
                   <>
                     <Field name="publish"></Field>

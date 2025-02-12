@@ -61,7 +61,7 @@ function SectionSubline(props: React.PropsWithChildren<{ id?: string }>) {
 
   return (
     <p className="mv-text-base mv-text-neutral-600" {...otherProps}>
-      {props.children}
+      {children}
     </p>
   );
 }

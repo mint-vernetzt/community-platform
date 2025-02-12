@@ -211,6 +211,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
               }
             }}
           />
+          {/* TODO: fix a11y issue */}
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <label
             htmlFor="add-link"
             className={`${baseButtonClassName} ${

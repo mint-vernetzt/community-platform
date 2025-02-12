@@ -5,6 +5,7 @@ import * as fs from "fs-extra";
 dotenv.config({ path: "./supabase/scripts/download-storage-objects/.env" });
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
     interface ProcessEnv {
       PROJECT_URL: string;
