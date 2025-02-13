@@ -4,7 +4,10 @@ import type {
   EntryContext,
   LoaderFunctionArgs,
 } from "@remix-run/node";
-import { createReadableStreamFromReadable } from "@remix-run/node";
+import {
+  createReadableStreamFromReadable,
+  installGlobals,
+} from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import * as Sentry from "@sentry/remix";
 import * as isbotModule from "isbot";
@@ -14,6 +17,8 @@ import { getEnv, init } from "./env.server";
 
 // Reject/cancel all pending promises after 5 seconds
 export const streamTimeout = 5000;
+
+installGlobals({ nativeFetch: true });
 
 init();
 global.ENV = getEnv();
