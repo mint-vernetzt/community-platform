@@ -109,9 +109,8 @@ export default function Status() {
     <>
       <Form method="post" encType="multipart/form-data">
         <input type="file" name="file" />
-        <button type="submit" name="intent" value="documents">
-          Submit
-        </button>
+        <input type="hidden" name="intent" value="documents" />
+        <button type="submit">Submit</button>
       </Form>
     </>
   );
