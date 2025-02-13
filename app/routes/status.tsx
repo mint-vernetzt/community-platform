@@ -22,7 +22,15 @@ export const loader = async () => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await parseFormData(request, uploadHandler);
+  let formData;
+  try {
+    formData = await parseFormData(request, uploadHandler);
+  } catch (error) {
+    await deleteAllTemporaryFiles();
+    invariantResponse(false, "Server Error - Failed to parse multipart", {
+      status: 500,
+    });
+  }
   const intent = formData.get("intent");
   if (intent !== "documents") {
     await deleteAllTemporaryFiles();
