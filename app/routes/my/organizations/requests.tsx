@@ -124,6 +124,7 @@ export async function action(args: ActionFunctionArgs) {
         })
       );
     } catch (error) {
+      console.error({ error });
       invariantResponse(false, "Server Error: Mailer", { status: 500 });
     }
   } else if (submission.value.intent === AddToOrganizationRequest.Cancel) {
@@ -217,6 +218,7 @@ export async function action(args: ActionFunctionArgs) {
     try {
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     } catch (error) {
+      console.error({ error });
       invariantResponse(false, "Server Error: Mailer", { status: 500 });
     }
 

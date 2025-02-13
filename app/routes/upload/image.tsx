@@ -1,4 +1,4 @@
-import { type ActionFunctionArgs } from "react-router";
+// import { type ActionFunctionArgs } from "react-router";
 // import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 // import { detectLanguage } from "~/i18n.server";
 // import {
@@ -13,7 +13,8 @@ import { type ActionFunctionArgs } from "react-router";
 // import { languageModuleMap } from "~/locales/.server";
 // import { invariantResponse } from "~/lib/utils/response";
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async () => {
+  // export const action = async ({ request }: ActionFunctionArgs) => {
   // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
   // const { authClient } = createAuthClient(request);
 
@@ -77,6 +78,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   // }
 
   // TODO: This route is "externally accessed" and therefore cant handle a turbo stream response
-  // The reason it is accessed "externally" is because <ImageCropper> uploads the image via native fetch (see app/components/ImageCropper/ImageCropper.tsx)
+  // The reason it is accessed "externally" is because <ImageCropper> uploads the image via native browser fetch (see app/components/ImageCropper/ImageCropper.tsx)
   return Response.json({});
 };

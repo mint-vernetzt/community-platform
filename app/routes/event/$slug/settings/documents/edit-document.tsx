@@ -42,6 +42,7 @@ const createMutation = (locales: EditEventDocumentLocales) => {
         description: values.description || null,
       });
     } catch (error) {
+      console.error({ error });
       throw locales.error.server;
     }
     return values;

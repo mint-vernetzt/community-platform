@@ -1,7 +1,7 @@
 import { Chip } from "../Chip/Chip";
 import HeaderLogo from "../HeaderLogo/HeaderLogo";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line
 export interface ProfilePageProps {}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,6 +1,11 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
-import { Form, useActionData, useLoaderData, useNavigate } from "react-router";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+  redirect,
+} from "react-router";
 import { format } from "date-fns-tz";
 import { useForm } from "react-hook-form";
 import type { InferType } from "yup";
@@ -103,6 +108,7 @@ export const action = async (args: ActionFunctionArgs) => {
     errors = result.errors;
     data = result.data;
   } catch (error) {
+    console.error({ error });
     invariantResponse(false, locales.error.validationFailed, { status: 400 });
   }
 

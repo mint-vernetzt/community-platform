@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
 import {
   Link,
   useFetcher,
@@ -7,6 +6,7 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
+  redirect,
 } from "react-router";
 import {
   createAuthClient,

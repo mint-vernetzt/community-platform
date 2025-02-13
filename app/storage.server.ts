@@ -1,12 +1,12 @@
 import type { Document } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { fileTypeFromBuffer } from "file-type";
+// import { fileTypeFromBuffer } from "file-type";
 import JSZip from "jszip";
 import { invariantResponse } from "./lib/utils/response";
-import { createHashFromString } from "./utils.server";
+// import { createHashFromString } from "./utils.server";
 
-const uploadKeys = ["avatar", "background", "logo", "document"];
-const imageUploadKeys = ["avatar", "background", "logo"];
+// const uploadKeys = ["avatar", "background", "logo", "document"];
+// const imageUploadKeys = ["avatar", "background", "logo"];
 
 export function generatePathName(
   extension: string,
@@ -109,58 +109,58 @@ function validatePersistence(
   }
 }
 
-export const parseMultipart = async (request: Request) => {
-  // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
-  // try {
-  //   const formData = await unstable_parseMultipartFormData(
-  //     request,
-  //     unstable_composeUploadHandlers(uploadHandler)
-  //   );
-  //   const uploadKey = formData.get("uploadKey");
-  //   if (uploadKey === null) {
-  //     console.error("No upload Key");
-  //     invariantResponse(false, "Server Error", { status: 500 });
-  //   }
-  //   // TODO: can this type assertion be removed and proofen by code?
-  //   const uploadHandlerResponseJSON = formData.get(uploadKey as string);
-  //   if (uploadHandlerResponseJSON === null) {
-  //     console.error("Upload Handler Response is null");
-  //     invariantResponse(false, "Server Error", { status: 500 });
-  //   }
-  //   const uploadHandlerResponse: {
-  //     buffer: {
-  //       type: "Buffer";
-  //       data: number[];
-  //     };
-  //     path: string;
-  //     filename: string;
-  //     extension: string;
-  //     mimeType: string;
-  //     sizeInBytes: number;
-  //     // TODO: can this type assertion be removed and proofen by code?
-  //   } = JSON.parse(uploadHandlerResponseJSON as string);
-  //   // Convert buffer.data (number[]) to Buffer
-  //   const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
-  //   if (buffer.length === 0) {
-  //     console.error("Cannot upload empty file.");
-  //     invariantResponse(false, "Bad request", { status: 400 });
-  //   }
-  //   if (buffer.length > 5_000_000) {
-  //     console.error("File is too big. Current limit is 5MB on server side.");
-  //     invariantResponse(false, "Bad request", { status: 400 });
-  //   }
-  // return {
-  //   uploadHandlerResponse: {
-  //     ...uploadHandlerResponse,
-  //     buffer,
-  //   },
-  //   formData,
-  // };
-  // } catch (error) {
-  //   console.error({ error });
-  //   invariantResponse(false, "Server error", { status: 500 });
-  // }
-};
+// TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
+// export const parseMultipart = async (request: Request) => {
+// try {
+//   const formData = await unstable_parseMultipartFormData(
+//     request,
+//     unstable_composeUploadHandlers(uploadHandler)
+//   );
+//   const uploadKey = formData.get("uploadKey");
+//   if (uploadKey === null) {
+//     console.error("No upload Key");
+//     invariantResponse(false, "Server Error", { status: 500 });
+//   }
+//   // TODO: can this type assertion be removed and proofen by code?
+//   const uploadHandlerResponseJSON = formData.get(uploadKey as string);
+//   if (uploadHandlerResponseJSON === null) {
+//     console.error("Upload Handler Response is null");
+//     invariantResponse(false, "Server Error", { status: 500 });
+//   }
+//   const uploadHandlerResponse: {
+//     buffer: {
+//       type: "Buffer";
+//       data: number[];
+//     };
+//     path: string;
+//     filename: string;
+//     extension: string;
+//     mimeType: string;
+//     sizeInBytes: number;
+//     // TODO: can this type assertion be removed and proofen by code?
+//   } = JSON.parse(uploadHandlerResponseJSON as string);
+//   // Convert buffer.data (number[]) to Buffer
+//   const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
+//   if (buffer.length === 0) {
+//     console.error("Cannot upload empty file.");
+//     invariantResponse(false, "Bad request", { status: 400 });
+//   }
+//   if (buffer.length > 5_000_000) {
+//     console.error("File is too big. Current limit is 5MB on server side.");
+//     invariantResponse(false, "Bad request", { status: 400 });
+//   }
+// return {
+//   uploadHandlerResponse: {
+//     ...uploadHandlerResponse,
+//     buffer,
+//   },
+//   formData,
+// };
+// } catch (error) {
+//   console.error({ error });
+//   invariantResponse(false, "Server error", { status: 500 });
+// }
+// };
 
 export async function doPersistUpload(
   authClient: SupabaseClient,

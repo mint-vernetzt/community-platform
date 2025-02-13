@@ -23,6 +23,7 @@ const createMutation = (locales: DeleteEventDocumentLocales) => {
     try {
       await disconnectDocumentFromEvent(values.documentId);
     } catch (error) {
+      console.error({ error });
       throw locales.error.delete;
     }
     return values;

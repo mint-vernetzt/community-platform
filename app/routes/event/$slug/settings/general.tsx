@@ -1,5 +1,4 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
 import {
   Form,
   Link,
@@ -8,6 +7,7 @@ import {
   useLoaderData,
   useParams,
   useNavigation,
+  redirect,
 } from "react-router";
 import { format } from "date-fns";
 import React from "react";

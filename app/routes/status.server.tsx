@@ -14,6 +14,7 @@ export async function* streamToAsyncIterator(
       yield value;
     }
   } catch (error) {
+    console.error({ error });
     invariantResponse(false, "Server Error", { status: 500 });
   } finally {
     reader.releaseLock();

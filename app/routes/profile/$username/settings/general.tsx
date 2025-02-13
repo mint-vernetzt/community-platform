@@ -1,5 +1,4 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
 import {
   Form,
   Link,
@@ -7,6 +6,7 @@ import {
   useLoaderData,
   useNavigation,
   useParams,
+  redirect,
 } from "react-router";
 import React from "react";
 import { FormProvider, useForm } from "react-hook-form";

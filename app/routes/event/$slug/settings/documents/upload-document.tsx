@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "react-router";
+// import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 // import type { Document } from "@prisma/client";
 // import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -18,7 +18,7 @@ const schema = z.object({
 
 export const uploadDocumentSchema = schema;
 
-export const action = async (args: ActionFunctionArgs) => {
+export const action = async () => {
   // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
   // const { request, params } = args;
   // const language = await detectLanguage(request);

@@ -40,7 +40,7 @@ declare global {
   // TODO: fix type issues
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    // eslint-disable-next-line
     interface ProcessEnv extends z.infer<typeof schema> {}
   }
 }

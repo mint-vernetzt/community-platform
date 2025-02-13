@@ -71,7 +71,8 @@ const createMutation = (locales: DeleteImageLocales) => {
         });
         await removeImageFromProject(slug, uploadKey);
       }
-    } catch (e) {
+    } catch (error) {
+      console.error({ error });
       success = false;
     }
 

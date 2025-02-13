@@ -1,5 +1,4 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -24,7 +23,7 @@ import { detectLanguage } from "~/i18n.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { useLoaderData } from "react-router";
+import { useLoaderData, redirect } from "react-router";
 
 const createSchema = (locales: DeleteProfileLocales) => {
   return z.object({

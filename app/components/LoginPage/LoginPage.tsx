@@ -3,7 +3,7 @@ import HeaderLogo from "../HeaderLogo/HeaderLogo";
 import InputPassword from "../FormElements/InputPassword/InputPassword";
 import PageBackground from "../PageBackground/PageBackground";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line
 export interface LoginPageProps {}
 
 /**

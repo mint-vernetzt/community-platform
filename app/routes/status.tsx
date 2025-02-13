@@ -27,6 +27,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   try {
     formData = await parseFormData(request, uploadHandler);
   } catch (error) {
+    console.error({ error });
     await deleteAllTemporaryFiles();
     invariantResponse(false, "Server Error - Failed to parse multipart", {
       status: 500,

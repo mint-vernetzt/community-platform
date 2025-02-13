@@ -239,6 +239,7 @@ export const action = async (args: ActionFunctionArgs) => {
       })
     );
   } catch (error) {
+    console.error({ error });
     invariantResponse(false, "Server Error: Mailer", { status: 500 });
   }
 

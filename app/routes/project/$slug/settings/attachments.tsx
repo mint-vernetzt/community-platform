@@ -9,7 +9,7 @@ import {
 import {
   Form,
   Link,
-  useActionData,
+  // useActionData,
   useFetcher,
   useLoaderData,
   useLocation,
@@ -26,10 +26,10 @@ import { getPublicURL } from "~/storage.server";
 import { BackButton } from "~/components-next/BackButton";
 import { MaterialList } from "~/components-next/MaterialList";
 import {
-  hasValidMimeType,
+  // hasValidMimeType,
   type ProjectAttachmentSettingsLocales,
-  storeDocument,
-  storeImage,
+  // storeDocument,
+  // storeImage,
 } from "./attachments.server";
 import {
   documentSchema,
@@ -38,7 +38,7 @@ import {
 } from "./attachments/edit";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getHash,
+  // getHash,
 } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
@@ -46,7 +46,7 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { redirectWithToast } from "~/toast.server";
+// import { redirectWithToast } from "~/toast.server";
 
 const MAX_UPLOAD_SIZE = 6 * 1024 * 1024; // 6MB
 
@@ -96,10 +96,10 @@ const createImageUploadSchema = (locales: ProjectAttachmentSettingsLocales) =>
       }, locales.validation.image.type),
   });
 
-const actionSchema = z.object({
-  id: z.string().uuid(),
-  filename: z.string(),
-});
+// const actionSchema = z.object({
+//   id: z.string().uuid(),
+//   filename: z.string(),
+// });
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -197,7 +197,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 };
 
 export const action = async (args: ActionFunctionArgs) => {
-  const { request, params } = args;
+  const { request } = args;
 
   // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
   // const language = await detectLanguage(request);
@@ -398,7 +398,7 @@ function Attachments() {
   const [imageName, setImageName] = React.useState<string | null>(null);
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
-  const actionData = useActionData<typeof action>();
+  // const actionData = useActionData<typeof action>();
   const editFetcher = useFetcher<typeof EditAction>();
 
   const documentUploadSchema = createDocumentUploadSchema(locales);

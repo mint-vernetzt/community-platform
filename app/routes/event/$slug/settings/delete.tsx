@@ -1,6 +1,11 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
-import { Link, useFetcher, useLoaderData, useParams } from "react-router";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useParams,
+  redirect,
+} from "react-router";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -78,6 +83,7 @@ const createMutation = (locales: DeleteEventLocales) => {
     try {
       await deleteEventBySlug(environment.eventSlug);
     } catch (error) {
+      console.error({ error });
       throw locales.error.delete;
     }
   });
