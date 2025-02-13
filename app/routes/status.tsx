@@ -88,8 +88,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   await prismaClient.event.update({
     where: {
-      slug: "0_developerevent-m6f1c1tc",
-      // slug: "diemintwoche-l95trsmg",
+      // slug: "0_developerevent-m6f1c1tc",
+      slug: "diemintwoche-l95trsmg",
     },
     data: {
       documents: {
