@@ -1,5 +1,5 @@
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
+import { redirect, type LoaderFunctionArgs } from "react-router";
+import { Link, Outlet, useLoaderData, useLocation } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { BackButton } from "~/components-next/BackButton";

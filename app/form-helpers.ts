@@ -9,6 +9,9 @@ import { type OrganizationAdminSettingsLocales } from "./routes/organization/$sl
 import { type OrganizationTeamSettingsLocales } from "./routes/organization/$slug/settings/team.server";
 import { type ManageOrganizationSettingsLocales } from "./routes/organization/$slug/settings/manage.server";
 
+// Field name for inputs with type file to make file parser work -> Please use this as name attribute on all file uploads
+export const FILE_FIELD_NAME = "file";
+
 // List of schemas
 export const searchProfilesSchema = (
   locales: OrganizationAdminSettingsLocales | OrganizationTeamSettingsLocales

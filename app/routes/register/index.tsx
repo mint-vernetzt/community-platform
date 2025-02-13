@@ -1,12 +1,12 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Link,
   useActionData,
   useLoaderData,
   useSearchParams,
   useSubmit,
-} from "@remix-run/react";
+  redirect,
+} from "react-router";
 import { makeDomainFunction } from "domain-functions";
 import type { KeyboardEvent } from "react";
 import React from "react";

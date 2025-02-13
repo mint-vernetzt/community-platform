@@ -4,7 +4,7 @@ import {
   NavLink,
   useLocation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import React from "react";
 import { defaultLanguage, type supportedCookieLanguages } from "~/i18n.shared";
 import { type getFeatureAbilities } from "~/lib/utils/application";

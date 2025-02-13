@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "react-router";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -23,6 +23,7 @@ const createMutation = (locales: DeleteEventDocumentLocales) => {
     try {
       await disconnectDocumentFromEvent(values.documentId);
     } catch (error) {
+      console.error({ error });
       throw locales.error.delete;
     }
     return values;

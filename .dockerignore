@@ -9,3 +9,5 @@ coverage
 docker
 node_modules
 supabase
+temporary-upload-storage
+# TODO: Check if this list is complete when we change to docker deployment

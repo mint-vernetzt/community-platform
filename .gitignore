@@ -4,12 +4,12 @@
 # npm
 node_modules
 
-# remix
+# react router
 /.cache
-/build
-/public/build
 .env
 /public/fonts
+/.react-router/
+/build/
 
 # tailwind
 /app/styles/*styles.css
@@ -39,3 +39,6 @@ node_modules
 *.csv
 /prisma/scripts/export-duplicate-entities/data/*.json
 /prisma/scripts/migrate-rte-fields/*.json
+
+# Temporary file storage directory for file uploads
+/temporary-upload-storage

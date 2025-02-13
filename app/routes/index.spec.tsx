@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { createRemixStub } from "@remix-run/testing";
+import { createRoutesStub } from "react-router";
 import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import { createServerClient } from "~/__mocks__/auth.server";
@@ -65,7 +65,7 @@ test("Landing page is rendered without errors", async () => {
   prismaClient.event.count.mockResolvedValue(20);
   prismaClient.project.count.mockResolvedValue(20);
 
-  const LandingPage = createRemixStub([
+  const LandingPage = createRoutesStub([
     {
       path: "/",
       Component: LandingPageRoute,

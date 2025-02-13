@@ -1,4 +1,4 @@
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 import * as Sentry from "@sentry/remix";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { createAuthClient } from "~/auth.server";

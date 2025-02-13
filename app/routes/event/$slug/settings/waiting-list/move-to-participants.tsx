@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";

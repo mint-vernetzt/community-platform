@@ -11,7 +11,7 @@ import { InputFile } from "./InputFile";
 import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
 import { RemixFormsForm } from "../RemixFormsForm/RemixFormsForm";
-import { Form, type SubmitFunction, useSubmit } from "@remix-run/react";
+import { Form, type SubmitFunction, useSubmit } from "react-router";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { type OrganizationDetailLocales } from "~/routes/organization/$slug/detail.server";
 import { type EventDetailLocales } from "~/routes/event/$slug/index.server";
@@ -231,6 +231,7 @@ function ImageCropper(props: ImageCropperProps) {
         );
       }
     } catch (error) {
+      console.error({ error });
       invariant(false, locales.imageCropper.imageCropper.error);
     }
   }
@@ -418,7 +419,9 @@ function ImageCropper(props: ImageCropperProps) {
             className="mv-p-5"
             onClick={() => {
               reset();
-              handleCancel && handleCancel();
+              if (typeof handleCancel !== "undefined") {
+                handleCancel();
+              }
             }}
           >
             {locales.imageCropper.imageCropper.reset}

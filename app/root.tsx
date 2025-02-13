@@ -2,8 +2,7 @@ import type {
   LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
-import { data, redirect } from "@remix-run/node";
+} from "react-router";
 import {
   isRouteErrorResponse,
   Link,
@@ -18,7 +17,9 @@ import {
   useRouteError,
   useRouteLoaderData,
   useSearchParams,
-} from "@remix-run/react";
+  data,
+  redirect,
+} from "react-router";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
 import * as React from "react";
@@ -342,9 +343,9 @@ export default function App() {
       try {
         window._paq.push(["setCustomUrl", window.location.href]);
         window._paq.push(["trackPageView"]);
-      } catch (e) {
+      } catch (error) {
         console.warn(
-          'Failed to push "setCustomUrl" and "trackPageView" on window._paq for matomo initialization.'
+          `Failed to push "setCustomUrl" and "trackPageView" on window._paq for matomo initialization. Error: ${error}`
         );
       }
     }

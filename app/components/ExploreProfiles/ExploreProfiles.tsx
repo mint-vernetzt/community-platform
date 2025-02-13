@@ -1,7 +1,7 @@
 import HeaderLogo from "../HeaderLogo/HeaderLogo";
 import { H1, H3 } from "../Heading/Heading";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line
 export interface ExploreProfilesProps {}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

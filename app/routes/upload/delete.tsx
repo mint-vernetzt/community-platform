@@ -1,5 +1,5 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -71,7 +71,8 @@ const createMutation = (locales: DeleteImageLocales) => {
         });
         await removeImageFromProject(slug, uploadKey);
       }
-    } catch (e) {
+    } catch (error) {
+      console.error({ error });
       success = false;
     }
 

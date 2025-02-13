@@ -1,8 +1,7 @@
 import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
 import type { Organization, Profile } from "@prisma/client";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LinksFunction, LoaderFunctionArgs } from "react-router";
+import { useLoaderData, redirect } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import Cookies from "js-cookie";
 import React from "react";

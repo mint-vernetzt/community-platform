@@ -1,5 +1,5 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 import {
   Link,
   useFetcher,
@@ -7,7 +7,7 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
-} from "@remix-run/react";
+} from "react-router";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,

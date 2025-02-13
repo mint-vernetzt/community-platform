@@ -1,7 +1,7 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import type { Event, Organization, Profile } from "@prisma/client";
-import { useSearchParams, useSubmit } from "@remix-run/react";
+import { useSearchParams, useSubmit } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import React, { useEffect, useRef, useState } from "react";
 import { type supportedCookieLanguages } from "~/i18n.shared";

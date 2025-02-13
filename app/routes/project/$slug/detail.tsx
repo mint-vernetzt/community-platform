@@ -4,7 +4,7 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   type MetaFunction,
-} from "@remix-run/node";
+} from "react-router";
 import {
   Form,
   Link,
@@ -12,7 +12,7 @@ import {
   useLoaderData,
   useLocation,
   useMatches,
-} from "@remix-run/react";
+} from "react-router";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { createAuthClient, getSessionUser } from "~/auth.server";

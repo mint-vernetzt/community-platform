@@ -8,7 +8,7 @@ export async function createDocumentOnEvent(
     "filename" | "path" | "sizeInMB" | "mimeType" | "extension"
   >
 ) {
-  const profile = prismaClient.event.update({
+  const event = prismaClient.event.update({
     where: {
       slug,
     },
@@ -25,7 +25,7 @@ export async function createDocumentOnEvent(
       updatedAt: new Date(),
     },
   });
-  return profile;
+  return event;
 }
 
 export async function disconnectDocumentFromEvent(id: string) {

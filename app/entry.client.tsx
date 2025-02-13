@@ -1,4 +1,5 @@
-import { RemixBrowser, useLocation, useMatches } from "@remix-run/react";
+import { HydratedRouter } from "react-router/dom";
+import { useLocation, useMatches } from "react-router";
 import {
   init as initSentry,
   browserTracingIntegration,
@@ -41,7 +42,7 @@ async function hydrate() {
     hydrateRoot(
       document,
       <StrictMode>
-        <RemixBrowser />
+        <HydratedRouter />
       </StrictMode>
     );
   });

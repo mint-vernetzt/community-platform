@@ -1,5 +1,5 @@
 import type { OrganizationType } from "@prisma/client";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { H3 } from "../Heading/Heading";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
