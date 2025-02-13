@@ -39,3 +39,6 @@ node_modules
 *.csv
 /prisma/scripts/export-duplicate-entities/data/*.json
 /prisma/scripts/migrate-rte-fields/*.json
+
+# Temporary file storage directory for file uploads
+/temporary-upload-storage
