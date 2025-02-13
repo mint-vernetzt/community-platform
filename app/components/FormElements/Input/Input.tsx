@@ -9,40 +9,45 @@ export interface InputProps {
 
 const Input = React.forwardRef(
   (props: React.HTMLProps<HTMLInputElement> & InputProps, forwardRef) => {
-    const id = props.id ?? props.label;
-    const { isPublic, withPublicPrivateToggle, errorMessage, ...rest } = props;
+    const {
+      label,
+      isPublic,
+      withPublicPrivateToggle,
+      errorMessage,
+      ...inputProps
+    } = props;
 
     return (
       <div className="form-control mv-w-full">
-        {props.label && (
+        {label && (
           <label
-            htmlFor={id}
+            htmlFor={inputProps.id || label}
             className={`label ${errorMessage ? " mv-text-red-500" : ""}`}
-            title={props.errorMessage}
+            title={errorMessage}
           >
-            {props.label}
-            {props.required !== undefined ? " *" : ""}
+            {label}
+            {inputProps.required !== undefined ? " *" : ""}
           </label>
         )}
 
         <div className="mv-flex mv-flex-row mv-items-center">
           <div className="mv-flex-auto">
             <input
-              {...rest}
+              {...inputProps}
               // TODO: can this type assertion be removed and proofen by code?
               ref={forwardRef as React.RefObject<HTMLInputElement>}
-              type={props.type ?? "text"}
+              type={inputProps.type ?? "text"}
               className={`mv-appearance-none mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-min-h-10 mv-p-2 mv-text-gray-800 mv-bg-white mv-text-base mv-text-start mv-leading-snug mv-font-semibold placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-blue-400 focus-visible:mv-outline-0 ${
-                props.className !== undefined ? props.className : ""
+                inputProps.className !== undefined ? inputProps.className : ""
               }`.trimEnd()}
-              id={id}
-              name={id}
+              id={inputProps.id || label}
+              name={inputProps.id || label}
             />
           </div>
           {isPublic !== undefined && withPublicPrivateToggle !== undefined && (
             <ToggleCheckbox
               name="privateFields"
-              value={props.name}
+              value={inputProps.name}
               hidden={!withPublicPrivateToggle}
               defaultChecked={!isPublic}
             />

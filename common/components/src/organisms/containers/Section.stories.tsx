@@ -11,7 +11,7 @@ type SectionPlaygroundProps = {
 export function SectionWithItems(props: SectionPlaygroundProps) {
   const { header, body, primary, ...otherProps } = props;
 
-  const variant = props.primary ? "primary" : undefined;
+  const variant = primary ? "primary" : undefined;
 
   return (
     <div className="mv-p-4">

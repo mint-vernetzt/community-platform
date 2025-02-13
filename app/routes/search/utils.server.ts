@@ -38,6 +38,7 @@ function getSlugFromLocaleThatContainsWord(options: {
 }) {
   const { language, locales, word } = options;
   return Object.entries(languageModuleMap[language][locales]).find(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ([_key, value]) => {
       if (
         typeof value !== "object" &&

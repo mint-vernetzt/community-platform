@@ -61,6 +61,8 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
   let headerClone = null;
   if (header) {
     headerClone = React.cloneElement(header, {
+      // TODO: fix any type
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       variant: props.variant,
       withBorder: props.withBorder,
@@ -73,18 +75,22 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
   let bodyClone = null;
   if (body) {
     bodyClone = React.cloneElement(body, {
+      // TODO: fix any type
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       withBorder: props.withBorder,
     });
   }
 
-  let footer = validChildren.find((child) => {
+  const footer = validChildren.find((child) => {
     return child.type === SectionFooter;
   });
 
   let footerClone = null;
   if (footer) {
     footerClone = React.cloneElement(footer, {
+      // TODO: fix any type
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       withBorder: props.withBorder,
     });

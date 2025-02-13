@@ -104,6 +104,7 @@ export async function updateProfileById(
   },
   privateFields: string[]
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { email: _email, ...rest } = profileData;
 
   const profileVisibility = await prismaClient.profileVisibility.findFirst({
@@ -122,7 +123,7 @@ export async function updateProfileById(
     if (
       visibility !== "id" &&
       visibility !== "profileId" &&
-      profileData.hasOwnProperty(visibility)
+      visibility in profileVisibility
     ) {
       profileVisibility[visibility] = !privateFields.includes(`${visibility}`);
     }

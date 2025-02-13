@@ -62,7 +62,7 @@ function ModalSubmitButton(
       type="submit"
       className="mv-btn mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-font-semibold mv-whitespace-nowrap mv-w-full mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border"
     >
-      {props.children}
+      {children}
     </button>
   );
 }
@@ -88,6 +88,7 @@ function useRedirect(props: { searchParam: string }) {
       path = `${path}?${params}`;
     }
     setRedirect(path);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   return redirect;

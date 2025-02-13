@@ -16,6 +16,8 @@ import { type ManageOrganizationSettingsLocales } from "~/routes/organization/$s
 
 export function useUnsavedChangesBlockerWithModal(options: {
   searchParam: string;
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formMetadataToCheck: FormMetadata<any> | FormMetadata<any>[];
   locales:
     | ChangeOrganizationUrlLocales

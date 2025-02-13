@@ -1,8 +1,10 @@
 import HeaderLogo from "../HeaderLogo/HeaderLogo";
 import { H1, H3 } from "../Heading/Heading";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ExploreProfilesProps {}
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ExploreProfiles(props: ExploreProfilesProps) {
   return (
     <div>
@@ -14,20 +16,25 @@ function ExploreProfiles(props: ExploreProfilesProps) {
             </div>
             <div className="ml-auto">
               <div className="dropdown dropdown-end">
+                {/* eslint-disable-next-line */}
                 <label tabIndex={0} className="btn btn-primary w-10 h-10">
                   AS
                 </label>
                 <ul
+                  // eslint-disable-next-line
                   tabIndex={0}
                   className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
                 >
                   <li>
+                    {/* eslint-disable-next-line */}
                     <a>Profil bearbeiten</a>
                   </li>
                   <li>
+                    {/* eslint-disable-next-line */}
                     <a>Profil löschen</a>
                   </li>
                   <li>
+                    {/* eslint-disable-next-line */}
                     <a>Ausloggen</a>
                   </li>
                 </ul>
@@ -92,6 +99,7 @@ function ExploreProfiles(props: ExploreProfilesProps) {
               data-testid="gridcell"
               className="flex-100 @md:mv-flex-1/2 @lg:mv-flex-1/3 px-4 @lg:mv-px-4 mb-8"
             >
+              {/* eslint-disable-next-line */}
               <a
                 href="#"
                 className="flex flex-wrap content-between items-stretch px-4 pt-4 @lg:mv-p-6 pb-8 rounded-3xl shadow h-full bg-neutral-200 hover:bg-neutral-400"

@@ -2,7 +2,7 @@ import { prismaClient } from "~/prisma.server";
 import { getScoreOfEntity } from "./utils";
 
 async function main() {
-  let transactions = [];
+  const transactions = [];
 
   const profiles = await prismaClient.profile.findMany({
     include: { areas: true },

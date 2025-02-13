@@ -64,8 +64,6 @@ export async function action(args: ActionFunctionArgs) {
     });
 
     if (project.admins.length === 1) {
-      console.log("last admin");
-
       return redirectWithToast(redirectURL.toString(), {
         key: `${submission.value.slug}-${Date.now()}`,
         level: "negative",

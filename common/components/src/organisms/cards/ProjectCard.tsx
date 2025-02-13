@@ -126,6 +126,7 @@ function ProjectCard(props: ProjectCardProps) {
             htmlFor={`project-context-menu-${project.slug}`}
             className="mv-p-2 mv-w-8 mv-h-8 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-lg mv-border mv-border-primary mv-bg-neutral-50 mv-cursor-pointer"
             aria-description={`Project context menu for ${project.name}`}
+            aria-label={locales.projectCard.contextMenu}
           >
             <svg
               width="16"

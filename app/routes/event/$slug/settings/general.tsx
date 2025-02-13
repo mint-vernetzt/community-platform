@@ -76,13 +76,8 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
     startDate: string()
       .transform((value) => {
         value = value.trim();
-        try {
-          const date = new Date(value);
-          return format(date, "yyyy-MM-dd");
-        } catch (error) {
-          console.log(error);
-        }
-        return undefined;
+        const date = new Date(value);
+        return format(date, "yyyy-MM-dd");
       })
       .required(locales.route.validation.startDate.required),
     startTime: string()
@@ -299,6 +294,7 @@ function General() {
   const actionData = useActionData<typeof action>();
   let event: (typeof loaderData)["event"];
   if (actionData !== undefined) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { focuses, types, eventTargetGroups, tags, areas, ...rest } =
       originalEvent;
     event = {
@@ -617,8 +613,8 @@ function General() {
             cancel: !event.canceled,
           }}
         >
-          {(props) => {
-            const { Button, Field } = props;
+          {(remixFormsProps) => {
+            const { Button, Field } = remixFormsProps;
             return (
               <>
                 <Field name="cancel"></Field>
@@ -1107,8 +1103,8 @@ function General() {
                 publish: !event.published,
               }}
             >
-              {(props) => {
-                const { Button, Field } = props;
+              {(remixFormsProps) => {
+                const { Button, Field } = remixFormsProps;
                 return (
                   <>
                     <Field name="publish"></Field>

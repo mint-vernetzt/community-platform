@@ -10,12 +10,13 @@ export interface HeadingProps extends React.HTMLProps<HTMLHeadingElement> {
 
 export const Heading = React.forwardRef(
   (props: HeadingProps, ref: React.ForwardedRef<HTMLHeadingElement>) => {
-    let { as, like, className = "", ...otherProps } = props;
+    const { as, ...otherProps } = props;
+    let { like, className = "" } = props;
 
     if (like === undefined) {
       like = as;
     } else {
-      className = `${className} ${like}`.trimLeft();
+      className = `${className} ${like}`.trimStart();
     }
 
     const element = React.createElement(as, {
@@ -26,6 +27,7 @@ export const Heading = React.forwardRef(
     return element;
   }
 );
+Heading.displayName = "Heading";
 
 export const H1 = React.forwardRef(
   (
@@ -35,6 +37,7 @@ export const H1 = React.forwardRef(
     return <Heading {...props} ref={ref} as="h1" />;
   }
 );
+H1.displayName = "H1";
 
 export const H2 = React.forwardRef(
   (
@@ -44,6 +47,7 @@ export const H2 = React.forwardRef(
     return <Heading {...props} ref={ref} as="h2" />;
   }
 );
+H2.displayName = "H2";
 
 export const H3 = React.forwardRef(
   (
@@ -53,6 +57,7 @@ export const H3 = React.forwardRef(
     return <Heading {...props} ref={ref} as="h3" />;
   }
 );
+H3.displayName = "H3";
 
 export const H4 = React.forwardRef(
   (
@@ -62,6 +67,7 @@ export const H4 = React.forwardRef(
     return <Heading {...props} ref={ref} as="h4" />;
   }
 );
+H4.displayName = "H4";
 
 export const H5 = React.forwardRef(
   (
@@ -71,6 +77,7 @@ export const H5 = React.forwardRef(
     return <Heading {...props} ref={ref} as="h5" />;
   }
 );
+H5.displayName = "H5";
 
 export const H6 = React.forwardRef(
   (
@@ -80,5 +87,6 @@ export const H6 = React.forwardRef(
     return <Heading {...props} ref={ref} as="h6" />;
   }
 );
+H6.displayName = "H6";
 
 export default Heading;

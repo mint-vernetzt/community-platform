@@ -23,6 +23,7 @@ export function TeaserCard(props: {
       <Link
         to={to}
         target={external ? "_blank" : undefined}
+        rel={external ? "noopener noreferrer" : undefined}
         className="mv-flex mv-gap-2 mv-items-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-200 mv-px-4 mv-py-2 hover:mv-no-underline @xl:mv-h-full"
       >
         <div className="mv-flex mv-flex-col mv-gap-2 mv-py-2 mv-flex-grow @xl:mv-h-full">

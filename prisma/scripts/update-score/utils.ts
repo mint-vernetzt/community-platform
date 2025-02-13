@@ -1,3 +1,5 @@
+// TODO: fix any type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getScoreOfEntity(entity: any) {
   const hasAvatar = entity.avatar !== undefined && entity.avatar !== null;
   const hasLogo = entity.logo !== undefined && entity.logo !== null;

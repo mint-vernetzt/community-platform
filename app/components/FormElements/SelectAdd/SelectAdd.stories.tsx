@@ -1,17 +1,15 @@
 import { type ComponentStory, type ComponentMeta } from "@storybook/react";
 import SelectAdd, { type SelectAddProps } from "./SelectAdd";
-import React from "react";
 
 export default {
   title: "SelectAdd",
   component: SelectAdd,
 } as ComponentMeta<typeof SelectAdd>;
 
-export const Default: Omit<ComponentStory<typeof SelectAdd>, "ref"> = (
+export const Default: ComponentStory<typeof SelectAdd> = (
   args: SelectAddProps
 ) => {
-  const ref = React.createRef<HTMLSelectElement>();
-  return <SelectAdd {...args} ref={ref} />;
+  return <SelectAdd {...args} />;
 };
 Default.storyName = "default";
 Default.args = {};

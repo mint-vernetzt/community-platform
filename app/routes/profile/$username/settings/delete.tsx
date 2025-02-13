@@ -76,21 +76,21 @@ const createMutation = (locales: DeleteProfileLocales) => {
     if (profile === null) {
       throw locales.error.notFound;
     }
-    let lastAdminOrganizations: string[] = [];
+    const lastAdminOrganizations: string[] = [];
     profile.administeredOrganizations.map((relation) => {
       if (relation.organization._count.admins === 1) {
         lastAdminOrganizations.push(relation.organization.name);
       }
       return null;
     });
-    let lastAdminEvents: string[] = [];
+    const lastAdminEvents: string[] = [];
     profile.administeredEvents.map((relation) => {
       if (relation.event._count.admins === 1) {
         lastAdminEvents.push(relation.event.name);
       }
       return null;
     });
-    let lastAdminProjects: string[] = [];
+    const lastAdminProjects: string[] = [];
     profile.administeredProjects.map((relation) => {
       if (relation.project._count.admins === 1) {
         lastAdminProjects.push(relation.project.name);
@@ -188,7 +188,7 @@ export default function Index() {
       <p className="mb-8">{locales.content.headline}</p>
 
       <RemixFormsForm method="post" schema={schema}>
-        {({ Field, Button, Errors, register }) => (
+        {({ Field, Errors, register }) => (
           <>
             <Field name="confirmedToken" className="mb-4">
               {({ Errors }) => (

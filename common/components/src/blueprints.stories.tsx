@@ -35,6 +35,8 @@ const defaultUsers = [
   },
 ];
 
+// TODO: fix type issue
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function reducer(state: typeof defaultUsers, action: any) {
   switch (action.type) {
     case "remove":

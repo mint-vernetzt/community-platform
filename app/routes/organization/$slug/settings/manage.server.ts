@@ -102,6 +102,7 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
   if (organization === null) {
     return null;
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _id, ...rest } = organization;
   // enhance networks and networkMembers with avatar
   const memberOf = organization.memberOf.map((relation) => {
@@ -177,7 +178,7 @@ export async function updateOrganization(options: {
     schema: () =>
       manageSchema.transform(async (data, ctx) => {
         const { organizationTypes: types } = data;
-        let { networkTypes } = data;
+        const { networkTypes } = data;
         try {
           const isNetwork = types.some(
             (id) => id === organizationTypeNetwork.id

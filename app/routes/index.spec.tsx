@@ -48,8 +48,12 @@ Functional tests:
 vi.mock("~/prisma.server");
 
 test("Landing page is rendered without errors", async () => {
-  consoleError.mockImplementationOnce(() => {});
-  consoleError.mockImplementationOnce(() => {});
+  consoleError.mockImplementationOnce(() => {
+    return;
+  });
+  consoleError.mockImplementationOnce(() => {
+    return;
+  });
   createServerClient.auth.getUser.mockResolvedValue({
     data: {
       user: null,
@@ -75,6 +79,5 @@ test("Landing page is rendered without errors", async () => {
   const heading = await screen.findByRole("heading", {
     level: 1,
   });
-  console.log(heading.innerHTML);
   expect(heading.innerHTML).toEqual("Willkommen in Deiner MINT-Community");
 });

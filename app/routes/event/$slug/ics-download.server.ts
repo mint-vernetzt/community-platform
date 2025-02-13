@@ -3,6 +3,7 @@ import { type Event } from "@prisma/client";
 import type { DateArray } from "ics";
 import * as ics from "ics";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
+import { invariantResponse } from "~/lib/utils/response";
 
 export async function getEventBySlug(slug: string) {
   return await prismaClient.event.findUnique({
@@ -135,10 +136,9 @@ export function createIcsString(
 
   const result: unknown = ics.createEvent(icsEvent, (error, icsString) => {
     if (error) {
-      console.log(error);
-      return null;
+      invariantResponse(false, "Error creating ics file", { status: 500 });
     }
     return icsString;
   });
-  return result as string | null;
+  return result as string;
 }

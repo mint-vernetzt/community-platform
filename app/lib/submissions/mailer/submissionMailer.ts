@@ -11,6 +11,7 @@ type MailerOptions = {
 
 function renderTextTemplate<T>(o: T) {
   // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Object.entries(o)
     .map(([key, value]) => `${key.toUpperCase()}: ${value}`)

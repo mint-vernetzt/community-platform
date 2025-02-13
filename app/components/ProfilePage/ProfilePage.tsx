@@ -1,8 +1,10 @@
-import Chip from "../Chip/Chip";
+import { Chip } from "../Chip/Chip";
 import HeaderLogo from "../HeaderLogo/HeaderLogo";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ProfilePageProps {}
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ProfilePage(props: ProfilePageProps) {
   return (
     <>
@@ -14,20 +16,25 @@ function ProfilePage(props: ProfilePageProps) {
             </div>
             <div className="ml-auto">
               <div className="dropdown dropdown-end">
+                {/* eslint-disable-next-line */}
                 <label tabIndex={0} className="btn btn-primary w-10 h-10">
                   AS
                 </label>
                 <ul
+                  // eslint-disable-next-line
                   tabIndex={0}
                   className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
                 >
                   <li>
+                    {/* eslint-disable-next-line */}
                     <a>Profil bearbeiten</a>
                   </li>
                   <li>
+                    {/* eslint-disable-next-line */}
                     <a>Profil löschen</a>
                   </li>
                   <li>
+                    {/* eslint-disable-next-line */}
                     <a>Ausloggen</a>
                   </li>
                 </ul>
@@ -102,6 +109,7 @@ function ProfilePage(props: ProfilePageProps) {
 
                 <ul className="list-none flex flex-wrap -mx-1">
                   <li className="flex-auto px-1">
+                    {/* eslint-disable-next-line */}
                     <a
                       href="#"
                       className="flex items-center justify-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
@@ -118,6 +126,7 @@ function ProfilePage(props: ProfilePageProps) {
                     </a>
                   </li>
                   <li className="flex-auto px-1">
+                    {/* eslint-disable-next-line */}
                     <a
                       href="#"
                       className="flex items-center justify-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"

@@ -4,7 +4,7 @@ import {
 } from "@mint-vernetzt/components/src/molecules/Input";
 import React from "react";
 
-function ConformSelectControls(props: React.PropsWithChildren<{}>) {
+function ConformSelectControls(props: React.PropsWithChildren) {
   return (
     <div className="mv-shrink-0 mv-flex mv-gap-4 mv-ml-auto">
       {props.children}

@@ -58,12 +58,16 @@ function MyProjects() {
         setProjects(newValue);
       }
     }
+    // This eslint error is intentional to make the tab changes work
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   React.useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("projects", projects);
     setSearchParams(params, { preventScrollReset: true, replace: true });
+    // This eslint error is intentional to make the tab changes work
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects]);
 
   const hasProjects = Object.values(loaderData.projects.count).some((value) => {

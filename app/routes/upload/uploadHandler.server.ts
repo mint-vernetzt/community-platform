@@ -205,10 +205,12 @@ export const upload = async (
     invariantResponse(false, "Server Error", { status: 500 });
   }
 };
-// TODO: fix any type
+// TODO: fix type issues
 function validatePersistence(
   authClient: SupabaseClient,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any,
   path: string,
   bucketName?: string

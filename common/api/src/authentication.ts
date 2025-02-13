@@ -5,11 +5,8 @@ import { getUserByToken } from "./lib/apiUser";
 
 export function expressAuthentication(
   request: express.Request,
-  securityName: string,
-  // @ts-ignore
-  scopes?: string[]
-  // @ts-ignore
-): Promise<any> {
+  securityName: string
+) {
   if (securityName === "api_key") {
     const token = getApiTokenFromRequest(request);
 
@@ -27,5 +24,16 @@ export function expressAuthentication(
         )
       );
     }
+  } else {
+    return Promise.reject(
+      new ValidateError(
+        {
+          access_token: {
+            message: "Invalid access token",
+          },
+        },
+        "Authentication failed"
+      )
+    );
   }
 }

@@ -157,7 +157,10 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   const schema = createProfileSchema(locales);
 
-  let parsedFormData = await getFormValues<ProfileSchemaType>(request, schema);
+  const parsedFormData = await getFormValues<ProfileSchemaType>(
+    request,
+    schema
+  );
 
   let errors: FormError | null;
   let data: ProfileFormType;
@@ -184,6 +187,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     if (errors === null) {
       try {
         const { privateFields, ...profileData } = data;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore TODO: fix type issue
         await updateProfileById(profile.id, profileData, privateFields);
         updated = true;
@@ -357,7 +361,7 @@ export default function Index() {
           ref={formRef}
           name="profileForm"
           method="post"
-          onSubmit={(e: React.SyntheticEvent) => {
+          onSubmit={() => {
             reset({}, { keepValues: true });
           }}
         >

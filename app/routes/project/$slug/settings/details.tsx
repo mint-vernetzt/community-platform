@@ -683,6 +683,8 @@ function Details() {
   if (blocker.state === "blocked") {
     const confirmed = confirm(locales.route.content.nonPersistent);
     if (confirmed === true) {
+      // TODO: fix blocker -> use org settings as blueprint
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
       if (blocker.state !== "proceeding") {
         blocker.proceed();
@@ -777,7 +779,7 @@ function Details() {
             {disciplineList.length > 0 && (
               <Chip.Container>
                 {disciplineList.map((listDiscipline, index) => {
-                  let disciplineSlug = allDisciplines.find((discipline) => {
+                  const disciplineSlug = allDisciplines.find((discipline) => {
                     return discipline.id === listDiscipline.defaultValue;
                   })?.slug;
                   let title;
@@ -868,7 +870,7 @@ function Details() {
               <Chip.Container>
                 {additionalDisciplineList.map(
                   (listAdditionalDiscipline, index) => {
-                    let disciplineSlug = allAdditionalDisciplines.find(
+                    const disciplineSlug = allAdditionalDisciplines.find(
                       (discipline) => {
                         return (
                           discipline.id ===
@@ -1031,7 +1033,7 @@ function Details() {
             {targetGroupList.length > 0 && (
               <Chip.Container>
                 {targetGroupList.map((listTargetGroup, index) => {
-                  let targetGroupSlug = allProjectTargetGroups.find(
+                  const targetGroupSlug = allProjectTargetGroups.find(
                     (targetGroup) => {
                       return targetGroup.id === listTargetGroup.defaultValue;
                     }
@@ -1130,7 +1132,7 @@ function Details() {
             {specialTargetGroupList.length > 0 && (
               <Chip.Container>
                 {specialTargetGroupList.map((listSpecialTargetGroup, index) => {
-                  let specialTargetGroupSlug = allSpecialTargetGroups.find(
+                  const specialTargetGroupSlug = allSpecialTargetGroups.find(
                     (specialTargetGroup) => {
                       return (
                         specialTargetGroup.id ===

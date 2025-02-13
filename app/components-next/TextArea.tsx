@@ -1,12 +1,11 @@
 import classNames from "classnames";
 import React, { type FormEventHandler } from "react";
-import Counter from "../components/Counter/Counter";
+import { Counter } from "../components/Counter/Counter";
 import { ToggleCheckbox } from "../components/FormElements/Checkbox/ToggleCheckbox";
 import { RTE, type RTELocales } from "./RTE/RTE";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 
 export interface TextAreaProps {
-  id: string;
   label: string;
   isPublic?: boolean;
   withPublicPrivateToggle?: boolean;
@@ -23,20 +22,17 @@ const TextArea = (
     TextAreaProps
 ) => {
   const {
-    id,
+    label,
     isPublic,
     withPublicPrivateToggle,
-    placeholder,
     errorMessage,
     publicPosition = "side",
     rte,
-    maxLength,
-    defaultValue = "",
     helperText,
-    onChange: defaultOnChange,
-    ...rest
+    ...inputProps
   } = props;
-  const { value, className, readOnly, tabIndex, ...rteInputProps } = rest;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { value, className, readOnly, tabIndex, ...rteInputProps } = inputProps;
 
   const [characterCount, updateCharacterCount] = React.useState(
     props.defaultValue?.toString().length || 0
@@ -46,14 +42,17 @@ const TextArea = (
     event
   ) => {
     event.preventDefault();
-    if (defaultOnChange) {
-      defaultOnChange(event);
+    if (inputProps.onChange) {
+      inputProps.onChange(event);
     }
     let tmpValue = event.currentTarget.value;
     const currentLength = event.currentTarget.value.length;
-    if (maxLength !== undefined && currentLength > maxLength) {
+    if (
+      inputProps.maxLength !== undefined &&
+      currentLength > inputProps.maxLength
+    ) {
       // Check the delta to also cut copy paste input
-      const delta = currentLength - maxLength;
+      const delta = currentLength - inputProps.maxLength;
       // Use slice to cut the string right were the cursor currently is at (Thats the place were to many characters got inserted, so there they have to be removed)
       const currentCursorIndex = event.currentTarget.selectionEnd;
       tmpValue = `${tmpValue.slice(
@@ -69,7 +68,7 @@ const TextArea = (
 
   const counterContainerClasses = classNames(
     "mv-flex mv-w-full mv-mt-2",
-    helperText === undefined && maxLength !== undefined
+    helperText === undefined && inputProps.maxLength !== undefined
       ? "mv-justify-end"
       : "mv-justify-between"
   );
@@ -79,7 +78,7 @@ const TextArea = (
       <div className="mv-flex mv-flex-col mv-w-full">
         <div className="form-control w-full">
           <div className="flex flex-row items-center mb-2">
-            <label htmlFor={id} className="label flex-auto">
+            <label htmlFor={inputProps.id || label} className="label flex-auto">
               {props.label}
               {props.required === true ? " *" : ""}
             </label>
@@ -101,20 +100,23 @@ const TextArea = (
                 <div className="mv-relative">
                   <RTE
                     {...rteInputProps}
-                    id={id}
-                    maxLength={maxLength}
-                    defaultValue={defaultValue}
+                    id={inputProps.id || label}
+                    maxLength={inputProps.maxLength}
+                    defaultValue={inputProps.defaultValue}
                     placeholder="Enter your text here"
                     locales={rte.locales}
                   />
                   <noscript className="mv-absolute mv-top-10 mv-w-full">
                     <textarea
-                      {...rest}
-                      id={id}
-                      maxLength={maxLength}
+                      {...inputProps}
+                      id={inputProps.id || label}
+                      maxLength={inputProps.maxLength}
                       // removeHtmlTags is just for the edge case that someone used RTE already and then turned javascript off at one point.
                       defaultValue={removeHtmlTags(
-                        String(defaultValue).replace(/<br>/g, "\n")
+                        String(inputProps.defaultValue || "").replace(
+                          /<br>/g,
+                          "\n"
+                        )
                       )}
                       className="mv-relative mv-w-full mv-h-[194px] mv-p-2 mv-border mv-border-gray-200 mv-rounded-b-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400"
                     />
@@ -123,38 +125,43 @@ const TextArea = (
               ) : null}
               {rte === undefined ? (
                 <textarea
-                  {...rest}
-                  id={id}
-                  maxLength={maxLength}
-                  defaultValue={defaultValue}
+                  {...inputProps}
+                  id={inputProps.id || label}
+                  maxLength={inputProps.maxLength}
+                  defaultValue={inputProps.defaultValue}
                   onChange={
-                    maxLength !== undefined ? handleTextAreaChange : undefined
+                    inputProps.maxLength !== undefined
+                      ? handleTextAreaChange
+                      : undefined
                   }
                   className="mv-relative mv-w-full mv-h-[234px] mv-p-2 mv-border mv-border-gray-200 mv-rounded-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400"
                 />
               ) : null}
             </div>
             {withPublicPrivateToggle !== undefined &&
-              props.isPublic !== undefined &&
+              isPublic !== undefined &&
               publicPosition === "side" && (
                 <ToggleCheckbox
                   name="privateFields"
-                  value={props.name}
+                  value={inputProps.name}
                   hidden={!withPublicPrivateToggle}
                   defaultChecked={!isPublic}
                 />
               )}
           </div>
         </div>
-        {(maxLength !== undefined || helperText !== undefined) && (
+        {(inputProps.maxLength !== undefined || helperText !== undefined) && (
           <div className={counterContainerClasses}>
             {helperText !== undefined && (
               <div className="mv-text-sm mv-text-gray-700 mv-pr-8">
                 {helperText}
               </div>
             )}
-            {maxLength !== undefined && rte === undefined && (
-              <Counter currentCount={characterCount} maxCount={maxLength} />
+            {inputProps.maxLength !== undefined && rte === undefined && (
+              <Counter
+                currentCount={characterCount}
+                maxCount={inputProps.maxLength}
+              />
             )}
           </div>
         )}

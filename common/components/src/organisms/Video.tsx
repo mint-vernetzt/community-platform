@@ -7,7 +7,7 @@ export type VideoProps = {
   locales: AboutProjectLocales;
 };
 
-function VideoSubline(props: React.PropsWithChildren<{}>) {
+function VideoSubline(props: React.PropsWithChildren) {
   return (
     <p className="mv-text-neutral-600 mv-text-base mv-font-normal">
       {props.children}

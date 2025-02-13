@@ -192,7 +192,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const sessionUser = await getSessionUser(authClient);
   const mode = await deriveProfileMode(sessionUser, username);
 
-  const profile = await getProfileByUsername(username, mode);
+  const profile = await getProfileByUsername(username);
   if (profile === null) {
     invariantResponse(false, locales.route.error.profileNotFound, {
       status: 404,
@@ -233,7 +233,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { futureEvents, pastEvents } =
     splitEventsIntoFutureAndPast<Events>(events);
   // Sorting events (future: startTime "desc", past: startTime "asc")
-  let inFuture = true;
+  const inFuture = true;
   type FutureEvents = typeof futureEvents;
   const sortedFutureEvents = sortEvents<FutureEvents>(futureEvents, inFuture);
   type PastEvents = typeof pastEvents;
@@ -346,8 +346,11 @@ function hasWebsiteOrSocialService(
 
 // TODO: fix any type
 function canViewEvents(events: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   teamMemberOfEvents: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   participatedEvents: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   contributedEvents: any[];
 }) {
   return (

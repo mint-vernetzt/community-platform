@@ -265,13 +265,9 @@ export class EventsController extends Controller {
   @Security("api_key")
   @Get()
   public async getAllEvents(
-    // @ts-ignore
     @Query("skip") skip: number,
-    // @ts-ignore
     @Query("take") take: number,
-    // @ts-ignore
     @Request() request: ExpressRequest,
-    // @ts-ignore
     @Res()
     badRequestResponse: TsoaResponse<
       400,

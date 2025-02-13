@@ -26,8 +26,10 @@ async function main() {
     console.log(
       'Succesfully created function "create_profile_of_new_user" which will be executed by the trigger "on_auth_user_created".'
     );
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    let error: PrismaClientKnownRequestError = e;
+    const error: PrismaClientKnownRequestError = e;
     console.log(error);
   }
 
@@ -39,8 +41,10 @@ async function main() {
     console.log(
       'Succesfully applied trigger "on_auth_user_created" which executes the function "create_profile_of_new_user" everytime a user is inserted into the auth.users table.'
     );
+    // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
-    let error: PrismaClientKnownRequestError = e;
+    const error: PrismaClientKnownRequestError = e;
     console.log(error);
   }
 }

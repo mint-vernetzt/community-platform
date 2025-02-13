@@ -441,6 +441,7 @@ export function MainMenu(
             <Link
               className="hover:mv-underline"
               target="_blank"
+              rel="noopener noreferrer"
               to="https://mint-vernetzt.de/privacy-policy-community-platform/"
             >
               {props.locales !== undefined
@@ -452,6 +453,7 @@ export function MainMenu(
             <Link
               className="hover:mv-underline mv-w-full"
               target="_blank"
+              rel="noopener noreferrer"
               to="https://mint-vernetzt.de/terms-of-use-community-platform/"
             >
               {props.locales !== undefined
@@ -622,7 +624,12 @@ function TopicItem(
   );
 
   return external ? (
-    <Link to={`${props.to}`} target="_blank" className={classes}>
+    <Link
+      to={`${props.to}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={classes}
+    >
       {children}
     </Link>
   ) : (

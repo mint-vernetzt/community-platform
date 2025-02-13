@@ -14,14 +14,14 @@ export interface InputTextProps {
 const InputText = React.forwardRef(
   (props: React.HTMLProps<HTMLInputElement> & InputTextProps, forwardRef) => {
     const inputRef = React.useRef<HTMLInputElement | null>(null);
-    const id = props.id ?? props.label;
     const {
+      label,
       isPublic,
       withPublicPrivateToggle,
       errorMessage,
       withClearButton,
       centered,
-      ...rest
+      ...inputProps
     } = props;
     const formContext = useFormContext();
     const setValue = formContext ? formContext.setValue : null;
@@ -30,7 +30,7 @@ const InputText = React.forwardRef(
       e.preventDefault();
       if (inputRef.current) {
         if (setValue !== null) {
-          setValue(id, "", { shouldDirty: true });
+          setValue(inputProps.id || label, "", { shouldDirty: true });
         }
 
         inputRef.current.value = "";
@@ -40,20 +40,20 @@ const InputText = React.forwardRef(
 
     return (
       <div className={`form-control w-full${centered ? " items-center" : ""}`}>
-        {props.label && (
+        {label && (
           <label
-            htmlFor={id}
+            htmlFor={inputProps.id || label}
             className={`label${errorMessage ? " text-red-500" : ""}`}
-            title={props.errorMessage}
+            title={errorMessage}
           >
-            {props.label} {props.required !== undefined ? "*" : ""}
+            {label} {inputProps.required !== undefined ? "*" : ""}
           </label>
         )}
 
         <div className="flex flex-row items-center">
           <div className="flex-auto">
             <input
-              {...rest}
+              {...inputProps}
               ref={(node) => {
                 inputRef.current = node;
                 if (typeof forwardRef === "function") {
@@ -62,12 +62,12 @@ const InputText = React.forwardRef(
                   forwardRef.current = node;
                 }
               }}
-              type={props.type ?? "text"}
+              type={inputProps.type ?? "text"}
               className={`input input-bordered w-full input-lg ${
-                props.className !== undefined ? props.className : ""
+                inputProps.className !== undefined ? inputProps.className : ""
               }`.trimEnd()}
-              id={id}
-              name={id}
+              id={inputProps.id || label}
+              name={inputProps.id || label}
             />
           </div>
           {withClearButton === true && (
@@ -89,9 +89,9 @@ const InputText = React.forwardRef(
           {withPublicPrivateToggle !== undefined && isPublic !== undefined && (
             <ToggleCheckbox
               name="privateFields"
-              value={props.name}
+              value={inputProps.name}
               hidden={!withPublicPrivateToggle}
-              defaultChecked={!props.isPublic}
+              defaultChecked={!isPublic}
             />
           )}
         </div>

@@ -34,7 +34,8 @@
     "make": "make",
     "typecheck": "npx tsc",
     "typecheck:api": "npx tsc -p ./common/api",
-    "start:api": "ts-node ./common/api/src/server.ts"
+    "start:api": "ts-node ./common/api/src/server.ts",
+    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint ."
   },
   "dependencies": {
     "@conform-to/react": "^0.9.1",
@@ -103,8 +104,8 @@
     "@mint-vernetzt/components": "workspace:*",
     "@remix-run/dev": "^2.15.0",
     "@remix-run/eslint-config": "^2.15.0",
+    "@remix-run/route-config": "^2.15.3",
     "@remix-run/testing": "^2.15.0",
-    "@remix-run/v1-route-convention": "^0.1.4",
     "@sentry/vite-plugin": "^3.1.2",
     "@storybook/addon-actions": "^7.6.5",
     "@storybook/addon-essentials": "^7.6.5",

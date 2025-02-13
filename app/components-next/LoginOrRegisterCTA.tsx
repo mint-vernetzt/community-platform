@@ -6,7 +6,7 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { type RootLocales } from "~/root.server";
 
 export function LoginOrRegisterCTA(props: {
-  isAnon?: Boolean;
+  isAnon?: boolean;
   locales: RootLocales;
 }) {
   const { isAnon = false, locales } = props;
