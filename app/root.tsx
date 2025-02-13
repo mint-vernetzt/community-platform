@@ -2,8 +2,8 @@ import type {
   LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
-import { data, redirect } from "@remix-run/node";
+} from "react-router";
+import { data, redirect } from "react-router";
 import {
   isRouteErrorResponse,
   Link,
@@ -18,7 +18,7 @@ import {
   useRouteError,
   useRouteLoaderData,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import classNames from "classnames";
 import * as React from "react";

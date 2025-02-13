@@ -1,4 +1,4 @@
-import { Link, useFetcher } from "@remix-run/react";
+import { Link, useFetcher } from "react-router";
 import { Avatar } from "./../../molecules/Avatar";
 import { Card } from "./Card";
 import React from "react";

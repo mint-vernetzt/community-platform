@@ -4,12 +4,12 @@
 # npm
 node_modules
 
-# remix
+# react router
 /.cache
-/build
-/public/build
 .env
 /public/fonts
+/.react-router/
+/build/
 
 # tailwind
 /app/styles/*styles.css

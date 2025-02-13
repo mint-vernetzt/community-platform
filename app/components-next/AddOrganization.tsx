@@ -1,5 +1,4 @@
-import { Form, useFetcher, useSearchParams } from "@remix-run/react";
-import { type Jsonify } from "@remix-run/server-runtime/dist/jsonify";
+import { Form, useFetcher, useSearchParams } from "react-router";
 import {
   type MyOrganizationsLocales,
   type addImageUrlToInvites,
@@ -23,12 +22,12 @@ import { ListContainer } from "./ListContainer";
 import { ListItem } from "./ListItem";
 
 export function AddOrganization(props: {
-  organizations?: Jsonify<Awaited<ReturnType<typeof getOrganizationsToAdd>>>;
+  organizations?: Awaited<ReturnType<typeof getOrganizationsToAdd>>;
   memberOrganizations: Awaited<ReturnType<typeof flattenOrganizationRelations>>;
-  pendingRequestsToOrganizations: Jsonify<
-    Awaited<ReturnType<typeof getPendingRequestsToOrganizations>>
+  pendingRequestsToOrganizations: Awaited<
+    ReturnType<typeof getPendingRequestsToOrganizations>
   >;
-  invites: Jsonify<ReturnType<typeof addImageUrlToInvites>>;
+  invites: ReturnType<typeof addImageUrlToInvites>;
   createRequestFetcher: ReturnType<typeof useFetcher<typeof requestsAction>>;
   locales: MyOrganizationsLocales;
 }) {

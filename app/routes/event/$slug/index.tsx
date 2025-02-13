@@ -5,8 +5,8 @@ import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+} from "react-router";
+import { Form, Link, useActionData, useLoaderData } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import React from "react";

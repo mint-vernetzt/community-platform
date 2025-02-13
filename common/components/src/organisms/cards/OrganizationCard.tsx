@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardStatus,
 } from "./Card";
-import { Link, type useFetcher } from "@remix-run/react";
+import { Link, type useFetcher } from "react-router";
 import { type action as quitAction } from "~/routes/my/organizations/quit";
 import { Image } from "./../../molecules/Image";
 import { type DashboardLocales } from "~/routes/dashboard.server";

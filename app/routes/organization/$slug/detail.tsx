@@ -1,11 +1,5 @@
-import { type LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  Outlet,
-  useLoaderData,
-  useLocation,
-} from "@remix-run/react";
+import { type LoaderFunctionArgs, type MetaFunction } from "react-router";
+import { Form, Link, Outlet, useLoaderData, useLocation } from "react-router";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { createAuthClient, getSessionUser } from "~/auth.server";

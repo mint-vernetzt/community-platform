@@ -1,10 +1,10 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
   useLoaderData,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import {

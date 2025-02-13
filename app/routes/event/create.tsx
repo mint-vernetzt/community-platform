@@ -1,11 +1,6 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  useNavigate,
-} from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
+import { Form, useActionData, useLoaderData, useNavigate } from "react-router";
 import { format } from "date-fns-tz";
 import { useForm } from "react-hook-form";
 import type { InferType } from "yup";

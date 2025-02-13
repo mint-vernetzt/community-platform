@@ -1,5 +1,5 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import React from "react";
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
 import { type OrganizationAdminSettingsLocales } from "~/routes/organization/$slug/settings/admins.server";

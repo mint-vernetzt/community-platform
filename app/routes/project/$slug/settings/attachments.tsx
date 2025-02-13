@@ -3,12 +3,9 @@ import { parse } from "@conform-to/zod";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import {
   redirect,
-  unstable_composeUploadHandlers,
-  unstable_createMemoryUploadHandler,
-  unstable_parseMultipartFormData,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-} from "@remix-run/node";
+} from "react-router";
 import {
   Form,
   Link,
@@ -16,7 +13,7 @@ import {
   useFetcher,
   useLoaderData,
   useLocation,
-} from "@remix-run/react";
+} from "react-router";
 import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -202,195 +199,196 @@ export const loader = async (args: LoaderFunctionArgs) => {
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
 
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["project/$slug/settings/attachments"];
-  const { authClient } = createAuthClient(request);
+  // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
+  // const language = await detectLanguage(request);
+  // const locales =
+  //   languageModuleMap[language]["project/$slug/settings/attachments"];
+  // const { authClient } = createAuthClient(request);
 
-  const sessionUser = await getSessionUser(authClient);
+  // const sessionUser = await getSessionUser(authClient);
 
-  // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
-    status: 400,
-  });
+  // // check slug exists (throw bad request if not)
+  // invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
+  //   status: 400,
+  // });
 
-  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
+  // const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+  //   request,
+  //   slug: params.slug,
+  //   sessionUser,
+  //   authClient,
+  // });
 
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
+  // if (redirectPath !== null) {
+  //   return redirect(redirectPath);
+  // }
 
-  const uploadHandler = unstable_composeUploadHandlers(
-    unstable_createMemoryUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE })
-  );
+  // const uploadHandler = unstable_composeUploadHandlers(
+  //   unstable_createMemoryUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE })
+  // );
 
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler
-  );
+  // const formData = await unstable_parseMultipartFormData(
+  //   request,
+  //   uploadHandler
+  // );
 
-  const intent = formData.get(conform.INTENT);
+  // const intent = formData.get(conform.INTENT);
 
-  invariantResponse(
-    intent !== null &&
-      (intent === "upload_document" ||
-        intent === "upload_image" ||
-        intent === "delete_document" ||
-        intent === "delete_image" ||
-        intent === "validate/document" ||
-        intent === "validate/image"),
-    locales.error.invalidAction,
-    {
-      status: 400,
-    }
-  );
+  // invariantResponse(
+  //   intent !== null &&
+  //     (intent === "upload_document" ||
+  //       intent === "upload_image" ||
+  //       intent === "delete_document" ||
+  //       intent === "delete_image" ||
+  //       intent === "validate/document" ||
+  //       intent === "validate/image"),
+  //   locales.error.invalidAction,
+  //   {
+  //     status: 400,
+  //   }
+  // );
 
-  let submission;
-  let toast;
-  if (intent === "upload_document" || intent === "validate/document") {
-    const documentUploadSchema = createDocumentUploadSchema(locales);
-    submission = parse(formData, {
-      schema: documentUploadSchema,
-    });
+  // let submission;
+  // let toast;
+  // if (intent === "upload_document" || intent === "validate/document") {
+  //   const documentUploadSchema = createDocumentUploadSchema(locales);
+  //   submission = parse(formData, {
+  //     schema: documentUploadSchema,
+  //   });
 
-    invariantResponse(
-      typeof submission.value !== "undefined" && submission.value !== null,
-      locales.error.invalidSubmission,
-      { status: 400 }
-    );
+  //   invariantResponse(
+  //     typeof submission.value !== "undefined" && submission.value !== null,
+  //     locales.error.invalidSubmission,
+  //     { status: 400 }
+  //   );
 
-    if (intent === "validate/document") {
-      return { status: "idle", submission, hash: getHash(submission) };
-    }
+  //   if (intent === "validate/document") {
+  //     return { status: "idle", submission, hash: getHash(submission) };
+  //   }
 
-    const mimeTypeIsValid = await hasValidMimeType(
-      submission.value.document,
-      documentMimeTypes
-    );
-    invariantResponse(mimeTypeIsValid, locales.error.onStoring, {
-      status: 400,
-    });
+  //   const mimeTypeIsValid = await hasValidMimeType(
+  //     submission.value.document,
+  //     documentMimeTypes
+  //   );
+  //   invariantResponse(mimeTypeIsValid, locales.error.onStoring, {
+  //     status: 400,
+  //   });
 
-    const filename = submission.value.filename;
-    const document = submission.value.document;
-    const error = await storeDocument(authClient, {
-      slug: params.slug,
-      filename,
-      document,
-    });
+  //   const filename = submission.value.filename;
+  //   const document = submission.value.document;
+  //   const error = await storeDocument(authClient, {
+  //     slug: params.slug,
+  //     filename,
+  //     document,
+  //   });
 
-    invariantResponse(error === null, locales.error.onStoring, {
-      status: 400,
-    });
-    toast = {
-      id: "upload-document-toast",
-      key: getHash(submission),
-      message: insertParametersIntoLocale(locales.content.document.added, {
-        name: submission.value.filename,
-      }),
-    };
-  } else if (intent === "upload_image" || intent === "validate/image") {
-    const imageUploadSchema = createImageUploadSchema(locales);
-    submission = parse(formData, {
-      schema: imageUploadSchema,
-    });
-    invariantResponse(
-      typeof submission.value !== "undefined" && submission.value !== null,
-      locales.error.invalidSubmission,
-      { status: 400 }
-    );
+  //   invariantResponse(error === null, locales.error.onStoring, {
+  //     status: 400,
+  //   });
+  //   toast = {
+  //     id: "upload-document-toast",
+  //     key: getHash(submission),
+  //     message: insertParametersIntoLocale(locales.content.document.added, {
+  //       name: submission.value.filename,
+  //     }),
+  //   };
+  // } else if (intent === "upload_image" || intent === "validate/image") {
+  //   const imageUploadSchema = createImageUploadSchema(locales);
+  //   submission = parse(formData, {
+  //     schema: imageUploadSchema,
+  //   });
+  //   invariantResponse(
+  //     typeof submission.value !== "undefined" && submission.value !== null,
+  //     locales.error.invalidSubmission,
+  //     { status: 400 }
+  //   );
 
-    if (intent === "validate/image") {
-      return { status: "idle", submission, hash: getHash(submission) };
-    }
+  //   if (intent === "validate/image") {
+  //     return { status: "idle", submission, hash: getHash(submission) };
+  //   }
 
-    const mimeTypeIsValid = await hasValidMimeType(
-      submission.value.image,
-      imageMimeTypes
-    );
-    invariantResponse(mimeTypeIsValid, locales.error.onStoring, {
-      status: 400,
-    });
+  //   const mimeTypeIsValid = await hasValidMimeType(
+  //     submission.value.image,
+  //     imageMimeTypes
+  //   );
+  //   invariantResponse(mimeTypeIsValid, locales.error.onStoring, {
+  //     status: 400,
+  //   });
 
-    const filename = submission.value.filename;
-    const image = submission.value.image;
+  //   const filename = submission.value.filename;
+  //   const image = submission.value.image;
 
-    const error = await storeImage(authClient, {
-      slug: params.slug,
-      filename,
-      image,
-    });
+  //   const error = await storeImage(authClient, {
+  //     slug: params.slug,
+  //     filename,
+  //     image,
+  //   });
 
-    invariantResponse(error === null, locales.error.onStoring, {
-      status: 400,
-    });
-    toast = {
-      id: "upload-image-toast",
-      key: getHash(submission),
-      message: insertParametersIntoLocale(locales.content.image.added, {
-        name: submission.value.filename,
-      }),
-    };
-  } else if (intent === "delete_document") {
-    submission = parse(formData, {
-      schema: actionSchema,
-    });
+  //   invariantResponse(error === null, locales.error.onStoring, {
+  //     status: 400,
+  //   });
+  //   toast = {
+  //     id: "upload-image-toast",
+  //     key: getHash(submission),
+  //     message: insertParametersIntoLocale(locales.content.image.added, {
+  //       name: submission.value.filename,
+  //     }),
+  //   };
+  // } else if (intent === "delete_document") {
+  //   submission = parse(formData, {
+  //     schema: actionSchema,
+  //   });
 
-    invariantResponse(
-      typeof submission.value !== "undefined" && submission.value !== null,
-      locales.error.invalidSubmission,
-      { status: 400 }
-    );
+  //   invariantResponse(
+  //     typeof submission.value !== "undefined" && submission.value !== null,
+  //     locales.error.invalidSubmission,
+  //     { status: 400 }
+  //   );
 
-    const id = submission.value.id;
-    await prismaClient.document.delete({
-      where: {
-        id,
-      },
-    });
-    toast = {
-      id: "delete-document-toast",
-      key: getHash(submission),
-      message: insertParametersIntoLocale(locales.content.document.deleted, {
-        name: submission.value.filename,
-      }),
-    };
-  } else if (intent === "delete_image") {
-    submission = parse(formData, {
-      schema: actionSchema,
-    });
+  //   const id = submission.value.id;
+  //   await prismaClient.document.delete({
+  //     where: {
+  //       id,
+  //     },
+  //   });
+  //   toast = {
+  //     id: "delete-document-toast",
+  //     key: getHash(submission),
+  //     message: insertParametersIntoLocale(locales.content.document.deleted, {
+  //       name: submission.value.filename,
+  //     }),
+  //   };
+  // } else if (intent === "delete_image") {
+  //   submission = parse(formData, {
+  //     schema: actionSchema,
+  //   });
 
-    invariantResponse(
-      typeof submission.value !== "undefined" && submission.value !== null,
-      locales.error.invalidSubmission,
-      { status: 400 }
-    );
+  //   invariantResponse(
+  //     typeof submission.value !== "undefined" && submission.value !== null,
+  //     locales.error.invalidSubmission,
+  //     { status: 400 }
+  //   );
 
-    const id = submission.value.id;
-    await prismaClient.image.delete({
-      where: {
-        id,
-      },
-    });
-    toast = {
-      id: "delete-image-toast",
-      key: getHash(submission),
-      message: insertParametersIntoLocale(locales.content.image.deleted, {
-        name: submission.value.filename,
-      }),
-    };
-  } else {
-    invariantResponse(false, "Bad request", {
-      status: 400,
-    });
-  }
+  //   const id = submission.value.id;
+  //   await prismaClient.image.delete({
+  //     where: {
+  //       id,
+  //     },
+  //   });
+  //   toast = {
+  //     id: "delete-image-toast",
+  //     key: getHash(submission),
+  //     message: insertParametersIntoLocale(locales.content.image.deleted, {
+  //       name: submission.value.filename,
+  //     }),
+  //   };
+  // } else {
+  //   invariantResponse(false, "Bad request", {
+  //     status: 400,
+  //   });
+  // }
 
-  return redirectWithToast(request.url, toast);
+  return redirect(request.url);
 };
 
 function Attachments() {
@@ -410,8 +408,9 @@ function Attachments() {
       const result = parse(values.formData, { schema: documentUploadSchema });
       return result;
     },
-    lastSubmission:
-      typeof actionData !== "undefined" ? actionData.submission : undefined,
+    // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
+    // lastSubmission:
+    //   typeof actionData !== "undefined" ? actionData.submission : undefined,
     shouldRevalidate: "onInput",
   });
 
@@ -422,8 +421,9 @@ function Attachments() {
       const result = parse(values.formData, { schema: imageUploadSchema });
       return result;
     },
-    lastSubmission:
-      typeof actionData !== "undefined" ? actionData.submission : undefined,
+    // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
+    // lastSubmission:
+    //   typeof actionData !== "undefined" ? actionData.submission : undefined,
     shouldRevalidate: "onInput",
   });
 
@@ -486,22 +486,23 @@ function Attachments() {
     }
   };
 
+  // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
   // necessary to reset document and image name after successful upload
-  React.useEffect(() => {
-    if (
-      typeof actionData !== "undefined" &&
-      actionData !== null &&
-      actionData.status === "success" &&
-      typeof actionData.submission !== "undefined"
-    ) {
-      if (actionData.submission.intent === "upload_document") {
-        setDocumentName(null);
-      }
-      if (actionData.submission.intent === "upload_image") {
-        setImageName(null);
-      }
-    }
-  }, [actionData]);
+  // React.useEffect(() => {
+  //   if (
+  //     typeof actionData !== "undefined" &&
+  //     actionData !== null &&
+  //     actionData.status === "success" &&
+  //     typeof actionData.submission !== "undefined"
+  //   ) {
+  //     if (actionData.submission.intent === "upload_document") {
+  //       setDocumentName(null);
+  //     }
+  //     if (actionData.submission.intent === "upload_image") {
+  //       setImageName(null);
+  //     }
+  //   }
+  // }, [actionData]);
 
   return (
     <Section>

@@ -1,5 +1,5 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData, useSearchParams } from "react-router";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";

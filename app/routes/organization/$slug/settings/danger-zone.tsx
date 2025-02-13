@@ -1,7 +1,7 @@
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { type LoaderFunctionArgs } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
+import { type LoaderFunctionArgs } from "react-router";
+import { Link, Outlet, useLoaderData, useLocation } from "react-router";
 import { BackButton } from "~/components-next/BackButton";
 import { detectLanguage } from "~/i18n.server";
 import { Deep } from "~/lib/utils/searchParams";

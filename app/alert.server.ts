@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, redirect } from "@remix-run/node";
+import { createCookieSessionStorage, redirect } from "react-router";
 import { combineHeaders, sanitizeUserHtml } from "./utils.server";
 import { z, ZodError } from "zod";
 import { type AlertLevel } from "@mint-vernetzt/components/src/molecules/Alert";

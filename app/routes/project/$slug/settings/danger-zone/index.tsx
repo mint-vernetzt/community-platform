@@ -1,4 +1,4 @@
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";

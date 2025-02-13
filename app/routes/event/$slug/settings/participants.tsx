@@ -1,5 +1,5 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import {
   Link,
   useActionData,
@@ -8,7 +8,7 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
-} from "@remix-run/react";
+} from "react-router";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";

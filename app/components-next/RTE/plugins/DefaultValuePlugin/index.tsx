@@ -8,12 +8,12 @@ import {
 } from "lexical";
 import React from "react";
 import { type OverrideableInputProps } from "../../RTE";
-import { useNavigation } from "@remix-run/react";
+import { useNavigation } from "react-router";
 
 function DefaultValuePlugin(
   props: Pick<OverrideableInputProps, "defaultValue">
 ) {
-  const { defaultValue } = props;
+  const { defaultValue = "" } = props;
   const [editor] = useLexicalComposerContext();
   const navigation = useNavigation();
 

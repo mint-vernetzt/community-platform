@@ -1,8 +1,8 @@
 import { Avatar as MVAvatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import type { Profile } from "@prisma/client";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
+import { Form, Link, useLoaderData } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import React from "react";

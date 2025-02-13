@@ -6,7 +6,7 @@ import {
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
@@ -15,7 +15,7 @@ import {
   useNavigation,
   useSearchParams,
   useSubmit,
-} from "@remix-run/react";
+} from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import React from "react";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";

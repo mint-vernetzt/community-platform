@@ -1,13 +1,13 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { type LoaderFunctionArgs, redirect } from "react-router";
 import {
   Link,
   Outlet,
   useLoaderData,
   useLocation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import classNames from "classnames";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Deep } from "~/lib/utils/searchParams";

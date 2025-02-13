@@ -1,9 +1,9 @@
 import { RichText } from "~/components/Richtext/RichText";
 import { Accordion } from "~/components-next/Accordion";
 import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "react-router";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { type LoaderFunctionArgs } from "@remix-run/node";
+import { type LoaderFunctionArgs } from "react-router";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 

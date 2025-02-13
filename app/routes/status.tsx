@@ -1,7 +1,7 @@
 // import { redirect } from "@remix-run/node";
 
-import { Form } from "@remix-run/react";
-import { type ActionFunctionArgs } from "@remix-run/server-runtime";
+import { Form } from "react-router";
+import { type ActionFunctionArgs } from "react-router";
 import { Readable } from "stream";
 import { invariantResponse } from "~/lib/utils/response";
 import {
@@ -87,8 +87,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   await prismaClient.event.update({
     where: {
-      // slug: "0_developerevent-m6f1c1tc",
-      slug: "diemintwoche-l95trsmg",
+      slug: "0_developerevent-m6f1c1tc",
+      // slug: "diemintwoche-l95trsmg",
     },
     data: {
       documents: {

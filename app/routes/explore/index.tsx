@@ -1,4 +1,4 @@
-import { redirect } from "@remix-run/node";
+import { redirect } from "react-router";
 
 // handle "/profiles" as default route
 export const loader = async () => {
