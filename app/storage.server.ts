@@ -1,195 +1,143 @@
 import type { Document } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
-// import { fileTypeFromBuffer } from "file-type";
 import JSZip from "jszip";
 import { invariantResponse } from "./lib/utils/response";
-// import { createHashFromString } from "./utils.server";
+import { LocalFileStorage } from "@mjackson/file-storage/local";
+import { parseFormData, type FileUpload } from "@mjackson/form-data-parser";
+import { fileTypeFromBlob } from "file-type";
+import { createHashFromString } from "./utils.server";
+import { Readable } from "stream";
+import { createAuthClient } from "./auth.server";
+import {
+  BUCKET_FIELD_NAME,
+  BUCKET_NAME_DOCUMENTS,
+  BUCKET_NAME_IMAGES,
+  DOCUMENT_MIME_TYPES,
+  FILE_FIELD_NAME,
+  IMAGE_MIME_TYPES,
+} from "./storage.shared";
 
-// const uploadKeys = ["avatar", "background", "logo", "document"];
-// const imageUploadKeys = ["avatar", "background", "logo"];
-
-export function generatePathName(
-  extension: string,
-  hash: string,
-  name: string
-) {
-  return `${hash.substring(0, 2)}/${hash.substring(2)}/${name}.${extension}`;
-}
-
-export function nextGeneratePathName(hash: string, extension: string) {
+export function generatePathName(hash: string, extension: string) {
   return `${hash.substring(0, 2)}/${hash.substring(
     2,
     hash.length - 2
   )}/${hash.substring(hash.length - 2)}.${extension}`;
 }
 
-// TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
-// const uploadHandler: UploadHandler = async (part) => {
-//   // TODO: remove file-type package and use contentType...only if Remix uses file header
-//   const { data, name, filename } = part;
-
-//   const bytes = [];
-//   for await (const chunk of data) {
-//     bytes.push(...chunk);
-//   }
-
-//   const array = new Uint8Array(bytes);
-
-//   const buffer = Buffer.from(array.buffer);
-
-//   if (!uploadKeys.includes(name)) {
-//     return buffer.toString();
-//   }
-
-//   const hash = await createHashFromString(buffer.toString());
-//   const fileTypeResult = await fileTypeFromBuffer(buffer);
-//   if (fileTypeResult === undefined) {
-//     console.error(
-//       "The mime type of the file could not be read from file header."
-//     );
-//     invariantResponse(false, "Server Error", { status: 500 });
-//   }
-//   if (name === "document" && fileTypeResult.mime !== "application/pdf") {
-//     console.error(
-//       "Document not of type application/pdf and could not be uploaded."
-//     );
-//     invariantResponse(false, "Server Error", { status: 500 });
-//   }
-//   if (
-//     imageUploadKeys.includes(name) &&
-//     !fileTypeResult.mime.includes("image/")
-//   ) {
-//     console.error("Image not of type image/* and could not be uploaded.");
-//     invariantResponse(false, "Server Error", { status: 500 });
-//   }
-//   const path = generatePathName(fileTypeResult.ext, hash, name);
-//   const sizeInBytes = buffer.length;
-
-//   return JSON.stringify({
-//     buffer,
-//     path,
-//     filename,
-//     extension: fileTypeResult.ext,
-//     mimeType: fileTypeResult.mime,
-//     sizeInBytes,
-//   });
-// };
-
-async function persistUpload(
-  authClient: SupabaseClient,
-  path: string,
-  buffer: Buffer,
-  bucketName: string,
-  mimeType: string
+export async function* streamToAsyncIterator(
+  stream: ReadableStream<Uint8Array<ArrayBufferLike>>
 ) {
-  return await authClient.storage.from(bucketName).upload(path, buffer, {
-    upsert: true,
-    contentType: mimeType,
-  });
-}
-
-// TODO: fix type issues
-function validatePersistence(
-  authClient: SupabaseClient,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any,
-  path: string,
-  bucketName?: string
-) {
-  if (error || data === null) {
+  const reader = stream.getReader();
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) return;
+      yield value;
+    }
+  } catch (error) {
     console.error({ error });
     invariantResponse(false, "Server Error", { status: 500 });
-  }
-
-  if (getPublicURL(authClient, path, bucketName) === null) {
-    console.error("Requested public url is null.");
-    invariantResponse(false, "Server Error", { status: 500 });
+  } finally {
+    reader.releaseLock();
   }
 }
 
-// TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
-// export const parseMultipart = async (request: Request) => {
-// try {
-//   const formData = await unstable_parseMultipartFormData(
-//     request,
-//     unstable_composeUploadHandlers(uploadHandler)
-//   );
-//   const uploadKey = formData.get("uploadKey");
-//   if (uploadKey === null) {
-//     console.error("No upload Key");
-//     invariantResponse(false, "Server Error", { status: 500 });
-//   }
-//   // TODO: can this type assertion be removed and proofen by code?
-//   const uploadHandlerResponseJSON = formData.get(uploadKey as string);
-//   if (uploadHandlerResponseJSON === null) {
-//     console.error("Upload Handler Response is null");
-//     invariantResponse(false, "Server Error", { status: 500 });
-//   }
-//   const uploadHandlerResponse: {
-//     buffer: {
-//       type: "Buffer";
-//       data: number[];
-//     };
-//     path: string;
-//     filename: string;
-//     extension: string;
-//     mimeType: string;
-//     sizeInBytes: number;
-//     // TODO: can this type assertion be removed and proofen by code?
-//   } = JSON.parse(uploadHandlerResponseJSON as string);
-//   // Convert buffer.data (number[]) to Buffer
-//   const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
-//   if (buffer.length === 0) {
-//     console.error("Cannot upload empty file.");
-//     invariantResponse(false, "Bad request", { status: 400 });
-//   }
-//   if (buffer.length > 5_000_000) {
-//     console.error("File is too big. Current limit is 5MB on server side.");
-//     invariantResponse(false, "Bad request", { status: 400 });
-//   }
-// return {
-//   uploadHandlerResponse: {
-//     ...uploadHandlerResponse,
-//     buffer,
-//   },
-//   formData,
-// };
-// } catch (error) {
-//   console.error({ error });
-//   invariantResponse(false, "Server error", { status: 500 });
-// }
-// };
+export const fileStorage = new LocalFileStorage(`temporary-upload-storage`);
 
-export async function doPersistUpload(
-  authClient: SupabaseClient,
-  bucketName: string,
-  uploadHandlerResponse: {
-    buffer: Buffer;
-    path: string;
-    filename: string;
-    extension: string;
-    mimeType: string;
-    sizeInBytes: number;
+export async function uploadHandler(fileUpload: FileUpload) {
+  if (fileUpload.fieldName === FILE_FIELD_NAME) {
+    // FileUpload objects are not meant to stick around for very long (they are
+    // streaming data from the request.body!) so we should store them as soon as
+    // possible.
+    await fileStorage.set(fileUpload.fieldName, fileUpload);
+
+    // Return a File for the FormData object. This is a LazyFile that knows how
+    // to access the file's content if needed (using e.g. file.stream()) but
+    // waits until it is requested to actually read anything.
+    return fileStorage.get(fileUpload.fieldName);
   }
-) {
-  const { data, error } = await persistUpload(
-    authClient,
-    uploadHandlerResponse.path,
-    uploadHandlerResponse.buffer,
-    bucketName,
-    uploadHandlerResponse.mimeType
-  );
-  validatePersistence(
-    authClient,
-    error,
-    data,
-    uploadHandlerResponse.path,
-    bucketName
+}
+
+async function deleteAllTemporaryFiles() {
+  const items = await fileStorage.list(); // List all items in the fileStorage
+  for (const file of items.files) {
+    await fileStorage.remove(file.key); // Delete each item by its name
+  }
+}
+
+export async function uploadFileFromMultipartFormData(request: Request) {
+  let formData;
+  try {
+    formData = await parseFormData(request, uploadHandler);
+  } catch (error) {
+    console.error({ error });
+    await deleteAllTemporaryFiles();
+    invariantResponse(false, "Server Error - Failed to parse multipart", {
+      status: 500,
+    });
+  }
+  const bucketName = formData.get(BUCKET_FIELD_NAME);
+  if (
+    bucketName !== BUCKET_NAME_DOCUMENTS &&
+    bucketName !== BUCKET_NAME_IMAGES
+  ) {
+    await deleteAllTemporaryFiles();
+    invariantResponse(false, "Bad request - No bucket name", {
+      status: 400,
+    });
+  }
+  const file = formData.get(FILE_FIELD_NAME);
+  if (file === null || typeof file === "string") {
+    await deleteAllTemporaryFiles();
+    invariantResponse(false, "Bad request - Not a file", {
+      status: 400,
+    });
+  }
+  const fileType = await fileTypeFromBlob(file);
+  if (typeof fileType === "undefined") {
+    await deleteAllTemporaryFiles();
+    invariantResponse(false, "Bad request - File type undefined", {
+      status: 400,
+    });
+  }
+  if (
+    (bucketName === "documents" &&
+      DOCUMENT_MIME_TYPES.includes(fileType.mime) === false) ||
+    (bucketName === "images" &&
+      IMAGE_MIME_TYPES.includes(fileType.mime) === false)
+  ) {
+    await deleteAllTemporaryFiles();
+    invariantResponse(false, "Bad request - File type not allowed", {
+      status: 400,
+    });
+  }
+  const path = generatePathName(createHashFromString(file.name), fileType.ext);
+  const fileStream = Readable.from(streamToAsyncIterator(file.stream()));
+
+  const { authClient } = await createAuthClient(request);
+  const { data, error } = await authClient.storage
+    .from(bucketName)
+    .upload(path, fileStream, {
+      upsert: true,
+      contentType: fileType.mime,
+      duplex: "half",
+    });
+
+  await deleteAllTemporaryFiles();
+  invariantResponse(
+    error === null && data !== null,
+    "Server Error - Uploading file",
+    {
+      status: 500,
+    }
   );
 
-  return true;
+  return {
+    formData,
+    path,
+    file,
+    fileType,
+  };
 }
 
 export function getPublicURL(
@@ -225,7 +173,6 @@ export async function download(
   relativePath: string,
   bucket = "documents"
 ) {
-  console.log({ bucket, relativePath });
   const { data, error } = await authClient.storage
     .from(bucket)
     .download(relativePath);

@@ -1,20 +1,11 @@
 export const locale = {
-  validation: {
-    document: {
-      size: "Die Datei darf nicht größer als 6MB sein.",
-      type: "Die Datei muss ein PDF oder ein JPEG sein.",
-    },
-    image: {
-      size: "Die Datei darf nicht größer als 6MB sein.",
-      type: "Die Datei muss ein PNG oder ein JPEG sein.",
-    },
-  },
   error: {
     invalidRoute: "No valid route",
     projectNotFound: "Project not found",
     invalidSubmission: "No valid submission",
     invalidAction: "No valid action",
-    onStoring: "Error on storing document",
+    onStoring:
+      "Datei konnte nicht gespeichert werden. Versuche es erneut oder wende dich an den Support.",
   },
   content: {
     editModal: {

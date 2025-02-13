@@ -1,20 +1,10 @@
 export const locale = {
-  validation: {
-    document: {
-      size: "The file exceeds the maximum size of 6MB.",
-      type: "The file is not of type PDF or JPEG.",
-    },
-    image: {
-      size: "The file exceeds the maximum size of 6MB.",
-      type: "The file is not of type PDF or JPEG.",
-    },
-  },
   error: {
     invalidRoute: "No valid route",
     projectNotFound: "Project not found",
     invalidSubmission: "No valid submission",
     invalidAction: "No valid action",
-    onStoring: "Error on storing document",
+    onStoring: "File could not be saved. Please try again or contact support.",
   },
   content: {
     editModal: {
