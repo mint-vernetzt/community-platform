@@ -15,6 +15,7 @@ import { createHashFromString } from "~/utils.server";
 import { createAuthClient } from "~/auth.server";
 import { prismaClient } from "~/prisma.server";
 import { parseFormData } from "@mjackson/form-data-parser";
+import { FILE_FIELD_NAME } from "~/form-helpers";
 
 export const loader = async () => {
   // return redirect("/");
@@ -108,7 +109,7 @@ export default function Status() {
   return (
     <>
       <Form method="post" encType="multipart/form-data">
-        <input type="file" name="file" />
+        <input type="file" name={FILE_FIELD_NAME} />
         <input type="hidden" name="intent" value="documents" />
         <button type="submit">Submit</button>
       </Form>

@@ -1,5 +1,6 @@
 import { LocalFileStorage } from "@mjackson/file-storage/local";
 import { type FileUpload } from "@mjackson/form-data-parser";
+import { FILE_FIELD_NAME } from "~/form-helpers";
 import { invariantResponse } from "~/lib/utils/response";
 
 export async function* streamToAsyncIterator(
@@ -22,7 +23,7 @@ export async function* streamToAsyncIterator(
 export const fileStorage = new LocalFileStorage(`temporary-upload-storage`);
 
 export async function uploadHandler(fileUpload: FileUpload) {
-  if (typeof fileUpload.fieldName === "string") {
+  if (fileUpload.fieldName === FILE_FIELD_NAME) {
     // FileUpload objects are not meant to stick around for very long (they are
     // streaming data from the request.body!) so we should store them as soon as
     // possible.
