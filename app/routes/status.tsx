@@ -31,6 +31,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { useHydrated } from "remix-utils/use-hydrated";
 import React from "react";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { FileInput, type SelectedFile } from "~/components-next/FileInput";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
@@ -152,10 +153,6 @@ export default function Status() {
   const navigation = useNavigation();
   const isHydrated = useHydrated();
 
-  type SelectedFile = {
-    name: string;
-    sizeInMB: number;
-  };
   const [selectedFileNames, setSelectedFileNames] = React.useState<
     SelectedFile[]
   >([]);
@@ -193,107 +190,129 @@ export default function Status() {
         method="post"
         encType="multipart/form-data"
       >
-        {/* TODO: <FileInput> component */}
-        <noscript>
-          <input
-            {...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
-              type: "file",
-            })}
-            key={FILE_FIELD_NAME}
-            className="mv-mb-2"
-            accept={DOCUMENT_MIME_TYPES.join(", ")}
-          />
-        </noscript>
-        <div className="mv-grid mv-grid-cols-2 mv-gap-2 mv-w-fit">
-          {isHydrated === true ? (
-            <>
-              <Button as="label" htmlFor={FILE_FIELD_NAME}>
-                Dokument auswählen
-              </Button>
-              <input
-                {...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
-                  type: "file",
-                })}
-                id={FILE_FIELD_NAME}
-                key={FILE_FIELD_NAME}
-                className="mv-hidden"
-                accept={DOCUMENT_MIME_TYPES.join(", ")}
-                onChange={(event) => {
-                  setSelectedFileNames(
-                    event.target.files !== null
-                      ? Array.from(event.target.files).map((file) => {
-                          return {
-                            name: file.name,
-                            sizeInMB:
-                              Math.round((file.size / 1000 / 1000) * 100) / 100,
-                          };
-                        })
-                      : []
-                  );
-                  documentUploadForm.validate();
-                }}
-              />
-            </>
-          ) : (
-            <Button as="label" disabled>
-              Dokument auswählen
-            </Button>
-          )}
-          <input
-            {...getInputProps(documentUploadFields[BUCKET_FIELD_NAME], {
-              type: "hidden",
-            })}
-            key={BUCKET_FIELD_NAME}
-          />
-          <Button
-            type="submit"
-            name="intent"
-            defaultValue="submit"
-            fullSize
-            // Don't disable button when js is disabled
-            disabled={
-              isHydrated
-                ? selectedFileNames.length === 0 ||
-                  documentUploadForm.dirty === false ||
-                  documentUploadForm.valid === false
-                : false
-            }
-          >
-            Dokument hochladen
-          </Button>
-        </div>
-        <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
-          {selectedFileNames.length > 0 ? (
-            <p>
-              {selectedFileNames
-                .map((file) => {
-                  return `${file.name} (${file.sizeInMB} MB)`;
+        <FileInput
+          as="textButton"
+          selectedFileNames={selectedFileNames}
+          errors={
+            typeof documentUploadFields[FILE_FIELD_NAME].errors === "undefined"
+              ? undefined
+              : documentUploadFields[FILE_FIELD_NAME].errors.map((error) => {
+                  return {
+                    id: documentUploadFields[FILE_FIELD_NAME].errorId,
+                    message: error,
+                  };
                 })
-                .join(", ")}
-            </p>
-          ) : isHydrated === true ? (
-            "Du hast keine Datei ausgewählt."
-          ) : null}
-          {typeof documentUploadFields[FILE_FIELD_NAME].errors !==
-            "undefined" &&
-          documentUploadFields[FILE_FIELD_NAME].errors.length > 0 ? (
-            <div>
-              {documentUploadFields[FILE_FIELD_NAME].errors.map(
-                (error, index) => {
-                  return (
-                    <div
-                      id={documentUploadFields[FILE_FIELD_NAME].errorId}
-                      key={index}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                    >
-                      {error}
-                    </div>
-                  );
-                }
-              )}
-            </div>
-          ) : null}
-        </div>
+          }
+          fileInputProps={{
+            ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
+              type: "file",
+            }),
+            id: FILE_FIELD_NAME,
+            key: FILE_FIELD_NAME,
+            className: "mv-hidden",
+            accept: DOCUMENT_MIME_TYPES.join(", "),
+            onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+              setSelectedFileNames(
+                event.target.files !== null
+                  ? Array.from(event.target.files).map((file) => {
+                      return {
+                        name: file.name,
+                        sizeInMB:
+                          Math.round((file.size / 1000 / 1000) * 100) / 100,
+                      };
+                    })
+                  : []
+              );
+              documentUploadForm.validate();
+            },
+          }}
+          bucketInputProps={{
+            ...getInputProps(documentUploadFields[BUCKET_FIELD_NAME], {
+              type: "hidden",
+            }),
+            key: BUCKET_FIELD_NAME,
+          }}
+          noscriptInputProps={{
+            ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
+              type: "file",
+            }),
+            key: FILE_FIELD_NAME,
+            className: "mv-mb-2",
+            accept: DOCUMENT_MIME_TYPES.join(", "),
+          }}
+        >
+          <FileInput.Text>Dokument auswählen</FileInput.Text>
+        </FileInput>
+        <FileInput
+          selectedFileNames={selectedFileNames}
+          errors={
+            typeof documentUploadFields[FILE_FIELD_NAME].errors === "undefined"
+              ? undefined
+              : documentUploadFields[FILE_FIELD_NAME].errors.map((error) => {
+                  return {
+                    id: documentUploadFields[FILE_FIELD_NAME].errorId,
+                    message: error,
+                  };
+                })
+          }
+          fileInputProps={{
+            ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
+              type: "file",
+            }),
+            id: FILE_FIELD_NAME,
+            key: FILE_FIELD_NAME,
+            className: "mv-hidden",
+            accept: DOCUMENT_MIME_TYPES.join(", "),
+            onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+              setSelectedFileNames(
+                event.target.files !== null
+                  ? Array.from(event.target.files).map((file) => {
+                      return {
+                        name: file.name,
+                        sizeInMB:
+                          Math.round((file.size / 1000 / 1000) * 100) / 100,
+                      };
+                    })
+                  : []
+              );
+              documentUploadForm.validate();
+            },
+          }}
+          bucketInputProps={{
+            ...getInputProps(documentUploadFields[BUCKET_FIELD_NAME], {
+              type: "hidden",
+            }),
+            key: BUCKET_FIELD_NAME,
+          }}
+          noscriptInputProps={{
+            ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
+              type: "file",
+            }),
+            key: FILE_FIELD_NAME,
+            className: "mv-mb-2",
+            accept: DOCUMENT_MIME_TYPES.join(", "),
+          }}
+        >
+          <FileInput.Text>Dokument auswählen</FileInput.Text>
+          <FileInput.Controls>
+            <Button
+              type="submit"
+              name="intent"
+              defaultValue="submit"
+              fullSize
+              // Don't disable button when js is disabled
+              disabled={
+                isHydrated
+                  ? selectedFileNames.length === 0 ||
+                    documentUploadForm.dirty === false ||
+                    documentUploadForm.valid === false
+                  : false
+              }
+            >
+              Dokument hochladen
+            </Button>
+          </FileInput.Controls>
+        </FileInput>
       </Form>
     </>
   );
