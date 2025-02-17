@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { type ProjectAttachmentSettingsLocales } from "./routes/project/$slug/settings/attachments.server";
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
+import { INTENT_FIELD_NAME } from "./form-helpers";
 
 // Max upload sizes (Remember to change nginx.conf when changing this)
 const MAX_UPLOAD_SIZE_DOCUMENTS = 6 * 1000 * 1000; // 6MB
@@ -98,6 +99,8 @@ export const IMAGE_MIME_TYPES = [
 export const FILE_FIELD_NAME = "file";
 // Field name for determining the bucket to upload the file to -> Please use this as name attribute on all file upload forms
 export const BUCKET_FIELD_NAME = "bucket";
+// Field value for determining the intent of the submitted form when using multiple forms on one route -> Please use this value as defaultValue attribute on file form submit button
+export const UPLOAD_INTENT_VALUE = "upload";
 export const BUCKET_NAME_IMAGES = "images";
 export const BUCKET_NAME_DOCUMENTS = "documents";
 
@@ -118,6 +121,7 @@ export const documentSchema = (locales: ProjectAttachmentSettingsLocales) => {
         return DOCUMENT_MIME_TYPES.includes(file.type);
       }, locales.upload.validation.document.type),
     [BUCKET_FIELD_NAME]: z.enum([BUCKET_NAME_DOCUMENTS]),
+    [INTENT_FIELD_NAME]: z.enum([UPLOAD_INTENT_VALUE]),
   };
 };
 
@@ -137,5 +141,6 @@ export const imageSchema = (locales: ProjectAttachmentSettingsLocales) => {
         return IMAGE_MIME_TYPES.includes(file.type);
       }, locales.upload.validation.image.type),
     [BUCKET_FIELD_NAME]: z.enum([BUCKET_NAME_IMAGES]),
+    [INTENT_FIELD_NAME]: z.enum([UPLOAD_INTENT_VALUE]),
   };
 };

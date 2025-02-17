@@ -26,7 +26,7 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { getPublicURL } from "~/storage.server";
+import { getPublicURL, parseMultipartFormData } from "~/storage.server";
 import {
   BUCKET_FIELD_NAME,
   BUCKET_NAME_DOCUMENTS,
@@ -36,21 +36,25 @@ import {
   FILE_FIELD_NAME,
   IMAGE_MIME_TYPES,
   imageSchema,
+  UPLOAD_INTENT_VALUE,
 } from "~/storage.shared";
-import { type ProjectAttachmentSettingsLocales } from "./attachments.server";
+import {
+  uploadFile,
+  type ProjectAttachmentSettingsLocales,
+} from "./attachments.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { redirectWithToast } from "~/toast.server";
+import * as Sentry from "@sentry/remix";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 
-const createDocumentUploadSchema = (
+export const createDocumentUploadSchema = (
   locales: ProjectAttachmentSettingsLocales
-) =>
-  z.object({
-    ...documentSchema(locales),
-  });
+) => z.object({ ...documentSchema(locales) });
 
-const createImageUploadSchema = (locales: ProjectAttachmentSettingsLocales) =>
-  z.object({
-    ...imageSchema(locales),
-  });
+export const createImageUploadSchema = (
+  locales: ProjectAttachmentSettingsLocales
+) => z.object({ ...imageSchema(locales) });
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -152,198 +156,64 @@ export const loader = async (args: LoaderFunctionArgs) => {
 };
 
 export const action = async (args: ActionFunctionArgs) => {
-  const { request } = args;
+  const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["project/$slug/settings/attachments"];
 
-  // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
-  // const language = await detectLanguage(request);
-  // const locales =
-  //   languageModuleMap[language]["project/$slug/settings/attachments"];
-  // const { authClient } = createAuthClient(request);
+  const { formData, error } = await parseMultipartFormData(request);
+  if (error !== null || formData === null) {
+    console.error({ error });
+    Sentry.captureException(error);
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "upload-document",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.onStoring,
+      level: "negative",
+    });
+  }
 
-  // const sessionUser = await getSessionUser(authClient);
+  const intent = formData.get(INTENT_FIELD_NAME);
+  let submission;
+  let toast;
+  console.log({ intent });
+  if (intent === UPLOAD_INTENT_VALUE) {
+    const result = await uploadFile({ request, formData, slug, locales });
+    submission = result.submission;
+    toast = result.toast;
+  } else {
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "invalid-action",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.invalidAction,
+      level: "negative",
+    });
+  }
 
-  // // check slug exists (throw bad request if not)
-  // invariantResponse(params.slug !== undefined, locales.route.error.invalidRoute, {
-  //   status: 400,
-  // });
-
-  // const redirectPath = await getRedirectPathOnProtectedProjectRoute({
-  //   request,
-  //   slug: params.slug,
-  //   sessionUser,
-  //   authClient,
-  // });
-
-  // if (redirectPath !== null) {
-  //   return redirect(redirectPath);
-  // }
-
-  // const uploadHandler = unstable_composeUploadHandlers(
-  //   unstable_createMemoryUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE })
-  // );
-
-  // const formData = await unstable_parseMultipartFormData(
-  //   request,
-  //   uploadHandler
-  // );
-
-  // const intent = formData.get(conform.INTENT);
-
-  // invariantResponse(
-  //   intent !== null &&
-  //     (intent === "upload_document" ||
-  //       intent === "upload_image" ||
-  //       intent === "delete_document" ||
-  //       intent === "delete_image" ||
-  //       intent === "validate/document" ||
-  //       intent === "validate/image"),
-  //   locales.route.error.invalidAction,
-  //   {
-  //     status: 400,
-  //   }
-  // );
-
-  // let submission;
-  // let toast;
-  // if (intent === "upload_document" || intent === "validate/document") {
-  //   const documentUploadSchema = createDocumentUploadSchema(locales);
-  //   submission = parse(formData, {
-  //     schema: documentUploadSchema,
-  //   });
-
-  //   invariantResponse(
-  //     typeof submission.value !== "undefined" && submission.value !== null,
-  //     locales.route.error.invalidSubmission,
-  //     { status: 400 }
-  //   );
-
-  //   if (intent === "validate/document") {
-  //     return { status: "idle", submission, hash: getHash(submission) };
-  //   }
-
-  //   const mimeTypeIsValid = await hasValidMimeType(
-  //     submission.value.document,
-  //     documentMimeTypes
-  //   );
-  //   invariantResponse(mimeTypeIsValid, locales.route.error.onStoring, {
-  //     status: 400,
-  //   });
-
-  //   const filename = submission.value.filename;
-  //   const document = submission.value.document;
-  //   const error = await storeDocument(authClient, {
-  //     slug: params.slug,
-  //     filename,
-  //     document,
-  //   });
-
-  //   invariantResponse(error === null, locales.route.error.onStoring, {
-  //     status: 400,
-  //   });
-  //   toast = {
-  //     id: "upload-document-toast",
-  //     key: getHash(submission),
-  //     message: insertParametersIntoLocale(locales.route.content.document.added, {
-  //       name: submission.value.filename,
-  //     }),
-  //   };
-  // } else if (intent === "upload_image" || intent === "validate/image") {
-  //   const imageUploadSchema = createImageUploadSchema(locales);
-  //   submission = parse(formData, {
-  //     schema: imageUploadSchema,
-  //   });
-  //   invariantResponse(
-  //     typeof submission.value !== "undefined" && submission.value !== null,
-  //     locales.route.error.invalidSubmission,
-  //     { status: 400 }
-  //   );
-
-  //   if (intent === "validate/image") {
-  //     return { status: "idle", submission, hash: getHash(submission) };
-  //   }
-
-  //   const mimeTypeIsValid = await hasValidMimeType(
-  //     submission.value.image,
-  //     imageMimeTypes
-  //   );
-  //   invariantResponse(mimeTypeIsValid, locales.route.error.onStoring, {
-  //     status: 400,
-  //   });
-
-  //   const filename = submission.value.filename;
-  //   const image = submission.value.image;
-
-  //   const error = await storeImage(authClient, {
-  //     slug: params.slug,
-  //     filename,
-  //     image,
-  //   });
-
-  //   invariantResponse(error === null, locales.route.error.onStoring, {
-  //     status: 400,
-  //   });
-  //   toast = {
-  //     id: "upload-image-toast",
-  //     key: getHash(submission),
-  //     message: insertParametersIntoLocale(locales.route.content.image.added, {
-  //       name: submission.value.filename,
-  //     }),
-  //   };
-  // } else if (intent === "delete_document") {
-  //   submission = parse(formData, {
-  //     schema: actionSchema,
-  //   });
-
-  //   invariantResponse(
-  //     typeof submission.value !== "undefined" && submission.value !== null,
-  //     locales.route.error.invalidSubmission,
-  //     { status: 400 }
-  //   );
-
-  //   const id = submission.value.id;
-  //   await prismaClient.document.delete({
-  //     where: {
-  //       id,
-  //     },
-  //   });
-  //   toast = {
-  //     id: "delete-document-toast",
-  //     key: getHash(submission),
-  //     message: insertParametersIntoLocale(locales.route.content.document.deleted, {
-  //       name: submission.value.filename,
-  //     }),
-  //   };
-  // } else if (intent === "delete_image") {
-  //   submission = parse(formData, {
-  //     schema: actionSchema,
-  //   });
-
-  //   invariantResponse(
-  //     typeof submission.value !== "undefined" && submission.value !== null,
-  //     locales.route.error.invalidSubmission,
-  //     { status: 400 }
-  //   );
-
-  //   const id = submission.value.id;
-  //   await prismaClient.image.delete({
-  //     where: {
-  //       id,
-  //     },
-  //   });
-  //   toast = {
-  //     id: "delete-image-toast",
-  //     key: getHash(submission),
-  //     message: insertParametersIntoLocale(locales.route.content.image.deleted, {
-  //       name: submission.value.filename,
-  //     }),
-  //   };
-  // } else {
-  //   invariantResponse(false, "Bad request", {
-  //     status: 400,
-  //   });
-  // }
-
-  return { currentTimestamp: Date.now(), submission: null, request };
+  if (submission !== null) {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
+  }
+  if (toast === null) {
+    return redirect(request.url);
+  }
+  return redirectWithToast(request.url, toast);
 };
 
 function Attachments() {
@@ -367,6 +237,7 @@ function Attachments() {
     defaultValue: {
       [FILE_FIELD_NAME]: null,
       [BUCKET_FIELD_NAME]: BUCKET_NAME_DOCUMENTS,
+      [INTENT_FIELD_NAME]: UPLOAD_INTENT_VALUE,
     },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
@@ -395,6 +266,7 @@ function Attachments() {
     defaultValue: {
       [FILE_FIELD_NAME]: null,
       [BUCKET_FIELD_NAME]: BUCKET_NAME_IMAGES,
+      [INTENT_FIELD_NAME]: UPLOAD_INTENT_VALUE,
     },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
@@ -404,6 +276,7 @@ function Attachments() {
       const submission = parseWithZod(formData, {
         schema: createImageUploadSchema(loaderData.locales),
       });
+      console.log({ submission });
       return submission;
     },
   });
@@ -458,6 +331,7 @@ function Attachments() {
             {...getFormProps(documentUploadForm)}
             method="post"
             encType="multipart/form-data"
+            preventScrollReset
           >
             <FileInput
               selectedFileNames={selectedDocumentFileNames}
@@ -517,10 +391,14 @@ function Attachments() {
                 {locales.route.content.document.select}
               </FileInput.Text>
               <FileInput.Controls>
+                <input
+                  {...getInputProps(documentUploadFields[INTENT_FIELD_NAME], {
+                    type: "hidden",
+                  })}
+                  key={`document-${UPLOAD_INTENT_VALUE}`}
+                />
                 <Button
                   type="submit"
-                  name="intent"
-                  defaultValue="upload-document"
                   fullSize
                   // Don't disable button when js is disabled
                   disabled={
@@ -710,6 +588,7 @@ function Attachments() {
             {...getFormProps(imageUploadForm)}
             method="post"
             encType="multipart/form-data"
+            preventScrollReset
           >
             <FileInput
               selectedFileNames={selectedImageFileNames}
@@ -766,10 +645,14 @@ function Attachments() {
                 {locales.route.content.image.select}
               </FileInput.Text>
               <FileInput.Controls>
+                <input
+                  {...getInputProps(imageUploadFields[INTENT_FIELD_NAME], {
+                    type: "hidden",
+                  })}
+                  key={`image-${UPLOAD_INTENT_VALUE}`}
+                />
                 <Button
                   type="submit"
-                  name="intent"
-                  defaultValue="upload-image"
                   fullSize
                   // Don't disable button when js is disabled
                   disabled={

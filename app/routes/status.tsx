@@ -175,6 +175,7 @@ export default function Status() {
       const submission = parseWithZod(formData, {
         schema: createDocumentUploadSchema(loaderData.locales),
       });
+      console.log({ submission });
       return submission;
     },
   });
@@ -298,7 +299,7 @@ export default function Status() {
             <Button
               type="submit"
               name="intent"
-              defaultValue="submit"
+              defaultValue="upload"
               fullSize
               // Don't disable button when js is disabled
               disabled={
