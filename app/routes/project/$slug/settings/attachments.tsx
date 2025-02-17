@@ -1,105 +1,56 @@
-import { conform, useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import React from "react";
 import {
+  Form,
   redirect,
+  useActionData,
+  useLoaderData,
+  useLocation,
+  useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import {
-  Form,
-  Link,
-  // useActionData,
-  useFetcher,
-  useLoaderData,
-  useLocation,
-} from "react-router";
-import React from "react";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { BackButton } from "~/components-next/BackButton";
+import { FileInput, type SelectedFile } from "~/components-next/FileInput";
+import { MaterialList } from "~/components-next/MaterialList";
+import { Modal } from "~/components-next/Modal";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
-import { Modal } from "~/components-next/Modal";
-import { getPublicURL } from "~/storage.server";
-import { BackButton } from "~/components-next/BackButton";
-import { MaterialList } from "~/components-next/MaterialList";
-import {
-  // hasValidMimeType,
-  type ProjectAttachmentSettingsLocales,
-  // storeDocument,
-  // storeImage,
-} from "./attachments.server";
-import {
-  documentSchema,
-  imageSchema,
-  type action as EditAction,
-} from "./attachments/edit";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  // getHash,
-} from "./utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-// import { redirectWithToast } from "~/toast.server";
+import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
+import {
+  BUCKET_FIELD_NAME,
+  BUCKET_NAME_DOCUMENTS,
+  BUCKET_NAME_IMAGES,
+  DOCUMENT_MIME_TYPES,
+  documentSchema,
+  FILE_FIELD_NAME,
+  IMAGE_MIME_TYPES,
+  imageSchema,
+} from "~/storage.shared";
+import { type ProjectAttachmentSettingsLocales } from "./attachments.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
-// const MAX_UPLOAD_SIZE = 6 * 1000 * 1000; // 6MB
+const createDocumentUploadSchema = (
+  locales: ProjectAttachmentSettingsLocales
+) =>
+  z.object({
+    ...documentSchema(locales),
+  });
 
-// export function getExtension(filename: string) {
-//   return filename.substring(filename.lastIndexOf(".") + 1, filename.length);
-// }
-
-// const documentMimeTypes = ["application/pdf", "image/jpeg"];
-
-// const createDocumentUploadSchema = (
-//   locales: ProjectAttachmentSettingsLocales
-// ) =>
-//   z.object({
-//     filename: z.string().transform((filename) => {
-//       const extension = getExtension(filename);
-//       return `${filename
-//         .replace(`.${extension}`, "")
-//         .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
-//     }),
-//     document: z
-//       .instanceof(File)
-//       .refine((file) => {
-//         return file.size <= MAX_UPLOAD_SIZE;
-//       }, locales.route.validation.document.size)
-//       .refine((file) => {
-//         return documentMimeTypes.includes(file.type);
-//       }, locales.route.validation.document.type),
-//   });
-
-// const imageMimeTypes = ["image/png", "image/jpeg"];
-
-// const createImageUploadSchema = (locales: ProjectAttachmentSettingsLocales) =>
-//   z.object({
-//     filename: z.string().transform((filename) => {
-//       const extension = getExtension(filename);
-//       return `${filename
-//         .replace(`.${extension}`, "")
-//         .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
-//     }),
-//     image: z
-//       .instanceof(File)
-//       .refine((file) => {
-//         return file.size <= MAX_UPLOAD_SIZE;
-//       }, locales.route.validation.image.size)
-//       .refine((file) => {
-//         return imageMimeTypes.includes(file.type);
-//       }, locales.route.validation.image.type),
-//   });
-
-// const actionSchema = z.object({
-//   id: z.string().uuid(),
-//   filename: z.string(),
-// });
+const createImageUploadSchema = (locales: ProjectAttachmentSettingsLocales) =>
+  z.object({
+    ...imageSchema(locales),
+  });
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -197,7 +148,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     images,
   };
 
-  return { project: enhancedProject, locales };
+  return { project: enhancedProject, locales, currentTimestamp: Date.now() };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -392,121 +343,104 @@ export const action = async (args: ActionFunctionArgs) => {
   //   });
   // }
 
-  return redirect(request.url);
+  return { currentTimestamp: Date.now(), submission: null, request };
 };
 
 function Attachments() {
   const location = useLocation();
-
-  const [documentName, setDocumentName] = React.useState<string | null>(null);
-  const [imageName, setImageName] = React.useState<string | null>(null);
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
-  // const actionData = useActionData<typeof action>();
-  const editFetcher = useFetcher<typeof EditAction>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
 
-  // const documentUploadSchema = createDocumentUploadSchema(locales);
-  // const [documentUploadForm, documentUploadFields] = useForm({
-  //   shouldValidate: "onInput",
-  //   onValidate: (values) => {
-  //     const result = parse(values.formData, { schema: documentUploadSchema });
-  //     return result;
-  //   },
-  //   // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
-  //   // lastSubmission:
-  //   //   typeof actionData !== "undefined" ? actionData.submission : undefined,
-  //   shouldRevalidate: "onInput",
-  // });
-
-  // const imageUploadSchema = createImageUploadSchema(locales);
-  // const [imageUploadForm, imageUploadFields] = useForm({
-  //   shouldValidate: "onInput",
-  //   onValidate: (values) => {
-  //     const result = parse(values.formData, { schema: imageUploadSchema });
-  //     return result;
-  //   },
-  //   // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
-  //   // lastSubmission:
-  //   //   typeof actionData !== "undefined" ? actionData.submission : undefined,
-  //   shouldRevalidate: "onInput",
-  // });
-
-  const [editDocumentForm, editDocumentFields] = useForm({
-    shouldValidate: "onInput",
-    onValidate: (values) => {
-      const schema = documentSchema;
-      const result = parse(values.formData, { schema });
-      return result;
+  // Document upload form
+  const [selectedDocumentFileNames, setSelectedDocumentFileNames] =
+    React.useState<SelectedFile[]>([]);
+  const [documentUploadForm, documentUploadFields] = useForm({
+    id: `upload-document-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(
+      createDocumentUploadSchema(loaderData.locales)
+    ),
+    defaultValue: {
+      [FILE_FIELD_NAME]: null,
+      [BUCKET_FIELD_NAME]: BUCKET_NAME_DOCUMENTS,
     },
-    lastSubmission:
-      typeof editFetcher.data !== "undefined"
-        ? editFetcher.data.submission
-        : undefined,
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createDocumentUploadSchema(loaderData.locales),
+      });
+      return submission;
+    },
+  });
+  React.useEffect(() => {
+    setSelectedDocumentFileNames([]);
+  }, [loaderData]);
+
+  // Image upload form
+  const [selectedImageFileNames, setSelectedImageFileNames] = React.useState<
+    SelectedFile[]
+  >([]);
+  const [imageUploadForm, imageUploadFields] = useForm({
+    id: `upload-image-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(createImageUploadSchema(loaderData.locales)),
+    defaultValue: {
+      [FILE_FIELD_NAME]: null,
+      [BUCKET_FIELD_NAME]: BUCKET_NAME_IMAGES,
+    },
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createImageUploadSchema(loaderData.locales),
+      });
+      return submission;
+    },
   });
 
-  const [editImageForm, editImageFields] = useForm({
-    shouldValidate: "onInput",
-    onValidate: (values) => {
-      const schema = imageSchema;
-      const result = parse(values.formData, { schema });
-      return result;
-    },
-    lastSubmission:
-      typeof editFetcher.data !== "undefined"
-        ? editFetcher.data.submission
-        : undefined,
-  });
+  React.useEffect(() => {
+    setSelectedImageFileNames([]);
+  }, [loaderData]);
 
-  const handleDocumentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (
-      event.target.files !== null &&
-      event.target.files.length > 0 &&
-      event.target.files[0] instanceof Blob
-    ) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setDocumentName(file.name);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setDocumentName(null);
-    }
-  };
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (
-      event.target.files !== null &&
-      event.target.files.length > 0 &&
-      event.target.files[0] instanceof Blob
-    ) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageName(file.name);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImageName(null);
-    }
-  };
+  // TODO: Implement edit on this routes action
+  // const editFetcher = useFetcher<typeof EditAction>();
+  // const [editDocumentForm, editDocumentFields] = useForm({
+  //   shouldValidate: "onInput",
+  //   onValidate: (values) => {
+  //     const schema = documentSchema;
+  //     const result = parse(values.formData, { schema });
+  //     return result;
+  //   },
+  //   lastSubmission:
+  //     typeof editFetcher.data !== "undefined"
+  //       ? editFetcher.data.submission
+  //       : undefined,
+  // });
 
-  // TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
-  // necessary to reset document and image name after successful upload
-  // React.useEffect(() => {
-  //   if (
-  //     typeof actionData !== "undefined" &&
-  //     actionData !== null &&
-  //     actionData.status === "success" &&
-  //     typeof actionData.submission !== "undefined"
-  //   ) {
-  //     if (actionData.submission.intent === "upload_document") {
-  //       setDocumentName(null);
-  //     }
-  //     if (actionData.submission.intent === "upload_image") {
-  //       setImageName(null);
-  //     }
-  //   }
-  // }, [actionData]);
+  // const [editImageForm, editImageFields] = useForm({
+  //   shouldValidate: "onInput",
+  //   onValidate: (values) => {
+  //     const schema = imageSchema;
+  //     const result = parse(values.formData, { schema });
+  //     return result;
+  //   },
+  //   lastSubmission:
+  //     typeof editFetcher.data !== "undefined"
+  //       ? editFetcher.data.submission
+  //       : undefined,
+  // });
+
+  // TODO: Delete form on this routes action
 
   return (
     <Section>
@@ -520,67 +454,88 @@ function Attachments() {
             {locales.route.content.document.upload}
           </h2>
           <p>{locales.route.content.document.type}</p>
-          {/* TODO: no-JS version */}
-          {/* <Form
+          <Form
+            {...getFormProps(documentUploadForm)}
             method="post"
             encType="multipart/form-data"
-            {...documentUploadForm.props}
           >
-            <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
-              <input
-                hidden
-                {...conform.input(documentUploadFields.filename)}
-                defaultValue={documentName !== null ? documentName : ""}
-              />
-              <label
-                htmlFor={documentUploadFields.document.id}
-                className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
-              >
+            <FileInput
+              selectedFileNames={selectedDocumentFileNames}
+              errors={
+                typeof documentUploadFields[FILE_FIELD_NAME].errors ===
+                "undefined"
+                  ? undefined
+                  : documentUploadFields[FILE_FIELD_NAME].errors.map(
+                      (error) => {
+                        return {
+                          id: documentUploadFields[FILE_FIELD_NAME].errorId,
+                          message: error,
+                        };
+                      }
+                    )
+              }
+              fileInputProps={{
+                ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
+                  type: "file",
+                }),
+                id: `document-${FILE_FIELD_NAME}`,
+                key: `document-${FILE_FIELD_NAME}`,
+                className: "mv-hidden",
+                accept: DOCUMENT_MIME_TYPES.join(", "),
+                onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                  setSelectedDocumentFileNames(
+                    event.target.files !== null
+                      ? Array.from(event.target.files).map((file) => {
+                          return {
+                            name: file.name,
+                            sizeInMB:
+                              Math.round((file.size / 1000 / 1000) * 100) / 100,
+                          };
+                        })
+                      : []
+                  );
+                  documentUploadForm.validate();
+                },
+              }}
+              bucketInputProps={{
+                ...getInputProps(documentUploadFields[BUCKET_FIELD_NAME], {
+                  type: "hidden",
+                }),
+                key: BUCKET_FIELD_NAME,
+              }}
+              noscriptInputProps={{
+                ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
+                  type: "file",
+                }),
+                id: `noscript-document-${FILE_FIELD_NAME}`,
+                key: `noscript-document-${FILE_FIELD_NAME}`,
+                className: "mv-mb-2",
+                accept: DOCUMENT_MIME_TYPES.join(", "),
+              }}
+            >
+              <FileInput.Text>
                 {locales.route.content.document.select}
-                <input
-                  id={documentUploadFields.document.id}
-                  name={documentUploadFields.document.name}
-                  type="file"
-                  accept={documentMimeTypes.join(",")}
-                  onChange={handleDocumentChange}
-                  hidden
-                />
-              </label>
-
-              <Button
-                disabled={
-                  typeof window !== "undefined"
-                    ? typeof documentUploadFields.document.error !==
-                        "undefined" || documentName === null
-                    : true
-                }
-                type="hidden"
-                name={conform.INTENT}
-                value="upload_document"
-              >
-                {locales.route.content.document.action}
-              </Button>
-            </div>
-            <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
-              {typeof documentUploadFields.document.error === "undefined" && (
-                <p>
-                  {documentName === null
-                    ? locales.route.content.document.selection.empty
-                    : insertParametersIntoLocale(
-                        locales.route.content.document.selection.selected,
-                        {
-                          name: documentName,
-                        }
-                      )}
-                </p>
-              )}
-              {typeof documentUploadFields.document.error !== "undefined" && (
-                <p className="mv-text-negative-600">
-                  {documentUploadFields.document.error}
-                </p>
-              )}
-            </div>
-          </Form> */}
+              </FileInput.Text>
+              <FileInput.Controls>
+                <Button
+                  type="submit"
+                  name="intent"
+                  defaultValue="upload-document"
+                  fullSize
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? selectedDocumentFileNames.length === 0 ||
+                        documentUploadForm.dirty === false ||
+                        documentUploadForm.valid === false
+                      : false
+                  }
+                >
+                  {locales.route.content.document.action}
+                </Button>
+              </FileInput.Controls>
+            </FileInput>
+          </Form>
         </div>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <>
@@ -597,7 +552,8 @@ function Attachments() {
                           <Modal.Title>
                             {locales.route.content.editModal.editDocument}
                           </Modal.Title>
-                          <Modal.Section>
+                          {/* TODO: edit form on this routes action */}
+                          {/* <Modal.Section>
                             <editFetcher.Form
                               {...editDocumentForm.props}
                               method="post"
@@ -656,7 +612,7 @@ function Attachments() {
                                 />
                               </div>
                             </editFetcher.Form>
-                          </Modal.Section>
+                          </Modal.Section> */}
                           <Modal.SubmitButton
                             form={`form-${relation.document.id}`}
                           >
@@ -669,12 +625,6 @@ function Attachments() {
                         <MaterialList.Item
                           id={`material-list-item-${relation.document.id}`}
                         >
-                          {/* {typeof relation.document.thumbnail !== "undefined" && (
-                          <Image
-                            src={relation.document.thumbnail}
-                            alt={relation.document.description || ""}
-                          />
-                        )} */}
                           {relation.document.mimeType === "application/pdf" && (
                             <MaterialList.Item.PDFIcon />
                           )}
@@ -695,7 +645,8 @@ function Attachments() {
                               {relation.document.description}
                             </MaterialList.Item.Paragraph>
                           )}
-                          <Form
+                          {/* TODO: Delete form on this routes action */}
+                          {/* <Form
                             method="post"
                             encType="multipart/form-data"
                             className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto"
@@ -728,7 +679,7 @@ function Attachments() {
                             >
                               <MaterialList.Item.Controls.Download />
                             </Link>
-                          </Form>
+                          </Form> */}
                         </MaterialList.Item>
                       </div>
                     );
@@ -744,9 +695,6 @@ function Attachments() {
                     {locales.route.content.document.downloadAll}
                   </Button>
                 </div>
-                {/* <Link to={`./download?type=documents`} reloadDocument>
-                  <Button Alle herunterladen
-                </Link> */}
               </>
             ) : (
               <p>{locales.route.content.document.empty}</p>
@@ -758,67 +706,85 @@ function Attachments() {
             {locales.route.content.image.upload}
           </h2>
           <p>{locales.route.content.image.requirements}</p>
-          {/* TODO: no-JS version */}
-          {/* <Form
+          <Form
+            {...getFormProps(imageUploadForm)}
             method="post"
             encType="multipart/form-data"
-            {...imageUploadForm.props}
           >
-            <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
-              <input
-                hidden
-                {...conform.input(imageUploadFields.filename)}
-                defaultValue={imageName !== null ? imageName : ""}
-              />
-              <label
-                htmlFor={imageUploadFields.image.id}
-                className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
-              >
+            <FileInput
+              selectedFileNames={selectedImageFileNames}
+              errors={
+                typeof imageUploadFields[FILE_FIELD_NAME].errors === "undefined"
+                  ? undefined
+                  : imageUploadFields[FILE_FIELD_NAME].errors.map((error) => {
+                      return {
+                        id: imageUploadFields[FILE_FIELD_NAME].errorId,
+                        message: error,
+                      };
+                    })
+              }
+              fileInputProps={{
+                ...getInputProps(imageUploadFields[FILE_FIELD_NAME], {
+                  type: "file",
+                }),
+                id: `image-${FILE_FIELD_NAME}`,
+                key: `image-${FILE_FIELD_NAME}`,
+                className: "mv-hidden",
+                accept: IMAGE_MIME_TYPES.join(", "),
+                onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                  setSelectedImageFileNames(
+                    event.target.files !== null
+                      ? Array.from(event.target.files).map((file) => {
+                          return {
+                            name: file.name,
+                            sizeInMB:
+                              Math.round((file.size / 1000 / 1000) * 100) / 100,
+                          };
+                        })
+                      : []
+                  );
+                  imageUploadForm.validate();
+                },
+              }}
+              bucketInputProps={{
+                ...getInputProps(imageUploadFields[BUCKET_FIELD_NAME], {
+                  type: "hidden",
+                }),
+                key: BUCKET_FIELD_NAME,
+              }}
+              noscriptInputProps={{
+                ...getInputProps(imageUploadFields[FILE_FIELD_NAME], {
+                  type: "file",
+                }),
+                id: `noscript-image-${FILE_FIELD_NAME}`,
+                key: `noscript-image-${FILE_FIELD_NAME}`,
+                className: "mv-mb-2",
+                accept: IMAGE_MIME_TYPES.join(", "),
+              }}
+            >
+              <FileInput.Text>
                 {locales.route.content.image.select}
-                <input
-                  id={imageUploadFields.image.id}
-                  name={imageUploadFields.image.name}
-                  type="file"
-                  accept={imageMimeTypes.join(",")}
-                  onChange={handleImageChange}
-                  hidden
-                />
-              </label>
-
-              <Button
-                disabled={
-                  typeof window !== "undefined"
-                    ? typeof imageUploadFields.image.error !== "undefined" ||
-                      imageName === null
-                    : true
-                }
-                type="hidden"
-                name={conform.INTENT}
-                value="upload_image"
-              >
-                {locales.route.content.image.action}
-              </Button>
-            </div>
-            <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
-              {typeof imageUploadFields.image.error === "undefined" && (
-                <p>
-                  {imageName === null
-                    ? locales.route.content.image.selection.empty
-                    : insertParametersIntoLocale(
-                        locales.route.content.image.selection.selected,
-                        {
-                          name: imageName,
-                        }
-                      )}
-                </p>
-              )}
-              {typeof imageUploadFields.image.error !== "undefined" && (
-                <p className="mv-text-negative-600">
-                  {imageUploadFields.image.error}
-                </p>
-              )}
-            </div>
-          </Form> */}
+              </FileInput.Text>
+              <FileInput.Controls>
+                <Button
+                  type="submit"
+                  name="intent"
+                  defaultValue="upload-image"
+                  fullSize
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? selectedImageFileNames.length === 0 ||
+                        imageUploadForm.dirty === false ||
+                        imageUploadForm.valid === false
+                      : false
+                  }
+                >
+                  {locales.route.content.image.action}
+                </Button>
+              </FileInput.Controls>
+            </FileInput>
+          </Form>
         </div>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -834,7 +800,8 @@ function Attachments() {
                         <Modal.Title>
                           {locales.route.content.editModal.editImage}
                         </Modal.Title>
-                        <Modal.Section>
+                        {/* TODO; edit image form on this routes action */}
+                        {/* <Modal.Section>
                           <editFetcher.Form
                             {...editImageForm.props}
                             method="post"
@@ -920,7 +887,7 @@ function Attachments() {
                               />
                             </div>
                           </editFetcher.Form>
-                        </Modal.Section>
+                        </Modal.Section> */}
                         <Modal.SubmitButton form={`form-${relation.image.id}`}>
                           {locales.route.content.editModal.submit}
                         </Modal.SubmitButton>
@@ -955,7 +922,8 @@ function Attachments() {
                             Foto-Credit: {relation.image.credits}
                           </MaterialList.Item.Paragraph>
                         )}
-                        <Form
+                        {/* TODO: Delete image form on this routes action */}
+                        {/* <Form
                           method="post"
                           encType="multipart/form-data"
                           className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto"
@@ -988,7 +956,7 @@ function Attachments() {
                           >
                             <MaterialList.Item.Controls.Download />
                           </Link>
-                        </Form>
+                        </Form> */}
                       </MaterialList.Item>
                     </div>
                   );
