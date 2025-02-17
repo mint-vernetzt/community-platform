@@ -3,8 +3,8 @@ import { type ProjectAttachmentSettingsLocales } from "./routes/project/$slug/se
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
 
 // Max upload sizes (Remember to change nginx.conf when changing this)
-const MAX_UPLOAD_SIZE_DOCUMENTS = 6 * 1024 * 1024; // 6MB
-const MAX_UPLOAD_SIZE_IMAGES = 6 * 1024 * 1024; // 6MB
+const MAX_UPLOAD_SIZE_DOCUMENTS = 6 * 1000 * 1000; // 6MB
+const MAX_UPLOAD_SIZE_IMAGES = 6 * 1000 * 1000; // 6MB
 
 // MIME types
 export const DOCUMENT_MIME_TYPES = ["application/pdf"];
@@ -111,7 +111,7 @@ export const documentSchema = (locales: ProjectAttachmentSettingsLocales) => {
           return file.size <= MAX_UPLOAD_SIZE_DOCUMENTS;
         },
         insertParametersIntoLocale(locales.upload.validation.document.size, {
-          size: MAX_UPLOAD_SIZE_DOCUMENTS / 1024 / 1024,
+          size: MAX_UPLOAD_SIZE_DOCUMENTS / 1000 / 1000,
         })
       )
       .refine((file) => {
@@ -130,7 +130,7 @@ export const imageSchema = (locales: ProjectAttachmentSettingsLocales) => {
           return file.size <= MAX_UPLOAD_SIZE_IMAGES;
         },
         insertParametersIntoLocale(locales.upload.validation.image.size, {
-          size: MAX_UPLOAD_SIZE_IMAGES / 1024 / 1024,
+          size: MAX_UPLOAD_SIZE_IMAGES / 1000 / 1000,
         })
       )
       .refine((file) => {

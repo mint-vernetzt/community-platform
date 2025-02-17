@@ -1,21 +1,20 @@
-import type { Document } from "@prisma/client";
-import { type SupabaseClient } from "@supabase/supabase-js";
-import JSZip from "jszip";
-import { invariantResponse } from "./lib/utils/response";
 import { LocalFileStorage } from "@mjackson/file-storage/local";
 import { parseFormData, type FileUpload } from "@mjackson/form-data-parser";
+import type { Document } from "@prisma/client";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { fileTypeFromBlob } from "file-type";
-import { createHashFromString } from "./utils.server";
+import JSZip from "jszip";
 import { Readable } from "stream";
 import { createAuthClient } from "./auth.server";
+import { invariantResponse } from "./lib/utils/response";
 import {
-  BUCKET_FIELD_NAME,
   BUCKET_NAME_DOCUMENTS,
   BUCKET_NAME_IMAGES,
   DOCUMENT_MIME_TYPES,
   FILE_FIELD_NAME,
   IMAGE_MIME_TYPES,
 } from "./storage.shared";
+import { createHashFromString } from "./utils.server";
 
 export function generatePathName(hash: string, extension: string) {
   return `${hash.substring(0, 2)}/${hash.substring(
@@ -58,47 +57,65 @@ export async function uploadHandler(fileUpload: FileUpload) {
   }
 }
 
-async function deleteAllTemporaryFiles() {
+export async function deleteAllTemporaryFiles() {
   const items = await fileStorage.list(); // List all items in the fileStorage
   for (const file of items.files) {
     await fileStorage.remove(file.key); // Delete each item by its name
   }
 }
 
-export async function uploadFileFromMultipartFormData(request: Request) {
+export async function parseMultipartFormData(request: Request) {
   let formData;
   try {
     formData = await parseFormData(request, uploadHandler);
   } catch (error) {
-    console.error({ error });
     await deleteAllTemporaryFiles();
-    invariantResponse(false, "Server Error - Failed to parse multipart", {
-      status: 500,
-    });
+    return {
+      error,
+      formData: null,
+    };
   }
-  const bucketName = formData.get(BUCKET_FIELD_NAME);
+  return {
+    error: null,
+    formData,
+  };
+}
+
+export async function uploadFileFromMultipartFormData(
+  request: Request,
+  parsedFormData: {
+    file: File;
+    bucketName: string;
+  }
+) {
+  const { file, bucketName } = parsedFormData;
   if (
     bucketName !== BUCKET_NAME_DOCUMENTS &&
     bucketName !== BUCKET_NAME_IMAGES
   ) {
     await deleteAllTemporaryFiles();
-    invariantResponse(false, "Bad request - No bucket name", {
-      status: 400,
-    });
+    return {
+      path: null,
+      fileType: null,
+      error: new Error("Bad request - No bucket name"),
+    };
   }
-  const file = formData.get(FILE_FIELD_NAME);
   if (file === null || typeof file === "string") {
     await deleteAllTemporaryFiles();
-    invariantResponse(false, "Bad request - Not a file", {
-      status: 400,
-    });
+    return {
+      path: null,
+      fileType: null,
+      error: new Error("Bad request - Not a file"),
+    };
   }
   const fileType = await fileTypeFromBlob(file);
   if (typeof fileType === "undefined") {
     await deleteAllTemporaryFiles();
-    invariantResponse(false, "Bad request - File type undefined", {
-      status: 400,
-    });
+    return {
+      path: null,
+      fileType: null,
+      error: new Error("Bad request - File type undefined"),
+    };
   }
   if (
     (bucketName === "documents" &&
@@ -107,14 +124,28 @@ export async function uploadFileFromMultipartFormData(request: Request) {
       IMAGE_MIME_TYPES.includes(fileType.mime) === false)
   ) {
     await deleteAllTemporaryFiles();
-    invariantResponse(false, "Bad request - File type not allowed", {
-      status: 400,
-    });
+    return {
+      path: null,
+      fileType: null,
+      error: new Error("Bad request - File type not allowed"),
+    };
   }
-  const path = generatePathName(createHashFromString(file.name), fileType.ext);
-  const fileStream = Readable.from(streamToAsyncIterator(file.stream()));
 
-  const { authClient } = await createAuthClient(request);
+  let path;
+  let fileStream;
+  try {
+    path = generatePathName(createHashFromString(file.name), fileType.ext);
+    fileStream = Readable.from(streamToAsyncIterator(file.stream()));
+  } catch (error) {
+    await deleteAllTemporaryFiles();
+    return {
+      path: null,
+      fileType: null,
+      error,
+    };
+  }
+
+  const { authClient } = createAuthClient(request);
   const { data, error } = await authClient.storage
     .from(bucketName)
     .upload(path, fileStream, {
@@ -124,19 +155,18 @@ export async function uploadFileFromMultipartFormData(request: Request) {
     });
 
   await deleteAllTemporaryFiles();
-  invariantResponse(
-    error === null && data !== null,
-    "Server Error - Uploading file",
-    {
-      status: 500,
-    }
-  );
+  if (data === null || error !== null) {
+    return {
+      path: null,
+      fileType: null,
+      error,
+    };
+  }
 
   return {
-    formData,
     path,
-    file,
     fileType,
+    error: null,
   };
 }
 

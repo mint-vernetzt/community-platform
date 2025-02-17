@@ -31,7 +31,7 @@ export async function storeDocument(
 
   const mimeType = document.type;
   const extension = getExtension(filename);
-  const sizeInMB = Math.round((document.size / 1024 / 1024) * 100) / 100;
+  const sizeInMB = Math.round((document.size / 1000 / 1000) * 100) / 100;
   const buffer = await document.arrayBuffer();
   const contentHash = await createHashFromString(buffer.toString());
 
@@ -92,7 +92,7 @@ export async function storeImage(
     filename.lastIndexOf(".") + 1,
     filename.length
   );
-  const sizeInMB = Math.round((image.size / 1024 / 1024) * 100) / 100;
+  const sizeInMB = Math.round((image.size / 1000 / 1000) * 100) / 100;
   const buffer = await image.arrayBuffer();
   const contentHash = await createHashFromString(buffer.toString());
 

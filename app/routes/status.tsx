@@ -9,7 +9,11 @@ import {
 } from "react-router";
 import { z } from "zod";
 import { prismaClient } from "~/prisma.server";
-import { uploadFileFromMultipartFormData as uploadFileFromMultipartForm } from "~/storage.server";
+import {
+  deleteAllTemporaryFiles,
+  parseMultipartFormData,
+  uploadFileFromMultipartFormData,
+} from "~/storage.server";
 import {
   BUCKET_FIELD_NAME,
   BUCKET_NAME_DOCUMENTS,
@@ -26,6 +30,7 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { useHydrated } from "remix-utils/use-hydrated";
 import React from "react";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
@@ -54,18 +59,42 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["project/$slug/settings/attachments"];
-  const { formData, path, file, fileType } = await uploadFileFromMultipartForm(
-    request
-  );
+  const { formData, error } = await parseMultipartFormData(request);
+  if (error !== null || formData === null) {
+    console.error({ error });
+    Sentry.captureException(error);
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "upload-document",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.onStoring,
+    });
+  }
 
   const submission = await parseWithZod(formData, {
     schema: createDocumentUploadSchema(locales).transform(async (data, ctx) => {
-      // Get additional data like title, description and whatever the route needs from the client
+      const { path, fileType, error } = await uploadFileFromMultipartFormData(
+        request,
+        {
+          file: data.file,
+          bucketName: data.bucket,
+        }
+      );
+      if (error !== null || path === null || fileType === null) {
+        console.error({ error });
+        Sentry.captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onStoring,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
       const document = {
-        filename: file.name,
+        filename: data.file.name,
         path: path,
         extension: fileType.ext,
-        sizeInMB: Math.round((file.size / 1024 / 1024) * 100) / 100,
+        sizeInMB: Math.round((data.file.size / 1000 / 1000) * 100) / 100,
         mimeType: fileType.mime,
       };
       try {
@@ -101,6 +130,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
+    await deleteAllTemporaryFiles();
     return {
       submission: submission.reply(),
       currentTimestamp: Date.now(),
@@ -110,7 +140,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return redirectWithToast(request.url, {
     id: "upload-document",
     key: `${new Date().getTime()}`,
-    message: "Document uploaded successfully",
+    message: insertParametersIntoLocale(locales.route.content.document.added, {
+      name: submission.value.file.name,
+    }),
   });
 };
 
@@ -154,8 +186,6 @@ export default function Status() {
     setSelectedFileNames([]);
   }, [loaderData]);
 
-  console.log(documentUploadForm.errors);
-
   return (
     <>
       <Form
@@ -195,7 +225,7 @@ export default function Status() {
                           return {
                             name: file.name,
                             sizeInMB:
-                              Math.round((file.size / 1024 / 1024) * 100) / 100,
+                              Math.round((file.size / 1000 / 1000) * 100) / 100,
                           };
                         })
                       : []

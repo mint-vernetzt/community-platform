@@ -48,7 +48,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 // import { redirectWithToast } from "~/toast.server";
 
-// const MAX_UPLOAD_SIZE = 6 * 1024 * 1024; // 6MB
+// const MAX_UPLOAD_SIZE = 6 * 1000 * 1000; // 6MB
 
 // export function getExtension(filename: string) {
 //   return filename.substring(filename.lastIndexOf(".") + 1, filename.length);
