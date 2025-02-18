@@ -6,7 +6,6 @@
     "@babel/preset-env": "^7.23.6",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
-    "@storybook/react-webpack5": "^7.6.5",
     "autoprefixer": "^10.4.16",
     "daisyui": "^4.4.20",
     "postcss": "^8.4.32",
