@@ -18,7 +18,10 @@ import {
 } from "~/storage.shared";
 import {
   createDocumentUploadSchema,
+  createEditDocumentSchema,
+  createEditImageSchema,
   createImageUploadSchema,
+  disconnectAttachmentSchema,
 } from "./attachments";
 
 export type ProjectAttachmentSettingsLocales =
@@ -138,6 +141,216 @@ export async function uploadFile(options: {
           name: submission.value.file.name,
         }
       ),
+    },
+  };
+}
+
+export async function editDocument(options: {
+  request: Request;
+  formData: FormData;
+  locales: ProjectAttachmentSettingsLocales;
+}) {
+  const { request, formData, locales } = options;
+  const submission = await parseWithZod(formData, {
+    schema: createEditDocumentSchema(locales).transform(async (data, ctx) => {
+      const { id, ...rest } = data;
+      try {
+        await prismaClient.document.update({
+          where: {
+            id,
+          },
+          data: {
+            ...rest,
+          },
+        });
+      } catch (error) {
+        console.error({ error });
+        Sentry.captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onUpdating,
+          path: ["description"],
+        });
+        return z.NEVER;
+      }
+      return { ...data };
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return { submission, toast: null, redirectUrl: null };
+  }
+  // Close modal after redirect
+  const redirectUrl = new URL(request.url);
+  redirectUrl.searchParams.delete(`modal-edit-${submission.value.id}`);
+  return {
+    submission: null,
+    toast: {
+      id: "edit-document",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(
+        locales.route.content.document.updated,
+        {
+          name: submission.value.title,
+        }
+      ),
+    },
+    redirectUrl: redirectUrl.toString(),
+  };
+}
+
+export async function editImage(options: {
+  request: Request;
+  formData: FormData;
+  locales: ProjectAttachmentSettingsLocales;
+}) {
+  const { request, formData, locales } = options;
+  const submission = await parseWithZod(formData, {
+    schema: createEditImageSchema(locales).transform(async (data, ctx) => {
+      const { id, ...rest } = data;
+      try {
+        await prismaClient.image.update({
+          where: {
+            id,
+          },
+          data: {
+            ...rest,
+          },
+        });
+      } catch (error) {
+        console.error({ error });
+        Sentry.captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onUpdating,
+          path: ["description"],
+        });
+        return z.NEVER;
+      }
+      return { ...data };
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return { submission, toast: null, redirectUrl: null };
+  }
+  // Close modal after redirect
+  const redirectUrl = new URL(request.url);
+  redirectUrl.searchParams.delete(`modal-edit-${submission.value.id}`);
+  return {
+    submission: null,
+    toast: {
+      id: "edit-image",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(locales.route.content.image.updated, {
+        name: submission.value.title,
+      }),
+    },
+    redirectUrl: redirectUrl.toString(),
+  };
+}
+
+export async function disconnectDocument(options: {
+  formData: FormData;
+  locales: ProjectAttachmentSettingsLocales;
+}) {
+  const { formData, locales } = options;
+  const submission = await parseWithZod(formData, {
+    schema: disconnectAttachmentSchema.transform(async (data, ctx) => {
+      const { id } = data;
+      let document;
+      try {
+        document = await prismaClient.document.delete({
+          select: {
+            title: true,
+            filename: true,
+          },
+          where: {
+            id,
+          },
+        });
+      } catch (error) {
+        console.error({ error });
+        Sentry.captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onUpdating,
+          path: ["id"],
+        });
+        return z.NEVER;
+      }
+      return { ...data, document };
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return { submission, toast: null };
+  }
+  return {
+    submission: null,
+    toast: {
+      id: "delete-document",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(
+        locales.route.content.document.deleted,
+        {
+          name:
+            submission.value.document.title ||
+            submission.value.document.filename,
+        }
+      ),
+    },
+  };
+}
+
+export async function disconnectImage(options: {
+  formData: FormData;
+  locales: ProjectAttachmentSettingsLocales;
+}) {
+  const { formData, locales } = options;
+  const submission = await parseWithZod(formData, {
+    schema: disconnectAttachmentSchema.transform(async (data, ctx) => {
+      const { id } = data;
+      let image;
+      try {
+        image = await prismaClient.image.delete({
+          select: {
+            title: true,
+            filename: true,
+          },
+          where: {
+            id,
+          },
+        });
+      } catch (error) {
+        console.error({ error });
+        Sentry.captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onUpdating,
+          path: ["id"],
+        });
+        return z.NEVER;
+      }
+      return { ...data, image };
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return { submission, toast: null };
+  }
+  return {
+    submission: null,
+    toast: {
+      id: "delete-image",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(locales.route.content.image.deleted, {
+        name: submission.value.image.title || submission.value.image.filename,
+      }),
     },
   };
 }

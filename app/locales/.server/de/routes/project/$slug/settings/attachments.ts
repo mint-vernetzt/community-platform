@@ -6,6 +6,23 @@ export const locale = {
     invalidAction: "No valid action",
     onStoring:
       "Datei konnte nicht gespeichert werden. Versuche es erneut oder wende dich an den Support.",
+    onUpdating:
+      "Datei konnte nicht angepasst werden. Versuche es erneut oder wende dich an den Support.",
+  },
+  validation: {
+    document: {
+      description: {
+        max: "Die Beschreibung des Dokuments darf maximal {{max}} Zeichen lang sein.",
+      },
+    },
+    image: {
+      description: {
+        max: "Die Bildbeschreibung darf maximal {{max}} Zeichen lang sein.",
+      },
+      credits: {
+        max: "Die Angabe der Urheber:in darf maximal {{max}} Zeichen lang sein.",
+      },
+    },
   },
   content: {
     editModal: {
@@ -29,7 +46,7 @@ export const locale = {
       "Füge Materialien wie Flyer, Bilder, Checklisten zu Deinem Projekt hinzu oder entferne sie.",
     document: {
       upload: "Dokumente hochladen",
-      type: "Mögliche Dateiformate: PDF, jpg. Maximal 6MB.",
+      type: "Mögliche Dateiformate: PDF. Maximal 6MB.",
       select: "Datei auswählen",
       action: "Datei hochladen",
       selection: {
@@ -41,6 +58,7 @@ export const locale = {
       downloadAll: "Alle herunterladen",
       empty: "Keine Dokumente vorhanden.",
       deleted: "{{name}} gelöscht.",
+      updated: "{{name}} aktualisiert.",
     },
     image: {
       upload: "Bildmaterial hochladen",
@@ -56,6 +74,7 @@ export const locale = {
       downloadAll: "Alle herunterladen",
       empty: "Keine Bilder vorhanden.",
       deleted: "{{name}} gelöscht.",
+      updated: "{{name}} aktualisiert.",
     },
   },
 } as const;

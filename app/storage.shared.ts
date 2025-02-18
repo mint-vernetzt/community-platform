@@ -52,7 +52,7 @@ export const IMAGE_MIME_TYPES = [
   // "image/ktx",
   // "image/ktx2",
   // "image/naplps",
-  // "image/png",
+  "image/png",
   // "image/prs.btif",
   // "image/prs.pti",
   // "image/pwg-raster",

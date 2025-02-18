@@ -5,6 +5,23 @@ export const locale = {
     invalidSubmission: "No valid submission",
     invalidAction: "No valid action",
     onStoring: "File could not be saved. Please try again or contact support.",
+    onUpdating:
+      "File could not be updated. Please try again or contact support.",
+  },
+  validation: {
+    document: {
+      description: {
+        max: "The document description may be a maximum of {{max}} characters long.",
+      },
+    },
+    image: {
+      description: {
+        max: "The image description may be a maximum of {{max}} characters long.",
+      },
+      credits: {
+        max: "The creator's name may be a maximum of {{max}} characters long.",
+      },
+    },
   },
   content: {
     editModal: {
@@ -28,7 +45,7 @@ export const locale = {
       "Add or remove materials such as flyers, images or checklists from your project.",
     document: {
       upload: "Upload document",
-      type: "File types: PDF, jpg. Max 6MB.",
+      type: "File types: PDF. Max 6MB.",
       select: "Choose file",
       action: "Upload file",
       selection: {
@@ -40,6 +57,7 @@ export const locale = {
       downloadAll: "Download all",
       empty: "No documents available.",
       deleted: "Deleted {{name}}.",
+      updated: "Updated {{name}}.",
     },
     image: {
       upload: "Upload image",
@@ -55,6 +73,7 @@ export const locale = {
       downloadAll: "Download all",
       empty: "No images available.",
       deleted: "Deleted {{name}}.",
+      updated: "Updated {{name}}.",
     },
   },
 } as const;
