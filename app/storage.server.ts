@@ -1,195 +1,96 @@
+import { parseFormData } from "@mjackson/form-data-parser";
 import type { Document } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
-// import { fileTypeFromBuffer } from "file-type";
 import JSZip from "jszip";
 import { invariantResponse } from "./lib/utils/response";
-// import { createHashFromString } from "./utils.server";
+import { fileTypeFromBlob } from "file-type";
+import {
+  DOCUMENT_MIME_TYPES,
+  IMAGE_MIME_TYPES,
+  MAX_UPLOAD_FILE_SIZE,
+  MAX_UPLOAD_HEADER_SIZE,
+} from "./storage.shared";
+import { createHashFromString } from "./utils.server";
 
-// const uploadKeys = ["avatar", "background", "logo", "document"];
-// const imageUploadKeys = ["avatar", "background", "logo"];
-
-export function generatePathName(
-  extension: string,
-  hash: string,
-  name: string
-) {
-  return `${hash.substring(0, 2)}/${hash.substring(2)}/${name}.${extension}`;
-}
-
-export function nextGeneratePathName(hash: string, extension: string) {
+export function generatePathName(hash: string, extension: string) {
   return `${hash.substring(0, 2)}/${hash.substring(
     2,
     hash.length - 2
   )}/${hash.substring(hash.length - 2)}.${extension}`;
 }
 
-// TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
-// const uploadHandler: UploadHandler = async (part) => {
-//   // TODO: remove file-type package and use contentType...only if Remix uses file header
-//   const { data, name, filename } = part;
-
-//   const bytes = [];
-//   for await (const chunk of data) {
-//     bytes.push(...chunk);
-//   }
-
-//   const array = new Uint8Array(bytes);
-
-//   const buffer = Buffer.from(array.buffer);
-
-//   if (!uploadKeys.includes(name)) {
-//     return buffer.toString();
-//   }
-
-//   const hash = await createHashFromString(buffer.toString());
-//   const fileTypeResult = await fileTypeFromBuffer(buffer);
-//   if (fileTypeResult === undefined) {
-//     console.error(
-//       "The mime type of the file could not be read from file header."
-//     );
-//     invariantResponse(false, "Server Error", { status: 500 });
-//   }
-//   if (name === "document" && fileTypeResult.mime !== "application/pdf") {
-//     console.error(
-//       "Document not of type application/pdf and could not be uploaded."
-//     );
-//     invariantResponse(false, "Server Error", { status: 500 });
-//   }
-//   if (
-//     imageUploadKeys.includes(name) &&
-//     !fileTypeResult.mime.includes("image/")
-//   ) {
-//     console.error("Image not of type image/* and could not be uploaded.");
-//     invariantResponse(false, "Server Error", { status: 500 });
-//   }
-//   const path = generatePathName(fileTypeResult.ext, hash, name);
-//   const sizeInBytes = buffer.length;
-
-//   return JSON.stringify({
-//     buffer,
-//     path,
-//     filename,
-//     extension: fileTypeResult.ext,
-//     mimeType: fileTypeResult.mime,
-//     sizeInBytes,
-//   });
-// };
-
-async function persistUpload(
-  authClient: SupabaseClient,
-  path: string,
-  buffer: Buffer,
-  bucketName: string,
-  mimeType: string
-) {
-  return await authClient.storage.from(bucketName).upload(path, buffer, {
-    upsert: true,
-    contentType: mimeType,
-  });
+export async function parseMultipartFormData(request: Request) {
+  let formData;
+  try {
+    formData = await parseFormData(request, {
+      maxFileSize: MAX_UPLOAD_FILE_SIZE,
+      maxHeaderSize: MAX_UPLOAD_HEADER_SIZE,
+    });
+  } catch (error) {
+    return {
+      error,
+      formData: null,
+    };
+  }
+  return {
+    error: null,
+    formData,
+  };
 }
 
-// TODO: fix type issues
-function validatePersistence(
-  authClient: SupabaseClient,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any,
-  path: string,
-  bucketName?: string
-) {
-  if (error || data === null) {
-    console.error({ error });
-    invariantResponse(false, "Server Error", { status: 500 });
+export async function uploadFileToStorage(options: {
+  file: File;
+  bucket: string;
+  authClient: SupabaseClient;
+}) {
+  const { file, bucket, authClient } = options;
+
+  const fileType = await fileTypeFromBlob(file);
+  if (typeof fileType === "undefined") {
+    const error = new Error("Bad request - File type undefined");
+    return {
+      fileMetadataForDatabase: null,
+      error,
+    };
+  }
+  if (
+    (bucket === "documents" &&
+      DOCUMENT_MIME_TYPES.includes(fileType.mime) === false) ||
+    (bucket === "images" && IMAGE_MIME_TYPES.includes(fileType.mime) === false)
+  ) {
+    const error = new Error("Bad request - File type not allowed");
+    return {
+      fileMetadataForDatabase: null,
+      error,
+    };
   }
 
-  if (getPublicURL(authClient, path, bucketName) === null) {
-    console.error("Requested public url is null.");
-    invariantResponse(false, "Server Error", { status: 500 });
+  const path = generatePathName(createHashFromString(file.name), fileType.ext);
+  const { error: storageError } = await authClient.storage
+    .from(bucket)
+    .upload(path, file.stream(), {
+      upsert: true,
+      contentType: fileType.mime,
+      duplex: "half",
+    });
+
+  if (storageError !== null) {
+    return {
+      fileMetadataForDatabase: null,
+      error: storageError,
+    };
   }
-}
 
-// TODO: Reimplement upload handling (multipart form data parsing) -> poc: see app/routes/status.tsx
-// export const parseMultipart = async (request: Request) => {
-// try {
-//   const formData = await unstable_parseMultipartFormData(
-//     request,
-//     unstable_composeUploadHandlers(uploadHandler)
-//   );
-//   const uploadKey = formData.get("uploadKey");
-//   if (uploadKey === null) {
-//     console.error("No upload Key");
-//     invariantResponse(false, "Server Error", { status: 500 });
-//   }
-//   // TODO: can this type assertion be removed and proofen by code?
-//   const uploadHandlerResponseJSON = formData.get(uploadKey as string);
-//   if (uploadHandlerResponseJSON === null) {
-//     console.error("Upload Handler Response is null");
-//     invariantResponse(false, "Server Error", { status: 500 });
-//   }
-//   const uploadHandlerResponse: {
-//     buffer: {
-//       type: "Buffer";
-//       data: number[];
-//     };
-//     path: string;
-//     filename: string;
-//     extension: string;
-//     mimeType: string;
-//     sizeInBytes: number;
-//     // TODO: can this type assertion be removed and proofen by code?
-//   } = JSON.parse(uploadHandlerResponseJSON as string);
-//   // Convert buffer.data (number[]) to Buffer
-//   const buffer = Buffer.from(uploadHandlerResponse.buffer.data);
-//   if (buffer.length === 0) {
-//     console.error("Cannot upload empty file.");
-//     invariantResponse(false, "Bad request", { status: 400 });
-//   }
-//   if (buffer.length > 5_000_000) {
-//     console.error("File is too big. Current limit is 5MB on server side.");
-//     invariantResponse(false, "Bad request", { status: 400 });
-//   }
-// return {
-//   uploadHandlerResponse: {
-//     ...uploadHandlerResponse,
-//     buffer,
-//   },
-//   formData,
-// };
-// } catch (error) {
-//   console.error({ error });
-//   invariantResponse(false, "Server error", { status: 500 });
-// }
-// };
-
-export async function doPersistUpload(
-  authClient: SupabaseClient,
-  bucketName: string,
-  uploadHandlerResponse: {
-    buffer: Buffer;
-    path: string;
-    filename: string;
-    extension: string;
-    mimeType: string;
-    sizeInBytes: number;
-  }
-) {
-  const { data, error } = await persistUpload(
-    authClient,
-    uploadHandlerResponse.path,
-    uploadHandlerResponse.buffer,
-    bucketName,
-    uploadHandlerResponse.mimeType
-  );
-  validatePersistence(
-    authClient,
-    error,
-    data,
-    uploadHandlerResponse.path,
-    bucketName
-  );
-
-  return true;
+  return {
+    fileMetadataForDatabase: {
+      filename: file.name,
+      path: path,
+      extension: fileType.ext,
+      sizeInMB: Math.round((file.size / 1000 / 1000) * 100) / 100,
+      mimeType: fileType.mime,
+    },
+    error: null,
+  };
 }
 
 export function getPublicURL(
@@ -225,7 +126,6 @@ export async function download(
   relativePath: string,
   bucket = "documents"
 ) {
-  console.log({ bucket, relativePath });
   const { data, error } = await authClient.storage
     .from(bucket)
     .download(relativePath);

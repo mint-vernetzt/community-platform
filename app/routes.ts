@@ -60,10 +60,6 @@ export default [
           "/project/:slug/settings/attachments/download",
           "./routes/project/$slug/settings/attachments/download.tsx"
         ),
-        route(
-          "/project/:slug/settings/attachments/edit",
-          "./routes/project/$slug/settings/attachments/edit.tsx"
-        ),
       ]
     ),
     route(

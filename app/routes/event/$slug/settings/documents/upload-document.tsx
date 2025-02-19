@@ -46,7 +46,7 @@ export const action = async () => {
   //   path: uploadHandlerResponse.path,
   //   extension: uploadHandlerResponse.extension,
   //   sizeInMB:
-  //     Math.round((uploadHandlerResponse.sizeInBytes / 1024 / 1024) * 100) / 100,
+  //     Math.round((uploadHandlerResponse.sizeInBytes / 1000 / 1000) * 100) / 100,
   //   mimeType: uploadHandlerResponse.mimeType,
   // };
 

@@ -260,15 +260,6 @@ export async function uploadImageBucketData(
           continue;
         }
         const arrayBuffer = await (await response.blob()).arrayBuffer();
-        // TODO: Validate svg
-        // if (imageType === "logos") {
-        //   extension = ".svg";
-        //   mimeType = "image/svg+xml";
-        //   console.error(
-        //     "The validation of svg images is not yet implemented and therefore this image is skipped."
-        //   );
-        //   continue;
-        // } else {
         const fileTypeResult = await fileTypeFromBuffer(arrayBuffer);
         if (fileTypeResult === undefined) {
           console.error(
@@ -284,15 +275,10 @@ export async function uploadImageBucketData(
         }
         extension = fileTypeResult.ext;
         mimeType = fileTypeResult.mime;
-        // }
         const hash = await createHashFromString(
           Buffer.from(arrayBuffer).toString()
         );
-        const path = generatePathName(
-          extension,
-          hash,
-          imageType.substring(0, imageType.length - 1)
-        );
+        const path = generatePathName(hash, extension);
         const { error: uploadObjectError } = await authClient.storage
           .from("images")
           .upload(path, arrayBuffer, {
@@ -342,11 +328,7 @@ export async function uploadImageBucketData(
         mimeType = fileTypeResult.mime;
         const hash = await createHashFromString(data.toString());
         for (const imageType in bucketData) {
-          const path = generatePathName(
-            extension,
-            hash,
-            imageType.substring(0, imageType.length - 1)
-          );
+          const path = generatePathName(hash, extension);
           const { error: uploadObjectError } = await authClient.storage
             .from("images")
             .upload(path, data, {
@@ -455,7 +437,7 @@ export async function uploadDocumentBucketData(
       continue;
     }
     const hash = await createHashFromString(Buffer.from(pdfBytes).toString());
-    const path = generatePathName(fileTypeResult.ext, hash, "document");
+    const path = generatePathName(hash, fileTypeResult.ext);
     const { error: uploadObjectError } = await authClient.storage
       .from("documents")
       .upload(path, pdfBytes, {
