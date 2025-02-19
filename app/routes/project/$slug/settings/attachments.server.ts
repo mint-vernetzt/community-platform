@@ -75,7 +75,7 @@ export async function uploadFile(options: {
             slug,
           },
           data:
-            data[BUCKET_FIELD_NAME] === "documents"
+            bucket === "documents"
               ? {
                   documents: {
                     create: {
@@ -143,8 +143,12 @@ export async function editDocument(options: {
   const submission = await parseWithZod(formData, {
     schema: createEditDocumentSchema(locales).transform(async (data, ctx) => {
       const { id, ...rest } = data;
+      let document;
       try {
-        await prismaClient.document.update({
+        document = await prismaClient.document.update({
+          select: {
+            filename: true,
+          },
           where: {
             id,
           },
@@ -162,7 +166,7 @@ export async function editDocument(options: {
         });
         return z.NEVER;
       }
-      return { ...data };
+      return { ...data, document };
     }),
     async: true,
   });
@@ -181,7 +185,7 @@ export async function editDocument(options: {
       message: insertParametersIntoLocale(
         locales.route.content.document.updated,
         {
-          name: submission.value.title,
+          name: submission.value.title || submission.value.document.filename,
         }
       ),
     },
@@ -198,8 +202,12 @@ export async function editImage(options: {
   const submission = await parseWithZod(formData, {
     schema: createEditImageSchema(locales).transform(async (data, ctx) => {
       const { id, ...rest } = data;
+      let image;
       try {
-        await prismaClient.image.update({
+        image = await prismaClient.image.update({
+          select: {
+            filename: true,
+          },
           where: {
             id,
           },
@@ -217,7 +225,7 @@ export async function editImage(options: {
         });
         return z.NEVER;
       }
-      return { ...data };
+      return { ...data, image };
     }),
     async: true,
   });
@@ -234,7 +242,7 @@ export async function editImage(options: {
       id: "edit-image",
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(locales.route.content.image.updated, {
-        name: submission.value.title,
+        name: submission.value.title || submission.value.image.filename,
       }),
     },
     redirectUrl: redirectUrl.toString(),

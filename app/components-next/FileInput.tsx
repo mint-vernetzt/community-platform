@@ -1,6 +1,8 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import React from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { type EventDocumentsSettingsLocales } from "~/routes/event/$slug/settings/documents.server";
+import { type ProjectAttachmentSettingsLocales } from "~/routes/project/$slug/settings/attachments.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 
 function FileInputText(props: React.PropsWithChildren) {
@@ -23,6 +25,7 @@ type FileInputProps = {
     id: string;
     message: string;
   }[];
+  locales: ProjectAttachmentSettingsLocales | EventDocumentsSettingsLocales;
   fileInputProps?: React.HTMLProps<HTMLInputElement>;
   bucketInputProps?: React.HTMLProps<HTMLInputElement>;
   noscriptInputProps?: React.HTMLProps<HTMLInputElement>;
@@ -30,9 +33,10 @@ type FileInputProps = {
 
 function FileInput(props: React.PropsWithChildren<FileInputProps>) {
   const {
+    selectedFileNames,
     as = "button",
     errors,
-    selectedFileNames,
+    locales,
     fileInputProps,
     bucketInputProps,
     noscriptInputProps,
@@ -161,7 +165,7 @@ function FileInput(props: React.PropsWithChildren<FileInputProps>) {
               .join(", ")}
           </p>
         ) : isHydrated === true ? (
-          "Du hast keine Datei ausgewählt."
+          locales.route.content.document.selection.empty
         ) : null}
         {typeof errors !== "undefined" && errors.length > 0 ? (
           <div>

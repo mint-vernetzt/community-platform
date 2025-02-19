@@ -38,6 +38,7 @@ import {
   FILE_FIELD_NAME,
   IMAGE_MIME_TYPES,
   imageSchema,
+  MAX_UPLOAD_FILE_SIZE,
   UPLOAD_INTENT_VALUE,
 } from "~/storage.shared";
 import {
@@ -474,7 +475,11 @@ function Attachments() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {locales.route.content.document.upload}
           </h2>
-          <p>{locales.route.content.document.type}</p>
+          <p>
+            {insertParametersIntoLocale(locales.route.content.document.type, {
+              max: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
+            })}
+          </p>
           <Form
             {...getFormProps(documentUploadForm)}
             method="post"
@@ -496,6 +501,7 @@ function Attachments() {
                       }
                     )
               }
+              locales={locales}
               fileInputProps={{
                 ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
                   type: "file",
@@ -666,9 +672,6 @@ function Attachments() {
                           {relation.document.mimeType === "application/pdf" && (
                             <MaterialList.Item.PDFIcon />
                           )}
-                          {relation.document.mimeType === "image/jpeg" && (
-                            <MaterialList.Item.JPGIcon />
-                          )}
                           <MaterialList.Item.Title>
                             {relation.document.title !== null
                               ? relation.document.title
@@ -775,6 +778,7 @@ function Attachments() {
                       };
                     })
               }
+              locales={locales}
               fileInputProps={{
                 ...getInputProps(imageUploadFields[FILE_FIELD_NAME], {
                   type: "file",

@@ -46,7 +46,7 @@ export const locale = {
       "Füge Materialien wie Flyer, Bilder, Checklisten zu Deinem Projekt hinzu oder entferne sie.",
     document: {
       upload: "Dokumente hochladen",
-      type: "Mögliche Dateiformate: PDF. Maximal 6MB.",
+      type: "Mögliche Dateiformate: PDF. Maximal {{max}}MB.",
       select: "Datei auswählen",
       action: "Datei hochladen",
       selection: {
