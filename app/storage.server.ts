@@ -1,18 +1,14 @@
-import { LocalFileStorage } from "@mjackson/file-storage/local";
-import { parseFormData, type FileUpload } from "@mjackson/form-data-parser";
+import { parseFormData } from "@mjackson/form-data-parser";
 import type { Document } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { fileTypeFromBlob } from "file-type";
 import JSZip from "jszip";
-import { Readable } from "stream";
-import { createAuthClient } from "./auth.server";
 import { invariantResponse } from "./lib/utils/response";
+import { fileTypeFromBlob } from "file-type";
 import {
-  BUCKET_NAME_DOCUMENTS,
-  BUCKET_NAME_IMAGES,
   DOCUMENT_MIME_TYPES,
-  FILE_FIELD_NAME,
   IMAGE_MIME_TYPES,
+  MAX_UPLOAD_FILE_SIZE,
+  MAX_UPLOAD_HEADER_SIZE,
 } from "./storage.shared";
 import { createHashFromString } from "./utils.server";
 
@@ -23,53 +19,14 @@ export function generatePathName(hash: string, extension: string) {
   )}/${hash.substring(hash.length - 2)}.${extension}`;
 }
 
-export async function* streamToAsyncIterator(
-  stream: ReadableStream<Uint8Array<ArrayBufferLike>>
-) {
-  const reader = stream.getReader();
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) return;
-      yield value;
-    }
-  } catch (error) {
-    console.error({ error });
-    invariantResponse(false, "Server Error", { status: 500 });
-  } finally {
-    reader.releaseLock();
-  }
-}
-
-export const fileStorage = new LocalFileStorage(`temporary-upload-storage`);
-
-export async function uploadHandler(fileUpload: FileUpload) {
-  if (fileUpload.fieldName === FILE_FIELD_NAME) {
-    // FileUpload objects are not meant to stick around for very long (they are
-    // streaming data from the request.body!) so we should store them as soon as
-    // possible.
-    await fileStorage.set(fileUpload.fieldName, fileUpload);
-
-    // Return a File for the FormData object. This is a LazyFile that knows how
-    // to access the file's content if needed (using e.g. file.stream()) but
-    // waits until it is requested to actually read anything.
-    return fileStorage.get(fileUpload.fieldName);
-  }
-}
-
-export async function deleteAllTemporaryFiles() {
-  const items = await fileStorage.list(); // List all items in the fileStorage
-  for (const file of items.files) {
-    await fileStorage.remove(file.key); // Delete each item by its name
-  }
-}
-
 export async function parseMultipartFormData(request: Request) {
   let formData;
   try {
-    formData = await parseFormData(request, uploadHandler);
+    formData = await parseFormData(request, {
+      maxFileSize: MAX_UPLOAD_FILE_SIZE,
+      maxHeaderSize: MAX_UPLOAD_HEADER_SIZE,
+    });
   } catch (error) {
-    await deleteAllTemporaryFiles();
     return {
       error,
       formData: null,
@@ -81,91 +38,57 @@ export async function parseMultipartFormData(request: Request) {
   };
 }
 
-export async function uploadFileFromMultipartFormData(
-  request: Request,
-  parsedFormData: {
-    file: File;
-    bucketName: string;
-  }
-) {
-  const { file, bucketName } = parsedFormData;
-  if (
-    bucketName !== BUCKET_NAME_DOCUMENTS &&
-    bucketName !== BUCKET_NAME_IMAGES
-  ) {
-    await deleteAllTemporaryFiles();
-    return {
-      path: null,
-      fileType: null,
-      error: new Error("Bad request - No bucket name"),
-    };
-  }
-  if (file === null || typeof file === "string") {
-    await deleteAllTemporaryFiles();
-    return {
-      path: null,
-      fileType: null,
-      error: new Error("Bad request - Not a file"),
-    };
-  }
+export async function uploadFileToStorage(options: {
+  file: File;
+  bucket: string;
+  authClient: SupabaseClient;
+}) {
+  const { file, bucket, authClient } = options;
+
   const fileType = await fileTypeFromBlob(file);
   if (typeof fileType === "undefined") {
-    await deleteAllTemporaryFiles();
+    const error = new Error("Bad request - File type undefined");
     return {
-      path: null,
-      fileType: null,
-      error: new Error("Bad request - File type undefined"),
+      fileMetadataForDatabase: null,
+      error,
     };
   }
   if (
-    (bucketName === "documents" &&
+    (bucket === "documents" &&
       DOCUMENT_MIME_TYPES.includes(fileType.mime) === false) ||
-    (bucketName === "images" &&
-      IMAGE_MIME_TYPES.includes(fileType.mime) === false)
+    (bucket === "images" && IMAGE_MIME_TYPES.includes(fileType.mime) === false)
   ) {
-    await deleteAllTemporaryFiles();
+    const error = new Error("Bad request - File type not allowed");
     return {
-      path: null,
-      fileType: null,
-      error: new Error("Bad request - File type not allowed"),
-    };
-  }
-
-  let path;
-  let fileStream;
-  try {
-    path = generatePathName(createHashFromString(file.name), fileType.ext);
-    fileStream = Readable.from(streamToAsyncIterator(file.stream()));
-  } catch (error) {
-    await deleteAllTemporaryFiles();
-    return {
-      path: null,
-      fileType: null,
+      fileMetadataForDatabase: null,
       error,
     };
   }
 
-  const { authClient } = createAuthClient(request);
-  const { data, error } = await authClient.storage
-    .from(bucketName)
-    .upload(path, fileStream, {
+  const path = generatePathName(createHashFromString(file.name), fileType.ext);
+  const { error: storageError } = await authClient.storage
+    .from(bucket)
+    .upload(path, file.stream(), {
       upsert: true,
       contentType: fileType.mime,
       duplex: "half",
     });
 
-  await deleteAllTemporaryFiles();
-  if (data === null || error !== null) {
+  if (storageError !== null) {
     return {
-      path: null,
-      fileType: null,
-      error,
+      fileMetadataForDatabase: null,
+      error: storageError,
     };
   }
 
   return {
-    path,
-    fileType,
+    fileMetadataForDatabase: {
+      filename: file.name,
+      path: path,
+      extension: fileType.ext,
+      sizeInMB: Math.round((file.size / 1000 / 1000) * 100) / 100,
+      mimeType: fileType.mime,
+    },
     error: null,
   };
 }

@@ -254,6 +254,8 @@ export const action = async (args: ActionFunctionArgs) => {
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  // TODO: Above function should assert the session user is not null to avoid below check that has already been done
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["project/$slug/settings/attachments"];
@@ -264,7 +266,7 @@ export const action = async (args: ActionFunctionArgs) => {
     Sentry.captureException(error);
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
-      id: "upload-document",
+      id: "upload-failed",
       key: `${new Date().getTime()}`,
       message: locales.route.error.onStoring,
       level: "negative",
@@ -277,7 +279,12 @@ export const action = async (args: ActionFunctionArgs) => {
   let redirectUrl: string | null = request.url;
 
   if (intent === UPLOAD_INTENT_VALUE) {
-    const result = await uploadFile({ request, formData, slug, locales });
+    const result = await uploadFile({
+      formData,
+      authClient,
+      slug,
+      locales,
+    });
     submission = result.submission;
     toast = result.toast;
   } else if (intent === "edit-document") {

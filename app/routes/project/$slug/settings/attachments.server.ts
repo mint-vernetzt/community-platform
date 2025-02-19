@@ -1,15 +1,13 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import * as Sentry from "@sentry/remix";
+import { type SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import {
-  deleteAllTemporaryFiles,
-  uploadFileFromMultipartFormData,
-} from "~/storage.server";
+import { uploadFileToStorage } from "~/storage.server";
 import {
   BUCKET_FIELD_NAME,
   BUCKET_NAME_DOCUMENTS,
@@ -30,12 +28,12 @@ export type ProjectAttachmentSettingsLocales =
   >]["project/$slug/settings/attachments"];
 
 export async function uploadFile(options: {
-  request: Request;
   formData: FormData;
+  authClient: SupabaseClient;
   slug: string;
   locales: ProjectAttachmentSettingsLocales;
 }) {
-  const { request, formData, slug, locales } = options;
+  const { formData, authClient, slug, locales } = options;
   const bucket = formData.get(BUCKET_FIELD_NAME);
   // TODO: How can we add this to the zod ctx?
   if (bucket !== BUCKET_NAME_DOCUMENTS && bucket !== BUCKET_NAME_IMAGES) {
@@ -55,14 +53,13 @@ export async function uploadFile(options: {
       : createImageUploadSchema(locales);
   const submission = await parseWithZod(formData, {
     schema: schema.transform(async (data, ctx) => {
-      const { path, fileType, error } = await uploadFileFromMultipartFormData(
-        request,
-        {
-          file: data.file,
-          bucketName: data.bucket,
-        }
-      );
-      if (error !== null || path === null || fileType === null) {
+      const { file } = data;
+      const { fileMetadataForDatabase, error } = await uploadFileToStorage({
+        file,
+        authClient,
+        bucket,
+      });
+      if (error !== null) {
         console.error({ error });
         Sentry.captureException(error);
         ctx.addIssue({
@@ -72,13 +69,6 @@ export async function uploadFile(options: {
         });
         return z.NEVER;
       }
-      const fileMetadataForDatabase = {
-        filename: data.file.name,
-        path: path,
-        extension: fileType.ext,
-        sizeInMB: Math.round((data.file.size / 1000 / 1000) * 100) / 100,
-        mimeType: fileType.mime,
-      };
       try {
         await prismaClient.project.update({
           where: {
@@ -124,7 +114,6 @@ export async function uploadFile(options: {
   });
 
   if (submission.status !== "success") {
-    await deleteAllTemporaryFiles();
     return { submission, toast: null };
   }
 
