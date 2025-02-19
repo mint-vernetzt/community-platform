@@ -1,4 +1,4 @@
-import * as React from "react";
+import type React from "react";
 import { useFormContext } from "react-hook-form";
 
 export type ToggleCheckboxProps = React.HTMLProps<HTMLInputElement> & {

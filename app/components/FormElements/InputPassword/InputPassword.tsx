@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useState } from "react";
+import React, { type MouseEventHandler, useState } from "react";
 
 export interface InputPasswordProps {
   label: string;
