@@ -8,7 +8,6 @@ import {
   DOCUMENT_MIME_TYPES,
   IMAGE_MIME_TYPES,
   MAX_UPLOAD_FILE_SIZE,
-  MAX_UPLOAD_HEADER_SIZE,
 } from "./storage.shared";
 import { createHashFromString } from "./utils.server";
 
@@ -24,7 +23,6 @@ export async function parseMultipartFormData(request: Request) {
   try {
     formData = await parseFormData(request, {
       maxFileSize: MAX_UPLOAD_FILE_SIZE,
-      maxHeaderSize: MAX_UPLOAD_HEADER_SIZE,
     });
   } catch (error) {
     return {

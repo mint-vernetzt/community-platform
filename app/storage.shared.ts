@@ -7,7 +7,6 @@ import { type EventDocumentsSettingsLocales } from "./routes/event/$slug/setting
 // TODO: Connect this with the equivalent nginx.conf settings
 // Max upload size (Remember to change nginx.conf when changing this)
 export const MAX_UPLOAD_FILE_SIZE = 6 * 1000 * 1000; // 6MB
-export const MAX_UPLOAD_HEADER_SIZE = 1 * 1000 * 1000; // 1MB
 
 // MIME types
 export const DOCUMENT_MIME_TYPES = ["application/pdf"];
