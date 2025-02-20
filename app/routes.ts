@@ -256,21 +256,7 @@ export default [
     ),
     route(
       "/event/:slug/settings/documents",
-      "./routes/event/$slug/settings/documents.tsx",
-      [
-        route(
-          "/event/:slug/settings/documents/delete-document",
-          "./routes/event/$slug/settings/documents/delete-document.tsx"
-        ),
-        route(
-          "/event/:slug/settings/documents/edit-document",
-          "./routes/event/$slug/settings/documents/edit-document.tsx"
-        ),
-        route(
-          "/event/:slug/settings/documents/upload-document",
-          "./routes/event/$slug/settings/documents/upload-document.tsx"
-        ),
-      ]
+      "./routes/event/$slug/settings/documents.tsx"
     ),
     route(
       "/event/:slug/settings/events",

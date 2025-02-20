@@ -2,11 +2,11 @@ import { z } from "zod";
 import { type ProjectAttachmentSettingsLocales } from "./routes/project/$slug/settings/attachments.server";
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { INTENT_FIELD_NAME } from "./form-helpers";
+import { type EventDocumentsSettingsLocales } from "./routes/event/$slug/settings/documents.server";
 
 // TODO: Connect this with the equivalent nginx.conf settings
 // Max upload size (Remember to change nginx.conf when changing this)
 export const MAX_UPLOAD_FILE_SIZE = 6 * 1000 * 1000; // 6MB
-export const MAX_UPLOAD_HEADER_SIZE = 1 * 1000 * 1000; // 1MB
 
 // MIME types
 export const DOCUMENT_MIME_TYPES = ["application/pdf"];
@@ -106,7 +106,9 @@ export const BUCKET_NAME_IMAGES = "images";
 export const BUCKET_NAME_DOCUMENTS = "documents";
 
 // zod schema configuration (spread this inside the z.object function)
-export const documentSchema = (locales: ProjectAttachmentSettingsLocales) => {
+export const documentSchema = (
+  locales: ProjectAttachmentSettingsLocales | EventDocumentsSettingsLocales
+) => {
   return {
     [FILE_FIELD_NAME]: z
       .instanceof(File)

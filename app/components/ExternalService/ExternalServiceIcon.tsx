@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { ExternalService } from "../types";
+import { type ExternalService } from "../types";
 
 export interface ExternalServiceProps {
   service: ExternalService;

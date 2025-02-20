@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { Chip, ChipContainer } from "./../../molecules/Chip";
 import { Avatar, AvatarList } from "./../../molecules/Avatar";
 import {

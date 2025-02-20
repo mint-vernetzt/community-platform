@@ -44,8 +44,8 @@ export const locale = {
     description:
       "Add or remove materials such as flyers, images or checklists from your project.",
     document: {
-      upload: "Upload document",
-      type: "File types: PDF. Max 6MB.",
+      upload: "Upload documents",
+      type: "File types: PDF. Max {{max}}MB.",
       select: "Choose file",
       action: "Upload file",
       selection: {

@@ -1,5 +1,5 @@
 import type { Event, Prisma } from "@prisma/client";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import {
@@ -14,6 +14,31 @@ import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type getEventBySlug } from "./general.server";
+import { deriveEventMode } from "../../utils.server";
+
+export async function getRedirectPathOnProtectedEventRoute(args: {
+  request: Request;
+  slug: string;
+  sessionUser: User | null;
+  authClient?: SupabaseClient;
+}) {
+  const { request, slug, sessionUser } = args;
+  // redirect to login if not logged in
+  if (sessionUser === null) {
+    // redirect to target after login
+    // TODO: Maybe rename login_redirect to redirect_to everywhere?
+    const url = new URL(request.url);
+    return `/login?login_redirect=${url.pathname}`;
+  }
+
+  // check if admin of event and redirect to event details if not
+  const mode = await deriveEventMode(sessionUser, slug);
+  if (mode !== "admin") {
+    return `/event/${slug}`;
+  }
+
+  return null;
+}
 
 export function validateTimePeriods(
   // TODO: fix type issue

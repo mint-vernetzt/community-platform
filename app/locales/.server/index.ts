@@ -32,9 +32,6 @@ import { locale as deConfirmAuthAction } from "./de/routes/auth/confirm";
 // event routes
 import { locale as deAddEventAdmin } from "./de/routes/event/$slug/settings/admins/add-admin";
 import { locale as deRemoveEventAdmin } from "./de/routes/event/$slug/settings/admins/remove-admin";
-import { locale as deDeleteEventDocuments } from "./de/routes/event/$slug/settings/documents/delete-documents";
-import { locale as deEditEventDocument } from "./de/routes/event/$slug/settings/documents/edit-document";
-import { locale as deUploadEventDocument } from "./de/routes/event/$slug/settings/documents/upload-document";
 import { locale as deAddChildEvent } from "./de/routes/event/$slug/settings/events/add-child";
 import { locale as deCancelEvent } from "./de/routes/event/$slug/settings/events/cancel";
 import { locale as dePublishEvent } from "./de/routes/event/$slug/settings/events/publish";
@@ -207,9 +204,6 @@ import { locale as enConfirmAuthAction } from "./en/routes/auth/confirm";
 // event routes
 import { locale as enAddEventAdmin } from "./en/routes/event/$slug/settings/admins/add-admin";
 import { locale as enRemoveEventAdmin } from "./en/routes/event/$slug/settings/admins/remove-admin";
-import { locale as enDeleteEventDocuments } from "./en/routes/event/$slug/settings/documents/delete-documents";
-import { locale as enEditEventDocument } from "./en/routes/event/$slug/settings/documents/edit-document";
-import { locale as enUploadEventDocument } from "./en/routes/event/$slug/settings/documents/upload-document";
 import { locale as enAddChildEvent } from "./en/routes/event/$slug/settings/events/add-child";
 import { locale as enCancelEvent } from "./en/routes/event/$slug/settings/events/cancel";
 import { locale as enPublishEvent } from "./en/routes/event/$slug/settings/events/publish";
@@ -374,9 +368,6 @@ const de = {
   // event routes
   "event/$slug/settings/admins/add-admin": deAddEventAdmin,
   "event/$slug/settings/admins/remove-admin": deRemoveEventAdmin,
-  "event/$slug/settings/documents/delete-document": deDeleteEventDocuments,
-  "event/$slug/settings/documents/edit-document": deEditEventDocument,
-  "event/$slug/settings/documents/upload-document": deUploadEventDocument,
   "event/$slug/settings/events/add-child": deAddChildEvent,
   "event/$slug/settings/events/cancel": deCancelEvent,
   "event/$slug/settings/events/publish": dePublishEvent,
@@ -406,7 +397,10 @@ const de = {
   },
   "event/$slug/settings/csv-download": deEventCsvDownload,
   "event/$slug/settings/delete": deDeleteEvent,
-  "event/$slug/settings/documents": deEventDocuments,
+  "event/$slug/settings/documents": {
+    route: deEventDocuments,
+    upload: deUpload,
+  },
   "event/$slug/settings/events": {
     route: deConnectEventsWithEvent,
     organizationTypes: deOrganizationTypes,
@@ -756,9 +750,6 @@ const en = {
   // event routes
   "event/$slug/settings/admins/add-admin": enAddEventAdmin,
   "event/$slug/settings/admins/remove-admin": enRemoveEventAdmin,
-  "event/$slug/settings/documents/delete-document": enDeleteEventDocuments,
-  "event/$slug/settings/documents/edit-document": enEditEventDocument,
-  "event/$slug/settings/documents/upload-document": enUploadEventDocument,
   "event/$slug/settings/events/add-child": enAddChildEvent,
   "event/$slug/settings/events/cancel": enCancelEvent,
   "event/$slug/settings/events/publish": enPublishEvent,
@@ -788,7 +779,10 @@ const en = {
   },
   "event/$slug/settings/csv-download": enEventCsvDownload,
   "event/$slug/settings/delete": enDeleteEvent,
-  "event/$slug/settings/documents": enEventDocuments,
+  "event/$slug/settings/documents": {
+    route: enEventDocuments,
+    upload: enUpload,
+  },
   "event/$slug/settings/events": {
     route: enConnectEventsWithEvent,
     stages: enStages,

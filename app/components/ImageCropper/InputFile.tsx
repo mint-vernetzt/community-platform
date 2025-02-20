@@ -1,4 +1,4 @@
-import * as React from "react";
+import type React from "react";
 import { type EventDetailLocales } from "~/routes/event/$slug/index.server";
 import { type OrganizationDetailLocales } from "~/routes/organization/$slug/detail.server";
 import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";

@@ -1,5 +1,5 @@
 import Pica from "pica";
-import React, { useRef, useState } from "react";
+import React from "react";
 
 import type { Crop, PixelCrop } from "react-image-crop";
 import { centerCrop, makeAspectCrop, ReactCrop } from "react-image-crop";
@@ -77,13 +77,13 @@ const UPLOAD_URL = "/upload/image";
 const DELETE_URL = "/upload/delete";
 
 function ImageCropper(props: ImageCropperProps) {
-  const [imgSrc, setImgSrc] = useState("");
-  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
-  const [crop, setCrop] = useState<Crop>();
-  const [isSaving, setIsSaving] = useState(false);
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const [scale, setScale] = useState(DEFAULT_SCALE);
+  const [imgSrc, setImgSrc] = React.useState("");
+  const previewCanvasRef = React.useRef<HTMLCanvasElement>(null);
+  const imgRef = React.useRef<HTMLImageElement>(null);
+  const [crop, setCrop] = React.useState<Crop>();
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [completedCrop, setCompletedCrop] = React.useState<PixelCrop>();
+  const [scale, setScale] = React.useState(DEFAULT_SCALE);
   const aspect = props.aspect === undefined ? DEFAULT_ASPECT : props.aspect;
 
   const {
