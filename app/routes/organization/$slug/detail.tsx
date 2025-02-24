@@ -40,7 +40,7 @@ export function links() {
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
 
-  if (typeof data === "undefined") {
+  if (typeof data === "undefined" || data === null) {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
