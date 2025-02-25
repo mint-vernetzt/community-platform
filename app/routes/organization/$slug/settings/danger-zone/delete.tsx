@@ -23,12 +23,16 @@ import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
-import { invariantResponse } from "~/lib/utils/response";
+import { invariant, invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { type DeleteOrganizationLocales } from "./delete.server";
+import {
+  deleteOrganizationBySlug,
+  type DeleteOrganizationLocales,
+} from "./delete.server";
+import * as Sentry from "@sentry/remix";
 
 function createSchema(locales: DeleteOrganizationLocales, name: string) {
   return z.object({
@@ -111,8 +115,24 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   const formData = await request.formData();
-  const submission = parseWithZod(formData, {
-    schema: createSchema(locales, organization.name),
+  const submission = await parseWithZod(formData, {
+    schema: createSchema(locales, organization.name).transform(
+      async (data, ctx) => {
+        try {
+          invariant(params.slug !== undefined, locales.error.invalidRoute);
+          await deleteOrganizationBySlug(params.slug);
+        } catch (error) {
+          Sentry.captureException(error);
+          ctx.addIssue({
+            code: "custom",
+            message: locales.error.deletionFailed,
+          });
+          return z.NEVER;
+        }
+        return { ...data };
+      }
+    ),
+    async: true,
   });
 
   if (submission.status !== "success") {
