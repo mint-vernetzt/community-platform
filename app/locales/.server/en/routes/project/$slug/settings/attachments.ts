@@ -46,12 +46,8 @@ export const locale = {
     document: {
       upload: "Upload documents",
       type: "File types: PDF. Max {{max}}MB.",
-      select: "Choose file",
+
       action: "Upload file",
-      selection: {
-        empty: "Please choose a file.",
-        selected: "Selected {{name}}.",
-      },
       added: "Added {{name}}",
       current: "Currently uploaded documents",
       downloadAll: "Download all",
@@ -62,12 +58,7 @@ export const locale = {
     image: {
       upload: "Upload image",
       requirements: "File types: jpg, png. Max 6MB.",
-      select: "Choose file",
       action: "Upload file",
-      selection: {
-        empty: "Please choose a file.",
-        selected: "Selected {{name}}.",
-      },
       added: "Added {{name}}",
       current: "Currently uploaded images",
       downloadAll: "Download all",

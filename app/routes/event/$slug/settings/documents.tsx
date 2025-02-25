@@ -342,9 +342,7 @@ function Documents() {
                 accept: DOCUMENT_MIME_TYPES.join(", "),
               }}
             >
-              <FileInput.Text>
-                {locales.route.content.document.select}
-              </FileInput.Text>
+              <FileInput.Text>{locales.upload.selection.select}</FileInput.Text>
               <FileInput.Controls>
                 <input
                   {...getInputProps(documentUploadFields[INTENT_FIELD_NAME], {

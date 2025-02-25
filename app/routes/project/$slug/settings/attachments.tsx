@@ -541,9 +541,7 @@ function Attachments() {
                 accept: DOCUMENT_MIME_TYPES.join(", "),
               }}
             >
-              <FileInput.Text>
-                {locales.route.content.document.select}
-              </FileInput.Text>
+              <FileInput.Text>{locales.upload.selection.select}</FileInput.Text>
               <FileInput.Controls>
                 <input
                   {...getInputProps(documentUploadFields[INTENT_FIELD_NAME], {
@@ -818,9 +816,7 @@ function Attachments() {
                 accept: IMAGE_MIME_TYPES.join(", "),
               }}
             >
-              <FileInput.Text>
-                {locales.route.content.image.select}
-              </FileInput.Text>
+              <FileInput.Text>{locales.upload.selection.select}</FileInput.Text>
               <FileInput.Controls>
                 <input
                   {...getInputProps(imageUploadFields[INTENT_FIELD_NAME], {

@@ -9,4 +9,9 @@ export const locale = {
       type: "The file must be a PNG or a JPEG.",
     },
   },
+  selection: {
+    select: "Choose file",
+    empty: "Please choose a file.",
+    selected: "Selected {{name}}.",
+  },
 } as const;

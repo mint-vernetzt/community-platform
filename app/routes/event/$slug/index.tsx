@@ -6,7 +6,13 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "react-router";
-import { Form, Link, useActionData, useLoaderData } from "react-router";
+import {
+  Form,
+  Link,
+  redirect,
+  useActionData,
+  useLoaderData,
+} from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import React from "react";
@@ -76,6 +82,10 @@ import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { getRedirectPathOnProtectedEventRoute } from "./settings/utils.server";
+import { parseMultipartFormData } from "~/storage.server";
+import { redirectWithToast } from "~/toast.server";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 
 export function links() {
   return [
@@ -372,85 +382,161 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-  const { authClient } = createAuthClient(request);
   const slug = getParamValueOrThrow(params, "slug");
-  const sessionUser = await getSessionUserOrThrow(authClient);
-
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  // TODO: Above function should assert the session user is not null to avoid below check that has already been done
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["event/$slug/index"];
+  const locales = languageModuleMap[language]["event/$slug/settings/documents"];
 
-  const formData = await request.formData();
-  const submission = parseWithZod(formData, {
-    schema: abuseReportSchema.superRefine((data, ctx) => {
-      if (data.reasons.length === 0 && typeof data.otherReason !== "string") {
-        ctx.addIssue({
-          path: ["reasons"],
-          code: z.ZodIssueCode.custom,
-          message: locales.route.abuseReport.noReasons,
-        });
-        return;
-      }
-      return { ...data };
-    }),
-  });
-
-  if (submission.status !== "success") {
-    return submission.reply();
-  }
-
-  await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
-  const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(
-    mode === "authenticated",
-    "Anon users and admins of this event cannot send a report",
-    { status: 403 }
-  );
-
-  const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
-    select: {
-      id: true,
-    },
-    where: {
-      event: {
-        slug,
-      },
-      status: "open",
-      reporterId: sessionUser.id,
-    },
-  });
-  invariantResponse(
-    openAbuseReport === null,
-    "You already have sent a report for this event",
-    { status: 401 }
-  );
-
-  const suggestions =
-    await prismaClient.eventAbuseReportReasonSuggestion.findMany({
-      where: {
-        slug: {
-          in: submission.value.reasons,
-        },
-      },
+  const { formData, error } = await parseMultipartFormData(request);
+  if (error !== null || formData === null) {
+    console.error({ error });
+    Sentry.captureException(error);
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "upload-failed",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.onStoring,
+      level: "negative",
     });
-
-  const reasons: string[] = [];
-  for (const suggestion of suggestions) {
-    reasons.push(suggestion.description);
-  }
-  if (typeof submission.value.otherReason === "string") {
-    reasons.push(submission.value.otherReason);
   }
 
-  const report = await createEventAbuseReport({
-    reporterId: sessionUser.id,
-    slug: slug,
-    reasons: reasons,
-  });
-  await sendNewReportMailToSupport(report);
+  const intent = formData.get(INTENT_FIELD_NAME);
+  let submission;
+  let toast;
+  let redirectUrl: string | null = request.url;
 
-  return redirectWithAlert(".", {
-    message: locales.route.success.abuseReport,
-  });
+  if (intent === UPLOAD_INTENT_VALUE) {
+    const result = await uploadFile({
+      formData,
+      authClient,
+      slug,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+  } else if (intent === "edit-document") {
+    const result = await editDocument({ request, formData, locales });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else if (intent === "disconnect-document") {
+    const result = await disconnectDocument({ formData, locales });
+    submission = result.submission;
+    toast = result.toast;
+  } else {
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "invalid-action",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.invalidAction,
+      level: "negative",
+    });
+  }
+
+  if (submission !== null) {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
+  }
+  if (toast === null) {
+    return redirect(redirectUrl);
+  }
+  return redirectWithToast(redirectUrl, toast);
+
+  // TODO: Combine this with image cropper form
+  // const { request, params } = args;
+  // const { authClient } = createAuthClient(request);
+  // const slug = getParamValueOrThrow(params, "slug");
+  // const sessionUser = await getSessionUserOrThrow(authClient);
+
+  // const language = await detectLanguage(request);
+  // const locales = languageModuleMap[language]["event/$slug/index"];
+
+  // const formData = await request.formData();
+  // const submission = parseWithZod(formData, {
+  //   schema: abuseReportSchema.superRefine((data, ctx) => {
+  //     if (data.reasons.length === 0 && typeof data.otherReason !== "string") {
+  //       ctx.addIssue({
+  //         path: ["reasons"],
+  //         code: z.ZodIssueCode.custom,
+  //         message: locales.route.abuseReport.noReasons,
+  //       });
+  //       return;
+  //     }
+  //     return { ...data };
+  //   }),
+  // });
+
+  // if (submission.status !== "success") {
+  //   return submission.reply();
+  // }
+
+  // await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
+  // const mode = await deriveEventMode(sessionUser, slug);
+  // invariantResponse(
+  //   mode === "authenticated",
+  //   "Anon users and admins of this event cannot send a report",
+  //   { status: 403 }
+  // );
+
+  // const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
+  //   select: {
+  //     id: true,
+  //   },
+  //   where: {
+  //     event: {
+  //       slug,
+  //     },
+  //     status: "open",
+  //     reporterId: sessionUser.id,
+  //   },
+  // });
+  // invariantResponse(
+  //   openAbuseReport === null,
+  //   "You already have sent a report for this event",
+  //   { status: 401 }
+  // );
+
+  // const suggestions =
+  //   await prismaClient.eventAbuseReportReasonSuggestion.findMany({
+  //     where: {
+  //       slug: {
+  //         in: submission.value.reasons,
+  //       },
+  //     },
+  //   });
+
+  // const reasons: string[] = [];
+  // for (const suggestion of suggestions) {
+  //   reasons.push(suggestion.description);
+  // }
+  // if (typeof submission.value.otherReason === "string") {
+  //   reasons.push(submission.value.otherReason);
+  // }
+
+  // const report = await createEventAbuseReport({
+  //   reporterId: sessionUser.id,
+  //   slug: slug,
+  //   reasons: reasons,
+  // });
+  // await sendNewReportMailToSupport(report);
+
+  // return redirectWithAlert(".", {
+  //   message: locales.route.success.abuseReport,
+  // });
 };
 
 function getCallToActionForm(loaderData: {
@@ -782,7 +868,6 @@ function Index() {
                     <Modal.Title>{locales.route.content.headline}</Modal.Title>
                     <Modal.Section>
                       <ImageCropper
-                        subject="event"
                         id="modal-background-upload"
                         uploadKey="background"
                         image={loaderData.event.background || undefined}
@@ -791,8 +876,6 @@ function Index() {
                         minCropHeight={MinCropSizes.EventBackground.height}
                         maxTargetWidth={MaxImageSizes.EventBackground.width}
                         maxTargetHeight={MaxImageSizes.EventBackground.height}
-                        slug={loaderData.event.slug}
-                        redirect={`/event/${loaderData.event.slug}`}
                         modalSearchParam="modal-background"
                         locales={locales}
                       >

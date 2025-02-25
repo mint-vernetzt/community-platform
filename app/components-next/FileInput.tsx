@@ -1,6 +1,7 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import React from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { type ImageCropperLocales } from "~/components/ImageCropper/ImageCropper";
 import { type EventDocumentsSettingsLocales } from "~/routes/event/$slug/settings/documents.server";
 import { type ProjectAttachmentSettingsLocales } from "~/routes/project/$slug/settings/attachments.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
@@ -25,7 +26,10 @@ type FileInputProps = {
     id: string;
     message: string;
   }[];
-  locales: ProjectAttachmentSettingsLocales | EventDocumentsSettingsLocales;
+  locales:
+    | ProjectAttachmentSettingsLocales
+    | EventDocumentsSettingsLocales
+    | ImageCropperLocales;
   fileInputProps?: React.HTMLProps<HTMLInputElement>;
   bucketInputProps?: React.HTMLProps<HTMLInputElement>;
   noscriptInputProps?: React.HTMLProps<HTMLInputElement>;
@@ -165,7 +169,7 @@ function FileInput(props: React.PropsWithChildren<FileInputProps>) {
               .join(", ")}
           </p>
         ) : isHydrated === true ? (
-          locales.route.content.document.selection.empty
+          locales.upload.selection.empty
         ) : null}
         {typeof errors !== "undefined" && errors.length > 0 ? (
           <div>
