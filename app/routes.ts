@@ -10,8 +10,6 @@ export default [
   route("/error", "./routes/error.tsx"),
   route("/dashboard", "./routes/dashboard.tsx"),
   route("/accept-terms", "./routes/accept-terms.tsx"),
-  route("/upload/delete", "./routes/upload/delete.tsx"),
-  route("/upload/image", "./routes/upload/image.tsx"),
   route("/search", "./routes/search.tsx", [
     index("./routes/search/index.tsx"),
     route("/search/profiles", "./routes/search/profiles.tsx"),

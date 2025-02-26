@@ -9,12 +9,8 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import {
-  BlurFactor,
-  DefaultImages,
-  ImageSizes,
-  getImageURL,
-} from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css?url";

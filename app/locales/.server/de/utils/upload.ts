@@ -14,4 +14,13 @@ export const locale = {
     empty: "Du hast keine Datei ausgewählt.",
     selected: "{{name}} ausgewählt.",
   },
+  success: {
+    imageAdded: "{{imageType}} hinzugefügt",
+    imageRemoved: "{{imageType}} entfernt",
+    imageTypes: {
+      background: "Hintergrundbild",
+      avatar: "Profilbild",
+      logo: "Logo",
+    },
+  },
 } as const;

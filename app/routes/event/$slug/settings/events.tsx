@@ -14,12 +14,8 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
-import {
-  BlurFactor,
-  DefaultImages,
-  getImageURL,
-  ImageSizes,
-} from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";

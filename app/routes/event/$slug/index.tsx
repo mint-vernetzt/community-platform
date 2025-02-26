@@ -1,6 +1,15 @@
-import { useForm } from "@conform-to/react-v1";
-import { parseWithZod } from "@conform-to/zod-v1";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import * as Sentry from "@sentry/remix";
+import { utcToZonedTime } from "date-fns-tz";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
+import React from "react";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -12,24 +21,17 @@ import {
   redirect,
   useActionData,
   useLoaderData,
+  useNavigation,
 } from "react-router";
-import { utcToZonedTime } from "date-fns-tz";
-import rcSliderStyles from "rc-slider/assets/index.css?url";
-import React from "react";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { z } from "zod";
-import {
-  createEventAbuseReport,
-  sendNewReportMailToSupport,
-} from "~/abuse-reporting.server";
-import { redirectWithAlert } from "~/alert.server";
-import {
-  createAuthClient,
-  getSessionUser,
-  getSessionUserOrThrow,
-} from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { Modal } from "~/components-next/Modal";
 import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import { RichText } from "~/components/Richtext/RichText";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { detectLanguage } from "~/i18n.server";
+import { type supportedCookieLanguages } from "~/i18n.shared";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import {
   canUserAccessConferenceLink,
   canUserBeAddedToWaitingList,
@@ -41,16 +43,30 @@ import {
   checkFeatureAbilitiesOrThrow,
   getFeatureAbilities,
 } from "~/lib/utils/application";
+import {
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { getDuration } from "~/lib/utils/time";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
+import { type ArrayElement } from "~/lib/utils/types";
+import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
-import { Modal } from "~/components-next/Modal";
+import { parseMultipartFormData } from "~/storage.server";
+import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { redirectWithToast } from "~/toast.server";
 import { deriveEventMode } from "../utils.server";
+import {
+  disconnectBackgroundImage,
+  submitEventAbuseReport,
+  uploadBackgroundImage,
+  type EventDetailLocales,
+} from "./index.server";
 import { AddParticipantButton } from "./settings/participants/add-participant";
 import { RemoveParticipantForm } from "./settings/participants/remove-participant";
+import { getRedirectPathOnProtectedEventRoute } from "./settings/utils.server";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
 import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
 import {
@@ -69,23 +85,7 @@ import {
   type ParticipantsQuery,
   type SpeakersQuery,
 } from "./utils.server";
-import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { languageModuleMap } from "~/locales/.server";
-import { type EventDetailLocales } from "./index.server";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type supportedCookieLanguages } from "~/i18n.shared";
-import {
-  insertComponentsIntoLocale,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
-import { getRedirectPathOnProtectedEventRoute } from "./settings/utils.server";
-import { parseMultipartFormData } from "~/storage.server";
-import { redirectWithToast } from "~/toast.server";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export function links() {
   return [
@@ -209,12 +209,6 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     },
   ];
 };
-
-const abuseReportSchema = z.object({
-  intent: z.enum(["submit-abuse-report"]),
-  reasons: z.array(z.string()),
-  otherReason: z.string().optional(),
-});
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -377,27 +371,35 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
     locales,
     language,
+    currentTimestamp: Date.now(),
   };
 };
+
+export const OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH = 250;
+
+export const createAbuseReportSchema = (locales: EventDetailLocales) =>
+  z.object({
+    [INTENT_FIELD_NAME]: z.enum(["submit-abuse-report"]),
+    reasons: z.array(z.string()),
+    otherReason: z
+      .string()
+      .max(
+        OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH,
+        insertParametersIntoLocale(locales.route.abuseReport.max, {
+          max: OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH,
+        })
+      )
+      .optional(),
+  });
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  const redirectPath = await getRedirectPathOnProtectedEventRoute({
-    request,
-    slug,
-    sessionUser,
-    authClient,
-  });
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-  // TODO: Above function should assert the session user is not null to avoid below check that has already been done
   invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["event/$slug/settings/documents"];
+  const locales = languageModuleMap[language]["event/$slug/index"];
 
   const { formData, error } = await parseMultipartFormData(request);
   if (error !== null || formData === null) {
@@ -406,7 +408,6 @@ export const action = async (args: ActionFunctionArgs) => {
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",
-      key: `${new Date().getTime()}`,
       message: locales.route.error.onStoring,
       level: "negative",
     });
@@ -418,7 +419,17 @@ export const action = async (args: ActionFunctionArgs) => {
   let redirectUrl: string | null = request.url;
 
   if (intent === UPLOAD_INTENT_VALUE) {
-    const result = await uploadFile({
+    const redirectPath = await getRedirectPathOnProtectedEventRoute({
+      request,
+      slug,
+      sessionUser,
+      authClient,
+    });
+    if (redirectPath !== null) {
+      return redirect(redirectPath);
+    }
+    const result = await uploadBackgroundImage({
+      request,
       formData,
       authClient,
       slug,
@@ -426,20 +437,43 @@ export const action = async (args: ActionFunctionArgs) => {
     });
     submission = result.submission;
     toast = result.toast;
-  } else if (intent === "edit-document") {
-    const result = await editDocument({ request, formData, locales });
+    redirectUrl = result.redirectUrl || request.url;
+  } else if (intent === "disconnect") {
+    const redirectPath = await getRedirectPathOnProtectedEventRoute({
+      request,
+      slug,
+      sessionUser,
+      authClient,
+    });
+    if (redirectPath !== null) {
+      return redirect(redirectPath);
+    }
+    const result = await disconnectBackgroundImage({
+      request,
+      formData,
+      slug,
+      locales,
+    });
     submission = result.submission;
     toast = result.toast;
     redirectUrl = result.redirectUrl || request.url;
-  } else if (intent === "disconnect-document") {
-    const result = await disconnectDocument({ formData, locales });
+  } else if (intent === "submit-abuse-report") {
+    await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
+    const result = await submitEventAbuseReport({
+      request,
+      formData,
+      slug,
+      locales,
+      authClient,
+      sessionUser,
+    });
     submission = result.submission;
     toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
   } else {
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "invalid-action",
-      key: `${new Date().getTime()}`,
       message: locales.route.error.invalidAction,
       level: "negative",
     });
@@ -455,88 +489,6 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirect(redirectUrl);
   }
   return redirectWithToast(redirectUrl, toast);
-
-  // TODO: Combine this with image cropper form
-  // const { request, params } = args;
-  // const { authClient } = createAuthClient(request);
-  // const slug = getParamValueOrThrow(params, "slug");
-  // const sessionUser = await getSessionUserOrThrow(authClient);
-
-  // const language = await detectLanguage(request);
-  // const locales = languageModuleMap[language]["event/$slug/index"];
-
-  // const formData = await request.formData();
-  // const submission = parseWithZod(formData, {
-  //   schema: abuseReportSchema.superRefine((data, ctx) => {
-  //     if (data.reasons.length === 0 && typeof data.otherReason !== "string") {
-  //       ctx.addIssue({
-  //         path: ["reasons"],
-  //         code: z.ZodIssueCode.custom,
-  //         message: locales.route.abuseReport.noReasons,
-  //       });
-  //       return;
-  //     }
-  //     return { ...data };
-  //   }),
-  // });
-
-  // if (submission.status !== "success") {
-  //   return submission.reply();
-  // }
-
-  // await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
-  // const mode = await deriveEventMode(sessionUser, slug);
-  // invariantResponse(
-  //   mode === "authenticated",
-  //   "Anon users and admins of this event cannot send a report",
-  //   { status: 403 }
-  // );
-
-  // const openAbuseReport = await prismaClient.eventAbuseReport.findFirst({
-  //   select: {
-  //     id: true,
-  //   },
-  //   where: {
-  //     event: {
-  //       slug,
-  //     },
-  //     status: "open",
-  //     reporterId: sessionUser.id,
-  //   },
-  // });
-  // invariantResponse(
-  //   openAbuseReport === null,
-  //   "You already have sent a report for this event",
-  //   { status: 401 }
-  // );
-
-  // const suggestions =
-  //   await prismaClient.eventAbuseReportReasonSuggestion.findMany({
-  //     where: {
-  //       slug: {
-  //         in: submission.value.reasons,
-  //       },
-  //     },
-  //   });
-
-  // const reasons: string[] = [];
-  // for (const suggestion of suggestions) {
-  //   reasons.push(suggestion.description);
-  // }
-  // if (typeof submission.value.otherReason === "string") {
-  //   reasons.push(submission.value.otherReason);
-  // }
-
-  // const report = await createEventAbuseReport({
-  //   reporterId: sessionUser.id,
-  //   slug: slug,
-  //   reasons: reasons,
-  // });
-  // await sendNewReportMailToSupport(report);
-
-  // return redirectWithAlert(".", {
-  //   message: locales.route.success.abuseReport,
-  // });
 };
 
 function getCallToActionForm(loaderData: {
@@ -655,6 +607,8 @@ function Index() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language } = loaderData;
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
 
   const now = utcToZonedTime(new Date(), "Europe/Berlin");
 
@@ -692,7 +646,23 @@ function Index() {
   );
 
   const [abuseReportForm, abuseReportFields] = useForm({
-    lastResult: actionData,
+    id: `abuse-report-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(createAbuseReportSchema(locales)),
+    defaultValue: {
+      [INTENT_FIELD_NAME]: "submit-abuse-report",
+    },
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createAbuseReportSchema(locales),
+      });
+      return submission;
+    },
   });
 
   return (
@@ -747,15 +717,15 @@ function Index() {
             </Modal.Section>
             <Modal.Section>
               <Form
-                id={abuseReportForm.id}
-                onSubmit={abuseReportForm.onSubmit}
+                {...getFormProps(abuseReportForm)}
                 method="post"
                 preventScrollReset
               >
                 <input
-                  hidden
-                  name="intent"
-                  defaultValue="submit-abuse-report"
+                  {...getInputProps(abuseReportFields[INTENT_FIELD_NAME], {
+                    type: "hidden",
+                  })}
+                  key="submit-abuse-report"
                 />
                 <div className="mv-flex mv-flex-col mv-gap-6">
                   {loaderData.abuseReportReasons.map((reason) => {
@@ -778,13 +748,12 @@ function Index() {
                     return (
                       <label key={reason.slug} className="mv-flex mv-group">
                         <input
-                          name={abuseReportFields.reasons.name}
-                          value={reason.slug}
-                          type="checkbox"
+                          {...getInputProps(abuseReportFields.reasons, {
+                            type: "checkbox",
+                            value: reason.slug,
+                          })}
+                          key={reason.slug}
                           className="mv-h-0 mv-w-0 mv-opacity-0"
-                          onChange={(event) => {
-                            event.stopPropagation();
-                          }}
                         />
                         <div className="mv-w-5 mv-h-5 mv-relative mv-mr-2">
                           <svg
@@ -823,20 +792,38 @@ function Index() {
                     );
                   })}
                   <Input
-                    name={abuseReportFields.otherReason.name}
-                    maxLength={250}
+                    {...getInputProps(abuseReportFields.otherReason, {
+                      type: "text",
+                    })}
+                    maxLength={OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH}
                   >
                     <Input.Label>
                       {locales.route.abuseReport.otherReason}
                     </Input.Label>
+                    {typeof abuseReportFields.reasons.errors !== "undefined" &&
+                    abuseReportFields.reasons.errors.length > 0
+                      ? abuseReportFields.reasons.errors.map((error) => (
+                          <Input.Error
+                            id={abuseReportFields.reasons.errorId}
+                            key={error}
+                          >
+                            {error}
+                          </Input.Error>
+                        ))
+                      : null}
                   </Input>
-                  {abuseReportFields.reasons.errors && (
-                    <span>{abuseReportFields.reasons.errors}</span>
-                  )}
                 </div>
               </Form>
             </Modal.Section>
-            <Modal.SubmitButton form={abuseReportForm.id}>
+            <Modal.SubmitButton
+              form={abuseReportForm.id} // Don't disable button when js is disabled
+              disabled={
+                isHydrated
+                  ? abuseReportForm.dirty === false ||
+                    abuseReportForm.valid === false
+                  : false
+              }
+            >
               {locales.route.abuseReport.submit}
             </Modal.SubmitButton>
             <Modal.CloseButton>
@@ -868,7 +855,6 @@ function Index() {
                     <Modal.Title>{locales.route.content.headline}</Modal.Title>
                     <Modal.Section>
                       <ImageCropper
-                        id="modal-background-upload"
                         uploadKey="background"
                         image={loaderData.event.background || undefined}
                         aspect={ImageAspects.EventBackground}
@@ -878,6 +864,10 @@ function Index() {
                         maxTargetHeight={MaxImageSizes.EventBackground.height}
                         modalSearchParam="modal-background"
                         locales={locales}
+                        currentTimestamp={
+                          actionData?.currentTimestamp ||
+                          loaderData.currentTimestamp
+                        }
                       >
                         <Background />
                       </ImageCropper>

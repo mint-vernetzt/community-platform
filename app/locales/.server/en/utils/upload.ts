@@ -14,4 +14,13 @@ export const locale = {
     empty: "Please choose a file.",
     selected: "Selected {{name}}.",
   },
+  success: {
+    imageAdded: "{{imageType}} added",
+    imageRemoved: "{{imageType}} removed",
+    imageTypes: {
+      background: "Background image",
+      avatar: "Profile picture",
+      logo: "Logo",
+    },
+  },
 } as const;

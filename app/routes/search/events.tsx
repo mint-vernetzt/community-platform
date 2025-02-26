@@ -7,12 +7,8 @@ import {
 } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import {
-  BlurFactor,
-  DefaultImages,
-  ImageSizes,
-  getImageURL,
-} from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,

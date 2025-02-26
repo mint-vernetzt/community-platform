@@ -2,6 +2,9 @@ export const locale = {
   error: {
     notFound: "Event not found",
     notPublished: "Event not published",
+    onStoring:
+      "The image could not be saved. Please try again or contact support.",
+    invalidAction: "Invalid action",
   },
   success: {
     abuseReport: "The abuse report was successfully submitted.",
@@ -77,6 +80,8 @@ export const locale = {
       "In order to follow up on your report, we need the reason why you want to report this event.",
     otherReason: "Other reason",
     noReasons: "Please give at least one reason.",
+    alreadySubmitted: "You have already reported this event.",
+    max: "Maximum {{max}} characters",
     submit: "Report event",
     abort: "Cancel",
   },

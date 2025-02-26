@@ -1,11 +1,7 @@
 import type { Profile } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import {
-  BlurFactor,
-  DefaultImages,
-  getImageURL,
-  ImageSizes,
-} from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   filterEventByVisibility,

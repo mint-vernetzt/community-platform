@@ -2,12 +2,8 @@ import type { Event, Prisma } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { format } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
-import {
-  BlurFactor,
-  DefaultImages,
-  getImageURL,
-  ImageSizes,
-} from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { sanitizeUserHtml } from "~/utils.server";
 import type { FormError } from "~/lib/utils/yup";
