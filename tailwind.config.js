@@ -1,11 +1,11 @@
-// import daisyui from "daisyui";
-// import tailwindcssOpentype from "tailwindcss-opentype";
+import daisyui from "daisyui";
+import tailwindcssOpentype from "tailwindcss-opentype";
 import defaultTheme from "tailwindcss/defaultTheme";
 import { colors, fontSizes } from "./app/styles/theme";
 
 export default {
   content: ["./app/**/*.tsx"],
-  // plugins: [tailwindcssOpentype],
+  plugins: [tailwindcssOpentype, daisyui],
   daisyui: {
     themes: [
       {

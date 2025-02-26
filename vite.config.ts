@@ -2,6 +2,7 @@ import { reactRouter } from "@react-router/dev/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   base: "/",
@@ -20,6 +21,7 @@ export default defineConfig({
     entries: ["./app/entry-client.tsx", "./app/root.tsx", "./app/routes/**/*"],
   },
   plugins: [
+    tailwindcss(),
     reactRouter(),
     tsconfigPaths(),
     process.env.TRIGGER_SENTRY_RELEASE === "true" &&
