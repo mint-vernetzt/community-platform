@@ -1,42 +1,37 @@
 import { conform, useForm } from "@conform-to/react";
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { List } from "@mint-vernetzt/components/src/organisms/List";
 import { type Prisma, type Profile } from "@prisma/client";
 import {
-  redirect,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
-import {
   Form,
+  redirect,
   useActionData,
   useLoaderData,
   useLocation,
   useSearchParams,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
-import { getPublicURL } from "~/storage.server";
-import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getHash,
-} from "./utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { List } from "@mint-vernetzt/components/src/organisms/List";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/i18n.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { Deep } from "~/lib/utils/searchParams";
+import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
+import { redirectWithToast } from "~/toast.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -229,7 +224,6 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT);
-  const hash = getHash({ action: action });
   if (action !== null && typeof action === "string") {
     if (action.startsWith("add_")) {
       const username = action.replace("add_", "");
@@ -272,7 +266,6 @@ export const action = async (args: ActionFunctionArgs) => {
 
       return redirectWithToast(request.url, {
         id: "add-admin-toast",
-        key: hash,
         message: insertParametersIntoLocale(locales.content.profileAdded, {
           firstName: profile.firstName,
           lastName: profile.lastName,
@@ -324,7 +317,6 @@ export const action = async (args: ActionFunctionArgs) => {
 
       return redirectWithToast(request.url, {
         id: "remove-admin-toast",
-        key: hash,
         message: insertParametersIntoLocale(locales.content.profileRemoved, {
           firstName: profile.firstName,
           lastName: profile.lastName,

@@ -65,7 +65,7 @@ export async function action(args: ActionFunctionArgs) {
 
     if (project.admins.length === 1) {
       return redirectWithToast(redirectURL.toString(), {
-        key: `${submission.value.slug}-${Date.now()}`,
+        id: "last-admin",
         level: "negative",
         message: locales.route.quit.lastAdmin,
       });
@@ -119,7 +119,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   return redirectWithToast(redirectURL.toString(), {
-    key: `${submission.value.slug}-${Date.now()}`,
+    id: "quit-project",
     level: "positive",
     message: insertParametersIntoLocale(locales.route.quit.success, {
       project: projectName,

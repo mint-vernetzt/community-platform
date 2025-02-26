@@ -131,7 +131,6 @@ export const action = async (args: ActionFunctionArgs) => {
 
   return redirectWithToast(`${pathname}?${Deep}=true`, {
     id: "settings-toast",
-    key: `${new Date().getTime()}`,
     message: locales.route.content.feedback,
   });
 };

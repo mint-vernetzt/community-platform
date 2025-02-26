@@ -1,44 +1,41 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import {
-  redirect,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import React from "react";
 import {
   Form,
+  redirect,
   useActionData,
   useBlocker,
   useLoaderData,
   useLocation,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
-import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { TextArea } from "~/components-next/TextArea";
-import { invariantResponse } from "~/lib/utils/response";
-import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
-import { sanitizeUserHtml } from "~/utils.server";
-import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
-import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
+import { TextArea } from "~/components-next/TextArea";
+import { detectLanguage } from "~/i18n.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { Deep } from "~/lib/utils/searchParams";
+import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
+import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
+import { sanitizeUserHtml } from "~/utils.server";
+import { type ProjectRequirementsSettingsLocales } from "./requirements.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { type ProjectRequirementsSettingsLocales } from "./requirements.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const TIMEFRAME_MAX_LENGTH = 200;
 const JOB_FILLINGS_MAX_LENGTH = 800;
@@ -438,18 +435,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
-  const hash = getHash(submission);
-
   if (submission.intent !== "submit") {
-    return { status: "idle", submission, hash };
+    return { status: "idle", submission };
   }
   if (!submission.value) {
-    return { status: "error", submission, hash };
+    return { status: "error", submission };
   }
 
   return redirectWithToast(request.url, {
     id: "change-project-requirements-toast",
-    key: hash,
     message: locales.route.content.success,
   });
 }

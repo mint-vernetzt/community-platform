@@ -363,7 +363,6 @@ export async function action(args: ActionFunctionArgs) {
 
   return redirectWithToast(request.url, {
     id: "update-general-toast",
-    key: `${new Date().getTime()}`,
     message: locales.route.content.success,
   });
 }

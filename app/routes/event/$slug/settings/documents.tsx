@@ -143,7 +143,6 @@ export const action = async (args: ActionFunctionArgs) => {
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",
-      key: `${new Date().getTime()}`,
       message: locales.route.error.onStoring,
       level: "negative",
     });
@@ -176,7 +175,6 @@ export const action = async (args: ActionFunctionArgs) => {
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "invalid-action",
-      key: `${new Date().getTime()}`,
       message: locales.route.error.invalidAction,
       level: "negative",
     });

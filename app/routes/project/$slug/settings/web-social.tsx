@@ -31,10 +31,7 @@ import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
 import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getHash,
-} from "./utils.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
@@ -168,18 +165,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
-  const hash = getHash(submission);
-
   if (submission.intent !== "submit") {
-    return { status: "idle", submission, hash };
+    return { status: "idle", submission };
   }
   if (!submission.value) {
-    return { status: "error", submission, hash };
+    return { status: "error", submission };
   }
 
   return redirectWithToast(request.url, {
     id: "change-project-web-and-social-toast",
-    key: hash,
     message: locales.route.content.success,
   });
 }

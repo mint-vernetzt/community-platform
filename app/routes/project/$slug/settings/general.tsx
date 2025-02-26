@@ -1,42 +1,39 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import {
-  redirect,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import React from "react";
 import {
   Form,
+  redirect,
   useActionData,
   useBlocker,
   useLoaderData,
   useLocation,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
-import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { createPhoneSchema } from "~/lib/utils/schemas";
-import { prismaClient } from "~/prisma.server";
-import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
+import { detectLanguage } from "~/i18n.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { createPhoneSchema } from "~/lib/utils/schemas";
+import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
 import {
   createAreaOptions,
   type GeneralProjectSettingsLocales,
 } from "./general.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
 
 const createGeneralSchema = (locales: GeneralProjectSettingsLocales) =>
   z.object({
@@ -333,18 +330,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
-  const hash = getHash(submission);
-
   if (submission.intent !== "submit") {
-    return { status: "idle", submission, hash };
+    return { status: "idle", submission };
   }
   if (!submission.value) {
-    return { status: "error", submission, hash };
+    return { status: "error", submission };
   }
 
   return redirectWithToast(request.url, {
     id: "change-project-general-settings-toast",
-    key: hash,
     message: locales.route.content.feedback,
   });
 }

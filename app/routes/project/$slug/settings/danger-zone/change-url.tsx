@@ -15,10 +15,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
 import { redirectWithToast } from "~/toast.server";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getHash,
-} from "../utils.server";
+import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { type ChangeProjectUrlLocales } from "./change-url.server";
 import { languageModuleMap } from "~/locales/.server";
@@ -142,17 +139,10 @@ export const action = async (args: ActionFunctionArgs) => {
     const url = new URL(request.url);
     const pathname = url.pathname.replace(params.slug, submission.value.slug);
 
-    const hash = getHash(submission);
-
-    return redirectWithToast(
-      `${pathname}?${Deep}=true`,
-      {
-        id: "settings-toast",
-        key: hash,
-        message: locales.content.feedback,
-      },
-      { scrollToToast: true }
-    );
+    return redirectWithToast(`${pathname}?${Deep}=true`, {
+      id: "settings-toast",
+      message: locales.content.feedback,
+    });
   }
 
   return submission;

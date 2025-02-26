@@ -83,7 +83,7 @@ export async function action(args: ActionFunctionArgs) {
     organization.admins.length === 1
   ) {
     return redirectWithToast(redirectURL.toString(), {
-      key: `${submission.value.slug}-${Date.now()}`,
+      id: "last-admin",
       level: "negative",
       message: locales.route.quit.lastAdmin,
     });
@@ -126,7 +126,7 @@ export async function action(args: ActionFunctionArgs) {
   await prismaClient.$transaction(transactionQueries);
 
   return redirectWithToast(redirectURL.toString(), {
-    key: `${submission.value.slug}-${Date.now()}`,
+    id: "quit-organization",
     level: "positive",
     message: insertParametersIntoLocale(locales.route.quit.success, {
       organization: organization.name,
