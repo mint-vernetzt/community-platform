@@ -8,6 +8,8 @@ export const locale = {
   error: {
     invalidRoute: "No valid route",
     organizationNotFound: "Organization not found",
+    deletionFailed:
+      "The organization could not be deleted. Please try again or contact support.",
   },
   content: {
     deleted: 'Organization "{{name}}" deleted.',
