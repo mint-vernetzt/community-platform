@@ -368,6 +368,9 @@ function General() {
     id: "general-form",
     constraint: getFieldsetConstraint(generalSchema),
     defaultValue: defaultValues,
+    // TODO: Remove assertion by using conform v1
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     lastSubmission: actionData?.submission,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",

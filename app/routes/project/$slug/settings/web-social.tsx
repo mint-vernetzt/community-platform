@@ -206,6 +206,9 @@ function WebSocial() {
       instagram: project.instagram || undefined,
       youtube: project.youtube || undefined,
     },
+    // TODO: Remove assertion by using conform v1
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     lastSubmission: actionData?.submission,
     onValidate({ formData }) {
       return parse(formData, { schema: webSocialSchema });

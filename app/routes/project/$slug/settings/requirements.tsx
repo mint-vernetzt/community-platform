@@ -477,6 +477,9 @@ function Requirements() {
       timeframe: project.timeframe || undefined,
       financings: project.financings.map((relation) => relation.financing.id),
     },
+    // TODO: Remove assertion by using conform v1
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     lastSubmission: actionData?.submission,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",
