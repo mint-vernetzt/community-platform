@@ -323,6 +323,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const formData = await request.formData();
   const action = formData.get(conform.INTENT) as string;
+  const hash = getHash({ action: action });
   if (action.startsWith("add_")) {
     const slug = action.startsWith("add_own_")
       ? action.replace("add_own_", "")

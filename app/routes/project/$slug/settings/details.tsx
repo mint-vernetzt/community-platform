@@ -34,6 +34,7 @@ import { sanitizeUserHtml } from "~/utils.server";
 import { type ProjectDetailsSettingsLocales } from "./details.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
+  getHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
 
@@ -562,11 +563,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
+  const hash = getHash(submission);
+
   if (submission.intent !== "submit") {
-    return { status: "idle", submission };
+    return { status: "idle", submission, hash };
   }
   if (!submission.value) {
-    return { status: "error", submission };
+    return { status: "error", submission, hash };
   }
 
   return redirectWithToast(request.url, {

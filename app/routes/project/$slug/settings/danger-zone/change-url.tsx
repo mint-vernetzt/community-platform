@@ -15,7 +15,10 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
 import { redirectWithToast } from "~/toast.server";
-import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getHash,
+} from "../utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { type ChangeProjectUrlLocales } from "./change-url.server";
 import { languageModuleMap } from "~/locales/.server";

@@ -31,7 +31,10 @@ import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
 import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getHash,
+} from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
@@ -165,11 +168,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
+  const hash = getHash(submission);
+
   if (submission.intent !== "submit") {
-    return { status: "idle", submission };
+    return { status: "idle", submission, hash };
   }
   if (!submission.value) {
-    return { status: "error", submission };
+    return { status: "error", submission, hash };
   }
 
   return redirectWithToast(request.url, {
