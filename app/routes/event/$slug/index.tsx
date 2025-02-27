@@ -42,10 +42,6 @@ import {
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import {
-  checkFeatureAbilitiesOrThrow,
-  getFeatureAbilities,
-} from "~/lib/utils/application";
-import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
@@ -87,6 +83,10 @@ import {
   type ParticipantsQuery,
   type SpeakersQuery,
 } from "./utils.server";
+import {
+  checkFeatureAbilitiesOrThrow,
+  getFeatureAbilities,
+} from "~/routes/feature-access.server";
 
 export function links() {
   return [

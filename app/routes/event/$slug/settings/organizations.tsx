@@ -18,7 +18,7 @@ import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/i18n.server";

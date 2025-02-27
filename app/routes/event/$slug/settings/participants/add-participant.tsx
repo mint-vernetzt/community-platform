@@ -4,7 +4,7 @@ import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveEventMode } from "~/routes/event/utils.server";

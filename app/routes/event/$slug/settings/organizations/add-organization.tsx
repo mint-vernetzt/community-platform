@@ -4,7 +4,7 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";

@@ -16,7 +16,6 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/i18n.server";
@@ -31,6 +30,7 @@ import { publishSchema, type action as publishAction } from "./events/publish";
 import { deleteEventBySlug } from "./utils.server";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 const schema = z.object({
   eventName: z.string().optional(),

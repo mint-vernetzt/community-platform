@@ -25,7 +25,6 @@ import { Modal } from "~/components-next/Modal";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -50,6 +49,7 @@ import {
 } from "./documents.server";
 import { publishSchema, type action as publishAction } from "./events/publish";
 import { getRedirectPathOnProtectedEventRoute } from "./utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 export const createDocumentUploadSchema = (
   locales: EventDocumentsSettingsLocales

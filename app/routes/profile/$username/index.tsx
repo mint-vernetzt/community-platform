@@ -43,7 +43,6 @@ import {
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -69,6 +68,7 @@ import {
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
+import { getFeatureAbilities } from "~/routes/feature-access.server";
 
 export function links() {
   return [

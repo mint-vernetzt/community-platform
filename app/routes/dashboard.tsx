@@ -48,7 +48,7 @@ import {
 } from "~/lib/utils/i18n";
 import { type AtLeastOne } from "~/lib/utils/types";
 import { invariantResponse } from "~/lib/utils/response";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import { getFeatureAbilities } from "./feature-access.server";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
