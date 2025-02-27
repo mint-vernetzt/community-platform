@@ -201,16 +201,16 @@ const allowedTags = [
 ];
 
 const allowedAttributes = {
-  a: ["href", "rel", "target"],
-  b: [],
-  i: [],
-  em: [],
-  strong: [],
-  ul: [],
-  ol: [],
-  p: [],
-  li: [],
-  br: [],
+  a: ["href", "rel", "target", "class", "style"],
+  b: ["class", "style"],
+  i: ["class", "style"],
+  em: ["class", "style"],
+  strong: ["class", "style"],
+  ul: ["class", "style"],
+  ol: ["class", "style"],
+  p: ["class", "style"],
+  li: ["class", "style"],
+  br: ["class", "style"],
 };
 
 export const sanitizeUserHtml = (
