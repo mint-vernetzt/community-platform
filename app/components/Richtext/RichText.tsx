@@ -1,3 +1,5 @@
+import { useHydrated } from "remix-utils/use-hydrated";
+
 interface RichTextProps {
   html: string;
   additionalClassNames?: string;
@@ -5,7 +7,8 @@ interface RichTextProps {
 }
 
 export function RichText({ html, additionalClassNames, id }: RichTextProps) {
-  return (
+  const isHydrated = useHydrated();
+  return isHydrated ? (
     <div
       id={id}
       className={additionalClassNames}
@@ -13,5 +16,5 @@ export function RichText({ html, additionalClassNames, id }: RichTextProps) {
         __html: html,
       }}
     />
-  );
+  ) : null;
 }
