@@ -50,6 +50,7 @@
     "@react-router/node": "^7.1.5",
     "@react-router/serve": "^7.1.5",
     "@sentry/node": "^9.2.0",
+    "@sentry/profiling-node": "^9.2.0",
     "@sentry/react": "^9.2.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.46.1",

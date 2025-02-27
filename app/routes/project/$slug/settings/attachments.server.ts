@@ -1,5 +1,5 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import { captureException } from "@sentry/node";
+import * as Sentry from "@sentry/node";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { type supportedCookieLanguages } from "~/i18n.shared";
@@ -61,7 +61,7 @@ export async function uploadFile(options: {
       });
       if (error !== null) {
         console.error({ error });
-        captureException(error);
+        Sentry.captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onStoring,
@@ -99,7 +99,7 @@ export async function uploadFile(options: {
         });
       } catch (error) {
         console.error({ error });
-        captureException(error);
+        Sentry.captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onStoring,
@@ -158,7 +158,7 @@ export async function editDocument(options: {
         });
       } catch (error) {
         console.error({ error });
-        captureException(error);
+        Sentry.captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onUpdating,
@@ -217,7 +217,7 @@ export async function editImage(options: {
         });
       } catch (error) {
         console.error({ error });
-        captureException(error);
+        Sentry.captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onUpdating,
@@ -270,7 +270,7 @@ export async function disconnectDocument(options: {
         });
       } catch (error) {
         console.error({ error });
-        captureException(error);
+        Sentry.captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onUpdating,
@@ -324,7 +324,7 @@ export async function disconnectImage(options: {
         });
       } catch (error) {
         console.error({ error });
-        captureException(error);
+        Sentry.captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onUpdating,

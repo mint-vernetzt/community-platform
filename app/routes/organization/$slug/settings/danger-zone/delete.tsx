@@ -32,7 +32,7 @@ import {
   deleteOrganizationBySlug,
   type DeleteOrganizationLocales,
 } from "./delete.server";
-import { captureException } from "@sentry/node";
+import * as Sentry from "@sentry/node";
 
 function createSchema(locales: DeleteOrganizationLocales, name: string) {
   return z.object({
@@ -122,7 +122,7 @@ export const action = async (args: ActionFunctionArgs) => {
           invariant(params.slug !== undefined, locales.error.invalidRoute);
           await deleteOrganizationBySlug(params.slug);
         } catch (error) {
-          captureException(error);
+          Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.error.deletionFailed,

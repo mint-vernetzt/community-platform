@@ -2,7 +2,7 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { captureException } from "@sentry/node";
+import * as Sentry from "@sentry/node";
 import React from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
@@ -139,7 +139,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { formData, error } = await parseMultipartFormData(request);
   if (error !== null || formData === null) {
     console.error({ error });
-    captureException(error);
+    Sentry.captureException(error);
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",

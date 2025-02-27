@@ -35,7 +35,7 @@ import React from "react";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { captureException } from "@sentry/node";
+import * as Sentry from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { languageModuleMap } from "~/locales/.server";
@@ -341,7 +341,7 @@ export async function action(args: ActionFunctionArgs) {
             },
           });
         } catch (error) {
-          captureException(error);
+          Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,

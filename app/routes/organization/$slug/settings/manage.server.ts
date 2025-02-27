@@ -1,5 +1,5 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import { captureException } from "@sentry/node";
+import * as Sentry from "@sentry/node";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { type supportedCookieLanguages } from "~/i18n.shared";
@@ -245,7 +245,7 @@ export async function updateOrganization(options: {
             },
           });
         } catch (error) {
-          captureException(error);
+          Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,
@@ -295,7 +295,7 @@ export async function joinNetwork(options: {
             },
           });
         } catch (error) {
-          captureException(error);
+          Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,
@@ -350,7 +350,7 @@ export async function leaveNetwork(options: {
             },
           });
         } catch (error) {
-          captureException(error);
+          Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,
@@ -418,7 +418,7 @@ export async function addNetworkMember(options: {
             },
           });
         } catch (error) {
-          captureException(error);
+          Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,
@@ -473,7 +473,7 @@ export async function removeNetworkMember(options: {
             },
           });
         } catch (error) {
-          captureException(error);
+          Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,

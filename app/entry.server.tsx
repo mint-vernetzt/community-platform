@@ -1,24 +1,24 @@
 import type { EntryContext, HandleErrorFunction } from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { ServerRouter } from "react-router";
-import { captureException } from "@sentry/node";
 import * as isbotModule from "isbot";
 import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
-import { getEnv, init } from "./env.server";
+import { getEnv, init as initEnv } from "./env.server";
+import * as Sentry from "@sentry/node";
 
 // Reject/cancel all pending promises after 5 seconds
 export const streamTimeout = 5000;
 
-init();
+initEnv();
 global.ENV = getEnv();
 
 export const handleError: HandleErrorFunction = (error, { request }) => {
-  console.log("handleError", error);
   // React Router may abort some interrupted requests, don't log those
   if (!request.signal.aborted) {
+    console.log("Server error - tracking with server sentry");
     console.error(error);
-    captureException(error);
+    Sentry.captureException(error);
   }
 };
 
@@ -101,7 +101,7 @@ function handleBotRequest(
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
             console.error(error);
-            captureException(error);
+            Sentry.captureException(error);
           }
         },
       }
@@ -148,7 +148,7 @@ function handleBrowserRequest(
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
             console.error(error);
-            captureException(error);
+            Sentry.captureException(error);
           }
         },
       }

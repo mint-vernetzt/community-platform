@@ -8,7 +8,6 @@ import {
 import {
   init as initSentry,
   replayIntegration,
-  browserProfilingIntegration,
   reactRouterV7BrowserTracingIntegration,
 } from "@sentry/react";
 import { StrictMode, startTransition, useEffect } from "react";
@@ -34,7 +33,6 @@ if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
       },
       integrations: [
         replayIntegration(),
-        browserProfilingIntegration(),
         reactRouterV7BrowserTracingIntegration({
           useEffect,
           useLocation,
@@ -47,7 +45,7 @@ if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
       // Set tracesSampleRate to 1.0 to capture 100%
       // of transactions for performance monitoring.
       // We recommend adjusting this value in production
-      tracesSampleRate: 1.0,
+      tracesSampleRate: 0.5,
 
       // Capture Replay for 10% of all sessions,
       // plus for 100% of sessions with an error
