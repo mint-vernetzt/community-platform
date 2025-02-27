@@ -179,6 +179,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   return redirectWithToast(request.url, {
     id: "change-project-web-and-social-toast",
+    key: hash,
     message: locales.route.content.success,
   });
 }

@@ -1,33 +1,38 @@
 import { conform, useForm } from "@conform-to/react";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { List } from "@mint-vernetzt/components/src/organisms/List";
 import { type Organization, type Prisma } from "@prisma/client";
-import { type User } from "@supabase/supabase-js";
 import {
-  Form,
   redirect,
-  useLoaderData,
-  useLocation,
-  useSearchParams,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
+import {
+  Form,
+  useLoaderData,
+  useLocation,
+  useSearchParams,
+} from "react-router";
+import { type User } from "@supabase/supabase-js";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BackButton } from "~/components-next/BackButton";
-import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { Deep } from "~/lib/utils/searchParams";
-import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/i18n.server";
 import { getPublicURL } from "~/storage.server";
 import { redirectWithToast } from "~/toast.server";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { BackButton } from "~/components-next/BackButton";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  getHash,
+} from "./utils.server";
+import { Deep } from "~/lib/utils/searchParams";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { List } from "@mint-vernetzt/components/src/organisms/List";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { languageModuleMap } from "~/locales/.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -368,6 +373,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
     return redirectWithToast(request.url, {
       id: "add-organization-toast",
+      key: hash,
       message: insertParametersIntoLocale(locales.content.added, {
         name: organization.name,
       }),
@@ -409,6 +415,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
     return redirectWithToast(request.url, {
       id: "remove-organization-toast",
+      key: hash,
       message: insertParametersIntoLocale(locales.content.removed, {
         name: organization.name,
       }),

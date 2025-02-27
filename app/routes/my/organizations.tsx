@@ -244,7 +244,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   return redirectWithToast("/my/organizations", {
-    id: "invite-toast",
+    key: `${submission.value.intent}-${Date.now()}`,
     level: submission.value.intent === "accepted" ? "positive" : "negative",
     message: insertParametersIntoLocale(
       locales.route.alerts[submission.value.intent],

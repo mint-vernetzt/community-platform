@@ -135,6 +135,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   return redirectWithToast(request.url, {
     id: "update-web-social-toast",
+    key: `${new Date().getTime()}`,
     message: locales.route.content.success,
   });
 }

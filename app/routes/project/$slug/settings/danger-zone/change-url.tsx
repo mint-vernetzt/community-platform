@@ -142,10 +142,17 @@ export const action = async (args: ActionFunctionArgs) => {
     const url = new URL(request.url);
     const pathname = url.pathname.replace(params.slug, submission.value.slug);
 
-    return redirectWithToast(`${pathname}?${Deep}=true`, {
-      id: "settings-toast",
-      message: locales.content.feedback,
-    });
+    const hash = getHash(submission);
+
+    return redirectWithToast(
+      `${pathname}?${Deep}=true`,
+      {
+        id: "settings-toast",
+        key: hash,
+        message: locales.content.feedback,
+      },
+      { scrollToToast: true }
+    );
   }
 
   return submission;

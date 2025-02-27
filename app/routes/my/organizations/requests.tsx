@@ -236,7 +236,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   return redirectWithToast(redirectURL.toString(), {
-    id: "organization-request",
+    key: `${submission.value.intent}-${Date.now()}`,
     level:
       submission.value.intent === AddToOrganizationRequest.Create ||
       submission.value.intent === AddToOrganizationRequest.Accept
