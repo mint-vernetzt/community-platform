@@ -1,5 +1,5 @@
 import { redirect, type LoaderFunctionArgs } from "react-router";
-import * as Sentry from "@sentry/remix";
+import { captureException } from "@sentry/node";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { createAuthClient } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -49,7 +49,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       { status: 400 }
     );
     sendWelcomeMail(profile).catch((error) => {
-      Sentry.captureException(error);
+      captureException(error);
     });
     return redirect(loginRedirect || `/profile/${profile.username}`, {
       headers,

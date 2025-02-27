@@ -51,7 +51,7 @@ import {
 } from "./attachments.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { redirectWithToast } from "~/toast.server";
-import * as Sentry from "@sentry/remix";
+import { captureException } from "@sentry/node";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
@@ -264,7 +264,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { formData, error } = await parseMultipartFormData(request);
   if (error !== null || formData === null) {
     console.error({ error });
-    Sentry.captureException(error);
+    captureException(error);
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",

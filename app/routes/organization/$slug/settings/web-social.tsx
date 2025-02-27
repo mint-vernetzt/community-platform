@@ -12,7 +12,7 @@ import {
   useLocation,
   useNavigation,
 } from "react-router";
-import * as Sentry from "@sentry/remix";
+import { captureException } from "@sentry/node";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -113,7 +113,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
         if (error !== null) {
           console.error("Error updating organization", error);
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,
