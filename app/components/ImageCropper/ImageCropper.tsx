@@ -41,8 +41,6 @@ export type ImageCropperLocales =
   | EventDetailLocales
   | ProfileDetailLocales
   | ProjectDetailLocales;
-
-export const UPLOAD_KEYS = ["avatar", "background", "logo"] as const;
 export interface ImageCropperProps {
   uploadKey: ArrayElement<typeof UPLOAD_KEYS>;
   lastSubmission?: SubmissionResult<string[]>;
@@ -59,12 +57,19 @@ export interface ImageCropperProps {
   currentTimestamp: number;
 }
 
+export const UPLOAD_KEYS = ["avatar", "background", "logo"] as const;
+
 export const createImageUploadSchema = (locales: ImageCropperLocales) =>
-  z.object({ ...imageSchema(locales), uploadKey: z.enum(UPLOAD_KEYS) });
+  z.object({
+    ...imageSchema(locales),
+    uploadKey: z.enum(UPLOAD_KEYS),
+  });
+
+export const IMAGE_CROPPER_DISCONNECT_INTENT_VALUE = "disconnect";
 
 export const disconnectImageSchema = z.object({
   uploadKey: z.enum(UPLOAD_KEYS),
-  [INTENT_FIELD_NAME]: z.enum(["disconnect"]),
+  [INTENT_FIELD_NAME]: z.enum([IMAGE_CROPPER_DISCONNECT_INTENT_VALUE]),
 });
 
 /**
@@ -157,7 +162,7 @@ function ImageCropper(props: ImageCropperProps) {
     constraint: getZodConstraint(disconnectImageSchema),
     defaultValue: {
       uploadKey: uploadKey,
-      [INTENT_FIELD_NAME]: "disconnect",
+      [INTENT_FIELD_NAME]: IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
     },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
@@ -292,8 +297,6 @@ function ImageCropper(props: ImageCropperProps) {
     } catch (error) {
       console.error({ error });
       invariant(false, locales.imageCropper.imageCropper.error);
-    } finally {
-      reset();
     }
   }
 
@@ -562,8 +565,10 @@ function ImageCropper(props: ImageCropperProps) {
                 imageUploadForm.valid === false
               : false
           }
-          onClick={() => {
-            handleSave();
+          onClick={async (event: React.SyntheticEvent<HTMLButtonElement>) => {
+            event.preventDefault();
+            await handleSave();
+            reset();
           }}
           fullSize
         >

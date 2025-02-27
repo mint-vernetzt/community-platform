@@ -1,6 +1,6 @@
 import { type User } from "@supabase/supabase-js";
 import type { BinaryToTextEncoding } from "crypto";
-import { createHmac } from "crypto";
+import { createHmac, createHash } from "crypto";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { prismaClient } from "./prisma.server";
 import sanitizeHtml from "sanitize-html";
@@ -22,6 +22,12 @@ export function createHashFromString(
   const hash = createHmac(hashAlgorithm, process.env.HASH_SECRET);
   hash.update(string);
   return hash.digest(encoding);
+}
+
+export function createHashFromObject(object: object) {
+  const json = JSON.stringify(object);
+  const hash = createHash("sha256").update(json).digest("hex");
+  return hash;
 }
 
 export async function getFocuses() {

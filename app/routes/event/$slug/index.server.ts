@@ -7,8 +7,8 @@ import {
   sendNewReportMailToSupport,
 } from "~/abuse-reporting.server";
 import {
-  createImageUploadSchema,
   disconnectImageSchema,
+  createImageUploadSchema,
 } from "~/components/ImageCropper/ImageCropper";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
@@ -33,7 +33,7 @@ export async function uploadBackgroundImage(options: {
   const { request, formData, authClient, slug, locales } = options;
   const submission = await parseWithZod(formData, {
     schema: createImageUploadSchema(locales).transform(async (data, ctx) => {
-      const { file, bucket } = data;
+      const { file, bucket, uploadKey } = data;
       const { fileMetadataForDatabase, error } = await uploadFileToStorage({
         file,
         authClient,
@@ -49,13 +49,21 @@ export async function uploadBackgroundImage(options: {
         });
         return z.NEVER;
       }
+      if (uploadKey !== "background") {
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onStoring,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
       try {
         await prismaClient.event.update({
           where: {
             slug,
           },
           data: {
-            background: fileMetadataForDatabase.path,
+            [uploadKey]: fileMetadataForDatabase.path,
           },
         });
       } catch (error) {
@@ -69,7 +77,7 @@ export async function uploadBackgroundImage(options: {
         return z.NEVER;
       }
 
-      return { ...data };
+      return { ...data, uploadKey: uploadKey };
     }),
     async: true,
   });
@@ -80,14 +88,15 @@ export async function uploadBackgroundImage(options: {
 
   // Close modal after redirect
   const redirectUrl = new URL(request.url);
-  redirectUrl.searchParams.delete("modal-background");
+  redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
   return {
     submission: null,
     toast: {
       id: "change-image",
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(locales.upload.success.imageAdded, {
-        imageType: locales.upload.success.imageTypes.background,
+        imageType:
+          locales.upload.success.imageTypes[submission.value.uploadKey],
       }),
     },
     redirectUrl: redirectUrl.toString(),
@@ -103,13 +112,22 @@ export async function disconnectBackgroundImage(options: {
   const { request, formData, slug, locales } = options;
   const submission = await parseWithZod(formData, {
     schema: disconnectImageSchema.transform(async (data, ctx) => {
+      const { uploadKey } = data;
+      if (uploadKey !== "background") {
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onStoring,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
       try {
         await prismaClient.event.update({
           where: {
             slug,
           },
           data: {
-            background: null,
+            [uploadKey]: null,
           },
         });
       } catch (error) {
@@ -123,7 +141,7 @@ export async function disconnectBackgroundImage(options: {
         return z.NEVER;
       }
 
-      return { ...data };
+      return { ...data, uploadKey: uploadKey };
     }),
     async: true,
   });
@@ -134,14 +152,15 @@ export async function disconnectBackgroundImage(options: {
 
   // Close modal after redirect
   const redirectUrl = new URL(request.url);
-  redirectUrl.searchParams.delete("modal-background");
+  redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
   return {
     submission: null,
     toast: {
       id: "disconnect-image",
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(locales.upload.success.imageRemoved, {
-        imageType: locales.upload.success.imageTypes.background,
+        imageType:
+          locales.upload.success.imageTypes[submission.value.uploadKey],
       }),
     },
     redirectUrl: redirectUrl.toString(),

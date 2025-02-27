@@ -9,7 +9,7 @@ import {
   IMAGE_MIME_TYPES,
   MAX_UPLOAD_FILE_SIZE,
 } from "./storage.shared";
-import { createHashFromString } from "./utils.server";
+import { createHashFromObject } from "./utils.server";
 
 export function generatePathName(hash: string, extension: string) {
   return `${hash.substring(0, 2)}/${hash.substring(
@@ -63,7 +63,10 @@ export async function uploadFileToStorage(options: {
     };
   }
 
-  const path = generatePathName(createHashFromString(file.name), fileType.ext);
+  const path = generatePathName(
+    createHashFromObject(new Uint8Array(await file.arrayBuffer())),
+    fileType.ext
+  );
   const { error: storageError } = await authClient.storage
     .from(bucket)
     .upload(path, file.stream(), {

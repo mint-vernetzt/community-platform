@@ -8,7 +8,6 @@ import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import * as Sentry from "@sentry/remix";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
-import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import type {
   ActionFunctionArgs,
@@ -23,10 +22,13 @@ import {
   useLoaderData,
   useNavigation,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Modal } from "~/components-next/Modal";
-import ImageCropper from "~/components/ImageCropper/ImageCropper";
+import ImageCropper, {
+  IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
+} from "~/components/ImageCropper/ImageCropper";
 import { RichText } from "~/components/Richtext/RichText";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
@@ -85,7 +87,6 @@ import {
   type ParticipantsQuery,
   type SpeakersQuery,
 } from "./utils.server";
-import { useHydrated } from "remix-utils/use-hydrated";
 
 export function links() {
   return [
@@ -408,6 +409,7 @@ export const action = async (args: ActionFunctionArgs) => {
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",
+      key: `${new Date().getTime()}`,
       message: locales.route.error.onStoring,
       level: "negative",
     });
@@ -438,7 +440,7 @@ export const action = async (args: ActionFunctionArgs) => {
     submission = result.submission;
     toast = result.toast;
     redirectUrl = result.redirectUrl || request.url;
-  } else if (intent === "disconnect") {
+  } else if (intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE) {
     const redirectPath = await getRedirectPathOnProtectedEventRoute({
       request,
       slug,
@@ -474,6 +476,7 @@ export const action = async (args: ActionFunctionArgs) => {
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "invalid-action",
+      key: `${new Date().getTime()}`,
       message: locales.route.error.invalidAction,
       level: "negative",
     });
@@ -636,14 +639,6 @@ function Index() {
   const background = loaderData.event.background;
   const blurredBackground = loaderData.event.blurredBackground;
   const name = loaderData.event.name;
-  const Background = React.useCallback(
-    () => (
-      <div className="w-full rounded-md overflow-hidden aspect-[3/2]">
-        <Image alt={name} src={background} blurredSrc={blurredBackground} />
-      </div>
-    ),
-    [background, blurredBackground, name]
-  );
 
   const [abuseReportForm, abuseReportFields] = useForm({
     id: `abuse-report-form-${
@@ -869,7 +864,13 @@ function Index() {
                           loaderData.currentTimestamp
                         }
                       >
-                        <Background />
+                        <div className="w-full rounded-md overflow-hidden aspect-[3/2]">
+                          <Image
+                            alt={name}
+                            src={background}
+                            blurredSrc={blurredBackground}
+                          />
+                        </div>
                       </ImageCropper>
                     </Modal.Section>
                   </Modal>

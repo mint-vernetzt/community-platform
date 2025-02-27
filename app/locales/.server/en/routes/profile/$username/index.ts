@@ -2,6 +2,9 @@ export const locale = {
   back: "Explore profiles",
   error: {
     profileNotFound: "Profile not found",
+    onStoring:
+      "The image could not be saved. Please try again or contact support.",
+    invalidAction: "Invalid action",
   },
   profile: {
     contact: "Contact",
