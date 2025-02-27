@@ -102,6 +102,59 @@ export const locale = {
         },
       },
     },
+    fundings: {
+      headline: "Questions about the funding search",
+      qAndAs: {
+        findFundings: {
+          question:
+            "Where can I find fundings on the MINTvernetzt Community Platform?",
+          answer:
+            'You can find the funding search on the MINTvernetzt Community platform via the navigation "Explore" > "Funding". Or you can use this link: <a href="/explore/fundings">https://community.mint-vernetzt.de/explore/fundings',
+        },
+        beta: {
+          question: 'What does "Beta" mean?',
+          answer:
+            '<p>The status "Beta" means that the funding search is still under development. We rely on feedback for further development. We welcome suggestions for new features or reports of defects.</p><p>Send us an email with the subject: "Funding search" to <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</p>',
+        },
+        whatIs: {
+          question: "What is the funding search?",
+          answer:
+            "The funding search lists STEM-relevant funding opportunities that are updated every Monday from four funding databases. The compiled funding opportunities can be filtered to get more suitable results.",
+        },
+        howTo: {
+          question: "How can I find specific funding?",
+          answer:
+            "<p>Use the filters to specifically search for funding available in your region or that matches the eligibility criteria, e.g., for associations.</p><p>Example: Imagine you filter for funding and select two options:</p><ul><li>Funding area: Education / Training</li><li>Region Bavaria</li></ul><p>With an AND connection, only the funding that is available in both the education area and Bavaria will be displayed. Therefore, it is useful to test different filter options.</p>",
+        },
+        availableTypes: {
+          question: "What types of funding are available?",
+          answer:
+            "We list funding in the areas of consulting, participation, financing, credit/loan, lump sum/prize money, qualification, networking, and grants. However, we also receive entries for funding that cannot be assigned to these categories because the data is not provided on the original funding pages. These are then listed in our funding search under 'Without category' or 'Other'.",
+        },
+        sources: {
+          question:
+            "Where do the funding opportunities displayed in the funding search come from?",
+          answer:
+            '<p>The funding opportunities are automatically compiled from four underlying databases:</p><ul><li>German Foundation for Engagement and Volunteering <a href="https://foerderdatenbank.d-s-e-e.de" target="_blank" rel="noreferrer nofollow">https://foerderdatenbank.d-s-e-e.de</a></li><li>Funding Finder of the Platform for Social Innovations and Public Welfare-Oriented Companies <a href="https://sigu-plattform.de/foerderfinder" target="_blank" rel="noreferrer nofollow">https://sigu-plattform.de/foerderfinder</a></li><li>Funding Database of the Federal Ministry for Economic Affairs and Climate Action <a href="https://www.foerderdatenbank.de" target="_blank" rel="noreferrer nofollow">https://www.foerderdatenbank.de</a></li><li>Funding Finder by consider it GmbH <a href="https://foerder-finder.de" target="_blank" rel="noreferrer nofollow">https://foerder-finder.de</a></li></ul><p>Send us suggestions for additional databases to be included in an email with the subject: \'Funding search\' to <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</p>',
+        },
+        updateInterval: {
+          question: "How often is the funding database updated?",
+          answer:
+            "New results from the four underlying funding databases are imported every Monday.",
+        },
+        onError: {
+          question:
+            "The funding search is not working. / I receive an error message. What can I do?",
+          answer:
+            "You can help us fix this error by creating a screenshot and sending it by email with the subject: 'Funding search' to <a href=\"mailto:community@mint-vernetzt.de\">community@mint-vernetzt.de</a>. Ideally, also let us know your browser. Try reloading the page, often the problem is then already solved.",
+        },
+        feedback: {
+          question: "Can I give feedback on the funding search?",
+          answer:
+            '<p>Yes, very gladly. Send us an email with the subject: "Funding search" to <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</p><p>The funding search is currently accessible in the beta version. We are therefore grateful for any feedback and ideas. This way we can further improve the funding search.</p>',
+        },
+      },
+    },
     furtherQuestions: {
       headline: "Further questions",
       qAndAs: {
