@@ -10,7 +10,7 @@ import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 import { Header } from "@mint-vernetzt/components/src/organisms/Header";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
-import { captureException } from "@sentry/remix";
+import { captureException } from "@sentry/node";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import {

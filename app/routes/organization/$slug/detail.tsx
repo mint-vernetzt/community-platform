@@ -43,7 +43,7 @@ import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { languageModuleMap } from "~/locales/.server";
 import { parseMultipartFormData } from "~/storage.server";
-import { captureException } from "@sentry/remix";
+import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";

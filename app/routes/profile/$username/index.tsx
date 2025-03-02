@@ -3,7 +3,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import type { Profile } from "@prisma/client";
-import { captureException } from "@sentry/remix";
+import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import React from "react";

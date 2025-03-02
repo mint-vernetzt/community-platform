@@ -1,5 +1,5 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import * as Sentry from "@sentry/remix";
+import * as Sentry from "@sentry/node";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { z } from "zod";
 import {

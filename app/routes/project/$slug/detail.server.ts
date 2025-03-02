@@ -4,7 +4,7 @@ import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { publishSchema } from "./detail";
 import { parseWithZod } from "@conform-to/zod-v1";
-import { captureException } from "@sentry/remix";
+import { captureException } from "@sentry/node";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { z } from "zod";
 import { type SupabaseClient } from "@supabase/supabase-js";

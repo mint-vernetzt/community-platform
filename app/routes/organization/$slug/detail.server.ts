@@ -11,7 +11,7 @@ import {
   createImageUploadSchema,
   disconnectImageSchema,
 } from "~/components/ImageCropper/ImageCropper";
-import { captureException } from "@sentry/remix";
+import { captureException } from "@sentry/node";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
