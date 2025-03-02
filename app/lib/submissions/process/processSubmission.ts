@@ -31,6 +31,7 @@ export async function processSubmission<T>(
         data
       );
     } catch (error) {
+      console.error({ error });
       return await sendCorsResponse(
         request,
         new Response(null, { statusText: "mailer Issue", status: 500 })

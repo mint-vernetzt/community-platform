@@ -1,20 +1,27 @@
 export const locale = {
-  validation: {
-    document: {
-      size: "The file exceeds the maximum size of 6MB.",
-      type: "The file is not of type PDF or JPEG.",
-    },
-    image: {
-      size: "The file exceeds the maximum size of 6MB.",
-      type: "The file is not of type PDF or JPEG.",
-    },
-  },
   error: {
     invalidRoute: "No valid route",
     projectNotFound: "Project not found",
     invalidSubmission: "No valid submission",
     invalidAction: "No valid action",
-    onStoring: "Error on storing document",
+    onStoring: "File could not be saved. Please try again or contact support.",
+    onUpdating:
+      "File could not be updated. Please try again or contact support.",
+  },
+  validation: {
+    document: {
+      description: {
+        max: "The document description may be a maximum of {{max}} characters long.",
+      },
+    },
+    image: {
+      description: {
+        max: "The image description may be a maximum of {{max}} characters long.",
+      },
+      credits: {
+        max: "The creator's name may be a maximum of {{max}} characters long.",
+      },
+    },
   },
   content: {
     editModal: {
@@ -37,34 +44,27 @@ export const locale = {
     description:
       "Add or remove materials such as flyers, images or checklists from your project.",
     document: {
-      upload: "Upload document",
-      type: "File types: PDF, jpg. Max 6MB.",
-      select: "Choose file",
+      upload: "Upload documents",
+      type: "File types: PDF. Max {{max}}MB.",
+
       action: "Upload file",
-      selection: {
-        empty: "Please choose a file.",
-        selected: "Selected {{name}}.",
-      },
       added: "Added {{name}}",
       current: "Currently uploaded documents",
       downloadAll: "Download all",
       empty: "No documents available.",
       deleted: "Deleted {{name}}.",
+      updated: "Updated {{name}}.",
     },
     image: {
       upload: "Upload image",
       requirements: "File types: jpg, png. Max 6MB.",
-      select: "Choose file",
       action: "Upload file",
-      selection: {
-        empty: "Please choose a file.",
-        selected: "Selected {{name}}.",
-      },
       added: "Added {{name}}",
       current: "Currently uploaded images",
       downloadAll: "Download all",
       empty: "No images available.",
       deleted: "Deleted {{name}}.",
+      updated: "Updated {{name}}.",
     },
   },
 } as const;

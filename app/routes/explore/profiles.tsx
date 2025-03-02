@@ -10,7 +10,7 @@ import { CardContainer } from "@mint-vernetzt/components/src/organisms/container
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
@@ -19,7 +19,7 @@ import {
   useNavigation,
   useSearchParams,
   useSubmit,
-} from "@remix-run/react";
+} from "react-router";
 import React from "react";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";

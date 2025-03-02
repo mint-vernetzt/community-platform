@@ -4,14 +4,14 @@ import {
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-} from "@remix-run/node";
+} from "react-router";
 import {
   Form,
   useActionData,
   useBlocker,
   useLoaderData,
   useLocation,
-} from "@remix-run/react";
+} from "react-router";
 import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -626,6 +626,9 @@ function Details() {
         (relation) => relation.specialTargetGroup.id
       ),
     },
+    // TODO: Remove assertion by using conform v1
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     lastSubmission: actionData?.submission,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",

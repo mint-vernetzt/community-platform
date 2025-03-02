@@ -1,6 +1,6 @@
 import { type User } from "@supabase/supabase-js";
 import type { BinaryToTextEncoding } from "crypto";
-import { createHmac } from "crypto";
+import { createHmac, createHash } from "crypto";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { prismaClient } from "./prisma.server";
 import sanitizeHtml from "sanitize-html";
@@ -14,7 +14,7 @@ export function deriveMode(sessionUser: User | null): Mode {
   return "authenticated";
 }
 
-export async function createHashFromString(
+export function createHashFromString(
   string: string,
   hashAlgorithm = "md5",
   encoding: BinaryToTextEncoding = "hex"
@@ -22,6 +22,12 @@ export async function createHashFromString(
   const hash = createHmac(hashAlgorithm, process.env.HASH_SECRET);
   hash.update(string);
   return hash.digest(encoding);
+}
+
+export function createHashFromObject(object: object) {
+  const json = JSON.stringify(object);
+  const hash = createHash("sha256").update(json).digest("hex");
+  return hash;
 }
 
 export async function getFocuses() {
@@ -201,16 +207,16 @@ const allowedTags = [
 ];
 
 const allowedAttributes = {
-  a: ["href", "rel", "target"],
-  b: [],
-  i: [],
-  em: [],
-  strong: [],
-  ul: [],
-  ol: [],
-  p: [],
-  li: [],
-  br: [],
+  a: ["href", "rel", "target", "class", "style"],
+  b: ["class", "style"],
+  i: ["class", "style"],
+  em: ["class", "style"],
+  strong: ["class", "style"],
+  ul: ["class", "style"],
+  ol: ["class", "style"],
+  p: ["class", "style"],
+  li: ["class", "style"],
+  br: ["class", "style"],
 };
 
 export const sanitizeUserHtml = (

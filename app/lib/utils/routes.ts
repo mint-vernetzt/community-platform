@@ -1,4 +1,4 @@
-import { type Params } from "@remix-run/react";
+import { type Params } from "react-router";
 import { invariantResponse } from "./response";
 
 export function getParamValue(params: Params<string>, key: string) {

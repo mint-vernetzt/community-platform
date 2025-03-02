@@ -3,14 +3,14 @@ import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Link } from "@mint-vernetzt/components/src/molecules/Link";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   useActionData,
   useLoaderData,
   useNavigate,
-} from "@remix-run/react";
+  redirect,
+} from "react-router";
 import { z } from "zod";
 import {
   createAuthClient,
@@ -20,8 +20,11 @@ import {
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
-import { deriveMode, generateProjectSlug } from "~/utils.server";
-import { getHash } from "./$slug/settings/utils.server";
+import {
+  deriveMode,
+  generateProjectSlug,
+  createHashFromObject,
+} from "~/utils.server";
 import { type CreateProjectLocales } from "./create.server";
 import { languageModuleMap } from "~/locales/.server";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
@@ -135,7 +138,7 @@ export const action = async (args: ActionFunctionArgs) => {
     async: true,
   });
 
-  const hash = getHash(submission);
+  const hash = createHashFromObject(submission);
 
   if (submission.intent !== "submit") {
     return { status: "idle", submission, hash };
@@ -157,6 +160,9 @@ function Create() {
   const [form, fields] = useForm({
     id: "create-project-form",
     constraint: getFieldsetConstraint(schema),
+    // TODO: Remove assertion by using conform v1
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     lastSubmission: actionData?.submission,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",

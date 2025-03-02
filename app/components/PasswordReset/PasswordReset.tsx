@@ -2,7 +2,7 @@ import HeaderLogo from "../HeaderLogo/HeaderLogo";
 import PageBackground from "../PageBackground/PageBackground";
 import InputText from "../FormElements/InputText/InputText";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line
 export interface PasswordResetProps {}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -6,13 +6,8 @@ import {
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-} from "@remix-run/node";
-import {
-  Form,
-  useActionData,
-  useBlocker,
-  useLoaderData,
-} from "@remix-run/react";
+} from "react-router";
+import { Form, useActionData, useBlocker, useLoaderData } from "react-router";
 import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -174,6 +169,9 @@ function ChangeURL() {
       return parse(values.formData, { schema: createSchema(locales) });
     },
     shouldRevalidate: "onSubmit",
+    // TODO: Remove assertion by using conform v1
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     lastSubmission: actionData,
   });
 

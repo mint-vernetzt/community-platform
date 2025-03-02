@@ -1,9 +1,9 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import type { Event, Organization, Profile } from "@prisma/client";
-import { useSearchParams, useSubmit } from "@remix-run/react";
+import { useSearchParams, useSubmit } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
@@ -78,22 +78,22 @@ function Autocomplete(
     ...rest
   } = props;
 
-  const [searchedValue, setSearchedValue] = useState("");
-  const [submitValue, setSubmitValue] = useState("");
-  const [activeSuggestion, setActiveSuggestion] = useState(0);
+  const [searchedValue, setSearchedValue] = React.useState("");
+  const [submitValue, setSubmitValue] = React.useState("");
+  const [activeSuggestion, setActiveSuggestion] = React.useState(0);
   const submit = useSubmit();
-  const suggestionsContainerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsContainerRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get(searchParameter);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (inputRef.current !== null) {
       setSearchedValue(defaultValue);
     }
   }, [defaultValue]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (
       suggestionsContainerRef.current !== null &&
       suggestionsContainerRef.current.getBoundingClientRect().bottom >

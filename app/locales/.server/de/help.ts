@@ -109,6 +109,59 @@ export const locale = {
         },
       },
     },
+    fundings: {
+      headline: "Fragen zur Fördermittelsuche",
+      qAndAs: {
+        findFundings: {
+          question:
+            "Wo finde ich Förderungen auf der MINTvernetzt Community Plattform?",
+          answer:
+            'Über die Navigation „Entdecken“ > „Förderungen“ gelangst Du auf die MINTvernetzt Fördermittelsuche. Oder Du nutzt diesen Link: <a href="/explore/fundings">https://community.mint-vernetzt.de/explore/fundings',
+        },
+        beta: {
+          question: 'Was bedeutet "Beta"?',
+          answer:
+            '<p>Der Status "Beta" bedeutet, dass die Fördermittelsuche in ihrer Entwicklung noch nicht abgeschlossen ist. Für die Weiterentwicklung sind wir auf Feedback angewiesen. Wir freuen uns über Vorschläge zu neuen Funktionen oder Hinweise zu Mängeln.</p><p>Sende uns dafür eine Mail mit dem Betreff: "Fördermittelsuche" an <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</p>',
+        },
+        whatIs: {
+          question: "Was ist die Fördermittelsuche?",
+          answer:
+            "Die Fördermittelsuche listet MINT-relevante Förderungen, die jeden Montag neu von vier Fördermitteldatenbanken eingespeist werden. Die zusammengestellten Förderungen lassen sich filtern, so kannst Du passendere Ergebnisse zu erhalten.",
+        },
+        howTo: {
+          question: "Wie kann ich eine spezifische Förderung finden?",
+          answer:
+            "<p>Nutze die Filter, um gezielt nach Förderungen zu suchen, die speziell für deine Region verfügbar sind oder die der Förderungsberechtigung z.B. von Vereinen entsprechen.</p><p>Beispiel: Stell dir vor, Du filterst nach Förderungen und wählst zwei Optionen:</p><ul><li>Förderbereich: Bildung / Aus- und Weiterbildung</li><li>Region Bayern</li></ul><p>Mit einer UND-Verknüpfung werden dann nur die Förderungen angezeigt, die sowohl im Bereich Bildung als auch in Bayern verfügbar sind. Es ist daher sinnvoll verschiedene Filteroptionen zu testen.</p>",
+        },
+        availableTypes: {
+          question: "Welche Fördertypen sind verfügbar?",
+          answer:
+            'Wir listen Förderungen, die in den Bereichen Beratung, Beteiligung, Finanzierung, Kredit / Darlehen, Pauschale / Preisgeld, Qualifizierung, Vernetzung und Zuschüsse liegen. Wir erhalten aber auch Einträge von Förderungen, die diesen Kategorien nicht zugeordnet werden können, weil die Daten auf den Ursprungsseiten der Förderungen nicht angegeben wurden. Diese werden dann in unserer Fördermittelsuche unter "Ohne Kategorie" oder "Sonstige" gelistet.',
+        },
+        sources: {
+          question:
+            "Woher kommen die Förderungen, die in der Fördermittelsuche dargestellt werden?",
+          answer:
+            '<p>Die Förderungen werden automatisch von vier hinterlegten Datenbanken zusammengetragen:</p><ul><li>Deutsche Stiftung für Engagement und Ehrenamt <a href="https://foerderdatenbank.d-s-e-e.de" target="_blank" rel="noreferrer nofollow">https://foerderdatenbank.d-s-e-e.de</a></li><li>Förderfinder der Plattform für Soziale Innovationen und Gemeinwohlorientierte Unternehmen <a href="https://sigu-plattform.de/foerderfinder" target="_blank" rel="noreferrer nofollow">https://sigu-plattform.de/foerderfinder</a></li><li>Förderdatenbank des Bundesministeriums für Wirtschaft und Klimaschutz <a href="https://www.foerderdatenbank.de" target="_blank" rel="noreferrer nofollow">https://www.foerderdatenbank.de</a></li><li>Förderfinder von consider it GmbH <a href="https://foerder-finder.de" target="_blank" rel="noreferrer nofollow">https://foerder-finder.de</a></li></ul><p>Sende uns Vorschläge, welche weiteren Datenbanken hinterlegt werden sollen, in einer Mail mit dem Betreff: "Fördermittelsuche" an <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de.</a></p>',
+        },
+        updateInterval: {
+          question: "Wie häufig wird die Förderdatenbank aktualisiert?",
+          answer:
+            "Jeden Montag werden neue Ergebnisse aus den vier hinterlegten Fördermitteldatenbanken eingespielt.",
+        },
+        onError: {
+          question:
+            "Die Fördermittelsuche funktioniert nicht. / Ich erhalte eine Error-Mitteilung. Was kann ich tun?",
+          answer:
+            'Du kannst uns helfen diesen Fehler zu beheben, indem Du uns einen Screenshot erstellst und diesen per Mail mit dem Betreff: "Fördermittelsuche" an <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a> sendest. Im besten Fall teilst Du uns auch Deinen Browser mit. Probiere auch die Seite neu zu laden, oft ist das Problem dann auch schon behoben.',
+        },
+        feedback: {
+          question: "Kann ich Feedback zur Fördermittelsuche geben?",
+          answer:
+            '<p>Ja, sehr gern. Sende uns eine Mail mit dem Betreff: "Fördermittelsuche" an <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</p><p>Die Fördermittelsuche ist aktuell in der Beta-Version zugänglich. Wir sind daher über jedes Feedback und jede Idee dankbar. So können wir die Fördermittelsuche weiter verbessern.</p>',
+        },
+      },
+    },
     furtherQuestions: {
       headline: "Weitere Fragen",
       qAndAs: {

@@ -2,6 +2,9 @@ export const locale = {
   error: {
     notFound: "Event not found",
     notPublished: "Event not published",
+    onStoring:
+      "Das Bild konnte nicht gespeichert werden. Bitte versuche es erneut oder wende Dich an den Support.",
+    invalidAction: "Invalid action",
   },
   success: {
     abuseReport: "Die Meldung der Veranstaltung wurde verschickt.",
@@ -78,7 +81,9 @@ export const locale = {
     description:
       "Um Deiner Meldung nachgehen zu  können, benötigen wir den Grund, warum Du dieses Event melden möchtest.",
     otherReason: "Anderer Grund",
+    max: "Maximal {{max}} Zeichen",
     noReasons: "Bitte gib mindestens einen Grund an.",
+    alreadySubmitted: "Du hast dieses Event bereits gemeldet.",
     submit: "Event melden",
     abort: "Abbrechen",
   },

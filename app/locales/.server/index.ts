@@ -32,9 +32,6 @@ import { locale as deConfirmAuthAction } from "./de/routes/auth/confirm";
 // event routes
 import { locale as deAddEventAdmin } from "./de/routes/event/$slug/settings/admins/add-admin";
 import { locale as deRemoveEventAdmin } from "./de/routes/event/$slug/settings/admins/remove-admin";
-import { locale as deDeleteEventDocuments } from "./de/routes/event/$slug/settings/documents/delete-documents";
-import { locale as deEditEventDocument } from "./de/routes/event/$slug/settings/documents/edit-document";
-import { locale as deUploadEventDocument } from "./de/routes/event/$slug/settings/documents/upload-document";
 import { locale as deAddChildEvent } from "./de/routes/event/$slug/settings/events/add-child";
 import { locale as deCancelEvent } from "./de/routes/event/$slug/settings/events/cancel";
 import { locale as dePublishEvent } from "./de/routes/event/$slug/settings/events/publish";
@@ -108,7 +105,6 @@ import { locale as deAboutProject } from "./de/routes/project/$slug/detail/about
 import { locale as deProjectAttachments } from "./de/routes/project/$slug/detail/attachments";
 import { locale as deProjectRequirements } from "./de/routes/project/$slug/detail/requirements";
 import { locale as deDownloadProjectAttachmentsFromSettings } from "./de/routes/project/$slug/settings/attachments/download";
-import { locale as deEditProjectAttachments } from "./de/routes/project/$slug/settings/attachments/edit";
 import { locale as deChangeProjectUrl } from "./de/routes/project/$slug/settings/danger-zone/change-url";
 import { locale as deDeleteProject } from "./de/routes/project/$slug/settings/danger-zone/delete";
 import { locale as deProjectDangerZoneIndex } from "./de/routes/project/$slug/settings/danger-zone/index";
@@ -166,6 +162,7 @@ import { locale as deSearchOrganizationsSchema } from "./de/schemas/searchOrgani
 // utils
 import { locale as deSchemas } from "./de/utils/schemas";
 import { locale as deSocialMediaServices } from "./de/utils/social-media-services";
+import { locale as deUpload } from "./de/utils/upload";
 // components.ts
 import { locale as deComponents } from "./de/components";
 // help.ts
@@ -207,9 +204,6 @@ import { locale as enConfirmAuthAction } from "./en/routes/auth/confirm";
 // event routes
 import { locale as enAddEventAdmin } from "./en/routes/event/$slug/settings/admins/add-admin";
 import { locale as enRemoveEventAdmin } from "./en/routes/event/$slug/settings/admins/remove-admin";
-import { locale as enDeleteEventDocuments } from "./en/routes/event/$slug/settings/documents/delete-documents";
-import { locale as enEditEventDocument } from "./en/routes/event/$slug/settings/documents/edit-document";
-import { locale as enUploadEventDocument } from "./en/routes/event/$slug/settings/documents/upload-document";
 import { locale as enAddChildEvent } from "./en/routes/event/$slug/settings/events/add-child";
 import { locale as enCancelEvent } from "./en/routes/event/$slug/settings/events/cancel";
 import { locale as enPublishEvent } from "./en/routes/event/$slug/settings/events/publish";
@@ -283,7 +277,6 @@ import { locale as enAboutProject } from "./en/routes/project/$slug/detail/about
 import { locale as enProjectAttachments } from "./en/routes/project/$slug/detail/attachments";
 import { locale as enProjectRequirements } from "./en/routes/project/$slug/detail/requirements";
 import { locale as enDownloadProjectAttachmentsFromSettings } from "./en/routes/project/$slug/settings/attachments/download";
-import { locale as enEditProjectAttachments } from "./en/routes/project/$slug/settings/attachments/edit";
 import { locale as enChangeProjectUrl } from "./en/routes/project/$slug/settings/danger-zone/change-url";
 import { locale as enDeleteProject } from "./en/routes/project/$slug/settings/danger-zone/delete";
 import { locale as enProjectDangerZoneIndex } from "./en/routes/project/$slug/settings/danger-zone/index";
@@ -341,6 +334,7 @@ import { locale as enSearchOrganizationsSchema } from "./en/schemas/searchOrgani
 // utils
 import { locale as enSchemas } from "./en/utils/schemas";
 import { locale as enSocialMediaServices } from "./en/utils/social-media-services";
+import { locale as enUpload } from "./en/utils/upload";
 // components.ts
 import { locale as enComponents } from "./en/components";
 // help.ts
@@ -374,9 +368,6 @@ const de = {
   // event routes
   "event/$slug/settings/admins/add-admin": deAddEventAdmin,
   "event/$slug/settings/admins/remove-admin": deRemoveEventAdmin,
-  "event/$slug/settings/documents/delete-document": deDeleteEventDocuments,
-  "event/$slug/settings/documents/edit-document": deEditEventDocument,
-  "event/$slug/settings/documents/upload-document": deUploadEventDocument,
   "event/$slug/settings/events/add-child": deAddChildEvent,
   "event/$slug/settings/events/cancel": deCancelEvent,
   "event/$slug/settings/events/publish": dePublishEvent,
@@ -406,7 +397,10 @@ const de = {
   },
   "event/$slug/settings/csv-download": deEventCsvDownload,
   "event/$slug/settings/delete": deDeleteEvent,
-  "event/$slug/settings/documents": deEventDocuments,
+  "event/$slug/settings/documents": {
+    route: deEventDocuments,
+    upload: deUpload,
+  },
   "event/$slug/settings/events": {
     route: deConnectEventsWithEvent,
     organizationTypes: deOrganizationTypes,
@@ -463,6 +457,7 @@ const de = {
     eventAbuseReportReasonSuggestions: deEventAbuseReportReasonSuggestions,
     organizationTypes: deOrganizationTypes,
     imageCropper: deImageCropper,
+    upload: deUpload,
   },
   "event/$slug/settings": deEventSettings,
   "event/create": deCreateEvent,
@@ -524,6 +519,7 @@ const de = {
     organizationTypes: deOrganizationTypes,
     networkTypes: deNetworkTypes,
     imageCropper: deImageCropper,
+    upload: deUpload,
   },
   "organization/$slug/detail/about": {
     route: deAboutOrganization,
@@ -607,6 +603,7 @@ const de = {
     stages: deStages,
     organizationTypes: deOrganizationTypes,
     imageCropper: deImageCropper,
+    upload: deUpload,
   },
   "profile/$username/settings": deProfileSettings,
   // project routes
@@ -628,12 +625,14 @@ const de = {
   },
   "project/$slug/settings/attachments/download":
     deDownloadProjectAttachmentsFromSettings,
-  "project/$slug/settings/attachments/edit": deEditProjectAttachments,
   "project/$slug/settings/danger-zone/change-url": deChangeProjectUrl,
   "project/$slug/settings/danger-zone/delete": deDeleteProject,
   "project/$slug/settings/danger-zone/index": deProjectDangerZoneIndex,
   "project/$slug/settings/admins": deProjectAdmins,
-  "project/$slug/settings/attachments": deProjectAttachmentsSettings,
+  "project/$slug/settings/attachments": {
+    route: deProjectAttachmentsSettings,
+    upload: deUpload,
+  },
   "project/$slug/settings/danger-zone": deProjectDangerZone,
   "project/$slug/settings/details": {
     route: deProjectDetails,
@@ -665,6 +664,7 @@ const de = {
   "project/$slug/detail": {
     route: deProjectDetail,
     imageCropper: deImageCropper,
+    upload: deUpload,
   },
   "project/$slug/settings": deProjectSettings,
   "project/create": deCreateProject,
@@ -754,9 +754,6 @@ const en = {
   // event routes
   "event/$slug/settings/admins/add-admin": enAddEventAdmin,
   "event/$slug/settings/admins/remove-admin": enRemoveEventAdmin,
-  "event/$slug/settings/documents/delete-document": enDeleteEventDocuments,
-  "event/$slug/settings/documents/edit-document": enEditEventDocument,
-  "event/$slug/settings/documents/upload-document": enUploadEventDocument,
   "event/$slug/settings/events/add-child": enAddChildEvent,
   "event/$slug/settings/events/cancel": enCancelEvent,
   "event/$slug/settings/events/publish": enPublishEvent,
@@ -786,7 +783,10 @@ const en = {
   },
   "event/$slug/settings/csv-download": enEventCsvDownload,
   "event/$slug/settings/delete": enDeleteEvent,
-  "event/$slug/settings/documents": enEventDocuments,
+  "event/$slug/settings/documents": {
+    route: enEventDocuments,
+    upload: enUpload,
+  },
   "event/$slug/settings/events": {
     route: enConnectEventsWithEvent,
     stages: enStages,
@@ -843,6 +843,7 @@ const en = {
     eventAbuseReportReasonSuggestions: enEventAbuseReportReasonSuggestions,
     organizationTypes: enOrganizationTypes,
     imageCropper: enImageCropper,
+    upload: enUpload,
   },
   "event/$slug/settings": enEventSettings,
   "event/create": enCreateEvent,
@@ -904,6 +905,7 @@ const en = {
     organizationTypes: enOrganizationTypes,
     networkTypes: enNetworkTypes,
     imageCropper: enImageCropper,
+    upload: enUpload,
   },
   "organization/$slug/detail/about": {
     route: enAboutOrganization,
@@ -987,6 +989,7 @@ const en = {
     stages: enStages,
     organizationTypes: enOrganizationTypes,
     imageCropper: enImageCropper,
+    upload: enUpload,
   },
   "profile/$username/settings": enProfileSettings,
   // project routes
@@ -1008,12 +1011,14 @@ const en = {
   },
   "project/$slug/settings/attachments/download":
     enDownloadProjectAttachmentsFromSettings,
-  "project/$slug/settings/attachments/edit": enEditProjectAttachments,
   "project/$slug/settings/danger-zone/change-url": enChangeProjectUrl,
   "project/$slug/settings/danger-zone/delete": enDeleteProject,
   "project/$slug/settings/danger-zone/index": enProjectDangerZoneIndex,
   "project/$slug/settings/admins": enProjectAdmins,
-  "project/$slug/settings/attachments": enProjectAttachmentsSettings,
+  "project/$slug/settings/attachments": {
+    route: enProjectAttachmentsSettings,
+    upload: enUpload,
+  },
   "project/$slug/settings/danger-zone": enProjectDangerZone,
   "project/$slug/settings/details": {
     route: enProjectDetails,
@@ -1045,6 +1050,7 @@ const en = {
   "project/$slug/detail": {
     route: enProjectDetail,
     imageCropper: enImageCropper,
+    upload: enUpload,
   },
   "project/$slug/settings": enProjectSettings,
   "project/create": enCreateProject,

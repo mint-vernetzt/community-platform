@@ -2,7 +2,7 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   redirect,
-} from "@remix-run/node";
+} from "react-router";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -20,7 +20,7 @@ import {
   useLoaderData,
   useLocation,
   useNavigation,
-} from "@remix-run/react";
+} from "react-router";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
@@ -35,7 +35,7 @@ import React from "react";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import * as Sentry from "@sentry/remix";
+import * as Sentry from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { languageModuleMap } from "~/locales/.server";

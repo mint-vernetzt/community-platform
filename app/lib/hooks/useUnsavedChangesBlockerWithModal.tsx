@@ -6,7 +6,7 @@ import {
   useLocation,
   useSearchParams,
   useSubmit,
-} from "react-router-dom";
+} from "react-router";
 import { Modal } from "~/components-next/Modal";
 import { extendSearchParams } from "../utils/searchParams";
 import { type ChangeOrganizationUrlLocales } from "~/routes/organization/$slug/settings/danger-zone/change-url.server";

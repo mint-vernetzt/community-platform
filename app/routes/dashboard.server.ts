@@ -2,11 +2,11 @@ import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import {
   BlurFactor,
-  DefaultImages,
   getImageURL,
   GravityType,
   ImageSizes,
 } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";

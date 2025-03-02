@@ -375,7 +375,7 @@ export async function writeToDatabase(
       },
     },
   });
-  verbose &&
+  if (verbose === true) {
     console.log(
       "Deleted " +
         queries.deleteStates.length +
@@ -383,6 +383,7 @@ export async function writeToDatabase(
         queries.deleteDistricts.length +
         " districts"
     );
+  }
 
   // Update the states and districts that are in the new data
   const stateUpdates = [];
@@ -413,7 +414,7 @@ export async function writeToDatabase(
     );
   }
   await prismaClient.$transaction([...stateUpdates, ...districtUpdates]);
-  verbose &&
+  if (verbose === true) {
     console.log(
       "Updated " +
         queries.updateStates.length +
@@ -421,6 +422,7 @@ export async function writeToDatabase(
         queries.updateDistricts.length +
         " districts"
     );
+  }
 
   // Write all new states and districts to the database
   await prismaClient.state.createMany({
@@ -432,7 +434,7 @@ export async function writeToDatabase(
   await prismaClient.area.createMany({
     data: queries.insertAreas,
   });
-  verbose &&
+  if (verbose === true) {
     console.log(
       "Created " +
         queries.insertStates.length +
@@ -442,6 +444,7 @@ export async function writeToDatabase(
         queries.insertAreas +
         " areas"
     );
+  }
 }
 
 export async function logStates(verbose: boolean) {

@@ -9,3 +9,4 @@ coverage
 docker
 node_modules
 supabase
+# TODO: Check if this list is complete when we change to docker deployment

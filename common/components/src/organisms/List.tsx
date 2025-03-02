@@ -2,7 +2,7 @@ import React from "react";
 import { Avatar } from "../molecules/Avatar";
 import classNames from "classnames";
 import { type ImageProps } from "./../molecules/Image";
-import { Link, type LinkProps } from "@remix-run/react";
+import { Link, type LinkProps } from "react-router";
 
 type Size = "sm" | "md";
 

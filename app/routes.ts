@@ -1,4 +1,4 @@
-import { index, route, type RouteConfig } from "@remix-run/route-config";
+import { index, route, type RouteConfig } from "@react-router/dev/routes";
 
 export default [
   index("./routes/index.tsx"),
@@ -10,8 +10,6 @@ export default [
   route("/error", "./routes/error.tsx"),
   route("/dashboard", "./routes/dashboard.tsx"),
   route("/accept-terms", "./routes/accept-terms.tsx"),
-  route("/upload/delete", "./routes/upload/delete.tsx"),
-  route("/upload/image", "./routes/upload/image.tsx"),
   route("/search", "./routes/search.tsx", [
     index("./routes/search/index.tsx"),
     route("/search/profiles", "./routes/search/profiles.tsx"),
@@ -59,10 +57,6 @@ export default [
         route(
           "/project/:slug/settings/attachments/download",
           "./routes/project/$slug/settings/attachments/download.tsx"
-        ),
-        route(
-          "/project/:slug/settings/attachments/edit",
-          "./routes/project/$slug/settings/attachments/edit.tsx"
         ),
       ]
     ),
@@ -260,21 +254,7 @@ export default [
     ),
     route(
       "/event/:slug/settings/documents",
-      "./routes/event/$slug/settings/documents.tsx",
-      [
-        route(
-          "/event/:slug/settings/documents/delete-document",
-          "./routes/event/$slug/settings/documents/delete-document.tsx"
-        ),
-        route(
-          "/event/:slug/settings/documents/edit-document",
-          "./routes/event/$slug/settings/documents/edit-document.tsx"
-        ),
-        route(
-          "/event/:slug/settings/documents/upload-document",
-          "./routes/event/$slug/settings/documents/upload-document.tsx"
-        ),
-      ]
+      "./routes/event/$slug/settings/documents.tsx"
     ),
     route(
       "/event/:slug/settings/events",

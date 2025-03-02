@@ -1,42 +1,60 @@
 export const locale = {
   error: {
-    notPrivileged: "Not privileged",
-    notFound: "Event not found",
-    fileTooBig: "The file is too large. Maximum size is 5MB.",
+    invalidRoute: "No valid route",
+    eventNotFound: "Event not found",
+    invalidSubmission: "No valid submission",
+    invalidAction: "No valid action",
+    onStoring: "File could not be saved. Please try again or contact support.",
+    onUpdating:
+      "File could not be updated. Please try again or contact support.",
+  },
+  validation: {
+    document: {
+      description: {
+        max: "The document description may be a maximum of {{max}} characters long.",
+      },
+    },
+    image: {
+      description: {
+        max: "The image description may be a maximum of {{max}} characters long.",
+      },
+      credits: {
+        max: "The creator's name may be a maximum of {{max}} characters long.",
+      },
+    },
   },
   content: {
     headline: "Manage documents",
-    current: {
-      headline: "Current documents",
-      download: "Download",
-      edit: "Edit",
+    editModal: {
+      editDocument: "Edit document",
+      title: "Title",
+      description: {
+        label: "Description",
+      },
+      submit: "Save",
+      reset: "Discard",
     },
-    downloadAll: "Download all",
-  },
-  form: {
-    title: {
-      label: "Title",
+    back: "Manage documents",
+    description:
+      "Add or remove materials such as agendas, maps, checklists to your event.",
+    document: {
+      upload: "Upload documents",
+      type: "File types: PDF. Max {{max}}MB.",
+      action: "Upload file",
+      added: "Added {{name}}",
+      current: "Currently uploaded documents",
+      downloadAll: "Download all",
+      empty: "No documents available.",
+      deleted: "Deleted {{name}}.",
+      updated: "Updated {{name}}.",
     },
-    description: {
-      label: "Description",
-    },
-    submit: {
-      label: "Save",
-    },
-    cancel: {
-      label: "Cancel",
-    },
-    delete: {
-      label: "Delete",
-    },
-    upload: {
-      label: "Upload PDF document",
-    },
-    publish: {
-      label: "Publish",
-    },
-    hide: {
-      label: "Hide",
+    form: {
+      publish: {
+        label: "Veröffentlichen",
+      },
+      hide: {
+        label: "Verstecken",
+      },
     },
   },
 } as const;

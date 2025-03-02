@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { removeHtmlTags } from "../../../../../app/lib/utils/transformHtml";
 import { Avatar, AvatarList } from "../../molecules/Avatar";
 import {

@@ -5,13 +5,8 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   redirect,
-} from "@remix-run/node";
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  useSubmit,
-} from "@remix-run/react";
+} from "react-router";
+import { Form, useActionData, useLoaderData, useSubmit } from "react-router";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -131,6 +126,9 @@ function Notifications() {
       }
       return submission;
     },
+    // TODO: Remove assertion by using conform v1
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     lastSubmission: actionData,
   });
 

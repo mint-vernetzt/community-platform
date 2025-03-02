@@ -1,6 +1,11 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useParams } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useParams,
+  redirect,
+} from "react-router";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -11,7 +16,6 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/i18n.server";
@@ -26,6 +30,7 @@ import { publishSchema, type action as publishAction } from "./events/publish";
 import { deleteEventBySlug } from "./utils.server";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 const schema = z.object({
   eventName: z.string().optional(),
@@ -78,6 +83,7 @@ const createMutation = (locales: DeleteEventLocales) => {
     try {
       await deleteEventBySlug(environment.eventSlug);
     } catch (error) {
+      console.error({ error });
       throw locales.error.delete;
     }
   });

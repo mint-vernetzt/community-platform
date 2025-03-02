@@ -1,11 +1,11 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   useActionData,
   useLoaderData,
   useNavigate,
-} from "@remix-run/react";
+  redirect,
+} from "react-router";
 import { format } from "date-fns-tz";
 import { useForm } from "react-hook-form";
 import type { InferType } from "yup";
@@ -16,7 +16,7 @@ import {
   getSessionUserOrThrow,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormValues,
@@ -108,6 +108,7 @@ export const action = async (args: ActionFunctionArgs) => {
     errors = result.errors;
     data = result.data;
   } catch (error) {
+    console.error({ error });
     invariantResponse(false, locales.error.validationFailed, { status: 400 });
   }
 

@@ -1,5 +1,5 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { type useFetcher } from "@remix-run/react";
+import { type useFetcher } from "react-router";
 import { type action } from "~/routes/my/organizations";
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
 

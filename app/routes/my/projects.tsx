@@ -2,8 +2,8 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
-import { type LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import { type LoaderFunctionArgs, redirect } from "react-router";
+import { Link, useLoaderData, useSearchParams } from "react-router";
 import React from "react";
 import {
   createAuthClient,

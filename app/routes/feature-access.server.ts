@@ -1,6 +1,6 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { getSessionUser } from "~/auth.server";
-import { invariantResponse } from "./response";
+import { invariantResponse } from "~/lib/utils/response";
 
 export async function getFeatureAbilities(
   authClient: SupabaseClient,

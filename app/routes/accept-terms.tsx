@@ -2,8 +2,8 @@ import {
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-} from "@remix-run/node";
-import { useLoaderData, useSearchParams, useSubmit } from "@remix-run/react";
+} from "react-router";
+import { useLoaderData, useSearchParams, useSubmit } from "react-router";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import React from "react";
 import { makeDomainFunction } from "domain-functions";

@@ -1,107 +1,145 @@
-import { conform, useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import {
-  redirect,
-  unstable_composeUploadHandlers,
-  unstable_createMemoryUploadHandler,
-  unstable_parseMultipartFormData,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "@remix-run/node";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import React from "react";
 import {
   Form,
   Link,
+  redirect,
   useActionData,
-  useFetcher,
   useLoaderData,
   useLocation,
-} from "@remix-run/react";
-import React from "react";
+  useNavigation,
+  useSearchParams,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { BackButton } from "~/components-next/BackButton";
+import { FileInput, type SelectedFile } from "~/components-next/FileInput";
+import { MaterialList } from "~/components-next/MaterialList";
+import { Modal } from "~/components-next/Modal";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
-import { Modal } from "~/components-next/Modal";
-import { getPublicURL } from "~/storage.server";
-import { BackButton } from "~/components-next/BackButton";
-import { MaterialList } from "~/components-next/MaterialList";
-import {
-  hasValidMimeType,
-  type ProjectAttachmentSettingsLocales,
-  storeDocument,
-  storeImage,
-} from "./attachments.server";
-import {
-  documentSchema,
-  imageSchema,
-  type action as EditAction,
-} from "./attachments/edit";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getHash,
-} from "./utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { prismaClient } from "~/prisma.server";
+import { getPublicURL, parseMultipartFormData } from "~/storage.server";
+import {
+  BUCKET_FIELD_NAME,
+  BUCKET_NAME_DOCUMENTS,
+  BUCKET_NAME_IMAGES,
+  DOCUMENT_MIME_TYPES,
+  documentSchema,
+  FILE_FIELD_NAME,
+  IMAGE_MIME_TYPES,
+  imageSchema,
+  MAX_UPLOAD_FILE_SIZE,
+  UPLOAD_INTENT_VALUE,
+} from "~/storage.shared";
+import {
+  disconnectDocument,
+  disconnectImage,
+  editDocument,
+  editImage,
+  uploadFile,
+  type ProjectAttachmentSettingsLocales,
+} from "./attachments.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { redirectWithToast } from "~/toast.server";
+import * as Sentry from "@sentry/node";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 
-const MAX_UPLOAD_SIZE = 6 * 1024 * 1024; // 6MB
+export const createDocumentUploadSchema = (
+  locales: ProjectAttachmentSettingsLocales
+) => z.object({ ...documentSchema(locales) });
 
-export function getExtension(filename: string) {
-  return filename.substring(filename.lastIndexOf(".") + 1, filename.length);
-}
+export const createImageUploadSchema = (
+  locales: ProjectAttachmentSettingsLocales
+) => z.object({ ...imageSchema(locales) });
 
-const documentMimeTypes = ["application/pdf", "image/jpeg"];
+const DOCUMENT_DESCRIPTION_MAX_LENGTH = 80;
 
-const createDocumentUploadSchema = (
+export const createEditDocumentSchema = (
   locales: ProjectAttachmentSettingsLocales
 ) =>
   z.object({
-    filename: z.string().transform((filename) => {
-      const extension = getExtension(filename);
-      return `${filename
-        .replace(`.${extension}`, "")
-        .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
-    }),
-    document: z
-      .instanceof(File)
-      .refine((file) => {
-        return file.size <= MAX_UPLOAD_SIZE;
-      }, locales.validation.document.size)
-      .refine((file) => {
-        return documentMimeTypes.includes(file.type);
-      }, locales.validation.document.type),
+    id: z.string(),
+    title: z
+      .string()
+      .optional()
+      .transform((value) =>
+        typeof value === "undefined" || value === "" ? null : value
+      ),
+    description: z
+      .string()
+      .max(
+        DOCUMENT_DESCRIPTION_MAX_LENGTH,
+        insertParametersIntoLocale(
+          locales.route.validation.document.description.max,
+          {
+            max: DOCUMENT_DESCRIPTION_MAX_LENGTH,
+          }
+        )
+      )
+      .optional()
+      .transform((value) =>
+        typeof value === "undefined" || value === "" ? null : value
+      ),
   });
 
-const imageMimeTypes = ["image/png", "image/jpeg"];
+const IMAGE_DESCRIPTION_MAX_LENGTH = 80;
+const IMAGE_CREDITS_MAX_LENGTH = 80;
 
-const createImageUploadSchema = (locales: ProjectAttachmentSettingsLocales) =>
+export const createEditImageSchema = (
+  locales: ProjectAttachmentSettingsLocales
+) =>
   z.object({
-    filename: z.string().transform((filename) => {
-      const extension = getExtension(filename);
-      return `${filename
-        .replace(`.${extension}`, "")
-        .replace(/\W/g, "_")}.${extension}`; // needed for storing on s3
-    }),
-    image: z
-      .instanceof(File)
-      .refine((file) => {
-        return file.size <= MAX_UPLOAD_SIZE;
-      }, locales.validation.image.size)
-      .refine((file) => {
-        return imageMimeTypes.includes(file.type);
-      }, locales.validation.image.type),
+    id: z.string(),
+    title: z
+      .string()
+      .optional()
+      .transform((value) =>
+        typeof value === "undefined" || value === "" ? null : value
+      ),
+    description: z
+      .string()
+      .max(
+        IMAGE_DESCRIPTION_MAX_LENGTH,
+        insertParametersIntoLocale(
+          locales.route.validation.document.description.max,
+          {
+            max: IMAGE_DESCRIPTION_MAX_LENGTH,
+          }
+        )
+      )
+      .optional()
+      .transform((value) =>
+        typeof value === "undefined" || value === "" ? null : value
+      ),
+    credits: z
+      .string()
+      .max(
+        IMAGE_CREDITS_MAX_LENGTH,
+        insertParametersIntoLocale(locales.route.validation.image.credits.max, {
+          max: IMAGE_CREDITS_MAX_LENGTH,
+        })
+      )
+      .optional()
+      .transform((value) =>
+        typeof value === "undefined" || value === "" ? null : value
+      ),
   });
 
-const actionSchema = z.object({
-  id: z.string().uuid(),
-  filename: z.string(),
+export const disconnectAttachmentSchema = z.object({
+  id: z.string(),
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -115,9 +153,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    locales.route.error.invalidRoute,
+    {
+      status: 400,
+    }
+  );
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
@@ -170,7 +212,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(project !== null, locales.error.projectNotFound, {
+  invariantResponse(project !== null, locales.route.error.projectNotFound, {
     status: 404,
   });
   const images = project.images.map((relation) => {
@@ -196,487 +238,437 @@ export const loader = async (args: LoaderFunctionArgs) => {
     images,
   };
 
-  return { project: enhancedProject, locales };
+  return { project: enhancedProject, locales, currentTimestamp: Date.now() };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["project/$slug/settings/attachments"];
+  const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
-
   const sessionUser = await getSessionUser(authClient);
-
-  // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
-    status: 400,
-  });
-
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
-
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  // TODO: Above function should assert the session user is not null to avoid below check that has already been done
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["project/$slug/settings/attachments"];
 
-  const uploadHandler = unstable_composeUploadHandlers(
-    unstable_createMemoryUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE })
-  );
-
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler
-  );
-
-  const intent = formData.get(conform.INTENT);
-
-  invariantResponse(
-    intent !== null &&
-      (intent === "upload_document" ||
-        intent === "upload_image" ||
-        intent === "delete_document" ||
-        intent === "delete_image" ||
-        intent === "validate/document" ||
-        intent === "validate/image"),
-    locales.error.invalidAction,
-    {
-      status: 400,
-    }
-  );
-
-  let submission;
-  let toast;
-  if (intent === "upload_document" || intent === "validate/document") {
-    const documentUploadSchema = createDocumentUploadSchema(locales);
-    submission = parse(formData, {
-      schema: documentUploadSchema,
-    });
-
-    invariantResponse(
-      typeof submission.value !== "undefined" && submission.value !== null,
-      locales.error.invalidSubmission,
-      { status: 400 }
-    );
-
-    if (intent === "validate/document") {
-      return { status: "idle", submission, hash: getHash(submission) };
-    }
-
-    const mimeTypeIsValid = await hasValidMimeType(
-      submission.value.document,
-      documentMimeTypes
-    );
-    invariantResponse(mimeTypeIsValid, locales.error.onStoring, {
-      status: 400,
-    });
-
-    const filename = submission.value.filename;
-    const document = submission.value.document;
-    const error = await storeDocument(authClient, {
-      slug: params.slug,
-      filename,
-      document,
-    });
-
-    invariantResponse(error === null, locales.error.onStoring, {
-      status: 400,
-    });
-    toast = {
-      id: "upload-document-toast",
-      key: getHash(submission),
-      message: insertParametersIntoLocale(locales.content.document.added, {
-        name: submission.value.filename,
-      }),
-    };
-  } else if (intent === "upload_image" || intent === "validate/image") {
-    const imageUploadSchema = createImageUploadSchema(locales);
-    submission = parse(formData, {
-      schema: imageUploadSchema,
-    });
-    invariantResponse(
-      typeof submission.value !== "undefined" && submission.value !== null,
-      locales.error.invalidSubmission,
-      { status: 400 }
-    );
-
-    if (intent === "validate/image") {
-      return { status: "idle", submission, hash: getHash(submission) };
-    }
-
-    const mimeTypeIsValid = await hasValidMimeType(
-      submission.value.image,
-      imageMimeTypes
-    );
-    invariantResponse(mimeTypeIsValid, locales.error.onStoring, {
-      status: 400,
-    });
-
-    const filename = submission.value.filename;
-    const image = submission.value.image;
-
-    const error = await storeImage(authClient, {
-      slug: params.slug,
-      filename,
-      image,
-    });
-
-    invariantResponse(error === null, locales.error.onStoring, {
-      status: 400,
-    });
-    toast = {
-      id: "upload-image-toast",
-      key: getHash(submission),
-      message: insertParametersIntoLocale(locales.content.image.added, {
-        name: submission.value.filename,
-      }),
-    };
-  } else if (intent === "delete_document") {
-    submission = parse(formData, {
-      schema: actionSchema,
-    });
-
-    invariantResponse(
-      typeof submission.value !== "undefined" && submission.value !== null,
-      locales.error.invalidSubmission,
-      { status: 400 }
-    );
-
-    const id = submission.value.id;
-    await prismaClient.document.delete({
-      where: {
-        id,
-      },
-    });
-    toast = {
-      id: "delete-document-toast",
-      key: getHash(submission),
-      message: insertParametersIntoLocale(locales.content.document.deleted, {
-        name: submission.value.filename,
-      }),
-    };
-  } else if (intent === "delete_image") {
-    submission = parse(formData, {
-      schema: actionSchema,
-    });
-
-    invariantResponse(
-      typeof submission.value !== "undefined" && submission.value !== null,
-      locales.error.invalidSubmission,
-      { status: 400 }
-    );
-
-    const id = submission.value.id;
-    await prismaClient.image.delete({
-      where: {
-        id,
-      },
-    });
-    toast = {
-      id: "delete-image-toast",
-      key: getHash(submission),
-      message: insertParametersIntoLocale(locales.content.image.deleted, {
-        name: submission.value.filename,
-      }),
-    };
-  } else {
-    invariantResponse(false, "Bad request", {
-      status: 400,
+  const { formData, error } = await parseMultipartFormData(request);
+  if (error !== null || formData === null) {
+    console.error({ error });
+    Sentry.captureException(error);
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "upload-failed",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.onStoring,
+      level: "negative",
     });
   }
 
-  return redirectWithToast(request.url, toast);
+  const intent = formData.get(INTENT_FIELD_NAME);
+  let submission;
+  let toast;
+  let redirectUrl: string | null = request.url;
+
+  if (intent === UPLOAD_INTENT_VALUE) {
+    const result = await uploadFile({
+      formData,
+      authClient,
+      slug,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+  } else if (intent === "edit-document") {
+    const result = await editDocument({ request, formData, locales });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else if (intent === "edit-image") {
+    const result = await editImage({ request, formData, locales });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else if (intent === "disconnect-document") {
+    const result = await disconnectDocument({ formData, locales });
+    submission = result.submission;
+    toast = result.toast;
+  } else if (intent === "disconnect-image") {
+    const result = await disconnectImage({ formData, locales });
+    submission = result.submission;
+    toast = result.toast;
+  } else {
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "invalid-action",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.invalidAction,
+      level: "negative",
+    });
+  }
+
+  if (submission !== null) {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
+  }
+  if (toast === null) {
+    return redirect(redirectUrl);
+  }
+  return redirectWithToast(redirectUrl, toast);
 };
 
 function Attachments() {
   const location = useLocation();
-
-  const [documentName, setDocumentName] = React.useState<string | null>(null);
-  const [imageName, setImageName] = React.useState<string | null>(null);
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
-  const editFetcher = useFetcher<typeof EditAction>();
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
+  const [searchParams] = useSearchParams();
 
-  const documentUploadSchema = createDocumentUploadSchema(locales);
+  // Document upload form
+  const [selectedDocumentFileNames, setSelectedDocumentFileNames] =
+    React.useState<SelectedFile[]>([]);
   const [documentUploadForm, documentUploadFields] = useForm({
-    shouldValidate: "onInput",
-    onValidate: (values) => {
-      const result = parse(values.formData, { schema: documentUploadSchema });
-      return result;
+    id: `upload-document-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(createDocumentUploadSchema(locales)),
+    defaultValue: {
+      [FILE_FIELD_NAME]: null,
+      [BUCKET_FIELD_NAME]: BUCKET_NAME_DOCUMENTS,
+      [INTENT_FIELD_NAME]: UPLOAD_INTENT_VALUE,
     },
-    lastSubmission:
-      typeof actionData !== "undefined" ? actionData.submission : undefined,
+    shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-  });
-
-  const imageUploadSchema = createImageUploadSchema(locales);
-  const [imageUploadForm, imageUploadFields] = useForm({
-    shouldValidate: "onInput",
-    onValidate: (values) => {
-      const result = parse(values.formData, { schema: imageUploadSchema });
-      return result;
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createDocumentUploadSchema(locales),
+      });
+      return submission;
     },
-    lastSubmission:
-      typeof actionData !== "undefined" ? actionData.submission : undefined,
-    shouldRevalidate: "onInput",
   });
-
-  const [editDocumentForm, editDocumentFields] = useForm({
-    shouldValidate: "onInput",
-    onValidate: (values) => {
-      const schema = documentSchema;
-      const result = parse(values.formData, { schema });
-      return result;
-    },
-    lastSubmission:
-      typeof editFetcher.data !== "undefined"
-        ? editFetcher.data.submission
-        : undefined,
-  });
-
-  const [editImageForm, editImageFields] = useForm({
-    shouldValidate: "onInput",
-    onValidate: (values) => {
-      const schema = imageSchema;
-      const result = parse(values.formData, { schema });
-      return result;
-    },
-    lastSubmission:
-      typeof editFetcher.data !== "undefined"
-        ? editFetcher.data.submission
-        : undefined,
-  });
-
-  const handleDocumentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (
-      event.target.files !== null &&
-      event.target.files.length > 0 &&
-      event.target.files[0] instanceof Blob
-    ) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setDocumentName(file.name);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setDocumentName(null);
-    }
-  };
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (
-      event.target.files !== null &&
-      event.target.files.length > 0 &&
-      event.target.files[0] instanceof Blob
-    ) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageName(file.name);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImageName(null);
-    }
-  };
-
-  // necessary to reset document and image name after successful upload
   React.useEffect(() => {
-    if (
-      typeof actionData !== "undefined" &&
-      actionData !== null &&
-      actionData.status === "success" &&
-      typeof actionData.submission !== "undefined"
-    ) {
-      if (actionData.submission.intent === "upload_document") {
-        setDocumentName(null);
-      }
-      if (actionData.submission.intent === "upload_image") {
-        setImageName(null);
-      }
-    }
-  }, [actionData]);
+    setSelectedDocumentFileNames([]);
+  }, [loaderData]);
+
+  // Image upload form
+  const [selectedImageFileNames, setSelectedImageFileNames] = React.useState<
+    SelectedFile[]
+  >([]);
+  const [imageUploadForm, imageUploadFields] = useForm({
+    id: `upload-image-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(createImageUploadSchema(locales)),
+    defaultValue: {
+      [FILE_FIELD_NAME]: null,
+      [BUCKET_FIELD_NAME]: BUCKET_NAME_IMAGES,
+      [INTENT_FIELD_NAME]: UPLOAD_INTENT_VALUE,
+    },
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createImageUploadSchema(locales),
+      });
+      return submission;
+    },
+  });
+  React.useEffect(() => {
+    setSelectedImageFileNames([]);
+  }, [loaderData]);
+
+  // Edit document form
+  const [editDocumentForm, editDocumentFields] = useForm({
+    id: `edit-document-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(createEditDocumentSchema(locales)),
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createEditDocumentSchema(locales),
+      });
+      return submission;
+    },
+  });
+
+  // Edit image form
+  const [editImageForm, editImageFields] = useForm({
+    id: `edit-image-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(createEditImageSchema(locales)),
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createEditImageSchema(locales),
+      });
+      return submission;
+    },
+  });
+
+  // Disconnect document form
+  // eslint ignore is intended
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_disconnectDocumentForm, disconnectDocumentFields] = useForm({
+    constraint: getZodConstraint(disconnectAttachmentSchema),
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: disconnectAttachmentSchema,
+      });
+      return submission;
+    },
+  });
+
+  // Disconnect image form
+  // eslint ignore is intended
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_disconnectImageForm, disconnectImageFields] = useForm({
+    constraint: getZodConstraint(disconnectAttachmentSchema),
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: disconnectAttachmentSchema,
+      });
+      return submission;
+    },
+  });
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{locales.content.back}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.content.description}</p>
+      <BackButton to={location.pathname}>
+        {locales.route.content.back}
+      </BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.description}</p>
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {locales.content.document.upload}
+            {locales.route.content.document.upload}
           </h2>
-          <p>{locales.content.document.type}</p>
-          {/* TODO: no-JS version */}
+          <p>
+            {insertParametersIntoLocale(locales.route.content.document.type, {
+              max: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
+            })}
+          </p>
           <Form
+            {...getFormProps(documentUploadForm)}
             method="post"
             encType="multipart/form-data"
-            {...documentUploadForm.props}
+            preventScrollReset
           >
-            <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
-              <input
-                hidden
-                {...conform.input(documentUploadFields.filename)}
-                defaultValue={documentName !== null ? documentName : ""}
-              />
-              {/* TODO: component! */}
-              <label
-                htmlFor={documentUploadFields.document.id}
-                className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
-              >
-                {locales.content.document.select}
+            <FileInput
+              selectedFileNames={selectedDocumentFileNames}
+              errors={
+                typeof documentUploadFields[FILE_FIELD_NAME].errors ===
+                "undefined"
+                  ? undefined
+                  : documentUploadFields[FILE_FIELD_NAME].errors.map(
+                      (error) => {
+                        return {
+                          id: documentUploadFields[FILE_FIELD_NAME].errorId,
+                          message: error,
+                        };
+                      }
+                    )
+              }
+              locales={locales}
+              fileInputProps={{
+                ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
+                  type: "file",
+                }),
+                id: `document-${FILE_FIELD_NAME}`,
+                key: `document-${FILE_FIELD_NAME}`,
+                className: "mv-hidden",
+                accept: DOCUMENT_MIME_TYPES.join(", "),
+                onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                  setSelectedDocumentFileNames(
+                    event.target.files !== null
+                      ? Array.from(event.target.files).map((file) => {
+                          return {
+                            name: file.name,
+                            sizeInMB:
+                              Math.round((file.size / 1000 / 1000) * 100) / 100,
+                          };
+                        })
+                      : []
+                  );
+                  documentUploadForm.validate();
+                },
+              }}
+              bucketInputProps={{
+                ...getInputProps(documentUploadFields[BUCKET_FIELD_NAME], {
+                  type: "hidden",
+                }),
+                key: BUCKET_FIELD_NAME,
+              }}
+              noscriptInputProps={{
+                ...getInputProps(documentUploadFields[FILE_FIELD_NAME], {
+                  type: "file",
+                }),
+                id: `noscript-document-${FILE_FIELD_NAME}`,
+                key: `noscript-document-${FILE_FIELD_NAME}`,
+                className: "mv-mb-2",
+                accept: DOCUMENT_MIME_TYPES.join(", "),
+              }}
+            >
+              <FileInput.Text>{locales.upload.selection.select}</FileInput.Text>
+              <FileInput.Controls>
                 <input
-                  id={documentUploadFields.document.id}
-                  name={documentUploadFields.document.name}
-                  type="file"
-                  accept={documentMimeTypes.join(",")}
-                  onChange={handleDocumentChange}
-                  hidden
+                  {...getInputProps(documentUploadFields[INTENT_FIELD_NAME], {
+                    type: "hidden",
+                  })}
+                  key={`document-${UPLOAD_INTENT_VALUE}`}
                 />
-              </label>
-
-              <Button
-                // TODO: fix type issue
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                disabled={
-                  typeof window !== "undefined"
-                    ? typeof documentUploadFields.document.error !==
-                        "undefined" || documentName === null
-                    : true
-                }
-                type="hidden"
-                name={conform.INTENT}
-                value="upload_document"
-              >
-                {locales.content.document.action}
-              </Button>
-            </div>
-            <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
-              {typeof documentUploadFields.document.error === "undefined" && (
-                <p>
-                  {documentName === null
-                    ? locales.content.document.selection.empty
-                    : insertParametersIntoLocale(
-                        locales.content.document.selection.selected,
-                        {
-                          name: documentName,
-                        }
-                      )}
-                </p>
-              )}
-              {typeof documentUploadFields.document.error !== "undefined" && (
-                <p className="mv-text-negative-600">
-                  {documentUploadFields.document.error}
-                </p>
-              )}
-            </div>
+                <Button
+                  type="submit"
+                  fullSize
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? selectedDocumentFileNames.length === 0 ||
+                        documentUploadForm.dirty === false ||
+                        documentUploadForm.valid === false
+                      : false
+                  }
+                >
+                  {locales.route.content.document.action}
+                </Button>
+              </FileInput.Controls>
+            </FileInput>
           </Form>
         </div>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <>
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.content.document.current}
+              {locales.route.content.document.current}
             </h2>
             {loaderData.project.documents.length > 0 ? (
               <>
                 <MaterialList>
                   {loaderData.project.documents.map((relation) => {
+                    const editSearchParams = new URLSearchParams(searchParams);
+                    editSearchParams.set(
+                      `modal-edit-${relation.document.id}`,
+                      "true"
+                    );
                     return (
                       <div key={`document-${relation.document.id}`}>
-                        <Modal searchParam={`modal-${relation.document.id}`}>
+                        <Modal
+                          searchParam={`modal-edit-${relation.document.id}`}
+                        >
                           <Modal.Title>
-                            {locales.content.editModal.editDocument}
+                            {locales.route.content.editModal.editDocument}
                           </Modal.Title>
                           <Modal.Section>
-                            <editFetcher.Form
-                              {...editDocumentForm.props}
+                            <Form
+                              {...getFormProps(editDocumentForm)}
                               method="post"
-                              action="./edit"
-                              id={`form-${relation.document.id}`}
                               preventScrollReset
+                              autoComplete="off"
                             >
                               <div className="mv-flex mv-flex-col mv-gap-6">
                                 <Input
-                                  {...conform.input(editDocumentFields.title)}
+                                  {...getInputProps(editDocumentFields.title, {
+                                    type: "text",
+                                  })}
+                                  key={`edit-document-title-${relation.document.id}`}
                                   defaultValue={
                                     relation.document.title || undefined
                                   }
                                 >
                                   <Input.Label>
-                                    {locales.content.editModal.title}
+                                    {locales.route.content.editModal.title}
                                   </Input.Label>
-                                  {typeof editDocumentFields.title.error !==
+                                  {typeof editDocumentFields.title.errors !==
                                     "undefined" && (
                                     <Input.Error>
-                                      {editDocumentFields.title.error}
+                                      {editDocumentFields.title.errors}
                                     </Input.Error>
                                   )}
                                 </Input>
                                 <Input
-                                  {...conform.input(
-                                    editDocumentFields.description
+                                  {...getInputProps(
+                                    editDocumentFields.description,
+                                    {
+                                      type: "text",
+                                    }
                                   )}
+                                  key={`edit-document-description-${relation.document.id}`}
                                   defaultValue={
                                     relation.document.description || undefined
                                   }
-                                  maxLength={80}
+                                  maxLength={DOCUMENT_DESCRIPTION_MAX_LENGTH}
                                 >
                                   <Input.Label>
                                     {
-                                      locales.content.editModal.description
-                                        .label
+                                      locales.route.content.editModal
+                                        .description.label
                                     }
                                   </Input.Label>
                                   {typeof editDocumentFields.description
-                                    .error !== "undefined" && (
+                                    .errors !== "undefined" && (
                                     <Input.Error>
-                                      {editDocumentFields.description.error}
+                                      {editDocumentFields.description.errors}
                                     </Input.Error>
                                   )}
                                 </Input>
                                 <input
-                                  hidden
-                                  name="type"
-                                  defaultValue="document"
-                                />
-                                <input
-                                  hidden
-                                  name="id"
+                                  {...getInputProps(editDocumentFields.id, {
+                                    type: "hidden",
+                                  })}
+                                  key={`edit-document-id-${relation.document.id}`}
                                   defaultValue={relation.document.id}
                                 />
                               </div>
-                            </editFetcher.Form>
+                            </Form>
                           </Modal.Section>
                           <Modal.SubmitButton
-                            form={`form-${relation.document.id}`}
+                            type="submit"
+                            name={INTENT_FIELD_NAME}
+                            value="edit-document"
+                            form={editDocumentForm.id}
                           >
-                            {locales.content.editModal.submit}
+                            {locales.route.content.editModal.submit}
                           </Modal.SubmitButton>
                           <Modal.CloseButton>
-                            {locales.content.editModal.reset}
+                            {locales.route.content.editModal.reset}
                           </Modal.CloseButton>
                         </Modal>
                         <MaterialList.Item
                           id={`material-list-item-${relation.document.id}`}
                         >
-                          {/* {typeof relation.document.thumbnail !== "undefined" && (
-                          <Image
-                            src={relation.document.thumbnail}
-                            alt={relation.document.description || ""}
-                          />
-                        )} */}
                           {relation.document.mimeType === "application/pdf" && (
                             <MaterialList.Item.PDFIcon />
-                          )}
-                          {relation.document.mimeType === "image/jpeg" && (
-                            <MaterialList.Item.JPGIcon />
                           )}
                           <MaterialList.Item.Title>
                             {relation.document.title !== null
@@ -692,29 +684,35 @@ function Attachments() {
                               {relation.document.description}
                             </MaterialList.Item.Paragraph>
                           )}
-                          <Form
-                            method="post"
-                            encType="multipart/form-data"
-                            className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto"
-                          >
-                            <input
+                          <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto">
+                            <Form
+                              id={`disconnect-document-form-${relation.document.id}`}
+                              method="post"
+                              preventScrollReset
+                              autoComplete="off"
                               hidden
-                              name={conform.INTENT}
-                              defaultValue="delete_document"
+                            >
+                              <input
+                                id={`disconnect-document-form-${relation.document.id}-id`}
+                                type="hidden"
+                                name="id"
+                                key={`disconnect-document-id-${relation.document.id}`}
+                                defaultValue={relation.document.id}
+                                aria-invalid={
+                                  typeof disconnectDocumentFields.id.errors !==
+                                  "undefined"
+                                }
+                                aria-describedby={`disconnect-document-form-${relation.document.id}-id-error`}
+                              />
+                            </Form>
+                            <MaterialList.Item.Controls.Delete
+                              type="submit"
+                              name={INTENT_FIELD_NAME}
+                              value="disconnect-document"
+                              form={`disconnect-document-form-${relation.document.id}`}
                             />
-                            <input
-                              hidden
-                              name="id"
-                              defaultValue={relation.document.id}
-                            />
-                            <input
-                              hidden
-                              name="filename"
-                              defaultValue={relation.document.filename}
-                            />
-                            <MaterialList.Item.Controls.Delete type="submit" />
                             <Link
-                              to={`?${Deep}=true&modal-${relation.document.id}=true`}
+                              to={`?${editSearchParams.toString()}`}
                               preventScrollReset
                             >
                               <MaterialList.Item.Controls.Edit />
@@ -725,8 +723,16 @@ function Attachments() {
                             >
                               <MaterialList.Item.Controls.Download />
                             </Link>
-                          </Form>
+                          </div>
                         </MaterialList.Item>
+                        {typeof disconnectDocumentFields.id.errors !==
+                          "undefined" && (
+                          <Input.Error
+                            id={`disconnect-document-form-${relation.document.id}-id-error`}
+                          >
+                            {editDocumentFields.id.errors}
+                          </Input.Error>
+                        )}
                       </div>
                     );
                   })}
@@ -738,183 +744,220 @@ function Attachments() {
                     variant="outline"
                     fullSize
                   >
-                    {locales.content.document.downloadAll}
+                    {locales.route.content.document.downloadAll}
                   </Button>
                 </div>
-                {/* <Link to={`./download?type=documents`} reloadDocument>
-                  <Button Alle herunterladen
-                </Link> */}
               </>
             ) : (
-              <p>{locales.content.document.empty}</p>
+              <p>{locales.route.content.document.empty}</p>
             )}
           </>
         </div>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {locales.content.image.upload}
+            {locales.route.content.image.upload}
           </h2>
-          <p>{locales.content.image.requirements}</p>
-          {/* TODO: no-JS version */}
+          <p>{locales.route.content.image.requirements}</p>
           <Form
+            {...getFormProps(imageUploadForm)}
             method="post"
             encType="multipart/form-data"
-            {...imageUploadForm.props}
+            preventScrollReset
           >
-            <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-2">
-              <input
-                hidden
-                {...conform.input(imageUploadFields.filename)}
-                defaultValue={imageName !== null ? imageName : ""}
-              />
-              {/* TODO: component! */}
-              <label
-                htmlFor={imageUploadFields.image.id}
-                className="mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-text-center mv-px-6 mv-py-2.5 mv-border mv-border-primary mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-rounded-lg mv-cursor-pointer"
-              >
-                {locales.content.image.select}
+            <FileInput
+              selectedFileNames={selectedImageFileNames}
+              errors={
+                typeof imageUploadFields[FILE_FIELD_NAME].errors === "undefined"
+                  ? undefined
+                  : imageUploadFields[FILE_FIELD_NAME].errors.map((error) => {
+                      return {
+                        id: imageUploadFields[FILE_FIELD_NAME].errorId,
+                        message: error,
+                      };
+                    })
+              }
+              locales={locales}
+              fileInputProps={{
+                ...getInputProps(imageUploadFields[FILE_FIELD_NAME], {
+                  type: "file",
+                }),
+                id: `image-${FILE_FIELD_NAME}`,
+                key: `image-${FILE_FIELD_NAME}`,
+                className: "mv-hidden",
+                accept: IMAGE_MIME_TYPES.join(", "),
+                onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                  setSelectedImageFileNames(
+                    event.target.files !== null
+                      ? Array.from(event.target.files).map((file) => {
+                          return {
+                            name: file.name,
+                            sizeInMB:
+                              Math.round((file.size / 1000 / 1000) * 100) / 100,
+                          };
+                        })
+                      : []
+                  );
+                  imageUploadForm.validate();
+                },
+              }}
+              bucketInputProps={{
+                ...getInputProps(imageUploadFields[BUCKET_FIELD_NAME], {
+                  type: "hidden",
+                }),
+                key: BUCKET_FIELD_NAME,
+              }}
+              noscriptInputProps={{
+                ...getInputProps(imageUploadFields[FILE_FIELD_NAME], {
+                  type: "file",
+                }),
+                id: `noscript-image-${FILE_FIELD_NAME}`,
+                key: `noscript-image-${FILE_FIELD_NAME}`,
+                className: "mv-mb-2",
+                accept: IMAGE_MIME_TYPES.join(", "),
+              }}
+            >
+              <FileInput.Text>{locales.upload.selection.select}</FileInput.Text>
+              <FileInput.Controls>
                 <input
-                  id={imageUploadFields.image.id}
-                  name={imageUploadFields.image.name}
-                  type="file"
-                  accept={imageMimeTypes.join(",")}
-                  onChange={handleImageChange}
-                  hidden
+                  {...getInputProps(imageUploadFields[INTENT_FIELD_NAME], {
+                    type: "hidden",
+                  })}
+                  key={`image-${UPLOAD_INTENT_VALUE}`}
                 />
-              </label>
-
-              <Button
-                // TODO: fix type issue
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                disabled={
-                  typeof window !== "undefined"
-                    ? typeof imageUploadFields.image.error !== "undefined" ||
-                      imageName === null
-                    : true
-                }
-                type="hidden"
-                name={conform.INTENT}
-                value="upload_image"
-              >
-                {locales.content.image.action}
-              </Button>
-            </div>
-            <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-4 mv-text-sm mv-font-semibold">
-              {typeof imageUploadFields.image.error === "undefined" && (
-                <p>
-                  {imageName === null
-                    ? locales.content.image.selection.empty
-                    : insertParametersIntoLocale(
-                        locales.content.image.selection.selected,
-                        {
-                          name: imageName,
-                        }
-                      )}
-                </p>
-              )}
-              {typeof imageUploadFields.image.error !== "undefined" && (
-                <p className="mv-text-negative-600">
-                  {imageUploadFields.image.error}
-                </p>
-              )}
-            </div>
+                <Button
+                  type="submit"
+                  fullSize
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? selectedImageFileNames.length === 0 ||
+                        imageUploadForm.dirty === false ||
+                        imageUploadForm.valid === false
+                      : false
+                  }
+                >
+                  {locales.route.content.image.action}
+                </Button>
+              </FileInput.Controls>
+            </FileInput>
           </Form>
         </div>
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {locales.content.image.current}
+            {locales.route.content.image.current}
           </h2>
           {loaderData.project.images.length > 0 ? (
             <>
               <MaterialList>
                 {loaderData.project.images.map((relation) => {
+                  const editSearchParams = new URLSearchParams(searchParams);
+                  editSearchParams.set(
+                    `modal-edit-${relation.image.id}`,
+                    "true"
+                  );
                   return (
                     <div key={`image-${relation.image.id}`}>
-                      <Modal searchParam={`modal-${relation.image.id}`}>
+                      <Modal searchParam={`modal-edit-${relation.image.id}`}>
                         <Modal.Title>
-                          {locales.content.editModal.editImage}
+                          {locales.route.content.editModal.editImage}
                         </Modal.Title>
                         <Modal.Section>
-                          <editFetcher.Form
-                            {...editImageForm.props}
+                          <Form
+                            {...getFormProps(editImageForm)}
                             method="post"
-                            action="./edit"
-                            id={`form-${relation.image.id}`}
                             preventScrollReset
+                            autoComplete="off"
                           >
                             <div className="mv-flex mv-flex-col mv-gap-6">
                               <Input
-                                {...conform.input(editImageFields.title)}
+                                {...getInputProps(editImageFields.title, {
+                                  type: "text",
+                                })}
+                                key={`edit-image-title-${relation.image.id}`}
                                 defaultValue={relation.image.title || undefined}
                               >
                                 <Input.Label>
-                                  {locales.content.editModal.title}
+                                  {locales.route.content.editModal.title}
                                 </Input.Label>
-                                {typeof editImageFields.title.error !==
+                                {typeof editImageFields.title.errors !==
                                   "undefined" && (
                                   <Input.Error>
-                                    {editImageFields.title.error}
+                                    {editImageFields.title.errors}
                                   </Input.Error>
                                 )}
                               </Input>
-
                               <Input
-                                {...conform.input(editImageFields.credits)}
+                                {...getInputProps(editImageFields.credits, {
+                                  type: "text",
+                                })}
+                                key={`edit-image-credits-${relation.image.id}`}
                                 defaultValue={
                                   relation.image.credits || undefined
                                 }
-                                maxLength={80}
+                                maxLength={IMAGE_CREDITS_MAX_LENGTH}
                               >
                                 <Input.Label>
-                                  {locales.content.editModal.credits.label}
+                                  {
+                                    locales.route.content.editModal.credits
+                                      .label
+                                  }
                                 </Input.Label>
                                 <Input.HelperText>
-                                  {locales.content.editModal.credits.helper}
+                                  {
+                                    locales.route.content.editModal.credits
+                                      .helper
+                                  }
                                 </Input.HelperText>
-                                {typeof editImageFields.credits.error !==
+                                {typeof editImageFields.credits.errors !==
                                   "undefined" && (
                                   <Input.Error>
-                                    {editImageFields.credits.error}
+                                    {editImageFields.credits.errors}
                                   </Input.Error>
                                 )}
                               </Input>
-
                               <Input
-                                {...conform.input(editImageFields.description)}
+                                {...getInputProps(editImageFields.description, {
+                                  type: "text",
+                                })}
+                                key={`edit-image-description-${relation.image.id}`}
                                 defaultValue={
                                   relation.image.description || undefined
                                 }
-                                maxLength={80}
+                                maxLength={IMAGE_DESCRIPTION_MAX_LENGTH}
                               >
                                 <Input.Label>
-                                  {locales.content.editModal.description.label}
+                                  {
+                                    locales.route.content.editModal.description
+                                      .label
+                                  }
                                 </Input.Label>
-                                <Input.HelperText>
-                                  {locales.content.editModal.description.helper}
-                                </Input.HelperText>
-
-                                {typeof editImageFields.description.error !==
+                                {typeof editImageFields.description.errors !==
                                   "undefined" && (
                                   <Input.Error>
-                                    {editImageFields.description.error}
+                                    {editImageFields.description.errors}
                                   </Input.Error>
                                 )}
                               </Input>
-                              <input hidden name="type" defaultValue="image" />
                               <input
-                                hidden
-                                name="id"
+                                {...getInputProps(editImageFields.id, {
+                                  type: "hidden",
+                                })}
+                                key={`edit-image-id-${relation.image.id}`}
                                 defaultValue={relation.image.id}
                               />
                             </div>
-                          </editFetcher.Form>
+                          </Form>
                         </Modal.Section>
-                        <Modal.SubmitButton form={`form-${relation.image.id}`}>
-                          {locales.content.editModal.submit}
+                        <Modal.SubmitButton
+                          type="submit"
+                          name={INTENT_FIELD_NAME}
+                          value="edit-image"
+                          form={editImageForm.id}
+                        >
+                          {locales.route.content.editModal.submit}
                         </Modal.SubmitButton>
                         <Modal.CloseButton>
-                          {locales.content.editModal.reset}
+                          {locales.route.content.editModal.reset}
                         </Modal.CloseButton>
                       </Modal>
                       <MaterialList.Item
@@ -944,29 +987,35 @@ function Attachments() {
                             Foto-Credit: {relation.image.credits}
                           </MaterialList.Item.Paragraph>
                         )}
-                        <Form
-                          method="post"
-                          encType="multipart/form-data"
-                          className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto"
-                        >
-                          <input
+                        <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto">
+                          <Form
+                            id={`disconnect-image-form-${relation.image.id}`}
+                            method="post"
+                            preventScrollReset
+                            autoComplete="off"
                             hidden
-                            name={conform.INTENT}
-                            defaultValue="delete_image"
+                          >
+                            <input
+                              id={`disconnect-image-form-${relation.image.id}-id`}
+                              type="hidden"
+                              name="id"
+                              key={`disconnect-image-id-${relation.image.id}`}
+                              defaultValue={relation.image.id}
+                              aria-invalid={
+                                typeof disconnectImageFields.id.errors !==
+                                "undefined"
+                              }
+                              aria-describedby={`disconnect-image-form-${relation.image.id}-id-error`}
+                            />
+                          </Form>
+                          <MaterialList.Item.Controls.Delete
+                            type="submit"
+                            name={INTENT_FIELD_NAME}
+                            value="disconnect-image"
+                            form={`disconnect-image-form-${relation.image.id}`}
                           />
-                          <input
-                            hidden
-                            name="id"
-                            defaultValue={relation.image.id}
-                          />
-                          <input
-                            hidden
-                            name="filename"
-                            defaultValue={relation.image.filename}
-                          />
-                          <MaterialList.Item.Controls.Delete type="submit" />
                           <Link
-                            to={`?${Deep}=true&modal-${relation.image.id}=true`}
+                            to={`?${editSearchParams.toString()}`}
                             preventScrollReset
                           >
                             <MaterialList.Item.Controls.Edit />
@@ -977,8 +1026,16 @@ function Attachments() {
                           >
                             <MaterialList.Item.Controls.Download />
                           </Link>
-                        </Form>
+                        </div>
                       </MaterialList.Item>
+                      {typeof disconnectImageFields.id.errors !==
+                        "undefined" && (
+                        <Input.Error
+                          id={`disconnect-image-form-${relation.image.id}-id-error`}
+                        >
+                          {disconnectImageFields.id.errors}
+                        </Input.Error>
+                      )}
                     </div>
                   );
                 })}
@@ -991,12 +1048,12 @@ function Attachments() {
                   variant="outline"
                   fullSize
                 >
-                  {locales.content.image.downloadAll}
+                  {locales.route.content.image.downloadAll}
                 </Button>
               </div>
             </>
           ) : (
-            <p>{locales.content.image.empty}</p>
+            <p>{locales.route.content.image.empty}</p>
           )}
         </div>
       </div>

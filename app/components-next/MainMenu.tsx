@@ -4,10 +4,9 @@ import {
   NavLink,
   useLocation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import React from "react";
 import { defaultLanguage, type supportedCookieLanguages } from "~/i18n.shared";
-import { type getFeatureAbilities } from "~/lib/utils/application";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type RootLocales } from "~/root.server";
 import { type Mode } from "~/utils.server";
@@ -16,6 +15,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Icon } from "./icons/Icon";
 import { LocaleSwitch } from "@mint-vernetzt/components/src/organisms/buttons/LocaleSwitch";
 import classNames from "classnames";
+import { type getFeatureAbilities } from "~/routes/feature-access.server";
 
 export function MainMenu(
   props: React.PropsWithChildren & {

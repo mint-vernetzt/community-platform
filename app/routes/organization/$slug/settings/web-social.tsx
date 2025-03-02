@@ -4,15 +4,15 @@ import {
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-} from "@remix-run/node";
+} from "react-router";
 import {
   Form,
   useActionData,
   useLoaderData,
   useLocation,
   useNavigation,
-} from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
+} from "react-router";
+import * as Sentry from "@sentry/node";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";

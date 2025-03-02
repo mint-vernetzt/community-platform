@@ -238,17 +238,6 @@ export const ImageSizes = {
 
 export const BlurFactor = 5;
 
-export const DefaultImages = {
-  Event: {
-    Background: "/images/default-event-background.jpg",
-    BlurredBackground: "/images/default-event-background-blurred.jpg",
-  },
-  Project: {
-    Background: "/images/default-project-background.jpg",
-    BlurredBackground: "/images/default-project-background-blurred.jpg",
-  },
-};
-
 function encodeUrlCharacters(url: string) {
   const encodedUrl = url
     .replace(/=/g, "")

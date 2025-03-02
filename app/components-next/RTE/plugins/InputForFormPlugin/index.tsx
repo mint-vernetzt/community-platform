@@ -6,7 +6,7 @@ import { type OverrideableInputProps } from "../../RTE";
 function InputForFormPlugin(props: OverrideableInputProps) {
   const { defaultValue, ...rest } = props;
   const [editor] = useLexicalComposerContext();
-  const [value, setValue] = React.useState(defaultValue);
+  const [value, setValue] = React.useState(defaultValue || "");
 
   // Set editor default value
   React.useEffect(() => {
@@ -27,7 +27,9 @@ function InputForFormPlugin(props: OverrideableInputProps) {
       {...rest}
       tabIndex={-1}
       value={value}
-      readOnly
+      onChange={(event) => {
+        event.preventDefault();
+      }}
       className="mv-hidden"
       onFocus={(event) => {
         event.preventDefault();

@@ -1,5 +1,5 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 import {
   Link,
   useFetcher,
@@ -7,7 +7,7 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
-} from "@remix-run/react";
+} from "react-router";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -18,7 +18,6 @@ import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
@@ -36,6 +35,7 @@ import {
 } from "./admins/remove-admin";
 import { publishSchema, type action as publishAction } from "./events/publish";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 const i18nNS = ["routes-event-settings-admins"] as const;
 export const handle = {

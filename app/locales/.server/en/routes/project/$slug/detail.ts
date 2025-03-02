@@ -8,6 +8,11 @@ export const locale = {
       projectNotFound: "Project not found",
       projectNotPublished: "This project isn't published yet.",
     },
+    onPublishing:
+      "The project could not be published or hided. Please try again or contact support.",
+    onStoring:
+      "The image could not be saved. Please try again or contact support.",
+    invalidAction: "Invalid action",
   },
   content: {
     back: "Explore projects",
@@ -18,6 +23,8 @@ export const locale = {
       hide: "Hide",
       show: "Publish",
     },
+    published: "Project successfully published",
+    hided: "Project successfully hided",
     about: "About the project",
     conditions: "Framework conditions",
     material: "Documents",

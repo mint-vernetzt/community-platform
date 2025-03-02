@@ -6,7 +6,7 @@ import {
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
@@ -15,19 +15,15 @@ import {
   useNavigation,
   useSearchParams,
   useSubmit,
-} from "@remix-run/react";
+} from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import React from "react";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import {
-  BlurFactor,
-  DefaultImages,
-  ImageSizes,
-  getImageURL,
-} from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import {

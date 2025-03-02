@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "@remix-run/react";
+import { Link, useSearchParams } from "react-router";
 import React, { type ReactElement } from "react";
 import { createPortal } from "react-dom";
 
@@ -56,11 +56,16 @@ function ModalSubmitButton(
   props: React.InputHTMLAttributes<HTMLButtonElement>
 ) {
   const { children, ...inputProps } = props;
+
   return (
     <button
       {...inputProps}
       type="submit"
-      className="mv-btn mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-font-semibold mv-whitespace-nowrap mv-w-full mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border"
+      className={`mv-btn hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-font-semibold mv-whitespace-nowrap mv-w-full mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border ${
+        inputProps.disabled === true
+          ? "mv-bg-neutral-200 mv-text-neutral-400"
+          : "mv-bg-primary mv-text-neutral-50"
+      }`}
     >
       {children}
     </button>

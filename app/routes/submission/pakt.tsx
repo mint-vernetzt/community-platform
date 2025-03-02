@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { cors } from "remix-utils/cors";
 import type { PaktFormData } from "../../lib/submissions/forms/pakt/paktFormData";
 import * as schema from "../../lib/submissions/forms/pakt/validation.schema.json";

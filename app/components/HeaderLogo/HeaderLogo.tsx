@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line
 export interface HeaderLogoProps {}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

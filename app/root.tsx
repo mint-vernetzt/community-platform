@@ -2,8 +2,7 @@ import type {
   LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
-import { data, redirect } from "@remix-run/node";
+} from "react-router";
 import {
   isRouteErrorResponse,
   Link,
@@ -18,8 +17,10 @@ import {
   useRouteError,
   useRouteLoaderData,
   useSearchParams,
-} from "@remix-run/react";
-import { captureRemixErrorBoundaryError } from "@sentry/remix";
+  data,
+  redirect,
+} from "react-router";
+import { captureException } from "@sentry/react";
 import classNames from "classnames";
 import * as React from "react";
 import { ToastContainer } from "./components-next/ToastContainer";
@@ -30,7 +31,6 @@ import { RichText } from "./components/Richtext/RichText";
 import { getEnv } from "./env.server";
 import { detectLanguage, localeCookie } from "./i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
-import { getFeatureAbilities } from "./lib/utils/application";
 import { getProfileByUserId } from "./root.server";
 import { NavBar } from "~/components-next/NavBar";
 import { Footer } from "~/components-next/Footer";
@@ -47,6 +47,7 @@ import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { ModalRoot } from "./components-next/ModalRoot";
 import { invariantResponse } from "./lib/utils/response";
+import { getFeatureAbilities } from "./routes/feature-access.server";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -187,18 +188,33 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const ErrorBoundary = () => {
   const error = useRouteError();
-  try {
-    captureRemixErrorBoundaryError(error);
-  } catch (error) {
-    console.warn("Sentry captureRemixErrorBoundaryError failed");
-    const stringifiedError = JSON.stringify(
-      error,
-      Object.getOwnPropertyNames(error)
-    );
-    fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
-      method: "GET",
-    });
+  const isResponse = isRouteErrorResponse(error);
+
+  if (typeof document !== "undefined") {
+    console.error(error);
   }
+
+  React.useEffect(() => {
+    // TODO: see sentry.server.ts for details
+    // For now the response errors are also tracked via client sentry because sentry does not yet support rr7
+    // if (isResponse) {
+    //   return;
+    // }
+    try {
+      // When client side error occurs and sentry is not working, we send the error to the server
+      captureException(error);
+    } catch (error) {
+      console.warn("Sentry Sentry.captureException failed");
+      const stringifiedError = JSON.stringify(
+        error,
+        Object.getOwnPropertyNames(error)
+      );
+      fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
+        method: "GET",
+      });
+    }
+  }, [error, isResponse]);
+
   const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
   const hasRootLoaderData =
     typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
@@ -218,7 +234,7 @@ export const ErrorBoundary = () => {
   let errorText;
   let errorData;
 
-  if (isRouteErrorResponse(error)) {
+  if (isResponse) {
     errorTitle = `${error.status}`;
     errorText = error.statusText;
     errorData = `${error.data}`;
@@ -342,9 +358,9 @@ export default function App() {
       try {
         window._paq.push(["setCustomUrl", window.location.href]);
         window._paq.push(["trackPageView"]);
-      } catch (e) {
+      } catch (error) {
         console.warn(
-          'Failed to push "setCustomUrl" and "trackPageView" on window._paq for matomo initialization.'
+          `Failed to push "setCustomUrl" and "trackPageView" on window._paq for matomo initialization. Error: ${error}`
         );
       }
     }

@@ -1,10 +1,10 @@
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
-import * as Sentry from "@sentry/remix";
 import { generateValidSlug } from "~/utils.server";
+import * as Sentry from "@sentry/node";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;

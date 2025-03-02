@@ -1,11 +1,11 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { type LoaderFunctionArgs } from "@remix-run/node";
+import { type LoaderFunctionArgs } from "react-router";
 import {
   Link,
   useLoaderData,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { FundingCard } from "~/components-next/FundingCard";
 import {
   countSearchedFundings,

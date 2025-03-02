@@ -1,8 +1,7 @@
 import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
 import type { Organization, Profile } from "@prisma/client";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LinksFunction, LoaderFunctionArgs } from "react-router";
+import { useLoaderData, redirect } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import Cookies from "js-cookie";
 import React from "react";
@@ -10,12 +9,8 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import {
-  BlurFactor,
-  DefaultImages,
-  ImageSizes,
-  getImageURL,
-} from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { detectLanguage } from "~/root.server";
 import { getPublicURL } from "~/storage.server";
 import styles from "../../common/design/styles/styles.css?url";
@@ -53,7 +48,7 @@ import {
 } from "~/lib/utils/i18n";
 import { type AtLeastOne } from "~/lib/utils/types";
 import { invariantResponse } from "~/lib/utils/response";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import { getFeatureAbilities } from "./feature-access.server";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 

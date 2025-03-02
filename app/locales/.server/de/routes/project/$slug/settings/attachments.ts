@@ -1,20 +1,28 @@
 export const locale = {
-  validation: {
-    document: {
-      size: "Die Datei darf nicht größer als 6MB sein.",
-      type: "Die Datei muss ein PDF oder ein JPEG sein.",
-    },
-    image: {
-      size: "Die Datei darf nicht größer als 6MB sein.",
-      type: "Die Datei muss ein PNG oder ein JPEG sein.",
-    },
-  },
   error: {
     invalidRoute: "No valid route",
     projectNotFound: "Project not found",
     invalidSubmission: "No valid submission",
     invalidAction: "No valid action",
-    onStoring: "Error on storing document",
+    onStoring:
+      "Datei konnte nicht gespeichert werden. Versuche es erneut oder wende dich an den Support.",
+    onUpdating:
+      "Datei konnte nicht angepasst werden. Versuche es erneut oder wende dich an den Support.",
+  },
+  validation: {
+    document: {
+      description: {
+        max: "Die Beschreibung des Dokuments darf maximal {{max}} Zeichen lang sein.",
+      },
+    },
+    image: {
+      description: {
+        max: "Die Bildbeschreibung darf maximal {{max}} Zeichen lang sein.",
+      },
+      credits: {
+        max: "Die Angabe der Urheber:in darf maximal {{max}} Zeichen lang sein.",
+      },
+    },
   },
   content: {
     editModal: {
@@ -38,33 +46,25 @@ export const locale = {
       "Füge Materialien wie Flyer, Bilder, Checklisten zu Deinem Projekt hinzu oder entferne sie.",
     document: {
       upload: "Dokumente hochladen",
-      type: "Mögliche Dateiformate: PDF, jpg. Maximal 6MB.",
-      select: "Datei auswählen",
+      type: "Mögliche Dateiformate: PDF. Maximal {{max}}MB.",
       action: "Datei hochladen",
-      selection: {
-        empty: "Du hast keine Datei ausgewählt.",
-        selected: "{{name}} ausgewählt.",
-      },
       added: "{{name}} hinzugefügt",
       current: "Aktuell hochgeladene Dokumente",
       downloadAll: "Alle herunterladen",
       empty: "Keine Dokumente vorhanden.",
       deleted: "{{name}} gelöscht.",
+      updated: "{{name}} aktualisiert.",
     },
     image: {
       upload: "Bildmaterial hochladen",
       requirements: "Mögliche Dateiformate: jpg, png. Maximal 6MB.",
-      select: "Datei auswählen",
       action: "Datei hochladen",
-      selection: {
-        empty: "Du hast keine Datei ausgewählt.",
-        selected: "{{name}} ausgewählt.",
-      },
       added: "{{name}} hinzugefügt",
       current: "Aktuell hochgeladenes Bildmaterial",
       downloadAll: "Alle herunterladen",
       empty: "Keine Bilder vorhanden.",
       deleted: "{{name}} gelöscht.",
+      updated: "{{name}} aktualisiert.",
     },
   },
 } as const;

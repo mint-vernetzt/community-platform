@@ -1,42 +1,52 @@
 export const locale = {
   error: {
-    notPrivileged: "Not privileged",
-    notFound: "Event not found",
-    fileTooBig: "Die Datei ist zu groß. Maximal 5MB.",
+    invalidRoute: "No valid route",
+    eventNotFound: "Event not found",
+    invalidSubmission: "No valid submission",
+    invalidAction: "No valid action",
+    onStoring:
+      "Datei konnte nicht gespeichert werden. Versuche es erneut oder wende dich an den Support.",
+    onUpdating:
+      "Datei konnte nicht angepasst werden. Versuche es erneut oder wende dich an den Support.",
+  },
+  validation: {
+    document: {
+      description: {
+        max: "Die Beschreibung des Dokuments darf maximal {{max}} Zeichen lang sein.",
+      },
+    },
   },
   content: {
     headline: "Dokumente verwalten",
-    current: {
-      headline: "Aktuelle Dokumente",
-      download: "Herunterladen",
-      edit: "Editieren",
+    editModal: {
+      editDocument: "Dokument editieren",
+      title: "Titel",
+      description: {
+        label: "Beschreibung",
+      },
+      submit: "Speichern",
+      reset: "Verwerfen",
     },
-    downloadAll: "Alle Herunterladen",
-  },
-  form: {
-    title: {
-      label: "Titel",
+    description:
+      "Füge Materialien wie Agendas, Lagepläne, Checklisten zu Deinem Event hinzu oder entferne sie.",
+    document: {
+      upload: "Dokumente hochladen",
+      type: "Mögliche Dateiformate: PDF. Maximal {{max}}MB.",
+      action: "Datei hochladen",
+      added: "{{name}} hinzugefügt",
+      current: "Aktuell hochgeladene Dokumente",
+      downloadAll: "Alle herunterladen",
+      empty: "Keine Dokumente vorhanden.",
+      deleted: "{{name}} gelöscht.",
+      updated: "{{name}} aktualisiert.",
     },
-    description: {
-      label: "Beschreibung",
-    },
-    submit: {
-      label: "Speichern",
-    },
-    cancel: {
-      label: "Abbrechen",
-    },
-    delete: {
-      label: "Löschen",
-    },
-    upload: {
-      label: "PDF Dokument hochladen",
-    },
-    publish: {
-      label: "Veröffentlichen",
-    },
-    hide: {
-      label: "Verstecken",
+    form: {
+      publish: {
+        label: "Veröffentlichen",
+      },
+      hide: {
+        label: "Verstecken",
+      },
     },
   },
 } as const;

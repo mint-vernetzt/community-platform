@@ -1,8 +1,9 @@
 export const locale = {
-  server: {
-    error: {
-      organizationNotFound: "Organization not found",
-    },
+  error: {
+    organizationNotFound: "Organization not found",
+    onStoring:
+      "The image could not be saved. Please try again or contact support.",
+    invalidAction: "Invalid action",
   },
   back: "Explore organizations",
   header: {

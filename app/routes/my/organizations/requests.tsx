@@ -1,5 +1,5 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import { type ActionFunctionArgs, redirect } from "@remix-run/node";
+import { type ActionFunctionArgs, redirect } from "react-router";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
@@ -124,6 +124,7 @@ export async function action(args: ActionFunctionArgs) {
         })
       );
     } catch (error) {
+      console.error({ error });
       invariantResponse(false, "Server Error: Mailer", { status: 500 });
     }
   } else if (submission.value.intent === AddToOrganizationRequest.Cancel) {
@@ -217,6 +218,7 @@ export async function action(args: ActionFunctionArgs) {
     try {
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     } catch (error) {
+      console.error({ error });
       invariantResponse(false, "Server Error: Mailer", { status: 500 });
     }
 

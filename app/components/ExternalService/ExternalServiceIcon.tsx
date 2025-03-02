@@ -1,5 +1,5 @@
-import { Link } from "@remix-run/react";
-import { ExternalService } from "../types";
+import { Link } from "react-router";
+import { type ExternalService } from "../types";
 
 export interface ExternalServiceProps {
   service: ExternalService;

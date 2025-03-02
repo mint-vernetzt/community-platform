@@ -1,6 +1,6 @@
 import * as React from "react";
 import { capitalizeFirstLetter } from "../../../lib/string/transform";
-import SelectField, { SelectFieldProps } from "../SelectField/SelectField";
+import SelectField, { type SelectFieldProps } from "../SelectField/SelectField";
 
 export type SelectAddEntry = {
   label: string;

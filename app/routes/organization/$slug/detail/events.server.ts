@@ -1,10 +1,6 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import {
-  BlurFactor,
-  DefaultImages,
-  getImageURL,
-  ImageSizes,
-} from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,

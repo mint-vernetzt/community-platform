@@ -6,8 +6,8 @@ import {
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-} from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+} from "react-router";
+import { Form, useActionData, useLoaderData } from "react-router";
 import { z } from "zod";
 import { redirectWithAlert } from "~/alert.server";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -148,6 +148,9 @@ function Delete() {
       });
     },
     shouldRevalidate: "onSubmit",
+    // TODO: Remove assertion by using conform v1
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     lastSubmission: actionData,
   });
 

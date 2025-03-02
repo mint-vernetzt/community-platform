@@ -55,6 +55,7 @@ function Button(
     "mv-align-middle",
     "mv-text-center",
     "mv-rounded-lg",
+    as === "label" && isDisabled === false && "mv-cursor-pointer",
     // button size
     size === "x-small" && "mv-text-xs mv-p-2 mv-leading-4",
     size === "small" && "mv-text-xs mv-px-4 mv-py-2 mv-leading-4",

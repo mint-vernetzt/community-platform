@@ -1,6 +1,6 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { redirect, type LoaderFunctionArgs } from "react-router";
+import { NavLink, Outlet, useLoaderData } from "react-router";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
