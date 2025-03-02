@@ -20,7 +20,7 @@ import {
   data,
   redirect,
 } from "react-router";
-import { captureRemixErrorBoundaryError } from "@sentry/remix";
+import { captureException } from "@sentry/react";
 import classNames from "classnames";
 import * as React from "react";
 import { ToastContainer } from "./components-next/ToastContainer";
@@ -188,18 +188,33 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const ErrorBoundary = () => {
   const error = useRouteError();
-  try {
-    captureRemixErrorBoundaryError(error);
-  } catch (error) {
-    console.warn("Sentry captureRemixErrorBoundaryError failed");
-    const stringifiedError = JSON.stringify(
-      error,
-      Object.getOwnPropertyNames(error)
-    );
-    fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
-      method: "GET",
-    });
+  const isResponse = isRouteErrorResponse(error);
+
+  if (typeof document !== "undefined") {
+    console.error(error);
   }
+
+  React.useEffect(() => {
+    // TODO: see sentry.server.ts for details
+    // For now the response errors are also tracked via client sentry because sentry does not yet support rr7
+    // if (isResponse) {
+    //   return;
+    // }
+    try {
+      // When client side error occurs and sentry is not working, we send the error to the server
+      captureException(error);
+    } catch (error) {
+      console.warn("Sentry Sentry.captureException failed");
+      const stringifiedError = JSON.stringify(
+        error,
+        Object.getOwnPropertyNames(error)
+      );
+      fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
+        method: "GET",
+      });
+    }
+  }, [error, isResponse]);
+
   const rootLoaderData = useRouteLoaderData<typeof loader | null>("root");
   const hasRootLoaderData =
     typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
@@ -219,7 +234,7 @@ export const ErrorBoundary = () => {
   let errorText;
   let errorData;
 
-  if (isRouteErrorResponse(error)) {
+  if (isResponse) {
     errorTitle = `${error.status}`;
     errorText = error.statusText;
     errorData = `${error.data}`;

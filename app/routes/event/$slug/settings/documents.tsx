@@ -2,7 +2,7 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import * as Sentry from "@sentry/remix";
+import * as Sentry from "@sentry/node";
 import React from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {

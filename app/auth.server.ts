@@ -1,5 +1,4 @@
 import type { Profile } from "@prisma/client";
-import * as Sentry from "@sentry/remix";
 import {
   createServerClient,
   parseCookieHeader,
@@ -8,6 +7,7 @@ import {
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { invariantResponse } from "./lib/utils/response";
 import { prismaClient } from "./prisma.server";
+import * as Sentry from "@sentry/node";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
 const SESSION_NAME = "sb2";

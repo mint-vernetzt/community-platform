@@ -1,42 +1,26 @@
-import type {
-  ActionFunctionArgs,
-  EntryContext,
-  LoaderFunctionArgs,
-} from "react-router";
+import type { EntryContext, HandleErrorFunction } from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { ServerRouter } from "react-router";
-import * as Sentry from "@sentry/remix";
 import * as isbotModule from "isbot";
 import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
-import { getEnv, init } from "./env.server";
+import { getEnv, init as initEnv } from "./env.server";
+import * as Sentry from "@sentry/node";
 
 // Reject/cancel all pending promises after 5 seconds
 export const streamTimeout = 5000;
 
-init();
+initEnv();
 global.ENV = getEnv();
 
-if (
-  process.env.NODE_ENV === "production" &&
-  typeof process.env.SENTRY_DSN !== "undefined"
-) {
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    tracesSampleRate: 1,
-    environment: process.env.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
-  });
-}
-
-export function handleError(
-  error: unknown,
-  { request }: LoaderFunctionArgs | ActionFunctionArgs
-) {
+export const handleError: HandleErrorFunction = (error, { request }) => {
+  // React Router may abort some interrupted requests, don't log those
   if (!request.signal.aborted) {
-    console.error({ error });
-    void Sentry.captureRemixServerException(error, "remix.server", request);
+    console.log("Server error - tracking with server sentry");
+    console.error(error);
+    Sentry.captureException(error);
   }
-}
+};
 
 export default async function handleRequest(
   request: Request,
@@ -44,6 +28,13 @@ export default async function handleRequest(
   responseHeaders: Headers,
   reactRouterContext: EntryContext
 ) {
+  if (
+    process.env.NODE_ENV === "production" &&
+    typeof process.env.SENTRY_DSN !== "undefined"
+  ) {
+    responseHeaders.append("Document-Policy", "js-profiling");
+  }
+
   const prohibitOutOfOrderStreaming =
     isBotRequest(request.headers.get("user-agent")) ||
     reactRouterContext.isSpaMode;

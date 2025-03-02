@@ -35,7 +35,7 @@ import React from "react";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import * as Sentry from "@sentry/remix";
+import * as Sentry from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { languageModuleMap } from "~/locales/.server";

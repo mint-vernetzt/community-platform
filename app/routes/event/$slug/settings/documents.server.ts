@@ -10,7 +10,7 @@ import {
   disconnectAttachmentSchema,
 } from "./documents";
 import { uploadFileToStorage } from "~/storage.server";
-import * as Sentry from "@sentry/remix";
+import * as Sentry from "@sentry/node";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";

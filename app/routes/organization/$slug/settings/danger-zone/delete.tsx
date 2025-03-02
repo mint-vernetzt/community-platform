@@ -32,7 +32,7 @@ import {
   deleteOrganizationBySlug,
   type DeleteOrganizationLocales,
 } from "./delete.server";
-import * as Sentry from "@sentry/remix";
+import * as Sentry from "@sentry/node";
 
 function createSchema(locales: DeleteOrganizationLocales, name: string) {
   return z.object({

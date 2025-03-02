@@ -51,7 +51,7 @@ import {
 } from "./attachments.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { redirectWithToast } from "~/toast.server";
-import * as Sentry from "@sentry/remix";
+import * as Sentry from "@sentry/node";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";

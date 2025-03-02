@@ -11,7 +11,7 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
-    target: "esnext",
+    target: "es2022",
   },
   optimizeDeps: {
     // This fixes an issue with vites optimizeDeps triggering sudden reloads on dev and restarting the server on navigation which lets the app hang

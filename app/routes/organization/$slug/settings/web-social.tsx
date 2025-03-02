@@ -12,7 +12,7 @@ import {
   useLocation,
   useNavigation,
 } from "react-router";
-import * as Sentry from "@sentry/remix";
+import * as Sentry from "@sentry/node";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
