@@ -51,7 +51,7 @@ import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { searchOrganizations } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { deriveMode } from "~/utils.server";
+import { deriveMode, createHashFromObject } from "~/utils.server";
 import {
   addNetworkMember,
   getOrganizationWithNetworksAndNetworkMembers,
@@ -60,7 +60,6 @@ import {
   removeNetworkMember,
   updateOrganization,
 } from "./manage.server";
-import { getHash } from "~/routes/project/$slug/settings/utils.server";
 
 export const manageSchema = z.object({
   organizationTypes: z.array(z.string().uuid()),
@@ -161,7 +160,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const currentTimestamp = Date.now();
 
-  const currentHash = getHash(organization);
+  const currentHash = createHashFromObject(organization);
 
   return {
     organization,

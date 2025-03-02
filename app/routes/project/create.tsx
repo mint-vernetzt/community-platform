@@ -20,8 +20,11 @@ import {
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
-import { deriveMode, generateProjectSlug } from "~/utils.server";
-import { getHash } from "./$slug/settings/utils.server";
+import {
+  deriveMode,
+  generateProjectSlug,
+  createHashFromObject,
+} from "~/utils.server";
 import { type CreateProjectLocales } from "./create.server";
 import { languageModuleMap } from "~/locales/.server";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
@@ -135,7 +138,7 @@ export const action = async (args: ActionFunctionArgs) => {
     async: true,
   });
 
-  const hash = getHash(submission);
+  const hash = createHashFromObject(submission);
 
   if (submission.intent !== "submit") {
     return { status: "idle", submission, hash };

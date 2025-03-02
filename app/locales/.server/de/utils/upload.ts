@@ -9,4 +9,18 @@ export const locale = {
       type: "Die Datei muss ein PNG oder ein JPEG sein.",
     },
   },
+  selection: {
+    select: "Datei auswählen",
+    empty: "Du hast keine Datei ausgewählt.",
+    selected: "{{name}} ausgewählt.",
+  },
+  success: {
+    imageAdded: "{{imageType}} hinzugefügt",
+    imageRemoved: "{{imageType}} entfernt",
+    imageTypes: {
+      background: "Hintergrundbild",
+      avatar: "Profilbild",
+      logo: "Logo",
+    },
+  },
 } as const;

@@ -1,41 +1,57 @@
-import { conform } from "@conform-to/react";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import {
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-} from "react-router";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Status } from "@mint-vernetzt/components/src/molecules/Status";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Header } from "@mint-vernetzt/components/src/organisms/Header";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { captureException } from "@sentry/remix";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import {
   Form,
   Link,
   Outlet,
+  redirect,
+  useActionData,
   useLoaderData,
   useLocation,
   useMatches,
+  useNavigation,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  type MetaFunction,
 } from "react-router";
-import rcSliderStyles from "rc-slider/assets/index.css?url";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
+import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { H1 } from "~/components/Heading/Heading";
-import ImageCropper from "~/components/ImageCropper/ImageCropper";
 import { Modal } from "~/components-next/Modal";
+import { H1 } from "~/components/Heading/Heading";
+import ImageCropper, {
+  IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
+} from "~/components/ImageCropper/ImageCropper";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
-import { getParamValue } from "~/lib/utils/routes";
-import { prismaClient } from "~/prisma.server";
-import { getPublicURL } from "~/storage.server";
-import { deriveProjectMode } from "../utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { Header } from "@mint-vernetzt/components/src/organisms/Header";
-import { Status } from "@mint-vernetzt/components/src/molecules/Status";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { getParamValue, getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { getPublicURL, parseMultipartFormData } from "~/storage.server";
+import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { redirectWithToast } from "~/toast.server";
+import { deriveProjectMode } from "../utils.server";
+import {
+  disconnectImage,
+  publishOrHideProject,
+  uploadImage,
+} from "./detail.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
 
 export function links() {
   return [
@@ -47,7 +63,7 @@ export function links() {
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
 
-  if (typeof data === "undefined") {
+  if (typeof data === "undefined" || data === null) {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
@@ -267,77 +283,106 @@ export const loader = async (args: LoaderFunctionArgs) => {
       url: request.url,
     },
     locales,
+    currentTimestamp: Date.now(),
   };
 };
 
+export const publishSchema = z.object({
+  [INTENT_FIELD_NAME]: z.enum(["publish", "hide"]),
+});
+
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
-
+  const slug = getParamValueOrThrow(params, "slug");
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["project/$slug/detail"];
 
-  const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-  const slug = getParamValue(params, "slug");
-  invariantResponse(
-    slug !== undefined,
-    locales.route.error.invariant.undefinedSlug,
-    {
-      status: 404,
-    }
-  );
-  const mode = await deriveProjectMode(sessionUser, slug);
-  invariantResponse(
-    mode === "admin",
-    locales.route.error.invariant.adminsOnly,
-    {
-      status: 403,
-    }
-  );
-
-  const formData = await request.formData();
-  const action = formData.get(conform.INTENT);
-  invariantResponse(
-    action !== null,
-    locales.route.error.invariant.missingConfirmation,
-    {
-      status: 400,
-    }
-  );
-  invariantResponse(
-    typeof action === "string",
-    locales.route.error.invariant.invalidIntent,
-    {
-      status: 400,
-    }
-  );
-  if (action === "publish") {
-    await prismaClient.project.update({
-      where: {
-        slug: slug,
-      },
-      data: {
-        published: true,
-      },
+  const { formData, error } = await parseMultipartFormData(request);
+  if (error !== null || formData === null) {
+    console.error({ error });
+    captureException(error);
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "upload-failed",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.onStoring,
+      level: "negative",
     });
-    return { success: true };
-  } else if (action === "unpublish") {
-    await prismaClient.project.update({
-      where: {
-        slug: slug,
-      },
-      data: {
-        published: false,
-      },
-    });
-    return { success: true };
   }
-  return { success: false };
+
+  const intent = formData.get(INTENT_FIELD_NAME);
+  let submission;
+  let toast;
+  let redirectUrl: string | null = request.url;
+
+  if (intent === UPLOAD_INTENT_VALUE) {
+    const result = await uploadImage({
+      request,
+      formData,
+      authClient,
+      slug,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else if (intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE) {
+    const result = await disconnectImage({
+      request,
+      formData,
+      slug,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else if (intent === "publish" || intent === "hide") {
+    const result = await publishOrHideProject({
+      formData,
+      slug,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+  } else {
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "invalid-action",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.invalidAction,
+      level: "negative",
+    });
+  }
+
+  if (submission !== null) {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
+  }
+  if (toast === null) {
+    return redirect(redirectUrl);
+  }
+  return redirectWithToast(redirectUrl, toast);
 };
 
 function ProjectDetail() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const location = useLocation();
+  const navigation = useNavigation();
   const { project, mode, locales } = loaderData;
   const matches = useMatches();
   let pathname = "";
@@ -347,6 +392,23 @@ function ProjectDetail() {
   if (typeof lastMatch.pathname !== "undefined") {
     pathname = lastMatch.pathname;
   }
+
+  const [publishForm, publishFields] = useForm({
+    id: `publish-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(publishSchema),
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: publishSchema,
+      });
+      return submission;
+    },
+  });
 
   return (
     <>
@@ -446,11 +508,9 @@ function ProjectDetail() {
                   {locales.route.content.edit}
                 </Button>
                 <Button
-                  name={conform.INTENT}
                   variant="outline"
-                  value={`${project.published ? "unpublish" : "publish"}`}
                   type="submit"
-                  form="publish-form"
+                  form={publishForm.id}
                   fullSize
                 >
                   {(() => {
@@ -465,7 +525,26 @@ function ProjectDetail() {
           )}
         </Header>
         {mode === "admin" && (
-          <Form method="post" id="publish-form" preventScrollReset />
+          <Form {...getFormProps(publishForm)} method="post" preventScrollReset>
+            <input
+              {...getInputProps(publishFields[INTENT_FIELD_NAME], {
+                type: "hidden",
+              })}
+              key="publish"
+              defaultValue={loaderData.project.published ? "hide" : "publish"}
+            />
+            {typeof publishFields[INTENT_FIELD_NAME].errors !== "undefined" &&
+            publishFields[INTENT_FIELD_NAME].errors.length > 0
+              ? publishFields[INTENT_FIELD_NAME].errors.map((error) => (
+                  <Input.Error
+                    id={publishFields[INTENT_FIELD_NAME].errorId}
+                    key={error}
+                  >
+                    {error}
+                  </Input.Error>
+                ))
+              : null}
+          </Form>
         )}
       </section>
       {mode === "admin" && (
@@ -476,19 +555,18 @@ function ProjectDetail() {
             </Modal.Title>
             <Modal.Section>
               <ImageCropper
-                subject="project"
-                id="modal-background-upload"
                 uploadKey="background"
-                image={project.background || undefined}
+                image={loaderData.project.background || undefined}
                 aspect={ImageAspects.Background}
                 minCropWidth={MinCropSizes.Background.width}
                 minCropHeight={MinCropSizes.Background.height}
                 maxTargetWidth={MaxImageSizes.Background.width}
                 maxTargetHeight={MaxImageSizes.Background.height}
-                slug={project.slug}
-                redirect={pathname}
                 modalSearchParam="modal-background"
                 locales={locales}
+                currentTimestamp={
+                  actionData?.currentTimestamp || loaderData.currentTimestamp
+                }
               >
                 {project.background !== undefined ? (
                   <Image
@@ -506,20 +584,19 @@ function ProjectDetail() {
             <Modal.Title>{locales.route.cropper.logo.headline}</Modal.Title>
             <Modal.Section>
               <ImageCropper
-                subject="project"
-                id="modal-logo-upload"
                 uploadKey="logo"
-                image={project.logo || undefined}
+                circularCrop
+                image={loaderData.project.logo || undefined}
                 aspect={ImageAspects.AvatarAndLogo}
                 minCropWidth={MinCropSizes.AvatarAndLogo.width}
                 minCropHeight={MinCropSizes.AvatarAndLogo.height}
                 maxTargetWidth={MaxImageSizes.AvatarAndLogo.width}
                 maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
-                slug={project.slug}
-                redirect={pathname}
                 modalSearchParam="modal-logo"
-                circularCrop={true}
                 locales={locales}
+                currentTimestamp={
+                  actionData?.currentTimestamp || loaderData.currentTimestamp
+                }
               >
                 <Avatar
                   name={project.name}

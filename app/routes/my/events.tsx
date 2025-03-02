@@ -7,7 +7,6 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import { getFeatureAbilities } from "~/lib/utils/application";
 import { ListContainer } from "~/components-next/ListContainer";
 import { Add } from "~/components-next/icons/Add";
 import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
@@ -22,6 +21,7 @@ import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { getFeatureAbilities } from "../feature-access.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;

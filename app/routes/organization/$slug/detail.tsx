@@ -1,16 +1,27 @@
-import { type LoaderFunctionArgs, type MetaFunction } from "react-router";
+import {
+  type ActionFunctionArgs,
+  redirect,
+  useActionData,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+} from "react-router";
 import { Form, Link, Outlet, useLoaderData, useLocation } from "react-router";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import ImageCropper from "~/components/ImageCropper/ImageCropper";
+import ImageCropper, {
+  IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
+} from "~/components/ImageCropper/ImageCropper";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { detectLanguage } from "~/i18n.server";
 import { Modal } from "~/components-next/Modal";
 import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
-import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
+import {
+  deriveOrganizationMode,
+  getRedirectPathOnProtectedOrganizationRoute,
+} from "~/routes/organization/$slug/utils.server";
 import {
   hasEventsData,
   hasNetworkData,
@@ -19,8 +30,10 @@ import {
 } from "./detail.shared";
 import {
   addImgUrls,
+  disconnectImage,
   filterOrganization,
   getOrganization,
+  uploadImage,
 } from "./detail.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
@@ -29,6 +42,11 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { languageModuleMap } from "~/locales/.server";
+import { parseMultipartFormData } from "~/storage.server";
+import { captureException } from "@sentry/remix";
+import { redirectWithToast } from "~/toast.server";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 
 export function links() {
   return [
@@ -40,7 +58,7 @@ export function links() {
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
 
-  if (typeof data === "undefined") {
+  if (typeof data === "undefined" || data === null) {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
@@ -166,7 +184,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const organization = await getOrganization(slug);
   invariantResponse(
     organization !== null,
-    locales.route.server.error.organizationNotFound,
+    locales.route.error.organizationNotFound,
     {
       status: 404,
     }
@@ -189,11 +207,92 @@ export const loader = async (args: LoaderFunctionArgs) => {
       url: request.url,
     },
     locales,
+    currentTimestamp: Date.now(),
   };
+};
+
+export const action = async (args: ActionFunctionArgs) => {
+  const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["organization/$slug/detail"];
+
+  const { formData, error } = await parseMultipartFormData(request);
+  if (error !== null || formData === null) {
+    console.error({ error });
+    captureException(error);
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "upload-failed",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.onStoring,
+      level: "negative",
+    });
+  }
+
+  const intent = formData.get(INTENT_FIELD_NAME);
+  let submission;
+  let toast;
+  let redirectUrl: string | null = request.url;
+
+  if (intent === UPLOAD_INTENT_VALUE) {
+    const result = await uploadImage({
+      request,
+      formData,
+      authClient,
+      slug,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else if (intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE) {
+    const result = await disconnectImage({
+      request,
+      formData,
+      slug,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else {
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "invalid-action",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.invalidAction,
+      level: "negative",
+    });
+  }
+
+  if (submission !== null) {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
+  }
+  if (toast === null) {
+    return redirect(redirectUrl);
+  }
+  return redirectWithToast(redirectUrl, toast);
 };
 
 function OrganizationDetail() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const { organization, mode, locales } = loaderData;
   const location = useLocation();
   const pathname = location.pathname;
@@ -464,19 +563,18 @@ function OrganizationDetail() {
             </Modal.Title>
             <Modal.Section>
               <ImageCropper
-                subject="organization"
-                id="modal-background-upload"
                 uploadKey="background"
-                image={organization.background || undefined}
+                image={loaderData.organization.background || undefined}
                 aspect={ImageAspects.Background}
                 minCropWidth={MinCropSizes.Background.width}
                 minCropHeight={MinCropSizes.Background.height}
                 maxTargetWidth={MaxImageSizes.Background.width}
                 maxTargetHeight={MaxImageSizes.Background.height}
-                slug={organization.slug}
-                redirect={pathname}
                 modalSearchParam="modal-background"
                 locales={locales}
+                currentTimestamp={
+                  actionData?.currentTimestamp || loaderData.currentTimestamp
+                }
               >
                 {organization.background !== null ? (
                   <Image
@@ -503,20 +601,19 @@ function OrganizationDetail() {
             <Modal.Title>{locales.route.cropper.logo.headline}</Modal.Title>
             <Modal.Section>
               <ImageCropper
-                subject="organization"
-                id="modal-logo-upload"
                 uploadKey="logo"
-                image={organization.logo || undefined}
+                circularCrop
+                image={loaderData.organization.logo || undefined}
                 aspect={ImageAspects.AvatarAndLogo}
                 minCropWidth={MinCropSizes.AvatarAndLogo.width}
                 minCropHeight={MinCropSizes.AvatarAndLogo.height}
                 maxTargetWidth={MaxImageSizes.AvatarAndLogo.width}
                 maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
-                slug={organization.slug}
-                redirect={pathname}
                 modalSearchParam="modal-logo"
-                circularCrop={true}
                 locales={locales}
+                currentTimestamp={
+                  actionData?.currentTimestamp || loaderData.currentTimestamp
+                }
               >
                 <Avatar
                   name={organization.name}

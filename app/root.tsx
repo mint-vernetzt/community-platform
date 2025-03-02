@@ -31,7 +31,6 @@ import { RichText } from "./components/Richtext/RichText";
 import { getEnv } from "./env.server";
 import { detectLanguage, localeCookie } from "./i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
-import { getFeatureAbilities } from "./lib/utils/application";
 import { getProfileByUserId } from "./root.server";
 import { NavBar } from "~/components-next/NavBar";
 import { Footer } from "~/components-next/Footer";
@@ -48,6 +47,7 @@ import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { ModalRoot } from "./components-next/ModalRoot";
 import { invariantResponse } from "./lib/utils/response";
+import { getFeatureAbilities } from "./routes/feature-access.server";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;

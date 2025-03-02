@@ -4,7 +4,6 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/i18n.server";
@@ -16,6 +15,7 @@ import {
   getProfilesBySearchParams,
 } from "./csv-download.server";
 import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;

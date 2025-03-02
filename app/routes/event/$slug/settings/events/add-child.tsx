@@ -4,7 +4,6 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -12,6 +11,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { type AddChildEventLocales } from "./add-child.server";
 import { addChildEventRelationOrThrow, getEventBySlug } from "./utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 // TODO: Validate start and end time
 const schema = z.object({

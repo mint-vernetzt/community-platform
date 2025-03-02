@@ -14,13 +14,8 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
-import {
-  BlurFactor,
-  DefaultImages,
-  getImageURL,
-  ImageSizes,
-} from "~/images.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
@@ -50,6 +45,7 @@ import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;

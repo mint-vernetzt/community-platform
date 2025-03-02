@@ -1,11 +1,7 @@
 import type { Profile } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import {
-  BlurFactor,
-  DefaultImages,
-  getImageURL,
-  ImageSizes,
-} from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   filterEventByVisibility,
@@ -38,6 +34,30 @@ export async function deriveProfileMode(
     return "owner";
   }
   return mode;
+}
+
+export async function getRedirectPathOnProtectedProfileRoute(args: {
+  request: Request;
+  username: string;
+  sessionUser: User | null;
+  authClient?: SupabaseClient;
+}) {
+  const { request, username, sessionUser } = args;
+  // redirect to login if not logged in
+  if (sessionUser === null) {
+    // redirect to target after login
+    // TODO: Maybe rename login_redirect to redirect_to everywhere?
+    const url = new URL(request.url);
+    return `/login?login_redirect=${url.pathname}`;
+  }
+
+  // check if owner of profile and redirect to profile details if not
+  const mode = await deriveProfileMode(sessionUser, username);
+  if (mode !== "owner") {
+    return `/profile/${username}`;
+  }
+
+  return null;
 }
 
 export async function getWholeProfileFromUsername(username: string) {

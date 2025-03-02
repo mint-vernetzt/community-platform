@@ -4,7 +4,6 @@ import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
@@ -16,6 +15,7 @@ import {
   getEventBySlug,
   removeAdminFromEvent,
 } from "./remove-admin.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 const schema = z.object({
   profileId: z.string(),

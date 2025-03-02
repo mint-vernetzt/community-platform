@@ -3,6 +3,7 @@ import { type ProjectAttachmentSettingsLocales } from "./routes/project/$slug/se
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { INTENT_FIELD_NAME } from "./form-helpers";
 import { type EventDocumentsSettingsLocales } from "./routes/event/$slug/settings/documents.server";
+import { type ImageCropperLocales } from "./components/ImageCropper/ImageCropper";
 
 // TODO: Connect this with the equivalent nginx.conf settings
 // Max upload size (Remember to change nginx.conf when changing this)
@@ -128,7 +129,9 @@ export const documentSchema = (
   };
 };
 
-export const imageSchema = (locales: ProjectAttachmentSettingsLocales) => {
+export const imageSchema = (
+  locales: ProjectAttachmentSettingsLocales | ImageCropperLocales
+) => {
   return {
     [FILE_FIELD_NAME]: z
       .instanceof(File)

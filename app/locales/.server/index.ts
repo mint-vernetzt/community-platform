@@ -457,6 +457,7 @@ const de = {
     eventAbuseReportReasonSuggestions: deEventAbuseReportReasonSuggestions,
     organizationTypes: deOrganizationTypes,
     imageCropper: deImageCropper,
+    upload: deUpload,
   },
   "event/$slug/settings": deEventSettings,
   "event/create": deCreateEvent,
@@ -518,6 +519,7 @@ const de = {
     organizationTypes: deOrganizationTypes,
     networkTypes: deNetworkTypes,
     imageCropper: deImageCropper,
+    upload: deUpload,
   },
   "organization/$slug/detail/about": {
     route: deAboutOrganization,
@@ -601,6 +603,7 @@ const de = {
     stages: deStages,
     organizationTypes: deOrganizationTypes,
     imageCropper: deImageCropper,
+    upload: deUpload,
   },
   "profile/$username/settings": deProfileSettings,
   // project routes
@@ -661,6 +664,7 @@ const de = {
   "project/$slug/detail": {
     route: deProjectDetail,
     imageCropper: deImageCropper,
+    upload: deUpload,
   },
   "project/$slug/settings": deProjectSettings,
   "project/create": deCreateProject,
@@ -839,6 +843,7 @@ const en = {
     eventAbuseReportReasonSuggestions: enEventAbuseReportReasonSuggestions,
     organizationTypes: enOrganizationTypes,
     imageCropper: enImageCropper,
+    upload: enUpload,
   },
   "event/$slug/settings": enEventSettings,
   "event/create": enCreateEvent,
@@ -900,6 +905,7 @@ const en = {
     organizationTypes: enOrganizationTypes,
     networkTypes: enNetworkTypes,
     imageCropper: enImageCropper,
+    upload: enUpload,
   },
   "organization/$slug/detail/about": {
     route: enAboutOrganization,
@@ -983,6 +989,7 @@ const en = {
     stages: enStages,
     organizationTypes: enOrganizationTypes,
     imageCropper: enImageCropper,
+    upload: enUpload,
   },
   "profile/$username/settings": enProfileSettings,
   // project routes
@@ -1043,6 +1050,7 @@ const en = {
   "project/$slug/detail": {
     route: enProjectDetail,
     imageCropper: enImageCropper,
+    upload: enUpload,
   },
   "project/$slug/settings": enProjectSettings,
   "project/create": enCreateProject,

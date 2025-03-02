@@ -2,10 +2,19 @@ import { type SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
-import { getPublicURL } from "~/storage.server";
+import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
+import { parseWithZod } from "@conform-to/zod-v1";
+import {
+  createImageUploadSchema,
+  disconnectImageSchema,
+} from "~/components/ImageCropper/ImageCropper";
+import { captureException } from "@sentry/remix";
+import { FILE_FIELD_NAME } from "~/storage.shared";
+import { z } from "zod";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export type OrganizationDetailLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -216,5 +225,149 @@ export function addImgUrls(
     blurredBackground,
     logo,
     blurredLogo,
+  };
+}
+
+export async function uploadImage(options: {
+  request: Request;
+  formData: FormData;
+  authClient: SupabaseClient;
+  slug: string;
+  locales: OrganizationDetailLocales;
+}) {
+  const { request, formData, authClient, slug, locales } = options;
+  const submission = await parseWithZod(formData, {
+    schema: createImageUploadSchema(locales).transform(async (data, ctx) => {
+      const { file, bucket, uploadKey } = data;
+      const { fileMetadataForDatabase, error } = await uploadFileToStorage({
+        file,
+        authClient,
+        bucket,
+      });
+      if (error !== null) {
+        console.error({ error });
+        captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onStoring,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
+      if (uploadKey !== "background" && uploadKey !== "logo") {
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onStoring,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
+      try {
+        await prismaClient.organization.update({
+          where: {
+            slug,
+          },
+          data: {
+            [uploadKey]: fileMetadataForDatabase.path,
+          },
+        });
+      } catch (error) {
+        console.error({ error });
+        captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onStoring,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
+
+      return { ...data, uploadKey: uploadKey };
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return { submission, toast: null, redirectUrl: null };
+  }
+
+  // Close modal after redirect
+  const redirectUrl = new URL(request.url);
+  redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  return {
+    submission: null,
+    toast: {
+      id: "change-image",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(locales.upload.success.imageAdded, {
+        imageType:
+          locales.upload.success.imageTypes[submission.value.uploadKey],
+      }),
+    },
+    redirectUrl: redirectUrl.toString(),
+  };
+}
+
+export async function disconnectImage(options: {
+  request: Request;
+  formData: FormData;
+  slug: string;
+  locales: OrganizationDetailLocales;
+}) {
+  const { request, formData, slug, locales } = options;
+  const submission = await parseWithZod(formData, {
+    schema: disconnectImageSchema.transform(async (data, ctx) => {
+      const { uploadKey } = data;
+      try {
+        if (uploadKey !== "background" && uploadKey !== "logo") {
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.onStoring,
+            path: [FILE_FIELD_NAME],
+          });
+          return z.NEVER;
+        }
+        await prismaClient.organization.update({
+          where: {
+            slug,
+          },
+          data: {
+            [uploadKey]: null,
+          },
+        });
+      } catch (error) {
+        console.error({ error });
+        captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.error.onStoring,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
+
+      return { ...data, uploadKey: uploadKey };
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return { submission, toast: null, redirectUrl: null };
+  }
+
+  // Close modal after redirect
+  const redirectUrl = new URL(request.url);
+  redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  return {
+    submission: null,
+    toast: {
+      id: "disconnect-image",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(locales.upload.success.imageRemoved, {
+        imageType:
+          locales.upload.success.imageTypes[submission.value.uploadKey],
+      }),
+    },
+    redirectUrl: redirectUrl.toString(),
   };
 }

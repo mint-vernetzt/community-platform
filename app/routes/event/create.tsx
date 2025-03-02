@@ -16,7 +16,7 @@ import {
   getSessionUserOrThrow,
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
-import { checkFeatureAbilitiesOrThrow } from "~/lib/utils/application";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormValues,

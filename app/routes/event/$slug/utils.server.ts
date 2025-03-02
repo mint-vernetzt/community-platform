@@ -1,12 +1,8 @@
 import type { Event, Organization, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import {
-  BlurFactor,
-  DefaultImages,
-  ImageSizes,
-  getImageURL,
-} from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import type { ArrayElement } from "~/lib/utils/types";
 import {

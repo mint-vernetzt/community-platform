@@ -33,3 +33,22 @@ export const ImageAspects = {
   EventBackground: 3 / 2,
   AvatarAndLogo: 1,
 };
+
+export const DefaultImages = {
+  Event: {
+    Background: "/images/default-event-background.jpg",
+    BlurredBackground: "/images/default-event-background-blurred.jpg",
+  },
+  Project: {
+    Background: "/images/default-project-background.jpg",
+    BlurredBackground: "/images/default-project-background-blurred.jpg",
+  },
+  Organization: {
+    Background: "TODO",
+    BlurredBackground: "TODO",
+  },
+  Profile: {
+    Background: "TODO",
+    BlurredBackground: "TODO",
+  },
+};

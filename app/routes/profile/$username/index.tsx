@@ -1,20 +1,41 @@
 import { Avatar as MVAvatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import type { Profile } from "@prisma/client";
-import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { Form, Link, useLoaderData } from "react-router";
+import { captureException } from "@sentry/remix";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "react-router";
+import {
+  Form,
+  Link,
+  redirect,
+  useActionData,
+  useLoaderData,
+} from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { Mastodon } from "~/components-next/icons/Mastodon";
+import { TikTok } from "~/components-next/icons/TikTok";
+import { Modal } from "~/components-next/Modal";
 import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3 } from "~/components/Heading/Heading";
-import ImageCropper from "~/components/ImageCropper/ImageCropper";
+import ImageCropper, {
+  IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
+} from "~/components/ImageCropper/ImageCropper";
 import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
 import { RichText } from "~/components/Richtext/RichText";
 import type { ExternalService } from "~/components/types";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { detectLanguage } from "~/i18n.server";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
@@ -22,31 +43,32 @@ import {
 import { getFullName } from "~/lib/profile/getFullName";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { getFeatureAbilities } from "~/lib/utils/application";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { getDuration } from "~/lib/utils/time";
-import { detectLanguage } from "~/i18n.server";
-import { Modal } from "~/components-next/Modal";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
+import { languageModuleMap } from "~/locales/.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
-import { Mastodon } from "~/components-next/icons/Mastodon";
-import { TikTok } from "~/components-next/icons/TikTok";
-import { getProfileByUsername } from "./index.server";
+import { addUserParticipationStatus } from "~/routes/event/$slug/utils.server";
+import { parseMultipartFormData } from "~/storage.server";
+import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { redirectWithToast } from "~/toast.server";
+import {
+  disconnectImage,
+  getProfileByUsername,
+  uploadImage,
+} from "./index.server";
 import {
   addImgUrls,
   deriveProfileMode,
   filterProfile,
+  getRedirectPathOnProtectedProfileRoute,
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
-import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
-import { addUserParticipationStatus } from "~/routes/event/$slug/utils.server";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { languageModuleMap } from "~/locales/.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { getFeatureAbilities } from "~/routes/feature-access.server";
 
 export function links() {
   return [
@@ -58,7 +80,7 @@ export function links() {
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
 
-  if (typeof data === "undefined") {
+  if (typeof data === "undefined" || data === null) {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
@@ -303,7 +325,87 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
     locales,
     language,
+    currentTimestamp: Date.now(),
   };
+};
+
+export const action = async (args: ActionFunctionArgs) => {
+  const { request, params } = args;
+  const username = getParamValueOrThrow(params, "username");
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedProfileRoute({
+    request,
+    username,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["profile/$username/index"];
+
+  const { formData, error } = await parseMultipartFormData(request);
+  if (error !== null || formData === null) {
+    console.error({ error });
+    captureException(error);
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "upload-failed",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.onStoring,
+      level: "negative",
+    });
+  }
+
+  const intent = formData.get(INTENT_FIELD_NAME);
+  let submission;
+  let toast;
+  let redirectUrl: string | null = request.url;
+
+  if (intent === UPLOAD_INTENT_VALUE) {
+    const result = await uploadImage({
+      request,
+      formData,
+      authClient,
+      username,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else if (intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE) {
+    const result = await disconnectImage({
+      request,
+      formData,
+      username,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else {
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "invalid-action",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.invalidAction,
+      level: "negative",
+    });
+  }
+
+  if (submission !== null) {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
+  }
+  if (toast === null) {
+    return redirect(redirectUrl);
+  }
+  return redirectWithToast(redirectUrl, toast);
 };
 
 function hasContactInformations(
@@ -363,6 +465,7 @@ function canViewEvents(events: {
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language } = loaderData;
+  const actionData = useActionData<typeof action>();
 
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
@@ -410,8 +513,6 @@ export default function Index() {
     [background, blurredBackground, locales]
   );
 
-  const uploadRedirect = `/profile/${loaderData.data.username}`;
-
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
@@ -452,19 +553,19 @@ export default function Index() {
                 </Modal.Title>
                 <Modal.Section>
                   <ImageCropper
-                    id="modal-background-upload"
-                    subject={"user"}
-                    slug={loaderData.data.username}
                     uploadKey="background"
-                    image={background || undefined}
+                    image={loaderData.data.background || undefined}
                     aspect={ImageAspects.Background}
                     minCropWidth={MinCropSizes.Background.width}
                     minCropHeight={MinCropSizes.Background.height}
                     maxTargetWidth={MaxImageSizes.Background.width}
                     maxTargetHeight={MaxImageSizes.Background.height}
-                    redirect={uploadRedirect}
                     modalSearchParam="modal-background"
                     locales={locales}
+                    currentTimestamp={
+                      actionData?.currentTimestamp ||
+                      loaderData.currentTimestamp
+                    }
                   >
                     <Background />
                   </ImageCropper>
@@ -483,7 +584,7 @@ export default function Index() {
                 {loaderData.mode === "owner" ? (
                   <>
                     <Form method="get" preventScrollReset>
-                      <input hidden name="modal-logo" defaultValue="true" />
+                      <input hidden name="modal-avatar" defaultValue="true" />
                       <button
                         type="submit"
                         className="appearance-none flex content-center items-center nowrap py-2 cursor-pointer text-primary"
@@ -503,26 +604,26 @@ export default function Index() {
                       </button>
                     </Form>
 
-                    <Modal searchParam="modal-logo">
+                    <Modal searchParam="modal-avatar">
                       <Modal.Title>
                         {locales.route.profile.changeAvatarHeadline}
                       </Modal.Title>
                       <Modal.Section>
                         <ImageCropper
-                          id="modal-avatar"
-                          subject="user"
-                          slug={loaderData.data.username}
                           uploadKey="avatar"
-                          image={avatar || undefined}
+                          circularCrop
+                          image={loaderData.data.avatar || undefined}
                           aspect={ImageAspects.AvatarAndLogo}
                           minCropWidth={MinCropSizes.AvatarAndLogo.width}
                           minCropHeight={MinCropSizes.AvatarAndLogo.height}
                           maxTargetWidth={MaxImageSizes.AvatarAndLogo.width}
                           maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
-                          redirect={uploadRedirect}
-                          circularCrop={true}
-                          modalSearchParam="modal-logo"
+                          modalSearchParam="modal-avatar"
                           locales={locales}
+                          currentTimestamp={
+                            actionData?.currentTimestamp ||
+                            loaderData.currentTimestamp
+                          }
                         >
                           <Avatar />
                         </ImageCropper>

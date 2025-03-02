@@ -19,13 +19,6 @@ export const checkboxSchema = z
     return value;
   });
 
-export const fileUploadSchema = z.object({
-  subject: z.string(),
-  slug: z.string().min(1),
-  uploadKey: z.string(),
-  redirect: z.string(),
-});
-
 export const createPhoneSchema = (
   locales:
     | OrganizationWebAndSocialLocales

@@ -22,12 +22,8 @@ import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { H1 } from "~/components/Heading/Heading";
-import {
-  BlurFactor,
-  DefaultImages,
-  ImageSizes,
-  getImageURL,
-} from "~/images.server";
+import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import {

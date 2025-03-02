@@ -32,12 +32,7 @@ export const locale = {
     document: {
       upload: "Dokumente hochladen",
       type: "Mögliche Dateiformate: PDF. Maximal {{max}}MB.",
-      select: "Datei auswählen",
       action: "Datei hochladen",
-      selection: {
-        empty: "Du hast keine Datei ausgewählt.",
-        selected: "{{name}} ausgewählt.",
-      },
       added: "{{name}} hinzugefügt",
       current: "Aktuell hochgeladene Dokumente",
       downloadAll: "Alle herunterladen",
