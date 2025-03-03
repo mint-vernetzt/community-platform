@@ -316,7 +316,7 @@ function General() {
   const {
     register,
     reset,
-    formState: { isDirty },
+    // formState: { isDirty },
   } = methods;
 
   let errors: FormError | null = null;
@@ -590,10 +590,10 @@ function General() {
     }
   }, [actionData]);
 
-  const isFormChanged =
-    isDirty ||
-    navigation.state === "submitting" ||
-    (actionData !== undefined && actionData.updated === false);
+  // const isFormChanged =
+  //   isDirty ||
+  //   navigation.state === "submitting" ||
+  //   (actionData !== undefined && actionData.updated === false);
 
   return (
     <>
@@ -1072,15 +1072,15 @@ function General() {
               {locales.route.content.feedback}
             </div>
 
-            {isFormChanged ? (
-              <Link
-                to={`/event/${slug}/settings`}
-                reloadDocument
-                className={`btn btn-link`}
-              >
-                {locales.route.form.reset.label}
-              </Link>
-            ) : null}
+            {/* {isFormChanged ? ( */}
+            <Link
+              to={`/event/${slug}/settings`}
+              reloadDocument
+              className={`btn btn-link`}
+            >
+              {locales.route.form.reset.label}
+            </Link>
+            {/* ) : null} */}
             <div></div>
             <button
               type="submit"
@@ -1088,7 +1088,8 @@ function General() {
               value="submit"
               form="general-settings-form"
               className="btn btn-primary ml-4"
-              disabled={isSubmitting || !isFormChanged}
+              // disabled={isSubmitting || !isFormChanged}
+              disabled={isSubmitting}
             >
               {locales.route.form.submit.label}
             </button>
