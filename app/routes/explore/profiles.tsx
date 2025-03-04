@@ -314,7 +314,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const selectedAreas = await Promise.all(
     submission.value.filter.area.map(async (slug) => {
       const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
-      console.log("slug", slug, "vectorCount", vectorCount);
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
       });

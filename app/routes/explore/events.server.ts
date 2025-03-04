@@ -204,12 +204,25 @@ export async function getVisibilityFilteredEventsCount(options: {
   return count;
 }
 
+type EventVisibility = { eventVisibility: { [x: string]: boolean } };
+type FilterKeyWhereStatement = {
+  OR: {
+    [x: string]: { some: { [x: string]: { slug: string } } } | { slug: string };
+  }[] &
+    ReturnType<typeof getWhereStatementFromPeriodOfTime>[];
+};
+type WhereClause = {
+  AND: EventVisibility[] & FilterKeyWhereStatement[];
+};
+
 export async function getEventsCount(options: {
   filter: GetEventsSchema["filter"];
 }) {
-  const whereClauses = [];
+  const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
 
     if (typedFilterKey === "periodOfTime") {
       const filterValue = options.filter[typedFilterKey];
@@ -221,7 +234,7 @@ export async function getEventsCount(options: {
         "Please provide prisma sql syntax",
         { status: 500 }
       );
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     } else if (typedFilterKey === "stage") {
       const filterValue = options.filter[typedFilterKey];
       if (typeof filterValue === "string" && filterValue !== "all") {
@@ -230,7 +243,7 @@ export async function getEventsCount(options: {
             slug: filterValue,
           },
         };
-        whereClauses.push(filterWhereStatement);
+        filterKeyWhereStatement.OR.push(filterWhereStatement);
       }
     } else {
       const filterValues = options.filter[typedFilterKey];
@@ -244,14 +257,16 @@ export async function getEventsCount(options: {
             },
           },
         };
-        whereClauses.push(filterWhereStatement);
+        filterKeyWhereStatement.OR.push(filterWhereStatement);
       }
     }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
 
   const count = await prismaClient.event.count({
     where: {
-      AND: [...whereClauses, { published: true }],
+      AND: [...whereClauses.AND, { published: true }],
     },
   });
 
@@ -264,9 +279,10 @@ export async function getAllEvents(options: {
   take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
-  const whereClauses = [];
+  const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
     if (typedFilterKey === "periodOfTime") {
       const filterValue = options.filter[typedFilterKey];
       const filterWhereStatement =
@@ -277,7 +293,7 @@ export async function getAllEvents(options: {
         "Please provide prisma sql syntax",
         { status: 500 }
       );
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     } else if (typedFilterKey === "stage") {
       const filterValue = options.filter[typedFilterKey];
       if (typeof filterValue === "string" && filterValue !== "all") {
@@ -286,7 +302,7 @@ export async function getAllEvents(options: {
             slug: filterValue,
           },
         };
-        whereClauses.push(filterWhereStatement);
+        filterKeyWhereStatement.OR.push(filterWhereStatement);
       }
     } else {
       const filterValues = options.filter[typedFilterKey];
@@ -303,9 +319,11 @@ export async function getAllEvents(options: {
             },
           },
         };
-        whereClauses.push(filterWhereStatement);
+        filterKeyWhereStatement.OR.push(filterWhereStatement);
       }
     }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
 
     if (options.isLoggedIn === false) {
       const visibilityWhereStatement = {
@@ -319,7 +337,7 @@ export async function getAllEvents(options: {
           }`]: true,
         },
       };
-      whereClauses.push(visibilityWhereStatement);
+      whereClauses.AND.push(visibilityWhereStatement);
     }
   }
 
@@ -394,7 +412,7 @@ export async function getAllEvents(options: {
       },
     },
     where: {
-      AND: [...whereClauses, { published: true }],
+      AND: [...whereClauses.AND, { published: true }],
     },
     orderBy: [
       options.filter.periodOfTime === "past" &&
@@ -500,15 +518,23 @@ export async function enhanceEventsWithParticipationStatus(
 }
 
 // TODO: Where statement in raw sql for periodOfTime
-export async function getEventFilterVector(options: {
-  filter: GetEventsSchema["filter"];
-}) {
+export async function getEventFilterVectorForAttribute(
+  attribute: keyof GetEventsSchema["filter"],
+  filter: GetEventsSchema["filter"]
+) {
   const whereStatements = ["published = true"];
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
+  for (const filterKey in filter) {
+    const typedFilterKey = filterKey as keyof typeof filter;
+
+    if (typedFilterKey === attribute) {
+      continue;
+    }
+
+    const fieldWhereStatements: string[] = [];
 
     if (typedFilterKey === "periodOfTime") {
-      const filterValue = options.filter[typedFilterKey];
+      const filterValue = filter[typedFilterKey];
+
       const filterWhereStatement = getWhereStatementFromPeriodOfTime(
         filterValue,
         "raw"
@@ -521,11 +547,11 @@ export async function getEventFilterVector(options: {
       );
       whereStatements.push(filterWhereStatement);
     } else if (typedFilterKey === "stage") {
-      const filterValue = options.filter[typedFilterKey];
+      const filterValue = filter[typedFilterKey];
       if (typeof filterValue === "string" && filterValue !== "all") {
         const tuple = `${typedFilterKey}\\:${filterValue}`;
         const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-        whereStatements.push(whereStatement);
+        fieldWhereStatements.push(whereStatement);
       }
     } else {
       // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
@@ -572,7 +598,8 @@ export async function getEventFilterVector(options: {
         console.error({ error });
         invariantResponse(false, "Server error", { status: 500 });
       }
-      const filterValues = options.filter[typedFilterKey];
+      const filterValues = filter[typedFilterKey];
+
       for (const slug of filterValues) {
         // Validate slug because of queryRawUnsafe
         invariantResponse(
@@ -584,14 +611,18 @@ export async function getEventFilterVector(options: {
         );
         const tuple = `${typedFilterKey}\\:${slug}`;
         const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-        whereStatements.push(whereStatement);
+        fieldWhereStatements.push(whereStatement);
       }
+    }
+
+    if (fieldWhereStatements.length > 0) {
+      whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
     }
   }
   const whereClause = `WHERE ${whereStatements.join(" AND ")}`;
 
   const filterVector: {
-    attr: keyof typeof options.filter;
+    attr: keyof typeof filter;
     value: string[];
     count: number[];
   }[] = await prismaClient.$queryRawUnsafe(`
@@ -613,9 +644,9 @@ export async function getEventFilterVector(options: {
 export function getFilterCountForSlug(
   // TODO: Remove '| null' when slug isn't optional anymore (after migration)
   slug: string | null,
-  filterVector: Awaited<ReturnType<typeof getEventFilterVector>>,
+  filterVector: Awaited<ReturnType<typeof getEventFilterVectorForAttribute>>,
   attribute: ArrayElement<
-    Awaited<ReturnType<typeof getEventFilterVector>>
+    Awaited<ReturnType<typeof getEventFilterVectorForAttribute>>
   >["attr"]
 ) {
   const filterKeyVector = filterVector.find((vector) => {

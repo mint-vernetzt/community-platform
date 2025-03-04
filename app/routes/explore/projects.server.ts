@@ -60,13 +60,24 @@ export async function getVisibilityFilteredProjectsCount(options: {
   return count;
 }
 
+type ProjectVisibility = { projectVisibility: { [x: string]: boolean } };
+type FilterKeyWhereStatement = {
+  OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
+};
+type WhereClause = {
+  AND: ProjectVisibility[] & FilterKeyWhereStatement[];
+};
+
 export async function getProjectsCount(options: {
   filter: GetProjectsSchema["filter"];
 }) {
-  const whereClauses = [];
+  const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
     for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}s`]: {
@@ -77,13 +88,15 @@ export async function getProjectsCount(options: {
           },
         },
       };
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
 
   const count = await prismaClient.project.count({
     where: {
-      AND: [...whereClauses, { published: true }],
+      AND: [...whereClauses.AND, { published: true }],
     },
   });
 
@@ -96,7 +109,7 @@ export async function getAllProjects(options: {
   take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
-  const whereClauses = [];
+  const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
@@ -109,8 +122,11 @@ export async function getAllProjects(options: {
           [`${typedFilterKey}s`]: true,
         },
       };
-      whereClauses.push(visibilityWhereStatement);
+      whereClauses.AND.push(visibilityWhereStatement);
     }
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
     for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}s`]: {
@@ -121,8 +137,10 @@ export async function getAllProjects(options: {
           },
         },
       };
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
 
   const projects = await prismaClient.project.findMany({
@@ -168,7 +186,7 @@ export async function getAllProjects(options: {
       },
     },
     where: {
-      AND: [...whereClauses, { published: true }],
+      AND: [...whereClauses.AND, { published: true }],
     },
     orderBy: [
       {
@@ -184,14 +202,18 @@ export async function getAllProjects(options: {
   return projects;
 }
 
-export async function getProjectFilterVector(options: {
-  filter: GetProjectsSchema["filter"];
-}) {
+export async function getProjectFilterVectorForAttribute(
+  attribute: keyof GetProjectsSchema["filter"],
+  filter: GetProjectsSchema["filter"]
+) {
   let whereClause = "";
   const whereStatements = ["published = true"];
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
+  for (const filterKey in filter) {
+    const typedFilterKey = filterKey as keyof typeof filter;
+    if (typedFilterKey === attribute) {
+      continue;
+    }
+    const filterValues = filter[typedFilterKey];
     if (filterValues.length === 0) {
       continue;
     }
@@ -240,6 +262,8 @@ export async function getProjectFilterVector(options: {
       invariantResponse(false, "Server error", { status: 500 });
     }
 
+    const fieldWhereStatements: string[] = [];
+
     for (const slug of filterValues) {
       // Validate slug because of queryRawUnsafe
       invariantResponse(
@@ -251,8 +275,10 @@ export async function getProjectFilterVector(options: {
       );
       const tuple = `${typedFilterKey}\\:${slug}`;
       const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-      whereStatements.push(whereStatement);
+      fieldWhereStatements.push(whereStatement);
     }
+
+    whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
   }
 
   if (whereStatements.length > 0) {
@@ -260,7 +286,7 @@ export async function getProjectFilterVector(options: {
   }
 
   const filterVector: {
-    attr: keyof typeof options.filter;
+    attr: keyof typeof filter;
     value: string[];
     count: number[];
   }[] = await prismaClient.$queryRawUnsafe(`
@@ -282,9 +308,9 @@ export async function getProjectFilterVector(options: {
 export function getFilterCountForSlug(
   // TODO: Remove '| null' when slug isn't optional anymore (after migration)
   slug: string | null,
-  filterVector: Awaited<ReturnType<typeof getProjectFilterVector>>,
+  filterVector: Awaited<ReturnType<typeof getProjectFilterVectorForAttribute>>,
   attribute: ArrayElement<
-    Awaited<ReturnType<typeof getProjectFilterVector>>
+    Awaited<ReturnType<typeof getProjectFilterVectorForAttribute>>
   >["attr"]
 ) {
   const filterKeyVector = filterVector.find((vector) => {

@@ -26,7 +26,7 @@ import { FormControl } from "~/components-next/FormControl";
 import { FundingCard } from "~/components-next/FundingCard";
 import {
   getFilterCountForSlug,
-  getFundingFilterVector,
+  getFundingFilterVectorForAttribute,
   getKeys,
 } from "./fundings.server";
 import { H1 } from "~/components/Heading/Heading";
@@ -91,6 +91,13 @@ const getFundingsSchema = z.object({
 export type GetFundingsSchema = z.infer<typeof getFundingsSchema>;
 export type FilterKey = keyof GetFundingsSchema["filter"];
 
+type FilterKeyWhereStatement = {
+  OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
+};
+type WhereClause = {
+  AND: FilterKeyWhereStatement[];
+};
+
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
@@ -109,7 +116,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const take = submission.value.page * 12;
 
-  const whereClauses = [];
+  const whereClauses: WhereClause = { AND: [] };
   for (const key in submission.value.filter) {
     const typedKey = key as FilterKey;
 
@@ -119,6 +126,11 @@ export async function loader(args: LoaderFunctionArgs) {
     if (values.length === 0) {
       continue;
     }
+
+    const filterKeyWhereStatement: {
+      OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
+    } = { OR: [] };
+
     for (const value of values) {
       const whereStatement = {
         [pluralKey]: {
@@ -130,8 +142,10 @@ export async function loader(args: LoaderFunctionArgs) {
           },
         },
       };
-      whereClauses.push(whereStatement);
+      filterKeyWhereStatement.OR.push(whereStatement);
     }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
 
   const sortBy = submission.value.sortBy;
@@ -213,10 +227,6 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
-  const filterVector = await getFundingFilterVector({
-    filter: submission.value.filter,
-  });
-
   const fundingTypes = await prismaClient.fundingType.findMany({
     where: {
       fundings: {
@@ -231,6 +241,10 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
+  const typeFilterVector = await getFundingFilterVectorForAttribute(
+    "types",
+    submission.value.filter
+  );
   const enhancedFundingTypes = fundingTypes
     .sort((a, b) => {
       if (a.title === "Sonstiges") {
@@ -244,7 +258,7 @@ export async function loader(args: LoaderFunctionArgs) {
     .map((type) => {
       const vectorCount = getFilterCountForSlug(
         type.slug,
-        filterVector,
+        typeFilterVector,
         "types"
       );
       const isChecked = submission.value.filter.types.includes(type.slug);
@@ -275,6 +289,10 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
+  const areaFilterVector = await getFundingFilterVectorForAttribute(
+    "areas",
+    submission.value.filter
+  );
   const enhancedFundingAreas = fundingAreas
     .sort((a, b) => {
       if (a.title === "Sonstiges") {
@@ -288,7 +306,7 @@ export async function loader(args: LoaderFunctionArgs) {
     .map((area) => {
       const vectorCount = getFilterCountForSlug(
         area.slug,
-        filterVector,
+        areaFilterVector,
         "areas"
       );
       const isChecked = submission.value.filter.areas.includes(area.slug);
@@ -319,6 +337,10 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
+  const eligibleEntitiesFilterVector = await getFundingFilterVectorForAttribute(
+    "eligibleEntities",
+    submission.value.filter
+  );
   const enhancedEligibleEntities = eligibleEntities
     .sort((a, b) => {
       if (a.title === "Sonstiges") {
@@ -332,7 +354,7 @@ export async function loader(args: LoaderFunctionArgs) {
     .map((entity) => {
       const vectorCount = getFilterCountForSlug(
         entity.slug,
-        filterVector,
+        eligibleEntitiesFilterVector,
         "eligibleEntities"
       );
       const isChecked = submission.value.filter.eligibleEntities.includes(
@@ -369,6 +391,10 @@ export async function loader(args: LoaderFunctionArgs) {
       name: "asc",
     },
   });
+  const regionFilterVector = await getFundingFilterVectorForAttribute(
+    "regions",
+    submission.value.filter
+  );
   const enhancedRegions = regions
     .sort((a) => {
       if (a.name === "Bundesweit" || a.name === "International") {
@@ -379,7 +405,7 @@ export async function loader(args: LoaderFunctionArgs) {
     .map((region) => {
       const vectorCount = getFilterCountForSlug(
         region.slug,
-        filterVector,
+        regionFilterVector,
         "regions"
       );
       const isChecked = submission.value.filter.regions.includes(region.slug);
