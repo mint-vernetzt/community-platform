@@ -40,7 +40,7 @@ import {
   getAllOffers,
   getAllProfiles,
   getFilterCountForSlug,
-  getProfileFilterVector,
+  getProfileFilterVectorForAttribute,
   getProfilesCount,
   getTakeParam,
   getVisibilityFilteredProfilesCount,
@@ -280,10 +280,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedProfiles.push(transformedProfile);
   }
 
-  const filterVector = await getProfileFilterVector({
-    filter: submission.value.filter,
-  });
-
   const areas = await getAreasBySearchQuery(submission.value.search);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
@@ -297,8 +293,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     state: [] as EnhancedAreas,
     district: [] as EnhancedAreas,
   };
+  const areaFilterVector = await getProfileFilterVectorForAttribute(
+    "area",
+    submission.value.filter
+  );
   for (const area of areas) {
-    const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
+    const vectorCount = getFilterCountForSlug(
+      area.slug,
+      areaFilterVector,
+      "area"
+    );
     const isChecked = submission.value.filter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
@@ -309,7 +313,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
   const selectedAreas = await Promise.all(
     submission.value.filter.area.map(async (slug) => {
-      const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
+      const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
+      console.log("slug", slug, "vectorCount", vectorCount);
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
       });
@@ -323,10 +328,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const offers = await getAllOffers();
+  const offerFilterVector = await getProfileFilterVectorForAttribute(
+    "offer",
+    submission.value.filter
+  );
   const enhancedOffers = offers.map((offer) => {
     const vectorCount = getFilterCountForSlug(
       offer.slug,
-      filterVector,
+      offerFilterVector,
       "offer"
     );
     const isChecked = submission.value.filter.offer.includes(offer.slug);
