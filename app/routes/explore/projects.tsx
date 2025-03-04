@@ -1579,19 +1579,25 @@ export default function ExploreProjects() {
         {loaderData.filteredByVisibilityCount !== undefined &&
         loaderData.filteredByVisibilityCount > 0 ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
-            {decideBetweenSingularOrPlural(
-              locales.route.notShown_one,
-              locales.route.notShown_other,
-              loaderData.filteredByVisibilityCount
+            {insertParametersIntoLocale(
+              decideBetweenSingularOrPlural(
+                locales.route.notShown_one,
+                locales.route.notShown_other,
+                loaderData.filteredByVisibilityCount
+              ),
+              { count: loaderData.filteredByVisibilityCount }
             )}
           </p>
         ) : loaderData.projectsCount > 0 ? (
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.projectsCount}</strong>{" "}
-            {decideBetweenSingularOrPlural(
-              locales.route.itemsCountSuffix_one,
-              locales.route.itemsCountSuffix_other,
-              loaderData.projectsCount
+            {insertParametersIntoLocale(
+              decideBetweenSingularOrPlural(
+                locales.route.itemsCountSuffix_one,
+                locales.route.itemsCountSuffix_other,
+                loaderData.projectsCount
+              ),
+              { count: loaderData.projectsCount }
             )}
           </p>
         ) : (

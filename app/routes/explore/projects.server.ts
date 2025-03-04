@@ -15,51 +15,6 @@ export function getTakeParam(page: GetProjectsSchema["page"]) {
   return take;
 }
 
-export async function getVisibilityFilteredProjectsCount(options: {
-  filter: GetProjectsSchema["filter"];
-}) {
-  const whereClauses = [];
-  const visibilityWhereClauses = [];
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
-    if (filterValues.length === 0) {
-      continue;
-    }
-    const visibilityWhereStatement = {
-      projectVisibility: {
-        [`${typedFilterKey}s`]: false,
-      },
-    };
-    visibilityWhereClauses.push(visibilityWhereStatement);
-
-    for (const slug of filterValues) {
-      const filterWhereStatement = {
-        [`${typedFilterKey}s`]: {
-          some: {
-            [typedFilterKey]: {
-              slug,
-            },
-          },
-        },
-      };
-      whereClauses.push(filterWhereStatement);
-    }
-  }
-  if (visibilityWhereClauses.length === 0) {
-    return 0;
-  }
-  whereClauses.push({ OR: [...visibilityWhereClauses] });
-
-  const count = await prismaClient.project.count({
-    where: {
-      AND: [...whereClauses, { published: true }],
-    },
-  });
-
-  return count;
-}
-
 type ProjectVisibility = { projectVisibility: { [x: string]: boolean } };
 type FilterKeyWhereStatement = {
   OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
@@ -68,15 +23,28 @@ type WhereClause = {
   AND: ProjectVisibility[] & FilterKeyWhereStatement[];
 };
 
-export async function getProjectsCount(options: {
+export async function getVisibilityFilteredProjectsCount(options: {
   filter: GetProjectsSchema["filter"];
 }) {
-  const whereClauses: WhereClause = { AND: [] };
+  const whereClauses: {
+    AND: WhereClause["AND"] & { OR: ProjectVisibility[] }[];
+  } = { AND: [] };
+  const visibilityWhereClauses: { OR: ProjectVisibility[] } = { OR: [] };
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
 
+    if (filterValues.length === 0) {
+      continue;
+    }
     const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
+    const visibilityWhereStatement = {
+      projectVisibility: {
+        [`${typedFilterKey}s`]: false,
+      },
+    };
+    visibilityWhereClauses.OR.push(visibilityWhereStatement);
 
     for (const slug of filterValues) {
       const filterWhereStatement = {
@@ -90,6 +58,65 @@ export async function getProjectsCount(options: {
       };
       filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+    whereClauses.AND.push(filterKeyWhereStatement);
+  }
+  if (visibilityWhereClauses.OR.length === 0) {
+    return 0;
+  }
+  whereClauses.AND.push(visibilityWhereClauses);
+
+  const count = await prismaClient.project.count({
+    where: {
+      AND: [...whereClauses.AND, { published: true }],
+    },
+  });
+
+  console.log("\ngetVisibilityFilteredProjectsCount");
+
+  console.log(
+    JSON.stringify(
+      {
+        where: {
+          AND: [...whereClauses.AND, { published: true }],
+        },
+      },
+      null,
+      2
+    )
+  );
+
+  console.log("\n");
+
+  return count;
+}
+
+export async function getProjectsCount(options: {
+  filter: GetProjectsSchema["filter"];
+}) {
+  const whereClauses: WhereClause = { AND: [] };
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterValues = options.filter[typedFilterKey];
+
+    if (filterValues.length === 0) {
+      continue;
+    }
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
+    for (const slug of filterValues) {
+      const filterWhereStatement = {
+        [`${typedFilterKey}s`]: {
+          some: {
+            [typedFilterKey]: {
+              slug,
+            },
+          },
+        },
+      };
+
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
+    }
 
     whereClauses.AND.push(filterKeyWhereStatement);
   }
@@ -99,6 +126,22 @@ export async function getProjectsCount(options: {
       AND: [...whereClauses.AND, { published: true }],
     },
   });
+
+  console.log("\ngetProjectsCount");
+
+  console.log(
+    JSON.stringify(
+      {
+        where: {
+          AND: [...whereClauses.AND, { published: true }],
+        },
+      },
+      null,
+      2
+    )
+  );
+
+  console.log("\n");
 
   return count;
 }

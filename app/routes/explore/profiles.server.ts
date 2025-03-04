@@ -15,23 +15,38 @@ export function getTakeParam(page: GetProfilesSchema["page"]) {
   return take;
 }
 
+type ProfileVisibility = { profileVisibility: { [x: string]: boolean } };
+type FilterKeyWhereStatement = {
+  OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
+};
+type WhereClause = {
+  AND: ProfileVisibility[] & FilterKeyWhereStatement[];
+};
+
 export async function getVisibilityFilteredProfilesCount(options: {
   filter: GetProfilesSchema["filter"];
 }) {
-  const whereClauses = [];
-  const visibilityWhereClauses = [];
+  const whereClauses: {
+    AND: WhereClause["AND"] & { OR: ProfileVisibility[] }[];
+  } = { AND: [] };
+  const visibilityWhereClauses: { OR: ProfileVisibility[] } = { OR: [] };
+
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
+
     if (filterValues.length === 0) {
       continue;
     }
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
     const visibilityWhereStatement = {
       profileVisibility: {
         [`${typedFilterKey}s`]: false,
       },
     };
-    visibilityWhereClauses.push(visibilityWhereStatement);
+    visibilityWhereClauses.OR.push(visibilityWhereStatement);
 
     for (const slug of filterValues) {
       const filterWhereStatement = {
@@ -43,30 +58,21 @@ export async function getVisibilityFilteredProfilesCount(options: {
           },
         },
       };
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
-  if (visibilityWhereClauses.length === 0) {
+  if (visibilityWhereClauses.OR.length === 0) {
     return 0;
   }
-  whereClauses.push({ OR: [...visibilityWhereClauses] });
+  whereClauses.AND.push(visibilityWhereClauses);
 
   const count = await prismaClient.profile.count({
-    where: {
-      AND: whereClauses,
-    },
+    where: whereClauses,
   });
 
   return count;
 }
-
-type ProfileVisibility = { profileVisibility: { [x: string]: boolean } };
-type FilterKeyWhereStatement = {
-  OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
-};
-type WhereClause = {
-  AND: ProfileVisibility[] & FilterKeyWhereStatement[];
-};
 
 export async function getProfilesCount(options: {
   filter: GetProfilesSchema["filter"];

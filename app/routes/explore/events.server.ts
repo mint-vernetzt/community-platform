@@ -130,13 +130,29 @@ function getWhereStatementFromPeriodOfTime(
     : `end_time >= ${dateToPostgresTimestamp(now)}`;
 }
 
+type EventVisibility = { eventVisibility: { [x: string]: boolean } };
+type FilterKeyWhereStatement = {
+  OR: {
+    [x: string]: { some: { [x: string]: { slug: string } } } | { slug: string };
+  }[] &
+    ReturnType<typeof getWhereStatementFromPeriodOfTime>[];
+};
+type WhereClause = {
+  AND: EventVisibility[] & FilterKeyWhereStatement[];
+};
+
 export async function getVisibilityFilteredEventsCount(options: {
   filter: GetEventsSchema["filter"];
 }) {
-  const whereClauses = [];
-  const visibilityWhereClauses = [];
+  const whereClauses: {
+    AND: WhereClause["AND"] & { OR: EventVisibility[] }[];
+  } = { AND: [] };
+  const visibilityWhereClauses: { OR: EventVisibility[] } = { OR: [] };
+
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
     if (typedFilterKey === "periodOfTime") {
       const filterValue = options.filter[typedFilterKey];
       const filterWhereStatement =
@@ -147,7 +163,7 @@ export async function getVisibilityFilteredEventsCount(options: {
         "Please provide prisma sql syntax",
         { status: 500 }
       );
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     } else if (typedFilterKey === "stage") {
       const filterValue = options.filter[typedFilterKey];
       if (typeof filterValue === "string" && filterValue !== "all") {
@@ -156,7 +172,7 @@ export async function getVisibilityFilteredEventsCount(options: {
             slug: filterValue,
           },
         };
-        whereClauses.push(filterWhereStatement);
+        filterKeyWhereStatement.OR.push(filterWhereStatement);
       }
     } else {
       const filterValues = options.filter[typedFilterKey];
@@ -173,9 +189,11 @@ export async function getVisibilityFilteredEventsCount(options: {
             },
           },
         };
-        whereClauses.push(filterWhereStatement);
+        filterKeyWhereStatement.OR.push(filterWhereStatement);
       }
     }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
 
     const visibilityWhereStatement = {
       eventVisibility: {
@@ -188,32 +206,21 @@ export async function getVisibilityFilteredEventsCount(options: {
         }`]: false,
       },
     };
-    visibilityWhereClauses.push(visibilityWhereStatement);
+    visibilityWhereClauses.OR.push(visibilityWhereStatement);
   }
-  if (visibilityWhereClauses.length === 0) {
+  if (visibilityWhereClauses.OR.length === 0) {
     return 0;
   }
-  whereClauses.push({ OR: [...visibilityWhereClauses] });
+  whereClauses.AND.push(visibilityWhereClauses);
 
   const count = await prismaClient.event.count({
     where: {
-      AND: [...whereClauses, { published: true }],
+      AND: [...whereClauses.AND, { published: true }],
     },
   });
 
   return count;
 }
-
-type EventVisibility = { eventVisibility: { [x: string]: boolean } };
-type FilterKeyWhereStatement = {
-  OR: {
-    [x: string]: { some: { [x: string]: { slug: string } } } | { slug: string };
-  }[] &
-    ReturnType<typeof getWhereStatementFromPeriodOfTime>[];
-};
-type WhereClause = {
-  AND: EventVisibility[] & FilterKeyWhereStatement[];
-};
 
 export async function getEventsCount(options: {
   filter: GetEventsSchema["filter"];

@@ -947,19 +947,25 @@ export default function ExploreOrganizations() {
         {loaderData.filteredByVisibilityCount !== undefined &&
         loaderData.filteredByVisibilityCount > 0 ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
-            {decideBetweenSingularOrPlural(
-              locales.route.notShown_one,
-              locales.route.notShown_other,
-              loaderData.filteredByVisibilityCount
+            {insertParametersIntoLocale(
+              decideBetweenSingularOrPlural(
+                locales.route.notShown_one,
+                locales.route.notShown_other,
+                loaderData.filteredByVisibilityCount
+              ),
+              { count: loaderData.filteredByVisibilityCount }
             )}
           </p>
         ) : loaderData.organizationsCount > 0 ? (
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.organizationsCount}</strong>{" "}
-            {decideBetweenSingularOrPlural(
-              locales.route.itemsCountSuffix_one,
-              locales.route.itemsCountSuffix_other,
-              loaderData.organizationsCount
+            {insertParametersIntoLocale(
+              decideBetweenSingularOrPlural(
+                locales.route.itemsCountSuffix_one,
+                locales.route.itemsCountSuffix_other,
+                loaderData.organizationsCount
+              ),
+              { count: loaderData.organizationsCount }
             )}
           </p>
         ) : (
