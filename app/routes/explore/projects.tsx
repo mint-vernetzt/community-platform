@@ -45,7 +45,7 @@ import {
   getAllProjects,
   getAllSpecialTargetGroups,
   getFilterCountForSlug,
-  getProjectFilterVector,
+  getProjectFilterVectorForAttribute,
   getProjectsCount,
   getTakeParam,
   getVisibilityFilteredProjectsCount,
@@ -275,10 +275,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedProjects.push(imageEnhancedProject);
   }
 
-  const filterVector = await getProjectFilterVector({
-    filter: submission.value.filter,
-  });
-
   const areas = await getAreasBySearchQuery(submission.value.search);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
@@ -292,8 +288,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     state: [] as EnhancedAreas,
     district: [] as EnhancedAreas,
   };
+  const areaFilterVector = await getProjectFilterVectorForAttribute(
+    "area",
+    submission.value.filter
+  );
   for (const area of areas) {
-    const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
+    const vectorCount = getFilterCountForSlug(
+      area.slug,
+      areaFilterVector,
+      "area"
+    );
     const isChecked = submission.value.filter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
@@ -304,7 +308,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
   const selectedAreas = await Promise.all(
     submission.value.filter.area.map(async (slug) => {
-      const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
+      const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
       });
@@ -318,10 +322,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const disciplines = await getAllDisciplines();
+  const disciplineFilterVector = await getProjectFilterVectorForAttribute(
+    "discipline",
+    submission.value.filter
+  );
   const enhancedDisciplines = disciplines.map((discipline) => {
     const vectorCount = getFilterCountForSlug(
       discipline.slug,
-      filterVector,
+      disciplineFilterVector,
       "discipline"
     );
     const isChecked = submission.value.filter.discipline.includes(
@@ -331,11 +339,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const additionalDisciplines = await getAllAdditionalDisciplines();
+  const additionalDisciplineFilterVector =
+    await getProjectFilterVectorForAttribute(
+      "additionalDiscipline",
+      submission.value.filter
+    );
   const enhancedAdditionalDisciplines = additionalDisciplines.map(
     (additionalDiscipline) => {
       const vectorCount = getFilterCountForSlug(
         additionalDiscipline.slug,
-        filterVector,
+        additionalDisciplineFilterVector,
         "additionalDiscipline"
       );
       const isChecked = submission.value.filter.additionalDiscipline.includes(
@@ -346,10 +359,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const targetGroups = await getAllProjectTargetGroups();
+  const targetGroupFilterVector = await getProjectFilterVectorForAttribute(
+    "projectTargetGroup",
+    submission.value.filter
+  );
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
     const vectorCount = getFilterCountForSlug(
       targetGroup.slug,
-      filterVector,
+      targetGroupFilterVector,
       "projectTargetGroup"
     );
     const isChecked = submission.value.filter.projectTargetGroup.includes(
@@ -359,10 +376,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const formats = await getAllFormats();
+  const formatFilterVector = await getProjectFilterVectorForAttribute(
+    "format",
+    submission.value.filter
+  );
   const enhancedFormats = formats.map((format) => {
     const vectorCount = getFilterCountForSlug(
       format.slug,
-      filterVector,
+      formatFilterVector,
       "format"
     );
     const isChecked = submission.value.filter.format.includes(format.slug);
@@ -370,11 +391,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const specialTargetGroups = await getAllSpecialTargetGroups();
+  const specialTargetGroupFilterVector =
+    await getProjectFilterVectorForAttribute(
+      "specialTargetGroup",
+      submission.value.filter
+    );
   const enhancedSpecialTargetGroups = specialTargetGroups.map(
     (specialTargetGroup) => {
       const vectorCount = getFilterCountForSlug(
         specialTargetGroup.slug,
-        filterVector,
+        specialTargetGroupFilterVector,
         "specialTargetGroup"
       );
       const isChecked = submission.value.filter.specialTargetGroup.includes(
@@ -385,10 +411,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const financings = await getAllFinancings();
+  const financingFilterVector = await getProjectFilterVectorForAttribute(
+    "financing",
+    submission.value.filter
+  );
   const enhancedFinancings = financings.map((financing) => {
     const vectorCount = getFilterCountForSlug(
       financing.slug,
-      filterVector,
+      financingFilterVector,
       "financing"
     );
     const isChecked = submission.value.filter.financing.includes(
@@ -1549,19 +1579,25 @@ export default function ExploreProjects() {
         {loaderData.filteredByVisibilityCount !== undefined &&
         loaderData.filteredByVisibilityCount > 0 ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
-            {decideBetweenSingularOrPlural(
-              locales.route.notShown_one,
-              locales.route.notShown_other,
-              loaderData.filteredByVisibilityCount
+            {insertParametersIntoLocale(
+              decideBetweenSingularOrPlural(
+                locales.route.notShown_one,
+                locales.route.notShown_other,
+                loaderData.filteredByVisibilityCount
+              ),
+              { count: loaderData.filteredByVisibilityCount }
             )}
           </p>
         ) : loaderData.projectsCount > 0 ? (
           <p className="text-center text-gray-700 mb-4">
             <strong>{loaderData.projectsCount}</strong>{" "}
-            {decideBetweenSingularOrPlural(
-              locales.route.itemsCountSuffix_one,
-              locales.route.itemsCountSuffix_other,
-              loaderData.projectsCount
+            {insertParametersIntoLocale(
+              decideBetweenSingularOrPlural(
+                locales.route.itemsCountSuffix_one,
+                locales.route.itemsCountSuffix_other,
+                loaderData.projectsCount
+              ),
+              { count: loaderData.projectsCount }
             )}
           </p>
         ) : (

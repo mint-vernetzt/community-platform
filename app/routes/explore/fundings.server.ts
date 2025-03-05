@@ -107,16 +107,20 @@ export async function updateFilterVectorOfFunding(fundingId: string) {
   }
 }
 
-export async function getFundingFilterVector(options: {
-  filter: GetFundingsSchema["filter"];
-}) {
+export async function getFundingFilterVectorForAttribute(
+  attribute: keyof GetFundingsSchema["filter"],
+  filter: GetFundingsSchema["filter"]
+) {
   let whereClause = "";
   const whereStatements = [];
-  const filterKeys = Object.keys(
-    options.filter
-  ) as (keyof typeof options.filter)[];
+  const filterKeys = Object.keys(filter) as (keyof typeof filter)[];
   for (const filterKey of filterKeys) {
-    const filterValues = options.filter[filterKey];
+    const filterValues = filter[filterKey];
+
+    if (filterKey === attribute) {
+      continue;
+    }
+
     if (filterValues.length === 0) {
       continue;
     }
@@ -148,6 +152,8 @@ export async function getFundingFilterVector(options: {
       invariantResponse(false, "Server error", { status: 500 });
     }
 
+    const fieldWhereStatements: string[] = [];
+
     for (const slug of filterValues) {
       // Validate slug because of queryRawUnsafe
       invariantResponse(
@@ -160,8 +166,10 @@ export async function getFundingFilterVector(options: {
       const { singularKey: key } = getKeys(filterKey);
       const tuple = `${key}\\:${slug}`;
       const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-      whereStatements.push(whereStatement);
+      fieldWhereStatements.push(whereStatement);
     }
+
+    whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
   }
 
   if (whereStatements.length > 0) {
@@ -169,7 +177,7 @@ export async function getFundingFilterVector(options: {
   }
 
   const filterVector: {
-    attr: keyof typeof options.filter;
+    attr: keyof typeof filter;
     value: string[];
     count: number[];
   }[] = await prismaClient.$queryRawUnsafe(`
@@ -191,9 +199,9 @@ export async function getFundingFilterVector(options: {
 export function getFilterCountForSlug(
   // TODO: Remove '| null' when slug isn't optional anymore (after migration)
   slug: string | null,
-  filterVector: Awaited<ReturnType<typeof getFundingFilterVector>>,
+  filterVector: Awaited<ReturnType<typeof getFundingFilterVectorForAttribute>>,
   attribute: ArrayElement<
-    Awaited<ReturnType<typeof getFundingFilterVector>>
+    Awaited<ReturnType<typeof getFundingFilterVectorForAttribute>>
   >["attr"]
 ) {
   const { singularKey: key } = getKeys(attribute);

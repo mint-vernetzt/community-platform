@@ -16,23 +16,39 @@ export function getTakeParam(page: GetOrganizationsSchema["page"]) {
   return take;
 }
 
+type OrganizationVisibility = {
+  organizationVisibility: { [x: string]: boolean };
+};
+type FilterKeyWhereStatement = {
+  OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
+};
+type WhereClause = {
+  AND: OrganizationVisibility[] & FilterKeyWhereStatement[];
+};
+
 export async function getVisibilityFilteredOrganizationsCount(options: {
   filter: GetOrganizationsSchema["filter"];
 }) {
-  const whereClauses = [];
-  const visibilityWhereClauses = [];
+  const whereClauses: {
+    AND: WhereClause["AND"] & { OR: OrganizationVisibility[] }[];
+  } = { AND: [] };
+  const visibilityWhereClauses: { OR: OrganizationVisibility[] } = { OR: [] };
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
+
     if (filterValues.length === 0) {
       continue;
     }
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
     const visibilityWhereStatement = {
       organizationVisibility: {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: false,
       },
     };
-    visibilityWhereClauses.push(visibilityWhereStatement);
+    visibilityWhereClauses.OR.push(visibilityWhereStatement);
 
     for (const slug of filterValues) {
       const filterWhereStatement = {
@@ -46,18 +62,17 @@ export async function getVisibilityFilteredOrganizationsCount(options: {
           },
         },
       };
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
-  if (visibilityWhereClauses.length === 0) {
+  if (visibilityWhereClauses.OR.length === 0) {
     return 0;
   }
-  whereClauses.push({ OR: [...visibilityWhereClauses] });
+  whereClauses.AND.push(visibilityWhereClauses);
 
   const count = await prismaClient.organization.count({
-    where: {
-      AND: whereClauses,
-    },
+    where: whereClauses,
   });
 
   return count;
@@ -66,10 +81,13 @@ export async function getVisibilityFilteredOrganizationsCount(options: {
 export async function getOrganizationsCount(options: {
   filter: GetOrganizationsSchema["filter"];
 }) {
-  const whereClauses = [];
+  const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
     for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
@@ -82,14 +100,14 @@ export async function getOrganizationsCount(options: {
           },
         },
       };
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
 
   const count = await prismaClient.organization.count({
-    where: {
-      AND: whereClauses,
-    },
+    where: whereClauses,
   });
 
   return count;
@@ -101,7 +119,7 @@ export async function getAllOrganizations(options: {
   take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
-  const whereClauses = [];
+  const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
@@ -114,8 +132,11 @@ export async function getAllOrganizations(options: {
           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: true,
         },
       };
-      whereClauses.push(visibilityWhereStatement);
+      whereClauses.AND.push(visibilityWhereStatement);
     }
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
     for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
@@ -128,8 +149,10 @@ export async function getAllOrganizations(options: {
           },
         },
       };
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
 
   const organizations = await prismaClient.organization.findMany({
@@ -221,14 +244,20 @@ export async function getAllOrganizations(options: {
   return organizations;
 }
 
-export async function getOrganizationFilterVector(options: {
-  filter: GetOrganizationsSchema["filter"];
-}) {
+export async function getOrganizationFilterVectorForAttribute(
+  attribute: keyof GetOrganizationsSchema["filter"],
+  filter: GetOrganizationsSchema["filter"]
+) {
   let whereClause = "";
   const whereStatements = [];
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
+  for (const filterKey in filter) {
+    const typedFilterKey = filterKey as keyof typeof filter;
+    const filterValues = filter[typedFilterKey];
+
+    if (typedFilterKey === attribute) {
+      continue;
+    }
+
     if (filterValues.length === 0) {
       continue;
     }
@@ -277,6 +306,8 @@ export async function getOrganizationFilterVector(options: {
       invariantResponse(false, "Server error", { status: 500 });
     }
 
+    const fieldWhereStatements: string[] = [];
+
     for (const slug of filterValues) {
       // Validate slug because of queryRawUnsafe
       invariantResponse(
@@ -288,8 +319,10 @@ export async function getOrganizationFilterVector(options: {
       );
       const tuple = `${typedFilterKey}\\:${slug}`;
       const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-      whereStatements.push(whereStatement);
+      fieldWhereStatements.push(whereStatement);
     }
+
+    whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
   }
 
   if (whereStatements.length > 0) {
@@ -297,7 +330,7 @@ export async function getOrganizationFilterVector(options: {
   }
 
   const filterVector: {
-    attr: keyof typeof options.filter;
+    attr: keyof typeof filter;
     value: string[];
     count: number[];
   }[] = await prismaClient.$queryRawUnsafe(`
@@ -319,9 +352,11 @@ export async function getOrganizationFilterVector(options: {
 export function getFilterCountForSlug(
   // TODO: Remove '| null' when slug isn't optional anymore (after migration)
   slug: string | null,
-  filterVector: Awaited<ReturnType<typeof getOrganizationFilterVector>>,
+  filterVector: Awaited<
+    ReturnType<typeof getOrganizationFilterVectorForAttribute>
+  >,
   attribute: ArrayElement<
-    Awaited<ReturnType<typeof getOrganizationFilterVector>>
+    Awaited<ReturnType<typeof getOrganizationFilterVectorForAttribute>>
   >["attr"]
 ) {
   const filterKeyVector = filterVector.find((vector) => {

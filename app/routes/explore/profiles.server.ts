@@ -15,23 +15,38 @@ export function getTakeParam(page: GetProfilesSchema["page"]) {
   return take;
 }
 
+type ProfileVisibility = { profileVisibility: { [x: string]: boolean } };
+type FilterKeyWhereStatement = {
+  OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
+};
+type WhereClause = {
+  AND: ProfileVisibility[] & FilterKeyWhereStatement[];
+};
+
 export async function getVisibilityFilteredProfilesCount(options: {
   filter: GetProfilesSchema["filter"];
 }) {
-  const whereClauses = [];
-  const visibilityWhereClauses = [];
+  const whereClauses: {
+    AND: WhereClause["AND"] & { OR: ProfileVisibility[] }[];
+  } = { AND: [] };
+  const visibilityWhereClauses: { OR: ProfileVisibility[] } = { OR: [] };
+
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
+
     if (filterValues.length === 0) {
       continue;
     }
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
     const visibilityWhereStatement = {
       profileVisibility: {
         [`${typedFilterKey}s`]: false,
       },
     };
-    visibilityWhereClauses.push(visibilityWhereStatement);
+    visibilityWhereClauses.OR.push(visibilityWhereStatement);
 
     for (const slug of filterValues) {
       const filterWhereStatement = {
@@ -43,18 +58,17 @@ export async function getVisibilityFilteredProfilesCount(options: {
           },
         },
       };
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
-  if (visibilityWhereClauses.length === 0) {
+  if (visibilityWhereClauses.OR.length === 0) {
     return 0;
   }
-  whereClauses.push({ OR: [...visibilityWhereClauses] });
+  whereClauses.AND.push(visibilityWhereClauses);
 
   const count = await prismaClient.profile.count({
-    where: {
-      AND: whereClauses,
-    },
+    where: whereClauses,
   });
 
   return count;
@@ -63,10 +77,13 @@ export async function getVisibilityFilteredProfilesCount(options: {
 export async function getProfilesCount(options: {
   filter: GetProfilesSchema["filter"];
 }) {
-  const whereClauses = [];
+  const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
     for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}s`]: {
@@ -77,14 +94,14 @@ export async function getProfilesCount(options: {
           },
         },
       };
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
 
   const count = await prismaClient.profile.count({
-    where: {
-      AND: whereClauses,
-    },
+    where: whereClauses,
   });
 
   return count;
@@ -96,7 +113,7 @@ export async function getAllProfiles(options: {
   take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
-  const whereClauses = [];
+  const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
@@ -104,13 +121,16 @@ export async function getAllProfiles(options: {
       continue;
     }
     if (options.isLoggedIn === false) {
-      const visibilityWhereStatement = {
+      const visibilityWhereStatement: ProfileVisibility = {
         profileVisibility: {
           [`${typedFilterKey}s`]: true,
         },
       };
-      whereClauses.push(visibilityWhereStatement);
+      whereClauses.AND.push(visibilityWhereStatement);
     }
+
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
     for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}s`]: {
@@ -121,8 +141,10 @@ export async function getAllProfiles(options: {
           },
         },
       };
-      whereClauses.push(filterWhereStatement);
+      filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
   }
 
   const profiles = await prismaClient.profile.findMany({
@@ -206,45 +228,22 @@ export async function getAllProfiles(options: {
   return profiles;
 }
 
-export async function getProfileFilterVector(options: {
-  filter: GetProfilesSchema["filter"];
-}) {
+export async function getProfileFilterVectorForAttribute(
+  attribute: keyof GetProfilesSchema["filter"],
+  filter: GetProfilesSchema["filter"]
+) {
   let whereClause = "";
-  const whereStatements = [];
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
+  const whereStatements: string[] = [];
+  for (const filterKey in filter) {
+    const typedFilterKey = filterKey as keyof typeof filter;
+    if (typedFilterKey === attribute) {
+      continue;
+    }
+    const filterValues = filter[typedFilterKey];
     if (filterValues.length === 0) {
       continue;
     }
-    // TODO: Union type issue when we add another filter key. Reason is shown below. The select statement can have different signatures because of the relations.
-    /* Example:
-      const test = await prismaClient.offer.findMany({
-        select: {
-          slug: true,
-          OffersOnProfiles: {
-            select: {
-              offerId: true,
-            },
-          },
-        },
-      });
-      const test2 = await prismaClient.area.findMany({
-        select: {
-          slug: true,
-          AreasOnProfiles: {
-            select: {
-              areaId: true,
-            },
-          },
-        },
-      });
-       */
-    // Further reading:
-    // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#union-types
-    // https://github.com/prisma/prisma/issues/2505
 
-    // I worked arround with an assertion. But if any table except areas remove their slug, this will break and typescript will not warn us.
     const fakeTypedFilterKey = filterKey as "area";
     let allPossibleFilterValues;
     try {
@@ -262,6 +261,8 @@ export async function getProfileFilterVector(options: {
       invariantResponse(false, "Server error", { status: 500 });
     }
 
+    const fieldWhereStatements: string[] = [];
+
     for (const slug of filterValues) {
       // Validate slug because of queryRawUnsafe
       invariantResponse(
@@ -273,8 +274,10 @@ export async function getProfileFilterVector(options: {
       );
       const tuple = `${typedFilterKey}\\:${slug}`;
       const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
-      whereStatements.push(whereStatement);
+      fieldWhereStatements.push(whereStatement);
     }
+
+    whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
   }
 
   if (whereStatements.length > 0) {
@@ -282,7 +285,7 @@ export async function getProfileFilterVector(options: {
   }
 
   const filterVector: {
-    attr: keyof typeof options.filter;
+    attr: keyof typeof filter;
     value: string[];
     count: number[];
   }[] = await prismaClient.$queryRawUnsafe(`
@@ -304,9 +307,9 @@ export async function getProfileFilterVector(options: {
 export function getFilterCountForSlug(
   // TODO: Remove '| null' when slug isn't optional anymore (after migration)
   slug: string | null,
-  filterVector: Awaited<ReturnType<typeof getProfileFilterVector>>,
+  filterVector: Awaited<ReturnType<typeof getProfileFilterVectorForAttribute>>,
   attribute: ArrayElement<
-    Awaited<ReturnType<typeof getProfileFilterVector>>
+    Awaited<ReturnType<typeof getProfileFilterVectorForAttribute>>
   >["attr"]
 ) {
   const filterKeyVector = filterVector.find((vector) => {

@@ -40,7 +40,7 @@ import {
   getAllEvents,
   getAllFocuses,
   getAllStages,
-  getEventFilterVector,
+  getEventFilterVectorForAttribute,
   getEventsCount,
   getFilterCountForSlug,
   getTakeParam,
@@ -270,10 +270,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const enhancedEventsWithParticipationStatus =
     await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
-  const filterVector = await getEventFilterVector({
-    filter: submission.value.filter,
-  });
-
   const areas = await getAreasBySearchQuery(submission.value.search);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
@@ -287,8 +283,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
     state: [] as EnhancedAreas,
     district: [] as EnhancedAreas,
   };
+
+  const areaFilterVector = await getEventFilterVectorForAttribute(
+    "area",
+    submission.value.filter
+  );
+
   for (const area of areas) {
-    const vectorCount = getFilterCountForSlug(area.slug, filterVector, "area");
+    const vectorCount = getFilterCountForSlug(
+      area.slug,
+      areaFilterVector,
+      "area"
+    );
     const isChecked = submission.value.filter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
@@ -299,7 +305,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
   const selectedAreas = await Promise.all(
     submission.value.filter.area.map(async (slug) => {
-      const vectorCount = getFilterCountForSlug(slug, filterVector, "area");
+      const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
       });
@@ -313,10 +319,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const focuses = await getAllFocuses();
+  const focusFilterVector = await getEventFilterVectorForAttribute(
+    "focus",
+    submission.value.filter
+  );
   const enhancedFocuses = focuses.map((focus) => {
     const vectorCount = getFilterCountForSlug(
       focus.slug,
-      filterVector,
+      focusFilterVector,
       "focus"
     );
     const isChecked = submission.value.filter.focus.includes(focus.slug);
@@ -324,10 +334,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const targetGroups = await getAllEventTargetGroups();
+  const targetGroupFilterVector = await getEventFilterVectorForAttribute(
+    "eventTargetGroup",
+    submission.value.filter
+  );
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
     const vectorCount = getFilterCountForSlug(
       targetGroup.slug,
-      filterVector,
+      targetGroupFilterVector,
       "eventTargetGroup"
     );
     const isChecked = submission.value.filter.eventTargetGroup.includes(
