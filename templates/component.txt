@@ -1,6 +1,6 @@
-export interface {{ componentName }}Props {}
+export interface {{ pascalCase componentName }}Props {}
 
-function {{ pascalCase componentName }}(props: {{ componentName }}Props) {
+function {{ pascalCase componentName }}(props: {{ pascalCase componentName }}Props) {
   return <>{{ pascalCase componentName }}</>;
 }
 
