@@ -85,8 +85,6 @@ export async function getVisibilityFilteredProjectsCount(options: {
     )
   );
 
-  console.log("\n");
-
   return count;
 }
 
@@ -140,8 +138,6 @@ export async function getProjectsCount(options: {
       2
     )
   );
-
-  console.log("\n");
 
   return count;
 }
