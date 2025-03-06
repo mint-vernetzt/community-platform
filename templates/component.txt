@@ -1,7 +1,10 @@
-export interface {{ pascalCase componentName }}Props {}
+type {{componentName}}Props = React.PropsWithChildren & {
+  // Additional props
+};
 
-function {{ pascalCase componentName }}(props: {{ pascalCase componentName }}Props) {
-  return <>{{ pascalCase componentName }}</>;
+function {{componentName}}(props: {{componentName}}Props) {
+  const { children } = props;
+  return <>{children}</>;
 }
 
-export default {{ pascalCase componentName}};
+export default {{componentName}};

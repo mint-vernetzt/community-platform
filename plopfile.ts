@@ -20,31 +20,33 @@ export default function (plop: NodePlopAPI) {
           "Please type in the capitalized component name (default: Index; e.g. Faq, Username, ...).",
         default: "Index",
       },
-      {
-        type: "confirm",
-        name: "skipUnitTest",
-        message: "Do you want to skip unit test?",
-        default: false,
-      },
-      {
-        type: "confirm",
-        name: "skipFunctionalTest",
-        message: "Do you want to skip functional test?",
-        default: false,
-      },
+      // TODO: Template does not exist yet (route.spec.txt)
+      // {
+      //   type: "confirm",
+      //   name: "skipUnitTest",
+      //   message: "Do you want to skip unit test?",
+      //   default: false,
+      // },
+      // TODO: Template does not exist yet (route.func.txt)
+      // {
+      //   type: "confirm",
+      //   name: "skipFunctionalTest",
+      //   message: "Do you want to skip functional test?",
+      //   default: false,
+      // },
     ],
     actions: (data) => {
       let filePath;
       let typesPath;
       let componentName;
-      let skipUnitTest;
-      let skipFunctionalTest;
+      // let skipUnitTest;
+      // let skipFunctionalTest;
       if (typeof data === "undefined") {
         filePath = "app/routes/index.tsx";
         typesPath = "index";
         componentName = "Index";
-        skipUnitTest = false;
-        skipFunctionalTest = false;
+        // skipUnitTest = false;
+        // skipFunctionalTest = false;
       } else {
         filePath = `app/routes${String(data.path)}`;
         // Remove .tsx for type import statement
@@ -52,8 +54,8 @@ export default function (plop: NodePlopAPI) {
         componentName = `${String(data.fileName)
           .charAt(0)
           .toUpperCase()}${String(data.fileName).substring(1)}`;
-        skipUnitTest = Boolean(data.skipUnitTest);
-        skipFunctionalTest = Boolean(data.skipFunctionalTest);
+        // skipUnitTest = Boolean(data.skipUnitTest);
+        // skipFunctionalTest = Boolean(data.skipFunctionalTest);
       }
       const actions = [
         {
@@ -67,31 +69,30 @@ export default function (plop: NodePlopAPI) {
         },
       ];
 
-      // TODO: Template does not exist yet (route.spec.txt)
-      if (skipUnitTest === false) {
-        actions.push({
-          type: "add",
-          path: filePath.replace(".tsx", ".spec.tsx"),
-          templateFile: "templates/route.spec.txt",
-          data: {
-            componentName,
-            typesPath,
-          },
-        });
-      }
+      // if (skipUnitTest === false) {
+      //   actions.push({
+      //     type: "add",
+      //     path: filePath.replace(".tsx", ".spec.tsx"),
+      //     templateFile: "templates/route.spec.txt",
+      //     data: {
+      //       componentName,
+      //       typesPath,
+      //     },
+      //   });
+      // }
 
-      // TODO: Template does not exist yet (route.func.txt)
-      if (skipFunctionalTest === false) {
-        actions.push({
-          type: "add",
-          path: filePath.replace(".tsx", ".func.tsx"),
-          templateFile: "templates/route.func.txt",
-          data: {
-            componentName,
-            typesPath,
-          },
-        });
-      }
+      // if (skipFunctionalTest === false) {
+      //   actions.push({
+      //     type: "add",
+      //     path: filePath.replace(".tsx", ".func.tsx"),
+      //     templateFile: "templates/route.func.txt",
+      //     data: {
+      //       componentName,
+      //       typesPath,
+      //     },
+      //   });
+      // }
+
       return actions;
     },
   });
@@ -107,21 +108,32 @@ export default function (plop: NodePlopAPI) {
         default: "/components-next/MyComponent.tsx",
       },
       {
-        type: "confirm",
-        name: "skipTest",
-        message: "Do you want to skip test?",
-        default: false,
+        type: "input",
+        name: "componentName",
+        message:
+          "Please type in the capitalized component name (default: Index; e.g. Faq, Username, ...).",
+        default: "Index",
       },
+      // TODO: Template does not exist yet (component.spec.txt)
+      // {
+      //   type: "confirm",
+      //   name: "skipTest",
+      //   message: "Do you want to skip test?",
+      //   default: false,
+      // },
     ],
     actions: (data) => {
-      let skipTest;
+      // let skipTest;
       let filePath;
+      let componentName;
       if (typeof data === "undefined") {
         filePath = "app/components-next/MyComponent.tsx";
-        skipTest = false;
+        componentName = "MyComponent";
+        // skipTest = false;
       } else {
         filePath = `app${String(data.path)}`;
-        skipTest = Boolean(data.skipTest);
+        componentName = String(data.componentName);
+        // skipTest = Boolean(data.skipTest);
       }
 
       const actions = [
@@ -129,16 +141,20 @@ export default function (plop: NodePlopAPI) {
           type: "add",
           path: filePath,
           templateFile: "templates/component.txt",
+          data: {
+            componentName,
+          },
         },
       ];
-      if (skipTest === false) {
-        // TODO: Template does not exist yet (component.spec.txt)
-        actions.push({
-          type: "add",
-          path: filePath.replace(".tsx", ".spec.tsx"),
-          templateFile: "templates/component.spec.txt",
-        });
-      }
+
+      // if (skipTest === false) {
+      //   actions.push({
+      //     type: "add",
+      //     path: filePath.replace(".tsx", ".spec.tsx"),
+      //     templateFile: "templates/component.spec.txt",
+      //   });
+      // }
+
       return actions;
     },
   });
