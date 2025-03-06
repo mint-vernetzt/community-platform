@@ -13,7 +13,7 @@ function ResourceList(props: ResourceListProps) {
   );
 
   return (
-    <div className="mv-w-full mv-flex mv-flex-col mv-items-center mv-gap-6">
+    <div className="mv-w-full mv-max-w-[358px] @lg:mv-max-w-none mv-flex mv-flex-col mv-items-center mv-gap-6">
       {header}
       {other}
     </div>
@@ -46,9 +46,9 @@ function ListItem(props: ListItemProps) {
   );
 
   return (
-    <div className="mv-w-full mv-rounded-lg mv-overflow-hidden mv-border mv-border-neutral-200">
+    <div className="mv-w-full @lg:mv-bg-white mv-rounded-lg mv-overflow-hidden mv-border mv-border-neutral-200 @lg:mv-flex @lg:mv-justify-center @lg:mv-gap-6 @lg:mv-pr-6">
       {imageSection}
-      <div className="mv-w-full mv-flex mv-flex-col mv-gap-6 mv-p-4">
+      <div className="mv-w-full mv-flex mv-flex-col @lg:mv-flex-row @lg:mv-justify-between @lg:mv-items-center mv-gap-6 mv-p-4 @lg:mv-p-0">
         {contentSection}
         {actionSection}
       </div>
@@ -57,18 +57,24 @@ function ListItem(props: ListItemProps) {
 }
 
 type ImageSectionProps = React.PropsWithChildren &
-  Pick<React.HTMLProps<HTMLDivElement>, "className">;
+  Pick<React.HTMLProps<HTMLDivElement>, "className"> & {
+    fullWidth?: boolean;
+  };
 
 function ImageSection(props: ImageSectionProps) {
-  const { children, className } = props;
+  const { children, className, fullWidth = false } = props;
 
   return (
     <div
-      className={`mv-w-full mv-h-36 mv-flex mv-items-center mv-justify-center${
+      className={`mv-w-full mv-h-36 @lg:mv-w-36 mv-flex mv-items-center mv-justify-center${
         typeof className !== "undefined" ? ` ${className}` : ""
       }`}
     >
-      {children}
+      <div
+        className={`mv-h-36 ${fullWidth === false ? "mv-w-36" : "@lg:mv-w-36"}`}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -86,7 +92,7 @@ function ContentSection(props: ContentSectionProps) {
   );
 
   return (
-    <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
+    <div className="mv-w-full mv-flex mv-flex-col mv-gap-2 mv-max-w-[560px]">
       {contentHeader}
       {other}
     </div>
@@ -99,7 +105,7 @@ function ActionSection(props: ActionSectionProps) {
   const { children } = props;
 
   return (
-    <div className="mv-w-full mv-flex mv-flex-col mv-gap-2 mv-text-center">
+    <div className="mv-flex mv-flex-col mv-gap-2 mv-text-center">
       {children}
     </div>
   );
