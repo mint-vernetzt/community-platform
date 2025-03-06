@@ -38,14 +38,8 @@ export const locale = {
         createEvent: "Create event",
         createProject: "Create project",
       },
-      ressources: {
+      resources: {
         label: "Ressources",
-        sharepic: "MINT-Sharepic Generator",
-        imageArchive: "MINT-Mediendatenbank",
-        campus: "MINT-Campus",
-        datalab: "MINT-DataLab",
-        website: "MINTvernetzt Website",
-        github: "MINTvernetzt GitHub",
       },
       explore: {
         label: "Explore",

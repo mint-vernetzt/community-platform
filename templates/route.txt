@@ -1,13 +1,115 @@
-import { type LoaderFunctionArgs, type ActionFunctionArgs } from "@remix-run/node";
+// Don't forget to add this route to app/routes.ts
+// If import is missing run "npm run typegen"
+import type { Route } from "./+types{{ typesPath }}";
+import type { ShouldRevalidateFunctionArgs } from "react-router";
 
-export const loader = async (args: LoaderFunctionArgs) => {
-  return {};
-}; 
+// Add custom headers to this routes responses
+// Remember to return loader and action headers here when setting them via data() utility.
+// Only exception is Set-Cookie header, which is automatically preserved.
+// see https://reactrouter.com/how-to/headers#from-loaders-and-actions
+export function headers({
+  loaderHeaders,
+  actionHeaders,
+  parentHeaders,
+  errorHeaders,
+}: Route.HeadersArgs) {
+  return {
+    "<Header-Name>": "<Header-Value>",
+  };
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+// Add <link> tags to the <head> of the page for this specific route
+export function links() {
+  return [];
+}
+
+// Add <meta> tags to the <head> of the page for this specific route
+export function meta() {
+  return [];
+}
+
+// Allows apps to add anything to a route match in useMatches
+export const handle = {
+  key: "value",
+};
+
+// By default, all routes are revalidated after actions. This function allows a route to opt-out of revalidation for actions that don't affect its data.
+// If you don't want to opt out you can remove this function.
+export function shouldRevalidate({
+  currentUrl,
+  currentParams,
+  nextUrl,
+  nextParams,
+  formMethod,
+  formAction,
+  formEncType,
+  text,
+  formData,
+  json,
+  actionStatus,
+  actionResult,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  return true;
+}
+
+// This function handles get requests on this specific route on the server
+export const loader = async ({
+  request,
+  params,
+  context,
+}: Route.LoaderArgs) => {
   return {};
 };
 
-export default function {{ pascalCase componentName }}() {
-  return <>{{ pascalCase componentName }}</>;
+// This function handles get requests on this specific route on the client
+export async function clientLoader({
+  request,
+  params,
+  context,
+}: Route.ClientLoaderArgs) {
+  return {};
+}
+
+// This function handles post requests on this specific route on the server
+export const action = async ({
+  request,
+  params,
+  context,
+}: Route.ActionArgs) => {
+  return {};
+};
+
+// This function handles post requests on this specific route on the client
+export async function clientAction({
+  request,
+  params,
+  context,
+}: Route.ClientActionArgs) {
+  return {};
+}
+
+// On initial page load, the route component renders only after the client loader is finished. If exported, a HydrateFallback can render immediately in place of the route component.
+export function HydrateFallback() {
+  return <></>;
+}
+
+// This is the default component for this route, which renders the tsx.
+export default function {{ componentName }}({
+  params,
+  loaderData,
+  actionData,
+  matches,
+}: Route.ComponentProps) {
+  return <></>;
+}
+
+// This is the error component for this route.
+export function ErrorBoundary({
+  params,
+  error,
+  loaderData,
+  actionData,
+}: Route.ErrorBoundaryProps) {
+  return <></>;
 }

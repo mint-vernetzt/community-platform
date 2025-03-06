@@ -264,94 +264,24 @@ export function MainMenu(
               </TopicItem>
             </Topic>
 
-            <Topic
-              id="resources"
-              activeTopicId={activeTopicId}
+            <Item
+              to="/resources"
+              openNavBarMenuKey={props.openNavBarMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
-              <Label>
+              {location.pathname === "/resources" ? (
+                <Icon type="briefcase" />
+              ) : (
                 <Icon type="briefcase-outline" />
-                <div className="mv-font-semibold">
-                  {props.locales !== undefined
-                    ? props.locales.route.root.menu.ressources.label
-                    : defaultLanguage === "de"
-                    ? "Ressourcen"
-                    : "Ressources"}
-                </div>
-              </Label>
-              <TopicItem
-                to="https://mediendatenbank.mint-vernetzt.de"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.ressources.imageArchive
-                  : defaultLanguage === "de"
-                  ? "MINT-Mediendatenbank"
-                  : "MINT-Mediendatenbank"}
-                <Icon type="box-arrow-up-right" />
-              </TopicItem>
-              {props.abilities?.sharepic?.hasAccess && (
-                <TopicItem
-                  to="https://mint.sharepicgenerator.de/"
-                  openNavBarMenuKey={props.openNavBarMenuKey}
-                >
-                  {props.locales !== undefined
-                    ? props.locales.route.root.menu.ressources.sharepic
-                    : defaultLanguage === "de"
-                    ? "MINT-Sharepic Generator"
-                    : "MINT-Sharepic Generator"}
-                  <Icon type="box-arrow-up-right" />
-                </TopicItem>
               )}
-
-              <TopicItem
-                to="https://mint-vernetzt.de"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
+              <div className="mv-font-semibold">
                 {props.locales !== undefined
-                  ? props.locales.route.root.menu.ressources.website
+                  ? props.locales.route.root.menu.resources.label
                   : defaultLanguage === "de"
-                  ? "MINTvernetzt Webseite"
-                  : "MINTvernetzt Website"}
-                <Icon type="box-arrow-up-right" />
-              </TopicItem>
-
-              <TopicItem
-                to="https://mint-vernetzt.shinyapps.io/datalab/"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.ressources.datalab
-                  : defaultLanguage === "de"
-                  ? "MINT-DataLab"
-                  : "MINT-DataLab"}
-                <Icon type="box-arrow-up-right" />
-              </TopicItem>
-
-              <TopicItem
-                to="https://mintcampus.org/"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.ressources.campus
-                  : defaultLanguage === "de"
-                  ? "MINT-Campus"
-                  : "MINT-Campus"}
-                <Icon type="box-arrow-up-right" />
-              </TopicItem>
-
-              <TopicItem
-                to="https://github.com/mint-vernetzt/community-platform"
-                openNavBarMenuKey={props.openNavBarMenuKey}
-              >
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.ressources.github
-                  : defaultLanguage === "de"
-                  ? "MINTvernetzt GitHub"
-                  : "MINTvernetzt GitHub"}
-                <Icon type="box-arrow-up-right" />
-              </TopicItem>
-            </Topic>
+                  ? "Ressourcen"
+                  : "Resources"}
+              </div>
+            </Item>
           </TopMenu>
         </div>
         <div className="mv-flex-shrink">
