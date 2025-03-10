@@ -4,6 +4,7 @@ export default [
   index("./routes/index.tsx"),
   route("*", "./routes/$.tsx"),
   route("/status", "./routes/status.tsx"),
+  route("/resources", "./routes/resources.tsx"),
   route("/imprint", "./routes/imprint.tsx"),
   route("/help", "./routes/help.tsx"),
   route("/goodbye", "./routes/goodbye.tsx"),

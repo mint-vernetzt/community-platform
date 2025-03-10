@@ -55,6 +55,7 @@ function Button(
     "mv-align-middle",
     "mv-text-center",
     "mv-rounded-lg",
+    isDisabled && "mv-pointer-events-none",
     as === "label" && isDisabled === false && "mv-cursor-pointer",
     // button size
     size === "x-small" && "mv-text-xs mv-p-2 mv-leading-4",
@@ -110,9 +111,9 @@ function Button(
 
   const element = React.createElement(as, {
     ...otherProps,
-    className: `${classes}${
-      otherProps.className !== undefined ? ` ${otherProps.className}` : ""
-    }`,
+    className: `${
+      otherProps.className !== undefined ? `${otherProps.className} ` : ""
+    }${classes}`,
   });
 
   return element;
