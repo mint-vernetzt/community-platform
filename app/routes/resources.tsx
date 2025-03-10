@@ -1,12 +1,11 @@
-import { detectLanguage } from "./../i18n.server";
-import type { Route } from "./+types/resources";
-import { languageModuleMap } from "./../locales/.server";
-import ResourceList from "~/components-next/ResourceList";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { External } from "~/components-next/icons/External";
-import React from "react";
 import BetaTag from "~/components-next/BetaTag";
+import { External } from "~/components-next/icons/External";
+import ResourceList from "~/components-next/ResourceList";
 import { RichText } from "~/components/Richtext/RichText";
+import type { Route } from "./+types/resources";
+import { detectLanguage } from "./../i18n.server";
+import { languageModuleMap } from "./../locales/.server";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const language = await detectLanguage(request);
@@ -146,11 +145,6 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
   const learnSectionData = getDataForLearnSection();
   const contributeSectionData = getDataForContributeSection();
 
-  const [isMobile, setIsMobile] = React.useState(false);
-  React.useEffect(() => {
-    setIsMobile(window.innerWidth < 600);
-  }, []);
-
   return (
     <div className="mv-flex mv-flex-col mv-items-center mv-gap-8 mv-mt-10 @lg:mv-mt-8 mv-mb-24">
       <div className="mv-w-full mv-max-w-screen-2xl mv-flex mv-flex-col mv-items-center mv-gap-2 mv-px-6 @lg:mv-px-8">
@@ -190,11 +184,11 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     </h3>
                     {typedResourceValue.beta ? <BetaTag /> : null}
                   </ResourceList.ListItem.ContentSection.Header>
-                  <p className="mv-text-neutral-600 mv-text-base mv-font-normal mv-leading-5">
+                  <div className="mv-text-neutral-600 mv-text-base mv-font-normal mv-leading-5">
                     <RichText
                       html={locales.sections.tools[typedResourceKey].content}
                     />
-                  </p>
+                  </div>
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
                   <Button
@@ -211,14 +205,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                         ? "_blank"
                         : undefined
                     }
-                    className={`mv-w-full @lg:mv-w-fit${
-                      typedResourceKey === "sharepic"
-                        ? " mv-bg-neutral-50 mv-border-neutral-300 mv-text-neutral-300 @sm:mv-bg-neutral-50 @sm:mv-border-primary @sm:mv-text-primary @sm:hover:mv-bg-primary-50 @sm:focus:mv-bg-primary-50 @sm:active:mv-bg-primary-100"
-                        : ""
-                    }`}
-                    disabled={
-                      typedResourceKey === "sharepic" && isMobile === true
-                    }
+                    className="mv-w-full @lg:mv-w-fit"
                   >
                     {typedResourceValue.external ? (
                       <span>
@@ -229,11 +216,6 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                       {locales.sections.tools[typedResourceKey].action}
                     </span>
                   </Button>
-                  {typedResourceKey === "sharepic" ? (
-                    <p className="@sm:mv-hidden mv-text-neutral-700 mv-text-sm mv-font-normal mv-leading-normal">
-                      {locales.sections.tools[typedResourceKey].desktopOnly}
-                    </p>
-                  ) : null}
                 </ResourceList.ListItem.ActionSection>
               </ResourceList.ListItem>
             );
@@ -267,13 +249,13 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     </h3>
                     {typedResourceValue.beta ? <BetaTag /> : null}
                   </ResourceList.ListItem.ContentSection.Header>
-                  <p className="mv-text-neutral-600 mv-text-base mv-font-normal mv-leading-5">
+                  <div className="mv-text-neutral-600 mv-text-base mv-font-normal mv-leading-5">
                     <RichText
                       html={
                         locales.sections.information[typedResourceKey].content
                       }
                     />
-                  </p>
+                  </div>
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
                   <Button
@@ -328,7 +310,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     }
                     sizes={
                       typedResourceKey === "mintCampus"
-                        ? "(max-width: 768px) 715px, 288px"
+                        ? "(max-width: 965px) 715px, 288px"
                         : undefined
                     }
                     src={typedResourceValue.imagePath}

@@ -13,9 +13,11 @@ function ResourceList(props: ResourceListProps) {
   );
 
   return (
-    <div className="mv-w-full mv-max-w-[358px] @lg:mv-max-w-none mv-flex mv-flex-col mv-items-center mv-gap-6">
+    <div className="mv-w-full mv-max-w-[358px] @md:mv-max-w-[740px] @lg:mv-max-w-none mv-flex mv-flex-col @lg:mv-items-center mv-gap-6">
       {header}
-      {other}
+      <div className="mv-w-full mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @lg:mv-grid-cols-1 @lg:mv-items-center mv-gap-6">
+        {other}
+      </div>
     </div>
   );
 }
@@ -92,7 +94,7 @@ function ContentSection(props: ContentSectionProps) {
   );
 
   return (
-    <div className="mv-w-full mv-flex mv-flex-col mv-gap-2 mv-max-w-[560px]">
+    <div className="mv-w-full mv-flex mv-flex-col mv-gap-2 mv-max-w-[560px] @md:mv-min-h-[132px] @lg:mv-min-h-none">
       {contentHeader}
       {other}
     </div>

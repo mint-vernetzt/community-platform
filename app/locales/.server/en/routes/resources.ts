@@ -18,7 +18,6 @@ export const locale = {
         content:
           "Create graphics for your public relations work easily and use your own images in compliance with data protection regulations or access images and graphics from the integrated MINT-Mediendatenbank.",
         action: "To the Sharepic-Generator",
-        desktopOnly: "Open this link on a desktop computer",
       },
       fundingSearch: {
         imgAlt: "A piggy bank.",

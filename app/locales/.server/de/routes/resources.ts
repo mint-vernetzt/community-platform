@@ -18,7 +18,6 @@ export const locale = {
         content:
           "Erstelle ganz einfach Grafiken für Deine Öffentlichkeitsarbeit und nutze datenschutz&shy;konform Deine eigenen Bilder oder greife auf Bilder und Grafiken der integrierten MINT-Mediendatenbank zurück.",
         action: "Zum Sharepic-Generator",
-        desktopOnly: "Öffne diesen Link am Desktop-Computer",
       },
       fundingSearch: {
         imgAlt: "Ein Sparschwein.",
