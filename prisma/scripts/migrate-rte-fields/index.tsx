@@ -211,6 +211,7 @@ async function getNewValueFromRTE(oldValue: string) {
 }
 
 async function main() {
+  console.log("\nCollecting old RTE fields...                       [x---]");
   const old = {
     profiles: await prismaClient.profile.findMany({
       select: {
@@ -263,6 +264,7 @@ async function main() {
     },
   };
 
+  console.log("Running RTE fields through hydrated lexical RTE... [xx--]");
   // Send all rte fields through the new hydrated RTE component, which transforms the old HTML to the new HTML
   // Did each entity on its own to get typescript support. Typescript cannot resolve the type on the third nested for loop.
   for (const oldProfile of changes.old.profiles) {
@@ -341,12 +343,15 @@ async function main() {
     changes.new.events.push(newEvent);
   }
 
+  console.log("Writing changes JSON...                            [xxx-]");
   // Save changes in json file
-  fs.writeJSON(`${__dirname}/changes.json`, changes, {
+  const currentTimestamp = new Date().toISOString();
+  fs.writeJSON(`${__dirname}/changes_${currentTimestamp}.json`, changes, {
     spaces: 4,
     encoding: "utf8",
   });
 
+  console.log("Updating RTE fields in db to new values...         [xxxx]");
   // Save new values in the database
   for (const newProfile of changes.new.profiles) {
     const { id, ...rteFields } = newProfile;
@@ -376,7 +381,9 @@ async function main() {
       data: rteFields,
     });
   }
-  console.log("Migrate RTE fields successfully");
+  console.log("\nMigrated RTE fields successfully");
+  console.log("For changes see ./changes.json");
+  console.log("For rollback see ./rollback.ts");
 }
 
 main()

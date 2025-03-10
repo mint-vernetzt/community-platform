@@ -1,5 +1,5 @@
 import fs from "fs-extra";
-import { prismaClient } from "~/prisma.server";
+import { prismaClient } from "./../../../app/prisma.server";
 
 import { dirname } from "path";
 import { fileURLToPath } from "url";
