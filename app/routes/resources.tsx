@@ -6,6 +6,7 @@ import { RichText } from "~/components/Richtext/RichText";
 import type { Route } from "./+types/resources";
 import { detectLanguage } from "./../i18n.server";
 import { languageModuleMap } from "./../locales/.server";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const language = await detectLanguage(request);
@@ -22,6 +23,7 @@ function getDataForToolsSection() {
     [key in ResourceKey]: {
       link: string;
       imagePath: string;
+      blurredImagePath: string;
       external: boolean;
       beta?: boolean;
       bgClassName?: string;
@@ -31,6 +33,7 @@ function getDataForToolsSection() {
     mediaDatabase: {
       link: "https://mediendatenbank.mint-vernetzt.de",
       imagePath: "/images/media-database.png",
+      blurredImagePath: "/images/media-database-blurred.png",
       external: true,
       beta: true,
       bgClassName: "mv-bg-neutral-50",
@@ -38,6 +41,7 @@ function getDataForToolsSection() {
     sharepic: {
       link: "https://mint.sharepicgenerator.de",
       imagePath: "/images/sharepic-generator.png",
+      blurredImagePath: "/images/sharepic-generator-blurred.png",
       external: true,
       beta: true,
       bgClassName: "mv-bg-neutral-100",
@@ -45,6 +49,7 @@ function getDataForToolsSection() {
     fundingSearch: {
       link: "/explore/fundings",
       imagePath: "/images/funding-search.png",
+      blurredImagePath: "/images/funding-search-blurred.png",
       external: false,
       beta: true,
       bgClassName: "mv-bg-neutral-50",
@@ -52,6 +57,7 @@ function getDataForToolsSection() {
     oeb: {
       link: "https://openbadges.education",
       imagePath: "/images/oeb.png",
+      blurredImagePath: "/images/oeb-blurred.png",
       external: true,
     },
   };
@@ -65,6 +71,7 @@ function getDataForInformationSection() {
     [key in ResourceKey]: {
       link: string;
       imagePath: string;
+      blurredImagePath: string;
       external: boolean;
       beta?: boolean;
       bgClassName?: string;
@@ -74,18 +81,21 @@ function getDataForInformationSection() {
     mintVernetzt: {
       link: "https://www.mint-vernetzt.de",
       imagePath: "/images/mint-vernetzt.png",
+      blurredImagePath: "/images/mint-vernetzt-blurred.png",
       external: true,
       bgClassName: "mv-bg-[#164194]",
     },
     meshMint: {
       link: "https://www.meshmint.org",
       imagePath: "/images/mesh-mint.png",
+      blurredImagePath: "/images/mesh-mint-blurred.png",
       external: true,
       bgClassName: "mv-bg-[#0C9C85]",
     },
     mintDataLab: {
       link: "https://datalab.mint-vernetzt.de",
       imagePath: "/images/mint-datalab.png",
+      blurredImagePath: "/images/mint-datalab-blurred.png",
       external: true,
       bgClassName: "mv-bg-[#D1A9CC]",
     },
@@ -100,6 +110,7 @@ function getDataForLearnSection() {
     [key in ResourceKey]: {
       link: string;
       imagePath: string;
+      blurredImagePath?: string;
       external: boolean;
       beta?: boolean;
       bgClassName?: string;
@@ -109,6 +120,7 @@ function getDataForLearnSection() {
     mintCampus: {
       link: "https://mintcampus.org",
       imagePath: "/images/mint-campus.png",
+      blurredImagePath: "/images/mint-campus-mobile.png",
       external: true,
     },
   };
@@ -122,6 +134,7 @@ function getDataForContributeSection() {
     [key in ResourceKey]: {
       link: string;
       imagePath: string;
+      blurredImagePath: string;
       external: boolean;
       beta?: boolean;
       bgClassName?: string;
@@ -131,6 +144,7 @@ function getDataForContributeSection() {
     github: {
       link: "https://github.com/mint-vernetzt/community-platform",
       imagePath: "/images/github.png",
+      blurredImagePath: "/images/github-blurred.png",
       external: true,
       bgClassName: "mv-bg-neutral-900",
     },
@@ -171,10 +185,10 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 <ResourceList.ListItem.ImageSection
                   className={typedResourceValue.bgClassName}
                 >
-                  <img
+                  <Image
                     src={typedResourceValue.imagePath}
+                    blurredSrc={typedResourceValue.blurredImagePath}
                     alt={locales.sections.tools[typedResourceKey].imgAlt}
-                    className="mv-w-full mv-h-full mv-object-cover"
                   />
                 </ResourceList.ListItem.ImageSection>
                 <ResourceList.ListItem.ContentSection>
@@ -236,10 +250,10 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 <ResourceList.ListItem.ImageSection
                   className={typedResourceValue.bgClassName}
                 >
-                  <img
+                  <Image
                     src={typedResourceValue.imagePath}
+                    blurredSrc={typedResourceValue.blurredImagePath}
                     alt={locales.sections.information[typedResourceKey].imgAlt}
-                    className="mv-w-full mv-h-full mv-object-cover"
                   />
                 </ResourceList.ListItem.ImageSection>
                 <ResourceList.ListItem.ContentSection>
@@ -373,10 +387,10 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 <ResourceList.ListItem.ImageSection
                   className={typedResourceValue.bgClassName}
                 >
-                  <img
+                  <Image
                     src={typedResourceValue.imagePath}
+                    blurredSrc={typedResourceValue.blurredImagePath}
                     alt={locales.sections.contribute[typedResourceKey].imgAlt}
-                    className="mv-w-full mv-h-full mv-object-cover"
                   />
                 </ResourceList.ListItem.ImageSection>
                 <ResourceList.ListItem.ContentSection>
