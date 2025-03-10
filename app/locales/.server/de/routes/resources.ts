@@ -16,7 +16,7 @@ export const locale = {
         imgAlt: "Ein Bild eines jungen Mädchens mit VR-Brille.",
         headline: "MINT-Sharepic-Generator",
         content:
-          "Erstelle ganz einfach Grafiken für Deine Öffentlichkeitsarbeit und nutze datenschutzkonform Deine eigenen Bilder oder greife auf Bilder und Grafiken der integrierten MINT-Mediendatenbank zurück.",
+          "Erstelle ganz einfach Grafiken für Deine Öffentlichkeitsarbeit und nutze datenschutz&shy;konform Deine eigenen Bilder oder greife auf Bilder und Grafiken der integrierten MINT-Mediendatenbank zurück.",
         action: "Zum Sharepic-Generator",
         desktopOnly: "Öffne diesen Link am Desktop-Computer",
       },
@@ -24,14 +24,14 @@ export const locale = {
         imgAlt: "Ein Sparschwein.",
         headline: "Fördermittelsuche",
         content:
-          "Finde passende Förderungen mit unserer Fördermittelsuche. Wir durchsuchen Förderdatenbanken nach relevanten Suchbegriffen und spielen die Ergebnisse für Dich gesammelt aus.",
+          "Finde passende Förderungen mit unserer Fördermittelsuche. Wir durchsuchen Förder&shy;datenbanken nach relevanten Suchbegriffen und spielen die Ergebnisse gesammelt aus.",
         action: "Zur Fördermittelsuche",
       },
       oeb: {
         imgAlt: "Das Logo von MINT Open Educational Badges.",
         headline: "MINT Open Educational Badges (OEB)",
         content:
-          "Mit Open Educational Badges können Bildungsakteur:innen minutenschnell Badges (digitale Nachweise) für Lernangebote erstellen und so Sichtbarkeit für ihre Lernangebote schaffen.",
+          "Mit Open Educational Badges können Bildungs&shy;akteur:innen minutenschnell Badges (digitale Nachweise) für Lernangebote erstellen und so Sichtbarkeit für ihre Lernangebote schaffen.",
         action: "Zu MINT-OEB",
       },
     },
@@ -41,14 +41,14 @@ export const locale = {
         imgAlt: "Das Logo von MINTvernetzt.",
         headline: "MINTvernetzt Website",
         content:
-          "MINTvernetzt ist die zentrale Service- und Anlaufstelle für MINT-Akteur:innen in Deutschland. Entdecke aktuelle Informationen, Beiträge und Studien zu MINT.",
+          "MINTvernetzt ist die zentrale Service- und An&shy;laufstelle für MINT-Akteur:innen in Deutschland. Entdecke aktuelle Informationen, Beiträge und Studien zu MINT.",
         action: "Zur Website",
       },
       meshMint: {
         imgAlt: "Das Logo von MesH_MINT.",
         headline: "MesH_MINT",
         content:
-          "Das Ziel von MesH_MINT ist eine Verbesserung des Forschungstransfers durch praxisnahe Aufbereitung relevanter Erkenntnissen aus der MINT-Bildungsforschung für Bildungspraktiker:innen.",
+          "Das Ziel von MesH_MINT ist eine Verbesserung des Forschungstransfers durch praxisnahe Aufbereitung relevanter Erkenntnissen aus der MINT-Bildungsforschung für Bildungsprak&shy;tiker:innen.",
         action: "Zu MesH_MINT",
       },
       mintDataLab: {

@@ -6,6 +6,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { External } from "~/components-next/icons/External";
 import React from "react";
 import BetaTag from "~/components-next/BetaTag";
+import { RichText } from "~/components/Richtext/RichText";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const language = await detectLanguage(request);
@@ -190,7 +191,9 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     {typedResourceValue.beta ? <BetaTag /> : null}
                   </ResourceList.ListItem.ContentSection.Header>
                   <p className="mv-text-neutral-600 mv-text-base mv-font-normal mv-leading-5">
-                    {locales.sections.tools[typedResourceKey].content}
+                    <RichText
+                      html={locales.sections.tools[typedResourceKey].content}
+                    />
                   </p>
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
@@ -265,7 +268,11 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     {typedResourceValue.beta ? <BetaTag /> : null}
                   </ResourceList.ListItem.ContentSection.Header>
                   <p className="mv-text-neutral-600 mv-text-base mv-font-normal mv-leading-5">
-                    {locales.sections.information[typedResourceKey].content}
+                    <RichText
+                      html={
+                        locales.sections.information[typedResourceKey].content
+                      }
+                    />
                   </p>
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
