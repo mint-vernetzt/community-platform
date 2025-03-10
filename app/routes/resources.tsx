@@ -208,7 +208,11 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                         ? "_blank"
                         : undefined
                     }
-                    className="mv-w-full @lg:mv-w-fit"
+                    className={`mv-w-full @lg:mv-w-fit${
+                      typedResourceKey === "sharepic"
+                        ? " mv-bg-neutral-50 mv-border-neutral-300 mv-text-neutral-300 @sm:mv-bg-neutral-50 @sm:mv-border-primary @sm:mv-text-primary @sm:hover:mv-bg-primary-50 @sm:focus:mv-bg-primary-50 @sm:active:mv-bg-primary-100"
+                        : ""
+                    }`}
                     disabled={
                       typedResourceKey === "sharepic" && isMobile === true
                     }
@@ -222,8 +226,8 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                       {locales.sections.tools[typedResourceKey].action}
                     </span>
                   </Button>
-                  {typedResourceKey === "sharepic" && isMobile ? (
-                    <p className="mv-text-neutral-700 mv-text-sm mv-font-normal mv-leading-normal">
+                  {typedResourceKey === "sharepic" ? (
+                    <p className="@sm:mv-hidden mv-text-neutral-700 mv-text-sm mv-font-normal mv-leading-normal">
                       {locales.sections.tools[typedResourceKey].desktopOnly}
                     </p>
                   ) : null}
