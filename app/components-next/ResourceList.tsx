@@ -94,7 +94,7 @@ function ContentSection(props: ContentSectionProps) {
   );
 
   return (
-    <div className="mv-w-full mv-flex mv-flex-col mv-gap-2 mv-max-w-[560px] @md:mv-min-h-[132px] @lg:mv-min-h-none">
+    <div className="mv-w-full mv-flex mv-flex-col mv-gap-2 mv-max-w-[560px] @md:mv-min-h-[132px] @lg:mv-min-h-fit">
       {contentHeader}
       {other}
     </div>
