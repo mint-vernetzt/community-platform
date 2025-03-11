@@ -446,7 +446,6 @@ export default function Index() {
                   withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.email}
                   errorMessage={errors?.email?.message}
-                  disabled
                   className="mv-text-neutral-300"
                 />
                 <div className="mv-text-sm mv-mt-2 mv-text-neutral-300">
