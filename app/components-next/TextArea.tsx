@@ -103,7 +103,7 @@ const TextArea = (
                     id={inputProps.id || label}
                     maxLength={inputProps.maxLength}
                     defaultValue={inputProps.defaultValue}
-                    placeholder="Enter your text here"
+                    placeholder={rte.locales.rte.placeholder}
                     locales={rte.locales}
                   />
                   <noscript className="mv-absolute mv-top-10 mv-w-full">
