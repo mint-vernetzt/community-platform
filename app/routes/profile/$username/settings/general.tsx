@@ -54,6 +54,7 @@ import {
 } from "./general.server";
 import { languageModuleMap } from "~/locales/.server";
 import { RichText } from "~/components/Richtext/RichText";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 const BIO_MAX_LENGTH = 500;
 
@@ -448,8 +449,17 @@ export default function Index() {
                   errorMessage={errors?.email?.message}
                   className="mv-text-neutral-300"
                 />
-                <div className="mv-text-sm mv-mt-2 mv-text-neutral-300">
-                  {locales.route.general.form.email.helperText}
+                <div className="mv-text-sm mv-mt-2">
+                  {insertComponentsIntoLocale(
+                    locales.route.general.form.email.helperText,
+                    [
+                      <Link
+                        key="link-to-security-settings"
+                        to={`/profile/${username}/settings/security`}
+                        className="mv-text-primary hover:mv-underline"
+                      />,
+                    ]
+                  )}
                 </div>
               </div>
               <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
