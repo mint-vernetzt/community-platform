@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router";
 import { Icon } from "./icons/Icon";
 
 function Accordion(props: React.PropsWithChildren) {
@@ -51,6 +52,21 @@ function AccordionTopic(props: React.PropsWithChildren & { id: string }) {
 }
 
 function AccordionItem(props: React.PropsWithChildren & { id: string }) {
+  const location = useLocation();
+  const [isExpanded, setIsExpanded] = React.useState(
+    location.hash === `#${props.id}`
+  );
+  const listItemRef = React.useRef<HTMLLIElement>(null);
+  React.useEffect(() => {
+    if (listItemRef.current !== null && location.hash === `#${props.id}`) {
+      setIsExpanded(true);
+      listItemRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [location.hash, props.id]);
+
   const children = React.Children.toArray(props.children);
   const itemLabel = children.find((child) => {
     return typeof child === "string";
@@ -67,7 +83,12 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
   }
 
   return (
-    <li key={props.id} className="mv-group mv-border-neutral-200 mv-border-b">
+    <li
+      ref={listItemRef}
+      id={props.id}
+      key={`${props.id}-key`}
+      className="mv-group mv-border-neutral-200 mv-border-b"
+    >
       <label
         htmlFor={`expand-question-${props.id}`}
         className="mv-pb-6 mv-pt-6 @xl:mv-pb-8 @xl:mv-pt-8 group-has-[:checked]:mv-pb-0 mv-text-primary-600 mv-text-xl mv-font-bold mv-leading-6 mv-cursor-pointer mv-flex mv-gap-2 mv-items-center mv-justify-between mv-mb-0"
@@ -81,6 +102,10 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
         id={`expand-question-${props.id}`}
         type="checkbox"
         className="mv-absolute mv-opacity-0 mv-w-0 mv-h-0 mv-overflow-hidden"
+        checked={isExpanded}
+        onChange={() => {
+          setIsExpanded(!isExpanded);
+        }}
       />
       <div className="mv-text-primary-600 mv-leading-[20.8px] mv-font-normal mv-pt-[10px] mv-pb-6 @xl:mv-pt-4 @xl:mv-pb-8 mv-max-w-[800px] mv-hidden group-has-[:checked]:mv-block mv-hyphens-auto">
         {content}
