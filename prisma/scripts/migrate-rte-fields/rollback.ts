@@ -4,11 +4,21 @@ import { prismaClient } from "~/prisma.server";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { z } from "zod";
+import { program } from "commander";
 
 // Get the current file path
 const __filename = fileURLToPath(import.meta.url);
 // Get the current directory path
 const __dirname = dirname(__filename);
+
+program.requiredOption(
+  "-f, --file <file>",
+  "The json file that contains the changes that need to be rolled back."
+);
+
+program.parse(process.argv);
+
+const options = program.opts();
 
 const entitiesSchema = z.object({
   profiles: z.array(
@@ -57,7 +67,7 @@ const changesSchema = z.object({
 
 async function main() {
   // Save changes in json file
-  const anyChanges = await fs.readJson(`${__dirname}/changes.json`, {
+  const anyChanges = await fs.readJson(`${__dirname}/${options.file}`, {
     encoding: "utf8",
   });
 
