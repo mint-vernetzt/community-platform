@@ -57,4 +57,12 @@ export const locale = assertFocusLocales({
     title: "International",
     description: null,
   },
+  sustainability: {
+    title: "Nachhaltigkeit",
+    description: null,
+  },
+  education_for_sustainable_development: {
+    title: "Bildung für nachhaltige Entwicklung",
+    description: null,
+  },
 } as const);
