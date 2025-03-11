@@ -6,9 +6,12 @@ import {
   removeTeamMemberFromOrganizationSchema,
 } from "~/form-helpers";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { invariantResponse } from "~/lib/utils/response";
-import { getCompiledMailTemplate, mailer } from "~/mailer.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type supportedCookieLanguages } from "~/i18n.shared";

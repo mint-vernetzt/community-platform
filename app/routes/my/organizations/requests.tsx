@@ -2,9 +2,12 @@ import { parseWithZod } from "@conform-to/zod-v1";
 import { type ActionFunctionArgs, redirect } from "react-router";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { invariantResponse } from "~/lib/utils/response";
-import { getCompiledMailTemplate, mailer } from "~/mailer.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 import { detectLanguage } from "~/i18n.server";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { redirectWithToast } from "~/toast.server";
