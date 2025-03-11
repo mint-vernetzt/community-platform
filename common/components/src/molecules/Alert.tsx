@@ -33,7 +33,9 @@ export function Alert(props: AlertProps) {
 
   return (
     <div className={classes}>
-      <p className="mv-w-full mv-text-center mv-truncate">{props.children}</p>
+      <div className="mv-w-full mv-text-center mv-truncate">
+        {props.children}
+      </div>
       <button onClick={handleClick}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
