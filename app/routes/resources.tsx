@@ -7,11 +7,17 @@ import type { Route } from "./+types/resources";
 import { detectLanguage } from "./../i18n.server";
 import { languageModuleMap } from "./../locales/.server";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { getFeatureAbilities } from "./feature-access.server";
+import { createAuthClient } from "~/auth.server";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["resources"];
+  const { authClient } = createAuthClient(request);
+  const abilities = await getFeatureAbilities(authClient, ["sharepic"]);
+
   return {
+    abilities,
     locales,
   };
 };
@@ -153,7 +159,7 @@ function getDataForContributeSection() {
 }
 
 export default function Resources({ loaderData }: Route.ComponentProps) {
-  const { locales } = loaderData;
+  const { abilities, locales } = loaderData;
   const toolsSectionData = getDataForToolsSection();
   const informationSectionData = getDataForInformationSection();
   const learnSectionData = getDataForLearnSection();
@@ -180,6 +186,14 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
             const typedResourceKey =
               resourceKey as keyof typeof toolsSectionData;
             const typedResourceValue = toolsSectionData[typedResourceKey];
+
+            if (
+              typedResourceKey === "sharepic" &&
+              abilities.sharepic.hasAccess === false
+            ) {
+              return null;
+            }
+
             return (
               <ResourceList.ListItem key={typedResourceKey}>
                 <ResourceList.ListItem.ImageSection
