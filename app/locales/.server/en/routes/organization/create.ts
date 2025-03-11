@@ -41,5 +41,5 @@ export const locale = {
     submit: "Create organization",
   },
   successAlert:
-    '<p>You have successfully created your organization {{name}}. You are a team member and admin of your organization. Now edit your organization and make it more visible to the community. <a href="/organization/{{slug}}/settings">Edit now</a></p>',
+    '<p>You have successfully created your organization {{name}}. You are a team member and admin of your organization. Now edit your organization and make it more visible to the community. <a href="/organization/{{slug}}/settings" class="hover:mv-underline mv-text-primary">Edit now</a></p>',
 } as const;
