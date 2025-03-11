@@ -628,7 +628,7 @@ function OrganizationDetail() {
         </>
       )}
       {/* TabBar Section */}
-      <Container.Section className="mv-pt-6 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 @sm:mv-border @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-t-2xl">
+      <Container.Section className="mv-pt-6 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 @sm:mv-border-x @sm:mv-border-t @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-t-2xl">
         <TabBar>
           <TabBar.Item active={pathname.endsWith("/about")}>
             <Link to="./about" preventScrollReset>
