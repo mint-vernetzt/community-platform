@@ -198,6 +198,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
               <ResourceList.ListItem key={typedResourceKey}>
                 <ResourceList.ListItem.ImageSection
                   className={typedResourceValue.bgClassName}
+                  fullWidth={typedResourceKey === "mediaDatabase"}
                 >
                   <Image
                     src={typedResourceValue.imagePath}
