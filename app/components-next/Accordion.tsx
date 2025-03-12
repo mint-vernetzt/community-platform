@@ -42,7 +42,7 @@ function AccordionTopic(props: React.PropsWithChildren & { id: string }) {
   }
 
   return (
-    <li key={props.id}>
+    <li id={props.id} key={`${props.id}-key`}>
       <h2 className="mv-mb-2 @md:mv-mb-3 @xl:mv-mb-5 mv-text-secondary mv-text-3xl mv-font-semibold mv-leading-7">
         {topicLabel}
       </h2>
