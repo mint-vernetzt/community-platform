@@ -5,6 +5,7 @@ import { getPublicURL } from "~/storage.server";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
+import { DefaultImages } from "~/images.shared";
 
 export type MyProjectsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -82,6 +83,9 @@ export async function getProjects(options: {
         },
         blur: BlurFactor,
       });
+    } else {
+      background = DefaultImages.Project.Background;
+      blurredBackground = DefaultImages.Project.BlurredBackground;
     }
 
     let logo = project.logo;
@@ -154,6 +158,9 @@ export async function getProjects(options: {
         },
         blur: BlurFactor,
       });
+    } else {
+      background = DefaultImages.Project.Background;
+      blurredBackground = DefaultImages.Project.BlurredBackground;
     }
 
     let logo = project.logo;

@@ -57,6 +57,7 @@ import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { DefaultImages } from "~/images.shared";
 
 const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
 
@@ -209,7 +210,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
           blur: BlurFactor,
         });
       }
+    } else {
+      background = DefaultImages.Project.Background;
+      blurredBackground = DefaultImages.Project.BlurredBackground;
     }
+
     let logo = enhancedProject.logo;
     let blurredLogo;
     if (logo !== null) {

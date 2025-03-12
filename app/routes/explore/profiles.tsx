@@ -52,6 +52,7 @@ import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { DefaultImages } from "~/images.shared";
 // import styles from "../../../common/design/styles/styles.css?url";
 
 const i18nNS = ["routes-explore-profiles", "datasets-offers"] as const;
@@ -227,7 +228,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
           blur: BlurFactor,
         });
       }
+    } else {
+      background = DefaultImages.Profile.Background;
+      blurredBackground = DefaultImages.Profile.BlurredBackground;
     }
+
     const memberOf = enhancedProfile.memberOf.map((relation) => {
       let logo = relation.organization.logo;
       let blurredLogo;

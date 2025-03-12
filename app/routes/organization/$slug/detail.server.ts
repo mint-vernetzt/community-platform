@@ -15,6 +15,7 @@ import { captureException } from "@sentry/node";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { DefaultImages } from "~/images.shared";
 import { triggerEntityScore } from "~/utils.server";
 
 export type OrganizationDetailLocales = (typeof languageModuleMap)[ArrayElement<
@@ -181,7 +182,11 @@ export function addImgUrls(
       },
       blur: BlurFactor,
     });
+  } else {
+    background = DefaultImages.Organization.Background;
+    blurredBackground = DefaultImages.Organization.BlurredBackground;
   }
+
   let logo = organization.logo;
   let blurredLogo;
   if (logo !== null) {
