@@ -1,21 +1,57 @@
 import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
 import type { Organization, Profile } from "@prisma/client";
-import type { LinksFunction, LoaderFunctionArgs } from "react-router";
-import { useLoaderData, redirect } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
 import Cookies from "js-cookie";
 import React from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  Form,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useLocation,
+} from "react-router";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
-import { DefaultImages } from "~/images.shared";
+import {
+  DefaultImages,
+  ImageAspects,
+  MaxImageSizes,
+  MinCropSizes,
+} from "~/images.shared";
 import { detectLanguage } from "~/root.server";
-import { getPublicURL } from "~/storage.server";
-import styles from "../../common/design/styles/styles.css?url";
+import { getPublicURL, parseMultipartFormData } from "~/storage.server";
+// import styles from "../../common/design/styles/styles.css?url";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
+import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
+import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
+import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { captureException } from "@sentry/node";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { Icon } from "~/components-next/icons/Icon";
+import { Modal } from "~/components-next/Modal";
 import { TeaserCard, type TeaserIconType } from "~/components-next/TeaserCard";
+import ImageCropper, {
+  IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
+} from "~/components/ImageCropper/ImageCropper";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { type AtLeastOne } from "~/lib/utils/types";
+import { languageModuleMap } from "~/locales/.server";
+import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { redirectWithToast } from "~/toast.server";
 import {
   enhanceEventsWithParticipationStatus,
   getEventsForCards,
@@ -27,36 +63,29 @@ import {
   getProjectsForCards,
   getUpcomingCanceledEvents,
 } from "./dashboard.server";
+import { getFeatureAbilities } from "./feature-access.server";
+import { disconnectImage, uploadImage } from "./profile/$username/index.server";
 import {
   getEventCount,
   getOrganizationCount,
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
-import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
-import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
-import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
-import { languageModuleMap } from "~/locales/.server";
-import {
-  decideBetweenSingularOrPlural,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
-import { type AtLeastOne } from "~/lib/utils/types";
-import { invariantResponse } from "~/lib/utils/response";
-import { getFeatureAbilities } from "./feature-access.server";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export function links() {
+  return [
+    { rel: "stylesheet", href: rcSliderStyles },
+    { rel: "stylesheet", href: reactCropStyles },
+  ];
+}
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["dashboard"];
+  const imageCropperLocales =
+    languageModuleMap[language]["profile/$username/index"];
 
   const { authClient } = createAuthClient(request);
 
@@ -493,9 +522,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     profilesFromRequests,
     upcomingCanceledEvents,
     locales,
+    imageCropperLocales,
     language,
     abilities,
     ...profile,
+    currentTimestamp: Date.now(),
   };
 };
 
@@ -582,8 +613,93 @@ function getDataForNewsTeasers() {
   return teaserData;
 }
 
+export const action = async (args: ActionFunctionArgs) => {
+  const { request } = args;
+  const { authClient } = createAuthClient(request);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["profile/$username/index"];
+
+  const profile = await getProfileById(sessionUser.id, authClient);
+  if (profile === null) {
+    invariantResponse(false, locales.route.error.profileNotFound, {
+      status: 404,
+    });
+  }
+
+  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
+
+  const { formData, error } = await parseMultipartFormData(request);
+  if (error !== null || formData === null) {
+    console.error({ error });
+    captureException(error);
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "upload-failed",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.onStoring,
+      level: "negative",
+    });
+  }
+
+  const intent = formData.get(INTENT_FIELD_NAME);
+  let submission;
+  let toast;
+  let redirectUrl: string | null = request.url;
+
+  const username = profile.username;
+
+  if (intent === UPLOAD_INTENT_VALUE) {
+    const result = await uploadImage({
+      request,
+      formData,
+      authClient,
+      username,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else if (intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE) {
+    const result = await disconnectImage({
+      request,
+      formData,
+      username,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else {
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "invalid-action",
+      key: `${new Date().getTime()}`,
+      message: locales.route.error.invalidAction,
+      level: "negative",
+    });
+  }
+
+  if (submission !== null) {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
+  }
+  if (toast === null) {
+    return redirect(redirectUrl);
+  }
+  return redirectWithToast(redirectUrl, toast);
+};
+
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const location = useLocation();
 
   const externalTeasers = getDataForExternalTeasers();
   const updateTeasers = getDataForUpdateTeasers();
@@ -669,7 +785,7 @@ function Dashboard() {
                   />
                   <button
                     type="submit"
-                    form="modal-logo-form"
+                    form="modal-avatar-form"
                     className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-full mv-rounded-full mv-opacity-0 hover:mv-opacity-100 focus-within:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 focus-within:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
                   >
                     <div className="mv-flex mv-flex-col mv-items-center mv-gap-1">
@@ -1329,6 +1445,52 @@ function Dashboard() {
           })}
         </ul>
       </section>
+      <Form
+        id="modal-avatar-form"
+        method="get"
+        action={location.pathname}
+        preventScrollReset
+        hidden
+      >
+        <input hidden name="modal-avatar" defaultValue="true" />
+      </Form>
+      <Modal searchParam="modal-avatar">
+        <Modal.Title>
+          {loaderData.locales.route.content.cropper.avatar.headline}
+        </Modal.Title>
+        <Modal.Section>
+          <ImageCropper
+            uploadKey="avatar"
+            circularCrop
+            image={loaderData.avatar || undefined}
+            aspect={ImageAspects.AvatarAndLogo}
+            minCropWidth={MinCropSizes.AvatarAndLogo.width}
+            minCropHeight={MinCropSizes.AvatarAndLogo.height}
+            maxTargetWidth={MaxImageSizes.AvatarAndLogo.width}
+            maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
+            modalSearchParam="modal-logo"
+            locales={loaderData.imageCropperLocales}
+            currentTimestamp={
+              typeof actionData !== "undefined"
+                ? actionData.currentTimestamp
+                : loaderData.currentTimestamp
+            }
+          >
+            <Avatar
+              firstName={loaderData.firstName}
+              lastName={loaderData.lastName}
+              avatar={loaderData.avatar}
+              blurredAvatar={
+                loaderData.blurredAvatar === null
+                  ? undefined
+                  : loaderData.blurredAvatar
+              }
+              size="xl"
+              textSize="xl"
+            />
+          </ImageCropper>
+        </Modal.Section>
+      </Modal>
     </>
   );
 }

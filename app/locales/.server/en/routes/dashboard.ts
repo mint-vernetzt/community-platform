@@ -20,6 +20,11 @@ export const locale = {
       subline: "to your MINTvernetzt Community!",
       cta: "View my profile",
     },
+    cropper: {
+      avatar: {
+        headline: "Profilbild ändern",
+      },
+    },
     updateTeasers: {
       headline: "Updates",
       hide: "Hide updates",
