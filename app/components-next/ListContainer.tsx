@@ -10,6 +10,7 @@ import { type OrganizationProjectsLocales } from "~/routes/organization/$slug/de
 import { type OrganizationTeamLocales } from "~/routes/organization/$slug/detail/team.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type ManageOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/manage.server";
+import { type ProjectAdminSettingsLocales } from "~/routes/project/$slug/settings/admins.server";
 
 type Locales =
   | MyEventsLocales
@@ -21,7 +22,8 @@ type Locales =
   | OrganizationNetworkLocales
   | ManageOrganizationSettingsLocales
   | OrganizationProjectsLocales
-  | OrganizationTeamLocales;
+  | OrganizationTeamLocales
+  | ProjectAdminSettingsLocales;
 
 export function ListContainer(
   props: React.PropsWithChildren<{

@@ -8,13 +8,17 @@ import {
 import { type OrganizationAdminSettingsLocales } from "./routes/organization/$slug/settings/admins.server";
 import { type OrganizationTeamSettingsLocales } from "./routes/organization/$slug/settings/team.server";
 import { type ManageOrganizationSettingsLocales } from "./routes/organization/$slug/settings/manage.server";
+import { type ProjectAdminSettingsLocales } from "./routes/project/$slug/settings/admins.server";
 
 // Field name for determining the intent of the submitted form when using multiple forms on one route -> Please use this as name attribute on form submit button
 export const INTENT_FIELD_NAME = "intent";
 
 // List of schemas
 export const searchProfilesSchema = (
-  locales: OrganizationAdminSettingsLocales | OrganizationTeamSettingsLocales
+  locales:
+    | OrganizationAdminSettingsLocales
+    | OrganizationTeamSettingsLocales
+    | ProjectAdminSettingsLocales
 ) => {
   return z.object({
     [SearchProfiles]: z
@@ -78,5 +82,35 @@ export const cancelOrganizationTeamMemberInvitationSchema = z.object({
 });
 
 export const removeTeamMemberFromOrganizationSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+// TODO: Use these when implementing project invites
+export const inviteProfileToBeProjectAdminSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+export const cancelProjectAdminInvitationSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+export const removeAdminFromProjectSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+export const inviteProfileToBeProjectTeamMemberSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+export const cancelProjectTeamMemberInvitationSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+export const removeTeamMemberFromProjectSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+// TODO: Remove these when implementing project invites
+export const addAdminToProjectSchema = z.object({
   profileId: z.string().uuid(),
 });

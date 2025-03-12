@@ -17,6 +17,7 @@ import { type Mode } from "~/utils.server";
 import { type OrganizationAdminSettingsLocales } from "./organization/$slug/settings/admins.server";
 import { type OrganizationTeamSettingsLocales } from "./organization/$slug/settings/team.server";
 import { type ManageOrganizationSettingsLocales } from "./organization/$slug/settings/manage.server";
+import { type ProjectAdminSettingsLocales } from "./project/$slug/settings/admins.server";
 
 export async function getProfileCount() {
   return await prismaClient.profile.count();
@@ -248,7 +249,10 @@ export async function searchProfiles(options: {
   searchParams: URLSearchParams;
   idsToExclude?: string[];
   authClient: SupabaseClient;
-  locales: OrganizationAdminSettingsLocales | OrganizationTeamSettingsLocales;
+  locales:
+    | OrganizationAdminSettingsLocales
+    | OrganizationTeamSettingsLocales
+    | ProjectAdminSettingsLocales;
   mode: Mode;
 }) {
   const { searchParams, idsToExclude, authClient, locales, mode } = options;

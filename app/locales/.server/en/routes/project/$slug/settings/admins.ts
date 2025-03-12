@@ -1,31 +1,53 @@
 export const locale = {
   error: {
     invariant: {
-      invalidRoute: "No valid route",
-      notFound: "Not found",
+      notFound: "Project not found",
+      noStringIntent: "Bad request: intent is not a string",
+      wrongIntent: "Bad request: wrong intent",
+      entitiesForInviteNotFound: "Profile or project for invite not found",
+      entitiesForRemovalNotFound: "Profile or project for removal not found",
+      adminCount:
+        "There must always be an administrator. Please add someone else as an administrator first.",
+    },
+  },
+  email: {
+    subject: "You have received an invitation to become an admin!",
+    button: {
+      text: "To the community platform",
     },
   },
   content: {
-    profileAdded: "Added {{firstName}} {{lastName}}",
-    profileRemoved: "Removed {{firstName}} {{lastName}}",
+    profileAdded: "Added {{firstName}} {{lastName}} as an admin.",
+    profileInvited: "Invited {{firstName}} {{lastName}} to become an admin.",
+    profileRemoved: "Removed admin {{firstName}} {{lastName}}.",
+    inviteCancelled:
+      "The invitation to {{firstName}} {{lastName}} has been withdrawn.",
     headline: "Administrators",
     intro:
-      "Who manages the project on the community platform? Add or remove other administrators here. Administrators can edit, publish, revert to draft, cancel, and delete projects. They are not visible on the project detail page. Team members are shown on the project detail page. They can view projects in draft but cannot edit them.",
-    ups: {
-      add: "Something went wrong while adding the administrator",
-      remove: "Something went wrong while removing the administrator",
-    },
+      "Who manages the project on the community platform? Add or remove other administrators here. Administrators can edit, cancel, and delete projects. They are not visible on the project detail page. Team members are shown on the project detail page. They cannot edit them.",
     current: {
       headline_one: "Administrator",
       headline_other: "Administrators",
-      title: "Administrator",
       remove: "Remove",
     },
     add: {
       headline: "Add administrator",
       search: "Search",
       criteria: "At least 3 characters.",
+      submitSearch: "Search",
       submit: "Add",
+    },
+    invite: {
+      headline: "Invite administrator",
+      search: "Search",
+      criteria: "At least 3 characters.",
+      submitSearch: "Search",
+      submit: "Invite",
+    },
+    invites: {
+      headline: "Invitations",
+      intro: "Here you can see all the invitations you have already sent.",
+      cancel: "Withdraw",
     },
   },
 } as const;
