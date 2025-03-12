@@ -265,7 +265,11 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
         blur: BlurFactor,
       });
     }
+  } else {
+    background = DefaultImages.Profile.Background;
+    blurredBackground = DefaultImages.Profile.BlurredBackground;
   }
+
   const memberOf = profile.memberOf.map((relation) => {
     let logo = relation.organization.logo;
     let blurredLogo;

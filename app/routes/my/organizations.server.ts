@@ -1,6 +1,7 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
@@ -171,7 +172,11 @@ export function addImageUrlToOrganizations(
             blur: BlurFactor,
           });
         }
+      } else {
+        background = DefaultImages.Organization.Background;
+        blurredBackground = DefaultImages.Organization.BlurredBackground;
       }
+
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {
@@ -260,7 +265,11 @@ export function addImageUrlToOrganizations(
             blur: BlurFactor,
           });
         }
+      } else {
+        background = DefaultImages.Organization.Background;
+        blurredBackground = DefaultImages.Organization.BlurredBackground;
       }
+
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
         if (publicURL !== null) {

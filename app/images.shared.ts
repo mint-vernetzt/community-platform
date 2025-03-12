@@ -44,11 +44,11 @@ export const DefaultImages = {
     BlurredBackground: "/images/default-project-background-blurred.jpg",
   },
   Organization: {
-    Background: "TODO",
-    BlurredBackground: "TODO",
+    Background: "/images/default-organization-background.jpg",
+    BlurredBackground: "/images/default-organization-background-blurred.jpg",
   },
   Profile: {
-    Background: "TODO",
-    BlurredBackground: "TODO",
+    Background: "/images/default-profile-background.jpg",
+    BlurredBackground: "/images/default-profile-background-blurred.jpg",
   },
 };

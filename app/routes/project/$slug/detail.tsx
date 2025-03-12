@@ -37,7 +37,12 @@ import ImageCropper, {
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
+import {
+  DefaultImages,
+  ImageAspects,
+  MaxImageSizes,
+  MinCropSizes,
+} from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValue, getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
@@ -251,6 +256,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       resize: { type: "fill", ...ImageSizes.Project.Detail.BlurredBackground },
       blur: BlurFactor,
     });
+  } else {
+    background = DefaultImages.Project.Background;
+    blurredBackground = DefaultImages.Project.BlurredBackground;
   }
   let logo;
   let blurredLogo;
