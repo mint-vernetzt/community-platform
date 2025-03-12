@@ -40,7 +40,7 @@ export const locale = {
       email: {
         label: "Email",
         helperText:
-          'The primary email can be changed under "Login & Security".',
+          "The primary email can be changed under <0>Login & Security</0>.",
       },
       email2: {
         label: "Additional email",
