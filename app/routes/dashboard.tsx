@@ -865,7 +865,7 @@ function Dashboard() {
       {/* Organization Invites Section */}
       {loaderData.organizationsFromInvites.length > 0 && (
         <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-white mv-rounded-lg mv-items-center">
+          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
             <div className="mv-flex mv-items-center mv-gap-2">
               <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
                 {loaderData.organizationsFromInvites
