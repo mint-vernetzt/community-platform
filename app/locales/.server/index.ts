@@ -632,7 +632,12 @@ const de = {
   "project/$slug/settings/danger-zone/change-url": deChangeProjectUrl,
   "project/$slug/settings/danger-zone/delete": deDeleteProject,
   "project/$slug/settings/danger-zone/index": deProjectDangerZoneIndex,
-  "project/$slug/settings/admins": deProjectAdmins,
+  "project/$slug/settings/admins": {
+    route: deProjectAdmins,
+    searchProfilesSchema: deSearchProfilesSchema,
+    organizationTypes: deOrganizationTypes,
+    components: deComponents,
+  },
   "project/$slug/settings/attachments": {
     route: deProjectAttachmentsSettings,
     upload: deUpload,
@@ -1020,7 +1025,12 @@ const en = {
   "project/$slug/settings/danger-zone/change-url": enChangeProjectUrl,
   "project/$slug/settings/danger-zone/delete": enDeleteProject,
   "project/$slug/settings/danger-zone/index": enProjectDangerZoneIndex,
-  "project/$slug/settings/admins": enProjectAdmins,
+  "project/$slug/settings/admins": {
+    route: enProjectAdmins,
+    searchProfilesSchema: enSearchProfilesSchema,
+    organizationTypes: enOrganizationTypes,
+    components: enComponents,
+  },
   "project/$slug/settings/attachments": {
     route: enProjectAttachmentsSettings,
     upload: enUpload,
