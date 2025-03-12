@@ -5,13 +5,16 @@ import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
-import { mailerOptions } from "~/lib/submissions/mailer/mailerOptions";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
-import { getCompiledMailTemplate, mailer } from "~/mailer.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import {
   getEventBySlug,
