@@ -42,5 +42,5 @@ export const locale = {
     submit: "Organisation anlegen",
   },
   successAlert:
-    '<p>Du hast Deine Organisation {{name}} erfolgreich angelegt. Du bist Teammitglied und Admin Deiner Organisation. Bearbeite nun Deine Organisation und mache sie damit sichtbarer für die Community. <a href="/organization/{{slug}}/settings">Jetzt bearbeiten</a></p>',
+    '<p>Du hast Deine Organisation {{name}} erfolgreich angelegt. Du bist Teammitglied und Admin Deiner Organisation. Bearbeite nun Deine Organisation und mache sie damit sichtbarer für die Community. <a href="/organization/{{slug}}/settings" class="hover:mv-underline mv-text-primary">Jetzt bearbeiten</a></p>',
 } as const;
