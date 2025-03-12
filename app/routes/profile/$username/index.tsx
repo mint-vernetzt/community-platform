@@ -476,7 +476,7 @@ export default function Index() {
   const lastName = loaderData.data.lastName;
   const Avatar = React.useCallback(
     () => (
-      <div className="h-36 w-36 bg-primary text-white text-6xl flex items-center justify-center overflow-hidden rounded-full border">
+      <div className="h-36 w-36 mv-bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full border">
         {avatar !== null ? (
           <MVAvatar
             avatar={avatar}
@@ -995,7 +995,7 @@ export default function Index() {
                                 />
                               </div>
                             ) : (
-                              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                              <div className="h-16 w-16 mv-bg-neutral-600 text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
                                 {getInitialsOfName(relation.project.name)}
                               </div>
                             )}

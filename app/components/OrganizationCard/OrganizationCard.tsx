@@ -40,7 +40,7 @@ function OrganizationCard(props: OrganizationCardProps) {
               />
             </div>
           ) : (
-            <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+            <div className="h-16 w-16 mv-bg-neutral-600 text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
               {getInitialsOfName(props.name)}
             </div>
           )}

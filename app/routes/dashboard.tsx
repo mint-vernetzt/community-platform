@@ -130,6 +130,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
           blur: BlurFactor,
         });
       }
+    } else {
+      backgroundImage = DefaultImages.Profile.Background;
+      blurredBackground = DefaultImages.Profile.BlurredBackground;
     }
 
     extensions.memberOf = memberOf.map((relation) => {
@@ -235,6 +238,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
           blur: BlurFactor,
         });
       }
+    } else {
+      backgroundImage = DefaultImages.Organization.Background;
+      blurredBackground = DefaultImages.Organization.BlurredBackground;
     }
 
     extensions.teamMembers = teamMembers.map((relation) => {
@@ -339,6 +345,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
           blur: BlurFactor,
         });
       }
+    } else {
+      backgroundImage = DefaultImages.Project.Background;
+      blurredBackground = DefaultImages.Project.BlurredBackground;
     }
 
     extensions.responsibleOrganizations = responsibleOrganizations.map(

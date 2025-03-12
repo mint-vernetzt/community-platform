@@ -24,6 +24,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
+import { DefaultImages } from "~/images.shared";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -119,6 +120,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           blur: BlurFactor,
         });
       }
+    } else {
+      background = DefaultImages.Profile.Background;
+      blurredBackground = DefaultImages.Profile.BlurredBackground;
     }
 
     const memberOf = enhancedProfile.memberOf.map((organization) => {
