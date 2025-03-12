@@ -1,307 +1,100 @@
-import { conform, useForm } from "@conform-to/react";
-import { type Organization, type Prisma } from "@prisma/client";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
+  Form,
   redirect,
+  useActionData,
+  useLoaderData,
+  useLocation,
+  useNavigation,
+  useSearchParams,
+  useSubmit,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import {
-  Form,
-  useLoaderData,
-  useLocation,
-  useSearchParams,
-} from "react-router";
-import { type User } from "@supabase/supabase-js";
-import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
-import { getPublicURL } from "~/storage.server";
-import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getHash,
-} from "./utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { List } from "@mint-vernetzt/components/src/organisms/List";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { ListContainer } from "~/components-next/ListContainer";
+import { ListItem } from "~/components-next/ListItem";
+import { searchOrganizationsSchema } from "~/form-helpers";
+import { detectLanguage } from "~/i18n.server";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { Deep, SearchOrganizations } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { searchOrganizations } from "~/routes/utils.server";
+import { redirectWithToast } from "~/toast.server";
+import { deriveMode } from "~/utils.server";
+import {
+  addResponsibleOrganizationToProject,
+  getOwnOrganizationSuggestions,
+  getProjectWithResponsibleOrganizations,
+  removeResponsibleOrganizationFromProject,
+} from "./responsible-orgs.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["project/$slug/settings/responsible-orgs"];
 
   const { authClient } = createAuthClient(request);
-
   const sessionUser = await getSessionUser(authClient);
+  const mode = deriveMode(sessionUser);
 
-  // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
-    status: 400,
-  });
-
-  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
+  const project = await getProjectWithResponsibleOrganizations({
+    slug,
     authClient,
+    locales,
   });
 
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
+  // TODO: Implement this when project responsible organization invites are implemented
+  // const pendingResponsibleOrganizationInvites = await getPendingResponsibleOrganizationInvitesOfProject(
+  //   project.id,
+  //   authClient
+  // );
 
-  // get project
-  const project = await prismaClient.project.findFirst({
-    where: { slug: params.slug },
-    include: {
-      responsibleOrganizations: {
-        select: {
-          organization: {
-            select: {
-              name: true,
-              slug: true,
-              logo: true,
-            },
-          },
-        },
-      },
-    },
-  });
-
-  invariantResponse(project !== null, locales.error.notFound, {
-    status: 404,
-  });
-
-  // get own organizations
-  const profile = await prismaClient.profile.findFirst({
-    where: { id: (sessionUser as User).id },
-    include: {
-      memberOf: {
-        select: {
-          organization: {
-            select: {
-              slug: true,
-              name: true,
-              logo: true,
-            },
-          },
-        },
-      },
-      administeredOrganizations: {
-        select: {
-          organization: {
-            select: {
-              slug: true,
-              name: true,
-              logo: true,
-            },
-          },
-        },
-      },
-    },
-  });
-
-  invariantResponse(profile !== null, locales.error.notFound, {
-    status: 404,
-  });
-
-  // enhance organizations with logo
-  const responsibleOrganizations = project.responsibleOrganizations.map(
-    (relation) => {
-      let logo = relation.organization.logo;
-      let blurredLogo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              ...ImageSizes.Organization.ListItemProjectDetailAndSettings.Logo,
-            },
-          });
-          blurredLogo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              ...ImageSizes.Organization.ListItemProjectDetailAndSettings
-                .BlurredLogo,
-            },
-            blur: BlurFactor,
-          });
-        }
-      }
-      return { organization: { ...relation.organization, logo, blurredLogo } };
-    }
-  );
-
-  const enhancedProject = {
-    ...project,
-    responsibleOrganizations,
-  };
-
-  // get organizations where user is member or admin that are not already responsible organizations
-  const organizations = [
-    ...profile.memberOf,
-    ...profile.administeredOrganizations,
+  const pendingAndCurrentResponsibleOrganizationIds = [
+    ...project.responsibleOrganizations.map(
+      (relation) => relation.organization.id
+    ),
+    // ...pendingResponsibleOrganizationInvites.map((invite) => invite.id),
   ];
 
-  const notResponsibleOrganizations = organizations.filter(
-    (organization, index) => {
-      // find index of first occurrence of organization
-      const firstIndex = organizations.findIndex((org) => {
-        return org.organization.slug === organization.organization.slug;
-      });
+  const ownOrganizationSuggestions = await getOwnOrganizationSuggestions({
+    sessionUser,
+    pendingAndCurrentResponsibleOrganizationIds,
+  });
 
-      const isStillResponsible = project.responsibleOrganizations.some(
-        (responsibleOrganization) => {
-          return (
-            responsibleOrganization.organization.slug ===
-            organization.organization.slug
-          );
-        }
-      );
-      return !isStillResponsible && firstIndex === index; // only return first occurrence to avoid duplicates
-    }
-  );
-
-  const enhancedNotResponsibleOrganizations = notResponsibleOrganizations.map(
-    (relation) => {
-      let logo = relation.organization.logo;
-      let blurredLogo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              ...ImageSizes.Organization.ListItemProjectDetailAndSettings.Logo,
-            },
-          });
-          blurredLogo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              ...ImageSizes.Organization.ListItemProjectDetailAndSettings
-                .BlurredLogo,
-            },
-            blur: BlurFactor,
-          });
-        }
-      }
-      return { organization: { ...relation.organization, logo, blurredLogo } };
-    }
-  );
-
-  // get search query
-  const url = new URL(request.url);
-  const queryString = url.searchParams.get("search") || undefined;
-  const query =
-    typeof queryString !== "undefined" ? queryString.split(" ") : [];
-
-  // get organizations that match search query
-  let searchResult: {
-    name: string;
-    slug: string;
-    logo: string | null;
-    blurredLogo?: string;
-  }[] = [];
-
-  if (
-    query.length > 0 &&
-    queryString !== undefined &&
-    queryString.length >= 3
-  ) {
-    const whereQueries: {
-      OR: {
-        [K in Organization as string]: {
-          contains: string;
-          mode: Prisma.QueryMode;
-        };
-      }[];
-    }[] = [];
-    for (const word of query) {
-      whereQueries.push({
-        OR: [{ name: { contains: word, mode: "insensitive" } }],
-      });
-    }
-
-    searchResult = await prismaClient.organization.findMany({
-      where: {
-        AND: [
-          ...whereQueries,
-          {
-            NOT: {
-              slug: {
-                in: notResponsibleOrganizations.map(
-                  (org) => org.organization.slug
-                ),
-              },
-            },
-          },
-          {
-            NOT: {
-              slug: {
-                in: project.responsibleOrganizations.map(
-                  (org) => org.organization.slug
-                ),
-              },
-            },
-          },
-        ],
-      },
-      select: {
-        name: true,
-        slug: true,
-        logo: true,
-      },
-      take: 10,
-    });
-    searchResult = searchResult.map((relation) => {
-      let logo = relation.logo;
-      let blurredLogo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              ...ImageSizes.Organization.ListItemProjectDetailAndSettings.Logo,
-            },
-          });
-          blurredLogo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              ...ImageSizes.Organization.ListItemProjectDetailAndSettings
-                .BlurredLogo,
-            },
-            blur: BlurFactor,
-          });
-        }
-      }
-      return { ...relation, logo, blurredLogo };
-    });
-  }
+  const { searchedOrganizations, submission } = await searchOrganizations({
+    searchParams: new URL(request.url).searchParams,
+    idsToExclude: pendingAndCurrentResponsibleOrganizationIds,
+    authClient,
+    locales,
+    mode,
+  });
 
   return {
-    project: enhancedProject,
-    ownOrganizations: enhancedNotResponsibleOrganizations,
-    searchResult,
+    project,
+    ownOrganizationSuggestions,
+    // pendingResponsibleOrganizationInvites,
+    searchedOrganizations,
+    submission,
     locales,
+    currentTimestamp: Date.now(),
   };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
-  // get action type
   const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
 
   const language = await detectLanguage(request);
   const locales =
@@ -309,259 +102,596 @@ export const action = async (args: ActionFunctionArgs) => {
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-
-  // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
-    status: 400,
-  });
-
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
-
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
 
+  let result;
   const formData = await request.formData();
-  const action = formData.get(conform.INTENT) as string;
-  const hash = getHash({ action: action });
-  if (action.startsWith("add_")) {
-    const slug = action.startsWith("add_own_")
-      ? action.replace("add_own_", "")
-      : action.replace("add_", "");
+  const intent = formData.get("intent");
+  invariantResponse(
+    typeof intent === "string",
+    locales.route.error.invariant.noStringIntent,
+    {
+      status: 400,
+    }
+  );
 
-    const project = await prismaClient.project.findFirst({
-      where: { slug: args.params.slug },
-      select: {
-        id: true,
-      },
-    });
-
-    const organization = await prismaClient.organization.findFirst({
-      where: { slug },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
-
-    invariantResponse(
-      project !== null && organization !== null,
-      locales.error.notFound,
-      {
-        status: 404,
-      }
+  // TODO: Remove this when project responsible organization invites are implemented
+  if (intent.startsWith("add-responsible-organization-")) {
+    const addResponsibleOrganizationFormData = new FormData();
+    addResponsibleOrganizationFormData.set(
+      "organizationId",
+      intent.replace("add-responsible-organization-", "")
     );
-
-    await prismaClient.responsibleOrganizationOfProject.upsert({
-      where: {
-        projectId_organizationId: {
-          projectId: project.id,
-          organizationId: organization.id,
-        },
-      },
-      update: {},
-      create: {
-        projectId: project.id,
-        organizationId: organization.id,
-      },
+    result = await addResponsibleOrganizationToProject({
+      formData: addResponsibleOrganizationFormData,
+      slug,
+      locales,
     });
-
-    return redirectWithToast(request.url, {
-      id: "add-organization-toast",
-      key: hash,
-      message: insertParametersIntoLocale(locales.content.added, {
-        name: organization.name,
-      }),
-    });
-  } else if (action.startsWith("remove_")) {
-    const slug = action.replace("remove_", "");
-
-    const project = await prismaClient.project.findFirst({
-      where: { slug: args.params.slug },
-      select: {
-        id: true,
-      },
-    });
-
-    const organization = await prismaClient.organization.findFirst({
-      where: { slug },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
-
-    invariantResponse(
-      project !== null && organization !== null,
-      locales.error.notFound,
-      {
-        status: 404,
-      }
+  }
+  // TODO: Implement this when project responsible organizations invites are implemented
+  // else if (intent.startsWith("invite-responsible-organization-")) {
+  //   const inviteFormData = new FormData();
+  //   inviteFormData.set("organizationId", intent.replace("invite-responsible-organization-", ""));
+  //   result = await inviteOrganizationToBeResponsibleForProject({
+  //     formData: inviteFormData,
+  //     slug,
+  //     locales,
+  //   });
+  // } else if (intent.startsWith("cancel-responsible-organization-invite-")) {
+  //   const cancelResponsibleOrganizationInviteFormData = new FormData();
+  //   cancelResponsibleOrganizationInviteFormData.set(
+  //     "organizationId",
+  //     intent.replace("cancel-responsible-organization-invite-", "")
+  //   );
+  //   result = await cancelResponsibleOrganizationForProjectInvitation({
+  //     formData: cancelResponsibleOrganizationInviteFormData,
+  //     slug,
+  //     locales,
+  //   });
+  // }
+  else if (intent.startsWith("remove-responsible-organization-")) {
+    const removeResponsibleOrganizationFormData = new FormData();
+    removeResponsibleOrganizationFormData.set(
+      "organizationId",
+      intent.replace("remove-responsible-organization-", "")
     );
-
-    await prismaClient.responsibleOrganizationOfProject.delete({
-      where: {
-        projectId_organizationId: {
-          projectId: project.id,
-          organizationId: organization.id,
-        },
-      },
+    result = await removeResponsibleOrganizationFromProject({
+      formData: removeResponsibleOrganizationFormData,
+      slug,
+      locales,
     });
-
-    return redirectWithToast(request.url, {
-      id: "remove-organization-toast",
-      key: hash,
-      message: insertParametersIntoLocale(locales.content.removed, {
-        name: organization.name,
-      }),
+  } else {
+    invariantResponse(false, locales.route.error.invariant.wrongIntent, {
+      status: 400,
     });
   }
 
-  return { success: false, action, organization: null };
+  if (
+    result.submission !== undefined &&
+    result.submission.status === "success" &&
+    result.toast !== undefined
+  ) {
+    return redirectWithToast(request.url, result.toast);
+  }
+  return { currentTimestamp: Date.now(), submission: result.submission };
 };
 
-function ResponsibleOrgs() {
-  const { project, ownOrganizations, searchResult, locales } =
-    useLoaderData<typeof loader>();
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
-  const submit = useDebounceSubmit();
+function Team() {
+  const {
+    project,
+    ownOrganizationSuggestions,
+    // pendingResponsibleOrganizationInvites,
+    searchedOrganizations,
+    submission: loaderSubmission,
+    locales,
+    currentTimestamp,
+  } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
 
-  const [searchForm, fields] = useForm({
+  const location = useLocation();
+  const navigation = useNavigation();
+  const submit = useSubmit();
+  const [searchParams] = useSearchParams();
+
+  const [searchForm, searchFields] = useForm({
+    id: "search-organizations",
     defaultValue: {
-      search: searchParams.get("search") || "",
-      [Deep]: "true",
+      [SearchOrganizations]: searchParams.get(SearchOrganizations) || undefined,
     },
+    constraint: getZodConstraint(searchOrganizationsSchema(locales)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: searchOrganizationsSchema(locales),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? loaderSubmission : null,
+  });
+
+  // TODO: Remove this when project responsible organization invites are implemented
+  const [addResponsibleOrganizationForm] = useForm({
+    id: `add-responsible-organizations-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const [addOwnOrganizationForm] = useForm({
+    id: `add-own-organization-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  // TODO: Implement this when project responsible organization invites are implemented
+  // const [inviteResponsibleOrganizationForm] = useForm({
+  //   id: `invite-responsible-organization-${
+  //     actionData?.currentTimestamp || currentTimestamp
+  //   }`,
+  //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  // });
+
+  // const [cancelResponsibleOrganizationInviteForm] = useForm({
+  //   id: `cancel-responsible-organization-invite-${
+  //     actionData?.currentTimestamp || currentTimestamp
+  //   }`,
+  //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  // });
+
+  const [removeResponsibleOrganizationForm] = useForm({
+    id: `remove-responsible-organization-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{locales.content.back}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.content.intro}</p>
+      <BackButton to={location.pathname}>
+        {locales.route.content.headline}
+      </BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
+
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-        {project.responsibleOrganizations.length > 0 && (
+        {/* Current Responsible Organizations And Remove Section */}
+        {project.responsibleOrganizations.length > 0 ? (
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.content.current.headline}
+              {decideBetweenSingularOrPlural(
+                locales.route.content.current.headline_one,
+                locales.route.content.current.headline_other,
+                project.responsibleOrganizations.length
+              )}
             </h2>
-            <p>{locales.content.current.intro}</p>
-            <Form method="post" preventScrollReset>
-              <List>
-                {project.responsibleOrganizations.map((relation) => {
+            <Form
+              {...getFormProps(removeResponsibleOrganizationForm)}
+              method="post"
+              preventScrollReset
+            >
+              <ListContainer
+                locales={locales}
+                listKey="responsible-organizations"
+                hideAfter={3}
+              >
+                {project.responsibleOrganizations.map((relation, index) => {
                   return (
-                    <List.Item key={relation.organization.slug}>
-                      <Avatar {...relation.organization} />
-                      <List.Item.Title>
-                        {relation.organization.name}
-                      </List.Item.Title>
-                      <List.Item.Controls>
-                        <Button
-                          name={conform.INTENT}
-                          variant="outline"
-                          value={`remove_${relation.organization.slug}`}
-                          type="submit"
-                        >
-                          {locales.content.current.remove}
-                        </Button>
-                      </List.Item.Controls>
-                    </List.Item>
+                    <ListItem
+                      key={`responsible-organization-${relation.organization.slug}`}
+                      entity={relation.organization}
+                      locales={locales}
+                      listIndex={index}
+                      hideAfter={3}
+                    >
+                      <Button
+                        name="intent"
+                        variant="outline"
+                        value={`remove-responsible-organization-${relation.organization.id}`}
+                        type="submit"
+                        fullSize
+                      >
+                        {locales.route.content.current.remove}
+                      </Button>
+                    </ListItem>
                   );
                 })}
-              </List>
+              </ListContainer>
+              {typeof removeResponsibleOrganizationForm.errors !==
+                "undefined" &&
+              removeResponsibleOrganizationForm.errors.length > 0 ? (
+                <div>
+                  {removeResponsibleOrganizationForm.errors.map(
+                    (error, index) => {
+                      return (
+                        <div
+                          id={removeResponsibleOrganizationForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              ) : null}
             </Form>
           </div>
-        )}
-        {ownOrganizations.length > 0 && (
+        ) : null}
+        {/* Own Organizations To Add Section */}
+        {ownOrganizationSuggestions.length > 0 ? (
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.content.add.headline}
+              {decideBetweenSingularOrPlural(
+                locales.route.content.addOwn.headline_one,
+                locales.route.content.addOwn.headline_other,
+                ownOrganizationSuggestions.length
+              )}
             </h2>
-            <p>{locales.content.add.intro}</p>
-            <Form method="post" preventScrollReset>
-              <List>
-                {ownOrganizations.map((relation) => {
+            <Form
+              {...getFormProps(addOwnOrganizationForm)}
+              method="post"
+              preventScrollReset
+            >
+              <ListContainer
+                locales={locales}
+                listKey="own-organization-suggestions"
+                hideAfter={3}
+              >
+                {ownOrganizationSuggestions.map((organization, index) => {
                   return (
-                    <List.Item key={relation.organization.slug}>
-                      <Avatar {...relation.organization} />
-                      <List.Item.Title>
-                        {relation.organization.name}
-                      </List.Item.Title>
-                      <List.Item.Controls>
-                        <Button
-                          name={conform.INTENT}
-                          variant="outline"
-                          value={`add_own_${relation.organization.slug}`}
-                          type="submit"
-                        >
-                          {locales.content.add.add}
-                        </Button>
-                      </List.Item.Controls>
-                    </List.Item>
+                    <ListItem
+                      key={`own-organization-${organization.slug}`}
+                      entity={organization}
+                      locales={locales}
+                      listIndex={index}
+                      hideAfter={3}
+                    >
+                      <Button
+                        name="intent"
+                        variant="outline"
+                        value={`add-responsible-organization-${organization.id}`}
+                        type="submit"
+                        fullSize
+                      >
+                        {locales.route.content.addOwn.submit}
+                      </Button>
+                    </ListItem>
                   );
                 })}
-              </List>
+              </ListContainer>
+              {typeof addOwnOrganizationForm.errors !== "undefined" &&
+              addOwnOrganizationForm.errors.length > 0 ? (
+                <div>
+                  {addOwnOrganizationForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={addOwnOrganizationForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
             </Form>
           </div>
-        )}
+        ) : null}
+        {/* Search And Add Responsible Organization Section */}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {locales.content.other.headline}
+            {locales.route.content.addOther.headline}
           </h2>
           <Form
+            {...getFormProps(searchForm)}
             method="get"
             onChange={(event) => {
-              submit(event.currentTarget, {
-                debounceTimeout: 250,
-                preventScrollReset: true,
-              });
+              searchForm.validate();
+              if (searchForm.valid) {
+                submit(event.currentTarget, { preventScrollReset: true });
+              }
             }}
-            {...searchForm.props}
+            autoComplete="off"
           >
-            <Input {...conform.input(fields[Deep])} type="hidden" />
-            <Input {...conform.input(fields.search)} standalone>
-              <Input.Label htmlFor={fields.search.id}>
-                {locales.content.other.search.label}
+            <Input name={Deep} defaultValue="true" type="hidden" />
+            <Input
+              {...getInputProps(searchFields[SearchOrganizations], {
+                type: "search",
+              })}
+              key={searchFields[SearchOrganizations].id}
+              standalone
+            >
+              <Input.Label htmlFor={searchFields[SearchOrganizations].id}>
+                {locales.route.content.addOwn.search}
               </Input.Label>
               <Input.SearchIcon />
-              <Input.HelperText>
-                {locales.content.other.search.helper}
-              </Input.HelperText>
-              {typeof fields.search.error !== "undefined" && (
-                <Input.Error>{fields.search.error}</Input.Error>
+
+              {typeof searchFields[SearchOrganizations].errors !==
+                "undefined" &&
+              searchFields[SearchOrganizations].errors.length > 0 ? (
+                searchFields[SearchOrganizations].errors.map((error) => (
+                  <Input.Error
+                    id={searchFields[SearchOrganizations].errorId}
+                    key={error}
+                  >
+                    {error}
+                  </Input.Error>
+                ))
+              ) : (
+                <Input.HelperText>
+                  {locales.route.content.addOwn.criteria}
+                </Input.HelperText>
               )}
+              <Input.Controls>
+                <noscript>
+                  <Button type="submit" variant="outline">
+                    {locales.route.content.addOwn.submitSearch}
+                  </Button>
+                </noscript>
+              </Input.Controls>
             </Input>
+            {typeof searchForm.errors !== "undefined" &&
+            searchForm.errors.length > 0 ? (
+              <div>
+                {searchForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={searchForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </Form>
-          <Form method="post" preventScrollReset>
-            <List>
-              {searchResult.map((organization) => {
-                return (
-                  <List.Item key={organization.slug}>
-                    <Avatar {...organization} />
-                    <List.Item.Title>{organization.name}</List.Item.Title>
-                    <List.Item.Controls>
+          {searchedOrganizations.length > 0 ? (
+            <Form
+              {...getFormProps(addResponsibleOrganizationForm)}
+              method="post"
+              preventScrollReset
+            >
+              <ListContainer
+                locales={locales}
+                listKey="responsible-organization-search-results"
+                hideAfter={3}
+              >
+                {searchedOrganizations.map((organization, index) => {
+                  return (
+                    <ListItem
+                      key={`responsible-organization-search-result-${organization.slug}`}
+                      entity={organization}
+                      locales={locales}
+                      listIndex={index}
+                      hideAfter={3}
+                    >
                       <Button
-                        name={conform.INTENT}
+                        name="intent"
                         variant="outline"
-                        value={`add_${organization.slug}`}
+                        value={`add-responsible-organization-${organization.id}`}
                         type="submit"
+                        fullSize
                       >
-                        {locales.content.other.add}
+                        {locales.route.content.addOwn.submit}
                       </Button>
-                    </List.Item.Controls>
-                  </List.Item>
-                );
+                    </ListItem>
+                  );
+                })}
+              </ListContainer>
+              {typeof addResponsibleOrganizationForm.errors !== "undefined" &&
+              addResponsibleOrganizationForm.errors.length > 0 ? (
+                <div>
+                  {addResponsibleOrganizationForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={addResponsibleOrganizationForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </Form>
+          ) : null}
+          {/* TODO: Implement this when project team member invites are implemented */}
+          {/* Search Profiles To Invite As Team Member Section */}
+          {/* <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            {locales.route.content.invite.headline}
+          </h2>
+          <Form
+            {...getFormProps(searchForm)}
+            method="get"
+            onChange={(event) => {
+              searchForm.validate();
+              if (searchForm.valid) {
+                submit(event.currentTarget, { preventScrollReset: true });
+              }
+            }}
+            autoComplete="off"
+          >
+            <Input name={Deep} defaultValue="true" type="hidden" />
+            <Input
+              {...getInputProps(searchFields[SearchProfiles], {
+                type: "search",
               })}
-            </List>
+              key={searchFields[SearchProfiles].id}
+              standalone
+            >
+              <Input.Label htmlFor={searchFields[SearchProfiles].id}>
+                {locales.route.content.invite.search}
+              </Input.Label>
+              <Input.SearchIcon />
+
+              {typeof searchFields[SearchProfiles].errors !== "undefined" &&
+              searchFields[SearchProfiles].errors.length > 0 ? (
+                searchFields[SearchProfiles].errors.map((error) => (
+                  <Input.Error
+                    id={searchFields[SearchProfiles].errorId}
+                    key={error}
+                  >
+                    {error}
+                  </Input.Error>
+                ))
+              ) : (
+                <Input.HelperText>
+                  {locales.route.content.invite.criteria}
+                </Input.HelperText>
+              )}
+              <Input.Controls>
+                <noscript>
+                  <Button type="submit" variant="outline">
+                    {locales.route.content.invite.submitSearch}
+                  </Button>
+                </noscript>
+              </Input.Controls>
+            </Input>
+            {typeof searchForm.errors !== "undefined" &&
+            searchForm.errors.length > 0 ? (
+              <div>
+                {searchForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={searchForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </Form>
+          {searchedProfiles.length > 0 ? (
+            <Form
+              {...getFormProps(inviteTeamMemberForm)}
+              method="post"
+              preventScrollReset
+            >
+              <ListContainer
+                locales={locales}
+                listKey="team-member-search-results"
+                hideAfter={3}
+              >
+                {searchedProfiles.map((profile, index) => {
+                  return (
+                    <ListItem
+                      key={`team-member-search-result-${profile.username}`}
+                      entity={profile}
+                      locales={locales}
+                      listIndex={index}
+                      hideAfter={3}
+                    >
+                      <Button
+                        name="intent"
+                        variant="outline"
+                        value={`invite-team-member-${profile.id}`}
+                        type="submit"
+                        fullSize
+                      >
+                        {locales.route.content.invite.submit}
+                      </Button>
+                    </ListItem>
+                  );
+                })}
+              </ListContainer>
+              {typeof inviteTeamMemberForm.errors !== "undefined" &&
+              inviteTeamMemberForm.errors.length > 0 ? (
+                <div>
+                  {inviteTeamMemberForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={inviteTeamMemberForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </Form>
+          ) : null} */}
+          {/* Pending Invites Section */}
+          {/* {pendingTeamMemberInvites.length > 0 ? (
+            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+              <h4 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                {locales.route.content.invites.headline}
+              </h4>
+              <p>{locales.route.content.invites.intro} </p>
+              <Form
+                {...getFormProps(cancelTeamMemberInviteForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer
+                  locales={locales}
+                  listKey="pending-team-member-invites"
+                  hideAfter={3}
+                >
+                  {pendingTeamMemberInvites.map((profile, index) => {
+                    return (
+                      <ListItem
+                        key={`pending-team-member-invite-${profile.username}`}
+                        entity={profile}
+                        locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
+                      >
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`cancel-team-member-invite-${profile.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.invites.cancel}
+                        </Button>
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+                {typeof cancelTeamMemberInviteForm.errors !== "undefined" &&
+                cancelTeamMemberInviteForm.errors.length > 0 ? (
+                  <div>
+                    {cancelTeamMemberInviteForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={cancelTeamMemberInviteForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </Form>
+            </div>
+          ) : null} */}
         </div>
       </div>
     </Section>
   );
 }
 
-export default ResponsibleOrgs;
+export default Team;

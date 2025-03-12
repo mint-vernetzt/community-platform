@@ -663,8 +663,12 @@ const de = {
     financings: deFinancings,
     rte: deRTE,
   },
-  "project/$slug/settings/responsible-orgs":
-    deResponsibleOrganizationsOfProject,
+  "project/$slug/settings/responsible-orgs": {
+    route: deResponsibleOrganizationsOfProject,
+    searchOrganizationsSchema: deSearchOrganizationsSchema,
+    organizationTypes: deOrganizationTypes,
+    components: deComponents,
+  },
   "project/$slug/settings/team": {
     route: deProjectTeam,
     searchProfilesSchema: deSearchProfilesSchema,
@@ -1061,8 +1065,12 @@ const en = {
     financings: enFinancings,
     rte: enRTE,
   },
-  "project/$slug/settings/responsible-orgs":
-    enResponsibleOrganizationsOfProject,
+  "project/$slug/settings/responsible-orgs": {
+    route: enResponsibleOrganizationsOfProject,
+    searchOrganizationsSchema: enSearchOrganizationsSchema,
+    organizationTypes: enOrganizationTypes,
+    components: enComponents,
+  },
   "project/$slug/settings/team": {
     route: enProjectTeam,
     searchProfilesSchema: enSearchProfilesSchema,
