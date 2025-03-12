@@ -665,7 +665,12 @@ const de = {
   },
   "project/$slug/settings/responsible-orgs":
     deResponsibleOrganizationsOfProject,
-  "project/$slug/settings/team": deProjectTeam,
+  "project/$slug/settings/team": {
+    route: deProjectTeam,
+    searchProfilesSchema: deSearchProfilesSchema,
+    organizationTypes: deOrganizationTypes,
+    components: deComponents,
+  },
   "project/$slug/settings/web-social": {
     route: deProjectWebAndSocial,
     schemas: deSchemas,
@@ -1058,7 +1063,12 @@ const en = {
   },
   "project/$slug/settings/responsible-orgs":
     enResponsibleOrganizationsOfProject,
-  "project/$slug/settings/team": enProjectTeam,
+  "project/$slug/settings/team": {
+    route: enProjectTeam,
+    searchProfilesSchema: enSearchProfilesSchema,
+    organizationTypes: enOrganizationTypes,
+    components: enComponents,
+  },
   "project/$slug/settings/web-social": {
     route: enProjectWebAndSocial,
     schemas: enSchemas,

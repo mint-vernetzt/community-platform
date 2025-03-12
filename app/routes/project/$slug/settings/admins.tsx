@@ -292,7 +292,7 @@ function Admins() {
           </Form>
         </div>
         {/* TODO: Remove this when project admin invites are implemented */}
-        {/* Add Admins Section */}
+        {/* Search And Add Admins Section */}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {locales.route.content.add.headline}
@@ -413,7 +413,7 @@ function Admins() {
             </Form>
           ) : null}
           {/* TODO: Implement this when project admin invites are implemented */}
-          {/* Search Profiles To Invite Section
+          {/* Search Profiles To Invite As Admin Section
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {locales.route.content.invite.headline}
