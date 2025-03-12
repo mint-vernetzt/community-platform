@@ -43,8 +43,11 @@ async function main() {
   }
 
   await prismaClient.$transaction(transactions);
-
-  console.log("Done.");
 }
 
-main().catch(console.error);
+main()
+  .catch(console.error)
+  .finally(async () => {
+    await prismaClient.$disconnect();
+    console.log("Done.");
+  });
