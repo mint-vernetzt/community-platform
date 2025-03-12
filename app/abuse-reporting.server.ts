@@ -1,6 +1,9 @@
-import { mailerOptions } from "./lib/submissions/mailer/mailerOptions";
 import { invariantResponse } from "./lib/utils/response";
-import { getCompiledMailTemplate, mailer } from "./mailer.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "./mailer.server";
 import { prismaClient } from "./prisma.server";
 
 export async function createProfileAbuseReport(options: {

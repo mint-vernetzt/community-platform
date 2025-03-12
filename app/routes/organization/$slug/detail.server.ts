@@ -16,6 +16,7 @@ import { FILE_FIELD_NAME } from "~/storage.shared";
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { DefaultImages } from "~/images.shared";
+import { triggerEntityScore } from "~/utils.server";
 
 export type OrganizationDetailLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -268,13 +269,20 @@ export async function uploadImage(options: {
         return z.NEVER;
       }
       try {
-        await prismaClient.organization.update({
+        const organization = await prismaClient.organization.update({
           where: {
             slug,
           },
           data: {
             [uploadKey]: fileMetadataForDatabase.path,
           },
+          select: {
+            id: true,
+          },
+        });
+        triggerEntityScore({
+          entity: "organization",
+          where: { id: organization.id },
         });
       } catch (error) {
         console.error({ error });
@@ -332,13 +340,20 @@ export async function disconnectImage(options: {
           });
           return z.NEVER;
         }
-        await prismaClient.organization.update({
+        const organization = await prismaClient.organization.update({
           where: {
             slug,
           },
           data: {
             [uploadKey]: null,
           },
+          select: {
+            id: true,
+          },
+        });
+        triggerEntityScore({
+          entity: "organization",
+          where: { id: organization.id },
         });
       } catch (error) {
         console.error({ error });

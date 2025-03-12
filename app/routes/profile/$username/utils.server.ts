@@ -199,7 +199,7 @@ export async function updateProfileById(
     }),
   ]);
 
-  await triggerEntityScore({ entity: "profile", where: { id } });
+  triggerEntityScore({ entity: "profile", where: { id } });
 
   updateFilterVectorOfProfile(id);
 }

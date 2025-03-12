@@ -11,6 +11,8 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { manageSchema, updateNetworkSchema } from "./manage";
 import { invariantResponse } from "~/lib/utils/response";
+import { updateFilterVectorOfOrganization } from "./utils.server";
+import { triggerEntityScore } from "~/utils.server";
 
 export type ManageOrganizationSettingsLocales =
   (typeof languageModuleMap)[ArrayElement<
@@ -243,6 +245,11 @@ export async function updateOrganization(options: {
               },
               networkMembers: networkMemberQuery,
             },
+          });
+          updateFilterVectorOfOrganization(organization.id);
+          triggerEntityScore({
+            entity: "organization",
+            where: { id: organization.id },
           });
         } catch (error) {
           Sentry.captureException(error);

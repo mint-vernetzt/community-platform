@@ -13,6 +13,7 @@ import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
+import { triggerEntityScore } from "~/utils.server";
 
 export type ProfileDetailLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -495,14 +496,18 @@ export async function uploadImage(options: {
         return z.NEVER;
       }
       try {
-        await prismaClient.profile.update({
+        const profile = await prismaClient.profile.update({
           where: {
             username,
           },
           data: {
             [uploadKey]: fileMetadataForDatabase.path,
           },
+          select: {
+            id: true,
+          },
         });
+        triggerEntityScore({ entity: "profile", where: { id: profile.id } });
       } catch (error) {
         console.error({ error });
         captureException(error);
@@ -559,14 +564,18 @@ export async function disconnectImage(options: {
           });
           return z.NEVER;
         }
-        await prismaClient.profile.update({
+        const profile = await prismaClient.profile.update({
           where: {
             username,
           },
           data: {
             [uploadKey]: null,
           },
+          select: {
+            id: true,
+          },
         });
+        triggerEntityScore({ entity: "profile", where: { id: profile.id } });
       } catch (error) {
         console.error({ error });
         captureException(error);

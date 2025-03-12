@@ -83,4 +83,16 @@ export const focuses = [
     slug: "international",
     description: null,
   },
+  {
+    id: "9a4cb1b6-83ab-42a1-a803-b8b7a76103fe",
+    title: "Nachhaöltigkeit",
+    slug: "sustainability",
+    description: null,
+  },
+  {
+    id: "7bc9dbb3-d366-4591-be42-acacbba91e82",
+    title: "Bildung für nachhaltige Entwicklung",
+    slug: "education_for_sustainable_development",
+    description: null,
+  },
 ] as const;

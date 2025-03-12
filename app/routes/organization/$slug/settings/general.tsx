@@ -41,6 +41,8 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
+import { updateFilterVectorOfOrganization } from "./utils.server";
+import { triggerEntityScore } from "~/utils.server";
 
 const NAME_MIN_LENGTH = 3;
 const NAME_MAX_LENGTH = 50;
@@ -339,6 +341,11 @@ export async function action(args: ActionFunctionArgs) {
             data: {
               ...visibilities,
             },
+          });
+          updateFilterVectorOfOrganization(organization.id);
+          triggerEntityScore({
+            entity: "organization",
+            where: { id: organization.id },
           });
         } catch (error) {
           Sentry.captureException(error);

@@ -11,9 +11,12 @@ import {
   createProjectAbuseReport,
   sendNewReportMailToSupport,
 } from "./abuse-reporting.server";
-import { mailerOptions } from "./lib/submissions/mailer/mailerOptions";
 import { testURL } from "./lib/utils/tests";
-import { getCompiledMailTemplate, mailer } from "./mailer.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "./mailer.server";
 
 vi.mock("~/prisma.server");
 
