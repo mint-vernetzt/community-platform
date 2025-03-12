@@ -21,6 +21,16 @@ const salt = process.env.IMGPROXY_SALT;
 
 export const ImageSizes = {
   Profile: {
+    Dashboard: {
+      Avatar: {
+        width: 136,
+        height: 136,
+      },
+      BlurredAvatar: {
+        width: 17,
+        height: 17,
+      },
+    },
     Detail: {
       Background: {
         width: 1488,

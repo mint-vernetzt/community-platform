@@ -3,9 +3,6 @@ export const locale = {
     profileNotFound: "Profile not found",
   },
   content: {
-    welcome: "Willkommen,",
-    community: "in Deiner MINTvernetzt-Community!",
-    myProfile: "Mein Profil besuchen",
     notifications: {
       headline: "Mitteilungen",
       hide: "Mitteilungen ausblenden",
@@ -14,6 +11,19 @@ export const locale = {
       cta: "Zu meinen Events",
       showMore: "Weitere anzeigen",
       showLess: "Weniger anzeigen",
+    },
+    header: {
+      controls: {
+        edit: "Bearbeiten",
+      },
+      welcome: "Willkommen, {{firstName}} {{lastName}}",
+      subline: "in Deiner MINTvernetzt-Community!",
+      cta: "Mein Profil besuchen",
+    },
+    cropper: {
+      avatar: {
+        headline: "Profilbild ändern",
+      },
     },
     updateTeasers: {
       headline: "Updates",

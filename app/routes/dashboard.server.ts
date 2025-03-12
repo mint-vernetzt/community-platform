@@ -16,17 +16,53 @@ export type DashboardLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
 >]["dashboard"];
 
-export async function getProfileById(id: string) {
+export async function getProfileById(id: string, authClient?: SupabaseClient) {
   const profile = await prismaClient.profile.findUnique({
     where: { id },
     select: {
       firstName: true,
       lastName: true,
       username: true,
+      avatar: true,
     },
   });
 
-  return profile;
+  if (profile === null) {
+    return null;
+  }
+
+  if (
+    typeof authClient !== "undefined" &&
+    profile !== null &&
+    profile.avatar !== null
+  ) {
+    const publicURL = getPublicURL(authClient, profile.avatar);
+    if (publicURL !== null) {
+      const avatar = getImageURL(publicURL, {
+        resize: {
+          type: "fill",
+          width: ImageSizes.Profile.Dashboard.Avatar.width,
+          height: ImageSizes.Profile.Dashboard.Avatar.height,
+        },
+        gravity: GravityType.center,
+      });
+      const blurredAvatar = getImageURL(publicURL, {
+        resize: {
+          type: "fill",
+          width: ImageSizes.Profile.Dashboard.BlurredAvatar.width,
+          height: ImageSizes.Profile.Dashboard.BlurredAvatar.height,
+        },
+        blur: BlurFactor,
+      });
+      return {
+        ...profile,
+        avatar,
+        blurredAvatar,
+      };
+    }
+  }
+
+  return { ...profile, blurredAvatar: null, avatar: null };
 }
 
 export async function getProfilesForCards(take: number) {
