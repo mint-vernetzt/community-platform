@@ -9,6 +9,7 @@ import { type OrganizationAdminSettingsLocales } from "./routes/organization/$sl
 import { type OrganizationTeamSettingsLocales } from "./routes/organization/$slug/settings/team.server";
 import { type ManageOrganizationSettingsLocales } from "./routes/organization/$slug/settings/manage.server";
 import { type ProjectAdminSettingsLocales } from "./routes/project/$slug/settings/admins.server";
+import { type ProjectTeamSettingsLocales } from "./routes/project/$slug/settings/team.server";
 
 // Field name for determining the intent of the submitted form when using multiple forms on one route -> Please use this as name attribute on form submit button
 export const INTENT_FIELD_NAME = "intent";
@@ -19,6 +20,7 @@ export const searchProfilesSchema = (
     | OrganizationAdminSettingsLocales
     | OrganizationTeamSettingsLocales
     | ProjectAdminSettingsLocales
+    | ProjectTeamSettingsLocales
 ) => {
   return z.object({
     [SearchProfiles]: z
@@ -112,5 +114,9 @@ export const removeTeamMemberFromProjectSchema = z.object({
 
 // TODO: Remove these when implementing project invites
 export const addAdminToProjectSchema = z.object({
+  profileId: z.string().uuid(),
+});
+
+export const addTeamMeberToProjectSchema = z.object({
   profileId: z.string().uuid(),
 });

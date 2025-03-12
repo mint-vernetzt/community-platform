@@ -1,8 +1,8 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import {
-  addAdminToProjectSchema,
-  removeAdminFromProjectSchema,
+  addTeamMeberToProjectSchema,
+  removeTeamMemberFromProjectSchema,
 } from "~/form-helpers";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
@@ -13,15 +13,15 @@ import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
-export type ProjectAdminSettingsLocales =
+export type ProjectTeamSettingsLocales =
   (typeof languageModuleMap)[ArrayElement<
     typeof supportedCookieLanguages
-  >]["project/$slug/settings/admins"];
+  >]["project/$slug/settings/team"];
 
-export async function getProjectWithAdmins(options: {
+export async function getProjectWithTeamMembers(options: {
   slug: string;
   authClient: SupabaseClient;
-  locales: ProjectAdminSettingsLocales;
+  locales: ProjectTeamSettingsLocales;
 }) {
   const { slug, authClient, locales } = options;
   const project = await prismaClient.project.findFirst({
@@ -30,7 +30,7 @@ export async function getProjectWithAdmins(options: {
     },
     select: {
       id: true,
-      admins: {
+      teamMembers: {
         select: {
           profile: {
             select: {
@@ -52,8 +52,8 @@ export async function getProjectWithAdmins(options: {
     status: 404,
   });
 
-  // enhance admins with avatar
-  const admins = project.admins.map((relation) => {
+  // enhance teamMembers with avatar
+  const teamMembers = project.teamMembers.map((relation) => {
     let avatar = relation.profile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
@@ -77,21 +77,21 @@ export async function getProjectWithAdmins(options: {
     return { profile: { ...relation.profile, avatar, blurredAvatar } };
   });
 
-  const enhancedProject = { ...project, admins };
+  const enhancedProject = { ...project, teamMembers };
 
   return enhancedProject;
 }
 
 // TODO: Remove this function when implementing project admin invites
-export async function addAdminToProject(options: {
+export async function addTeamMemberToProject(options: {
   formData: FormData;
   slug: string;
-  locales: ProjectAdminSettingsLocales;
+  locales: ProjectTeamSettingsLocales;
 }) {
   const { formData, slug, locales } = options;
 
   const submission = parseWithZod(formData, {
-    schema: addAdminToProjectSchema,
+    schema: addTeamMeberToProjectSchema,
   });
   if (submission.status !== "success") {
     return { submission: submission.reply() };
@@ -117,7 +117,7 @@ export async function addAdminToProject(options: {
     { status: 404 }
   );
 
-  await prismaClient.adminOfProject.create({
+  await prismaClient.teamMemberOfProject.create({
     data: {
       profileId: submission.value.profileId,
       projectId: project.id,
@@ -127,7 +127,7 @@ export async function addAdminToProject(options: {
   return {
     submission: submission.reply(),
     toast: {
-      id: "add-admin-toast",
+      id: "add-team-member-toast",
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(locales.route.content.profileAdded, {
         firstName: profile.firstName,
@@ -137,8 +137,8 @@ export async function addAdminToProject(options: {
   };
 }
 
-// TODO: Add these functions when implementing project admin invites
-// export async function getPendingAdminInvitesOfProject(
+// TODO: Add these functions when implementing project team member invites
+// export async function getPendingTeamMemberInvitesOfProject(
 //   projectId: string,
 //   authClient: SupabaseClient
 // ) {
@@ -146,7 +146,7 @@ export async function addAdminToProject(options: {
 //     where: {
 //       projectId,
 //       status: "pending",
-//       role: "admin",
+//       role: "member",
 //     },
 //     select: {
 //       profile: {
@@ -195,15 +195,15 @@ export async function addAdminToProject(options: {
 //   return enhancedProfiles;
 // }
 
-// export async function inviteProfileToBeProjectAdmin(options: {
+// export async function inviteProfileToBeProjectTeamMember(options: {
 //   formData: FormData;
 //   slug: string;
-//   locales: ProjectAdminSettingsLocales;
+//   locales: ProjectTeamSettingsLocales;
 // }) {
 //   const { formData, slug, locales } = options;
 
 //   const submission = parseWithZod(formData, {
-//     schema: inviteProfileToBeProjectAdminSchema,
+//     schema: inviteProfileToBeProjectTeamMemberSchema,
 //   });
 //   if (submission.status !== "success") {
 //     return { submission: submission.reply() };
@@ -240,13 +240,13 @@ export async function addAdminToProject(options: {
 //       profileId_projectId_role: {
 //         profileId: submission.value.profileId,
 //         projectId: project.id,
-//         role: "admin",
+//         role: "member",
 //       },
 //     },
 //     create: {
 //       profileId: submission.value.profileId,
 //       projectId: project.id,
-//       role: "admin",
+//       role: "member",
 //       status: "pending",
 //     },
 //     update: {
@@ -258,9 +258,9 @@ export async function addAdminToProject(options: {
 //   const subject = locales.route.email.subject;
 //   const recipient = profile.email;
 //   const textTemplatePath =
-//     "mail-templates/invites/profile-to-join-project/as-admin-text.hbs";
+//     "mail-templates/invites/profile-to-join-project/text.hbs";
 //   const htmlTemplatePath =
-//     "mail-templates/invites/profile-to-join-project/as-admin-html.hbs";
+//     "mail-templates/invites/profile-to-join-project/html.hbs";
 //   const content = {
 //     firstName: profile.firstName,
 //     project: {
@@ -287,7 +287,7 @@ export async function addAdminToProject(options: {
 //     await mailer(mailerOptions, sender, recipient, subject, text, html);
 //   } catch (error) {
 //     console.error(
-//       "Error sending mail: Invite profile to be admin of project",
+//       "Error sending mail: Invite profile to be team member of project",
 //       error
 //     );
 //   }
@@ -295,7 +295,7 @@ export async function addAdminToProject(options: {
 //   return {
 //     submission: submission.reply(),
 //     toast: {
-//       id: "invite-admin-toast",
+//       id: "invite-team-member-toast",
 //       key: `${new Date().getTime()}`,
 //       message: insertParametersIntoLocale(
 //         locales.route.content.profileInvited,
@@ -308,15 +308,15 @@ export async function addAdminToProject(options: {
 //   };
 // }
 
-// export async function cancelProjectAdminInvitation(options: {
+// export async function cancelProjectTeamMemberInvitation(options: {
 //   formData: FormData;
 //   slug: string;
-//   locales: ProjectAdminSettingsLocales;
+//   locales: ProjectTeamSettingsLocales;
 // }) {
 //   const { formData, slug, locales } = options;
 
 //   const submission = parseWithZod(formData, {
-//     schema: cancelProjectAdminInvitationSchema,
+//     schema: cancelProjectTeamMemberInvitationSchema,
 //   });
 //   if (submission.status !== "success") {
 //     return { submission: submission.reply() };
@@ -347,7 +347,7 @@ export async function addAdminToProject(options: {
 //       profileId_projectId_role: {
 //         profileId: submission.value.profileId,
 //         projectId: project.id,
-//         role: "admin",
+//         role: "member",
 //       },
 //     },
 //     data: {
@@ -371,15 +371,15 @@ export async function addAdminToProject(options: {
 //   };
 // }
 
-export async function removeAdminFromProject(options: {
+export async function removeTeamMemberFromProject(options: {
   formData: FormData;
   slug: string;
-  locales: ProjectAdminSettingsLocales;
+  locales: ProjectTeamSettingsLocales;
 }) {
   const { formData, slug, locales } = options;
 
   const submission = parseWithZod(formData, {
-    schema: removeAdminFromProjectSchema,
+    schema: removeTeamMemberFromProjectSchema,
   });
   if (submission.status !== "success") {
     return { submission: submission.reply() };
@@ -391,7 +391,7 @@ export async function removeAdminFromProject(options: {
       id: true,
       _count: {
         select: {
-          admins: true,
+          teamMembers: true,
         },
       },
     },
@@ -410,14 +410,14 @@ export async function removeAdminFromProject(options: {
     { status: 404 }
   );
   invariantResponse(
-    project._count.admins > 1,
-    locales.route.error.invariant.adminCount,
+    project._count.teamMembers > 1,
+    locales.route.error.invariant.teamMemberCount,
     {
       status: 400,
     }
   );
 
-  await prismaClient.adminOfProject.delete({
+  await prismaClient.teamMemberOfProject.delete({
     where: {
       profileId_projectId: {
         profileId: submission.value.profileId,
@@ -429,7 +429,7 @@ export async function removeAdminFromProject(options: {
   return {
     submission: submission.reply(),
     toast: {
-      id: "remove-admin-toast",
+      id: "remove-team-member-toast",
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         locales.route.content.profileRemoved,

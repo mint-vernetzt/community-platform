@@ -1,5 +1,8 @@
-import { conform, useForm } from "@conform-to/react";
-import { type Prisma, type Profile } from "@prisma/client";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
   redirect,
   type ActionFunctionArgs,
@@ -7,439 +10,599 @@ import {
 } from "react-router";
 import {
   Form,
+  useActionData,
   useLoaderData,
   useLocation,
+  useNavigation,
   useSearchParams,
+  useSubmit,
 } from "react-router";
-import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
-import { getPublicURL } from "~/storage.server";
-import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getHash,
-} from "./utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { List } from "@mint-vernetzt/components/src/organisms/List";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { ListContainer } from "~/components-next/ListContainer";
+import { ListItem } from "~/components-next/ListItem";
+import { searchProfilesSchema } from "~/form-helpers";
+import { detectLanguage } from "~/i18n.server";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { Deep, SearchProfiles } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { searchProfiles } from "~/routes/utils.server";
+import { redirectWithToast } from "~/toast.server";
+import { deriveMode } from "~/utils.server";
+import {
+  addTeamMemberToProject,
+  getProjectWithTeamMembers,
+  removeTeamMemberFromProject,
+} from "./team.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["project/$slug/settings/team"];
 
   const { authClient } = createAuthClient(request);
-
   const sessionUser = await getSessionUser(authClient);
+  const mode = deriveMode(sessionUser);
 
-  // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
-    status: 400,
-  });
-
-  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
+  const project = await getProjectWithTeamMembers({
+    slug,
     authClient,
+    locales,
   });
 
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
+  // TODO: Implement this when project team member invites are implemented
+  // const pendingTeamMemberInvites = await getPendingTeamMemberInvitesOfProject(
+  //   project.id,
+  //   authClient
+  // );
 
-  // get project team members and admins
-  const project = await prismaClient.project.findFirst({
-    where: { slug: params.slug },
-    include: {
-      teamMembers: {
-        select: {
-          profile: {
-            select: {
-              firstName: true,
-              lastName: true,
-              username: true,
-              avatar: true,
-            },
-          },
-        },
-      },
-      admins: {
-        select: {
-          profile: {
-            select: {
-              username: true,
-            },
-          },
-        },
-      },
-    },
+  const pendingAndCurrentTeamMemberIds = [
+    ...project.teamMembers.map((relation) => relation.profile.id),
+    // ...pendingTeamMemberInvites.map((invite) => invite.id),
+  ];
+  const { searchedProfiles, submission } = await searchProfiles({
+    searchParams: new URL(request.url).searchParams,
+    idsToExclude: pendingAndCurrentTeamMemberIds,
+    authClient,
+    locales,
+    mode,
   });
 
-  invariantResponse(project !== null, locales.error.notFound, {
-    status: 404,
-  });
-
-  // enhance team members with avatar
-  const teamMembers = project.teamMembers.map((relation) => {
-    let avatar = relation.profile.avatar;
-    let blurredAvatar;
-    if (avatar !== null) {
-      const publicURL = getPublicURL(authClient, avatar);
-      if (publicURL !== null) {
-        avatar = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            ...ImageSizes.Profile.ListItemProjectDetailAndSettings.Avatar,
-          },
-        });
-        blurredAvatar = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            ...ImageSizes.Profile.ListItemProjectDetailAndSettings
-              .BlurredAvatar,
-          },
-          blur: BlurFactor,
-        });
-      }
-    }
-    return { profile: { ...relation.profile, avatar, blurredAvatar } };
-  });
-
-  const enhancedProject = { ...project, teamMembers };
-
-  // get search query
-  const url = new URL(request.url);
-  const queryString = url.searchParams.get("search") || undefined;
-  const query =
-    typeof queryString !== "undefined" ? queryString.split(" ") : [];
-
-  // get profiles via search query
-  let searchResult: {
-    firstName: string;
-    lastName: string;
-    username: string;
-    avatar: string | null;
-    blurredAvatar?: string;
-  }[] = [];
-  if (
-    query.length > 0 &&
-    queryString !== undefined &&
-    queryString.length >= 3
-  ) {
-    const whereQueries: {
-      OR: {
-        [K in Profile as string]: { contains: string; mode: Prisma.QueryMode };
-      }[];
-    }[] = [];
-    for (const word of query) {
-      whereQueries.push({
-        OR: [
-          { firstName: { contains: word, mode: "insensitive" } },
-          { lastName: { contains: word, mode: "insensitive" } },
-          { username: { contains: word, mode: "insensitive" } },
-          { email: { contains: word, mode: "insensitive" } },
-        ],
-      });
-    }
-    searchResult = await prismaClient.profile.findMany({
-      where: {
-        AND: whereQueries,
-      },
-      select: {
-        firstName: true,
-        lastName: true,
-        username: true,
-        avatar: true,
-      },
-      take: 10,
-    });
-    searchResult = searchResult.filter((relation) => {
-      const isTeamMember = project.teamMembers.some((teamMember) => {
-        return teamMember.profile.username === relation.username;
-      });
-      return !isTeamMember;
-    });
-    searchResult = searchResult.map((relation) => {
-      let avatar = relation.avatar;
-      let blurredAvatar;
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        if (publicURL !== null) {
-          avatar = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              ...ImageSizes.Profile.ListItemProjectDetailAndSettings.Avatar,
-            },
-          });
-          blurredAvatar = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              ...ImageSizes.Profile.ListItemProjectDetailAndSettings
-                .BlurredAvatar,
-            },
-            blur: BlurFactor,
-          });
-        }
-      }
-      return { ...relation, avatar, blurredAvatar };
-    });
-  }
-
-  return { project: enhancedProject, searchResult, locales };
+  return {
+    project,
+    // pendingTeamMemberInvites,
+    searchedProfiles,
+    submission,
+    locales,
+    currentTimestamp: Date.now(),
+  };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
-  // get action type
   const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["project/$slug/settings/team"];
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-
-  // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
-    status: 400,
-  });
-
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
-
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
 
+  let result;
   const formData = await request.formData();
-  const action = formData.get(conform.INTENT) as string;
-  const hash = getHash({ action: action });
-  if (action.startsWith("add_")) {
-    const username = action.replace("add_", "");
+  const intent = formData.get("intent");
+  invariantResponse(
+    typeof intent === "string",
+    locales.route.error.invariant.noStringIntent,
+    {
+      status: 400,
+    }
+  );
 
-    const project = await prismaClient.project.findFirst({
-      where: { slug: args.params.slug },
-      select: {
-        id: true,
-      },
-    });
-
-    const profile = await prismaClient.profile.findFirst({
-      where: { username },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-      },
-    });
-
-    invariantResponse(
-      project !== null && profile !== null,
-      locales.error.notFound,
-      {
-        status: 404,
-      }
+  // TODO: Remove this when project team member invites are implemented
+  if (intent.startsWith("add-team-member-")) {
+    const addTeamMemberFormData = new FormData();
+    addTeamMemberFormData.set(
+      "profileId",
+      intent.replace("add-team-member-", "")
     );
-
-    await prismaClient.teamMemberOfProject.upsert({
-      where: {
-        profileId_projectId: {
-          projectId: project.id,
-          profileId: profile.id,
-        },
-      },
-      update: {},
-      create: {
-        projectId: project.id,
-        profileId: profile.id,
-      },
+    result = await addTeamMemberToProject({
+      formData: addTeamMemberFormData,
+      slug,
+      locales,
     });
-
-    return redirectWithToast(request.url, {
-      id: "add-member-toast",
-      key: hash,
-      message: insertParametersIntoLocale(locales.content.added, {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-      }),
-    });
-  } else if (action.startsWith("remove_")) {
-    const username = action.replace("remove_", "");
-
-    const project = await prismaClient.project.findFirst({
-      where: { slug: args.params.slug },
-      select: {
-        id: true,
-      },
-    });
-
-    const profile = await prismaClient.profile.findFirst({
-      where: { username },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-      },
-    });
-
-    invariantResponse(
-      project !== null && profile !== null,
-      locales.error.notFound,
-      {
-        status: 404,
-      }
+  }
+  // TODO: Implement this when project admin invites are implemented
+  // else if (intent.startsWith("invite-team-member-")) {
+  //   const inviteFormData = new FormData();
+  //   inviteFormData.set("profileId", intent.replace("invite-team-member-", ""));
+  //   result = await inviteProfileToBeProjectTeamMember({
+  //     formData: inviteFormData,
+  //     slug,
+  //     locales,
+  //   });
+  // } else if (intent.startsWith("cancel-team-member-invite-")) {
+  //   const cancelAdminInviteFormData = new FormData();
+  //   cancelAdminInviteFormData.set(
+  //     "profileId",
+  //     intent.replace("cancel-team-member-invite-", "")
+  //   );
+  //   result = await cancelProjectTeamMemberInvitation({
+  //     formData: cancelAdminInviteFormData,
+  //     slug,
+  //     locales,
+  //   });
+  // }
+  else if (intent.startsWith("remove-team-member-")) {
+    const removeAdminFormData = new FormData();
+    removeAdminFormData.set(
+      "profileId",
+      intent.replace("remove-team-member-", "")
     );
-
-    await prismaClient.teamMemberOfProject.delete({
-      where: {
-        profileId_projectId: {
-          projectId: project.id,
-          profileId: profile.id,
-        },
-      },
+    result = await removeTeamMemberFromProject({
+      formData: removeAdminFormData,
+      slug,
+      locales,
     });
-
-    return redirectWithToast(request.url, {
-      id: "remove-member-toast",
-      key: hash,
-      message: insertParametersIntoLocale(locales.content.removed, {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-      }),
+  } else {
+    invariantResponse(false, locales.route.error.invariant.wrongIntent, {
+      status: 400,
     });
   }
 
-  return { success: false, action, profile: null };
+  if (
+    result.submission !== undefined &&
+    result.submission.status === "success" &&
+    result.toast !== undefined
+  ) {
+    return redirectWithToast(request.url, result.toast);
+  }
+  return { currentTimestamp: Date.now(), submission: result.submission };
 };
 
 function Team() {
-  const { project, searchResult, locales } = useLoaderData<typeof loader>();
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
-  const submit = useDebounceSubmit();
+  const {
+    project,
+    // pendingTeamMemberInvites,
+    searchedProfiles,
+    submission: loaderSubmission,
+    locales,
+    currentTimestamp,
+  } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
 
-  const [searchForm, fields] = useForm({
+  const location = useLocation();
+  const navigation = useNavigation();
+  const submit = useSubmit();
+  const [searchParams] = useSearchParams();
+
+  const [searchForm, searchFields] = useForm({
+    id: "search-profiles",
     defaultValue: {
-      search: searchParams.get("search") || "",
-      [Deep]: "true",
+      [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
+    constraint: getZodConstraint(searchProfilesSchema(locales)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: searchProfilesSchema(locales),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? loaderSubmission : null,
+  });
+
+  // TODO: Remove this when project team member invites are implemented
+  const [addTeamMemberForm] = useForm({
+    id: `add-team-members-${actionData?.currentTimestamp || currentTimestamp}`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  // TODO: Implement this when project team member invites are implemented
+  // const [inviteTeamMemberForm] = useForm({
+  //   id: `invite-team-member-${
+  //     actionData?.currentTimestamp || currentTimestamp
+  //   }`,
+  //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  // });
+
+  // const [cancelTeamMemberInviteForm] = useForm({
+  //   id: `cancel-team-member-invite-${
+  //     actionData?.currentTimestamp || currentTimestamp
+  //   }`,
+  //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  // });
+
+  const [removeTeamMemberForm] = useForm({
+    id: `remove-team-member-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{locales.content.back}</BackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.content.intro}</p>
+      <BackButton to={location.pathname}>
+        {locales.route.content.headline}
+      </BackButton>
+      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
+
+      {/* Current Admins and Remove Section */}
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-        {project.teamMembers.length > 0 && (
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.content.current.headline}
-            </h2>
-            <p>{locales.content.current.intro}</p>
-            <Form method="post" preventScrollReset>
-              <List>
-                {project.teamMembers.map((teamMember) => {
-                  return (
-                    <List.Item key={teamMember.profile.username}>
-                      <Avatar {...teamMember.profile} />
-                      <List.Item.Title>
-                        {teamMember.profile.firstName}{" "}
-                        {teamMember.profile.lastName}
-                      </List.Item.Title>
-                      <List.Item.Subtitle>
-                        {project.admins.some((admin) => {
-                          return (
-                            admin.profile.username ===
-                            teamMember.profile.username
-                          );
-                        })
-                          ? locales.content.current.member.admin
-                          : locales.content.current.member.team}
-                      </List.Item.Subtitle>
-                      <List.Item.Controls>
-                        <Button
-                          name={conform.INTENT}
-                          variant="outline"
-                          value={`remove_${teamMember.profile.username}`}
-                          type="submit"
-                        >
-                          {locales.content.current.remove}
-                        </Button>
-                      </List.Item.Controls>
-                    </List.Item>
-                  );
-                })}
-              </List>
-            </Form>
-          </div>
-        )}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {locales.content.add.headline}
+            {decideBetweenSingularOrPlural(
+              locales.route.content.current.headline_one,
+              locales.route.content.current.headline_other,
+              project.teamMembers.length
+            )}
           </h2>
           <Form
-            method="get"
-            onChange={(event) => {
-              submit(event.currentTarget, {
-                debounceTimeout: 250,
-                preventScrollReset: true,
-              });
-            }}
-            {...searchForm.props}
+            {...getFormProps(removeTeamMemberForm)}
+            method="post"
+            preventScrollReset
           >
-            <Input {...conform.input(fields[Deep])} type="hidden" />
-            <Input {...conform.input(fields.search)} standalone>
-              <Input.Label htmlFor={fields.search.id}>
-                {locales.content.add.search}
-              </Input.Label>
-              <Input.SearchIcon />
-              <Input.HelperText>
-                {locales.content.add.requirements}
-              </Input.HelperText>
-              {typeof fields.search.error !== "undefined" && (
-                <Input.Error>{fields.search.error}</Input.Error>
-              )}
-            </Input>
-          </Form>
-          <Form method="post" preventScrollReset>
-            <List>
-              {searchResult.map((profile) => {
+            <ListContainer
+              locales={locales}
+              listKey="team-members"
+              hideAfter={3}
+            >
+              {project.teamMembers.map((relation, index) => {
                 return (
-                  <List.Item key={profile.username}>
-                    <Avatar {...profile} />
-                    <List.Item.Title>
-                      {profile.firstName} {profile.lastName}
-                    </List.Item.Title>
-                    <List.Item.Controls>
+                  <ListItem
+                    key={`team-member-${relation.profile.username}`}
+                    entity={relation.profile}
+                    locales={locales}
+                    listIndex={index}
+                    hideAfter={3}
+                  >
+                    {project.teamMembers.length > 1 && (
                       <Button
-                        name={conform.INTENT}
+                        name="intent"
                         variant="outline"
-                        value={`add_${profile.username}`}
+                        value={`remove-team-member-${relation.profile.id}`}
                         type="submit"
+                        fullSize
                       >
-                        {locales.content.add.add}
+                        {locales.route.content.current.remove}
                       </Button>
-                    </List.Item.Controls>
-                  </List.Item>
+                    )}
+                  </ListItem>
                 );
               })}
-            </List>
+            </ListContainer>
+            {typeof removeTeamMemberForm.errors !== "undefined" &&
+            removeTeamMemberForm.errors.length > 0 ? (
+              <div>
+                {removeTeamMemberForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={removeTeamMemberForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </Form>
+        </div>
+        {/* Search And Add Team Members Section */}
+        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            {locales.route.content.add.headline}
+          </h2>
+          <Form
+            {...getFormProps(searchForm)}
+            method="get"
+            onChange={(event) => {
+              searchForm.validate();
+              if (searchForm.valid) {
+                submit(event.currentTarget, { preventScrollReset: true });
+              }
+            }}
+            autoComplete="off"
+          >
+            <Input name={Deep} defaultValue="true" type="hidden" />
+            <Input
+              {...getInputProps(searchFields[SearchProfiles], {
+                type: "search",
+              })}
+              key={searchFields[SearchProfiles].id}
+              standalone
+            >
+              <Input.Label htmlFor={searchFields[SearchProfiles].id}>
+                {locales.route.content.add.search}
+              </Input.Label>
+              <Input.SearchIcon />
+
+              {typeof searchFields[SearchProfiles].errors !== "undefined" &&
+              searchFields[SearchProfiles].errors.length > 0 ? (
+                searchFields[SearchProfiles].errors.map((error) => (
+                  <Input.Error
+                    id={searchFields[SearchProfiles].errorId}
+                    key={error}
+                  >
+                    {error}
+                  </Input.Error>
+                ))
+              ) : (
+                <Input.HelperText>
+                  {locales.route.content.add.criteria}
+                </Input.HelperText>
+              )}
+              <Input.Controls>
+                <noscript>
+                  <Button type="submit" variant="outline">
+                    {locales.route.content.add.submitSearch}
+                  </Button>
+                </noscript>
+              </Input.Controls>
+            </Input>
+            {typeof searchForm.errors !== "undefined" &&
+            searchForm.errors.length > 0 ? (
+              <div>
+                {searchForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={searchForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
+          </Form>
+          {searchedProfiles.length > 0 ? (
+            <Form
+              {...getFormProps(addTeamMemberForm)}
+              method="post"
+              preventScrollReset
+            >
+              <ListContainer
+                locales={locales}
+                listKey="team-member-search-results"
+                hideAfter={3}
+              >
+                {searchedProfiles.map((profile, index) => {
+                  return (
+                    <ListItem
+                      key={`team-member-search-result-${profile.username}`}
+                      entity={profile}
+                      locales={locales}
+                      listIndex={index}
+                      hideAfter={3}
+                    >
+                      <Button
+                        name="intent"
+                        variant="outline"
+                        value={`add-team-member-${profile.id}`}
+                        type="submit"
+                        fullSize
+                      >
+                        {locales.route.content.add.submit}
+                      </Button>
+                    </ListItem>
+                  );
+                })}
+              </ListContainer>
+              {typeof addTeamMemberForm.errors !== "undefined" &&
+              addTeamMemberForm.errors.length > 0 ? (
+                <div>
+                  {addTeamMemberForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={addTeamMemberForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </Form>
+          ) : null}
+          {/* TODO: Implement this when project team member invites are implemented */}
+          {/* Search Profiles To Invite As Team Member Section */}
+          {/* <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            {locales.route.content.invite.headline}
+          </h2>
+          <Form
+            {...getFormProps(searchForm)}
+            method="get"
+            onChange={(event) => {
+              searchForm.validate();
+              if (searchForm.valid) {
+                submit(event.currentTarget, { preventScrollReset: true });
+              }
+            }}
+            autoComplete="off"
+          >
+            <Input name={Deep} defaultValue="true" type="hidden" />
+            <Input
+              {...getInputProps(searchFields[SearchProfiles], {
+                type: "search",
+              })}
+              key={searchFields[SearchProfiles].id}
+              standalone
+            >
+              <Input.Label htmlFor={searchFields[SearchProfiles].id}>
+                {locales.route.content.invite.search}
+              </Input.Label>
+              <Input.SearchIcon />
+
+              {typeof searchFields[SearchProfiles].errors !== "undefined" &&
+              searchFields[SearchProfiles].errors.length > 0 ? (
+                searchFields[SearchProfiles].errors.map((error) => (
+                  <Input.Error
+                    id={searchFields[SearchProfiles].errorId}
+                    key={error}
+                  >
+                    {error}
+                  </Input.Error>
+                ))
+              ) : (
+                <Input.HelperText>
+                  {locales.route.content.invite.criteria}
+                </Input.HelperText>
+              )}
+              <Input.Controls>
+                <noscript>
+                  <Button type="submit" variant="outline">
+                    {locales.route.content.invite.submitSearch}
+                  </Button>
+                </noscript>
+              </Input.Controls>
+            </Input>
+            {typeof searchForm.errors !== "undefined" &&
+            searchForm.errors.length > 0 ? (
+              <div>
+                {searchForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={searchForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
+          </Form>
+          {searchedProfiles.length > 0 ? (
+            <Form
+              {...getFormProps(inviteTeamMemberForm)}
+              method="post"
+              preventScrollReset
+            >
+              <ListContainer
+                locales={locales}
+                listKey="team-member-search-results"
+                hideAfter={3}
+              >
+                {searchedProfiles.map((profile, index) => {
+                  return (
+                    <ListItem
+                      key={`team-member-search-result-${profile.username}`}
+                      entity={profile}
+                      locales={locales}
+                      listIndex={index}
+                      hideAfter={3}
+                    >
+                      <Button
+                        name="intent"
+                        variant="outline"
+                        value={`invite-team-member-${profile.id}`}
+                        type="submit"
+                        fullSize
+                      >
+                        {locales.route.content.invite.submit}
+                      </Button>
+                    </ListItem>
+                  );
+                })}
+              </ListContainer>
+              {typeof inviteTeamMemberForm.errors !== "undefined" &&
+              inviteTeamMemberForm.errors.length > 0 ? (
+                <div>
+                  {inviteTeamMemberForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={inviteTeamMemberForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </Form>
+          ) : null} */}
+          {/* Pending Invites Section */}
+          {/* {pendingTeamMemberInvites.length > 0 ? (
+            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+              <h4 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                {locales.route.content.invites.headline}
+              </h4>
+              <p>{locales.route.content.invites.intro} </p>
+              <Form
+                {...getFormProps(cancelTeamMemberInviteForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer
+                  locales={locales}
+                  listKey="pending-team-member-invites"
+                  hideAfter={3}
+                >
+                  {pendingTeamMemberInvites.map((profile, index) => {
+                    return (
+                      <ListItem
+                        key={`pending-team-member-invite-${profile.username}`}
+                        entity={profile}
+                        locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
+                      >
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`cancel-team-member-invite-${profile.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.invites.cancel}
+                        </Button>
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+                {typeof cancelTeamMemberInviteForm.errors !== "undefined" &&
+                cancelTeamMemberInviteForm.errors.length > 0 ? (
+                  <div>
+                    {cancelTeamMemberInviteForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={cancelTeamMemberInviteForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </Form>
+            </div>
+          ) : null} */}
         </div>
       </div>
     </Section>
