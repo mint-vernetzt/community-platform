@@ -67,7 +67,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
 
-  const profile = await getProfileById(sessionUser.id);
+  const profile = await getProfileById(sessionUser.id, authClient);
   if (profile === null) {
     invariantResponse(false, locales.route.error.profileNotFound, {
       status: 404,
@@ -489,15 +489,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organizations,
     events,
     projects,
-    firstName: profile.firstName,
-    lastName: profile.lastName,
-    username: profile.username,
     organizationsFromInvites,
     profilesFromRequests,
     upcomingCanceledEvents,
     locales,
     language,
     abilities,
+    ...profile,
   };
 };
 
@@ -613,7 +611,123 @@ function Dashboard() {
   return (
     <>
       {/* Welcome Section */}
-      <section className="mv-w-full mv-mx-auto mv-m-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+      {
+        <section className="mv-w-full mv-bg-gradient-to-b from-neutral-50 to-white mv-h-[480px] @md:mv-h-[571px] mv-mb-10 mv-relative">
+          {/* svg top */}
+          <div className="mv-absolute mv-top-0 mv-w-[304px] @md:mv-w-[607px] mv-h-[169px] @md:mv-h-[339px]">
+            <svg
+              width="100%"
+              height="100%"
+              viewBox="0 0 607 339"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M-278.555 -350.276C-94.7497 -580.614 166.353 -619.882 320.556 -440.434C436.831 -305.124 461.732 -339.258 474.697 -228.127C495.055 -53.6284 397.38 -26.1201 256.574 106.328C49.7733 300.855 -54.9258 274.68 -133.14 216.844C-179.261 182.739 -524.293 -42.3257 -278.555 -350.276Z"
+                fill="#FCC433"
+              />
+              <path
+                d="M-80.5089 145.289C147.048 84.0027 463.675 37.106 518.315 -49.3929C545.635 -92.6424 485.441 -210.274 425.29 -291.988C318.82 -436.626 190.291 -493.722 10.7109 -491.051C-258.403 -487.049 -577.101 -199.684 -494.829 -22.6444C-424.098 129.56 -216.261 181.85 -80.5089 145.289Z"
+                stroke="#154194"
+              />
+            </svg>
+          </div>
+          {/* svg bottom */}
+          <div className="mv-absolute mv-bottom-0 mv-right-0 mv-w-[400px] @md:mv-w-[800px] mv-h-[207px] @md:mv-h-[415px]">
+            <svg
+              width="100%"
+              height="100%"
+              viewBox="0 0 800 415"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M546.315 249.734C624.782 229.199 715.885 285.197 730.99 291.223C746.096 297.249 907.379 372.508 993.621 439.219C1101.42 522.607 1050.11 639.435 949.589 892.638C849.069 1145.84 747.832 1108.41 429.04 946.34C94.5001 776.261 249.166 600.785 308.857 496.092C368.548 391.399 467.848 270.27 546.315 249.734Z"
+                fill="#FCC433"
+              />
+              <path
+                d="M1104.45 741.607C1094.26 826.675 1003.96 894.534 992.186 907.047C980.415 919.559 844.013 1048.94 745.063 1107.87C621.376 1181.54 526.421 1085.88 316.482 889.066C106.544 692.253 182.52 607.245 465.22 356.674C761.885 93.7261 874.47 313.665 954.256 412.859C1034.04 512.053 1114.65 656.538 1104.45 741.607Z"
+                stroke="#B16FAB"
+              />
+            </svg>
+          </div>
+          <div className="mv-flex mv-flex-col mv-items-center">
+            <div className="mv-relative mv-mt-14 mv-flex mv-flex-col mv-items-center">
+              <div className="mv-w-[136px] mv-h-[136px] mv-rounded-full mv-shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
+                <div className="mv-relative">
+                  <Avatar
+                    avatar={loaderData.avatar}
+                    blurredAvatar={
+                      loaderData.blurredAvatar === null
+                        ? undefined
+                        : loaderData.blurredAvatar
+                    }
+                    firstName={loaderData.firstName}
+                    lastName={loaderData.lastName}
+                    size="full"
+                    textSize="xl"
+                  />
+                  <button
+                    type="submit"
+                    form="modal-logo-form"
+                    className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-full mv-rounded-full mv-opacity-0 hover:mv-opacity-100 focus-within:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 focus-within:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
+                  >
+                    <div className="mv-flex mv-flex-col mv-items-center mv-gap-1">
+                      <div className="mv-w-8 mv-h-8 mv-rounded-full mv-bg-neutral-50 mv-flex mv-items-center mv-justify-center mv-border mv-border-primary mv-bg-opacity-100">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M15 12C15 12.5523 14.5523 13 14 13H2C1.44772 13 1 12.5523 1 12V6C1 5.44772 1.44772 5 2 5H3.17157C3.96722 5 4.73028 4.68393 5.29289 4.12132L6.12132 3.29289C6.30886 3.10536 6.56321 3 6.82843 3H9.17157C9.43679 3 9.69114 3.10536 9.87868 3.29289L10.7071 4.12132C11.2697 4.68393 12.0328 5 12.8284 5H14C14.5523 5 15 5.44772 15 6V12ZM2 4C0.895431 4 0 4.89543 0 6V12C0 13.1046 0.895431 14 2 14H14C15.1046 14 16 13.1046 16 12V6C16 4.89543 15.1046 4 14 4H12.8284C12.298 4 11.7893 3.78929 11.4142 3.41421L10.5858 2.58579C10.2107 2.21071 9.70201 2 9.17157 2H6.82843C6.29799 2 5.78929 2.21071 5.41421 2.58579L4.58579 3.41421C4.21071 3.78929 3.70201 4 3.17157 4H2Z"
+                            fill="#154194"
+                          />
+                          <path
+                            d="M8 11C6.61929 11 5.5 9.88071 5.5 8.5C5.5 7.11929 6.61929 6 8 6C9.38071 6 10.5 7.11929 10.5 8.5C10.5 9.88071 9.38071 11 8 11ZM8 12C9.933 12 11.5 10.433 11.5 8.5C11.5 6.567 9.933 5 8 5C6.067 5 4.5 6.567 4.5 8.5C4.5 10.433 6.067 12 8 12Z"
+                            fill="#154194"
+                          />
+                          <path
+                            d="M3 6.5C3 6.77614 2.77614 7 2.5 7C2.22386 7 2 6.77614 2 6.5C2 6.22386 2.22386 6 2.5 6C2.77614 6 3 6.22386 3 6.5Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </div>
+                      <p className="mv-text-white mv-text-sm mv-font-semibold mv-leading-4">
+                        {loaderData.locales.route.content.header.controls.edit}
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-2 mv-mb-4 mv-text-center">
+                <h1 className="mv-text-[2.25rem] @md:mv-text-[2.5rem] mv-font-black mv-text-primary-500 mv-leading-[3.25rem]">
+                  {insertParametersIntoLocale(
+                    loaderData.locales.route.content.header.welcome,
+                    {
+                      firstName: loaderData.firstName,
+                      lastName: loaderData.lastName,
+                    }
+                  )}
+                </h1>
+                <p className="mv-text-base @md:mv-text-lg mv-font-normal @md:mv-font-semibold">
+                  {loaderData.locales.route.content.header.subline}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                as="a"
+                href={`/profile/${loaderData.username}`}
+              >
+                {loaderData.locales.route.content.header.cta}
+              </Button>
+            </div>
+          </div>
+        </section>
+      }
+      {/* <section className="mv-w-full mv-mx-auto mv-m-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-px-4 @xl:mv-px-6">
           <h1 className="mv-text-primary mv-font-black mv-text-5xl @lg:mv-text-7xl mv-leading-tight mv-mb-2">
             {loaderData.locales.route.content.welcome}
@@ -631,11 +745,11 @@ function Dashboard() {
             {loaderData.locales.route.content.myProfile}
           </Button>
         </div>
-      </section>
+      </section> */}
       {/* Organization Invites Section */}
       {loaderData.organizationsFromInvites.length > 0 && (
         <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
+          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-white mv-rounded-lg mv-items-center">
             <div className="mv-flex mv-items-center mv-gap-2">
               <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
                 {loaderData.organizationsFromInvites
