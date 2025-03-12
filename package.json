@@ -28,7 +28,7 @@
     "coverage": "vitest run --coverage",
     "prisma:migrate": "node -r dotenv/config node_modules/.bin/prisma migrate dev",
     "prisma:format": "prisma format",
-    "copy:fonts": "rsync node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-{400,600,700}-normal.woff public/fonts",
+    "copy:fonts": "rsync node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-{400,600,700,900}-normal.woff public/fonts",
     "make": "make",
     "typecheck": "react-router typegen && tsc",
     "typecheck:api": "npx tsc -p ./common/api",
