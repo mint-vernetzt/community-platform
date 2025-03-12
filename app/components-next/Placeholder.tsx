@@ -82,7 +82,9 @@ export function Placeholder(props: { children: React.ReactNode }) {
         {title}
         {text}
       </div>
-      <div className="mv-text-center mv-z-10">{button}</div>
+      <div className="mv-flex mv-justify-center mv-text-center mv-z-10">
+        {button}
+      </div>
     </div>
   );
 }
