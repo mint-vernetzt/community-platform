@@ -656,6 +656,7 @@ const de = {
     route: deGeneralProjectSettings,
     schemas: deSchemas,
     formats: deFormats,
+    components: deComponents,
   },
   "project/$slug/settings/index": deProjectSettingsIndex,
   "project/$slug/settings/requirements": {
@@ -1061,6 +1062,7 @@ const en = {
     route: enGeneralProjectSettings,
     schemas: enSchemas,
     formats: enFormats,
+    components: enComponents,
   },
   "project/$slug/settings/index": enProjectSettingsIndex,
   "project/$slug/settings/requirements": {

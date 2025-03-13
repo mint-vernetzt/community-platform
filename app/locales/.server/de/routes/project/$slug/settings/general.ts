@@ -2,10 +2,11 @@ export const locale = {
   validation: {
     name: {
       required: "Der Projektname ist eine erforderliche Angabe.",
-      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 80.",
+      min: "Der Name muss mindestens {{min}} Zeichen lang sein",
+      max: "Der Name darf maximal {{max}} Zeichen lang sein",
     },
     subline: {
-      max: "Deine Eingabe übersteigt die maximal zulässige Zeichenzahl von 90.",
+      max: "Der Projektuntertitel darf maximal {{max}} Zeichen lang sein",
     },
     email: {
       email: "Bitte gib eine gültige E-Mail Adresse ein.",
