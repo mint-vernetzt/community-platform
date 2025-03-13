@@ -13,7 +13,6 @@ import {
   useLoaderData,
   useNavigation,
 } from "react-router";
-import React from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { redirectWithAlert } from "~/alert.server";
@@ -166,10 +165,6 @@ function Delete() {
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
-  // Validate on first render
-  React.useEffect(() => {
-    form.validate();
-  }, [form]);
 
   return (
     <>
@@ -211,7 +206,11 @@ function Delete() {
               <Button
                 type="submit"
                 level="negative"
-                disabled={isHydrated ? form.valid === false : false}
+                disabled={
+                  isHydrated
+                    ? form.dirty === false || form.valid === false
+                    : false
+                }
                 fullSize
               >
                 {locales.content.action}

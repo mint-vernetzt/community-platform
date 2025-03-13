@@ -2,18 +2,16 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import {
-  redirect,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
+import * as Sentry from "@sentry/node";
 import {
   Form,
+  redirect,
   useActionData,
   useLoaderData,
   useNavigation,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
-import React from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { redirectWithAlert } from "~/alert.server";
@@ -32,7 +30,6 @@ import {
   deleteOrganizationBySlug,
   type DeleteOrganizationLocales,
 } from "./delete.server";
-import * as Sentry from "@sentry/node";
 
 function createSchema(locales: DeleteOrganizationLocales, name: string) {
   return z.object({
@@ -172,10 +169,6 @@ function Delete() {
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
-  // Validate on first render
-  React.useEffect(() => {
-    form.validate();
-  }, [form]);
 
   return (
     <>
@@ -217,7 +210,11 @@ function Delete() {
               <Button
                 type="submit"
                 level="negative"
-                disabled={isHydrated ? form.valid === false : false}
+                disabled={
+                  isHydrated
+                    ? form.dirty === false || form.valid === false
+                    : false
+                }
                 fullSize
               >
                 {locales.content.action}
