@@ -3,11 +3,11 @@ import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$
 import { type OrganizationWebAndSocialLocales } from "~/routes/organization/$slug/settings/web-social.server";
 import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
 import { type GeneralProjectSettingsLocales } from "~/routes/project/$slug/settings/general.server";
-import { type ProjectWebAndSocialSettingsLocales } from "~/routes/project/$slug/settings/web-social.server";
+import { type ProjectWebAndSocialLocales } from "~/routes/project/$slug/settings/web-social.server";
 
 type WebAndSocialLocales =
   | OrganizationWebAndSocialLocales
-  | ProjectWebAndSocialSettingsLocales;
+  | ProjectWebAndSocialLocales;
 
 export const checkboxSchema = z
   .boolean()

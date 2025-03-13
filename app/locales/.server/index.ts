@@ -673,6 +673,7 @@ const de = {
   },
   "project/$slug/settings/web-social": {
     route: deProjectWebAndSocial,
+    components: deComponents,
     schemas: deSchemas,
   },
   "project/$slug/detail": {
@@ -1071,6 +1072,7 @@ const en = {
   },
   "project/$slug/settings/web-social": {
     route: enProjectWebAndSocial,
+    components: enComponents,
     schemas: enSchemas,
   },
   "project/$slug/detail": {
