@@ -62,6 +62,8 @@ export const locale = {
       headline:
         "Which additional STEM+ disciplines play a role in your project?",
       helper: "Multiple entries are possible.",
+      helperWithoutDisciplines:
+        "Please select a main discipline first to add additional disciplines.",
       choose: "Please select",
     },
     furtherDisciplines: {

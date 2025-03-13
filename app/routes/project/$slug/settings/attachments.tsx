@@ -433,7 +433,7 @@ function Attachments() {
   // Disconnect document form
   // eslint ignore is intended
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_disconnectDocumentForm, disconnectDocumentFields] = useForm({
+  const [disconnectDocumentForm, disconnectDocumentFields] = useForm({
     constraint: getZodConstraint(disconnectAttachmentSchema),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
@@ -450,7 +450,7 @@ function Attachments() {
   // Disconnect image form
   // eslint ignore is intended
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_disconnectImageForm, disconnectImageFields] = useForm({
+  const [disconnectImageForm, disconnectImageFields] = useForm({
     constraint: getZodConstraint(disconnectAttachmentSchema),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
@@ -610,11 +610,21 @@ function Attachments() {
                                     {locales.route.content.editModal.title}
                                   </Input.Label>
                                   {typeof editDocumentFields.title.errors !==
-                                    "undefined" && (
-                                    <Input.Error>
-                                      {editDocumentFields.title.errors}
-                                    </Input.Error>
-                                  )}
+                                    "undefined" &&
+                                  editDocumentFields.title.errors.length > 0
+                                    ? editDocumentFields.title.errors.map(
+                                        (error) => (
+                                          <Input.Error
+                                            id={
+                                              editDocumentFields.title.errorId
+                                            }
+                                            key={error}
+                                          >
+                                            {error}
+                                          </Input.Error>
+                                        )
+                                      )
+                                    : null}
                                 </Input>
                                 <Input
                                   {...getInputProps(
@@ -636,11 +646,23 @@ function Attachments() {
                                     }
                                   </Input.Label>
                                   {typeof editDocumentFields.description
-                                    .errors !== "undefined" && (
-                                    <Input.Error>
-                                      {editDocumentFields.description.errors}
-                                    </Input.Error>
-                                  )}
+                                    .errors !== "undefined" &&
+                                  editDocumentFields.description.errors.length >
+                                    0
+                                    ? editDocumentFields.description.errors.map(
+                                        (error) => (
+                                          <Input.Error
+                                            id={
+                                              editDocumentFields.description
+                                                .errorId
+                                            }
+                                            key={error}
+                                          >
+                                            {error}
+                                          </Input.Error>
+                                        )
+                                      )
+                                    : null}
                                 </Input>
                                 <input
                                   {...getInputProps(editDocumentFields.id, {
@@ -649,6 +671,25 @@ function Attachments() {
                                   key={`edit-document-id-${relation.document.id}`}
                                   defaultValue={relation.document.id}
                                 />
+                                {typeof editDocumentForm.errors !==
+                                  "undefined" &&
+                                editDocumentForm.errors.length > 0 ? (
+                                  <div>
+                                    {editDocumentForm.errors.map(
+                                      (error, index) => {
+                                        return (
+                                          <div
+                                            id={editDocumentForm.errorId}
+                                            key={index}
+                                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                          >
+                                            {error}
+                                          </div>
+                                        );
+                                      }
+                                    )}
+                                  </div>
+                                ) : null}
                               </div>
                             </Form>
                           </Modal.Section>
@@ -726,13 +767,35 @@ function Attachments() {
                           </div>
                         </MaterialList.Item>
                         {typeof disconnectDocumentFields.id.errors !==
-                          "undefined" && (
-                          <Input.Error
-                            id={`disconnect-document-form-${relation.document.id}-id-error`}
-                          >
-                            {editDocumentFields.id.errors}
-                          </Input.Error>
-                        )}
+                          "undefined" &&
+                        disconnectDocumentFields.id.errors.length > 0
+                          ? disconnectDocumentFields.id.errors.map((error) => (
+                              <Input.Error
+                                id={disconnectDocumentFields.id.errorId}
+                                key={error}
+                              >
+                                {error}
+                              </Input.Error>
+                            ))
+                          : null}
+                        {typeof disconnectDocumentForm.errors !== "undefined" &&
+                        disconnectDocumentForm.errors.length > 0 ? (
+                          <div>
+                            {disconnectDocumentForm.errors.map(
+                              (error, index) => {
+                                return (
+                                  <div
+                                    id={disconnectDocumentForm.errorId}
+                                    key={index}
+                                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                  >
+                                    {error}
+                                  </div>
+                                );
+                              }
+                            )}
+                          </div>
+                        ) : null}
                       </div>
                     );
                   })}
@@ -880,11 +943,19 @@ function Attachments() {
                                   {locales.route.content.editModal.title}
                                 </Input.Label>
                                 {typeof editImageFields.title.errors !==
-                                  "undefined" && (
-                                  <Input.Error>
-                                    {editImageFields.title.errors}
-                                  </Input.Error>
-                                )}
+                                  "undefined" &&
+                                editImageFields.title.errors.length > 0
+                                  ? editImageFields.title.errors.map(
+                                      (error) => (
+                                        <Input.Error
+                                          id={editImageFields.title.errorId}
+                                          key={error}
+                                        >
+                                          {error}
+                                        </Input.Error>
+                                      )
+                                    )
+                                  : null}
                               </Input>
                               <Input
                                 {...getInputProps(editImageFields.credits, {
@@ -909,11 +980,19 @@ function Attachments() {
                                   }
                                 </Input.HelperText>
                                 {typeof editImageFields.credits.errors !==
-                                  "undefined" && (
-                                  <Input.Error>
-                                    {editImageFields.credits.errors}
-                                  </Input.Error>
-                                )}
+                                  "undefined" &&
+                                editImageFields.credits.errors.length > 0
+                                  ? editImageFields.credits.errors.map(
+                                      (error) => (
+                                        <Input.Error
+                                          id={editImageFields.credits.errorId}
+                                          key={error}
+                                        >
+                                          {error}
+                                        </Input.Error>
+                                      )
+                                    )
+                                  : null}
                               </Input>
                               <Input
                                 {...getInputProps(editImageFields.description, {
@@ -932,11 +1011,21 @@ function Attachments() {
                                   }
                                 </Input.Label>
                                 {typeof editImageFields.description.errors !==
-                                  "undefined" && (
-                                  <Input.Error>
-                                    {editImageFields.description.errors}
-                                  </Input.Error>
-                                )}
+                                  "undefined" &&
+                                editImageFields.description.errors.length > 0
+                                  ? editImageFields.description.errors.map(
+                                      (error) => (
+                                        <Input.Error
+                                          id={
+                                            editImageFields.description.errorId
+                                          }
+                                          key={error}
+                                        >
+                                          {error}
+                                        </Input.Error>
+                                      )
+                                    )
+                                  : null}
                               </Input>
                               <input
                                 {...getInputProps(editImageFields.id, {
@@ -946,6 +1035,22 @@ function Attachments() {
                                 defaultValue={relation.image.id}
                               />
                             </div>
+                            {typeof editImageForm.errors !== "undefined" &&
+                            editImageForm.errors.length > 0 ? (
+                              <div>
+                                {editImageForm.errors.map((error, index) => {
+                                  return (
+                                    <div
+                                      id={editImageForm.errorId}
+                                      key={index}
+                                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                    >
+                                      {error}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : null}
                           </Form>
                         </Modal.Section>
                         <Modal.SubmitButton
@@ -1028,14 +1133,33 @@ function Attachments() {
                           </Link>
                         </div>
                       </MaterialList.Item>
-                      {typeof disconnectImageFields.id.errors !==
-                        "undefined" && (
-                        <Input.Error
-                          id={`disconnect-image-form-${relation.image.id}-id-error`}
-                        >
-                          {disconnectImageFields.id.errors}
-                        </Input.Error>
-                      )}
+                      {typeof disconnectImageFields.id.errors !== "undefined" &&
+                      disconnectImageFields.id.errors.length > 0
+                        ? disconnectImageFields.id.errors.map((error) => (
+                            <Input.Error
+                              id={disconnectImageFields.id.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                      {typeof disconnectImageForm.errors !== "undefined" &&
+                      disconnectImageForm.errors.length > 0 ? (
+                        <div>
+                          {disconnectImageForm.errors.map((error, index) => {
+                            return (
+                              <div
+                                id={disconnectImageForm.errorId}
+                                key={index}
+                                className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                              >
+                                {error}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : null}
                     </div>
                   );
                 })}

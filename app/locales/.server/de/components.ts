@@ -20,4 +20,8 @@ export const locale = {
     proceed: "Änderungen verwerfen",
     cancel: "Abbrechen",
   },
+  VisibilityCheckbox: {
+    ariaLabel:
+      "Sichtbarkeit auf privat oder öffentlich setzen. Haken gesetzt bedeutet öffentlich.",
+  },
 } as const;

@@ -20,4 +20,7 @@ export const locale = {
     proceed: "Discard changes",
     cancel: "Cancel",
   },
+  VisibilityCheckbox: {
+    ariaLabel: "Set visibility to private or public. Checkmark means public.",
+  },
 } as const;

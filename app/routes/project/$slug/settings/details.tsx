@@ -1,44 +1,42 @@
-import { conform, list, useFieldList, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import React from "react";
 import {
+  Form,
   redirect,
+  useActionData,
+  useLoaderData,
+  useLocation,
+  useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import {
-  Form,
-  useActionData,
-  useBlocker,
-  useLoaderData,
-  useLocation,
-} from "react-router";
-import React from "react";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { TextArea } from "~/components-next/TextArea";
-import { invariantResponse } from "~/lib/utils/response";
-import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
-import { sanitizeUserHtml } from "~/utils.server";
-import { createYoutubeEmbedSchema } from "~/lib/utils/schemas";
-import { prismaClient } from "~/prisma.server";
-import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
+import { TextArea } from "~/components-next/TextArea";
+import { detectLanguage } from "~/i18n.server";
+import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { createYoutubeEmbedSchema } from "~/lib/utils/schemas";
+import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
+import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
+import { sanitizeUserHtml } from "~/utils.server";
+import { type ProjectDetailsSettingsLocales } from "./details.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { type ProjectDetailsSettingsLocales } from "./details.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const TARGET_GROUP_ADDITIONS_MAX_LENGTH = 200;
 const EXCERPT_MAX_LENGTH = 250;
@@ -262,10 +260,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["project/$slug/settings/details"];
 
-  const { authClient } = createAuthClient(request);
-
-  const sessionUser = await getSessionUser(authClient);
-
   // check slug exists (throw bad request if not)
   invariantResponse(
     params.slug !== undefined,
@@ -274,17 +268,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       status: 400,
     }
   );
-
-  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
-
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
 
   const project = await prismaClient.project.findUnique({
     select: {
@@ -382,12 +365,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
+  const currentTimestamp = Date.now();
+
   return {
     project,
     allDisciplines,
     allAdditionalDisciplines,
     allProjectTargetGroups,
     allSpecialTargetGroups,
+    currentTimestamp,
     locales,
   };
 };
@@ -426,25 +412,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
   invariantResponse(project !== null, locales.route.error.projectNotFound, {
     status: 404,
   });
+
   // Validation
   const formData = await request.formData();
-  const detailsSchema = createDetailSchema(locales);
+  const conformIntent = formData.get("__intent__");
+  if (conformIntent !== null) {
+    const submission = await parseWithZod(formData, {
+      schema: createDetailSchema(locales),
+    });
+    return {
+      submission: submission.reply(),
+    };
+  }
 
-  const submission = await parse(formData, {
-    schema: (intent) =>
-      detailsSchema.transform(async (data, ctx) => {
-        if (intent !== "submit") return { ...data };
-
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      createDetailSchema(locales).transform(async (data, ctx) => {
         if (
           data.disciplines.length === 0 &&
           data.additionalDisciplines.length > 0
         ) {
           ctx.addIssue({
             code: "custom",
-            // TODO: Investigate why auto scroll to error is not working on lists
-            // Its working if you map this error to a normal input (f.e. path: ["excerpt"])
-            // Current workarround is to show an alert below the save button
-            path: ["additionalDisciplines"],
             message: locales.route.validation.custom.message,
           });
           return z.NEVER;
@@ -549,7 +538,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
               },
             },
           });
-
           updateFilterVectorOfProject(project.id);
         } catch (e) {
           console.warn(e);
@@ -565,25 +553,26 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
-  const hash = getHash(submission);
-
-  if (submission.intent !== "submit") {
-    return { status: "idle", submission, hash };
-  }
-  if (!submission.value) {
-    return { status: "error", submission, hash };
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
   }
 
   return redirectWithToast(request.url, {
-    id: "change-project-details-toast",
-    key: hash,
+    id: "update-details-toast",
+    key: `${new Date().getTime()}`,
     message: locales.route.content.feedback,
   });
 }
 
 function Details() {
   const location = useLocation();
+  const isHydrated = useHydrated();
+  const navigation = useNavigation();
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const {
     project,
     allDisciplines,
@@ -592,61 +581,49 @@ function Details() {
     allSpecialTargetGroups,
     locales,
   } = loaderData;
-  const actionData = useActionData<typeof action>();
-  const formId = "details-form";
 
-  const detailsSchema = createDetailSchema(locales);
+  const {
+    disciplines,
+    additionalDisciplines,
+    projectTargetGroups,
+    specialTargetGroups,
+    ...rest
+  } = project;
+
+  const defaultValues = {
+    ...rest,
+    disciplines: disciplines.map((relation) => relation.discipline.id),
+    additionalDisciplines: additionalDisciplines.map(
+      (relation) => relation.additionalDiscipline.id
+    ),
+    projectTargetGroups: projectTargetGroups.map(
+      (relation) => relation.projectTargetGroup.id
+    ),
+    specialTargetGroups: specialTargetGroups.map(
+      (relation) => relation.specialTargetGroup.id
+    ),
+  };
+
   const [form, fields] = useForm({
-    id: formId,
-    constraint: getFieldsetConstraint(detailsSchema),
-    defaultValue: {
-      // TODO: On old conform version null values are not converted to undefined -> use conform v1
-      participantLimit: project.participantLimit || undefined,
-      video: project.video || undefined,
-      furtherDisciplines: project.furtherDisciplines || undefined,
-      targetGroupAdditions: project.targetGroupAdditions || undefined,
-      excerpt: project.excerpt || undefined,
-      idea: project.idea || undefined,
-      goals: project.goals || undefined,
-      implementation: project.implementation || undefined,
-      furtherDescription: project.furtherDescription || undefined,
-      targeting: project.targeting || undefined,
-      hints: project.hints || undefined,
-      videoSubline: project.videoSubline || undefined,
-      disciplines: project.disciplines.map(
-        (relation) => relation.discipline.id
-      ),
-      additionalDisciplines: project.additionalDisciplines.map(
-        (relation) => relation.additionalDiscipline.id
-      ),
-      projectTargetGroups: project.projectTargetGroups.map(
-        (relation) => relation.projectTargetGroup.id
-      ),
-      specialTargetGroups: project.specialTargetGroups.map(
-        (relation) => relation.specialTargetGroup.id
-      ),
-    },
-    // TODO: Remove assertion by using conform v1
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    lastSubmission: actionData?.submission,
-    shouldValidate: "onSubmit",
+    id: `details-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(createDetailSchema(locales)),
+    defaultValue: defaultValues,
+    shouldValidate: "onInput",
     shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate({ formData }) {
-      return parse(formData, {
-        schema: (intent) =>
-          detailsSchema.transform((data, ctx) => {
-            if (intent !== "submit") return { ...data };
-
+      setFurtherDiscipline("");
+      return parseWithZod(formData, {
+        schema: () =>
+          createDetailSchema(locales).transform((data, ctx) => {
             if (
               data.disciplines.length === 0 &&
               data.additionalDisciplines.length > 0
             ) {
               ctx.addIssue({
                 code: "custom",
-                // TODO: Investigate why auto scroll to error is not working on lists
-                // Its working if you map this error to a normal input (f.e. path: ["excerpt"])
-                path: ["additionalDisciplines"],
                 message: locales.route.validation.custom.message,
               });
               return z.NEVER;
@@ -657,77 +634,42 @@ function Details() {
     },
   });
 
-  const disciplineList = useFieldList(form.ref, fields.disciplines);
-  const additionalDisciplineList = useFieldList(
-    form.ref,
-    fields.additionalDisciplines
-  );
-  const furtherDisciplinesList = useFieldList(
-    form.ref,
-    fields.furtherDisciplines
-  );
-  const targetGroupList = useFieldList(form.ref, fields.projectTargetGroups);
-  const specialTargetGroupList = useFieldList(
-    form.ref,
-    fields.specialTargetGroups
-  );
+  const disciplineFieldList = fields.disciplines.getFieldList();
+  let additionalDisciplineFieldList =
+    fields.additionalDisciplines.getFieldList();
+  const furtherDisciplinesFieldList = fields.furtherDisciplines.getFieldList();
+  const targetGroupFieldList = fields.projectTargetGroups.getFieldList();
+  const specialTargetGroupFieldList = fields.specialTargetGroups.getFieldList();
 
+  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    searchParam: "modal-unsaved-changes",
+    formMetadataToCheck: form,
+    locales,
+  });
+
+  const hasDisciplines = disciplineFieldList.length > 0;
+  if (hasDisciplines === false) {
+    additionalDisciplineFieldList = [];
+  }
   const [furtherDiscipline, setFurtherDiscipline] = React.useState<string>("");
   const handleFurtherDisciplineInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setFurtherDiscipline(event.currentTarget.value);
   };
-  const [isDirty, setIsDirty] = React.useState(false);
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname
-  );
-  if (blocker.state === "blocked") {
-    const confirmed = confirm(locales.route.content.nonPersistent);
-    if (confirmed === true) {
-      // TODO: fix blocker -> use org settings as blueprint
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
-      if (blocker.state !== "proceeding") {
-        blocker.proceed();
-      }
-    } else {
-      blocker.reset();
-    }
-  }
 
-  // AKI stop
   return (
     <Section>
+      {UnsavedChangesBlockerModal}
       <BackButton to={location.pathname}>
         {locales.route.content.back}
       </BackButton>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.description}</p>
       <Form
+        {...getFormProps(form)}
         method="post"
-        {...form.props}
-        onChange={(event) => {
-          // On RTE the onChange is called during first render
-          // That breaks our logic that the form is dirty when it got changed
-          // Therefore we check textarea elements specifically
-          // TODO: How can we get arround this assertions?
-          const input = event.target as HTMLInputElement;
-          if (
-            input.type === "textarea" &&
-            input.value === project[input.name as keyof typeof project]
-          ) {
-            setIsDirty(false);
-          } else {
-            setIsDirty(true);
-          }
-        }}
-        onSubmit={() => {
-          setIsDirty(false);
-        }}
-        onReset={() => {
-          setIsDirty(false);
-        }}
+        preventScrollReset
+        autoComplete="off"
       >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <button type="submit" hidden />
@@ -744,33 +686,45 @@ function Details() {
               <ConformSelect.Label htmlFor={fields.disciplines.id}>
                 {locales.route.content.disciplines.intro}
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.disciplines.helper}
-              </ConformSelect.HelperText>
+              {typeof fields.disciplines.errors !== "undefined" &&
+              fields.disciplines.errors.length > 0 ? (
+                fields.disciplines.errors.map((error) => (
+                  <ConformSelect.Error
+                    id={fields.disciplines.errorId}
+                    key={error}
+                  >
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.disciplines.helper}
+                </ConformSelect.HelperText>
+              )}
               {allDisciplines
                 .filter((discipline) => {
-                  return !disciplineList.some((listDiscipline) => {
-                    return listDiscipline.defaultValue === discipline.id;
+                  return !disciplineFieldList.some((listDiscipline) => {
+                    return listDiscipline.initialValue === discipline.id;
                   });
                 })
-                .map((filteredDiscipline) => {
+                .map((discipline) => {
                   let title;
-                  if (filteredDiscipline.slug in locales.disciplines) {
+                  if (discipline.slug in locales.disciplines) {
                     type LocaleKey = keyof typeof locales.disciplines;
                     title =
-                      locales.disciplines[filteredDiscipline.slug as LocaleKey]
-                        .title;
+                      locales.disciplines[discipline.slug as LocaleKey].title;
                   } else {
                     console.error(
-                      `Focus ${filteredDiscipline.slug} not found in locales`
+                      `Discipline ${discipline.slug} not found in locales`
                     );
-                    title = filteredDiscipline.slug;
+                    title = discipline.slug;
                   }
                   return (
                     <button
-                      key={filteredDiscipline.id}
-                      {...list.insert(fields.disciplines.name, {
-                        defaultValue: filteredDiscipline.id,
+                      key={discipline.id}
+                      {...form.insert.getButtonProps({
+                        name: fields.disciplines.name,
+                        defaultValue: discipline.id,
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
@@ -779,11 +733,11 @@ function Details() {
                   );
                 })}
             </ConformSelect>
-            {disciplineList.length > 0 && (
+            {disciplineFieldList.length > 0 && (
               <Chip.Container>
-                {disciplineList.map((listDiscipline, index) => {
+                {disciplineFieldList.map((listDiscipline, index) => {
                   const disciplineSlug = allDisciplines.find((discipline) => {
-                    return discipline.id === listDiscipline.defaultValue;
+                    return discipline.id === listDiscipline.initialValue;
                   })?.slug;
                   let title;
                   if (disciplineSlug === undefined) {
@@ -806,10 +760,16 @@ function Details() {
                   return (
                     <Chip key={listDiscipline.key}>
                       {title || locales.route.error.notFound}
-                      <Input type="hidden" {...conform.input(listDiscipline)} />
+                      <input
+                        {...getInputProps(listDiscipline, { type: "hidden" })}
+                        key={listDiscipline.id}
+                      />
                       <Chip.Delete>
                         <button
-                          {...list.remove(fields.disciplines.name, { index })}
+                          {...form.remove.getButtonProps({
+                            name: fields.disciplines.name,
+                            index,
+                          })}
                         />
                       </Chip.Delete>
                     </Chip>
@@ -821,19 +781,47 @@ function Details() {
             <ConformSelect
               id={fields.additionalDisciplines.id}
               cta={locales.route.content.additionalDisciplines.choose}
+              disabled={hasDisciplines === false}
             >
               <ConformSelect.Label htmlFor={fields.additionalDisciplines.id}>
-                {locales.route.content.additionalDisciplines.headline}
+                <span
+                  className={
+                    hasDisciplines === false ? "mv-text-neutral-300" : ""
+                  }
+                >
+                  {locales.route.content.additionalDisciplines.headline}
+                </span>
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.additionalDisciplines.helper}
-              </ConformSelect.HelperText>
+              {typeof fields.additionalDisciplines.errors !== "undefined" &&
+              fields.additionalDisciplines.errors.length > 0 ? (
+                fields.additionalDisciplines.errors.map((error) => (
+                  <ConformSelect.Error
+                    id={fields.additionalDisciplines.errorId}
+                    key={error}
+                  >
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  <span
+                    className={
+                      hasDisciplines === false ? "mv-text-neutral-300" : ""
+                    }
+                  >
+                    {hasDisciplines === false
+                      ? locales.route.content.additionalDisciplines
+                          .helperWithoutDisciplines
+                      : locales.route.content.additionalDisciplines.helper}
+                  </span>
+                </ConformSelect.HelperText>
+              )}
               {allAdditionalDisciplines
                 .filter((additionalDiscipline) => {
-                  return !additionalDisciplineList.some(
+                  return !additionalDisciplineFieldList.some(
                     (listAdditionalDiscipline) => {
                       return (
-                        listAdditionalDiscipline.defaultValue ===
+                        listAdditionalDiscipline.initialValue ===
                         additionalDiscipline.id
                       );
                     }
@@ -859,9 +847,11 @@ function Details() {
                   return (
                     <button
                       key={filteredAdditionalDiscipline.id}
-                      {...list.insert(fields.additionalDisciplines.name, {
+                      {...form.insert.getButtonProps({
+                        name: fields.additionalDisciplines.name,
                         defaultValue: filteredAdditionalDiscipline.id,
                       })}
+                      disabled={hasDisciplines === false}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                     >
                       {title}
@@ -869,15 +859,15 @@ function Details() {
                   );
                 })}
             </ConformSelect>
-            {additionalDisciplineList.length > 0 && (
+            {additionalDisciplineFieldList.length > 0 && (
               <Chip.Container>
-                {additionalDisciplineList.map(
+                {additionalDisciplineFieldList.map(
                   (listAdditionalDiscipline, index) => {
                     const disciplineSlug = allAdditionalDisciplines.find(
                       (discipline) => {
                         return (
                           discipline.id ===
-                          listAdditionalDiscipline.defaultValue
+                          listAdditionalDiscipline.initialValue
                         );
                       }
                     )?.slug;
@@ -888,14 +878,16 @@ function Details() {
                       );
                       title = null;
                     } else {
-                      if (disciplineSlug in locales.disciplines) {
-                        type LocaleKey = keyof typeof locales.disciplines;
+                      if (disciplineSlug in locales.additionalDisciplines) {
+                        type LocaleKey =
+                          keyof typeof locales.additionalDisciplines;
                         title =
-                          locales.disciplines[disciplineSlug as LocaleKey]
-                            .title;
+                          locales.additionalDisciplines[
+                            disciplineSlug as LocaleKey
+                          ].title;
                       } else {
                         console.error(
-                          `Discipline ${disciplineSlug} not found in locales`
+                          `Additional Discipline ${disciplineSlug} not found in locales`
                         );
                         title = disciplineSlug;
                       }
@@ -903,13 +895,16 @@ function Details() {
                     return (
                       <Chip key={listAdditionalDiscipline.key}>
                         {title || locales.route.error.notFound}
-                        <Input
-                          type="hidden"
-                          {...conform.input(listAdditionalDiscipline)}
+                        <input
+                          {...getInputProps(listAdditionalDiscipline, {
+                            type: "hidden",
+                          })}
+                          key={listAdditionalDiscipline.id}
                         />
                         <Chip.Delete>
                           <button
-                            {...list.remove(fields.additionalDisciplines.name, {
+                            {...form.remove.getButtonProps({
+                              name: fields.additionalDisciplines.name,
                               index,
                             })}
                           />
@@ -920,56 +915,119 @@ function Details() {
                 )}
               </Chip.Container>
             )}
-
-            <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
-              <Input
-                id={fields.furtherDisciplines.id}
-                value={furtherDiscipline}
-                onChange={handleFurtherDisciplineInputChange}
-              >
+            {isHydrated === true ? (
+              <>
+                <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
+                  <Input
+                    value={furtherDiscipline}
+                    onChange={handleFurtherDisciplineInputChange}
+                  >
+                    <Input.Label htmlFor={fields.furtherDisciplines.id}>
+                      {locales.route.content.furtherDisciplines.headline}
+                    </Input.Label>
+                    <Input.HelperText>
+                      {locales.route.content.furtherDisciplines.helper}
+                    </Input.HelperText>
+                    {typeof fields.furtherDisciplines.errors !== "undefined" &&
+                    fields.furtherDisciplines.errors.length > 0
+                      ? fields.furtherDisciplines.errors.map((error) => (
+                          <Input.Error
+                            id={fields.furtherDisciplines.errorId}
+                            key={error}
+                          >
+                            {error}
+                          </Input.Error>
+                        ))
+                      : null}
+                    <Input.Controls>
+                      <Button
+                        variant="ghost"
+                        disabled={furtherDiscipline === ""}
+                        {...form.insert.getButtonProps({
+                          name: fields.furtherDisciplines.name,
+                          defaultValue: furtherDiscipline,
+                        })}
+                      >
+                        {locales.route.content.furtherDisciplines.choose}
+                      </Button>
+                    </Input.Controls>
+                  </Input>
+                </div>
+                {furtherDisciplinesFieldList.length > 0 && (
+                  <Chip.Container>
+                    {furtherDisciplinesFieldList.map((field, index) => {
+                      return (
+                        <Chip key={field.key}>
+                          <input
+                            {...getInputProps(field, { type: "hidden" })}
+                            key={field.id}
+                          />
+                          {field.initialValue || "Not Found"}
+                          <Chip.Delete>
+                            <button
+                              {...form.remove.getButtonProps({
+                                name: fields.furtherDisciplines.name,
+                                index,
+                              })}
+                            />
+                          </Chip.Delete>
+                        </Chip>
+                      );
+                    })}
+                  </Chip.Container>
+                )}
+              </>
+            ) : (
+              <>
                 <Input.Label htmlFor={fields.furtherDisciplines.id}>
                   {locales.route.content.furtherDisciplines.headline}
                 </Input.Label>
+                <Chip.Container>
+                  {furtherDisciplinesFieldList.map((field, index) => {
+                    return (
+                      <Chip key={field.key}>
+                        <input
+                          {...getInputProps(field, { type: "text" })}
+                          key={field.id}
+                          className="mv-pl-1"
+                        />
+
+                        <Chip.Delete>
+                          <button
+                            {...form.remove.getButtonProps({
+                              name: fields.furtherDisciplines.name,
+                              index,
+                            })}
+                          />
+                        </Chip.Delete>
+                      </Chip>
+                    );
+                  })}
+                  <Chip key="add-further-format">
+                    <button
+                      {...form.insert.getButtonProps({
+                        name: fields.furtherDisciplines.name,
+                      })}
+                    >
+                      {locales.route.content.furtherDisciplines.choose}
+                    </button>
+                  </Chip>
+                </Chip.Container>
                 <Input.HelperText>
                   {locales.route.content.furtherDisciplines.helper}
                 </Input.HelperText>
-                <Input.Controls>
-                  <Button
-                    {...list.insert(fields.furtherDisciplines.name, {
-                      defaultValue: furtherDiscipline,
-                    })}
-                    variant="ghost"
-                    disabled={furtherDiscipline === ""}
-                  >
-                    {locales.route.content.furtherDisciplines.choose}
-                  </Button>
-                </Input.Controls>
-              </Input>
-              {/* <div className="-mv-mt-1">
-              </div> */}
-            </div>
-            {furtherDisciplinesList.length > 0 && (
-              <Chip.Container>
-                {furtherDisciplinesList.map((listFurtherDiscipline, index) => {
-                  return (
-                    <Chip key={listFurtherDiscipline.key}>
-                      {listFurtherDiscipline.defaultValue ||
-                        locales.route.error.notFound}
-                      <Input
-                        type="hidden"
-                        {...conform.input(listFurtherDiscipline)}
-                      />
-                      <Chip.Delete>
-                        <button
-                          {...list.remove(fields.furtherDisciplines.name, {
-                            index,
-                          })}
-                        />
-                      </Chip.Delete>
-                    </Chip>
-                  );
-                })}
-              </Chip.Container>
+                {typeof fields.furtherDisciplines.errors !== "undefined" &&
+                fields.furtherDisciplines.errors.length > 0
+                  ? fields.furtherDisciplines.errors.map((error) => (
+                      <Input.Error
+                        id={fields.furtherDisciplines.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
+              </>
             )}
           </div>
 
@@ -978,16 +1036,30 @@ function Details() {
               {locales.route.content.participants.headline}
             </h2>
 
-            <Input {...conform.input(fields.participantLimit)}>
+            <Input
+              {...getInputProps(fields.participantLimit, { type: "text" })}
+              key="participantLimit"
+            >
               <Input.Label htmlFor={fields.participantLimit.id}>
                 {locales.route.content.participants.intro}
               </Input.Label>
-              {typeof fields.participantLimit.error !== "undefined" && (
-                <Input.Error>{fields.participantLimit.error}</Input.Error>
+              {typeof fields.participantLimit.errors !== "undefined" && (
+                <Input.Error>{fields.participantLimit.errors}</Input.Error>
               )}
               <Input.HelperText>
                 {locales.route.content.participants.helper}
               </Input.HelperText>
+              {typeof fields.participantLimit.errors !== "undefined" &&
+              fields.participantLimit.errors.length > 0
+                ? fields.participantLimit.errors.map((error) => (
+                    <Input.Error
+                      id={fields.participantLimit.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
 
             <ConformSelect
@@ -997,13 +1069,25 @@ function Details() {
               <ConformSelect.Label htmlFor={fields.projectTargetGroups.id}>
                 {locales.route.content.projectTargetGroups.intro}
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.projectTargetGroups.helper}
-              </ConformSelect.HelperText>
+              {typeof fields.projectTargetGroups.errors !== "undefined" &&
+              fields.projectTargetGroups.errors.length > 0 ? (
+                fields.projectTargetGroups.errors.map((error) => (
+                  <ConformSelect.Error
+                    id={fields.projectTargetGroups.errorId}
+                    key={error}
+                  >
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.projectTargetGroups.helper}
+                </ConformSelect.HelperText>
+              )}
               {allProjectTargetGroups
                 .filter((targetGroup) => {
-                  return !targetGroupList.some((listTargetGroup) => {
-                    return listTargetGroup.defaultValue === targetGroup.id;
+                  return !targetGroupFieldList.some((listTargetGroup) => {
+                    return listTargetGroup.initialValue === targetGroup.id;
                   });
                 })
                 .map((filteredTargetGroup) => {
@@ -1023,7 +1107,8 @@ function Details() {
                   return (
                     <button
                       key={filteredTargetGroup.id}
-                      {...list.insert(fields.projectTargetGroups.name, {
+                      {...form.insert.getButtonProps({
+                        name: fields.projectTargetGroups.name,
                         defaultValue: filteredTargetGroup.id,
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
@@ -1033,12 +1118,12 @@ function Details() {
                   );
                 })}
             </ConformSelect>
-            {targetGroupList.length > 0 && (
+            {targetGroupFieldList.length > 0 && (
               <Chip.Container>
-                {targetGroupList.map((listTargetGroup, index) => {
+                {targetGroupFieldList.map((listTargetGroup, index) => {
                   const targetGroupSlug = allProjectTargetGroups.find(
                     (targetGroup) => {
-                      return targetGroup.id === listTargetGroup.defaultValue;
+                      return targetGroup.id === listTargetGroup.initialValue;
                     }
                   )?.slug;
                   let title;
@@ -1064,13 +1149,14 @@ function Details() {
                   return (
                     <Chip key={listTargetGroup.key}>
                       {title || locales.route.error.notFound}
-                      <Input
-                        type="hidden"
-                        {...conform.input(listTargetGroup)}
+                      <input
+                        {...getInputProps(listTargetGroup, { type: "hidden" })}
+                        key={listTargetGroup.id}
                       />
                       <Chip.Delete>
                         <button
-                          {...list.remove(fields.projectTargetGroups.name, {
+                          {...form.remove.getButtonProps({
+                            name: fields.projectTargetGroups.name,
                             index,
                           })}
                         />
@@ -1088,15 +1174,27 @@ function Details() {
               <ConformSelect.Label htmlFor={fields.specialTargetGroups.id}>
                 {locales.route.content.specialTargetGroups.intro}
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.specialTargetGroups.helper}
-              </ConformSelect.HelperText>
+              {typeof fields.specialTargetGroups.errors !== "undefined" &&
+              fields.specialTargetGroups.errors.length > 0 ? (
+                fields.specialTargetGroups.errors.map((error) => (
+                  <ConformSelect.Error
+                    id={fields.specialTargetGroups.errorId}
+                    key={error}
+                  >
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.specialTargetGroups.helper}
+                </ConformSelect.HelperText>
+              )}
               {allSpecialTargetGroups
                 .filter((specialTargetGroup) => {
-                  return !specialTargetGroupList.some(
+                  return !specialTargetGroupFieldList.some(
                     (listSpecialTargetGroup) => {
                       return (
-                        listSpecialTargetGroup.defaultValue ===
+                        listSpecialTargetGroup.initialValue ===
                         specialTargetGroup.id
                       );
                     }
@@ -1122,7 +1220,8 @@ function Details() {
                   return (
                     <button
                       key={filteredSpecialTargetGroup.id}
-                      {...list.insert(fields.specialTargetGroups.name, {
+                      {...form.insert.getButtonProps({
+                        name: fields.specialTargetGroups.name,
                         defaultValue: filteredSpecialTargetGroup.id,
                       })}
                       className="mv-text-start mv-w-full mv-py-1 mv-px-2"
@@ -1132,67 +1231,84 @@ function Details() {
                   );
                 })}
             </ConformSelect>
-            {specialTargetGroupList.length > 0 && (
+            {specialTargetGroupFieldList.length > 0 && (
               <Chip.Container>
-                {specialTargetGroupList.map((listSpecialTargetGroup, index) => {
-                  const specialTargetGroupSlug = allSpecialTargetGroups.find(
-                    (specialTargetGroup) => {
-                      return (
-                        specialTargetGroup.id ===
-                        listSpecialTargetGroup.defaultValue
-                      );
-                    }
-                  )?.slug;
-                  let title;
-                  if (specialTargetGroupSlug === undefined) {
-                    console.error(
-                      `Special target group with id ${listSpecialTargetGroup.id} not found in allAdditionalDisciplines`
-                    );
-                    title = null;
-                  } else {
-                    if (specialTargetGroupSlug in locales.specialTargetGroups) {
-                      type LocaleKey = keyof typeof locales.specialTargetGroups;
-                      title =
-                        locales.specialTargetGroups[
-                          specialTargetGroupSlug as LocaleKey
-                        ].title;
-                    } else {
+                {specialTargetGroupFieldList.map(
+                  (listSpecialTargetGroup, index) => {
+                    const specialTargetGroupSlug = allSpecialTargetGroups.find(
+                      (specialTargetGroup) => {
+                        return (
+                          specialTargetGroup.id ===
+                          listSpecialTargetGroup.initialValue
+                        );
+                      }
+                    )?.slug;
+                    let title;
+                    if (specialTargetGroupSlug === undefined) {
                       console.error(
-                        `Special target group ${specialTargetGroupSlug} not found in locales`
+                        `Special target group with id ${listSpecialTargetGroup.id} not found in allAdditionalDisciplines`
                       );
-                      title = specialTargetGroupSlug;
+                      title = null;
+                    } else {
+                      if (
+                        specialTargetGroupSlug in locales.specialTargetGroups
+                      ) {
+                        type LocaleKey =
+                          keyof typeof locales.specialTargetGroups;
+                        title =
+                          locales.specialTargetGroups[
+                            specialTargetGroupSlug as LocaleKey
+                          ].title;
+                      } else {
+                        console.error(
+                          `Special target group ${specialTargetGroupSlug} not found in locales`
+                        );
+                        title = specialTargetGroupSlug;
+                      }
                     }
-                  }
-                  return (
-                    <Chip key={listSpecialTargetGroup.key}>
-                      {title || locales.route.error.notFound}
-                      <Input
-                        type="hidden"
-                        {...conform.input(listSpecialTargetGroup)}
-                      />
-                      <Chip.Delete>
-                        <button
-                          {...list.remove(fields.specialTargetGroups.name, {
-                            index,
+                    return (
+                      <Chip key={listSpecialTargetGroup.key}>
+                        {title || locales.route.error.notFound}
+                        <input
+                          {...getInputProps(listSpecialTargetGroup, {
+                            type: "hidden",
                           })}
+                          key={listSpecialTargetGroup.id}
                         />
-                      </Chip.Delete>
-                    </Chip>
-                  );
-                })}
+                        <Chip.Delete>
+                          <button
+                            {...form.remove.getButtonProps({
+                              name: fields.specialTargetGroups.name,
+                              index,
+                            })}
+                          />
+                        </Chip.Delete>
+                      </Chip>
+                    );
+                  }
+                )}
               </Chip.Container>
             )}
 
             <Input
-              {...conform.input(fields.targetGroupAdditions)}
+              {...getInputProps(fields.targetGroupAdditions, { type: "text" })}
+              key="targetGroupAdditions"
               maxLength={TARGET_GROUP_ADDITIONS_MAX_LENGTH}
             >
               <Input.Label htmlFor={fields.targetGroupAdditions.id}>
                 {locales.route.content.targetGroupAdditions.more}
               </Input.Label>
-              {typeof fields.targetGroupAdditions.error !== "undefined" && (
-                <Input.Error>{fields.targetGroupAdditions.error}</Input.Error>
-              )}
+              {typeof fields.targetGroupAdditions.errors !== "undefined" &&
+              fields.targetGroupAdditions.errors.length > 0
+                ? fields.targetGroupAdditions.errors.map((error) => (
+                    <Input.Error
+                      id={fields.targetGroupAdditions.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
           </div>
 
@@ -1203,15 +1319,21 @@ function Details() {
             <p>{locales.route.content.shortDescription.intro}</p>
 
             <Input
-              {...conform.input(fields.excerpt)}
+              {...getInputProps(fields.excerpt, { type: "text" })}
+              key="excerpt"
               maxLength={EXCERPT_MAX_LENGTH}
             >
               <Input.Label htmlFor={fields.excerpt.id}>
                 {locales.route.content.shortDescription.label}
               </Input.Label>
-              {typeof fields.excerpt.error !== "undefined" && (
-                <Input.Error>{fields.excerpt.error}</Input.Error>
-              )}
+              {typeof fields.excerpt.errors !== "undefined" &&
+              fields.excerpt.errors.length > 0
+                ? fields.excerpt.errors.map((error) => (
+                    <Input.Error id={fields.excerpt.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
           </div>
 
@@ -1223,29 +1345,42 @@ function Details() {
             <p>{locales.route.content.extendedDescription.intro}</p>
 
             <TextArea
-              {...conform.textarea(fields.idea)}
+              {...getInputProps(fields.idea, { type: "text" })}
+              key="idea"
               id={fields.idea.id || ""}
               label={locales.route.content.extendedDescription.idea.label}
               helperText={locales.route.content.extendedDescription.idea.helper}
-              errorMessage={fields.idea.error}
+              errorMessage={
+                Array.isArray(fields.idea.errors)
+                  ? fields.idea.errors.join(", ")
+                  : undefined
+              }
+              errorId={fields.idea.errorId}
               maxLength={IDEA_MAX_LENGTH}
               rte={{ locales: locales }}
             />
 
             <TextArea
-              {...conform.textarea(fields.goals)}
+              {...getInputProps(fields.goals, { type: "text" })}
+              key="goals"
               id={fields.goals.id || ""}
               label={locales.route.content.extendedDescription.goals.label}
               helperText={
                 locales.route.content.extendedDescription.goals.helper
               }
-              errorMessage={fields.goals.error}
+              errorMessage={
+                Array.isArray(fields.goals.errors)
+                  ? fields.goals.errors.join(", ")
+                  : undefined
+              }
+              errorId={fields.goals.errorId}
               maxLength={GOALS_MAX_LENGTH}
               rte={{ locales: locales }}
             />
 
             <TextArea
-              {...conform.textarea(fields.implementation)}
+              {...getInputProps(fields.implementation, { type: "text" })}
+              key="implementation"
               id={fields.implementation.id || ""}
               label={
                 locales.route.content.extendedDescription.implementation.label
@@ -1253,13 +1388,19 @@ function Details() {
               helperText={
                 locales.route.content.extendedDescription.implementation.helper
               }
-              errorMessage={fields.implementation.error}
+              errorMessage={
+                Array.isArray(fields.implementation.errors)
+                  ? fields.implementation.errors.join(", ")
+                  : undefined
+              }
+              errorId={fields.implementation.errorId}
               maxLength={IMPLEMENTATION_MAX_LENGTH}
               rte={{ locales: locales }}
             />
 
             <TextArea
-              {...conform.textarea(fields.furtherDescription)}
+              {...getInputProps(fields.furtherDescription, { type: "text" })}
+              key="furtherDescription"
               id={fields.furtherDescription.id || ""}
               label={
                 locales.route.content.extendedDescription.furtherDescription
@@ -1269,31 +1410,48 @@ function Details() {
                 locales.route.content.extendedDescription.furtherDescription
                   .helper
               }
-              errorMessage={fields.furtherDescription.error}
+              errorMessage={
+                Array.isArray(fields.furtherDescription.errors)
+                  ? fields.furtherDescription.errors.join(", ")
+                  : undefined
+              }
+              errorId={fields.furtherDescription.errorId}
               maxLength={FURTHER_DESCRIPTION_MAX_LENGTH}
               rte={{ locales: locales }}
             />
 
             <TextArea
-              {...conform.textarea(fields.targeting)}
+              {...getInputProps(fields.targeting, { type: "text" })}
+              key="targeting"
               id={fields.targeting.id || ""}
               label={locales.route.content.extendedDescription.targeting.label}
               helperText={
                 locales.route.content.extendedDescription.targeting.helper
               }
-              errorMessage={fields.targeting.error}
+              errorMessage={
+                Array.isArray(fields.targeting.errors)
+                  ? fields.targeting.errors.join(", ")
+                  : undefined
+              }
+              errorId={fields.targeting.errorId}
               maxLength={TARGETING_MAX_LENGTH}
               rte={{ locales: locales }}
             />
 
             <TextArea
-              {...conform.textarea(fields.hints)}
+              {...getInputProps(fields.hints, { type: "text" })}
+              key="hints"
               id={fields.hints.id || ""}
               label={locales.route.content.extendedDescription.hints.label}
               helperText={
                 locales.route.content.extendedDescription.hints.helper
               }
-              errorMessage={fields.hints.error}
+              errorMessage={
+                Array.isArray(fields.hints.errors)
+                  ? fields.hints.errors.join(", ")
+                  : undefined
+              }
+              errorId={fields.hints.errorId}
               maxLength={HINTS_MAX_LENGTH}
               rte={{ locales: locales }}
             />
@@ -1305,141 +1463,98 @@ function Details() {
             </h2>
 
             <Input
-              {...conform.input(fields.video)}
+              {...getInputProps(fields.video, { type: "text" })}
+              key="video"
               placeholder="youtube.com/watch?v=<videoCode>"
             >
               <Input.Label htmlFor={fields.video.id}>
                 {locales.route.content.video.video.label}
               </Input.Label>
-              {typeof fields.video.error !== "undefined" && (
-                <Input.Error>{fields.video.error}</Input.Error>
-              )}
               <Input.HelperText>
                 {locales.route.content.video.video.helper}
               </Input.HelperText>
+              {typeof fields.video.errors !== "undefined" &&
+              fields.video.errors.length > 0
+                ? fields.video.errors.map((error) => (
+                    <Input.Error id={fields.video.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
 
             <Input
-              {...conform.input(fields.videoSubline)}
+              {...getInputProps(fields.videoSubline, { type: "text" })}
+              key="videoSubline"
               maxLength={VIDEO_SUBLINE_MAX_LENGTH}
             >
               <Input.Label htmlFor={fields.videoSubline.id}>
                 {locales.route.content.video.videoSubline.label}
               </Input.Label>
-              {typeof fields.videoSubline.error !== "undefined" && (
-                <Input.Error>{fields.videoSubline.error}</Input.Error>
-              )}
+              {typeof fields.videoSubline.errors !== "undefined" &&
+              fields.videoSubline.errors.length > 0
+                ? fields.videoSubline.errors.map((error) => (
+                    <Input.Error id={fields.videoSubline.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
           </div>
-
+          {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+            <div>
+              {form.errors.map((error) => {
+                return (
+                  <div
+                    id={form.errorId}
+                    key={form.errorId}
+                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                  >
+                    {error}
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
               <Controls>
-                {/* <Link
-                  to="."
-                  reloadDocument
-                  className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
-                >
-                  Änderungen verwerfen
-                </Link> */}
-                <Button
-                  as="a"
-                  href="./details"
-                  variant="outline"
-                  onClick={() => {
-                    setIsDirty(false);
-                  }}
-                  className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
-                >
-                  {locales.route.content.reset}
-                </Button>
-                {/* TODO: Use Button type reset when RTE is resetable. Currently the rte does not reset via button type reset */}
-                {/* <Button type="reset" variant="outline" fullSize>
-                  Änderungen verwerfen
-                </Button> */}
-                {/* TODO: Add disabled attribute. Note: I'd like to use a hook from kent that needs remix v2 here. see /app/lib/utils/hooks.ts  */}
-
+                <div className="mv-relative mv-w-full">
+                  <Button
+                    type="reset"
+                    onClick={() => {
+                      setTimeout(() => form.reset(), 0);
+                    }}
+                    variant="outline"
+                    fullSize
+                    // Don't disable button when js is disabled
+                    disabled={isHydrated ? form.dirty === false : false}
+                  >
+                    {locales.route.content.reset}
+                  </Button>
+                  <noscript className="mv-absolute mv-top-0">
+                    <Button as="a" href="./general" variant="outline" fullSize>
+                      {locales.route.content.reset}
+                    </Button>
+                  </noscript>
+                </div>
                 <Button
                   type="submit"
+                  name="intent"
+                  defaultValue="submit"
                   fullSize
-                  onClick={() => {
-                    setIsDirty(false);
-                  }}
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? form.dirty === false || form.valid === false
+                      : false
+                  }
                 >
                   {locales.route.content.submit}
                 </Button>
               </Controls>
             </div>
           </div>
-          {/* Workarround error messages because conform mapping and error displaying is not working yet with Select and RTE components */}
-          {fields.additionalDisciplines.errors !== undefined &&
-            fields.additionalDisciplines.errors.length > 0 && (
-              <Alert level="negative">
-                {insertParametersIntoLocale(
-                  locales.route.content.error.additionalDisciplines,
-                  {
-                    list: fields.additionalDisciplines.errors.join(", "),
-                  }
-                )}
-              </Alert>
-            )}
-          {fields.idea.errors !== undefined &&
-            fields.idea.errors.length > 0 && (
-              <Alert level="negative">
-                {insertParametersIntoLocale(locales.route.content.error.idea, {
-                  list: fields.idea.errors.join(", "),
-                })}
-              </Alert>
-            )}
-          {fields.goals.errors !== undefined &&
-            fields.goals.errors.length > 0 && (
-              <Alert level="negative">
-                {insertParametersIntoLocale(locales.route.content.error.goals, {
-                  list: fields.goals.errors.join(", "),
-                })}
-              </Alert>
-            )}
-          {fields.implementation.errors !== undefined &&
-            fields.implementation.errors.length > 0 && (
-              <Alert level="negative">
-                {insertParametersIntoLocale(
-                  locales.route.content.error.implementation,
-                  {
-                    list: fields.implementation.errors.join(", "),
-                  }
-                )}
-              </Alert>
-            )}
-          {fields.furtherDescription.errors !== undefined &&
-            fields.furtherDescription.errors.length > 0 && (
-              <Alert level="negative">
-                {insertParametersIntoLocale(
-                  locales.route.content.error.furtherDescription,
-                  {
-                    list: fields.furtherDescription.errors.join(", "),
-                  }
-                )}
-              </Alert>
-            )}
-          {fields.targeting.errors !== undefined &&
-            fields.targeting.errors.length > 0 && (
-              <Alert level="negative">
-                {insertParametersIntoLocale(
-                  locales.route.content.error.targeting,
-                  {
-                    list: fields.targeting.errors.join(", "),
-                  }
-                )}
-              </Alert>
-            )}
-          {fields.hints.errors !== undefined &&
-            fields.hints.errors.length > 0 && (
-              <Alert level="negative">
-                {insertParametersIntoLocale(locales.route.content.error.hints, {
-                  list: fields.hints.errors.join(", "),
-                })}
-              </Alert>
-            )}
         </div>
       </Form>
     </Section>
