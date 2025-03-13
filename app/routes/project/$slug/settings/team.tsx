@@ -126,7 +126,7 @@ export const action = async (args: ActionFunctionArgs) => {
       locales,
     });
   }
-  // TODO: Implement this when project admin invites are implemented
+  // TODO: Implement this when project team member invites are implemented
   // else if (intent.startsWith("invite-team-member-")) {
   //   const inviteFormData = new FormData();
   //   inviteFormData.set("profileId", intent.replace("invite-team-member-", ""));
@@ -136,25 +136,25 @@ export const action = async (args: ActionFunctionArgs) => {
   //     locales,
   //   });
   // } else if (intent.startsWith("cancel-team-member-invite-")) {
-  //   const cancelAdminInviteFormData = new FormData();
-  //   cancelAdminInviteFormData.set(
+  //   const cancelTeamMemberInviteFormData = new FormData();
+  //   cancelTeamMemberInviteFormData.set(
   //     "profileId",
   //     intent.replace("cancel-team-member-invite-", "")
   //   );
   //   result = await cancelProjectTeamMemberInvitation({
-  //     formData: cancelAdminInviteFormData,
+  //     formData: cancelTeamMemberInviteFormData,
   //     slug,
   //     locales,
   //   });
   // }
   else if (intent.startsWith("remove-team-member-")) {
-    const removeAdminFormData = new FormData();
-    removeAdminFormData.set(
+    const removeTeamMemberFormData = new FormData();
+    removeTeamMemberFormData.set(
       "profileId",
       intent.replace("remove-team-member-", "")
     );
     result = await removeTeamMemberFromProject({
-      formData: removeAdminFormData,
+      formData: removeTeamMemberFormData,
       slug,
       locales,
     });
@@ -242,7 +242,7 @@ function Team() {
       </BackButton>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
 
-      {/* Current Admins and Remove Section */}
+      {/* Current Team Members and Remove Section */}
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">

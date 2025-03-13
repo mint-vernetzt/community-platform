@@ -6,10 +6,11 @@ import {
   SearchProfiles,
 } from "./lib/utils/searchParams";
 import { type OrganizationAdminSettingsLocales } from "./routes/organization/$slug/settings/admins.server";
-import { type OrganizationTeamSettingsLocales } from "./routes/organization/$slug/settings/team.server";
 import { type ManageOrganizationSettingsLocales } from "./routes/organization/$slug/settings/manage.server";
+import { type OrganizationTeamSettingsLocales } from "./routes/organization/$slug/settings/team.server";
 import { type ProjectAdminSettingsLocales } from "./routes/project/$slug/settings/admins.server";
 import { type ProjectTeamSettingsLocales } from "./routes/project/$slug/settings/team.server";
+import { type ProjectResponsibleOrganizationsSettingsLocales } from "./routes/project/$slug/settings/responsible-orgs.server";
 
 // Field name for determining the intent of the submitted form when using multiple forms on one route -> Please use this as name attribute on form submit button
 export const INTENT_FIELD_NAME = "intent";
@@ -31,7 +32,9 @@ export const searchProfilesSchema = (
 };
 
 export const searchOrganizationsSchema = (
-  locales: ManageOrganizationSettingsLocales
+  locales:
+    | ManageOrganizationSettingsLocales
+    | ProjectResponsibleOrganizationsSettingsLocales
 ) => {
   return z.object({
     [SearchOrganizations]: z
@@ -112,6 +115,20 @@ export const removeTeamMemberFromProjectSchema = z.object({
   profileId: z.string().uuid(),
 });
 
+export const inviteOrganizationToBeResponsibleForProjectSchema = z.object({
+  organizationId: z.string().uuid(),
+});
+
+export const cancelResponsibleOrganizationForProjectInvitationSchema = z.object(
+  {
+    organizationId: z.string().uuid(),
+  }
+);
+
+export const removeResponsibleOrganizationFromProjectSchema = z.object({
+  organizationId: z.string().uuid(),
+});
+
 // TODO: Remove these when implementing project invites
 export const addAdminToProjectSchema = z.object({
   profileId: z.string().uuid(),
@@ -119,4 +136,8 @@ export const addAdminToProjectSchema = z.object({
 
 export const addTeamMeberToProjectSchema = z.object({
   profileId: z.string().uuid(),
+});
+
+export const addResponsibleOrganizationToProjectSchema = z.object({
+  organizationId: z.string().uuid(),
 });

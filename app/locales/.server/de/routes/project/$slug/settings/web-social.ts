@@ -1,8 +1,7 @@
 export const locale = {
   error: {
-    invalidRoute: "No valid route",
     projectNotFound: "Project not found",
-    custom:
+    updateFailed:
       "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support",
   },
   content: {
@@ -10,52 +9,55 @@ export const locale = {
     prompt:
       "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
     back: "Website und Soziale Netzwerke",
-    intro:
-      "Wo kann die Community mehr über Dein Projekt oder Bildungsangebot erfahren?",
+    intro: "Wo kann die Community mehr über Dein Projekt erfahren?",
   },
   form: {
     reset: "Änderungen verwerfen",
     submit: "Speichern",
+    hint: {
+      public: "Für alle sichtbar",
+      private: "Nur für registrierte Nutzer:innen sichtbar",
+    },
     website: {
       headline: "Website",
       url: {
         label: "URL",
-        placeholder: "domain.tld/...",
+        placeholder: "https://domain.tld/...",
       },
     },
     socialNetworks: {
       headline: "Soziale Netzwerke",
       facebook: {
         label: "Facebook",
-        placeholder: "facebook.com/...",
+        placeholder: "https://facebook.com/...",
       },
       linkedin: {
         label: "LinkedIn",
-        placeholder: "linkedin.com/...",
+        placeholder: "https://linkedin.com/...",
       },
       xing: {
         label: "Xing",
-        placeholder: "xing.com/...",
+        placeholder: "https://xing.com/...",
       },
       twitter: {
         label: "X (Twitter)",
-        placeholder: "x.com/...",
+        placeholder: "https://x.com/...",
       },
       mastodon: {
         label: "Mastodon",
-        placeholder: "domain.tld/...",
+        placeholder: "https://domain.tld/...",
       },
       tiktok: {
         label: "TikTok",
-        placeholder: "tiktok.com/...",
+        placeholder: "https://tiktok.com/...",
       },
       instagram: {
         label: "Instagram",
-        placeholder: "instagram.com/...",
+        placeholder: "https://instagram.com/...",
       },
       youtube: {
         label: "YouTube",
-        placeholder: "youtube.com/...",
+        placeholder: "https://youtube.com/...",
       },
     },
   },

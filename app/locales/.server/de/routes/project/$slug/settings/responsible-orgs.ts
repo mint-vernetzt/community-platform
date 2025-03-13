@@ -1,33 +1,61 @@
 export const locale = {
   error: {
-    invalidRoute: "No valid route",
-    notFound: "Not found",
+    invariant: {
+      notFound: "Project not found",
+      noStringIntent: "Bad request: intent is not a string",
+      wrongIntent: "Bad request: wrong intent",
+      entitiesForInviteNotFound: "Organization or project for invite not found",
+      entitiesForRemovalNotFound:
+        "Organization or project for removal not found",
+    },
+  },
+  email: {
+    subject: "Du hast eine Einladung erhalten!",
+    button: {
+      text: "Zur Community Plattform",
+    },
   },
   content: {
-    added: "{{name}} hinzugefügt.",
-    removed: "{{name}} entfernt.",
-    back: "Verantwortliche Organisationen",
+    organizationAdded: "{{name}} als verantwortliche Organisation hinzugefügt.",
+    organizationInvited:
+      "{{name}} wurde eingeladen eine verwantwortliche Organisation zu werden.",
+    organizationRemoved: "{{name}} als verantwortliche Organisation entfernt.",
+    inviteCancelled: "Die Einladung an {{name}} wurde zurückgezogen.",
+    headline: "Verantwortliche Organisationen",
     intro:
       "Welche Organisationen stecken hinter dem Projekt? Verwalte hier die verantwortlichen Organisationen.",
     current: {
-      headline: "Aktuell hinzugefügte Organisation(en)",
-      intro:
-        "Hier siehst Du Organisationen, die aktuelle als verantwortliche Organisation hinterlegt wurden.",
+      headline_one: "Aktuell hinzugefügte Organisation",
+      headline_other: "Aktuell hinzugefügte Organisationen",
       remove: "Entfernen",
     },
-    add: {
-      headline: "Eigene Organisation(en) hinzufügen",
-      intro:
-        "Hier werden Dir Deine eigenen Organisationen aufgelistet, so dass Du sie mit einen Klick als verantwortliche Organisationen hinzuzufügen kannst.",
-      add: "Hinzufügen",
+    addOwn: {
+      headline_one: "Eigene Organisation hinzufügen",
+      headline_other: "Eigene Organisationen hinzufügen",
+      search: "Suche",
+      criteria: "Mindestens 3 Buchstaben.",
+      submitSearch: "Suchen",
+      submit: "Hinzufügen",
     },
-    other: {
-      headline: "Andere Organisation(en) hinzufügen",
+    addOther: {
+      headline: "Andere Organisationen hinzufügen",
       search: {
         label: "Suche",
         helper: "Mindestens 3 Buchstaben.",
       },
       add: "Hinzufügen",
+    },
+    invite: {
+      headline: "Organisation einladen",
+      search: "Suche",
+      criteria: "Mindestens 3 Buchstaben.",
+      submitSearch: "Suchen",
+      submit: "Einladen",
+    },
+    invites: {
+      headline: "Einladungen",
+      intro: "Hier siehst Du alle Einladungen, die Du bereits versendet hast.",
+      cancel: "Zurückziehen",
     },
   },
 } as const;

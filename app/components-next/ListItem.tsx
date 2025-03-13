@@ -11,6 +11,7 @@ import { type OrganizationProjectsLocales } from "~/routes/organization/$slug/de
 import { type OrganizationTeamLocales } from "~/routes/organization/$slug/detail/team.server";
 import { type ProjectAdminSettingsLocales } from "~/routes/project/$slug/settings/admins.server";
 import { type ProjectTeamSettingsLocales } from "~/routes/project/$slug/settings/team.server";
+import { type ProjectResponsibleOrganizationsSettingsLocales } from "~/routes/project/$slug/settings/responsible-orgs.server";
 
 type ListOrganization = {
   logo: string | null;
@@ -56,7 +57,8 @@ type Locales =
   | ManageOrganizationSettingsLocales
   | CreateOrganizationLocales
   | ProjectAdminSettingsLocales
-  | ProjectTeamSettingsLocales;
+  | ProjectTeamSettingsLocales
+  | ProjectResponsibleOrganizationsSettingsLocales;
 
 export function ListItem(
   props: React.PropsWithChildren<{

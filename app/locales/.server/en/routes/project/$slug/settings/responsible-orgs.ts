@@ -1,33 +1,61 @@
 export const locale = {
   error: {
-    invalidRoute: "No valid route",
-    notFound: "Not found",
+    invariant: {
+      notFound: "Project not found",
+      noStringIntent: "Bad request: intent is not a string",
+      wrongIntent: "Bad request: wrong intent",
+      entitiesForInviteNotFound: "Organization or project for invite not found",
+      entitiesForRemovalNotFound:
+        "Organization or project for removal not found",
+    },
+  },
+  email: {
+    subject: "You have received an invitation!",
+    button: {
+      text: "To the community platform",
+    },
   },
   content: {
-    added: "Added {{name}}.",
-    removed: "Removed {{name}}.",
-    back: "Responsible organizations",
+    organizationAdded: "{{name}} added as a responsible organization.",
+    organizationInvited:
+      "{{name}} has been invited to become a responsible organization.",
+    organizationRemoved: "{{name}} removed as a responsible organization.",
+    inviteCancelled: "The invitation to {{name}} has been withdrawn.",
+    headline: "Responsible Organizations",
     intro:
       "Which organizations are behind the project? Manage the responsible organizations here.",
     current: {
-      headline: "Currently added organization(s)",
-      intro:
-        "Here you can see organizations that have currently been registered as responsible organizations.",
+      headline_one: "Currently added organization",
+      headline_other: "Currently added organizations",
       remove: "Remove",
     },
-    add: {
-      headline: "Add your own organization(s).",
-      intro:
-        "Your own organizations will be listed here so that you can add them as responsible organizations with one click.",
-      add: "Add",
+    addOwn: {
+      headline_one: "Add own organization",
+      headline_other: "Add own organizations",
+      search: "Search",
+      criteria: "At least 3 characters.",
+      submitSearch: "Search",
+      submit: "Add",
     },
-    other: {
-      headline: "Add other organization(s).",
+    addOther: {
+      headline: "Add other organizations",
       search: {
         label: "Search",
-        helper: "At least 3 letters.",
+        helper: "At least 3 characters.",
       },
       add: "Add",
+    },
+    invite: {
+      headline: "Invite organization",
+      search: "Search",
+      criteria: "At least 3 characters.",
+      submitSearch: "Search",
+      submit: "Invite",
+    },
+    invites: {
+      headline: "Invitations",
+      intro: "Here you can see all the invitations you have already sent.",
+      cancel: "Withdraw",
     },
   },
 } as const;
