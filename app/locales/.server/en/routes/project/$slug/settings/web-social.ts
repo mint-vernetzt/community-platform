@@ -1,8 +1,7 @@
 export const locale = {
   error: {
-    invalidRoute: "No valid route",
     projectNotFound: "Project not found",
-    custom:
+    updateFailed:
       "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support",
   },
   content: {
@@ -10,52 +9,55 @@ export const locale = {
     prompt:
       "You have unsaved changes. These will be lost if you go one step further now.",
     back: "Website and social networks",
-    intro:
-      "Where can the community find out more about your project or educational offering?",
+    intro: "Where can the community find out more about your project?",
   },
   form: {
     reset: "Discard changes",
     submit: "Save",
+    hint: {
+      public: "Visible to everyone",
+      private: "Visible only to registered users",
+    },
     website: {
       headline: "Website",
       url: {
         label: "URL",
-        placeholder: "domain.tld/...",
+        placeholder: "https://domain.tld/...",
       },
     },
     socialNetworks: {
       headline: "Social networks",
       facebook: {
         label: "Facebook",
-        placeholder: "facebook.com/...",
+        placeholder: "https://facebook.com/...",
       },
       linkedin: {
         label: "LinkedIn",
-        placeholder: "linkedin.com/...",
+        placeholder: "https://linkedin.com/...",
       },
       xing: {
         label: "Xing",
-        placeholder: "xing.com/...",
+        placeholder: "https://xing.com/...",
       },
       twitter: {
         label: "X (Twitter)",
-        placeholder: "x.com/...",
+        placeholder: "https://x.com/...",
       },
       mastodon: {
         label: "Mastodon",
-        placeholder: "domain.tld/...",
+        placeholder: "https://domain.tld/...",
       },
       tiktok: {
         label: "TikTok",
-        placeholder: "tiktok.com/...",
+        placeholder: "https://tiktok.com/...",
       },
       instagram: {
         label: "Instagram",
-        placeholder: "instagram.com/...",
+        placeholder: "https://instagram.com/...",
       },
       youtube: {
         label: "YouTube",
-        placeholder: "youtube.com/...",
+        placeholder: "https://youtube.com/...",
       },
     },
   },

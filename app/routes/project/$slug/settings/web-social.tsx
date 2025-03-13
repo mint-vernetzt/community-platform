@@ -1,21 +1,27 @@
-import { conform, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import * as Sentry from "@sentry/node";
 import {
+  Form,
   redirect,
+  useActionData,
+  useLoaderData,
+  useLocation,
+  useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import {
-  Form,
-  useActionData,
-  useBlocker,
-  useLoaderData,
-  useLocation,
-} from "react-router";
-import React from "react";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
+import { BackButton } from "~/components-next/BackButton";
+import { detectLanguage } from "~/i18n.server";
+import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   createFacebookSchema,
   createInstagramSchema,
@@ -27,23 +33,16 @@ import {
   createXingSchema,
   createYoutubeSchema,
 } from "~/lib/utils/schemas";
-import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
-import { redirectWithToast } from "~/toast.server";
-import { BackButton } from "~/components-next/BackButton";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getHash,
-} from "./utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { type ProjectWebAndSocialSettingsLocales } from "./web-social.server";
 import { languageModuleMap } from "~/locales/.server";
+import { redirectWithToast } from "~/toast.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import {
+  getProjectWebSocial,
+  updateProjectWebSocial,
+  type ProjectWebAndSocialLocales,
+} from "./web-social.server";
 
-const createWebSocialSchema = (locales: ProjectWebAndSocialSettingsLocales) =>
+const createWebSocialSchema = (locales: ProjectWebAndSocialLocales) =>
   z.object({
     website: createWebsiteSchema(locales),
     facebook: createFacebookSchema(locales),
@@ -58,75 +57,30 @@ const createWebSocialSchema = (locales: ProjectWebAndSocialSettingsLocales) =>
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
+  const slug = getParamValueOrThrow(params, "slug");
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["project/$slug/settings/web-social"];
-  const { authClient } = createAuthClient(request);
 
-  const sessionUser = await getSessionUser(authClient);
+  const project = await getProjectWebSocial({ slug, locales });
 
-  // check slug exists (throw bad request if not)
-  invariantResponse(
-    params.slug !== undefined,
-    locales.route.error.invalidRoute,
-    {
-      status: 400,
-    }
-  );
+  const currentTimestamp = new Date().getTime();
 
-  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
-
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-
-  const project = await prismaClient.project.findUnique({
-    select: {
-      website: true,
-      facebook: true,
-      linkedin: true,
-      xing: true,
-      twitter: true,
-      mastodon: true,
-      tiktok: true,
-      instagram: true,
-      youtube: true,
-    },
-    where: {
-      slug: params.slug,
-    },
-  });
-  invariantResponse(project !== null, locales.route.error.projectNotFound, {
-    status: 404,
-  });
-
-  return { project, locales };
+  return { project, currentTimestamp, locales };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
+  const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["project/$slug/settings/web-social"];
 
-  // check slug exists (throw bad request if not)
-  invariantResponse(
-    params.slug !== undefined,
-    locales.route.error.invalidRoute,
-    {
-      status: 400,
-    }
-  );
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
@@ -134,31 +88,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return redirect(redirectPath);
   }
   // Validation
-  const webSocialSchema = createWebSocialSchema(locales);
   const formData = await request.formData();
-  const submission = await parse(formData, {
-    schema: (intent) =>
-      webSocialSchema.transform(async (data, ctx) => {
-        if (intent !== "submit") {
-          return { ...data };
-        }
-        try {
-          // TODO: Investigate why typescript does not show an type error...
-          // const someData = { test: "", ...data };
-          await prismaClient.project.update({
-            where: {
-              slug: params.slug,
-            },
-            data: {
-              // ...someData,
-              ...data,
-            },
-          });
-        } catch (e) {
-          console.warn(e);
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      createWebSocialSchema(locales).transform(async (data, ctx) => {
+        const { error } = await updateProjectWebSocial({
+          slug,
+          data,
+        });
+        if (error !== null) {
+          console.error("Error updating project", error);
+          Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
-            message: locales.route.error.custom,
+            message: locales.route.error.updateFailed,
           });
           return z.NEVER;
         }
@@ -168,230 +111,217 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
-  const hash = getHash(submission);
-
-  if (submission.intent !== "submit") {
-    return { status: "idle", submission, hash };
-  }
-  if (!submission.value) {
-    return { status: "error", submission, hash };
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+      currentTimeStamp: Date.now(),
+    };
   }
 
   return redirectWithToast(request.url, {
-    id: "change-project-web-and-social-toast",
-    key: hash,
+    id: "update-web-social-toast",
+    key: `${new Date().getTime()}`,
     message: locales.route.content.success,
   });
 }
 
 function WebSocial() {
   const location = useLocation();
-  const loaderData = useLoaderData<typeof loader>();
-  const { project, locales } = loaderData;
+  const { project, currentTimestamp, locales } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
 
-  const formId = "web-social-form";
-  const webSocialSchema = createWebSocialSchema(locales);
   const [form, fields] = useForm({
-    id: formId,
-    constraint: getFieldsetConstraint(webSocialSchema),
+    // Use different ids depending on loaderData to sync dirty state
+    id: `web-social-form-${actionData?.currentTimeStamp || currentTimestamp}`,
     defaultValue: {
-      website: project.website || undefined,
-      facebook: project.facebook || undefined,
-      linkedin: project.linkedin || undefined,
-      xing: project.xing || undefined,
-      twitter: project.twitter || undefined,
-      mastodon: project.mastodon || undefined,
-      tiktok: project.tiktok || undefined,
-      instagram: project.instagram || undefined,
-      youtube: project.youtube || undefined,
+      ...project,
     },
-    // TODO: Remove assertion by using conform v1
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    lastSubmission: actionData?.submission,
-    onValidate({ formData }) {
-      return parse(formData, { schema: webSocialSchema });
+    constraint: getZodConstraint(createWebSocialSchema(locales)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: createWebSocialSchema(locales),
+      });
     },
     shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
-  const [isDirty, setIsDirty] = React.useState(false);
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname
-  );
-  if (blocker.state === "blocked") {
-    const confirmed = confirm(locales.route.content.prompt);
-    if (confirmed === true) {
-      // TODO: fix blocker -> use org settings as blueprint
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
-      if (blocker.state !== "proceeding") {
-        blocker.proceed();
-      }
-    } else {
-      blocker.reset();
-    }
-  }
+  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    searchParam: "modal-unsaved-changes",
+    formMetadataToCheck: form,
+    locales,
+  });
 
   return (
     <Section>
+      {UnsavedChangesBlockerModal}
       <BackButton to={location.pathname}>
         {locales.route.content.back}
       </BackButton>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
       <Form
+        {...getFormProps(form)}
         method="post"
-        {...form.props}
-        onChange={() => {
-          setIsDirty(true);
-        }}
-        onSubmit={() => {
-          setIsDirty(false);
-        }}
-        onReset={() => {
-          setIsDirty(false);
-        }}
+        preventScrollReset
+        autoComplete="off"
       >
-        {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <button type="submit" hidden />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <Input name={Deep} defaultValue="true" type="hidden" />
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {locales.route.form.website.headline}
             </h2>
             <Input
-              {...conform.input(fields.website)}
+              {...getInputProps(fields.website, { type: "url" })}
               placeholder={locales.route.form.website.url.placeholder}
+              key={"website"}
             >
               <Input.Label htmlFor={fields.website.id}>
                 {locales.route.form.website.url.label}
               </Input.Label>
-              {typeof fields.website.error !== "undefined" && (
-                <Input.Error>{fields.website.error}</Input.Error>
-              )}
+              {typeof fields.website.errors !== "undefined" &&
+              fields.website.errors.length > 0
+                ? fields.website.errors.map((error) => (
+                    <Input.Error id={fields.website.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
           </div>
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {locales.route.form.socialNetworks.headline}
             </h2>
-            <Input
-              {...conform.input(fields.facebook)}
-              placeholder={
-                locales.route.form.socialNetworks.facebook.placeholder
+            {Object.entries(project).map(([key]) => {
+              const typedKey = key as keyof typeof project;
+              if (typedKey === "website") {
+                return null;
               }
-            >
-              <Input.Label htmlFor={fields.facebook.id}>
-                {locales.route.form.socialNetworks.facebook.label}
-              </Input.Label>
-              {typeof fields.facebook.error !== "undefined" && (
-                <Input.Error>{fields.facebook.error}</Input.Error>
-              )}
-            </Input>
-            <Input
-              {...conform.input(fields.linkedin)}
-              placeholder={
-                locales.route.form.socialNetworks.linkedin.placeholder
-              }
-            >
-              <Input.Label htmlFor={fields.linkedin.id}>
-                {locales.route.form.socialNetworks.linkedin.label}
-              </Input.Label>
-              {typeof fields.linkedin.error !== "undefined" && (
-                <Input.Error>{fields.linkedin.error}</Input.Error>
-              )}
-            </Input>
-            <Input
-              {...conform.input(fields.xing)}
-              placeholder={locales.route.form.socialNetworks.xing.placeholder}
-            >
-              <Input.Label htmlFor={fields.xing.id}>
-                {locales.route.form.socialNetworks.xing.label}
-              </Input.Label>
-              {typeof fields.xing.error !== "undefined" && (
-                <Input.Error>{fields.xing.error}</Input.Error>
-              )}
-            </Input>
-            <Input
-              {...conform.input(fields.twitter)}
-              placeholder={
-                locales.route.form.socialNetworks.twitter.placeholder
-              }
-            >
-              <Input.Label htmlFor={fields.twitter.id}>
-                {locales.route.form.socialNetworks.twitter.label}
-              </Input.Label>
-              {typeof fields.twitter.error !== "undefined" && (
-                <Input.Error>{fields.twitter.error}</Input.Error>
-              )}
-            </Input>
-            <Input
-              {...conform.input(fields.mastodon)}
-              placeholder={
-                locales.route.form.socialNetworks.mastodon.placeholder
-              }
-            >
-              <Input.Label htmlFor={fields.mastodon.id}>
-                {locales.route.form.socialNetworks.mastodon.label}
-              </Input.Label>
-              {typeof fields.mastodon.error !== "undefined" && (
-                <Input.Error>{fields.mastodon.error}</Input.Error>
-              )}
-            </Input>
-            <Input
-              {...conform.input(fields.tiktok)}
-              placeholder={locales.route.form.socialNetworks.tiktok.placeholder}
-            >
-              <Input.Label>
-                {locales.route.form.socialNetworks.tiktok.label}
-              </Input.Label>
-              {typeof fields.tiktok.error !== "undefined" && (
-                <Input.Error>{fields.tiktok.error}</Input.Error>
-              )}
-            </Input>
-            <Input
-              {...conform.input(fields.instagram)}
-              placeholder={
-                locales.route.form.socialNetworks.instagram.placeholder
-              }
-            >
-              <Input.Label htmlFor={fields.instagram.id}>
-                {locales.route.form.socialNetworks.instagram.label}
-              </Input.Label>
-              {typeof fields.instagram.error !== "undefined" && (
-                <Input.Error>{fields.instagram.error}</Input.Error>
-              )}
-            </Input>
-            <Input
-              {...conform.input(fields.youtube)}
-              placeholder={
-                locales.route.form.socialNetworks.youtube.placeholder
-              }
-            >
-              <Input.Label htmlFor={fields.youtube.id}>
-                {locales.route.form.socialNetworks.youtube.label}
-              </Input.Label>
-              {typeof fields.youtube.error !== "undefined" && (
-                <Input.Error>{fields.youtube.error}</Input.Error>
-              )}
-            </Input>
+              return (
+                <Input
+                  {...getInputProps(fields[typedKey], { type: "url" })}
+                  placeholder={
+                    locales.route.form.socialNetworks[typedKey].placeholder
+                  }
+                  key={key}
+                >
+                  <Input.Label htmlFor={fields[typedKey].id}>
+                    {locales.route.form.socialNetworks[typedKey].label}
+                  </Input.Label>
+                  {typeof fields[typedKey].errors !== "undefined" &&
+                  fields[typedKey].errors.length > 0
+                    ? fields[typedKey].errors.map((error) => (
+                        <Input.Error id={fields[typedKey].errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              );
+            })}
           </div>
-          <div className="mv-flex mv-w-full mv-justify-end">
-            <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
+          {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+            <div>
+              {form.errors.map((error, index) => {
+                return (
+                  <div
+                    id={form.errorId}
+                    key={index}
+                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                  >
+                    {error}
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
+          <div className="mv-flex mv-flex-col @xl:mv-flex-row mv-w-full mv-justify-end @xl:mv-justify-between mv-items-start @xl:mv-items-center mv-gap-4">
+            <div className="mv-flex mv-flex-col mv-gap-1">
+              <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
+                <span className="mv-w-4 mv-h-4">
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M20 10C20 10 16.25 3.125 10 3.125C3.75 3.125 0 10 0 10C0 10 3.75 16.875 10 16.875C16.25 16.875 20 10 20 10ZM1.46625 10C2.07064 9.0814 2.7658 8.22586 3.54125 7.44625C5.15 5.835 7.35 4.375 10 4.375C12.65 4.375 14.8488 5.835 16.46 7.44625C17.2354 8.22586 17.9306 9.0814 18.535 10C18.4625 10.1087 18.3825 10.2287 18.2913 10.36C17.8725 10.96 17.2538 11.76 16.46 12.5538C14.8488 14.165 12.6488 15.625 10 15.625C7.35 15.625 5.15125 14.165 3.54 12.5538C2.76456 11.7741 2.0694 10.9186 1.465 10H1.46625Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M10 6.875C9.1712 6.875 8.37634 7.20424 7.79029 7.79029C7.20424 8.37634 6.875 9.1712 6.875 10C6.875 10.8288 7.20424 11.6237 7.79029 12.2097C8.37634 12.7958 9.1712 13.125 10 13.125C10.8288 13.125 11.6237 12.7958 12.2097 12.2097C12.7958 11.6237 13.125 10.8288 13.125 10C13.125 9.1712 12.7958 8.37634 12.2097 7.79029C11.6237 7.20424 10.8288 6.875 10 6.875ZM5.625 10C5.625 8.83968 6.08594 7.72688 6.90641 6.90641C7.72688 6.08594 8.83968 5.625 10 5.625C11.1603 5.625 12.2731 6.08594 13.0936 6.90641C13.9141 7.72688 14.375 8.83968 14.375 10C14.375 11.1603 13.9141 12.2731 13.0936 13.0936C12.2731 13.9141 11.1603 14.375 10 14.375C8.83968 14.375 7.72688 13.9141 6.90641 13.0936C6.08594 12.2731 5.625 11.1603 5.625 10Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                <span>{locales.route.form.hint.public}</span>
+              </p>
+              <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
+                <span className="mv-w-4 mv-h-4">
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16.6987 14.0475C18.825 12.15 20 10 20 10C20 10 16.25 3.125 10 3.125C8.79949 3.12913 7.61256 3.37928 6.5125 3.86L7.475 4.82375C8.28429 4.52894 9.13868 4.3771 10 4.375C12.65 4.375 14.8487 5.835 16.46 7.44625C17.2354 8.22586 17.9306 9.08141 18.535 10C18.4625 10.1088 18.3825 10.2288 18.2912 10.36C17.8725 10.96 17.2537 11.76 16.46 12.5538C16.2537 12.76 16.0387 12.9638 15.8137 13.1613L16.6987 14.0475Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M14.1212 11.47C14.4002 10.6898 14.4518 9.84643 14.2702 9.03803C14.0886 8.22962 13.6811 7.48941 13.0952 6.90352C12.5093 6.31764 11.7691 5.91018 10.9607 5.72854C10.1523 5.5469 9.30895 5.59856 8.52875 5.8775L9.5575 6.90625C10.0379 6.83749 10.5277 6.88156 10.9881 7.03495C11.4485 7.18835 11.8668 7.44687 12.21 7.79001C12.5531 8.13316 12.8116 8.55151 12.965 9.01191C13.1184 9.47231 13.1625 9.96211 13.0937 10.4425L14.1212 11.47ZM10.4425 13.0937L11.47 14.1212C10.6898 14.4002 9.84643 14.4518 9.03803 14.2702C8.22962 14.0886 7.48941 13.6811 6.90352 13.0952C6.31764 12.5093 5.91018 11.7691 5.72854 10.9607C5.5469 10.1523 5.59856 9.30895 5.8775 8.52875L6.90625 9.5575C6.83749 10.0379 6.88156 10.5277 7.03495 10.9881C7.18835 11.4485 7.44687 11.8668 7.79001 12.21C8.13316 12.5531 8.55151 12.8116 9.01191 12.965C9.47231 13.1184 9.96211 13.1625 10.4425 13.0937Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M4.1875 6.8375C3.9625 7.0375 3.74625 7.24 3.54 7.44625C2.76456 8.22586 2.0694 9.08141 1.465 10L1.70875 10.36C2.1275 10.96 2.74625 11.76 3.54 12.5538C5.15125 14.165 7.35125 15.625 10 15.625C10.895 15.625 11.7375 15.4588 12.525 15.175L13.4875 16.14C12.3874 16.6207 11.2005 16.8708 10 16.875C3.75 16.875 0 10 0 10C0 10 1.17375 7.84875 3.30125 5.9525L4.18625 6.83875L4.1875 6.8375ZM17.0575 17.9425L2.0575 2.9425L2.9425 2.0575L17.9425 17.0575L17.0575 17.9425Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                <span>{locales.route.form.hint.private}</span>
+              </p>
+            </div>
+            <div className="mv-flex mv-shrink mv-w-full @xl:mv-max-w-fit @xl:mv-w-auto mv-items-center mv-justify-center @xl:mv-justify-end">
               <Controls>
-                <Button type="reset" variant="outline" fullSize>
-                  {locales.route.form.reset}
-                </Button>
-
+                <div className="mv-relative mv-w-full">
+                  <Button
+                    type="reset"
+                    onClick={() => {
+                      setTimeout(() => form.reset(), 0);
+                    }}
+                    variant="outline"
+                    fullSize
+                    // Don't disable button when js is disabled
+                    disabled={isHydrated ? form.dirty === false : false}
+                  >
+                    {locales.route.form.reset}
+                  </Button>
+                  <noscript className="mv-absolute mv-top-0">
+                    <Button
+                      as="a"
+                      href="./web-social"
+                      variant="outline"
+                      fullSize
+                    >
+                      {locales.route.form.reset}
+                    </Button>
+                  </noscript>
+                </div>
                 <Button
                   type="submit"
+                  name="intent"
+                  defaultValue="submit"
                   fullSize
-                  onClick={() => {
-                    setIsDirty(false);
-                  }}
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? form.dirty === false || form.valid === false
+                      : false
+                  }
                 >
                   {locales.route.form.submit}
                 </Button>
