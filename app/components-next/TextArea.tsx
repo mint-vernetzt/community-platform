@@ -10,6 +10,7 @@ export interface TextAreaProps {
   isPublic?: boolean;
   withPublicPrivateToggle?: boolean;
   errorMessage?: string;
+  errorId?: string;
   publicPosition?: "top" | "side";
   rte?: {
     locales: RTELocales;
@@ -26,6 +27,7 @@ const TextArea = (
     isPublic,
     withPublicPrivateToggle,
     errorMessage,
+    errorId,
     publicPosition = "side",
     rte,
     helperText,
@@ -166,7 +168,10 @@ const TextArea = (
           </div>
         )}
         {errorMessage !== undefined && (
-          <div className="mv-text-sm mv-font-semibold mv-text-negative-600 mv-mt-2">
+          <div
+            id={errorId}
+            className="mv-text-sm mv-font-semibold mv-text-negative-600 mv-mt-2"
+          >
             {errorMessage}
           </div>
         )}

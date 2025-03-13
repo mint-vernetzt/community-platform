@@ -430,12 +430,17 @@ function General() {
               <Input.Label htmlFor={fields.name.id}>
                 {locales.route.content.projectTitle.label}
               </Input.Label>
-              {typeof fields.name.errors !== "undefined" && (
-                <Input.Error>{fields.name.errors}</Input.Error>
-              )}
               <Input.HelperText>
                 {locales.route.content.projectTitle.helper}
               </Input.HelperText>
+              {typeof fields.name.errors !== "undefined" &&
+              fields.name.errors.length > 0
+                ? fields.name.errors.map((error) => (
+                    <Input.Error id={fields.name.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
           </div>
 
@@ -449,12 +454,17 @@ function General() {
               key="subline"
             >
               <Input.Label>{locales.route.content.subline.label}</Input.Label>
-              {typeof fields.subline.errors !== "undefined" && (
-                <Input.Error>{fields.subline.errors}</Input.Error>
-              )}
               <Input.HelperText>
                 {locales.route.content.subline.helper}
               </Input.HelperText>
+              {typeof fields.subline.errors !== "undefined" &&
+              fields.subline.errors.length > 0
+                ? fields.subline.errors.map((error) => (
+                    <Input.Error id={fields.subline.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
           </div>
 
@@ -469,9 +479,18 @@ function General() {
               <ConformSelect.Label htmlFor={fields.formats.id}>
                 {locales.route.content.formats.label}
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.formats.helper}
-              </ConformSelect.HelperText>
+              {typeof fields.formats.errors !== "undefined" &&
+              fields.formats.errors.length > 0 ? (
+                fields.formats.errors.map((error) => (
+                  <ConformSelect.Error id={fields.formats.errorId} key={error}>
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.formats.helper}
+                </ConformSelect.HelperText>
+              )}
               {allFormats
                 .filter((format) => {
                   return !formatFieldList.some((listFormat) => {
@@ -526,7 +545,7 @@ function General() {
                   }
                   return (
                     <Chip key={listFormat.key}>
-                      <Input
+                      <input
                         {...getInputProps(listFormat, { type: "hidden" })}
                         key={listFormat.id}
                       />
@@ -557,6 +576,17 @@ function General() {
                     <Input.HelperText>
                       {locales.route.content.furtherFormats.helper}
                     </Input.HelperText>
+                    {typeof fields.furtherFormats.errors !== "undefined" &&
+                    fields.furtherFormats.errors.length > 0
+                      ? fields.furtherFormats.errors.map((error) => (
+                          <Input.Error
+                            id={fields.furtherFormats.errorId}
+                            key={error}
+                          >
+                            {error}
+                          </Input.Error>
+                        ))
+                      : null}
                     <Input.Controls>
                       <Button
                         variant="ghost"
@@ -576,7 +606,7 @@ function General() {
                     {furtherFormatFieldList.map((listFormat, index) => {
                       return (
                         <Chip key={listFormat.key}>
-                          <Input
+                          <input
                             {...getInputProps(listFormat, { type: "hidden" })}
                             key={listFormat.id}
                           />
@@ -634,6 +664,17 @@ function General() {
                 <Input.HelperText>
                   {locales.route.content.furtherFormats.helper}
                 </Input.HelperText>
+                {typeof fields.furtherFormats.errors !== "undefined" &&
+                fields.furtherFormats.errors.length > 0
+                  ? fields.furtherFormats.errors.map((error) => (
+                      <Input.Error
+                        id={fields.furtherFormats.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
               </>
             )}
           </div>
@@ -649,9 +690,18 @@ function General() {
               <ConformSelect.Label htmlFor={fields.areas.id}>
                 {locales.route.content.areas.label}
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.areas.helper}
-              </ConformSelect.HelperText>
+              {typeof fields.areas.errors !== "undefined" &&
+              fields.areas.errors.length > 0 ? (
+                fields.areas.errors.map((error) => (
+                  <ConformSelect.Error id={fields.areas.errorId} key={error}>
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.areas.helper}
+                </ConformSelect.HelperText>
+              )}
               {areaOptions
                 .filter((option) => {
                   // All options that have a value should only be shown if they are not inside the current selected area list
@@ -699,7 +749,7 @@ function General() {
                 {areaFieldList.map((listArea, index) => {
                   return (
                     <Chip key={listArea.key}>
-                      <Input
+                      <input
                         {...getInputProps(listArea, { type: "hidden" })}
                         key={listArea.id}
                       />
@@ -731,9 +781,14 @@ function General() {
               <Input.Label htmlFor={fields.email.id}>
                 {locales.route.content.contact.email.label}
               </Input.Label>
-              {typeof fields.email.errors !== "undefined" && (
-                <Input.Error>{fields.email.errors}</Input.Error>
-              )}
+              {typeof fields.email.errors !== "undefined" &&
+              fields.email.errors.length > 0
+                ? fields.email.errors.map((error) => (
+                    <Input.Error id={fields.email.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
             <Input
               {...getInputProps(fields.phone, { type: "tel" })}
@@ -742,9 +797,14 @@ function General() {
               <Input.Label htmlFor={fields.phone.id}>
                 {locales.route.content.contact.phone.label}
               </Input.Label>
-              {typeof fields.phone.errors !== "undefined" && (
-                <Input.Error>{fields.phone.errors}</Input.Error>
-              )}
+              {typeof fields.phone.errors !== "undefined" &&
+              fields.phone.errors.length > 0
+                ? fields.phone.errors.map((error) => (
+                    <Input.Error id={fields.phone.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
           </div>
           {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
@@ -773,9 +833,14 @@ function General() {
               <Input.Label htmlFor={fields.contactName.id}>
                 {locales.route.content.address.contactName.label}
               </Input.Label>
-              {typeof fields.contactName.errors !== "undefined" && (
-                <Input.Error>{fields.contactName.errors}</Input.Error>
-              )}
+              {typeof fields.contactName.errors !== "undefined" &&
+              fields.contactName.errors.length > 0
+                ? fields.contactName.errors.map((error) => (
+                    <Input.Error id={fields.contactName.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
             <div className="@lg:mv-flex @lg:mv-gap-4">
               <div className="mv-w-full @lg:mv-w-1/3">
@@ -786,9 +851,14 @@ function General() {
                   <Input.Label htmlFor={fields.street.id}>
                     {locales.route.content.address.street.label}
                   </Input.Label>
-                  {typeof fields.street.errors !== "undefined" && (
-                    <Input.Error>{fields.street.errors}</Input.Error>
-                  )}
+                  {typeof fields.street.errors !== "undefined" &&
+                  fields.street.errors.length > 0
+                    ? fields.street.errors.map((error) => (
+                        <Input.Error id={fields.street.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
                 </Input>
               </div>
               <div className="mv-flex mv-w-full @lg:mv-w-2/3 mv-gap-4 mv-mt-4 @lg:mv-mt-0">
@@ -800,9 +870,17 @@ function General() {
                     <Input.Label htmlFor={fields.streetNumber.id}>
                       {locales.route.content.address.streetNumber.label}
                     </Input.Label>
-                    {typeof fields.streetNumber.errors !== "undefined" && (
-                      <Input.Error>{fields.streetNumber.errors}</Input.Error>
-                    )}
+                    {typeof fields.streetNumber.errors !== "undefined" &&
+                    fields.streetNumber.errors.length > 0
+                      ? fields.streetNumber.errors.map((error) => (
+                          <Input.Error
+                            id={fields.streetNumber.errorId}
+                            key={error}
+                          >
+                            {error}
+                          </Input.Error>
+                        ))
+                      : null}
                   </Input>
                 </div>
                 <div className="mv-flex-1">
@@ -816,11 +894,17 @@ function General() {
                       {locales.route.content.address.streetNumberAddition.label}
                     </Input.Label>
                     {typeof fields.streetNumberAddition.errors !==
-                      "undefined" && (
-                      <Input.Error>
-                        {fields.streetNumberAddition.errors}
-                      </Input.Error>
-                    )}
+                      "undefined" &&
+                    fields.streetNumberAddition.errors.length > 0
+                      ? fields.streetNumberAddition.errors.map((error) => (
+                          <Input.Error
+                            id={fields.streetNumberAddition.errorId}
+                            key={error}
+                          >
+                            {error}
+                          </Input.Error>
+                        ))
+                      : null}
                   </Input>
                 </div>
               </div>
@@ -835,9 +919,14 @@ function General() {
                   <Input.Label htmlFor={fields.zipCode.id}>
                     {locales.route.content.address.zipCode.label}
                   </Input.Label>
-                  {typeof fields.zipCode.errors !== "undefined" && (
-                    <Input.Error>{fields.zipCode.errors}</Input.Error>
-                  )}
+                  {typeof fields.zipCode.errors !== "undefined" &&
+                  fields.zipCode.errors.length > 0
+                    ? fields.zipCode.errors.map((error) => (
+                        <Input.Error id={fields.zipCode.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
                 </Input>
               </div>
               <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
@@ -848,14 +937,33 @@ function General() {
                   <Input.Label htmlFor={fields.city.id}>
                     {locales.route.content.address.city.label}
                   </Input.Label>
-                  {typeof fields.city.errors !== "undefined" && (
-                    <Input.Error>{fields.city.errors}</Input.Error>
-                  )}
+                  {typeof fields.city.errors !== "undefined" &&
+                  fields.city.errors.length > 0
+                    ? fields.city.errors.map((error) => (
+                        <Input.Error id={fields.city.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
                 </Input>
               </div>
             </div>
           </div>
-
+          {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+            <div>
+              {form.errors.map((error) => {
+                return (
+                  <div
+                    id={form.errorId}
+                    key={form.errorId}
+                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                  >
+                    {error}
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
           <p className="mv-text-sm mv-mt-4">{locales.route.content.hint}</p>
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">

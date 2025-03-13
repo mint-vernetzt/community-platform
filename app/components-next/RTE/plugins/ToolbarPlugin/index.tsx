@@ -210,6 +210,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
                 linkInputRef.current.focus();
               }
             }}
+            title={locales.rte.toolbar.link.title}
+            aria-label={locales.rte.toolbar.link.title}
           />
           {/* TODO: fix a11y issue */}
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
@@ -223,6 +225,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
               event.preventDefault();
             }}
             title={locales.rte.toolbar.link.title}
+            aria-label={locales.rte.toolbar.link.title}
           >
             <LinkIcon />
           </label>
@@ -346,11 +349,14 @@ function LoadingToolbar(props: { locales: RTELocales }) {
             type="checkbox"
             className="mv-peer mv-fixed mv-w-0 mv-h-0 mv-opacity-0 mv-top-0 mv-left-0 group-has-[:checked]:mv-w-screen group-has-[:checked]:mv-h-dvh"
             defaultChecked={false}
+            title={locales.rte.toolbar.link.title}
+            aria-label={locales.rte.toolbar.link.title}
           />
           <label
             className={`${buttonClassName} mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-50 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-cursor-pointer peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500 mv-pointer-events-none`}
             htmlFor="add-link"
             title={locales.rte.toolbar.link.title}
+            aria-label={locales.rte.toolbar.link.title}
           >
             <LinkIcon />
           </label>

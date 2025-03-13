@@ -208,6 +208,13 @@ function WebSocial() {
                     type: "checkbox",
                   })}
                   key={"website-visibility"}
+                  errorMessage={
+                    Array.isArray(visibilities.website.errors)
+                      ? visibilities.website.errors.join(", ")
+                      : undefined
+                  }
+                  errorId={visibilities.website.errorId}
+                  locales={locales}
                 />
               </Input.Controls>
               {typeof fields.website.errors !== "undefined" &&
@@ -249,6 +256,13 @@ function WebSocial() {
                         type: "checkbox",
                       })}
                       key={`${key}-visibility`}
+                      errorMessage={
+                        Array.isArray(visibilities[typedKey].errors)
+                          ? visibilities[typedKey].errors.join(", ")
+                          : undefined
+                      }
+                      errorId={visibilities[typedKey].errorId}
+                      locales={locales}
                     />
                   </Input.Controls>
                   {typeof fields[typedKey].errors !== "undefined" &&

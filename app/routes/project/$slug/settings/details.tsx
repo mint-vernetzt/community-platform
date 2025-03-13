@@ -686,9 +686,21 @@ function Details() {
               <ConformSelect.Label htmlFor={fields.disciplines.id}>
                 {locales.route.content.disciplines.intro}
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.disciplines.helper}
-              </ConformSelect.HelperText>
+              {typeof fields.disciplines.errors !== "undefined" &&
+              fields.disciplines.errors.length > 0 ? (
+                fields.disciplines.errors.map((error) => (
+                  <ConformSelect.Error
+                    id={fields.disciplines.errorId}
+                    key={error}
+                  >
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.disciplines.helper}
+                </ConformSelect.HelperText>
+              )}
               {allDisciplines
                 .filter((discipline) => {
                   return !disciplineFieldList.some((listDiscipline) => {
@@ -748,7 +760,7 @@ function Details() {
                   return (
                     <Chip key={listDiscipline.key}>
                       {title || locales.route.error.notFound}
-                      <Input
+                      <input
                         {...getInputProps(listDiscipline, { type: "hidden" })}
                         key={listDiscipline.id}
                       />
@@ -780,18 +792,30 @@ function Details() {
                   {locales.route.content.additionalDisciplines.headline}
                 </span>
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                <span
-                  className={
-                    hasDisciplines === false ? "mv-text-neutral-300" : ""
-                  }
-                >
-                  {hasDisciplines === false
-                    ? locales.route.content.additionalDisciplines
-                        .helperWithoutDisciplines
-                    : locales.route.content.additionalDisciplines.helper}
-                </span>
-              </ConformSelect.HelperText>
+              {typeof fields.additionalDisciplines.errors !== "undefined" &&
+              fields.additionalDisciplines.errors.length > 0 ? (
+                fields.additionalDisciplines.errors.map((error) => (
+                  <ConformSelect.Error
+                    id={fields.additionalDisciplines.errorId}
+                    key={error}
+                  >
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  <span
+                    className={
+                      hasDisciplines === false ? "mv-text-neutral-300" : ""
+                    }
+                  >
+                    {hasDisciplines === false
+                      ? locales.route.content.additionalDisciplines
+                          .helperWithoutDisciplines
+                      : locales.route.content.additionalDisciplines.helper}
+                  </span>
+                </ConformSelect.HelperText>
+              )}
               {allAdditionalDisciplines
                 .filter((additionalDiscipline) => {
                   return !additionalDisciplineFieldList.some(
@@ -871,7 +895,7 @@ function Details() {
                     return (
                       <Chip key={listAdditionalDiscipline.key}>
                         {title || locales.route.error.notFound}
-                        <Input
+                        <input
                           {...getInputProps(listAdditionalDiscipline, {
                             type: "hidden",
                           })}
@@ -904,6 +928,17 @@ function Details() {
                     <Input.HelperText>
                       {locales.route.content.furtherDisciplines.helper}
                     </Input.HelperText>
+                    {typeof fields.furtherDisciplines.errors !== "undefined" &&
+                    fields.furtherDisciplines.errors.length > 0
+                      ? fields.furtherDisciplines.errors.map((error) => (
+                          <Input.Error
+                            id={fields.furtherDisciplines.errorId}
+                            key={error}
+                          >
+                            {error}
+                          </Input.Error>
+                        ))
+                      : null}
                     <Input.Controls>
                       <Button
                         variant="ghost"
@@ -923,7 +958,7 @@ function Details() {
                     {furtherDisciplinesFieldList.map((field, index) => {
                       return (
                         <Chip key={field.key}>
-                          <Input
+                          <input
                             {...getInputProps(field, { type: "hidden" })}
                             key={field.id}
                           />
@@ -981,6 +1016,17 @@ function Details() {
                 <Input.HelperText>
                   {locales.route.content.furtherDisciplines.helper}
                 </Input.HelperText>
+                {typeof fields.furtherDisciplines.errors !== "undefined" &&
+                fields.furtherDisciplines.errors.length > 0
+                  ? fields.furtherDisciplines.errors.map((error) => (
+                      <Input.Error
+                        id={fields.furtherDisciplines.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
               </>
             )}
           </div>
@@ -1003,6 +1049,17 @@ function Details() {
               <Input.HelperText>
                 {locales.route.content.participants.helper}
               </Input.HelperText>
+              {typeof fields.participantLimit.errors !== "undefined" &&
+              fields.participantLimit.errors.length > 0
+                ? fields.participantLimit.errors.map((error) => (
+                    <Input.Error
+                      id={fields.participantLimit.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
 
             <ConformSelect
@@ -1012,9 +1069,21 @@ function Details() {
               <ConformSelect.Label htmlFor={fields.projectTargetGroups.id}>
                 {locales.route.content.projectTargetGroups.intro}
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.projectTargetGroups.helper}
-              </ConformSelect.HelperText>
+              {typeof fields.projectTargetGroups.errors !== "undefined" &&
+              fields.projectTargetGroups.errors.length > 0 ? (
+                fields.projectTargetGroups.errors.map((error) => (
+                  <ConformSelect.Error
+                    id={fields.projectTargetGroups.errorId}
+                    key={error}
+                  >
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.projectTargetGroups.helper}
+                </ConformSelect.HelperText>
+              )}
               {allProjectTargetGroups
                 .filter((targetGroup) => {
                   return !targetGroupFieldList.some((listTargetGroup) => {
@@ -1080,7 +1149,7 @@ function Details() {
                   return (
                     <Chip key={listTargetGroup.key}>
                       {title || locales.route.error.notFound}
-                      <Input
+                      <input
                         {...getInputProps(listTargetGroup, { type: "hidden" })}
                         key={listTargetGroup.id}
                       />
@@ -1105,9 +1174,21 @@ function Details() {
               <ConformSelect.Label htmlFor={fields.specialTargetGroups.id}>
                 {locales.route.content.specialTargetGroups.intro}
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.specialTargetGroups.helper}
-              </ConformSelect.HelperText>
+              {typeof fields.specialTargetGroups.errors !== "undefined" &&
+              fields.specialTargetGroups.errors.length > 0 ? (
+                fields.specialTargetGroups.errors.map((error) => (
+                  <ConformSelect.Error
+                    id={fields.specialTargetGroups.errorId}
+                    key={error}
+                  >
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.specialTargetGroups.helper}
+                </ConformSelect.HelperText>
+              )}
               {allSpecialTargetGroups
                 .filter((specialTargetGroup) => {
                   return !specialTargetGroupFieldList.some(
@@ -1188,7 +1269,7 @@ function Details() {
                     return (
                       <Chip key={listSpecialTargetGroup.key}>
                         {title || locales.route.error.notFound}
-                        <Input
+                        <input
                           {...getInputProps(listSpecialTargetGroup, {
                             type: "hidden",
                           })}
@@ -1217,9 +1298,17 @@ function Details() {
               <Input.Label htmlFor={fields.targetGroupAdditions.id}>
                 {locales.route.content.targetGroupAdditions.more}
               </Input.Label>
-              {typeof fields.targetGroupAdditions.errors !== "undefined" && (
-                <Input.Error>{fields.targetGroupAdditions.errors}</Input.Error>
-              )}
+              {typeof fields.targetGroupAdditions.errors !== "undefined" &&
+              fields.targetGroupAdditions.errors.length > 0
+                ? fields.targetGroupAdditions.errors.map((error) => (
+                    <Input.Error
+                      id={fields.targetGroupAdditions.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
           </div>
 
@@ -1237,9 +1326,14 @@ function Details() {
               <Input.Label htmlFor={fields.excerpt.id}>
                 {locales.route.content.shortDescription.label}
               </Input.Label>
-              {typeof fields.excerpt.errors !== "undefined" && (
-                <Input.Error>{fields.excerpt.errors}</Input.Error>
-              )}
+              {typeof fields.excerpt.errors !== "undefined" &&
+              fields.excerpt.errors.length > 0
+                ? fields.excerpt.errors.map((error) => (
+                    <Input.Error id={fields.excerpt.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
           </div>
 
@@ -1261,6 +1355,7 @@ function Details() {
                   ? fields.idea.errors.join(", ")
                   : undefined
               }
+              errorId={fields.idea.errorId}
               maxLength={IDEA_MAX_LENGTH}
               rte={{ locales: locales }}
             />
@@ -1278,6 +1373,7 @@ function Details() {
                   ? fields.goals.errors.join(", ")
                   : undefined
               }
+              errorId={fields.goals.errorId}
               maxLength={GOALS_MAX_LENGTH}
               rte={{ locales: locales }}
             />
@@ -1297,6 +1393,7 @@ function Details() {
                   ? fields.implementation.errors.join(", ")
                   : undefined
               }
+              errorId={fields.implementation.errorId}
               maxLength={IMPLEMENTATION_MAX_LENGTH}
               rte={{ locales: locales }}
             />
@@ -1318,6 +1415,7 @@ function Details() {
                   ? fields.furtherDescription.errors.join(", ")
                   : undefined
               }
+              errorId={fields.furtherDescription.errorId}
               maxLength={FURTHER_DESCRIPTION_MAX_LENGTH}
               rte={{ locales: locales }}
             />
@@ -1335,6 +1433,7 @@ function Details() {
                   ? fields.targeting.errors.join(", ")
                   : undefined
               }
+              errorId={fields.targeting.errorId}
               maxLength={TARGETING_MAX_LENGTH}
               rte={{ locales: locales }}
             />
@@ -1352,6 +1451,7 @@ function Details() {
                   ? fields.hints.errors.join(", ")
                   : undefined
               }
+              errorId={fields.hints.errorId}
               maxLength={HINTS_MAX_LENGTH}
               rte={{ locales: locales }}
             />
@@ -1370,12 +1470,17 @@ function Details() {
               <Input.Label htmlFor={fields.video.id}>
                 {locales.route.content.video.video.label}
               </Input.Label>
-              {typeof fields.video.errors !== "undefined" && (
-                <Input.Error>{fields.video.errors}</Input.Error>
-              )}
               <Input.HelperText>
                 {locales.route.content.video.video.helper}
               </Input.HelperText>
+              {typeof fields.video.errors !== "undefined" &&
+              fields.video.errors.length > 0
+                ? fields.video.errors.map((error) => (
+                    <Input.Error id={fields.video.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
 
             <Input
@@ -1386,9 +1491,14 @@ function Details() {
               <Input.Label htmlFor={fields.videoSubline.id}>
                 {locales.route.content.video.videoSubline.label}
               </Input.Label>
-              {typeof fields.videoSubline.errors !== "undefined" && (
-                <Input.Error>{fields.videoSubline.errors}</Input.Error>
-              )}
+              {typeof fields.videoSubline.errors !== "undefined" &&
+              fields.videoSubline.errors.length > 0
+                ? fields.videoSubline.errors.map((error) => (
+                    <Input.Error id={fields.videoSubline.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
             </Input>
           </div>
           {typeof form.errors !== "undefined" && form.errors.length > 0 ? (

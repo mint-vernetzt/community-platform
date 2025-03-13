@@ -458,11 +458,14 @@ function General() {
                 <Input.Label htmlFor={fields.name.id}>
                   {locales.route.content.contact.name.label}
                 </Input.Label>
-                {typeof fields.name.errors !== "undefined" && (
-                  <Input.Error id={fields.name.errorId}>
-                    {fields.name.errors}
-                  </Input.Error>
-                )}
+                {typeof fields.name.errors !== "undefined" &&
+                fields.name.errors.length > 0
+                  ? fields.name.errors.map((error) => (
+                      <Input.Error id={fields.name.errorId} key={error}>
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
               </Input>
             </div>
             <div className="@lg:mv-flex @lg:mv-gap-4">
@@ -480,11 +483,23 @@ function General() {
                         type: "checkbox",
                       })}
                       key={"email-visibility"}
+                      errorMessage={
+                        Array.isArray(visibilitiesFieldList.email.errors)
+                          ? visibilitiesFieldList.email.errors.join(", ")
+                          : undefined
+                      }
+                      errorId={visibilitiesFieldList.email.errorId}
+                      locales={locales}
                     />
                   </Input.Controls>
-                  {typeof fields.email.errors !== "undefined" && (
-                    <Input.Error>{fields.email.errors}</Input.Error>
-                  )}
+                  {typeof fields.email.errors !== "undefined" &&
+                  fields.email.errors.length > 0
+                    ? fields.email.errors.map((error) => (
+                        <Input.Error id={fields.email.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
                 </Input>
               </div>
 
@@ -502,11 +517,23 @@ function General() {
                         type: "checkbox",
                       })}
                       key={"phone-visibility"}
+                      errorMessage={
+                        Array.isArray(visibilitiesFieldList.phone.errors)
+                          ? visibilitiesFieldList.phone.errors.join(", ")
+                          : undefined
+                      }
+                      errorId={visibilitiesFieldList.phone.errorId}
+                      locales={locales}
                     />
                   </Input.Controls>
-                  {typeof fields.phone.errors !== "undefined" && (
-                    <Input.Error>{fields.phone.errors}</Input.Error>
-                  )}
+                  {typeof fields.phone.errors !== "undefined" &&
+                  fields.phone.errors.length > 0
+                    ? fields.phone.errors.map((error) => (
+                        <Input.Error id={fields.phone.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
                 </Input>
               </div>
             </div>
@@ -520,9 +547,14 @@ function General() {
                   <Input.Label htmlFor={fields.street.id}>
                     {locales.route.content.contact.street.label}
                   </Input.Label>
-                  {typeof fields.street.errors !== "undefined" && (
-                    <Input.Error>{fields.street.errors}</Input.Error>
-                  )}
+                  {typeof fields.street.errors !== "undefined" &&
+                  fields.street.errors.length > 0
+                    ? fields.street.errors.map((error) => (
+                        <Input.Error id={fields.street.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
                 </Input>
               </div>
               <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
@@ -533,9 +565,17 @@ function General() {
                   <Input.Label htmlFor={fields.streetNumber.id}>
                     {locales.route.content.contact.streetNumber.label}
                   </Input.Label>
-                  {typeof fields.streetNumber.errors !== "undefined" && (
-                    <Input.Error>{fields.streetNumber.errors}</Input.Error>
-                  )}
+                  {typeof fields.streetNumber.errors !== "undefined" &&
+                  fields.streetNumber.errors.length > 0
+                    ? fields.streetNumber.errors.map((error) => (
+                        <Input.Error
+                          id={fields.streetNumber.errorId}
+                          key={error}
+                        >
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
                 </Input>
               </div>
             </div>
@@ -548,9 +588,14 @@ function General() {
                   <Input.Label htmlFor={fields.zipCode.id}>
                     {locales.route.content.contact.zipCode.label}
                   </Input.Label>
-                  {typeof fields.zipCode.errors !== "undefined" && (
-                    <Input.Error>{fields.zipCode.errors}</Input.Error>
-                  )}
+                  {typeof fields.zipCode.errors !== "undefined" &&
+                  fields.zipCode.errors.length > 0
+                    ? fields.zipCode.errors.map((error) => (
+                        <Input.Error id={fields.zipCode.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
                 </Input>
               </div>
               <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
@@ -561,9 +606,14 @@ function General() {
                   <Input.Label htmlFor={fields.city.id}>
                     {locales.route.content.contact.city.label}
                   </Input.Label>
-                  {typeof fields.city.errors !== "undefined" && (
-                    <Input.Error>{fields.city.errors}</Input.Error>
-                  )}
+                  {typeof fields.city.errors !== "undefined" &&
+                  fields.city.errors.length > 0
+                    ? fields.city.errors.map((error) => (
+                        <Input.Error id={fields.city.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
                 </Input>
               </div>
             </div>
@@ -584,6 +634,7 @@ function General() {
                     ? fields.bio.errors.join(", ")
                     : undefined
                 }
+                errorId={fields.bio.errorId}
                 maxLength={BIO_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
@@ -593,6 +644,13 @@ function General() {
                     type: "checkbox",
                   })}
                   key={"bio-visibility"}
+                  errorMessage={
+                    Array.isArray(visibilitiesFieldList.bio.errors)
+                      ? visibilitiesFieldList.bio.errors.join(", ")
+                      : undefined
+                  }
+                  errorId={visibilitiesFieldList.bio.errorId}
+                  locales={locales}
                 />
               </div>
             </div>
@@ -604,9 +662,19 @@ function General() {
               <ConformSelect.Label htmlFor={fields.areas.id}>
                 {locales.route.content.areas.label}
               </ConformSelect.Label>
-              <ConformSelect.HelperText>
-                {locales.route.content.areas.helper}
-              </ConformSelect.HelperText>
+
+              {typeof fields.areas.errors !== "undefined" &&
+              fields.areas.errors.length > 0 ? (
+                fields.areas.errors.map((error) => (
+                  <ConformSelect.Error id={fields.areas.errorId} key={error}>
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.areas.helper}
+                </ConformSelect.HelperText>
+              )}
               {areaOptions
                 .filter((option) => {
                   // All options that have a value should only be shown if they are not inside the current selected area list
@@ -654,7 +722,7 @@ function General() {
                 {areaFieldList.map((field, index) => {
                   return (
                     <Chip key={field.key}>
-                      <Input
+                      <input
                         {...getInputProps(field, { type: "hidden" })}
                         key={field.id}
                       />
@@ -688,11 +756,28 @@ function General() {
                     type: "checkbox",
                   })}
                   key={"focuses-visibility"}
+                  errorMessage={
+                    Array.isArray(visibilitiesFieldList.focuses.errors)
+                      ? visibilitiesFieldList.focuses.errors.join(", ")
+                      : undefined
+                  }
+                  errorId={visibilitiesFieldList.focuses.errorId}
+                  locales={locales}
                 />
               </ConformSelect.Controls>
-              <ConformSelect.HelperText>
-                {locales.route.content.focuses.helper}
-              </ConformSelect.HelperText>
+
+              {typeof fields.focuses.errors !== "undefined" &&
+              fields.focuses.errors.length > 0 ? (
+                fields.focuses.errors.map((error) => (
+                  <ConformSelect.Error id={fields.focuses.errorId} key={error}>
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.content.focuses.helper}
+                </ConformSelect.HelperText>
+              )}
               {allFocuses
                 .filter((focus) => {
                   return !focusFieldList.some((listFocus) => {
@@ -745,7 +830,7 @@ function General() {
                   }
                   return (
                     <Chip key={field.key}>
-                      <Input
+                      <input
                         {...getInputProps(field, { type: "hidden" })}
                         key={field.id}
                       />
@@ -778,6 +863,17 @@ function General() {
                     <Input.Label htmlFor={fields.supportedBy.id}>
                       {locales.route.content.supportedBy.label}
                     </Input.Label>
+                    {typeof fields.supportedBy.errors !== "undefined" &&
+                    fields.supportedBy.errors.length > 0
+                      ? fields.supportedBy.errors.map((error) => (
+                          <Input.Error
+                            id={fields.supportedBy.errorId}
+                            key={error}
+                          >
+                            {error}
+                          </Input.Error>
+                        ))
+                      : null}
                     <Input.Controls>
                       <Button
                         variant="ghost"
@@ -797,7 +893,7 @@ function General() {
                     {supportedByFieldList.map((field, index) => {
                       return (
                         <Chip key={field.key}>
-                          <Input
+                          <input
                             {...getInputProps(field, { type: "hidden" })}
                             key={field.id}
                           />
@@ -852,6 +948,14 @@ function General() {
                     </button>
                   </Chip>
                 </Chip.Container>
+                {typeof fields.supportedBy.errors !== "undefined" &&
+                fields.supportedBy.errors.length > 0
+                  ? fields.supportedBy.errors.map((error) => (
+                      <Input.Error id={fields.supportedBy.errorId} key={error}>
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
               </>
             )}
           </div>
