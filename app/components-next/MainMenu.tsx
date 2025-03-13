@@ -191,11 +191,7 @@ export function MainMenu(
               setActiveTopicId={setActiveTopicId}
             >
               <Label>
-                {location.pathname.includes("/explore") ? (
-                  <Icon type="binoculars" />
-                ) : (
-                  <Icon type="binoculars-outline" />
-                )}
+                <Icon type="search" />
                 <div className="mv-font-semibold">
                   {props.locales !== undefined
                     ? props.locales.route.root.menu.explore.label
@@ -204,6 +200,17 @@ export function MainMenu(
                     : "Explore"}
                 </div>
               </Label>
+
+              <TopicItem
+                to="/explore"
+                openNavBarMenuKey={props.openNavBarMenuKey}
+              >
+                {props.locales !== undefined
+                  ? props.locales.route.root.menu.explore.index
+                  : defaultLanguage === "de"
+                  ? "Alle Inhalte"
+                  : "All content"}
+              </TopicItem>
 
               <TopicItem
                 to="/explore/profiles"
