@@ -107,7 +107,6 @@ import { locale as deProjectRequirements } from "./de/routes/project/$slug/detai
 import { locale as deDownloadProjectAttachmentsFromSettings } from "./de/routes/project/$slug/settings/attachments/download";
 import { locale as deChangeProjectUrl } from "./de/routes/project/$slug/settings/danger-zone/change-url";
 import { locale as deDeleteProject } from "./de/routes/project/$slug/settings/danger-zone/delete";
-import { locale as deProjectDangerZoneIndex } from "./de/routes/project/$slug/settings/danger-zone/index";
 import { locale as deProjectAdmins } from "./de/routes/project/$slug/settings/admins";
 import { locale as deProjectAttachmentsSettings } from "./de/routes/project/$slug/settings/attachments";
 import { locale as deProjectDangerZone } from "./de/routes/project/$slug/settings/danger-zone";
@@ -281,7 +280,6 @@ import { locale as enProjectRequirements } from "./en/routes/project/$slug/detai
 import { locale as enDownloadProjectAttachmentsFromSettings } from "./en/routes/project/$slug/settings/attachments/download";
 import { locale as enChangeProjectUrl } from "./en/routes/project/$slug/settings/danger-zone/change-url";
 import { locale as enDeleteProject } from "./en/routes/project/$slug/settings/danger-zone/delete";
-import { locale as enProjectDangerZoneIndex } from "./en/routes/project/$slug/settings/danger-zone/index";
 import { locale as enProjectAdmins } from "./en/routes/project/$slug/settings/admins";
 import { locale as enProjectAttachmentsSettings } from "./en/routes/project/$slug/settings/attachments";
 import { locale as enProjectDangerZone } from "./en/routes/project/$slug/settings/danger-zone";
@@ -629,9 +627,11 @@ const de = {
   },
   "project/$slug/settings/attachments/download":
     deDownloadProjectAttachmentsFromSettings,
-  "project/$slug/settings/danger-zone/change-url": deChangeProjectUrl,
+  "project/$slug/settings/danger-zone/change-url": {
+    route: deChangeProjectUrl,
+    components: deComponents,
+  },
   "project/$slug/settings/danger-zone/delete": deDeleteProject,
-  "project/$slug/settings/danger-zone/index": deProjectDangerZoneIndex,
   "project/$slug/settings/admins": {
     route: deProjectAdmins,
     searchProfilesSchema: deSearchProfilesSchema,
@@ -1032,9 +1032,11 @@ const en = {
   },
   "project/$slug/settings/attachments/download":
     enDownloadProjectAttachmentsFromSettings,
-  "project/$slug/settings/danger-zone/change-url": enChangeProjectUrl,
+  "project/$slug/settings/danger-zone/change-url": {
+    route: enChangeProjectUrl,
+    components: enComponents,
+  },
   "project/$slug/settings/danger-zone/delete": enDeleteProject,
-  "project/$slug/settings/danger-zone/index": enProjectDangerZoneIndex,
   "project/$slug/settings/admins": {
     route: enProjectAdmins,
     searchProfilesSchema: enSearchProfilesSchema,

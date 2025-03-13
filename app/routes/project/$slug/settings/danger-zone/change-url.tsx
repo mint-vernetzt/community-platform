@@ -1,5 +1,5 @@
-import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import {
@@ -7,52 +7,44 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import { Form, useActionData, useBlocker, useLoaderData } from "react-router";
-import React from "react";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
-import { redirectWithToast } from "~/toast.server";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  getHash,
-} from "../utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { type ChangeProjectUrlLocales } from "./change-url.server";
-import { languageModuleMap } from "~/locales/.server";
+import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { Deep } from "~/lib/utils/searchParams";
+import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
+import { type ChangeProjectUrlLocales } from "./change-url.server";
+import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 
-function createSchema(
-  locales: ChangeProjectUrlLocales,
-  constraint?: {
-    isSlugUnique?: (slug: string) => Promise<boolean>;
-  }
-) {
+function createSchema(locales: ChangeProjectUrlLocales) {
   return z.object({
     slug: z
       .string()
-      .min(3, locales.validation.slug.min)
-      .max(50, locales.validation.slug.max)
-      .regex(/^[-a-z0-9-]+$/i, locales.validation.slug.regex)
-      .refine(async (slug) => {
-        if (
-          typeof constraint !== "undefined" &&
-          typeof constraint.isSlugUnique === "function"
-        ) {
-          return await constraint.isSlugUnique(slug);
-        }
-        return true;
-      }, locales.validation.slug.unique),
+      .min(3, locales.route.validation.slug.min)
+      .max(50, locales.route.validation.slug.max)
+      .regex(/^[-a-z0-9-]+$/i, locales.route.validation.slug.regex),
   });
 }
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request, params } = args;
+  const { params, request } = args;
+  const slug = getParamValueOrThrow(params, "slug");
+  const currentTimestamp = new Date().getTime();
 
   const language = await detectLanguage(request);
   const locales =
@@ -60,30 +52,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "project/$slug/settings/danger-zone/change-url"
     ];
 
-  const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-
-  invariantResponse(
-    typeof params.slug !== "undefined",
-    locales.error.missingParameterSlug,
-    {
-      status: 404,
-    }
-  );
-
-  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
-
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-
   return {
-    slug: params.slug,
+    slug,
+    currentTimestamp,
     baseURL: process.env.COMMUNITY_BASE_URL,
     locales,
   };
@@ -102,9 +73,13 @@ export const action = async (args: ActionFunctionArgs) => {
   const sessionUser = await getSessionUser(authClient);
 
   // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
-    status: 400,
-  });
+  invariantResponse(
+    params.slug !== undefined,
+    locales.route.error.invalidRoute,
+    {
+      status: 400,
+    }
+  );
 
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
@@ -118,87 +93,86 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   const formData = await request.formData();
-  const submission = await parse(formData, {
-    schema: createSchema(locales, {
-      isSlugUnique: async (slug) => {
-        const project = await prismaClient.project.findFirst({
-          where: { slug: slug },
-          select: {
-            slug: true,
-          },
+  const submission = await parseWithZod(formData, {
+    schema: createSchema(locales).transform(async (data, ctx) => {
+      const project = await prismaClient.project.findFirst({
+        where: { slug: data.slug },
+        select: {
+          slug: true,
+        },
+      });
+      if (project !== null) {
+        ctx.addIssue({
+          code: "custom",
+          message: locales.route.validation.slug.unique,
         });
-        return project === null;
-      },
+        return z.NEVER;
+      }
+
+      return { ...data };
     }),
     async: true,
   });
 
-  if (typeof submission.value !== "undefined" && submission.value !== null) {
-    await prismaClient.project.update({
-      where: { slug: params.slug },
-      data: { slug: submission.value.slug },
-    });
-
-    const url = new URL(request.url);
-    const pathname = url.pathname.replace(params.slug, submission.value.slug);
-
-    const hash = getHash(submission);
-
-    return redirectWithToast(
-      `${pathname}?${Deep}=true`,
-      {
-        id: "settings-toast",
-        key: hash,
-        message: locales.content.feedback,
-      },
-      { scrollToToast: true }
-    );
+  if (submission.status !== "success") {
+    return {
+      currentTimestamp: Date.now(),
+      submission: submission.reply(),
+    };
   }
 
-  return submission;
+  await prismaClient.project.update({
+    where: { slug: params.slug },
+    data: { slug: submission.value.slug },
+  });
+
+  const url = new URL(request.url);
+  const pathname = url.pathname.replace(params.slug, submission.value.slug);
+
+  return redirectWithToast(`${pathname}?${Deep}=true`, {
+    id: "change-url-toast",
+    key: `${new Date().getTime()}`,
+    message: locales.route.content.feedback,
+  });
 };
 
 function ChangeURL() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
 
   const [form, fields] = useForm({
-    shouldValidate: "onSubmit",
-    onValidate: (values) => {
-      return parse(values.formData, { schema: createSchema(locales) });
+    id: `change-url-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    defaultValue: {
+      slug: loaderData.slug,
     },
-    shouldRevalidate: "onSubmit",
-    // TODO: Remove assertion by using conform v1
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    lastSubmission: actionData,
+    constraint: getZodConstraint(createSchema(locales)),
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: createSchema(locales),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
-  const [isDirty, setIsDirty] = React.useState(false);
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname
-  );
-  if (blocker.state === "blocked") {
-    const confirmed = confirm(locales.content.prompt);
-    if (confirmed === true) {
-      // TODO: fix blocker -> use org settings as blueprint
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
-      if (blocker.state !== "proceeding") {
-        blocker.proceed();
-      }
-    } else {
-      blocker.reset();
-    }
-  }
+  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    searchParam: "modal-unsaved-changes",
+    formMetadataToCheck: form,
+    locales,
+  });
 
   return (
     <>
+      {UnsavedChangesBlockerModal}
       <p>
         {insertComponentsIntoLocale(
-          insertParametersIntoLocale(locales.content.reach, {
+          insertParametersIntoLocale(locales.route.content.reach, {
             url: `${loaderData.baseURL}/project/`,
             slug: loaderData.slug,
           }),
@@ -208,27 +182,36 @@ function ChangeURL() {
           ]
         )}
       </p>
-      <p>{locales.content.note}</p>
+      <p>{locales.route.content.note}</p>
       <Form
+        {...getFormProps(form)}
         method="post"
-        {...form.props}
-        onChange={() => {
-          setIsDirty(true);
-        }}
-        onReset={() => {
-          setIsDirty(false);
-        }}
+        autoComplete="off"
+        preventScrollReset
       >
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <Input name={Deep} defaultValue="true" type="hidden" />
-          <Input id="slug" defaultValue={loaderData.slug}>
+          <Input
+            {...getInputProps(fields.slug, { type: "text" })}
+            key={"current-slug-input"}
+          >
             <Input.Label htmlFor={fields.slug.id}>
-              {locales.content.label}
+              {locales.route.content.label}
             </Input.Label>
-            {typeof actionData !== "undefined" &&
-              typeof fields.slug.error !== "undefined" && (
-                <Input.Error>{fields.slug.error}</Input.Error>
-              )}
+            {typeof fields.slug.errors !== "undefined" &&
+            fields.slug.errors.length > 0
+              ? fields.slug.errors.map((error) => (
+                  <Input.Error id={fields.slug.errorId} key={error}>
+                    {error}
+                  </Input.Error>
+                ))
+              : null}
+            {typeof form.errors !== "undefined" && form.errors.length > 0
+              ? form.errors.map((error) => (
+                  <Input.Error id={form.errorId} key={error}>
+                    {error}
+                  </Input.Error>
+                ))
+              : null}
           </Input>
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
@@ -236,11 +219,13 @@ function ChangeURL() {
                 type="submit"
                 level="negative"
                 fullSize
-                onClick={() => {
-                  setIsDirty(false);
-                }}
+                disabled={
+                  isHydrated
+                    ? form.dirty === false || form.valid === false
+                    : false
+                }
               >
-                {locales.content.action}
+                {locales.route.content.action}
               </Button>
             </div>
           </div>

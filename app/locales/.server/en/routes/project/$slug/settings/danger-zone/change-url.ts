@@ -2,11 +2,6 @@ export const locale = {
   error: {
     missingParameterSlug: 'Route parameter "slug" not found',
     invalidRoute: "No valid route",
-
-    projectNotFound: "Project not found",
-    invalidSubmission: "No valid submission",
-    invalidAction: "No valid action",
-    onStoring: "Error on storing document",
   },
   validation: {
     slug: {
