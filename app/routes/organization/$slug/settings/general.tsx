@@ -459,7 +459,9 @@ function General() {
                   {locales.route.content.contact.name.label}
                 </Input.Label>
                 {typeof fields.name.errors !== "undefined" && (
-                  <Input.Error>{fields.name.errors}</Input.Error>
+                  <Input.Error id={fields.name.errorId}>
+                    {fields.name.errors}
+                  </Input.Error>
                 )}
               </Input>
             </div>
@@ -577,8 +579,6 @@ function General() {
                 key="bio"
                 id={fields.bio.id || ""}
                 label={locales.route.content.bio.label}
-                // withPublicPrivateToggle={true}
-                // isPublic={organizationVisibility?.bio}
                 errorMessage={
                   Array.isArray(fields.bio.errors)
                     ? fields.bio.errors.join(", ")
@@ -656,7 +656,7 @@ function General() {
                     <Chip key={field.key}>
                       <Input
                         {...getInputProps(field, { type: "hidden" })}
-                        key="areas"
+                        key={field.id}
                       />
                       {areaOptions.find((option) => {
                         return option.value === field.initialValue;
@@ -747,7 +747,7 @@ function General() {
                     <Chip key={field.key}>
                       <Input
                         {...getInputProps(field, { type: "hidden" })}
-                        key="focuses"
+                        key={field.id}
                       />
                       {title || locales.route.content.notFound}
                       <Chip.Delete>
@@ -799,7 +799,7 @@ function General() {
                         <Chip key={field.key}>
                           <Input
                             {...getInputProps(field, { type: "hidden" })}
-                            key="supportedBy"
+                            key={field.id}
                           />
                           {field.initialValue || "Not Found"}
                           <Chip.Delete>
@@ -827,7 +827,7 @@ function General() {
                       <Chip key={field.key}>
                         <input
                           {...getInputProps(field, { type: "text" })}
-                          key="furtherFormats"
+                          key={field.id}
                           className="mv-pl-1"
                         />
 
@@ -857,11 +857,11 @@ function General() {
           </div>
           {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
             <div>
-              {form.errors.map((error, index) => {
+              {form.errors.map((error) => {
                 return (
                   <div
                     id={form.errorId}
-                    key={index}
+                    key={form.errorId}
                     className="mv-text-sm mv-font-semibold mv-text-negative-600"
                   >
                     {error}

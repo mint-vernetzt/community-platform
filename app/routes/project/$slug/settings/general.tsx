@@ -528,7 +528,7 @@ function General() {
                     <Chip key={listFormat.key}>
                       <Input
                         {...getInputProps(listFormat, { type: "hidden" })}
-                        key="formats"
+                        key={listFormat.id}
                       />
                       {title || locales.route.content.notFound}
                       <Chip.Delete>
@@ -578,7 +578,7 @@ function General() {
                         <Chip key={listFormat.key}>
                           <Input
                             {...getInputProps(listFormat, { type: "hidden" })}
-                            key="furtherFormats"
+                            key={listFormat.id}
                           />
                           {listFormat.initialValue || "Not Found"}
                           <Chip.Delete>
@@ -606,7 +606,7 @@ function General() {
                       <Chip key={listFormat.key}>
                         <input
                           {...getInputProps(listFormat, { type: "text" })}
-                          key="furtherFormats"
+                          key={listFormat.id}
                           className="mv-pl-1"
                         />
 
@@ -701,7 +701,7 @@ function General() {
                     <Chip key={listArea.key}>
                       <Input
                         {...getInputProps(listArea, { type: "hidden" })}
-                        key="areas"
+                        key={listArea.id}
                       />
                       {areaOptions.find((area) => {
                         return area.value === listArea.initialValue;
@@ -749,11 +749,11 @@ function General() {
           </div>
           {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
             <div>
-              {form.errors.map((error, index) => {
+              {form.errors.map((error) => {
                 return (
                   <div
                     id={form.errorId}
-                    key={index}
+                    key={form.errorId}
                     className="mv-text-sm mv-font-semibold mv-text-negative-600"
                   >
                     {error}
