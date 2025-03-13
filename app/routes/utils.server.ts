@@ -1,24 +1,25 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type Organization, type Prisma, type Profile } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
+import {
+  searchOrganizationsSchema,
+  searchProfilesSchema,
+} from "~/form-helpers";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
+import { SearchOrganizations, SearchProfiles } from "~/lib/utils/searchParams";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
-import {
-  searchOrganizationsSchema,
-  searchProfilesSchema,
-} from "~/form-helpers";
-import { SearchOrganizations, SearchProfiles } from "~/lib/utils/searchParams";
 import { getPublicURL } from "~/storage.server";
 import { type Mode } from "~/utils.server";
 import { type OrganizationAdminSettingsLocales } from "./organization/$slug/settings/admins.server";
-import { type OrganizationTeamSettingsLocales } from "./organization/$slug/settings/team.server";
 import { type ManageOrganizationSettingsLocales } from "./organization/$slug/settings/manage.server";
+import { type OrganizationTeamSettingsLocales } from "./organization/$slug/settings/team.server";
 import { type ProjectAdminSettingsLocales } from "./project/$slug/settings/admins.server";
 import { type ProjectTeamSettingsLocales } from "./project/$slug/settings/team.server";
+import { type ProjectResponsibleOrganizationsSettingsLocales } from "./project/$slug/settings/responsible-orgs.server";
 
 export async function getProfileCount() {
   return await prismaClient.profile.count();
@@ -376,7 +377,9 @@ export async function searchOrganizations(options: {
   searchParams: URLSearchParams;
   idsToExclude?: string[];
   authClient: SupabaseClient;
-  locales: ManageOrganizationSettingsLocales;
+  locales:
+    | ManageOrganizationSettingsLocales
+    | ProjectResponsibleOrganizationsSettingsLocales;
   mode: Mode;
 }) {
   const { searchParams, idsToExclude, authClient, locales, mode } = options;
