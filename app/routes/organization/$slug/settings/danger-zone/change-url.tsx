@@ -130,7 +130,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const pathname = url.pathname.replace(params.slug, submission.value.slug);
 
   return redirectWithToast(`${pathname}?${Deep}=true`, {
-    id: "settings-toast",
+    id: "change-url-toast",
     key: `${new Date().getTime()}`,
     message: locales.route.content.feedback,
   });

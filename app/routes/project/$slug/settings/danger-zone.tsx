@@ -1,42 +1,22 @@
-import { redirect, type LoaderFunctionArgs } from "react-router";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { type LoaderFunctionArgs } from "react-router";
 import { Link, Outlet, useLoaderData, useLocation } from "react-router";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
 import { BackButton } from "~/components-next/BackButton";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
 import { Deep } from "~/lib/utils/searchParams";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request, params } = args;
+  const { request } = args;
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["project/$slug/settings/danger-zone"];
-  const { authClient } = createAuthClient(request);
 
-  const sessionUser = await getSessionUser(authClient);
-
-  // check slug exists (throw bad request if not)
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
-    status: 400,
-  });
-
-  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
-
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-
-  return { locales };
+  return {
+    locales,
+  };
 };
 
 function DangerZone() {

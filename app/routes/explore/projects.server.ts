@@ -125,20 +125,6 @@ export async function getProjectsCount(options: {
     },
   });
 
-  console.log("\ngetProjectsCount");
-
-  console.log(
-    JSON.stringify(
-      {
-        where: {
-          AND: [...whereClauses.AND, { published: true }],
-        },
-      },
-      null,
-      2
-    )
-  );
-
   return count;
 }
 

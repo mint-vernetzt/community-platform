@@ -18,7 +18,7 @@ export const locale = {
       "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
     reach:
       "Aktuell ist Deine Organisation über folgende URL <0>{{url}}<1>{{slug}}</1></0> zu erreichen.",
-    note: "Wenn Du die URL deiner Organisation änderst und den bisherigen Link bereits geteilt hast, wird das Projekt über den alten Link nicht mehr erreichbar sein.",
+    note: "Wenn Du die URL deiner Organisation änderst und den bisherigen Link bereits geteilt hast, wird die Organisation über den alten Link nicht mehr erreichbar sein.",
     action: "URL ändern",
   },
 } as const;
