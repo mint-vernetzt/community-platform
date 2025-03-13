@@ -2,10 +2,11 @@ export const locale = {
   validation: {
     name: {
       required: "The project name is a required information.",
-      max: "Your entry exceeds the maximum permitted number of characters of 80.",
+      min: "Name must be at least {{min}} characters long",
+      max: "Name must be at most {{max}} characters long",
     },
     subline: {
-      max: "Your entry exceeds the maximum permitted number of characters of 90.",
+      max: "Subline must be at most {{max}} characters long",
     },
     email: {
       email: "Please enter a valid e-mail address.",

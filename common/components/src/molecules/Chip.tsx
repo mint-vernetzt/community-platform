@@ -144,10 +144,11 @@ export function ChipDelete(
   if (typeof element.props === "object" && element.props !== null) {
     clone = React.cloneElement(
       element,
+      // TODO: i18n of title and aria-label
       // TODO: fix type issue
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
-      { className: classes, disabled },
+      { className: classes, disabled, title: "Delete", "aria-label": "Delete" },
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="20"

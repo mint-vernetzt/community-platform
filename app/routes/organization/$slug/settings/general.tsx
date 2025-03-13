@@ -377,12 +377,11 @@ export async function action(args: ActionFunctionArgs) {
 
 function General() {
   const location = useLocation();
-  const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
-  const actionData = useActionData<typeof action>();
-  const { organization, allFocuses, areaOptions } = loaderData;
   const isHydrated = useHydrated();
   const navigation = useNavigation();
+  const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const { organization, allFocuses, areaOptions, locales } = loaderData;
 
   const { areas, focuses, organizationVisibility, ...rest } = organization;
 
@@ -407,6 +406,7 @@ function General() {
       const submission = parseWithZod(formData, {
         schema: createGeneralSchema(locales),
       });
+      setSupportedBy("");
       return submission;
     },
   });
@@ -441,6 +441,8 @@ function General() {
         preventScrollReset
         autoComplete="off"
       >
+        {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
+        <button type="submit" hidden />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -766,50 +768,91 @@ function General() {
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {locales.route.content.supportedBy.headline}
             </h2>
-            <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
-              <Input
-                value={supportedBy}
-                onChange={handleSupportedByInputChange}
-              >
+            {isHydrated === true ? (
+              <>
+                <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
+                  <Input
+                    value={supportedBy}
+                    onChange={handleSupportedByInputChange}
+                  >
+                    <Input.Label htmlFor={fields.supportedBy.id}>
+                      {locales.route.content.supportedBy.label}
+                    </Input.Label>
+                    <Input.Controls>
+                      <Button
+                        variant="ghost"
+                        disabled={supportedBy === ""}
+                        {...form.insert.getButtonProps({
+                          name: fields.supportedBy.name,
+                          defaultValue: supportedBy,
+                        })}
+                      >
+                        {locales.route.content.supportedBy.add}
+                      </Button>
+                    </Input.Controls>
+                  </Input>
+                </div>
+                {supportedByFieldList.length > 0 && (
+                  <Chip.Container>
+                    {supportedByFieldList.map((field, index) => {
+                      return (
+                        <Chip key={field.key}>
+                          <Input
+                            {...getInputProps(field, { type: "hidden" })}
+                            key="supportedBy"
+                          />
+                          {field.initialValue || "Not Found"}
+                          <Chip.Delete>
+                            <button
+                              {...form.remove.getButtonProps({
+                                name: fields.supportedBy.name,
+                                index,
+                              })}
+                            />
+                          </Chip.Delete>
+                        </Chip>
+                      );
+                    })}
+                  </Chip.Container>
+                )}
+              </>
+            ) : (
+              <>
                 <Input.Label htmlFor={fields.supportedBy.id}>
                   {locales.route.content.supportedBy.label}
                 </Input.Label>
-                <Input.Controls>
-                  <Button
-                    variant="ghost"
-                    disabled={supportedBy === ""}
-                    {...form.insert.getButtonProps({
-                      name: fields.supportedBy.name,
-                      defaultValue: supportedBy,
-                    })}
-                  >
-                    {locales.route.content.supportedBy.add}
-                  </Button>
-                </Input.Controls>
-              </Input>
-            </div>
-            {supportedByFieldList.length > 0 && (
-              <Chip.Container>
-                {supportedByFieldList.map((field, index) => {
-                  return (
-                    <Chip key={field.key}>
-                      <Input
-                        {...getInputProps(field, { type: "hidden" })}
-                        key="supportedBy"
-                      />
-                      {field.initialValue || "Not Found"}
-                      <Chip.Delete>
-                        <button
-                          {...form.remove.getButtonProps({
-                            name: fields.supportedBy.name,
-                            index,
-                          })}
+                <Chip.Container>
+                  {supportedByFieldList.map((field, index) => {
+                    return (
+                      <Chip key={field.key}>
+                        <input
+                          {...getInputProps(field, { type: "text" })}
+                          key="furtherFormats"
+                          className="mv-pl-1"
                         />
-                      </Chip.Delete>
-                    </Chip>
-                  );
-                })}
-              </Chip.Container>
+
+                        <Chip.Delete>
+                          <button
+                            {...form.remove.getButtonProps({
+                              name: fields.supportedBy.name,
+                              index,
+                            })}
+                          />
+                        </Chip.Delete>
+                      </Chip>
+                    );
+                  })}
+                  <Chip key="add-further-format">
+                    <button
+                      {...form.insert.getButtonProps({
+                        name: fields.supportedBy.name,
+                      })}
+                    >
+                      {locales.route.content.supportedBy.add}
+                    </button>
+                  </Chip>
+                </Chip.Container>
+              </>
             )}
           </div>
           {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
